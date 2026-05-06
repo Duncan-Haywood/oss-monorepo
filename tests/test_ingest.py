@@ -1,4 +1,5 @@
 import hashlib
+import json
 import shutil
 import tempfile
 import unittest
@@ -123,6 +124,75 @@ class IngestPlanTests(unittest.TestCase):
                 nested_destination,
                 IngestPolicy(shoot_slug="bad-plan", shoot_date="2026-05-06"),
             )
+
+    def test_rejects_shoot_components_that_escape_destination_root(self) -> None:
+        self.write_file(self.source / "IMG_0004.JPG", b"image")
+
+        with self.assertRaisesRegex(ValueError, "shoot_slug must be a safe path component"):
+            build_ingest_plan(
+                self.source,
+                self.dest,
+                IngestPolicy(shoot_slug="../escape", shoot_date="2026-05-06"),
+            )
+
+        with self.assertRaisesRegex(ValueError, "shoot_date must be a safe path component"):
+            build_ingest_plan(
+                self.source,
+                self.dest,
+                IngestPolicy(shoot_slug="client-shoot", shoot_date="2026/05/06"),
+            )
+
+    def test_rejects_source_symlink_media_files(self) -> None:
+        outside_file = self.write_file(self.tmp / "outside.JPG", b"outside-media")
+        symlink_path = self.source / "IMG_0005.JPG"
+        symlink_path.symlink_to(outside_file)
+
+        with self.assertRaisesRegex(ValueError, "Source symlinks require manual review"):
+            build_ingest_plan(
+                self.source,
+                self.dest,
+                IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+            )
+
+    def test_destination_symlink_is_manual_conflict(self) -> None:
+        self.write_file(self.source / "IMG_0006.JPG", b"new-image")
+        linked_target = self.write_file(self.tmp / "linked-target.JPG", b"new-image")
+        destination = (
+            self.dest
+            / "2026-05-06_client-shoot"
+            / "originals"
+            / "photo"
+            / "IMG_0006.JPG"
+        )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.symlink_to(linked_target)
+
+        plan = build_ingest_plan(
+            self.source,
+            self.dest,
+            IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+        )
+
+        self.assertEqual(plan.operations[0].status, IngestStatus.CONFLICT_EXISTING_DIFFERENT)
+        self.assertIn("Destination symlink", plan.operations[0].reason)
+
+    def test_manifest_replaces_existing_file_without_leaving_temp_file(self) -> None:
+        self.write_file(self.source / "IMG_0007.JPG", b"manifest-image")
+        manifest_path = (
+            self.dest / "2026-05-06_client-shoot" / "ingest-manifest.json"
+        )
+        self.write_file(manifest_path, b"{old manifest")
+        plan = build_ingest_plan(
+            self.source,
+            self.dest,
+            IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+        )
+
+        copy_from_plan(plan)
+
+        manifest = json.loads(manifest_path.read_text())
+        self.assertEqual(manifest["source_root"], str(self.source.resolve()))
+        self.assertFalse(manifest_path.with_suffix(".json.tmp").exists())
 
 
 if __name__ == "__main__":

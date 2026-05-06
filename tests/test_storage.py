@@ -74,6 +74,23 @@ class StorageCandidateTests(unittest.TestCase):
         self.assertEqual(assessments[0].recommended_role, DriveRole.REVIEW_ONLY)
         self.assertIn("read-only", assessments[0].warnings)
 
+    def test_unknown_drive_is_not_recommended_as_ingest_source(self) -> None:
+        assessments = rank_storage_candidates(
+            [
+                StorageCandidate(
+                    mount_path=Path("/Volumes/Archive"),
+                    name="Archive",
+                    free_bytes=500_000_000_000,
+                    is_removable=False,
+                    is_writable=True,
+                    media_markers=frozenset(),
+                )
+            ]
+        )
+
+        self.assertEqual(assessments[0].recommended_role, DriveRole.REVIEW_ONLY)
+        self.assertIn("low-confidence ingest source", assessments[0].warnings)
+
 
 if __name__ == "__main__":
     unittest.main()
