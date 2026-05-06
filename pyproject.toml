@@ -1,0 +1,9 @@
+[project]
+name = "shootflow"
+version = "0.1.0"
+description = "Safe ingest and media automation primitives for high-volume photo and video shoots."
+requires-python = ">=3.12"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
