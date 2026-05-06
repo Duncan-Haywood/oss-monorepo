@@ -176,8 +176,74 @@ class IngestPlanTests(unittest.TestCase):
         self.assertEqual(plan.operations[0].status, IngestStatus.CONFLICT_EXISTING_DIFFERENT)
         self.assertIn("Destination symlink", plan.operations[0].reason)
 
+    def test_destination_symlink_parent_is_manual_conflict(self) -> None:
+        self.write_file(self.source / "IMG_0007.JPG", b"new-image")
+        outside_directory = self.tmp / "outside-destination"
+        outside_directory.mkdir()
+        symlink_parent = (
+            self.dest
+            / "2026-05-06_client-shoot"
+            / "originals"
+            / "photo"
+        )
+        symlink_parent.parent.mkdir(parents=True, exist_ok=True)
+        symlink_parent.symlink_to(outside_directory, target_is_directory=True)
+
+        plan = build_ingest_plan(
+            self.source,
+            self.dest,
+            IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+        )
+
+        self.assertEqual(plan.operations[0].status, IngestStatus.CONFLICT_EXISTING_DIFFERENT)
+        self.assertIn("Destination parent symlink", plan.operations[0].reason)
+
+    def test_copy_refuses_preexisting_temp_symlink(self) -> None:
+        self.write_file(self.source / "IMG_0008.JPG", b"temp-image")
+        destination = (
+            self.dest
+            / "2026-05-06_client-shoot"
+            / "originals"
+            / "photo"
+            / "IMG_0008.JPG"
+        )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = destination.with_name(f".{destination.name}.shootflow.tmp")
+        outside_target = self.write_file(self.tmp / "outside-temp-target", b"untouched")
+        temp_path.symlink_to(outside_target)
+
+        plan = build_ingest_plan(
+            self.source,
+            self.dest,
+            IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "Temporary destination symlink"):
+            copy_from_plan(plan)
+        self.assertEqual(outside_target.read_bytes(), b"untouched")
+
+    def test_manifest_refuses_preexisting_temp_symlink(self) -> None:
+        self.write_file(self.source / "IMG_0009.JPG", b"manifest-image")
+        manifest_path = (
+            self.dest / "2026-05-06_client-shoot" / "ingest-manifest.json"
+        )
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest_temp = manifest_path.with_suffix(".json.tmp")
+        outside_target = self.write_file(self.tmp / "outside-manifest-target", b"untouched")
+        manifest_temp.symlink_to(outside_target)
+
+        plan = build_ingest_plan(
+            self.source,
+            self.dest,
+            IngestPolicy(shoot_slug="client-shoot", shoot_date="2026-05-06"),
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "Temporary manifest symlink"):
+            copy_from_plan(plan)
+        self.assertEqual(outside_target.read_bytes(), b"untouched")
+
     def test_manifest_replaces_existing_file_without_leaving_temp_file(self) -> None:
-        self.write_file(self.source / "IMG_0007.JPG", b"manifest-image")
+        self.write_file(self.source / "IMG_0010.JPG", b"manifest-image")
         manifest_path = (
             self.dest / "2026-05-06_client-shoot" / "ingest-manifest.json"
         )
