@@ -120,6 +120,8 @@ def build_ingest_plan(
     _validate_roots(source_root, destination_root)
 
     shoot_root = destination_root / _shoot_directory_name(policy)
+    if not _is_relative_to(shoot_root.resolve(), destination_root):
+        raise ValueError("Shoot root must stay inside the destination root")
     operations = tuple(
         _operation_for_file(source_root, shoot_root, source)
         for source in _iter_media_files(source_root)
@@ -156,9 +158,12 @@ def _normalize_policy(policy: IngestPolicy | None, shoot_slug: str | None) -> In
         if shoot_slug is None:
             raise ValueError("shoot_slug is required")
         policy = IngestPolicy(shoot_slug=shoot_slug)
-    if not policy.shoot_slug.strip():
-        raise ValueError("shoot_slug must not be blank")
-    return policy
+    return IngestPolicy(
+        shoot_slug=_safe_path_component(policy.shoot_slug, "shoot_slug"),
+        shoot_date=_safe_path_component(policy.shoot_date, "shoot_date")
+        if policy.shoot_date is not None
+        else None,
+    )
 
 
 def _validate_roots(source_root: Path, destination_root: Path) -> None:
@@ -170,6 +175,8 @@ def _validate_roots(source_root: Path, destination_root: Path) -> None:
 
 def _iter_media_files(source_root: Path) -> Iterable[Path]:
     for path in sorted(source_root.rglob("*")):
+        if path.is_symlink() and _media_kind(path) is not None:
+            raise ValueError(f"Source symlinks require manual review: {path}")
         if path.is_file() and _media_kind(path) is not None:
             yield path
 
@@ -187,6 +194,17 @@ def _operation_for_file(
     destination = shoot_root / "originals" / kind.value / relative_source
     source_checksum = sha256_file(source)
     byte_count = source.stat().st_size
+
+    if destination.is_symlink():
+        return IngestOperation(
+            source=source,
+            destination=destination,
+            kind=kind,
+            status=IngestStatus.CONFLICT_EXISTING_DIFFERENT,
+            byte_count=byte_count,
+            sha256=source_checksum,
+            reason="Destination symlink requires manual review",
+        )
 
     if destination.exists():
         destination_checksum = sha256_file(destination)
@@ -221,6 +239,8 @@ def _operation_for_file(
 
 
 def _copy_operation(operation: IngestOperation) -> None:
+    if operation.destination.is_symlink():
+        raise RuntimeError(f"Destination symlink requires manual review: {operation.destination}")
     if operation.destination.exists():
         existing_checksum = sha256_file(operation.destination)
         if existing_checksum == operation.sha256:
@@ -253,7 +273,12 @@ def _write_manifest(plan: IngestPlan, copied: list[IngestOperation]) -> None:
         "operations": [_operation_to_json(operation) for operation in plan.operations],
         "copied": [_operation_to_json(operation) for operation in copied],
     }
-    plan.manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    temporary_manifest = plan.manifest_path.with_suffix(f"{plan.manifest_path.suffix}.tmp")
+    with temporary_manifest.open("w", encoding="utf-8") as file:
+        file.write(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        file.flush()
+        os.fsync(file.fileno())
+    os.replace(temporary_manifest, plan.manifest_path)
 
 
 def _operation_to_json(operation: IngestOperation) -> dict[str, str | int | None]:
@@ -285,6 +310,18 @@ def _shoot_directory_name(policy: IngestPolicy) -> str:
     if policy.shoot_date:
         return f"{policy.shoot_date}_{policy.shoot_slug}"
     return policy.shoot_slug
+
+
+def _safe_path_component(value: str, label: str) -> str:
+    component = value.strip()
+    if (
+        not component
+        or component in {".", ".."}
+        or Path(component).name != component
+        or any(ord(character) < 32 for character in component)
+    ):
+        raise ValueError(f"{label} must be a safe path component")
+    return component
 
 
 def _is_relative_to(path: Path, parent: Path) -> bool:

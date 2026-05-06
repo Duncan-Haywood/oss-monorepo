@@ -74,6 +74,14 @@ def _assess_candidate(
         )
 
     if desired_role == DriveRole.INGEST_SOURCE:
+        if source_score == 0:
+            return DriveAssessment(
+                candidate=candidate,
+                recommended_role=DriveRole.REVIEW_ONLY,
+                score=0,
+                reasons=("no ingest-source evidence",),
+                warnings=("low-confidence ingest source",),
+            )
         return DriveAssessment(
             candidate=candidate,
             recommended_role=DriveRole.INGEST_SOURCE,
