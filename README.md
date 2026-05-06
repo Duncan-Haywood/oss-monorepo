@@ -18,11 +18,24 @@ The product direction is:
 This repo currently contains the first testable core utilities:
 
 - `shootflow.ingest` plans and executes safe media copies.
+- `shootflow.catalog` loads ingest manifests into a photo/video catalog for
+  downstream production planning.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.production` expands a shoot into deterministic proxy, VLM
   analysis, look-development, grading, and Instagram packaging waves.
+
+The intended first workflow is:
+
+1. Plan and execute a safe import from a card, folder, or SSD.
+2. Keep the generated `ingest_manifest.json` as the boundary between file
+   management and AI/editing work.
+3. Load the manifest with `shootflow.catalog`, which rechecks manifest
+   location, destination paths, file sizes, and checksums before production.
+4. Build production waves from manifest-backed photo/video assets so proxies,
+   VLM analysis, color decisions, graded masters, and Instagram packages all
+   trace back to verified originals.
 
 ## Run tests
 

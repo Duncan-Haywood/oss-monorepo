@@ -23,6 +23,8 @@ ShootFlow is a personal tool and product concept for photographers and videograp
 The repo currently contains a Python core package because it is quick to test and can model the critical workflow contracts before native UI work starts.
 
 - `shootflow.ingest`: media discovery, import planning, checksum copy execution, and manifest writing.
+- `shootflow.catalog`: manifest loading, path validation, media typing, and the boundary between safe
+  imports and production planning.
 - `shootflow.storage`: drive/storage candidate ranking for future Mac/iPhone device detection layers.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
@@ -66,6 +68,10 @@ High quality depends on scene-level consistency and reversible edits. The system
 - Job IDs are deterministic for a fixed manifest order so later workers can cache, retry, and resume
   individual assets within a planned shoot. A future manifest-backed ID should incorporate relative path
   and checksum when the ingest manifest becomes the canonical production input.
+- Ingest manifests are the handoff contract from file operations to AI/editing work. Catalog loading
+  validates that manifest destinations stay under the import root, rejects destructive-source manifests,
+  rechecks destination size/checksum, and ignores non-photo/video assets for production planning while
+  preserving them in the original ingest manifest.
 - Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
   originals, which keeps social assembly downstream of the color pipeline.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
