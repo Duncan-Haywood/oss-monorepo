@@ -21,9 +21,7 @@ impl MediaKind {
             .map(|extension| extension.to_ascii_lowercase())
             .as_deref()
         {
-            Some("arw" | "cr2" | "cr3" | "dng" | "nef" | "orf" | "raf" | "rw2") => {
-                Self::RawPhoto
-            }
+            Some("arw" | "cr2" | "cr3" | "dng" | "nef" | "orf" | "raf" | "rw2") => Self::RawPhoto,
             Some("jpg" | "jpeg") => Self::JpegPhoto,
             Some("mov" | "mp4" | "m4v" | "avi" | "mxf") => Self::Video,
             Some("xmp" | "dop" | "cos") => Self::Sidecar,
@@ -59,6 +57,7 @@ pub struct IngestPlanOptions {
     pub source_root: PathBuf,
     pub destination_root: PathBuf,
     pub shoot_slug: String,
+    pub reserved_destinations: Vec<PathBuf>,
 }
 
 impl IngestPlanOptions {
@@ -71,7 +70,16 @@ impl IngestPlanOptions {
             source_root,
             destination_root,
             shoot_slug: shoot_slug.into(),
+            reserved_destinations: Vec::new(),
         }
+    }
+
+    pub fn with_reserved_destinations(
+        mut self,
+        reserved_destinations: impl IntoIterator<Item = PathBuf>,
+    ) -> Self {
+        self.reserved_destinations = reserved_destinations.into_iter().collect();
+        self
     }
 }
 
@@ -98,11 +106,20 @@ pub struct IngestPlan {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum IngestPlanError {
     EmptyShootSlug,
+    UnsafeShootSlug {
+        shoot_slug: String,
+    },
+    PathMustBeAbsolute {
+        path: PathBuf,
+    },
     FileOutsideSourceRoot {
         source: PathBuf,
         source_root: PathBuf,
     },
     DestinationCollision {
+        destination: PathBuf,
+    },
+    ReservedDestination {
         destination: PathBuf,
     },
 }
@@ -111,6 +128,14 @@ impl Display for IngestPlanError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::EmptyShootSlug => write!(formatter, "shoot slug cannot be empty"),
+            Self::UnsafeShootSlug { shoot_slug } => write!(
+                formatter,
+                "shoot slug must be a single safe path component: {}",
+                shoot_slug
+            ),
+            Self::PathMustBeAbsolute { path } => {
+                write!(formatter, "path must be absolute: {}", path.display())
+            }
             Self::FileOutsideSourceRoot {
                 source,
                 source_root,
@@ -123,6 +148,11 @@ impl Display for IngestPlanError {
             Self::DestinationCollision { destination } => write!(
                 formatter,
                 "multiple source files map to destination {}",
+                destination.display()
+            ),
+            Self::ReservedDestination { destination } => write!(
+                formatter,
+                "destination is already reserved or exists: {}",
                 destination.display()
             ),
         }
@@ -138,21 +168,34 @@ pub fn build_ingest_plan(
     if options.shoot_slug.trim().is_empty() {
         return Err(IngestPlanError::EmptyShootSlug);
     }
+    if !is_safe_slug(&options.shoot_slug) {
+        return Err(IngestPlanError::UnsafeShootSlug {
+            shoot_slug: options.shoot_slug.clone(),
+        });
+    }
+
+    validate_absolute(&options.source_root)?;
+    validate_absolute(&options.destination_root)?;
 
     let source_root = normalize_lexically(&options.source_root);
     let destination_root = normalize_lexically(&options.destination_root);
-    let mut destinations = HashSet::new();
+    let mut reserved_destinations = HashSet::with_capacity(options.reserved_destinations.len());
+    for reserved_destination in &options.reserved_destinations {
+        validate_absolute(reserved_destination)?;
+        reserved_destinations.insert(normalize_lexically(reserved_destination));
+    }
+    let mut planned_destinations = HashSet::new();
     let mut operations = Vec::with_capacity(files.len());
 
     for file in files {
+        validate_absolute(&file.source)?;
         let normalized_source = normalize_lexically(&file.source);
-        let relative_source =
-            normalized_source
-                .strip_prefix(&source_root)
-                .map_err(|_| IngestPlanError::FileOutsideSourceRoot {
-                    source: normalized_source.clone(),
-                    source_root: source_root.clone(),
-                })?;
+        let relative_source = normalized_source.strip_prefix(&source_root).map_err(|_| {
+            IngestPlanError::FileOutsideSourceRoot {
+                source: normalized_source.clone(),
+                source_root: source_root.clone(),
+            }
+        })?;
         let media_kind = MediaKind::from_path(&normalized_source);
         let destination = destination_root
             .join(&options.shoot_slug)
@@ -160,7 +203,13 @@ pub fn build_ingest_plan(
             .join(relative_source);
         let normalized_destination = normalize_lexically(destination);
 
-        if !destinations.insert(normalized_destination.clone()) {
+        if reserved_destinations.contains(&normalized_destination) {
+            return Err(IngestPlanError::ReservedDestination {
+                destination: normalized_destination,
+            });
+        }
+
+        if !planned_destinations.insert(normalized_destination.clone()) {
             return Err(IngestPlanError::DestinationCollision {
                 destination: normalized_destination,
             });
@@ -181,6 +230,22 @@ pub fn build_ingest_plan(
     })
 }
 
+fn validate_absolute(path: &Path) -> Result<(), IngestPlanError> {
+    if path.is_absolute() {
+        Ok(())
+    } else {
+        Err(IngestPlanError::PathMustBeAbsolute {
+            path: path.to_path_buf(),
+        })
+    }
+}
+
+fn is_safe_slug(shoot_slug: &str) -> bool {
+    let mut components = Path::new(shoot_slug).components();
+
+    matches!(components.next(), Some(Component::Normal(_))) && components.next().is_none()
+}
+
 fn normalize_lexically(path: impl AsRef<Path>) -> PathBuf {
     let mut normalized = PathBuf::new();
 
@@ -198,4 +263,3 @@ fn normalize_lexically(path: impl AsRef<Path>) -> PathBuf {
 
     normalized
 }
-

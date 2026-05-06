@@ -25,7 +25,10 @@ fn builds_copy_and_verify_plan_without_delete_operations() {
         &[
             IngestFile::new(path("/Volumes/SDCARD/DCIM/100MSDCF/A7IV_0001.ARW"), 42),
             IngestFile::new(path("/Volumes/SDCARD/DCIM/100MSDCF/A7IV_0001.JPG"), 20),
-            IngestFile::new(path("/Volumes/SDCARD/DCIM/PRIVATE/M4ROOT/CLIP/C0001.MP4"), 99),
+            IngestFile::new(
+                path("/Volumes/SDCARD/DCIM/PRIVATE/M4ROOT/CLIP/C0001.MP4"),
+                99,
+            ),
         ],
         &IngestPlanOptions::new(source_root, destination_root, "2026-05-06-client-shoot"),
     )
@@ -86,4 +89,86 @@ fn rejects_colliding_destination_paths_instead_of_overwriting() {
     assert!(error
         .to_string()
         .contains("multiple source files map to destination"));
+}
+
+#[test]
+fn rejects_shoot_slugs_that_are_not_single_safe_path_components() {
+    for shoot_slug in ["../escaped", "/tmp/escaped", ".", "..", "client/shoot"] {
+        let result = build_ingest_plan(
+            &[IngestFile::new(
+                path("/Volumes/SDCARD/DCIM/100MSDCF/A7IV_0001.ARW"),
+                42,
+            )],
+            &IngestPlanOptions::new(
+                path("/Volumes/SDCARD/DCIM"),
+                path("/Volumes/WORKSSD/MediaLibrary"),
+                shoot_slug,
+            ),
+        );
+
+        let error = result.expect_err("unsafe shoot slug should be rejected");
+        assert!(
+            error
+                .to_string()
+                .contains("shoot slug must be a single safe path component"),
+            "unexpected error for {shoot_slug}: {error}"
+        );
+    }
+}
+
+#[test]
+fn rejects_reserved_destination_paths_to_prevent_overwriting_existing_media() {
+    let result = build_ingest_plan(
+        &[IngestFile::new(
+            path("/Volumes/SDCARD/DCIM/100MSDCF/A7IV_0001.ARW"),
+            42,
+        )],
+        &IngestPlanOptions::new(
+            path("/Volumes/SDCARD/DCIM"),
+            path("/Volumes/WORKSSD/MediaLibrary"),
+            "2026-05-06-client-shoot",
+        )
+        .with_reserved_destinations([path(
+            "/Volumes/WORKSSD/MediaLibrary/2026-05-06-client-shoot/raw/100MSDCF/A7IV_0001.ARW",
+        )]),
+    );
+
+    let error = result.expect_err("existing destination should block ingest");
+    assert!(error
+        .to_string()
+        .contains("destination is already reserved or exists"));
+}
+
+#[test]
+fn rejects_relative_source_or_destination_paths() {
+    let result = build_ingest_plan(
+        &[IngestFile::new(path("DCIM/100MSDCF/A7IV_0001.ARW"), 42)],
+        &IngestPlanOptions::new(
+            path("/Volumes/SDCARD/DCIM"),
+            path("/Volumes/WORKSSD/MediaLibrary"),
+            "2026-05-06-client-shoot",
+        ),
+    );
+
+    let error = result.expect_err("relative source file should be rejected");
+    assert!(error.to_string().contains("path must be absolute"));
+}
+
+#[test]
+fn rejects_relative_reserved_destination_paths() {
+    let result = build_ingest_plan(
+        &[IngestFile::new(
+            path("/Volumes/SDCARD/DCIM/100MSDCF/A7IV_0001.ARW"),
+            42,
+        )],
+        &IngestPlanOptions::new(
+            path("/Volumes/SDCARD/DCIM"),
+            path("/Volumes/WORKSSD/MediaLibrary"),
+            "2026-05-06-client-shoot",
+        )
+        .with_reserved_destinations([path("2026-05-06-client-shoot/raw/100MSDCF/A7IV_0001.ARW")]),
+    );
+
+    let error = result.expect_err("relative reserved destination should be rejected");
+    assert!(error.to_string().contains("path must be absolute"));
 }
