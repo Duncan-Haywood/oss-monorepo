@@ -195,6 +195,18 @@ def _operation_for_file(
     source_checksum = sha256_file(source)
     byte_count = source.stat().st_size
 
+    symlink_parent = _first_symlink_parent(destination)
+    if symlink_parent is not None:
+        return IngestOperation(
+            source=source,
+            destination=destination,
+            kind=kind,
+            status=IngestStatus.CONFLICT_EXISTING_DIFFERENT,
+            byte_count=byte_count,
+            sha256=source_checksum,
+            reason=f"Destination parent symlink requires manual review: {symlink_parent}",
+        )
+
     if destination.is_symlink():
         return IngestOperation(
             source=source,
@@ -239,6 +251,9 @@ def _operation_for_file(
 
 
 def _copy_operation(operation: IngestOperation) -> None:
+    symlink_parent = _first_symlink_parent(operation.destination)
+    if symlink_parent is not None:
+        raise RuntimeError(f"Destination parent symlink requires manual review: {symlink_parent}")
     if operation.destination.is_symlink():
         raise RuntimeError(f"Destination symlink requires manual review: {operation.destination}")
     if operation.destination.exists():
@@ -251,6 +266,8 @@ def _copy_operation(operation: IngestOperation) -> None:
     temporary_destination = operation.destination.with_name(
         f".{operation.destination.name}.shootflow.tmp"
     )
+    if temporary_destination.is_symlink():
+        raise RuntimeError(f"Temporary destination symlink requires manual review: {temporary_destination}")
     if temporary_destination.exists():
         temporary_destination.unlink()
 
@@ -264,6 +281,12 @@ def _copy_operation(operation: IngestOperation) -> None:
 
 
 def _write_manifest(plan: IngestPlan, copied: list[IngestOperation]) -> None:
+    symlink_parent = _first_symlink_parent(plan.manifest_path)
+    if symlink_parent is not None:
+        raise RuntimeError(f"Manifest parent symlink requires manual review: {symlink_parent}")
+    if plan.manifest_path.is_symlink():
+        raise RuntimeError(f"Manifest symlink requires manual review: {plan.manifest_path}")
+
     plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest = {
         "source_root": str(plan.source_root),
@@ -274,6 +297,8 @@ def _write_manifest(plan: IngestPlan, copied: list[IngestOperation]) -> None:
         "copied": [_operation_to_json(operation) for operation in copied],
     }
     temporary_manifest = plan.manifest_path.with_suffix(f"{plan.manifest_path.suffix}.tmp")
+    if temporary_manifest.is_symlink():
+        raise RuntimeError(f"Temporary manifest symlink requires manual review: {temporary_manifest}")
     with temporary_manifest.open("w", encoding="utf-8") as file:
         file.write(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
         file.flush()
@@ -330,6 +355,13 @@ def _is_relative_to(path: Path, parent: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _first_symlink_parent(path: Path) -> Path | None:
+    for parent in path.parents:
+        if parent.is_symlink():
+            return parent
+    return None
 
 
 def sha256_file(path: Path) -> str:
