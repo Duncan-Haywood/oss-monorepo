@@ -1,0 +1,11 @@
+[project]
+name = "mediaflow"
+version = "0.1.0"
+description = "Local-first media ingest and automation foundation for high-volume photo and video workflows."
+requires-python = ">=3.11"
+
+[project.scripts]
+mediaflow = "mediaflow.cli:main"
+
+[tool.setuptools]
+packages = ["mediaflow"]
