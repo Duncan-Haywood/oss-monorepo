@@ -37,10 +37,29 @@ to trust and sell:
   different bytes, always emit manifests.
 - **Parallel by design:** per-asset jobs can scale across local compute, cloud
   workers, or future device clusters.
+- **Quality before speed theater:** use VLM analysis and scene grouping before
+  grading so the output looks like one coherent shoot, not 10,000 individually
+  optimized files.
 - **Professional control:** humans can review drive detection, selects, grading
   references, and final deliverables before export.
 - **Archive aware:** old shoots and new cards use the same import, catalog, and
   deliverable pipeline.
+
+## Workflow value
+
+The current core models a concrete promise for high-volume users:
+
+1. Ingest safely from a card, local folder, or SSD.
+2. Preserve originals and emit a manifest.
+3. Fan out proxy and VLM analysis work across every asset.
+4. Rejoin at scene grouping and look development so the grade is consistent.
+5. Fan out graded master rendering.
+6. Assemble reels, carousels, and photo sets from graded masters.
+
+This is the right business wedge because it can save time even before the AI is
+perfect. A photographer or editor can trust the file organization, review the
+structured job plan, and then decide how much of the color and social packaging
+to automate.
 
 ## Business model options
 

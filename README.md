@@ -21,6 +21,8 @@ This repo currently contains the first testable core utilities:
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
+- `shootflow.production` expands a shoot into deterministic proxy, VLM
+  analysis, look-development, grading, and Instagram packaging waves.
 
 ## Run tests
 

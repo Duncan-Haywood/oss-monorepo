@@ -25,6 +25,8 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.ingest`: media discovery, import planning, checksum copy execution, and manifest writing.
 - `shootflow.storage`: drive/storage candidate ranking for future Mac/iPhone device detection layers.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
+- `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
+  development, grading, and Instagram packaging waves.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -49,6 +51,32 @@ High quality depends on scene-level consistency and reversible edits. The system
 - Scene clustering, look normalization, and deliverable assembly depend on per-asset outputs.
 - Reels should assemble from proxy timelines, then conform from graded masters.
 - The job graph should be deterministic and resumable so 10,000+ asset shoots can recover from interruption without starting over.
+- The production planner uses explicit execution waves:
+  1. proxy every asset;
+  2. run per-asset VLM/content analysis;
+  3. group scenes and narrative sets;
+  4. derive a shoot-level look;
+  5. render per-asset graded masters in parallel;
+  6. assemble social packages from the graded masters.
+- This structure keeps expensive per-asset work highly parallel while preserving quality-critical global
+  decisions, especially scene consistency and look development.
+
+## Production planning notes
+
+- Job IDs are deterministic for a fixed manifest order so later workers can cache, retry, and resume
+  individual assets within a planned shoot. A future manifest-backed ID should incorporate relative path
+  and checksum when the ingest manifest becomes the canonical production input.
+- Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
+  originals, which keeps social assembly downstream of the color pipeline.
+- Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
+  `IMG_0001.CR3` do not collide across cards or archive folders.
+- Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
+  carousels and photo sets only depend on photo grades.
+- The current planner is intentionally an edit-decision contract, not a renderer. Future renderers can be
+  local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve automation, or cloud GPU workers as long as they
+  honor the same job IDs and dependencies.
+- VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
+  destructive storage decisions.
 
 ## Business viability notes
 
@@ -63,6 +91,7 @@ Useful wedges:
 - "Dump a card, get organized imports and draft IG packs."
 - "Turn a wedding/editorial/event shoot into 3 reels, 2 carousels, and graded selects overnight."
 - "Consistent look across photo and video without managing files by hand."
+- "Know exactly what is ready, rendering, blocked, or safe to retry in a 10,000-asset shoot."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

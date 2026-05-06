@@ -3,5 +3,6 @@
 __all__ = [
     "deliverables",
     "ingest",
+    "production",
     "storage",
 ]
