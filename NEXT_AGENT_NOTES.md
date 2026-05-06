@@ -11,6 +11,10 @@ Python core for non-destructive media ingest planning.
   - categorizes them into `raw/`, `jpeg/`, and `video/` destination lanes;
   - computes SHA-256 checksums for idempotency;
   - reports checksum conflicts instead of overwriting;
+  - rejects destination roots that would write back inside the source root;
+  - skips symlinked media so ingest stays inside the selected source boundary;
+  - returns immutable tuple-based plan outputs;
+  - reports case-folded destination collisions before execution;
   - never plans deletion.
 - Added product blueprint, legal terms draft, and a decision record explaining
   why safe ingest comes before AI editing.

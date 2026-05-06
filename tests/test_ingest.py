@@ -23,7 +23,7 @@ def test_build_ingest_plan_copies_media_into_shoot_folder_without_deletions(tmp_
     )
 
     assert isinstance(plan, IngestPlan)
-    assert plan.deletions == []
+    assert plan.deletions == ()
     assert plan.destination_shoot_root == destination / "brooklyn-editorial"
     assert [asset.relative_path for asset in plan.assets] == [
         Path("DCIM/100APPLE/IMG_0001.CR3"),
@@ -49,16 +49,16 @@ def test_build_ingest_plan_marks_existing_matching_files_as_verified(tmp_path: P
         shoot_name="fuji-shoot",
     )
 
-    assert plan.copy_actions == []
-    assert plan.verified_existing == [
+    assert plan.copy_actions == ()
+    assert plan.verified_existing == (
         MediaAsset(
             source_path=source / "IMG_0001.RAF",
             relative_path=Path("IMG_0001.RAF"),
             kind="raw",
             size_bytes=8,
             checksum="059babefc592c22dda28d9553cad371d3ca05c6eb79a0d08cbf88cb798f908b3",
-        )
-    ]
+        ),
+    )
 
 
 def test_build_ingest_plan_conflicts_when_destination_has_different_content(tmp_path: Path) -> None:
@@ -73,7 +73,7 @@ def test_build_ingest_plan_conflicts_when_destination_has_different_content(tmp_
         shoot_name="winter-portraits",
     )
 
-    assert plan.copy_actions == []
+    assert plan.copy_actions == ()
     assert len(plan.conflicts) == 1
     assert plan.conflicts[0].source == source / "IMG_0001.DNG"
     assert plan.conflicts[0].destination == destination / "winter-portraits" / "raw" / "IMG_0001.DNG"
@@ -93,3 +93,55 @@ def test_build_ingest_plan_rejects_missing_source_root(tmp_path: Path) -> None:
         assert "source_root does not exist" in str(error)
     else:
         raise AssertionError("expected missing source root to fail")
+
+
+def test_build_ingest_plan_rejects_destination_inside_source_root(tmp_path: Path) -> None:
+    source = tmp_path / "sd-card"
+    write_file(source / "IMG_0001.JPG", b"jpeg")
+
+    try:
+        build_ingest_plan(
+            source_root=source,
+            destination_root=source / "Archive",
+            shoot_name="unsafe",
+        )
+    except ValueError as error:
+        assert "destination_root cannot be inside source_root" in str(error)
+    else:
+        raise AssertionError("expected nested destination to fail")
+
+
+def test_build_ingest_plan_skips_symlinked_media_outside_source_root(tmp_path: Path) -> None:
+    source = tmp_path / "sd-card"
+    outside = tmp_path / "private"
+    destination = tmp_path / "archive"
+    write_file(outside / "secret.JPG", b"private")
+    source.mkdir()
+    (source / "linked.JPG").symlink_to(outside / "secret.JPG")
+
+    plan = build_ingest_plan(
+        source_root=source,
+        destination_root=destination,
+        shoot_name="no-leaks",
+    )
+
+    assert plan.assets == ()
+    assert plan.copy_actions == ()
+
+
+def test_build_ingest_plan_reports_casefolded_destination_collisions(tmp_path: Path) -> None:
+    source = tmp_path / "sd-card"
+    destination = tmp_path / "archive"
+    write_file(source / "IMG_0001.JPG", b"upper")
+    write_file(source / "img_0001.jpg", b"lower")
+
+    plan = build_ingest_plan(
+        source_root=source,
+        destination_root=destination,
+        shoot_name="case-safe",
+    )
+
+    assert len(plan.copy_actions) == 1
+    assert len(plan.conflicts) == 1
+    assert plan.conflicts[0].source == source / "img_0001.jpg"
+    assert plan.conflicts[0].reason == "planned destination collides with another source path"

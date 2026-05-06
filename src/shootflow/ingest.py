@@ -68,11 +68,11 @@ class IngestPlan:
     source_root: Path
     destination_root: Path
     destination_shoot_root: Path
-    assets: list[MediaAsset]
-    copy_actions: list[CopyAction]
-    verified_existing: list[MediaAsset]
-    conflicts: list[IngestConflict]
-    deletions: list[Path]
+    assets: tuple[MediaAsset, ...]
+    copy_actions: tuple[CopyAction, ...]
+    verified_existing: tuple[MediaAsset, ...]
+    conflicts: tuple[IngestConflict, ...]
+    deletions: tuple[Path, ...]
 
 
 def build_ingest_plan(
@@ -98,13 +98,30 @@ def build_ingest_plan(
         raise ValueError("shoot_name contains unsupported characters")
 
     destination_shoot_root = destination_root / shoot_name.strip()
+    source_resolved = source_root.resolve()
+    destination_resolved = destination_shoot_root.resolve(strict=False)
+    if destination_resolved == source_resolved or destination_resolved.is_relative_to(source_resolved):
+        raise ValueError("destination_root cannot be inside source_root")
+
     assets = list(_discover_media_assets(source_root))
     copy_actions: list[CopyAction] = []
     verified_existing: list[MediaAsset] = []
     conflicts: list[IngestConflict] = []
+    planned_destinations: set[str] = set()
 
     for asset in assets:
         destination = destination_shoot_root / asset.kind / asset.relative_path
+        destination_key = _destination_collision_key(destination)
+        if destination_key in planned_destinations:
+            conflicts.append(
+                IngestConflict(
+                    source=asset.source_path,
+                    destination=destination,
+                    reason="planned destination collides with another source path",
+                )
+            )
+            continue
+
         if destination.exists():
             destination_checksum = _sha256(destination)
             if destination_checksum == asset.checksum:
@@ -127,22 +144,25 @@ def build_ingest_plan(
                 size_bytes=asset.size_bytes,
             )
         )
+        planned_destinations.add(destination_key)
 
     return IngestPlan(
         source_root=source_root,
         destination_root=destination_root,
         destination_shoot_root=destination_shoot_root,
-        assets=assets,
-        copy_actions=copy_actions,
-        verified_existing=verified_existing,
-        conflicts=conflicts,
-        deletions=[],
+        assets=tuple(assets),
+        copy_actions=tuple(copy_actions),
+        verified_existing=tuple(verified_existing),
+        conflicts=tuple(conflicts),
+        deletions=(),
     )
 
 
 def _discover_media_assets(source_root: Path) -> list[MediaAsset]:
     assets: list[MediaAsset] = []
     for path in sorted(source_root.rglob("*")):
+        if path.is_symlink():
+            continue
         if not path.is_file():
             continue
 
@@ -160,6 +180,10 @@ def _discover_media_assets(source_root: Path) -> list[MediaAsset]:
             )
         )
     return assets
+
+
+def _destination_collision_key(destination: Path) -> str:
+    return destination.as_posix().casefold()
 
 
 def _kind_for_extension(extension: str) -> MediaKind | None:
