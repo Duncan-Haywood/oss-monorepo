@@ -1,0 +1,11 @@
+[package]
+name = "photo_editing"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+
+[lib]
+name = "photo_editing"
+path = "src/lib.rs"
+
+[dependencies]
