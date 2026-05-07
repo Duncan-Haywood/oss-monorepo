@@ -6,7 +6,7 @@ These notes are for the next automation run continuing the same product prompt.
 
 ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high-volume ingest, bulk color/story processing, and Instagram deliverables. The current implementation is a Python core that defines safety and planning contracts before native UI or renderer work begins.
 
-## What landed in this iteration
+## What landed in the prior iteration
 
 - Merged the prior `shootflow` foundation onto the active branch.
 - Added a strict `deliverables/render_tasks.json` manifest contract in `shootflow.assembly`:
@@ -46,6 +46,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated production planning so Instagram deliverable assembly depends on a serialized `rank_instagram_storylines` job after scene grouping, look development, and graded-master rendering.
 - Expanded product/legal docs around the story-planning layer, indemnification caution, and file deletion safety.
 
+## What landed in this iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-c365`.
+- Added deterministic high-volume render grouping for `photo_set` assembly:
+  - `build_assembly_plan(..., photo_set_chunk_size=250)` now keeps reels/carousels whole, keeps small
+    photo sets as the existing single task, and splits larger ranked photo sets into chunk tasks such as
+    `export_instagram_photo_set_part_00001`;
+  - chunk tasks preserve stable public outputs like
+    `deliverables/instagram_photo_set/photo_00001.jpg` so retries and UI review do not reshuffle exports;
+  - each chunk depends only on `rank_instagram_storylines` plus the graded assets in that chunk, allowing
+    independent workers to render photo chunks in parallel after grading completes;
+  - render plan validation rejects duplicate output paths across tasks before writing or loading a manifest.
+- Documented the renderer-adapter boundary: future Core Image/Metal, ffmpeg, DaVinci Resolve, or cloud GPU
+  renderers should consume trusted `RenderTask` records, recheck inputs, write via temp files, and never
+  delete source or graded media.
+
 ## Design decisions to preserve
 
 - Source media deletion remains out of scope.
@@ -59,23 +76,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   graded artifacts before opening media files.
 - Assembly tasks are still contracts, not renderers. They should remain deterministic and renderer-neutral
   until the project chooses a local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve, or cloud GPU backend.
+- Photo-set chunking is a render-worker scheduling boundary only. It must not change graded artifact names,
+  public photo output numbering, storyline ranking, or source-media handling.
 - First-cut reel selection intentionally prefers one strong clip per scene before repeated coverage. Future iterations can add alternate reel variants for longer cuts.
 - Full photo-set exports stay ranked but not capped; carousel is capped for Instagram.
 
 ## Suggested next iteration
 
-Add render task grouping for high-volume exports before implementing a renderer. The current manifest can
-represent whole reel/carousel/photo-set tasks, but 10,000-photo shoots need chunked, resumable photo export
-groups so failures do not restart an entire ranked photo set.
+Model multiple reel variants before implementing a renderer. The current storyline planner creates one
+first-cut reel, one carousel, and one ranked photo set; the product will be more useful if it can propose
+several social narratives from the same shoot.
 
 Good test-first targets:
 
-- Split large `photo_set` sequences into deterministic chunk tasks while preserving the public
-  `deliverables/instagram_photo_set/photo_00001.jpg` output naming.
-- Keep reel and carousel tasks whole, but allow photo-set chunks to run in parallel after storyline and
-  grade dependencies are satisfied.
-- Extend the render manifest loader to reject duplicate output paths across chunked tasks.
-- Document a renderer adapter interface that can later be implemented by local Core Image/Metal, ffmpeg,
-  DaVinci Resolve automation, or cloud GPU workers without changing ingest or story contracts.
-- Model multiple reel variants next (`hero`, `behind_the_scenes`, `fast_cut`) once chunked photo exports
-  are stable.
+- Extend the story contract to represent multiple reel variants (`hero`, `behind_the_scenes`, `fast_cut`)
+  without weakening the trusted graded-asset allowlist.
+- Keep each variant's selected clips, rationale, duration, and aspect ratio explicit enough for review UI.
+- Update assembly planning so each reel variant gets a deterministic output path under `deliverables/`
+  without colliding with the existing default `instagram_reel.mp4` handoff.
+- Preserve the current single-reel API behavior for callers that only need the default first cut, unless the
+  branch intentionally replaces it with a versioned artifact schema.

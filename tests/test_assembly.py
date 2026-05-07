@@ -5,7 +5,9 @@ import unittest
 from pathlib import Path
 
 from shootflow.assembly import (
+    AssemblyPlan,
     RENDER_TASKS_MANIFEST_PATH,
+    RenderTask,
     AssemblyPlanError,
     build_assembly_plan,
     load_render_tasks_manifest,
@@ -250,6 +252,103 @@ class AssemblyPlanningTests(unittest.TestCase):
             with self.assertRaisesRegex(AssemblyPlanError, "Unexpected carousel output path"):
                 build_assembly_plan(mutated_plan, workspace)
 
+    def test_splits_large_photo_sets_into_parallel_chunks_with_stable_public_outputs(self) -> None:
+        assets = [
+            MediaAsset(path=f"card/DCIM/IMG_{index:04d}.CR3", media_type="photo")
+            for index in range(1, 6)
+        ]
+        production_plan = build_production_plan(assets, shoot_slug="chunked-photo-set")
+        photo_assets = tuple(
+            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3"
+            for index in range(5)
+        )
+        storyline = StorylinePlan(
+            reel=ContentSequence(
+                output_kind="instagram_reel",
+                aspect_ratio="9:16",
+                asset_paths=(),
+                total_duration_seconds=0.0,
+                rationale="No video selects.",
+            ),
+            carousel=ContentSequence(
+                output_kind="instagram_carousel",
+                aspect_ratio="4:5",
+                asset_paths=(),
+                total_duration_seconds=None,
+                rationale="No carousel for this export.",
+            ),
+            photo_set=ContentSequence(
+                output_kind="instagram_photo_set",
+                aspect_ratio="4:5",
+                asset_paths=photo_assets,
+                total_duration_seconds=None,
+                rationale="Full ranked set.",
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_workspace_files(workspace, photo_assets)
+            write_storyline_artifact(
+                storyline,
+                workspace,
+                allowed_asset_paths=set(photo_assets),
+            )
+
+            assembly_plan = build_assembly_plan(
+                production_plan,
+                workspace,
+                photo_set_chunk_size=2,
+            )
+
+        self.assertEqual([task.task_id for task in assembly_plan.render_tasks], [
+            "export_instagram_photo_set_part_00001",
+            "export_instagram_photo_set_part_00002",
+            "export_instagram_photo_set_part_00003",
+        ])
+        first_chunk, second_chunk, third_chunk = assembly_plan.render_tasks
+        self.assertTrue(all(task.can_run_in_parallel for task in assembly_plan.render_tasks))
+        self.assertEqual(
+            first_chunk.inputs,
+            ("analysis/instagram_storylines.json", photo_assets[0], photo_assets[1]),
+        )
+        self.assertEqual(
+            first_chunk.outputs,
+            (
+                "deliverables/instagram_photo_set/photo_00001.jpg",
+                "deliverables/instagram_photo_set/photo_00002.jpg",
+            ),
+        )
+        self.assertEqual(
+            second_chunk.depends_on,
+            ("rank_instagram_storylines", "grade_asset_00002", "grade_asset_00003"),
+        )
+        self.assertEqual(
+            second_chunk.outputs,
+            (
+                "deliverables/instagram_photo_set/photo_00003.jpg",
+                "deliverables/instagram_photo_set/photo_00004.jpg",
+            ),
+        )
+        self.assertEqual(third_chunk.inputs, ("analysis/instagram_storylines.json", photo_assets[4]))
+        self.assertEqual(third_chunk.outputs, ("deliverables/instagram_photo_set/photo_00005.jpg",))
+
+    def test_rejects_invalid_photo_set_chunk_size(self) -> None:
+        production_plan = build_production_plan(
+            [MediaAsset(path="card/DCIM/IMG_0001.CR3", media_type="photo")],
+            shoot_slug="invalid-chunk-size",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for chunk_size in (0, True):
+                with self.subTest(chunk_size=chunk_size):
+                    with self.assertRaisesRegex(AssemblyPlanError, "photo_set_chunk_size"):
+                        build_assembly_plan(
+                            production_plan,
+                            Path(tmp),
+                            photo_set_chunk_size=chunk_size,
+                        )
+
     def test_round_trips_render_tasks_manifest_with_exact_sorted_schema(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -364,6 +463,85 @@ class AssemblyPlanningTests(unittest.TestCase):
             with self.assertRaisesRegex(AssemblyPlanError, "Unexpected reel source job"):
                 write_render_tasks_manifest(mutated_plan, workspace)
 
+    def test_rejects_duplicate_outputs_across_render_tasks_before_writing_manifest(self) -> None:
+        duplicated_plan = AssemblyPlan(
+            shoot_slug="duplicate-outputs",
+            render_tasks=(
+                RenderTask(
+                    task_id="export_instagram_photo_set_part_00001",
+                    sequence_name="photo_set",
+                    source_job_id="export_instagram_photo_set",
+                    output_kind="instagram_photo_set",
+                    aspect_ratio="4:5",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00000/IMG_0001.CR3",
+                    ),
+                    outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00000"),
+                    can_run_in_parallel=True,
+                ),
+                RenderTask(
+                    task_id="export_instagram_photo_set_part_00002",
+                    sequence_name="photo_set",
+                    source_job_id="export_instagram_photo_set",
+                    output_kind="instagram_photo_set",
+                    aspect_ratio="4:5",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00001/IMG_0002.CR3",
+                    ),
+                    outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00001"),
+                    can_run_in_parallel=True,
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(AssemblyPlanError, "Duplicate render task output"):
+                write_render_tasks_manifest(duplicated_plan, Path(tmp))
+
+    def test_rejects_chunked_photo_set_tasks_that_are_not_parallelizable(self) -> None:
+        nonparallel_plan = AssemblyPlan(
+            shoot_slug="nonparallel-chunk",
+            render_tasks=(
+                RenderTask(
+                    task_id="export_instagram_photo_set_part_00001",
+                    sequence_name="photo_set",
+                    source_job_id="export_instagram_photo_set",
+                    output_kind="instagram_photo_set",
+                    aspect_ratio="4:5",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00000/IMG_0001.CR3",
+                    ),
+                    outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00000"),
+                    can_run_in_parallel=False,
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(AssemblyPlanError, "parallel"):
+                write_render_tasks_manifest(nonparallel_plan, Path(tmp))
+
+    def test_round_trips_chunked_render_tasks_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._chunked_photo_set_plan(workspace, photo_count=3, chunk_size=2)
+
+            manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+            loaded_plan = load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+            raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(loaded_plan, assembly_plan)
+        self.assertEqual(
+            [task["task_id"] for task in raw_manifest["render_tasks"]],
+            ["export_instagram_photo_set_part_00001", "export_instagram_photo_set_part_00002"],
+        )
+
     def test_rejects_noncanonical_render_task_paths_and_dependencies_before_writing_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -468,6 +646,51 @@ class AssemblyPlanningTests(unittest.TestCase):
             allowed_asset_paths={reel_asset, photo_asset},
         )
         return build_assembly_plan(production_plan, workspace)
+
+    def _chunked_photo_set_plan(self, workspace: Path, *, photo_count: int, chunk_size: int):
+        assets = [
+            MediaAsset(path=f"card/DCIM/IMG_{index:04d}.CR3", media_type="photo")
+            for index in range(1, photo_count + 1)
+        ]
+        production_plan = build_production_plan(assets, shoot_slug="chunked-manifest")
+        photo_assets = tuple(
+            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3"
+            for index in range(photo_count)
+        )
+        storyline = StorylinePlan(
+            reel=ContentSequence(
+                output_kind="instagram_reel",
+                aspect_ratio="9:16",
+                asset_paths=(),
+                total_duration_seconds=0.0,
+                rationale="No video selects.",
+            ),
+            carousel=ContentSequence(
+                output_kind="instagram_carousel",
+                aspect_ratio="4:5",
+                asset_paths=(),
+                total_duration_seconds=None,
+                rationale="No carousel for this export.",
+            ),
+            photo_set=ContentSequence(
+                output_kind="instagram_photo_set",
+                aspect_ratio="4:5",
+                asset_paths=photo_assets,
+                total_duration_seconds=None,
+                rationale="Full ranked set.",
+            ),
+        )
+        self._touch_workspace_files(workspace, photo_assets)
+        write_storyline_artifact(
+            storyline,
+            workspace,
+            allowed_asset_paths=set(photo_assets),
+        )
+        return build_assembly_plan(
+            production_plan,
+            workspace,
+            photo_set_chunk_size=chunk_size,
+        )
 
 
 if __name__ == "__main__":

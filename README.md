@@ -26,7 +26,8 @@ This repo currently contains the first testable core utilities:
 - `shootflow.assembly` consumes trusted storyline selections and produces
   explicit render tasks from verified graded assets, without performing media
   rendering or destructive file operations. It can persist those tasks to a
-  strict `deliverables/render_tasks.json` manifest for future render workers.
+  strict `deliverables/render_tasks.json` manifest for future render workers,
+  including chunked photo-set export tasks for high-volume shoots.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -54,7 +55,9 @@ The intended first workflow is:
    downstream reel, carousel, and photo-set assemblers.
 7. Build `shootflow.assembly` render tasks that verify selected graded files
    exist, keep raw originals out of social assembly inputs, and write
-   deterministic `deliverables/` targets for future renderers.
+   deterministic `deliverables/` targets for future renderers. Large ranked
+   photo sets are split into resumable chunks while preserving stable public
+   output names like `photo_00001.jpg`.
 8. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.

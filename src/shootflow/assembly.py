@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -12,6 +13,7 @@ SequenceName = Literal["reel", "carousel", "photo_set"]
 MediaKind = Literal["photo", "video"]
 RENDER_TASKS_MANIFEST_PATH = "deliverables/render_tasks.json"
 _RENDER_TASKS_SCHEMA_VERSION = 1
+DEFAULT_PHOTO_SET_CHUNK_SIZE = 250
 
 _SEQUENCE_ORDER: tuple[SequenceName, ...] = ("reel", "carousel", "photo_set")
 _SEQUENCE_MEDIA: dict[SequenceName, MediaKind] = {
@@ -44,6 +46,9 @@ _SEQUENCE_CANONICAL_OUTPUTS: dict[SequenceName, str] = {
     "carousel": "deliverables/instagram_carousel/",
     "photo_set": "deliverables/instagram_photo_set/",
 }
+_PHOTO_SET_CHUNK_TASK_PREFIX = "export_instagram_photo_set_part_"
+_PHOTO_SET_CHUNK_TASK_PATTERN = re.compile(r"^export_instagram_photo_set_part_(\d{5})$")
+_PHOTO_SET_OUTPUT_PATTERN = re.compile(r"^deliverables/instagram_photo_set/photo_(\d{5})\.jpg$")
 _MANIFEST_KEYS = frozenset({"schema_version", "shoot_slug", "render_tasks"})
 _TASK_KEYS = frozenset(
     {
@@ -89,9 +94,15 @@ class _GradedOutput:
     media_kind: MediaKind
 
 
-def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> AssemblyPlan:
+def build_assembly_plan(
+    plan: ProductionPlan,
+    workspace_root: Path | str,
+    *,
+    photo_set_chunk_size: int = DEFAULT_PHOTO_SET_CHUNK_SIZE,
+) -> AssemblyPlan:
     if not isinstance(plan, ProductionPlan):
         raise TypeError("plan must be a ProductionPlan")
+    _validate_photo_set_chunk_size(photo_set_chunk_size)
     root = Path(workspace_root)
     if root.is_symlink():
         raise AssemblyPlanError(f"Refusing assembly workspace symlink: {root}")
@@ -107,10 +118,11 @@ def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> Ass
             continue
         _validate_sequence_media(sequence_name, sequence, graded_outputs=graded_outputs)
         _verify_selected_assets_exist(root, sequence.asset_paths)
-        render_tasks.append(
-            _render_task_for_sequence(
+        render_tasks.extend(
+            _render_tasks_for_sequence(
                 sequence_name,
                 sequence,
+                photo_set_chunk_size=photo_set_chunk_size,
                 graded_outputs=graded_outputs,
                 deliverable_jobs=deliverable_jobs,
             )
@@ -211,10 +223,54 @@ def _verify_selected_assets_exist(root: Path, asset_paths: tuple[str, ...]) -> N
             raise AssemblyPlanError(f"Missing graded asset: {asset_path}")
 
 
-def _render_task_for_sequence(
+def _render_tasks_for_sequence(
     sequence_name: SequenceName,
     sequence: ContentSequence,
     *,
+    photo_set_chunk_size: int,
+    graded_outputs: dict[str, _GradedOutput],
+    deliverable_jobs: dict[str, ProductionJob],
+) -> tuple[RenderTask, ...]:
+    if sequence_name != "photo_set" or len(sequence.asset_paths) <= photo_set_chunk_size:
+        return (
+            _render_task_for_sequence_chunk(
+                sequence_name,
+                sequence,
+                chunk_asset_paths=sequence.asset_paths,
+                start_index=1,
+                chunk_number=None,
+                can_run_in_parallel=None,
+                graded_outputs=graded_outputs,
+                deliverable_jobs=deliverable_jobs,
+            ),
+        )
+
+    tasks: list[RenderTask] = []
+    for chunk_offset in range(0, len(sequence.asset_paths), photo_set_chunk_size):
+        chunk_asset_paths = sequence.asset_paths[chunk_offset : chunk_offset + photo_set_chunk_size]
+        tasks.append(
+            _render_task_for_sequence_chunk(
+                sequence_name,
+                sequence,
+                chunk_asset_paths=chunk_asset_paths,
+                start_index=chunk_offset + 1,
+                chunk_number=(chunk_offset // photo_set_chunk_size) + 1,
+                can_run_in_parallel=True,
+                graded_outputs=graded_outputs,
+                deliverable_jobs=deliverable_jobs,
+            )
+        )
+    return tuple(tasks)
+
+
+def _render_task_for_sequence_chunk(
+    sequence_name: SequenceName,
+    sequence: ContentSequence,
+    *,
+    chunk_asset_paths: tuple[str, ...],
+    start_index: int,
+    chunk_number: int | None,
+    can_run_in_parallel: bool | None,
     graded_outputs: dict[str, _GradedOutput],
     deliverable_jobs: dict[str, ProductionJob],
 ) -> RenderTask:
@@ -224,19 +280,32 @@ def _render_task_for_sequence(
     except KeyError as exc:
         raise AssemblyPlanError(f"Missing deliverable job for sequence: {sequence_name}") from exc
 
-    outputs = _outputs_for_sequence(sequence_name, source_job, item_count=len(sequence.asset_paths))
-    selected_dependencies = tuple(graded_outputs[asset_path].job_id for asset_path in sequence.asset_paths)
+    outputs = _outputs_for_sequence(
+        sequence_name,
+        source_job,
+        item_count=len(chunk_asset_paths),
+        start_index=start_index,
+    )
+    selected_dependencies = tuple(graded_outputs[asset_path].job_id for asset_path in chunk_asset_paths)
     return RenderTask(
-        task_id=_SEQUENCE_TASK_IDS[sequence_name],
+        task_id=_render_task_id(sequence_name, chunk_number=chunk_number),
         sequence_name=sequence_name,
         source_job_id=source_job_id,
         output_kind=sequence.output_kind,
         aspect_ratio=sequence.aspect_ratio,
-        inputs=(STORYLINE_ARTIFACT_PATH,) + sequence.asset_paths,
+        inputs=(STORYLINE_ARTIFACT_PATH,) + chunk_asset_paths,
         outputs=outputs,
         depends_on=("rank_instagram_storylines",) + selected_dependencies,
-        can_run_in_parallel=source_job.can_run_in_parallel,
+        can_run_in_parallel=source_job.can_run_in_parallel
+        if can_run_in_parallel is None
+        else can_run_in_parallel,
     )
+
+
+def _render_task_id(sequence_name: SequenceName, *, chunk_number: int | None) -> str:
+    if chunk_number is None:
+        return _SEQUENCE_TASK_IDS[sequence_name]
+    return f"{_PHOTO_SET_CHUNK_TASK_PREFIX}{chunk_number:05d}"
 
 
 def _outputs_for_sequence(
@@ -244,6 +313,7 @@ def _outputs_for_sequence(
     source_job: ProductionJob,
     *,
     item_count: int,
+    start_index: int = 1,
 ) -> tuple[str, ...]:
     output = _single_job_output(source_job)
     _validate_relative_artifact_path(output, expected_root="deliverables")
@@ -255,7 +325,10 @@ def _outputs_for_sequence(
 
     output_dir = expected_output.rstrip("/")
     prefix = "slide" if sequence_name == "carousel" else "photo"
-    return tuple(f"{output_dir}/{prefix}_{index:05d}.jpg" for index in range(1, item_count + 1))
+    return tuple(
+        f"{output_dir}/{prefix}_{index:05d}.jpg"
+        for index in range(start_index, start_index + item_count)
+    )
 
 
 def _single_job_output(job: ProductionJob) -> str:
@@ -269,6 +342,11 @@ def _media_kind_from_output_kind(output_kind: str) -> MediaKind:
     if media_kind not in {"photo", "video"}:
         raise AssemblyPlanError(f"Unsupported graded output kind: {output_kind}")
     return media_kind  # type: ignore[return-value]
+
+
+def _validate_photo_set_chunk_size(chunk_size: int) -> None:
+    if isinstance(chunk_size, bool) or not isinstance(chunk_size, int) or chunk_size < 1:
+        raise AssemblyPlanError("photo_set_chunk_size must be a positive integer")
 
 
 def _validate_relative_artifact_path(path: str, *, expected_root: str) -> None:
@@ -285,11 +363,18 @@ def _validate_assembly_plan(plan: AssemblyPlan) -> None:
     if not isinstance(plan.render_tasks, tuple):
         raise AssemblyPlanError("Assembly render_tasks must be a tuple")
     task_ids: set[str] = set()
+    output_paths: set[str] = set()
     for task in plan.render_tasks:
-        _validate_render_task(task, task_ids=task_ids)
+        _validate_render_task(task, task_ids=task_ids, output_paths=output_paths)
+    _validate_photo_set_task_group(plan.render_tasks)
 
 
-def _validate_render_task(task: RenderTask, *, task_ids: set[str]) -> None:
+def _validate_render_task(
+    task: RenderTask,
+    *,
+    task_ids: set[str],
+    output_paths: set[str],
+) -> None:
     if not isinstance(task, RenderTask):
         raise AssemblyPlanError("Assembly render task must be a RenderTask")
     if not isinstance(task.task_id, str) or not task.task_id.strip():
@@ -299,7 +384,7 @@ def _validate_render_task(task: RenderTask, *, task_ids: set[str]) -> None:
     task_ids.add(task.task_id)
     if task.sequence_name not in _SEQUENCE_ORDER:
         raise AssemblyPlanError(f"Unknown render task sequence: {task.sequence_name}")
-    if task.task_id != _SEQUENCE_TASK_IDS[task.sequence_name]:
+    if not _is_expected_task_id(task):
         raise AssemblyPlanError(f"Unexpected {task.sequence_name} task id: {task.task_id}")
     if not isinstance(task.source_job_id, str) or not task.source_job_id.strip():
         raise AssemblyPlanError(f"Render task source job cannot be empty: {task.task_id}")
@@ -321,10 +406,15 @@ def _validate_render_task(task: RenderTask, *, task_ids: set[str]) -> None:
         raise AssemblyPlanError(f"Render task dependencies must be a tuple: {task.task_id}")
     if not isinstance(task.can_run_in_parallel, bool):
         raise AssemblyPlanError(f"Render task parallel flag must be boolean: {task.task_id}")
+    if _is_photo_set_chunk_task(task) and not task.can_run_in_parallel:
+        raise AssemblyPlanError(f"Photo set chunk task must be parallelizable: {task.task_id}")
     for input_path in task.inputs:
         _validate_render_input_path(input_path)
     for output_path in task.outputs:
         _validate_render_output_path(output_path)
+        if output_path in output_paths:
+            raise AssemblyPlanError(f"Duplicate render task output: {output_path}")
+        output_paths.add(output_path)
     for dependency in task.depends_on:
         if not isinstance(dependency, str) or not dependency.strip():
             raise AssemblyPlanError(f"Render task dependency cannot be empty: {task.task_id}")
@@ -336,12 +426,28 @@ def _validate_render_task(task: RenderTask, *, task_ids: set[str]) -> None:
         raise AssemblyPlanError(
             f"Unexpected {task.sequence_name} dependencies: {task.depends_on}"
         )
-    expected_outputs = _canonical_outputs_for_task(
-        task.sequence_name,
-        item_count=len(graded_inputs),
+    if _is_photo_set_chunk_task(task):
+        _validate_photo_set_chunk_outputs(task, item_count=len(graded_inputs))
+    else:
+        expected_outputs = _canonical_outputs_for_task(
+            task.sequence_name,
+            item_count=len(graded_inputs),
+        )
+        if task.outputs != expected_outputs:
+            raise AssemblyPlanError(f"Unexpected {task.sequence_name} outputs: {task.outputs}")
+
+
+def _is_expected_task_id(task: RenderTask) -> bool:
+    if task.sequence_name == "photo_set" and _is_photo_set_chunk_task(task):
+        return True
+    return task.task_id == _SEQUENCE_TASK_IDS[task.sequence_name]
+
+
+def _is_photo_set_chunk_task(task: RenderTask) -> bool:
+    return (
+        task.sequence_name == "photo_set"
+        and _PHOTO_SET_CHUNK_TASK_PATTERN.fullmatch(task.task_id) is not None
     )
-    if task.outputs != expected_outputs:
-        raise AssemblyPlanError(f"Unexpected {task.sequence_name} outputs: {task.outputs}")
 
 
 def _validate_render_input_path(path: str) -> None:
@@ -396,6 +502,52 @@ def _canonical_outputs_for_task(
     output_dir = expected_output.rstrip("/")
     prefix = "slide" if sequence_name == "carousel" else "photo"
     return tuple(f"{output_dir}/{prefix}_{index:05d}.jpg" for index in range(1, item_count + 1))
+
+
+def _validate_photo_set_chunk_outputs(task: RenderTask, *, item_count: int) -> None:
+    if len(task.outputs) != item_count:
+        raise AssemblyPlanError(f"Unexpected photo_set output count: {task.outputs}")
+    output_numbers = [_photo_set_output_number(output_path) for output_path in task.outputs]
+    if output_numbers != list(range(output_numbers[0], output_numbers[0] + item_count)):
+        raise AssemblyPlanError(f"Unexpected photo_set outputs: {task.outputs}")
+
+
+def _validate_photo_set_task_group(render_tasks: tuple[RenderTask, ...]) -> None:
+    photo_set_tasks = tuple(task for task in render_tasks if task.sequence_name == "photo_set")
+    if not photo_set_tasks:
+        return
+
+    chunk_tasks = tuple(task for task in photo_set_tasks if _is_photo_set_chunk_task(task))
+    if chunk_tasks and len(chunk_tasks) != len(photo_set_tasks):
+        raise AssemblyPlanError("Cannot mix chunked and unchunked photo_set render tasks")
+    if not chunk_tasks:
+        return
+
+    expected_task_ids = tuple(
+        f"{_PHOTO_SET_CHUNK_TASK_PREFIX}{index:05d}" for index in range(1, len(chunk_tasks) + 1)
+    )
+    actual_task_ids = tuple(task.task_id for task in chunk_tasks)
+    if actual_task_ids != expected_task_ids:
+        raise AssemblyPlanError(f"Unexpected photo_set chunk task order: {actual_task_ids}")
+
+    output_numbers = [
+        _photo_set_output_number(output_path)
+        for task in chunk_tasks
+        for output_path in task.outputs
+    ]
+    expected_output_numbers = list(range(1, len(output_numbers) + 1))
+    if output_numbers != expected_output_numbers:
+        raise AssemblyPlanError(f"Unexpected photo_set chunk outputs: {output_numbers}")
+
+
+def _photo_set_output_number(output_path: str) -> int:
+    match = _PHOTO_SET_OUTPUT_PATTERN.fullmatch(output_path)
+    if match is None:
+        raise AssemblyPlanError(f"Unexpected photo_set output path: {output_path}")
+    output_number = int(match.group(1))
+    if output_number < 1:
+        raise AssemblyPlanError(f"Unexpected photo_set output path: {output_path}")
+    return output_number
 
 
 def _render_tasks_manifest_path(workspace_root: Path | str) -> Path:
