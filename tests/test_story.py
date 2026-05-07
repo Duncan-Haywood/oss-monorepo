@@ -354,6 +354,48 @@ class StorylinePlanningTests(unittest.TestCase):
             with self.assertRaisesRegex(StoryPlanError, "Unexpected storyline artifact field"):
                 load_storyline_artifact(workspace, allowed_asset_paths={"graded/grade_asset_00000/A001.MOV"})
 
+    def test_rejects_storyline_sequences_with_missing_schema_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            artifact_path = workspace / STORYLINE_ARTIFACT_PATH
+            artifact_path.parent.mkdir()
+            artifact_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "sequences": [
+                            {
+                                "name": "reel",
+                                "output_kind": "instagram_reel",
+                                "aspect_ratio": "9:16",
+                                "asset_paths": ["graded/grade_asset_00000/A001.MOV"],
+                                "rationale": "Trusted reel.",
+                            },
+                            {
+                                "name": "carousel",
+                                "output_kind": "instagram_carousel",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                            },
+                            {
+                                "name": "photo_set",
+                                "output_kind": "instagram_photo_set",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(StoryPlanError, "Missing storyline sequence field"):
+                load_storyline_artifact(workspace, allowed_asset_paths={"graded/grade_asset_00000/A001.MOV"})
+
 
 if __name__ == "__main__":
     unittest.main()
