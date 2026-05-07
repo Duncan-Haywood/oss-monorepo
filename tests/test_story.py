@@ -285,6 +285,75 @@ class StorylinePlanningTests(unittest.TestCase):
             with self.assertRaisesRegex(StoryPlanError, "untrusted asset"):
                 load_storyline_artifact(workspace, allowed_asset_paths={"graded/grade_asset_00000/A001.MOV"})
 
+    def test_rejects_broken_storyline_artifact_temp_symlink_without_writing_target(self) -> None:
+        analysis = AssetAnalysis(
+            asset_path="graded/grade_asset_00000/A001.MOV",
+            media_type="video",
+            scene_label="ceremony",
+            aesthetic_score=0.93,
+            story_score=0.91,
+            technical_score=0.87,
+            motion_score=0.82,
+            duration_seconds=12.5,
+        )
+        plan = build_storyline_plan([analysis])
+
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
+            workspace = Path(tmp)
+            artifact_path = workspace / STORYLINE_ARTIFACT_PATH
+            artifact_path.parent.mkdir()
+            outside_target = Path(outside_tmp) / "outside-storyline.json"
+            artifact_path.with_suffix(".json.tmp").symlink_to(outside_target)
+
+            with self.assertRaisesRegex(StoryPlanError, "symlink"):
+                write_storyline_artifact(plan, workspace, allowed_asset_paths={analysis.asset_path})
+            self.assertFalse(outside_target.exists())
+
+    def test_rejects_unknown_storyline_artifact_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            artifact_path = workspace / STORYLINE_ARTIFACT_PATH
+            artifact_path.parent.mkdir()
+            artifact_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "delete_files": ["/Volumes/Untitled/DCIM"],
+                        "sequences": [
+                            {
+                                "name": "reel",
+                                "output_kind": "instagram_reel",
+                                "aspect_ratio": "9:16",
+                                "asset_paths": ["graded/grade_asset_00000/A001.MOV"],
+                                "total_duration_seconds": 8.0,
+                                "rationale": "Trusted reel.",
+                            },
+                            {
+                                "name": "carousel",
+                                "output_kind": "instagram_carousel",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                                "raw_inputs": ["/shoot/originals/IMG_0001.CR3"],
+                            },
+                            {
+                                "name": "photo_set",
+                                "output_kind": "instagram_photo_set",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(StoryPlanError, "Unexpected storyline artifact field"):
+                load_storyline_artifact(workspace, allowed_asset_paths={"graded/grade_asset_00000/A001.MOV"})
+
 
 if __name__ == "__main__":
     unittest.main()
