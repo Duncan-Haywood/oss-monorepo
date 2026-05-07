@@ -421,6 +421,87 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
                     final_manifest=final_manifest,
                 )
 
+    def test_scheduler_report_rejects_forged_known_task_review_state(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:00Z",
+                completed_at="2026-05-07T15:07:05Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:06Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["blocked_task_ids"] = ["render_instagram_reel"]
+            raw_report["review_required_task_ids"] = ["render_instagram_reel"]
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "blocked"):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
+    def test_scheduler_report_rejects_forged_complete_stop_for_retryable_status(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.parent.mkdir(parents=True)
+            output_path.write_bytes(b"manual editor export")
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:08:00Z",
+                completed_at="2026-05-07T15:08:05Z",
+                max_concurrency=1,
+                max_iterations=3,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:08:06Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["stopped_reason"] = "complete"
+            raw_report["failure_messages"] = [
+                {"task_id": "render_instagram_reel", "message": "forged succeeded-task warning"}
+            ]
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "stopped_reason"):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
     def _pending_manifest(self, trusted_plan: AssemblyPlan) -> RenderStatusManifest:
         return RenderStatusManifest(
             shoot_slug=trusted_plan.shoot_slug,

@@ -730,6 +730,8 @@ def _validate_report(
             raise DryRunRenderSchedulerError(
                 f"Render scheduler report {field_name} contains unknown tasks: {sorted(unknown)}"
             )
+    _validate_report_blocked_tasks(report, manifest_statuses)
+    _validate_report_stopped_reason(report, final_manifest)
     expected_review_required = _ordered_unique(
         report.retryable_task_ids
         + report.failed_task_ids
@@ -754,6 +756,72 @@ def _validate_report(
     message_task_ids = {message.task_id for message in report.failure_messages}
     if message_task_ids - known_task_ids:
         raise DryRunRenderSchedulerError("Render scheduler report failure_messages contain unknown tasks")
+    for message in report.failure_messages:
+        if manifest_statuses[message.task_id].state == "succeeded":
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report failure_messages cannot describe succeeded tasks"
+            )
+
+
+def _validate_report_blocked_tasks(
+    report: DryRunRenderSchedulerReport,
+    manifest_statuses: dict[str, object],
+) -> None:
+    for task_id in report.blocked_task_ids:
+        status = manifest_statuses[task_id]
+        if getattr(status, "state") not in {"pending", "retryable"}:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report blocked_task_ids conflict with final status"
+            )
+    for task_id in report.skipped_retryable_task_ids:
+        status = manifest_statuses[task_id]
+        if getattr(status, "state") != "retryable":
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report skipped_retryable_task_ids conflict with final status"
+            )
+
+
+def _validate_report_stopped_reason(
+    report: DryRunRenderSchedulerReport,
+    final_manifest: RenderStatusManifest,
+) -> None:
+    states = {status.state for status in final_manifest.task_statuses}
+    has_unfinished = bool(states & {"pending", "running", "retryable"})
+    if report.stopped_reason == "complete":
+        if states != {"succeeded"} or report.review_required_task_ids:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
+        return
+    if report.stopped_reason == "failed":
+        if "failed" not in states:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
+        return
+    if report.stopped_reason == "retryable":
+        if not report.retryable_task_ids:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
+        return
+    if report.stopped_reason == "blocked":
+        if not report.blocked_task_ids:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
+        return
+    if report.stopped_reason == "waiting":
+        if "failed" in states or not has_unfinished:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
+        return
+    if report.stopped_reason == "max_iterations":
+        if not has_unfinished and "failed" not in states:
+            raise DryRunRenderSchedulerError(
+                "Render scheduler report stopped_reason conflicts with final status"
+            )
 
 
 def _manifest_task_ids_with_state(manifest: RenderStatusManifest, state: str) -> set[str]:
