@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Literal
 
@@ -113,10 +114,12 @@ def _validate_analysis(analysis: AssetAnalysis) -> None:
         raise StoryPlanError(f"Analysis scene label cannot be empty: {analysis.asset_path}")
     for score_name in ("aesthetic_score", "story_score", "technical_score", "motion_score"):
         score = getattr(analysis, score_name)
-        if score < 0 or score > 1:
+        if not math.isfinite(score) or score < 0 or score > 1:
             raise StoryPlanError(f"{score_name} must be between 0 and 1: {analysis.asset_path}")
-    if analysis.media_type == "video" and analysis.duration_seconds is not None:
-        if analysis.duration_seconds < 0:
+    if analysis.media_type == "video":
+        if analysis.duration_seconds is None:
+            raise StoryPlanError(f"Video duration is required for reel planning: {analysis.asset_path}")
+        if not math.isfinite(analysis.duration_seconds) or analysis.duration_seconds < 0:
             raise StoryPlanError(f"Video duration cannot be negative: {analysis.asset_path}")
 
 

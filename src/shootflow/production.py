@@ -101,9 +101,13 @@ def build_production_plan(assets: list[MediaAsset], shoot_slug: str) -> Producti
     storyline_job = ProductionJob(
         job_id="rank_instagram_storylines",
         output_kind="storyline_selection",
-        inputs=tuple(job.outputs[0] for job in analysis_jobs) + (scene_job.outputs[0], look_job.outputs[0]),
+        inputs=(
+            tuple(job.outputs[0] for job in analysis_jobs)
+            + (scene_job.outputs[0], look_job.outputs[0])
+            + tuple(job.outputs[0] for job in grade_jobs)
+        ),
         outputs=("analysis/instagram_storylines.json",),
-        depends_on=(scene_job.job_id, look_job.job_id),
+        depends_on=(scene_job.job_id, look_job.job_id) + tuple(job.job_id for job in grade_jobs),
         can_run_in_parallel=False,
     )
     deliverable_jobs = _build_instagram_jobs(assets, grade_jobs, storyline_job)
@@ -162,7 +166,7 @@ def _build_instagram_jobs(
             ProductionJob(
                 job_id="assemble_instagram_reel",
                 output_kind="instagram_reel",
-                inputs=tuple(job.outputs[0] for _asset, job in video_pairs),
+                inputs=(storyline_job.outputs[0],) + tuple(job.outputs[0] for _asset, job in video_pairs),
                 outputs=("deliverables/instagram_reel.mp4",),
                 depends_on=(storyline_job.job_id,) + tuple(job.job_id for _asset, job in video_pairs),
                 can_run_in_parallel=False,
@@ -176,7 +180,7 @@ def _build_instagram_jobs(
             ProductionJob(
                 job_id="assemble_instagram_carousel",
                 output_kind="instagram_carousel",
-                inputs=photo_inputs,
+                inputs=(storyline_job.outputs[0],) + photo_inputs,
                 outputs=("deliverables/instagram_carousel/",),
                 depends_on=(storyline_job.job_id,) + photo_dependencies,
                 can_run_in_parallel=False,
@@ -187,7 +191,7 @@ def _build_instagram_jobs(
             ProductionJob(
                 job_id="export_instagram_photo_set",
                 output_kind="instagram_photo_set",
-                inputs=photo_inputs,
+                inputs=(storyline_job.outputs[0],) + photo_inputs,
                 outputs=("deliverables/instagram_photo_set/",),
                 depends_on=(storyline_job.job_id,) + photo_dependencies,
                 can_run_in_parallel=False,
