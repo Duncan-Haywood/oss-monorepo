@@ -12,6 +12,7 @@ from shootflow.render_status import (
     RenderStatusManifest,
     RenderTaskStatus,
     build_initial_render_status_manifest,
+    compare_and_write_render_task_status,
     load_render_status_manifest,
     render_plan_fingerprint,
     write_render_status_manifest,
@@ -302,6 +303,175 @@ class RenderStatusManifestTests(unittest.TestCase):
 
             with self.assertRaisesRegex(RenderStatusError, "stale temporary render status manifest"):
                 write_render_status_manifest(manifest, workspace, trusted_plan=trusted_plan)
+
+    def test_compares_and_writes_one_updated_task_status_from_latest_manifest(self) -> None:
+        trusted_plan = self._trusted_plan()
+        updated_status = RenderTaskStatus(
+            task_id="render_instagram_reel",
+            state="running",
+            renderer_adapter="dry-run-local",
+            attempts=1,
+            updated_at="2026-05-07T13:20:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            initial_manifest = build_initial_render_status_manifest(trusted_plan)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            updated_manifest = compare_and_write_render_task_status(
+                workspace,
+                trusted_plan=trusted_plan,
+                updated_status=updated_status,
+                expected_state="pending",
+                expected_attempts=0,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(updated_manifest, loaded_manifest)
+        self.assertEqual(updated_manifest.shoot_slug, initial_manifest.shoot_slug)
+        self.assertEqual(
+            updated_manifest.render_plan_fingerprint,
+            initial_manifest.render_plan_fingerprint,
+        )
+        self.assertEqual(
+            [status.task_id for status in updated_manifest.task_statuses],
+            ["render_instagram_reel", "render_instagram_carousel"],
+        )
+        self.assertEqual(updated_manifest.task_statuses[0], updated_status)
+        self.assertEqual(updated_manifest.task_statuses[1], initial_manifest.task_statuses[1])
+
+    def test_rejects_stale_status_precondition_without_rewriting_manifest(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_status = RenderTaskStatus(
+            task_id="render_instagram_reel",
+            state="running",
+            renderer_adapter="dry-run-local",
+            attempts=1,
+            updated_at="2026-05-07T13:20:00Z",
+        )
+        succeeded_status = RenderTaskStatus(
+            task_id="render_instagram_reel",
+            state="succeeded",
+            renderer_adapter="dry-run-local",
+            attempts=1,
+            output_checksums=(
+                OutputChecksum(
+                    path="deliverables/instagram_reel.mp4",
+                    sha256="b" * 64,
+                ),
+            ),
+            updated_at="2026-05-07T13:21:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            manifest = RenderStatusManifest(
+                shoot_slug="status-contract",
+                render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                task_statuses=(running_status, RenderTaskStatus(task_id="render_instagram_carousel", state="pending")),
+            )
+            write_render_status_manifest(manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(RenderStatusError, "precondition"):
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=succeeded_status,
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, manifest)
+
+    def test_rejects_unknown_task_status_update(self) -> None:
+        trusted_plan = self._trusted_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_status_manifest(
+                build_initial_render_status_manifest(trusted_plan),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+
+            with self.assertRaisesRegex(RenderStatusError, "unknown render task"):
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=RenderTaskStatus(task_id="render_unknown_task", state="pending"),
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+
+    def test_rejects_stale_manifest_fingerprint_before_status_update(self) -> None:
+        trusted_plan = self._trusted_plan()
+        stale_plan = replace(
+            trusted_plan,
+            render_tasks=(
+                replace(
+                    trusted_plan.render_tasks[0],
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00099/STALE.MOV",
+                    ),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00099"),
+                ),
+            )
+            + trusted_plan.render_tasks[1:],
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_status_manifest(
+                build_initial_render_status_manifest(stale_plan),
+                workspace,
+                trusted_plan=stale_plan,
+            )
+
+            with self.assertRaisesRegex(RenderStatusError, "render plan fingerprint"):
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=RenderTaskStatus(
+                        task_id="render_instagram_reel",
+                        state="running",
+                        renderer_adapter="dry-run-local",
+                        attempts=1,
+                        updated_at="2026-05-07T13:20:00Z",
+                    ),
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+
+    def test_status_update_uses_safe_writer_for_stale_temp_manifest_paths(self) -> None:
+        trusted_plan = self._trusted_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            initial_manifest = build_initial_render_status_manifest(trusted_plan)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            manifest_path = workspace / RENDER_STATUS_MANIFEST_PATH
+            manifest_path.with_suffix(".json.tmp").write_text("stale", encoding="utf-8")
+
+            with self.assertRaisesRegex(RenderStatusError, "stale temporary render status manifest"):
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=RenderTaskStatus(
+                        task_id="render_instagram_reel",
+                        state="running",
+                        renderer_adapter="dry-run-local",
+                        attempts=1,
+                        updated_at="2026-05-07T13:20:00Z",
+                    ),
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, initial_manifest)
 
     def _trusted_plan(self) -> AssemblyPlan:
         return AssemblyPlan(

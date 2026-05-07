@@ -144,6 +144,26 @@ def load_render_status_manifest(
     return manifest
 
 
+def compare_and_write_render_task_status(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    updated_status: RenderTaskStatus,
+    expected_state: RenderTaskState,
+    expected_attempts: int,
+) -> RenderStatusManifest:
+    current_manifest = load_render_status_manifest(workspace_root, trusted_plan=trusted_plan)
+    updated_manifest = _replace_render_task_status(
+        current_manifest,
+        updated_status=updated_status,
+        expected_state=expected_state,
+        expected_attempts=expected_attempts,
+        trusted_plan=trusted_plan,
+    )
+    write_render_status_manifest(updated_manifest, workspace_root, trusted_plan=trusted_plan)
+    return updated_manifest
+
+
 def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: AssemblyPlan) -> None:
     _validate_trusted_plan(trusted_plan)
     if not isinstance(manifest, RenderStatusManifest):
@@ -167,6 +187,51 @@ def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: Assembly
 
     for status in manifest.task_statuses:
         _validate_status(status, trusted_task=tasks_by_id[status.task_id])
+
+
+def _replace_render_task_status(
+    manifest: RenderStatusManifest,
+    *,
+    updated_status: RenderTaskStatus,
+    expected_state: RenderTaskState,
+    expected_attempts: int,
+    trusted_plan: AssemblyPlan,
+) -> RenderStatusManifest:
+    _validate_manifest(manifest, trusted_plan=trusted_plan)
+    if not isinstance(updated_status, RenderTaskStatus):
+        raise RenderStatusError("updated_status must be a RenderTaskStatus")
+    if updated_status.state not in _STATES:
+        raise RenderStatusError(f"Unsupported render status state: {updated_status.state}")
+    if expected_state not in _STATES:
+        raise RenderStatusError(f"Unsupported expected render status state: {expected_state}")
+    if isinstance(expected_attempts, bool) or not isinstance(expected_attempts, int) or expected_attempts < 0:
+        raise RenderStatusError("expected_attempts must be a non-negative integer")
+
+    task_index = _status_index_for_task(manifest, updated_status.task_id)
+    if task_index is None:
+        raise RenderStatusError(f"Cannot update unknown render task status: {updated_status.task_id}")
+    current_status = manifest.task_statuses[task_index]
+    if current_status.state != expected_state or current_status.attempts != expected_attempts:
+        raise RenderStatusError(
+            f"Render status precondition failed for task: {updated_status.task_id}"
+        )
+
+    updated_statuses = list(manifest.task_statuses)
+    updated_statuses[task_index] = updated_status
+    updated_manifest = RenderStatusManifest(
+        shoot_slug=manifest.shoot_slug,
+        render_plan_fingerprint=manifest.render_plan_fingerprint,
+        task_statuses=tuple(updated_statuses),
+    )
+    _validate_manifest(updated_manifest, trusted_plan=trusted_plan)
+    return updated_manifest
+
+
+def _status_index_for_task(manifest: RenderStatusManifest, task_id: str) -> int | None:
+    for index, status in enumerate(manifest.task_statuses):
+        if status.task_id == task_id:
+            return index
+    return None
 
 
 def _validate_trusted_plan(plan: AssemblyPlan) -> None:
