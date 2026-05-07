@@ -24,6 +24,7 @@ class ProductionPlanningTests(unittest.TestCase):
                 ["scene_grouping"],
                 ["look_development"],
                 ["graded_video", "graded_video", "graded_photo", "graded_photo"],
+                ["storyline_selection"],
                 ["instagram_reel", "instagram_carousel", "instagram_photo_set"],
             ],
         )
@@ -31,6 +32,7 @@ class ProductionPlanningTests(unittest.TestCase):
         self.assertTrue(all(job.can_run_in_parallel for job in plan.execution_waves[1].jobs))
         self.assertTrue(all(job.can_run_in_parallel for job in plan.execution_waves[4].jobs))
         self.assertFalse(any(job.can_run_in_parallel for job in plan.execution_waves[5].jobs))
+        self.assertFalse(any(job.can_run_in_parallel for job in plan.execution_waves[6].jobs))
 
     def test_instagram_jobs_consume_matching_graded_masters(self) -> None:
         assets = [
@@ -46,11 +48,19 @@ class ProductionPlanningTests(unittest.TestCase):
         reel = plan.job_by_id("assemble_instagram_reel")
         carousel = plan.job_by_id("assemble_instagram_carousel")
         photo_set = plan.job_by_id("export_instagram_photo_set")
+        storylines = plan.job_by_id("rank_instagram_storylines")
 
-        self.assertEqual(reel.depends_on, ("grade_asset_00000", "grade_asset_00001"))
+        self.assertEqual(storylines.depends_on, ("group_scene_sets", "develop_shoot_look"))
+        self.assertEqual(storylines.outputs, ("analysis/instagram_storylines.json",))
+        self.assertEqual(reel.depends_on, ("rank_instagram_storylines", "grade_asset_00000", "grade_asset_00001"))
         self.assertEqual(
             carousel.depends_on,
-            ("grade_asset_00002", "grade_asset_00003", "grade_asset_00004"),
+            (
+                "rank_instagram_storylines",
+                "grade_asset_00002",
+                "grade_asset_00003",
+                "grade_asset_00004",
+            ),
         )
         self.assertEqual(carousel.depends_on, photo_set.depends_on)
         self.assertEqual(
