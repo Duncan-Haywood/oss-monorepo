@@ -17,6 +17,8 @@ from shootflow.render_scheduler import (
 )
 from shootflow.render_status import RenderStatusError, load_render_status_manifest
 
+_SCHEDULER_REPORT_SCHEMA_VERSION = 1
+
 
 class ShootFlowCliError(ValueError):
     """Raised when CLI entrypoint arguments are invalid."""
@@ -148,6 +150,7 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
         raise ShootFlowCliError("report must be a DryRunRenderSchedulerReport")
     return json.dumps(
         {
+            "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
             "generated_at": report.generated_at,
             "shoot_slug": report.shoot_slug,
             "render_plan_fingerprint": report.render_plan_fingerprint,

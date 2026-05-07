@@ -221,7 +221,19 @@ def load_trusted_render_tasks_manifest(workspace_root: Path | str) -> AssemblyPl
     )
     loaded_plan = _assembly_plan_from_json(_read_json_object(manifest_path))
     _validate_assembly_plan(loaded_plan)
+    _verify_persisted_render_task_inputs(root, loaded_plan)
     return loaded_plan
+
+
+def _verify_persisted_render_task_inputs(root: Path, plan: AssemblyPlan) -> None:
+    for task in plan.render_tasks:
+        for input_path in task.inputs:
+            path = _safe_workspace_path(root, input_path)
+            _reject_symlink_path(path, root, "render task input")
+            if not path.exists():
+                raise AssemblyPlanError(f"Missing render task input: {input_path}")
+            if not path.is_file():
+                raise AssemblyPlanError(f"Render task input must be a file: {input_path}")
 
 
 def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, _GradedOutput]:

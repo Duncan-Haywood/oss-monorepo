@@ -75,10 +75,11 @@ The repo currently contains a Python core package because it is quick to test an
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
 - `shootflow.cli`: the first background-agent command surface. The dry-run scheduler command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation, treats that loaded
-  plan as the trusted renderer contract, validates the matching render-status manifest by fingerprint, runs the
-  scheduler, writes `deliverables/render_scheduler_report.json`, and optionally prints the report JSON for a Mac UI,
-  launch agent, or continuation automation. It does not accept model-authored paths, delete files, or widen renderer
-  authority beyond the persisted render-task/status contracts.
+  plan as the trusted renderer contract only after persisted task inputs exist and are not symlinks, validates the
+  matching render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`,
+  and optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
+  It does not accept model-authored paths, delete files, or widen renderer authority beyond the persisted
+  render-task/status contracts.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 

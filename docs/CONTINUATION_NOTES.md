@@ -13,7 +13,8 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   `cursor/media-content-automation-5b63`, then added the first persisted-manifest scheduler CLI.
 - Added `load_trusted_render_tasks_manifest(...)` in `shootflow.assembly`:
   - loads `deliverables/render_tasks.json` without requiring an already in-memory `AssemblyPlan`;
-  - still rejects unknown fields, unsafe inputs/outputs, noncanonical tasks, symlinked manifests, and stale temp paths;
+  - still rejects unknown fields, unsafe inputs/outputs, noncanonical tasks, symlinked manifests, stale temp paths, and
+    persisted task inputs that are missing, directories, or symlinks;
   - lets background agents treat the strict persisted render-task handoff as the trusted plan when paired with the
     fingerprint-bound render-status manifest.
 - Added `shootflow.cli` with `python -m shootflow.cli dry-run-render-scheduler`:
