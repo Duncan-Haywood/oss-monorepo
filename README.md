@@ -25,7 +25,8 @@ This repo currently contains the first testable core utilities:
   selection.
 - `shootflow.assembly` consumes trusted storyline selections and produces
   explicit render tasks from verified graded assets, without performing media
-  rendering or destructive file operations.
+  rendering or destructive file operations. It can persist those tasks to a
+  strict `deliverables/render_tasks.json` manifest for future render workers.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -54,6 +55,9 @@ The intended first workflow is:
 7. Build `shootflow.assembly` render tasks that verify selected graded files
    exist, keep raw originals out of social assembly inputs, and write
    deterministic `deliverables/` targets for future renderers.
+8. Persist and reload `deliverables/render_tasks.json` against the trusted
+   assembly plan so parallel render workers cannot consume model-authored or
+   stale task JSON.
 
 ## Run tests
 

@@ -35,7 +35,8 @@ The repo currently contains a Python core package because it is quick to test an
   photo-set exports, plus a deterministic storyline artifact contract for downstream assemblers.
 - `shootflow.assembly`: a renderer-neutral handoff from trusted storyline selections to explicit social
   render tasks. It verifies selected graded artifacts exist, rejects symlinked selected media, keeps raw
-  originals out of render inputs, and derives deterministic output paths under `deliverables/`.
+  originals out of render inputs, derives deterministic output paths under `deliverables/`, and persists
+  strict render manifests for future workers.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -103,6 +104,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   selected graded photos only. Outputs are deterministic (`deliverables/instagram_reel.mp4`,
   ordered carousel slides, and ordered photo-set JPEGs) so retries and UI review do not reshuffle the
   package.
+- `deliverables/render_tasks.json` is the render-worker handoff. The loader requires exact JSON fields,
+  safe analysis/graded inputs, deliverables-only outputs, no symlinked manifest/temp paths, and an exact
+  match with the trusted in-memory `AssemblyPlan` before a renderer may consume it.
 - The current planner is intentionally an edit-decision contract, not a renderer. Future renderers can be
   local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve automation, or cloud GPU workers as long as they
   honor the same job IDs and dependencies.

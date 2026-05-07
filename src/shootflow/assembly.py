@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -9,6 +10,8 @@ from shootflow.story import ContentSequence, STORYLINE_ARTIFACT_PATH, load_story
 
 SequenceName = Literal["reel", "carousel", "photo_set"]
 MediaKind = Literal["photo", "video"]
+RENDER_TASKS_MANIFEST_PATH = "deliverables/render_tasks.json"
+_RENDER_TASKS_SCHEMA_VERSION = 1
 
 _SEQUENCE_ORDER: tuple[SequenceName, ...] = ("reel", "carousel", "photo_set")
 _SEQUENCE_MEDIA: dict[SequenceName, MediaKind] = {
@@ -21,6 +24,16 @@ _SEQUENCE_JOB_IDS: dict[SequenceName, str] = {
     "carousel": "assemble_instagram_carousel",
     "photo_set": "export_instagram_photo_set",
 }
+_SEQUENCE_OUTPUT_KINDS: dict[SequenceName, str] = {
+    "reel": "instagram_reel",
+    "carousel": "instagram_carousel",
+    "photo_set": "instagram_photo_set",
+}
+_SEQUENCE_ASPECT_RATIOS: dict[SequenceName, str] = {
+    "reel": "9:16",
+    "carousel": "4:5",
+    "photo_set": "4:5",
+}
 _SEQUENCE_TASK_IDS: dict[SequenceName, str] = {
     "reel": "render_instagram_reel",
     "carousel": "render_instagram_carousel",
@@ -31,6 +44,20 @@ _SEQUENCE_CANONICAL_OUTPUTS: dict[SequenceName, str] = {
     "carousel": "deliverables/instagram_carousel/",
     "photo_set": "deliverables/instagram_photo_set/",
 }
+_MANIFEST_KEYS = frozenset({"schema_version", "shoot_slug", "render_tasks"})
+_TASK_KEYS = frozenset(
+    {
+        "task_id",
+        "sequence_name",
+        "source_job_id",
+        "output_kind",
+        "aspect_ratio",
+        "inputs",
+        "outputs",
+        "depends_on",
+        "can_run_in_parallel",
+    }
+)
 
 
 class AssemblyPlanError(ValueError):
@@ -90,6 +117,55 @@ def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> Ass
         )
 
     return AssemblyPlan(shoot_slug=plan.shoot_slug, render_tasks=tuple(render_tasks))
+
+
+def write_render_tasks_manifest(plan: AssemblyPlan, workspace_root: Path | str) -> Path:
+    if not isinstance(plan, AssemblyPlan):
+        raise TypeError("plan must be an AssemblyPlan")
+    _validate_assembly_plan(plan)
+
+    manifest_path = _render_tasks_manifest_path(workspace_root)
+    root = Path(workspace_root)
+    _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
+    try:
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise AssemblyPlanError(
+            f"Unable to create render task manifest directory: {manifest_path.parent}"
+        ) from exc
+    _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
+    _reject_symlink_path(manifest_path, root, "render task manifest")
+
+    temp_path = manifest_path.with_suffix(".json.tmp")
+    _reject_symlink_path(temp_path, root, "temporary render task manifest")
+    temp_path.write_text(_assembly_plan_json(plan), encoding="utf-8")
+    temp_path.replace(manifest_path)
+    return manifest_path
+
+
+def load_render_tasks_manifest(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> AssemblyPlan:
+    if not isinstance(trusted_plan, AssemblyPlan):
+        raise TypeError("trusted_plan must be an AssemblyPlan")
+    _validate_assembly_plan(trusted_plan)
+
+    manifest_path = _render_tasks_manifest_path(workspace_root)
+    root = Path(workspace_root)
+    _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
+    _reject_symlink_path(manifest_path, root, "render task manifest")
+    _reject_symlink_path(
+        manifest_path.with_suffix(".json.tmp"),
+        root,
+        "temporary render task manifest",
+    )
+    loaded_plan = _assembly_plan_from_json(_read_json_object(manifest_path))
+    _validate_assembly_plan(loaded_plan)
+    if loaded_plan != trusted_plan:
+        raise AssemblyPlanError("Render task manifest does not match trusted assembly plan")
+    return loaded_plan
 
 
 def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, _GradedOutput]:
@@ -203,6 +279,250 @@ def _validate_relative_artifact_path(path: str, *, expected_root: str) -> None:
         raise AssemblyPlanError(f"Unexpected artifact path: {path}")
 
 
+def _validate_assembly_plan(plan: AssemblyPlan) -> None:
+    if not isinstance(plan.shoot_slug, str) or not plan.shoot_slug.strip():
+        raise AssemblyPlanError("Assembly plan shoot_slug cannot be empty")
+    if not isinstance(plan.render_tasks, tuple):
+        raise AssemblyPlanError("Assembly render_tasks must be a tuple")
+    task_ids: set[str] = set()
+    for task in plan.render_tasks:
+        _validate_render_task(task, task_ids=task_ids)
+
+
+def _validate_render_task(task: RenderTask, *, task_ids: set[str]) -> None:
+    if not isinstance(task, RenderTask):
+        raise AssemblyPlanError("Assembly render task must be a RenderTask")
+    if not isinstance(task.task_id, str) or not task.task_id.strip():
+        raise AssemblyPlanError("Render task id cannot be empty")
+    if task.task_id in task_ids:
+        raise AssemblyPlanError(f"Duplicate render task id: {task.task_id}")
+    task_ids.add(task.task_id)
+    if task.sequence_name not in _SEQUENCE_ORDER:
+        raise AssemblyPlanError(f"Unknown render task sequence: {task.sequence_name}")
+    if task.task_id != _SEQUENCE_TASK_IDS[task.sequence_name]:
+        raise AssemblyPlanError(f"Unexpected {task.sequence_name} task id: {task.task_id}")
+    if not isinstance(task.source_job_id, str) or not task.source_job_id.strip():
+        raise AssemblyPlanError(f"Render task source job cannot be empty: {task.task_id}")
+    if task.source_job_id != _SEQUENCE_JOB_IDS[task.sequence_name]:
+        raise AssemblyPlanError(f"Unexpected {task.sequence_name} source job: {task.source_job_id}")
+    if not isinstance(task.output_kind, str) or not task.output_kind.strip():
+        raise AssemblyPlanError(f"Render task output kind cannot be empty: {task.task_id}")
+    if task.output_kind != _SEQUENCE_OUTPUT_KINDS[task.sequence_name]:
+        raise AssemblyPlanError(f"Unexpected {task.sequence_name} output kind: {task.output_kind}")
+    if not isinstance(task.aspect_ratio, str) or not task.aspect_ratio.strip():
+        raise AssemblyPlanError(f"Render task aspect ratio cannot be empty: {task.task_id}")
+    if task.aspect_ratio != _SEQUENCE_ASPECT_RATIOS[task.sequence_name]:
+        raise AssemblyPlanError(f"Unexpected {task.sequence_name} aspect ratio: {task.aspect_ratio}")
+    if not isinstance(task.inputs, tuple) or not task.inputs:
+        raise AssemblyPlanError(f"Render task inputs must be a non-empty tuple: {task.task_id}")
+    if not isinstance(task.outputs, tuple) or not task.outputs:
+        raise AssemblyPlanError(f"Render task outputs must be a non-empty tuple: {task.task_id}")
+    if not isinstance(task.depends_on, tuple):
+        raise AssemblyPlanError(f"Render task dependencies must be a tuple: {task.task_id}")
+    if not isinstance(task.can_run_in_parallel, bool):
+        raise AssemblyPlanError(f"Render task parallel flag must be boolean: {task.task_id}")
+    for input_path in task.inputs:
+        _validate_render_input_path(input_path)
+    for output_path in task.outputs:
+        _validate_render_output_path(output_path)
+    for dependency in task.depends_on:
+        if not isinstance(dependency, str) or not dependency.strip():
+            raise AssemblyPlanError(f"Render task dependency cannot be empty: {task.task_id}")
+    graded_inputs = _graded_inputs_for_task(task)
+    expected_dependencies = ("rank_instagram_storylines",) + tuple(
+        _grade_job_id_for_input(input_path) for input_path in graded_inputs
+    )
+    if task.depends_on != expected_dependencies:
+        raise AssemblyPlanError(
+            f"Unexpected {task.sequence_name} dependencies: {task.depends_on}"
+        )
+    expected_outputs = _canonical_outputs_for_task(
+        task.sequence_name,
+        item_count=len(graded_inputs),
+    )
+    if task.outputs != expected_outputs:
+        raise AssemblyPlanError(f"Unexpected {task.sequence_name} outputs: {task.outputs}")
+
+
+def _validate_render_input_path(path: str) -> None:
+    if not isinstance(path, str) or not path.strip():
+        raise AssemblyPlanError("Render task input path cannot be empty")
+    artifact_path = Path(path)
+    if artifact_path.is_absolute() or ".." in artifact_path.parts:
+        raise AssemblyPlanError(f"Unsafe render task input path: {path}")
+    if not artifact_path.parts or artifact_path.parts[0] not in {"analysis", "graded"}:
+        raise AssemblyPlanError(f"Unexpected render task input path: {path}")
+
+
+def _validate_render_output_path(path: str) -> None:
+    if not isinstance(path, str) or not path.strip():
+        raise AssemblyPlanError("Render task output path cannot be empty")
+    artifact_path = Path(path)
+    if artifact_path.is_absolute() or ".." in artifact_path.parts:
+        raise AssemblyPlanError(f"Unsafe render task output path: {path}")
+    if not artifact_path.parts or artifact_path.parts[0] != "deliverables":
+        raise AssemblyPlanError(f"Unexpected render task output path: {path}")
+
+
+def _graded_inputs_for_task(task: RenderTask) -> tuple[str, ...]:
+    if task.inputs[0] != STORYLINE_ARTIFACT_PATH:
+        raise AssemblyPlanError(
+            f"Render task first input must be {STORYLINE_ARTIFACT_PATH}: {task.task_id}"
+        )
+    graded_inputs = task.inputs[1:]
+    if not graded_inputs:
+        raise AssemblyPlanError(f"Render task must include graded media inputs: {task.task_id}")
+    for input_path in graded_inputs:
+        if Path(input_path).parts[0] != "graded":
+            raise AssemblyPlanError(f"Unexpected render task graded input path: {input_path}")
+    return graded_inputs
+
+
+def _grade_job_id_for_input(input_path: str) -> str:
+    parts = Path(input_path).parts
+    if len(parts) < 3 or not parts[1]:
+        raise AssemblyPlanError(f"Unexpected render task graded input path: {input_path}")
+    return parts[1]
+
+
+def _canonical_outputs_for_task(
+    sequence_name: SequenceName,
+    *,
+    item_count: int,
+) -> tuple[str, ...]:
+    expected_output = _SEQUENCE_CANONICAL_OUTPUTS[sequence_name]
+    if sequence_name == "reel":
+        return (expected_output,)
+    output_dir = expected_output.rstrip("/")
+    prefix = "slide" if sequence_name == "carousel" else "photo"
+    return tuple(f"{output_dir}/{prefix}_{index:05d}.jpg" for index in range(1, item_count + 1))
+
+
+def _render_tasks_manifest_path(workspace_root: Path | str) -> Path:
+    root = Path(workspace_root)
+    if root.is_symlink():
+        raise AssemblyPlanError(f"Refusing render task workspace symlink: {root}")
+    return root / RENDER_TASKS_MANIFEST_PATH
+
+
+def _assembly_plan_json(plan: AssemblyPlan) -> str:
+    return json.dumps(_assembly_plan_to_json(plan), indent=2, sort_keys=True) + "\n"
+
+
+def _assembly_plan_to_json(plan: AssemblyPlan) -> dict[str, object]:
+    return {
+        "schema_version": _RENDER_TASKS_SCHEMA_VERSION,
+        "shoot_slug": plan.shoot_slug,
+        "render_tasks": [_render_task_to_json(task) for task in plan.render_tasks],
+    }
+
+
+def _render_task_to_json(task: RenderTask) -> dict[str, object]:
+    return {
+        "task_id": task.task_id,
+        "sequence_name": task.sequence_name,
+        "source_job_id": task.source_job_id,
+        "output_kind": task.output_kind,
+        "aspect_ratio": task.aspect_ratio,
+        "inputs": list(task.inputs),
+        "outputs": list(task.outputs),
+        "depends_on": list(task.depends_on),
+        "can_run_in_parallel": task.can_run_in_parallel,
+    }
+
+
+def _read_json_object(path: Path) -> dict[str, object]:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise AssemblyPlanError(f"Missing render task manifest: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise AssemblyPlanError(f"Invalid render task manifest JSON: {path}") from exc
+    if not isinstance(raw, dict):
+        raise AssemblyPlanError(f"Render task manifest root must be an object: {path}")
+    return raw
+
+
+def _assembly_plan_from_json(raw_manifest: dict[str, object]) -> AssemblyPlan:
+    _validate_exact_keys(raw_manifest, allowed_keys=_MANIFEST_KEYS, label="manifest")
+    if raw_manifest.get("schema_version") != _RENDER_TASKS_SCHEMA_VERSION:
+        raise AssemblyPlanError("Unsupported render task manifest schema version")
+    raw_tasks = raw_manifest.get("render_tasks")
+    if not isinstance(raw_tasks, list):
+        raise AssemblyPlanError("Render task manifest must contain a render_tasks list")
+    return AssemblyPlan(
+        shoot_slug=_required_manifest_string(raw_manifest, "shoot_slug"),
+        render_tasks=tuple(_render_task_from_json(raw_task) for raw_task in raw_tasks),
+    )
+
+
+def _render_task_from_json(raw_task: object) -> RenderTask:
+    if not isinstance(raw_task, dict):
+        raise AssemblyPlanError("Render task must be an object")
+    _validate_exact_keys(raw_task, allowed_keys=_TASK_KEYS, label="task")
+    return RenderTask(
+        task_id=_required_task_string(raw_task, "task_id"),
+        sequence_name=_required_sequence_name(raw_task),
+        source_job_id=_required_task_string(raw_task, "source_job_id"),
+        output_kind=_required_task_string(raw_task, "output_kind"),
+        aspect_ratio=_required_task_string(raw_task, "aspect_ratio"),
+        inputs=_required_string_tuple(raw_task, "inputs"),
+        outputs=_required_string_tuple(raw_task, "outputs"),
+        depends_on=_required_string_tuple(raw_task, "depends_on"),
+        can_run_in_parallel=_required_task_bool(raw_task, "can_run_in_parallel"),
+    )
+
+
+def _required_manifest_string(raw_manifest: dict[object, object], key: str) -> str:
+    value = raw_manifest.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise AssemblyPlanError(f"Render task manifest field must be a non-empty string: {key}")
+    return value
+
+
+def _required_task_string(raw_task: dict[object, object], key: str) -> str:
+    value = raw_task.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise AssemblyPlanError(f"Render task field must be a non-empty string: {key}")
+    return value
+
+
+def _required_sequence_name(raw_task: dict[object, object]) -> SequenceName:
+    value = _required_task_string(raw_task, "sequence_name")
+    if value not in _SEQUENCE_ORDER:
+        raise AssemblyPlanError(f"Unknown render task sequence: {value}")
+    return value  # type: ignore[return-value]
+
+
+def _required_string_tuple(raw_task: dict[object, object], key: str) -> tuple[str, ...]:
+    value = raw_task.get(key)
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise AssemblyPlanError(f"Render task field must be a list of strings: {key}")
+    return tuple(value)
+
+
+def _required_task_bool(raw_task: dict[object, object], key: str) -> bool:
+    value = raw_task.get(key)
+    if not isinstance(value, bool):
+        raise AssemblyPlanError(f"Render task field must be boolean: {key}")
+    return value
+
+
+def _validate_exact_keys(
+    raw_object: dict[object, object],
+    *,
+    allowed_keys: frozenset[str],
+    label: str,
+) -> None:
+    actual_keys = set(raw_object)
+    unexpected_keys = sorted(str(key) for key in actual_keys - allowed_keys)
+    if unexpected_keys:
+        raise AssemblyPlanError(f"Unexpected render {label} field: {', '.join(unexpected_keys)}")
+    missing_keys = sorted(allowed_keys - actual_keys)
+    if missing_keys:
+        raise AssemblyPlanError(f"Missing render {label} field: {', '.join(missing_keys)}")
+
+
 def _safe_workspace_path(root: Path, relative_path: str) -> Path:
     path = Path(relative_path)
     if path.is_absolute() or ".." in path.parts:
@@ -211,16 +531,12 @@ def _safe_workspace_path(root: Path, relative_path: str) -> Path:
 
 
 def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
-    resolved_root = root.resolve()
     current = path
-    chain: list[Path] = []
     while True:
-        chain.append(current)
-        if current == root or current.resolve() == resolved_root:
+        if current.is_symlink():
+            raise AssemblyPlanError(f"Refusing {label} symlink: {current}")
+        if current == root or current.absolute() == root.absolute():
             break
         if current.parent == current:
             break
         current = current.parent
-    for candidate in reversed(chain):
-        if candidate.is_symlink():
-            raise AssemblyPlanError(f"Refusing {label} symlink: {candidate}")

@@ -9,6 +9,13 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Merged the prior `shootflow` foundation onto the active branch.
+- Added a strict `deliverables/render_tasks.json` manifest contract in `shootflow.assembly`:
+  - writes deterministic, sorted JSON from trusted `AssemblyPlan` render tasks;
+  - loads the manifest only when it exactly matches the trusted in-memory assembly plan;
+  - rejects unknown manifest/task fields, unsafe analysis/graded inputs, unsafe deliverable outputs,
+    symlinked manifest paths, and symlinked temporary manifest paths;
+  - gives future render workers a resumable handoff without letting stale or model-authored JSON expand
+    the renderer's file access.
 - Added `shootflow.assembly` for renderer-neutral social assembly planning:
   - consumes `analysis/instagram_storylines.json` through the trusted storyline loader;
   - accepts only graded outputs from the manifest-backed `ProductionPlan`, never raw originals;
@@ -47,8 +54,9 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   the manifest-backed production plan.
 - Storyline inputs should reference graded artifacts; raw/original paths stay behind the catalog and
   production planning boundary.
-- `analysis/instagram_storylines.json` is an edit-decision artifact. Renderers should consume it but
-  should still verify the referenced graded artifacts exist and match their expected production outputs.
+- `analysis/instagram_storylines.json` is an edit-decision artifact. Renderers should consume the derived
+  `deliverables/render_tasks.json` handoff, not ad hoc model JSON, and should still verify referenced
+  graded artifacts before opening media files.
 - Assembly tasks are still contracts, not renderers. They should remain deterministic and renderer-neutral
   until the project chooses a local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve, or cloud GPU backend.
 - First-cut reel selection intentionally prefers one strong clip per scene before repeated coverage. Future iterations can add alternate reel variants for longer cuts.
@@ -56,16 +64,18 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-Persist the assembly plan itself as a deterministic `deliverables/render_tasks.json` manifest and add a
-strict loader for future render workers. Keep it renderer-neutral and exact-schema, mirroring the
-storyline artifact safety posture.
+Add render task grouping for high-volume exports before implementing a renderer. The current manifest can
+represent whole reel/carousel/photo-set tasks, but 10,000-photo shoots need chunked, resumable photo export
+groups so failures do not restart an entire ranked photo set.
 
 Good test-first targets:
 
-- Round-trip assembly tasks through `deliverables/render_tasks.json` with sorted, exact keys.
-- Reject unknown task fields, absolute/parent-traversal inputs or outputs, symlinked manifest/temp paths,
-  and render tasks whose inputs are not in the trusted assembly plan.
-- Consider adding per-photo export subtasks for large photo sets once the manifest can represent task
-  groups without making the top-level plan unwieldy.
-- Model multiple reel variants next (`hero`, `behind_the_scenes`, `fast_cut`) without changing the
-  existing first-cut artifact schema until the renderer contract is ready.
+- Split large `photo_set` sequences into deterministic chunk tasks while preserving the public
+  `deliverables/instagram_photo_set/photo_00001.jpg` output naming.
+- Keep reel and carousel tasks whole, but allow photo-set chunks to run in parallel after storyline and
+  grade dependencies are satisfied.
+- Extend the render manifest loader to reject duplicate output paths across chunked tasks.
+- Document a renderer adapter interface that can later be implemented by local Core Image/Metal, ffmpeg,
+  DaVinci Resolve automation, or cloud GPU workers without changing ingest or story contracts.
+- Model multiple reel variants next (`hero`, `behind_the_scenes`, `fast_cut`) once chunked photo exports
+  are stable.
