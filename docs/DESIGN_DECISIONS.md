@@ -50,7 +50,8 @@ The repo currently contains a Python core package because it is quick to test an
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
   success/retry/failure without widening file access. It keeps running tasks out of duplicate scheduling
-  until a timeout policy exists.
+  until a caller explicitly plans stale lease expiration; that lease plan only returns retryable status
+  transitions and never authorizes file cleanup or deletion.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -72,8 +73,10 @@ The desired high-quality pipeline is:
     declared deliverable outputs only.
 12. Persist each worker transition through a single-task compare/write helper so stale workers cannot
     overwrite newer claims or results.
-13. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-14. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+13. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
+    transition through the same single-task compare/write boundary.
+14. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+15. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -162,8 +165,12 @@ High quality depends on scene-level consistency and reversible edits. The system
   explicit status-transition helpers: a worker can claim a pending/retryable action only when the current
   status and attempt number match, report success only after every declared deliverable output exists and
   has a SHA-256 checksum, or report retry/failure with a clear error message. It intentionally leaves real
-  media opening, output temp-file strategy, timeout handling, worker leases, and cross-process file locking
-  to future renderer adapters.
+  media opening, output temp-file strategy, output cleanup, and cross-process file locking to future
+  renderer adapters. `plan_stale_render_leases(...)` is the conservative timeout boundary: callers provide a
+  timezone-aware cutoff and the helper returns retryable transitions for running statuses whose `updated_at`
+  is older than that cutoff. It skips fresh running work, validates the trusted status manifest first, and
+  includes an explicit no-cleanup/no-deletion error message so a timeout cannot be confused with authority
+  to remove source, graded, or deliverable files.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

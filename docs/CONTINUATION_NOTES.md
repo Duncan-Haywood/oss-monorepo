@@ -91,6 +91,28 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-6863`, pushed that baseline to
+  `cursor/media-content-automation-26a1`, then added one focused render-worker lease layer.
+- Added `plan_stale_render_leases(...)` in `shootflow.render_worker`:
+  - validates the trusted `RenderStatusManifest` against the trusted `AssemblyPlan` before considering
+    stale work;
+  - requires timezone-aware ISO 8601 `stale_before` and `updated_at` timestamps so timeout decisions are
+    explicit scheduler policy rather than implicit worker guesswork;
+  - returns `ExpiredRenderLease` records only for `running` statuses older than the cutoff, while skipping
+    pending, retryable, succeeded, failed, and fresh running statuses;
+  - produces retryable `RenderTaskStatus` transitions that preserve the original renderer adapter and attempt
+    count so callers can persist each task through `compare_and_write_render_task_status(...)` with
+    `expected_state="running"` and the matching attempt;
+  - includes a no-cleanup/no-deletion error message on each retryable status so an expired lease cannot be
+    confused with authority to remove source, graded, or deliverable files.
+- Expanded render-worker tests for stale lease planning, exact-cutoff handling, invalid timestamp rejection,
+  and stale status-manifest rejection before timeout planning.
+- Updated README, product strategy, and design decisions to describe stale-running lease planning as the
+  conservative retry boundary for interrupted local workers.
+
+## What landed in the previous iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/-bc-31236baa-8641-4baf-8424-88808ac9e52c-7f37`, pushed that baseline to
   `cursor/media-content-automation-6863`, then added one focused render-status safety layer.
 - Added `compare_and_write_render_task_status(...)` in `shootflow.render_status`:
@@ -159,17 +181,17 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-The worker can now plan ready actions, produce safe per-task status transitions, and persist one transition
-through a manifest-level compare/write update. The next useful layer is worker lease or renderer dry-run
-orchestration.
+The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
+through a manifest-level compare/write update, and identify stale running leases for retry. The next useful
+layer is renderer dry-run orchestration or stronger distributed lease persistence.
 
 Good test-first targets:
 
-- Add a lease/timeout policy for `running` statuses so interrupted workers can eventually be retried without
-  double-scheduling active work. Keep the policy explicit and conservative; do not infer deletion or cleanup
-  authority from a timeout.
 - Add a dry-run renderer adapter interface that consumes only `RenderWorkerAction` records and returns
   `RenderTaskStatus` transitions, then persists them through `compare_and_write_render_task_status(...)`.
+- Add a small scheduler helper that takes `RenderLeaseExpirationPlan.expired_leases` and persists each
+  retryable transition with `expected_state="running"` and the original attempt count, surfacing
+  compare/write precondition failures as "another worker already changed this task."
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter

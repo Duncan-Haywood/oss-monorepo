@@ -39,7 +39,9 @@ This repo currently contains the first testable core utilities:
   dry-run worker actions. It schedules only dependency-ready pending/retryable
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
   ready work as running, and reports success/retry/failure statuses with
-  checksums for declared deliverable outputs only.
+  checksums for declared deliverable outputs only. It can also plan explicit
+  stale-running lease expirations as retryable status transitions without
+  granting cleanup or deletion authority.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -83,6 +85,9 @@ The intended first workflow is:
 11. Use worker status-transition helpers to claim ready work, reject stale
     attempts, and report completed outputs by checksum before persisting updated
     render status manifests through a single-task compare/write update.
+12. Let the scheduler plan stale running leases from the trusted status
+    manifest when a caller supplies an explicit cutoff, then persist each
+    retryable transition through the same compare/write boundary.
 
 ## Run tests
 
