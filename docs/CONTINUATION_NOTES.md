@@ -14,7 +14,7 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   - builds a first-cut reel from high-scoring video selects with scene diversity;
   - builds a carousel from scene-diverse photo selects;
   - preserves a full ranked photo set so valuable graded intermediates are not dropped.
-- Updated production planning so Instagram deliverable assembly depends on a serialized `rank_instagram_storylines` job after scene grouping/look development and before reel/carousel/photo-set assembly.
+- Updated production planning so Instagram deliverable assembly depends on a serialized `rank_instagram_storylines` job after scene grouping, look development, and graded-master rendering.
 - Expanded product/legal docs around the story-planning layer, indemnification caution, and file deletion safety.
 
 ## Design decisions to preserve
