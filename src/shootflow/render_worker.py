@@ -4,6 +4,7 @@ import hashlib
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from shootflow.assembly import AssemblyPlan, RenderTask
@@ -50,6 +51,23 @@ class RenderWorkerActionPlan:
     renderer_adapter: str
     actions: tuple[RenderWorkerAction, ...]
     blocked_tasks: tuple[BlockedRenderTask, ...]
+
+
+@dataclass(frozen=True)
+class ExpiredRenderLease:
+    task_id: str
+    renderer_adapter: str
+    attempt_number: int
+    running_since: str
+    retryable_status: RenderTaskStatus
+
+
+@dataclass(frozen=True)
+class RenderLeaseExpirationPlan:
+    shoot_slug: str
+    stale_before: str
+    updated_at: str
+    expired_leases: tuple[ExpiredRenderLease, ...]
 
 
 def plan_render_worker_actions(
@@ -108,6 +126,63 @@ def plan_render_worker_actions(
     )
     _validate_action_plan(action_plan)
     return action_plan
+
+
+def plan_stale_render_leases(
+    trusted_plan: AssemblyPlan,
+    status_manifest: RenderStatusManifest,
+    *,
+    stale_before: str,
+    updated_at: str,
+) -> RenderLeaseExpirationPlan:
+    stale_before_time = _parse_lease_timestamp(stale_before, "stale_before")
+    updated_at_time = _parse_lease_timestamp(updated_at, "updated_at")
+    if updated_at_time < stale_before_time:
+        raise RenderWorkerError("lease expiration updated_at timestamp cannot be before stale_before")
+    try:
+        validate_render_status_manifest(status_manifest, trusted_plan=trusted_plan)
+    except (RenderStatusError, TypeError) as exc:
+        raise RenderWorkerError("Cannot plan stale render leases from an untrusted status manifest") from exc
+
+    expired_leases: list[ExpiredRenderLease] = []
+    for status in status_manifest.task_statuses:
+        if status.state != "running":
+            continue
+        if status.updated_at is None or status.renderer_adapter is None:
+            raise RenderWorkerError("running render status is missing lease metadata")
+        running_since_time = _parse_lease_timestamp(status.updated_at, "running status updated_at")
+        if running_since_time >= stale_before_time:
+            continue
+        retryable_status = RenderTaskStatus(
+            task_id=status.task_id,
+            state="retryable",
+            renderer_adapter=status.renderer_adapter,
+            attempts=status.attempts,
+            error_message=(
+                f"Render worker lease expired after running since {status.updated_at}; "
+                "no source, graded, or deliverable files were deleted or cleaned up."
+            ),
+            updated_at=updated_at,
+        )
+        _validate_return_status(retryable_status, expected_state="retryable")
+        expired_leases.append(
+            ExpiredRenderLease(
+                task_id=status.task_id,
+                renderer_adapter=status.renderer_adapter,
+                attempt_number=status.attempts,
+                running_since=status.updated_at,
+                retryable_status=retryable_status,
+            )
+        )
+
+    expiration_plan = RenderLeaseExpirationPlan(
+        shoot_slug=status_manifest.shoot_slug,
+        stale_before=stale_before,
+        updated_at=updated_at,
+        expired_leases=tuple(expired_leases),
+    )
+    _validate_lease_expiration_plan(expiration_plan)
+    return expiration_plan
 
 
 def claim_render_worker_action(
@@ -296,6 +371,49 @@ def _validate_blocked_task(blocked_task: BlockedRenderTask) -> None:
     _validate_string_tuple(blocked_task.missing_dependencies, "missing_dependencies")
 
 
+def _validate_lease_expiration_plan(expiration_plan: RenderLeaseExpirationPlan) -> None:
+    if not isinstance(expiration_plan, RenderLeaseExpirationPlan):
+        raise RenderWorkerError("render lease expiration plan has an invalid return type")
+    _validate_non_empty_string(expiration_plan.shoot_slug, "lease expiration shoot_slug")
+    _parse_lease_timestamp(expiration_plan.stale_before, "stale_before")
+    _parse_lease_timestamp(expiration_plan.updated_at, "updated_at")
+    if not isinstance(expiration_plan.expired_leases, tuple):
+        raise RenderWorkerError("expired render leases must be a tuple")
+    seen_task_ids: set[str] = set()
+    for expired_lease in expiration_plan.expired_leases:
+        _validate_expired_lease(expired_lease)
+        if expired_lease.task_id in seen_task_ids:
+            raise RenderWorkerError(f"duplicate expired render lease task: {expired_lease.task_id}")
+        seen_task_ids.add(expired_lease.task_id)
+
+
+def _validate_expired_lease(expired_lease: ExpiredRenderLease) -> None:
+    if not isinstance(expired_lease, ExpiredRenderLease):
+        raise RenderWorkerError("expired render lease has an invalid return type")
+    _validate_non_empty_string(expired_lease.task_id, "expired lease task_id")
+    _validate_renderer_adapter(expired_lease.renderer_adapter)
+    if (
+        isinstance(expired_lease.attempt_number, bool)
+        or not isinstance(expired_lease.attempt_number, int)
+        or expired_lease.attempt_number < 1
+    ):
+        raise RenderWorkerError("expired render lease attempt_number must be positive")
+    _parse_lease_timestamp(expired_lease.running_since, "expired lease running_since")
+    _validate_current_status(expired_lease.retryable_status)
+    if expired_lease.retryable_status.task_id != expired_lease.task_id:
+        raise RenderWorkerError("expired render lease status task does not match")
+    if expired_lease.retryable_status.state != "retryable":
+        raise RenderWorkerError("expired render lease status must be retryable")
+    if expired_lease.retryable_status.renderer_adapter != expired_lease.renderer_adapter:
+        raise RenderWorkerError("expired render lease renderer adapter does not match")
+    if expired_lease.retryable_status.attempts != expired_lease.attempt_number:
+        raise RenderWorkerError("expired render lease attempts do not match")
+    if expired_lease.retryable_status.error_message is None:
+        raise RenderWorkerError("expired render lease must include an error message")
+    if expired_lease.retryable_status.output_checksums:
+        raise RenderWorkerError("expired render lease cannot include output checksums")
+
+
 def _validate_non_empty_string(value: object, label: str) -> None:
     if not isinstance(value, str) or not value.strip():
         raise RenderWorkerError(f"render worker {label} must be a non-empty string")
@@ -331,6 +449,23 @@ def _validate_timestamp(timestamp: str) -> None:
         raise RenderWorkerError("render worker updated_at must be a non-empty string")
     if len(timestamp) > 80 or "\x00" in timestamp or "\n" in timestamp or "\r" in timestamp:
         raise RenderWorkerError("render worker updated_at is invalid")
+
+
+def _parse_lease_timestamp(timestamp: str, label: str) -> datetime:
+    try:
+        _validate_timestamp(timestamp)
+    except RenderWorkerError as exc:
+        raise RenderWorkerError(f"lease expiration {label} timestamp is invalid") from exc
+    if "T" not in timestamp:
+        raise RenderWorkerError(f"lease expiration {label} timestamp must be ISO 8601")
+    normalized_timestamp = timestamp[:-1] + "+00:00" if timestamp.endswith("Z") else timestamp
+    try:
+        parsed = datetime.fromisoformat(normalized_timestamp)
+    except ValueError as exc:
+        raise RenderWorkerError(f"lease expiration {label} timestamp must be ISO 8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise RenderWorkerError(f"lease expiration {label} timestamp must include a timezone")
+    return parsed.astimezone(timezone.utc)
 
 
 def _validate_error_message(message: str) -> None:

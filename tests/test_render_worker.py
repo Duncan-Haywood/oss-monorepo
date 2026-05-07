@@ -13,9 +13,12 @@ from shootflow.render_status import (
     render_plan_fingerprint,
 )
 from shootflow.render_worker import (
+    ExpiredRenderLease,
     RenderWorkerError,
+    RenderLeaseExpirationPlan,
     claim_render_worker_action,
     plan_render_worker_actions,
+    plan_stale_render_leases,
     report_render_worker_failure,
     report_render_worker_retryable,
     report_render_worker_success,
@@ -201,6 +204,140 @@ class RenderWorkerPlanningTests(unittest.TestCase):
                 manifest,
                 completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
                 renderer_adapter="../ffmpeg",
+            )
+
+    def test_plans_expired_running_leases_as_retryable_transitions(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:00:00Z",
+                ),
+                RenderTaskStatus(
+                    task_id="export_instagram_photo_set_part_00001",
+                    state="running",
+                    renderer_adapter="ffmpeg-local",
+                    attempts=2,
+                    updated_at="2026-05-07T11:45:00Z",
+                ),
+                RenderTaskStatus(
+                    task_id="render_instagram_reel_variant_fast_cut",
+                    state="retryable",
+                    renderer_adapter="dry-run-local",
+                    attempts=1,
+                    error_message="Previous adapter failure.",
+                    updated_at="2026-05-07T11:30:00Z",
+                ),
+            ),
+        )
+
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+
+        expected_retryable_status = RenderTaskStatus(
+            task_id="render_instagram_carousel",
+            state="retryable",
+            renderer_adapter="core-image-local",
+            attempts=1,
+            error_message=(
+                "Render worker lease expired after running since 2026-05-07T11:00:00Z; "
+                "no source, graded, or deliverable files were deleted or cleaned up."
+            ),
+            updated_at="2026-05-07T12:00:00Z",
+        )
+        self.assertEqual(
+            expiration_plan,
+            RenderLeaseExpirationPlan(
+                shoot_slug="worker-contract",
+                stale_before="2026-05-07T11:30:00Z",
+                updated_at="2026-05-07T12:00:00Z",
+                expired_leases=(
+                    ExpiredRenderLease(
+                        task_id="render_instagram_carousel",
+                        renderer_adapter="core-image-local",
+                        attempt_number=1,
+                        running_since="2026-05-07T11:00:00Z",
+                        retryable_status=expected_retryable_status,
+                    ),
+                ),
+            ),
+        )
+
+    def test_does_not_expire_running_lease_at_exact_cutoff(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:30:00Z",
+                ),
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+
+        self.assertEqual(expiration_plan.expired_leases, ())
+
+    def test_rejects_invalid_lease_cutoff_timestamps(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=tuple(
+                RenderTaskStatus(task_id=task.task_id, state="pending")
+                for task in trusted_plan.render_tasks
+            ),
+        )
+
+        with self.assertRaisesRegex(RenderWorkerError, "timestamp"):
+            plan_stale_render_leases(
+                trusted_plan,
+                manifest,
+                stale_before="2026-05-07 11:30",
+                updated_at="2026-05-07T12:00:00Z",
+            )
+
+    def test_rejects_stale_status_manifest_before_planning_lease_expiration(self) -> None:
+        trusted_plan = self._trusted_plan()
+        stale_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint="0" * 64,
+            task_statuses=tuple(
+                RenderTaskStatus(task_id=task.task_id, state="pending")
+                for task in trusted_plan.render_tasks
+            ),
+        )
+
+        with self.assertRaisesRegex(RenderWorkerError, "status manifest"):
+            plan_stale_render_leases(
+                trusted_plan,
+                stale_manifest,
+                stale_before="2026-05-07T11:30:00Z",
+                updated_at="2026-05-07T12:00:00Z",
             )
 
     def test_claims_ready_action_as_running_status(self) -> None:
