@@ -502,6 +502,42 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
                     final_manifest=final_manifest,
                 )
 
+    def test_scheduler_report_accepts_empty_complete_plan(self) -> None:
+        trusted_plan = AssemblyPlan(shoot_slug="empty-scheduler-plan", render_tasks=())
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids=(),
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:09:00Z",
+                completed_at="2026-05-07T15:09:05Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:09:06Z",
+            )
+            loaded_report = load_dry_run_render_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(loaded_report.stopped_reason, "complete")
+        self.assertEqual(loaded_report.total_task_count, 0)
+        self.assertEqual(loaded_report.review_required_task_ids, ())
+
     def _pending_manifest(self, trusted_plan: AssemblyPlan) -> RenderStatusManifest:
         return RenderStatusManifest(
             shoot_slug=trusted_plan.shoot_slug,

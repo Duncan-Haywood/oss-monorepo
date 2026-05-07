@@ -788,7 +788,7 @@ def _validate_report_stopped_reason(
     states = {status.state for status in final_manifest.task_statuses}
     has_unfinished = bool(states & {"pending", "running", "retryable"})
     if report.stopped_reason == "complete":
-        if states != {"succeeded"} or report.review_required_task_ids:
+        if states not in (set(), {"succeeded"}) or report.review_required_task_ids:
             raise DryRunRenderSchedulerError(
                 "Render scheduler report stopped_reason conflicts with final status"
             )
