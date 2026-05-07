@@ -23,9 +23,51 @@ class RankedStorageCandidate:
     reasons: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class ImportRouteRecommendation:
+    source: RankedStorageCandidate | None
+    destination: RankedStorageCandidate | None
+    status: str
+    ready: bool
+    review_required: bool
+    safety_notes: tuple[str, ...]
+
+
 def rank_storage_candidates(candidates: list[StorageCandidate]) -> list[RankedStorageCandidate]:
     ranked = [_rank_candidate(candidate) for candidate in candidates]
     return sorted(ranked, key=lambda item: item.confidence, reverse=True)
+
+
+def recommend_import_route(candidates: list[StorageCandidate]) -> ImportRouteRecommendation:
+    """Choose a conservative source/destination pair for a reviewed import flow.
+
+    The recommendation is for UI/agent guidance only. It never authorizes source
+    deletion or a blind import; callers still pass the reviewed paths through the
+    ingest planner and checksum-copy manifest boundary.
+    """
+
+    if not isinstance(candidates, list):
+        raise TypeError("candidates must be a list of StorageCandidate objects")
+    if not candidates:
+        raise ValueError("candidates cannot be empty")
+    for candidate in candidates:
+        if not isinstance(candidate, StorageCandidate):
+            raise TypeError("candidates must contain only StorageCandidate objects")
+
+    ranked = rank_storage_candidates(candidates)
+    source = _first_role(ranked, "source")
+    destination = _first_destination_not_source(ranked, source)
+    ready = source is not None and destination is not None
+    notes = _import_route_safety_notes(source=source, destination=destination)
+
+    return ImportRouteRecommendation(
+        source=source,
+        destination=destination,
+        status="ready_for_review" if ready else "blocked",
+        ready=ready,
+        review_required=True,
+        safety_notes=notes,
+    )
 
 
 def _rank_candidate(candidate: StorageCandidate) -> RankedStorageCandidate:
@@ -81,3 +123,44 @@ def _rank_candidate(candidate: StorageCandidate) -> RankedStorageCandidate:
         confidence=min(confidence, 49),
         reasons=tuple(reasons),
     )
+
+
+def _first_role(
+    ranked: list[RankedStorageCandidate],
+    role: str,
+) -> RankedStorageCandidate | None:
+    for candidate in ranked:
+        if candidate.role == role:
+            return candidate
+    return None
+
+
+def _first_destination_not_source(
+    ranked: list[RankedStorageCandidate],
+    source: RankedStorageCandidate | None,
+) -> RankedStorageCandidate | None:
+    for candidate in ranked:
+        if candidate.role != "destination":
+            continue
+        if source is not None and candidate.candidate.path.resolve() == source.candidate.path.resolve():
+            continue
+        return candidate
+    return None
+
+
+def _import_route_safety_notes(
+    *,
+    source: RankedStorageCandidate | None,
+    destination: RankedStorageCandidate | None,
+) -> tuple[str, ...]:
+    notes = [
+        "review source and destination before importing",
+        "source media will not be deleted",
+        "copy must be verified by checksum manifest",
+        "eject cards only after manifest review and backup verification",
+    ]
+    if source is None:
+        notes.append("no likely camera-card source candidate found")
+    if destination is None:
+        notes.append("no automatic destination candidate with enough writable space")
+    return tuple(notes)
