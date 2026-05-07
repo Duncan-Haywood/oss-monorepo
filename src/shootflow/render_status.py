@@ -130,7 +130,7 @@ def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: Assembly
     expected_task_ids = tuple(tasks_by_id)
     actual_task_ids = tuple(status.task_id for status in manifest.task_statuses)
     if actual_task_ids != expected_task_ids:
-        raise RenderStatusError("Render status tasks do not match trusted render tasks")
+        raise RenderStatusError("Render status manifest does not match trusted render tasks")
 
     for status in manifest.task_statuses:
         _validate_status(status, trusted_task=tasks_by_id[status.task_id])
