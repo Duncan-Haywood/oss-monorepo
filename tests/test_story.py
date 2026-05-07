@@ -141,6 +141,36 @@ class StorylinePlanningTests(unittest.TestCase):
                 ]
             )
 
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path="graded/nan.jpg",
+                        media_type="photo",
+                        scene_label="portraits",
+                        aesthetic_score=float("nan"),
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.0,
+                    )
+                ]
+            )
+
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path="graded/unknown-duration.mov",
+                        media_type="video",
+                        scene_label="ceremony",
+                        aesthetic_score=0.8,
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.6,
+                    )
+                ]
+            )
+
     def test_large_storyline_plans_do_not_drop_ranked_photo_set_exports(self) -> None:
         analyses = [
             AssetAnalysis(
