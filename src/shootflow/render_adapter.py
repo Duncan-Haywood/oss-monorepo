@@ -4,11 +4,13 @@ import hashlib
 import json
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
 from shootflow.assembly import AssemblyPlan
 from shootflow.render_status import (
+    RenderStatusError,
     RenderStatusManifest,
     RenderTaskStatus,
     compare_and_write_render_task_status,
@@ -16,6 +18,7 @@ from shootflow.render_status import (
 )
 from shootflow.render_worker import (
     RenderWorkerAction,
+    RenderWorkerActionPlan,
     RenderWorkerError,
     claim_render_worker_action,
     report_render_worker_retryable,
@@ -34,6 +37,22 @@ class DryRunRenderResult:
     final_status: RenderTaskStatus
     manifest: RenderStatusManifest
     outputs_materialized: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class DryRunRenderFailure:
+    task_id: str
+    error_message: str
+
+
+@dataclass(frozen=True)
+class DryRunRenderBatchResult:
+    shoot_slug: str
+    renderer_adapter: str
+    max_concurrency: int
+    results: tuple[DryRunRenderResult, ...]
+    failures: tuple[DryRunRenderFailure, ...]
+    blocked_task_ids: tuple[str, ...]
 
 
 def run_dry_run_render_action(
@@ -108,6 +127,86 @@ def run_dry_run_render_action(
     return result
 
 
+def run_dry_run_render_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action_plan: RenderWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunRenderBatchResult:
+    """Run a trusted dry-run action plan while respecting per-task parallelism.
+
+    This helper is a local scheduler convenience, not a new trust boundary. It
+    executes only actions already emitted by ``plan_render_worker_actions`` and
+    leaves blocked tasks untouched for the caller/UI to display.
+    """
+
+    _validate_action_plan(action_plan)
+    _validate_timestamp(started_at, "started_at")
+    _validate_timestamp(completed_at, "completed_at")
+    _validate_max_concurrency(max_concurrency)
+
+    ordered_results: dict[int, DryRunRenderResult] = {}
+    ordered_failures: dict[int, DryRunRenderFailure] = {}
+    action_index = 0
+    actions = action_plan.actions
+
+    while action_index < len(actions):
+        current_action = actions[action_index]
+        if not current_action.can_run_in_parallel or max_concurrency == 1:
+            result, failure = _run_batch_action(
+                workspace_root,
+                trusted_plan=trusted_plan,
+                action=current_action,
+                started_at=started_at,
+                completed_at=completed_at,
+            )
+            if result is not None:
+                ordered_results[action_index] = result
+            if failure is not None:
+                ordered_failures[action_index] = failure
+            action_index += 1
+            continue
+
+        group_start = action_index
+        group_end = group_start
+        while group_end < len(actions) and actions[group_end].can_run_in_parallel:
+            group_end += 1
+        with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
+            futures = {
+                executor.submit(
+                    _run_batch_action,
+                    workspace_root,
+                    trusted_plan=trusted_plan,
+                    action=action,
+                    started_at=started_at,
+                    completed_at=completed_at,
+                ): index
+                for index, action in enumerate(actions[group_start:group_end], start=group_start)
+            }
+            for future in as_completed(futures):
+                index = futures[future]
+                result, failure = future.result()
+                if result is not None:
+                    ordered_results[index] = result
+                if failure is not None:
+                    ordered_failures[index] = failure
+        action_index = group_end
+
+    batch_result = DryRunRenderBatchResult(
+        shoot_slug=action_plan.shoot_slug,
+        renderer_adapter=action_plan.renderer_adapter,
+        max_concurrency=max_concurrency,
+        results=tuple(ordered_results[index] for index in sorted(ordered_results)),
+        failures=tuple(ordered_failures[index] for index in sorted(ordered_failures)),
+        blocked_task_ids=tuple(blocked.task_id for blocked in action_plan.blocked_tasks),
+    )
+    _validate_batch_result(batch_result)
+    return batch_result
+
+
 def materialize_dry_run_render_outputs(
     action: RenderWorkerAction,
     workspace_root: Path | str,
@@ -134,6 +233,39 @@ def _validate_action(action: RenderWorkerAction) -> None:
         if output in seen_outputs:
             raise DryRunRendererError(f"dry-run render action has duplicate output: {output}")
         seen_outputs.add(output)
+
+
+def _validate_action_plan(action_plan: RenderWorkerActionPlan) -> None:
+    if not isinstance(action_plan, RenderWorkerActionPlan):
+        raise DryRunRendererError("action_plan must be a RenderWorkerActionPlan")
+    if not isinstance(action_plan.shoot_slug, str) or not action_plan.shoot_slug.strip():
+        raise DryRunRendererError("dry-run action plan shoot_slug cannot be empty")
+    if not isinstance(action_plan.renderer_adapter, str) or not action_plan.renderer_adapter.strip():
+        raise DryRunRendererError("dry-run action plan renderer_adapter cannot be empty")
+    if not isinstance(action_plan.actions, tuple):
+        raise DryRunRendererError("dry-run action plan actions must be a tuple")
+    if not isinstance(action_plan.blocked_tasks, tuple):
+        raise DryRunRendererError("dry-run action plan blocked_tasks must be a tuple")
+    seen_task_ids: set[str] = set()
+    for action in action_plan.actions:
+        _validate_action(action)
+        if action.renderer_adapter != action_plan.renderer_adapter:
+            raise DryRunRendererError("dry-run action renderer adapter does not match action plan")
+        if action.task_id in seen_task_ids:
+            raise DryRunRendererError(f"dry-run action plan has duplicate action: {action.task_id}")
+        seen_task_ids.add(action.task_id)
+    for blocked_task in action_plan.blocked_tasks:
+        if not isinstance(blocked_task.task_id, str) or not blocked_task.task_id.strip():
+            raise DryRunRendererError("dry-run action plan blocked task_id cannot be empty")
+
+
+def _validate_max_concurrency(max_concurrency: int) -> None:
+    if (
+        isinstance(max_concurrency, bool)
+        or not isinstance(max_concurrency, int)
+        or max_concurrency < 1
+    ):
+        raise DryRunRendererError("dry-run batch max_concurrency must be a positive integer")
 
 
 def _validate_timestamp(timestamp: str, label: str) -> None:
@@ -310,3 +442,65 @@ def _validate_result(result: DryRunRenderResult) -> None:
         raise DryRunRendererError("dry-run renderer result outputs_materialized must be a tuple")
     for output in result.outputs_materialized:
         _validate_deliverable_output_path(output)
+
+
+def _run_batch_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action: RenderWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> tuple[DryRunRenderResult | None, DryRunRenderFailure | None]:
+    try:
+        result = run_dry_run_render_action(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action=action,
+            started_at=started_at,
+            completed_at=completed_at,
+        )
+    except (DryRunRendererError, RenderWorkerError, RenderStatusError) as exc:
+        return None, DryRunRenderFailure(
+            task_id=action.task_id,
+            error_message=_batch_failure_message(exc),
+        )
+    return result, None
+
+
+def _batch_failure_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Dry-run batch scheduler could not execute action: "
+        f"{detail}. No source, graded, or deliverable files were deleted."
+    )
+
+
+def _validate_batch_result(result: DryRunRenderBatchResult) -> None:
+    if not isinstance(result, DryRunRenderBatchResult):
+        raise DryRunRendererError("dry-run batch result is invalid")
+    if not isinstance(result.shoot_slug, str) or not result.shoot_slug.strip():
+        raise DryRunRendererError("dry-run batch result shoot_slug cannot be empty")
+    if not isinstance(result.renderer_adapter, str) or not result.renderer_adapter.strip():
+        raise DryRunRendererError("dry-run batch result renderer_adapter cannot be empty")
+    _validate_max_concurrency(result.max_concurrency)
+    if not isinstance(result.results, tuple):
+        raise DryRunRendererError("dry-run batch results must be a tuple")
+    if not isinstance(result.failures, tuple):
+        raise DryRunRendererError("dry-run batch failures must be a tuple")
+    if not isinstance(result.blocked_task_ids, tuple):
+        raise DryRunRendererError("dry-run batch blocked_task_ids must be a tuple")
+    for action_result in result.results:
+        _validate_result(action_result)
+    for failure in result.failures:
+        if not isinstance(failure, DryRunRenderFailure):
+            raise DryRunRendererError("dry-run batch failure is invalid")
+        if not isinstance(failure.task_id, str) or not failure.task_id.strip():
+            raise DryRunRendererError("dry-run batch failure task_id cannot be empty")
+        if not isinstance(failure.error_message, str) or not failure.error_message.strip():
+            raise DryRunRendererError("dry-run batch failure error_message cannot be empty")
+    for task_id in result.blocked_task_ids:
+        if not isinstance(task_id, str) or not task_id.strip():
+            raise DryRunRendererError("dry-run batch blocked task_id cannot be empty")
