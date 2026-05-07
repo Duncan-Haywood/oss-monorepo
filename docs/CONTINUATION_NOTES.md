@@ -13,6 +13,8 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   `cursor/media-content-automation-8ef1`, then added the first dry-run batch scheduler.
 - Added `run_dry_run_render_batch(...)` in `shootflow.render_adapter`:
   - consumes only a trusted `RenderWorkerActionPlan` produced by the existing render-worker planner;
+  - binds every action's task ID, sequence/source/output metadata, inputs, outputs, dependencies, and
+    parallelism flag back to the trusted `AssemblyPlan` before any claim or output materialization;
   - executes serial-only actions alone and contiguous parallel-safe action groups through a bounded
     `ThreadPoolExecutor` with caller-provided `max_concurrency`;
   - preserves action-order reporting even when parallel tasks finish out of order;
@@ -21,8 +23,9 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     not materialize outputs for those stale actions;
   - still routes every real claim/result through `run_dry_run_render_action(...)`, which reloads the trusted
     status manifest and uses `compare_and_write_render_task_status(...)` for each task transition.
-- Added focused render-adapter tests for successful mixed serial/parallel batches with blocked tasks and for
-  stale action-plan entries that fail without producing outputs while later ready actions continue.
+- Added focused render-adapter tests for successful mixed serial/parallel batches with blocked tasks, stale
+  action-plan entries that fail without producing outputs while later ready actions continue, and forged
+  action outputs that are rejected before any file is materialized.
 - Updated README, product strategy, and design decisions to describe bounded batch execution as the next
   high-volume renderer-scheduler proof point.
 

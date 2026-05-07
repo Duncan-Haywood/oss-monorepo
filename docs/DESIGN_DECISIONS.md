@@ -58,8 +58,9 @@ The repo currently contains a Python core package because it is quick to test an
   success checksums or retryable errors, and persists the final status through the same compare/write boundary.
   It also includes a dry-run batch scheduler for a trusted `RenderWorkerActionPlan`: serial-only actions run
   alone, parallel-safe actions run in ordered groups up to a caller-provided concurrency limit, blocked tasks
-  remain visible and untouched, and stale scheduler-level action failures are reported without materializing
-  outputs. It intentionally does not open source or graded inputs, delete files, or implement real media rendering.
+  remain visible and untouched, action fields are rebound to the trusted `AssemblyPlan` before any output is
+  materialized, and stale scheduler-level action failures are reported without materializing outputs. It
+  intentionally does not open source or graded inputs, delete files, or implement real media rendering.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -195,8 +196,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   so a user/editor export that appears at the target path is preserved. This is the safety shape future
   high-quality renderers should keep while replacing placeholder bytes with real media output. Its batch
   helper executes only a prevalidated `RenderWorkerActionPlan`, respects each action's `can_run_in_parallel`
-  flag, caps parallel groups with `max_concurrency`, surfaces blocked task IDs, and records stale-action
-  failures with an explicit no-deletion message instead of treating them as render results.
+  flag, caps parallel groups with `max_concurrency`, surfaces blocked task IDs, verifies action fields against
+  the trusted render tasks, and records stale-action failures with an explicit no-deletion message instead of
+  treating them as render results.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
