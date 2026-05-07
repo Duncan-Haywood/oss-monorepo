@@ -12,7 +12,9 @@ from shootflow.render_status import (
     OutputChecksum,
     RenderStatusError,
     RenderStatusManifest,
+    RenderStatusPreconditionError,
     RenderTaskStatus,
+    compare_and_write_render_task_status,
     validate_render_status_manifest,
 )
 
@@ -68,6 +70,26 @@ class RenderLeaseExpirationPlan:
     stale_before: str
     updated_at: str
     expired_leases: tuple[ExpiredRenderLease, ...]
+
+
+@dataclass(frozen=True)
+class PersistedRenderLease:
+    task_id: str
+    retryable_status: RenderTaskStatus
+    manifest: RenderStatusManifest
+
+
+@dataclass(frozen=True)
+class ConflictedRenderLease:
+    task_id: str
+    error_message: str
+
+
+@dataclass(frozen=True)
+class RenderLeasePersistenceResult:
+    shoot_slug: str
+    persisted_leases: tuple[PersistedRenderLease, ...]
+    conflicted_leases: tuple[ConflictedRenderLease, ...]
 
 
 def plan_render_worker_actions(
@@ -158,10 +180,7 @@ def plan_stale_render_leases(
             state="retryable",
             renderer_adapter=status.renderer_adapter,
             attempts=status.attempts,
-            error_message=(
-                f"Render worker lease expired after running since {status.updated_at}; "
-                "no source, graded, or deliverable files were deleted or cleaned up."
-            ),
+            error_message=_lease_expiration_error_message(status.updated_at),
             updated_at=updated_at,
         )
         _validate_return_status(retryable_status, expected_state="retryable")
@@ -183,6 +202,54 @@ def plan_stale_render_leases(
     )
     _validate_lease_expiration_plan(expiration_plan)
     return expiration_plan
+
+
+def persist_stale_render_leases(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    expiration_plan: RenderLeaseExpirationPlan,
+) -> RenderLeasePersistenceResult:
+    """Persist planned stale leases without clobbering refreshed running tasks."""
+
+    _validate_lease_expiration_plan_for_trusted_plan(expiration_plan, trusted_plan=trusted_plan)
+    persisted_leases: list[PersistedRenderLease] = []
+    conflicted_leases: list[ConflictedRenderLease] = []
+    for expired_lease in expiration_plan.expired_leases:
+        try:
+            updated_manifest = compare_and_write_render_task_status(
+                workspace_root,
+                trusted_plan=trusted_plan,
+                updated_status=expired_lease.retryable_status,
+                expected_state="running",
+                expected_attempts=expired_lease.attempt_number,
+                expected_updated_at=expired_lease.running_since,
+            )
+        except RenderStatusPreconditionError as exc:
+            conflicted_leases.append(
+                ConflictedRenderLease(
+                    task_id=expired_lease.task_id,
+                    error_message=_lease_conflict_message(expired_lease, exc),
+                )
+            )
+            continue
+        except RenderStatusError as exc:
+            raise RenderWorkerError("Cannot persist stale render lease from untrusted status state") from exc
+        persisted_leases.append(
+            PersistedRenderLease(
+                task_id=expired_lease.task_id,
+                retryable_status=expired_lease.retryable_status,
+                manifest=updated_manifest,
+            )
+        )
+
+    result = RenderLeasePersistenceResult(
+        shoot_slug=expiration_plan.shoot_slug,
+        persisted_leases=tuple(persisted_leases),
+        conflicted_leases=tuple(conflicted_leases),
+    )
+    _validate_lease_persistence_result(result)
+    return result
 
 
 def claim_render_worker_action(
@@ -375,16 +442,42 @@ def _validate_lease_expiration_plan(expiration_plan: RenderLeaseExpirationPlan) 
     if not isinstance(expiration_plan, RenderLeaseExpirationPlan):
         raise RenderWorkerError("render lease expiration plan has an invalid return type")
     _validate_non_empty_string(expiration_plan.shoot_slug, "lease expiration shoot_slug")
-    _parse_lease_timestamp(expiration_plan.stale_before, "stale_before")
-    _parse_lease_timestamp(expiration_plan.updated_at, "updated_at")
+    stale_before_time = _parse_lease_timestamp(expiration_plan.stale_before, "stale_before")
+    updated_at_time = _parse_lease_timestamp(expiration_plan.updated_at, "updated_at")
+    if updated_at_time < stale_before_time:
+        raise RenderWorkerError("lease expiration updated_at timestamp cannot be before stale_before")
     if not isinstance(expiration_plan.expired_leases, tuple):
         raise RenderWorkerError("expired render leases must be a tuple")
     seen_task_ids: set[str] = set()
     for expired_lease in expiration_plan.expired_leases:
         _validate_expired_lease(expired_lease)
+        running_since_time = _parse_lease_timestamp(expired_lease.running_since, "expired lease running_since")
+        if running_since_time >= stale_before_time:
+            raise RenderWorkerError("expired render lease running_since must be before stale_before")
+        if expired_lease.retryable_status.updated_at != expiration_plan.updated_at:
+            raise RenderWorkerError("expired render lease retryable status updated_at does not match plan")
+        expected_error_message = _lease_expiration_error_message(expired_lease.running_since)
+        if expired_lease.retryable_status.error_message != expected_error_message:
+            raise RenderWorkerError("expired render lease retryable status error message is not trusted")
         if expired_lease.task_id in seen_task_ids:
             raise RenderWorkerError(f"duplicate expired render lease task: {expired_lease.task_id}")
         seen_task_ids.add(expired_lease.task_id)
+
+
+def _validate_lease_expiration_plan_for_trusted_plan(
+    expiration_plan: RenderLeaseExpirationPlan,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> None:
+    _validate_lease_expiration_plan(expiration_plan)
+    if not isinstance(trusted_plan, AssemblyPlan):
+        raise RenderWorkerError("trusted_plan must be an AssemblyPlan")
+    if expiration_plan.shoot_slug != trusted_plan.shoot_slug:
+        raise RenderWorkerError("render lease expiration plan shoot_slug does not match trusted plan")
+    task_ids = frozenset(_tasks_by_id(trusted_plan))
+    for expired_lease in expiration_plan.expired_leases:
+        if expired_lease.task_id not in task_ids:
+            raise RenderWorkerError(f"expired render lease task is not in trusted plan: {expired_lease.task_id}")
 
 
 def _validate_expired_lease(expired_lease: ExpiredRenderLease) -> None:
@@ -412,6 +505,55 @@ def _validate_expired_lease(expired_lease: ExpiredRenderLease) -> None:
         raise RenderWorkerError("expired render lease must include an error message")
     if expired_lease.retryable_status.output_checksums:
         raise RenderWorkerError("expired render lease cannot include output checksums")
+
+
+def _lease_conflict_message(expired_lease: ExpiredRenderLease, exc: RenderStatusError) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = f"{detail[:1500]}..."
+    return (
+        f"another worker already changed this task before stale lease expiration could be persisted "
+        f"for {expired_lease.task_id}: {detail}; "
+        "no source, graded, or deliverable files were deleted or cleaned up."
+    )
+
+
+def _lease_expiration_error_message(running_since: str) -> str:
+    return (
+        f"Render worker lease expired after running since {running_since}; "
+        "no source, graded, or deliverable files were deleted or cleaned up."
+    )
+
+
+def _validate_lease_persistence_result(result: RenderLeasePersistenceResult) -> None:
+    if not isinstance(result, RenderLeasePersistenceResult):
+        raise RenderWorkerError("render lease persistence result has an invalid return type")
+    _validate_non_empty_string(result.shoot_slug, "lease persistence shoot_slug")
+    if not isinstance(result.persisted_leases, tuple):
+        raise RenderWorkerError("persisted render leases must be a tuple")
+    if not isinstance(result.conflicted_leases, tuple):
+        raise RenderWorkerError("conflicted render leases must be a tuple")
+    seen_task_ids: set[str] = set()
+    for persisted_lease in result.persisted_leases:
+        if not isinstance(persisted_lease, PersistedRenderLease):
+            raise RenderWorkerError("persisted render lease has an invalid return type")
+        _validate_non_empty_string(persisted_lease.task_id, "persisted lease task_id")
+        _validate_current_status(persisted_lease.retryable_status)
+        if persisted_lease.retryable_status.state != "retryable":
+            raise RenderWorkerError("persisted render lease status must be retryable")
+        if persisted_lease.retryable_status.task_id != persisted_lease.task_id:
+            raise RenderWorkerError("persisted render lease status task does not match")
+        if not isinstance(persisted_lease.manifest, RenderStatusManifest):
+            raise RenderWorkerError("persisted render lease manifest has an invalid return type")
+        seen_task_ids.add(persisted_lease.task_id)
+    for conflicted_lease in result.conflicted_leases:
+        if not isinstance(conflicted_lease, ConflictedRenderLease):
+            raise RenderWorkerError("conflicted render lease has an invalid return type")
+        _validate_non_empty_string(conflicted_lease.task_id, "conflicted lease task_id")
+        _validate_error_message(conflicted_lease.error_message)
+        if conflicted_lease.task_id in seen_task_ids:
+            raise RenderWorkerError(f"render lease cannot be both persisted and conflicted: {conflicted_lease.task_id}")
+        seen_task_ids.add(conflicted_lease.task_id)
 
 
 def _validate_non_empty_string(value: object, label: str) -> None:

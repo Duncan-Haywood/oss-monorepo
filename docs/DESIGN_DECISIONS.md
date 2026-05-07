@@ -51,7 +51,10 @@ The repo currently contains a Python core package because it is quick to test an
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
   success/retry/failure without widening file access. It keeps running tasks out of duplicate scheduling
   until a caller explicitly plans stale lease expiration; that lease plan only returns retryable status
-  transitions and never authorizes file cleanup or deletion.
+  transitions and never authorizes file cleanup or deletion. Its persistence helper applies those expired
+  leases through the same single-task compare/write status boundary, using the original `running_since`
+  timestamp as the lease token so same-attempt worker heartbeats surface as conflicts instead of being
+  overwritten.
 - `shootflow.render_adapter`: the first adapter-orchestration layer. Its deterministic dry-run adapter
   consumes a single trusted `RenderWorkerAction`, persists a claim through `compare_and_write_render_task_status(...)`,
   materializes only the action's declared `deliverables/` outputs as non-overwriting placeholder files, reports
@@ -187,7 +190,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   includes an explicit no-cleanup/no-deletion error message so a timeout cannot be confused with authority
   to remove source, graded, or deliverable files. Persist each expiration with `expected_state="running"`,
   the lease's attempt number, and `expected_updated_at=running_since` so a refreshed same-attempt lease cannot
-  be expired by a stale scheduler snapshot.
+  be expired by a stale scheduler snapshot. `persist_stale_render_leases(...)` now packages that persistence
+  pattern for schedulers: successfully expired tasks become retryable, while compare/write precondition
+  failures are returned as task-level conflicts that explicitly say another worker already changed the task
+  and no source, graded, or deliverable files were deleted.
 - `shootflow.render_adapter` now exercises the adapter handoff without real media rendering. The dry-run
   adapter loads the latest trusted status manifest, claims a matching pending/retryable action, writes
   deterministic placeholder outputs only for declared deliverable paths, refuses symlinked outputs, refuses
@@ -226,6 +232,8 @@ Useful wedges:
   editor-produced deliverables."
 - "Safely chew through ready render-action batches on local hardware while keeping blocked, stale, and
   interrupted work visible instead of hidden inside an opaque export queue."
+- "Recover interrupted local render work by expiring stale leases through the same guarded status update path,
+  while preserving heartbeat-refresh wins from active workers."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

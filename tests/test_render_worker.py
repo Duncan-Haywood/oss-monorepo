@@ -10,6 +10,7 @@ from shootflow.render_status import (
     OutputChecksum,
     RenderStatusError,
     RenderStatusManifest,
+    RenderStatusPreconditionError,
     RenderTaskStatus,
     compare_and_write_render_task_status,
     load_render_status_manifest,
@@ -23,6 +24,7 @@ from shootflow.render_worker import (
     claim_render_worker_action,
     plan_render_worker_actions,
     plan_stale_render_leases,
+    persist_stale_render_leases,
     report_render_worker_failure,
     report_render_worker_retryable,
     report_render_worker_success,
@@ -391,7 +393,7 @@ class RenderWorkerPlanningTests(unittest.TestCase):
             workspace = Path(tmpdir)
             write_render_status_manifest(refreshed_manifest, workspace, trusted_plan=trusted_plan)
 
-            with self.assertRaisesRegex(RenderStatusError, "precondition"):
+            with self.assertRaisesRegex(RenderStatusPreconditionError, "precondition"):
                 compare_and_write_render_task_status(
                     workspace,
                     trusted_plan=trusted_plan,
@@ -403,6 +405,334 @@ class RenderWorkerPlanningTests(unittest.TestCase):
             loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
 
         self.assertEqual(loaded_manifest, refreshed_manifest)
+
+    def test_persists_stale_render_leases_with_lease_preconditions(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:00:00Z",
+                ),
+                RenderTaskStatus(
+                    task_id="export_instagram_photo_set_part_00001",
+                    state="running",
+                    renderer_adapter="ffmpeg-local",
+                    attempts=2,
+                    updated_at="2026-05-07T11:10:00Z",
+                ),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            running_manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            persistence_result = persist_stale_render_leases(
+                workspace,
+                trusted_plan=trusted_plan,
+                expiration_plan=expiration_plan,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(
+            [persisted.task_id for persisted in persistence_result.persisted_leases],
+            ["render_instagram_carousel", "export_instagram_photo_set_part_00001"],
+        )
+        self.assertEqual(persistence_result.conflicted_leases, ())
+        self.assertEqual(
+            [status.state for status in loaded_manifest.task_statuses],
+            ["pending", "retryable", "retryable", "pending"],
+        )
+        for status in loaded_manifest.task_statuses[1:3]:
+            self.assertIn("no source, graded, or deliverable files were deleted", status.error_message or "")
+            self.assertEqual(status.updated_at, "2026-05-07T12:00:00Z")
+
+    def test_reports_stale_lease_persistence_conflicts_without_clobbering(self) -> None:
+        trusted_plan = self._trusted_plan()
+        stale_running_status = RenderTaskStatus(
+            task_id="render_instagram_carousel",
+            state="running",
+            renderer_adapter="core-image-local",
+            attempts=1,
+            updated_at="2026-05-07T11:00:00Z",
+        )
+        planned_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                stale_running_status,
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            planned_manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+        refreshed_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:45:00Z",
+                ),
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(refreshed_manifest, workspace, trusted_plan=trusted_plan)
+
+            persistence_result = persist_stale_render_leases(
+                workspace,
+                trusted_plan=trusted_plan,
+                expiration_plan=expiration_plan,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(persistence_result.persisted_leases, ())
+        self.assertEqual(len(persistence_result.conflicted_leases), 1)
+        conflict = persistence_result.conflicted_leases[0]
+        self.assertEqual(conflict.task_id, "render_instagram_carousel")
+        self.assertIn("another worker already changed this task", conflict.error_message)
+        self.assertIn("no source, graded, or deliverable files were deleted", conflict.error_message)
+        self.assertEqual(loaded_manifest, refreshed_manifest)
+
+    def test_rejects_forged_expiration_plan_for_fresh_running_lease(self) -> None:
+        trusted_plan = self._trusted_plan()
+        fresh_running_status = RenderTaskStatus(
+            task_id="render_instagram_carousel",
+            state="running",
+            renderer_adapter="core-image-local",
+            attempts=1,
+            updated_at="2026-05-07T11:45:00Z",
+        )
+        running_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                fresh_running_status,
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        forged_plan = RenderLeaseExpirationPlan(
+            shoot_slug="worker-contract",
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+            expired_leases=(
+                ExpiredRenderLease(
+                    task_id="render_instagram_carousel",
+                    renderer_adapter="core-image-local",
+                    attempt_number=1,
+                    running_since="2026-05-07T11:45:00Z",
+                    retryable_status=RenderTaskStatus(
+                        task_id="render_instagram_carousel",
+                        state="retryable",
+                        renderer_adapter="core-image-local",
+                        attempts=1,
+                        error_message=(
+                            "Render worker lease expired after running since 2026-05-07T11:45:00Z; "
+                            "no source, graded, or deliverable files were deleted or cleaned up."
+                        ),
+                        updated_at="2026-05-07T12:00:00Z",
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(RenderWorkerError, "stale_before"):
+                persist_stale_render_leases(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    expiration_plan=forged_plan,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, running_manifest)
+
+    def test_rejects_expiration_plan_with_forged_retryable_status_content(self) -> None:
+        trusted_plan = self._trusted_plan()
+        stale_running_status = RenderTaskStatus(
+            task_id="render_instagram_carousel",
+            state="running",
+            renderer_adapter="core-image-local",
+            attempts=1,
+            updated_at="2026-05-07T11:00:00Z",
+        )
+        running_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                stale_running_status,
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            running_manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+        forged_plan = replace(
+            expiration_plan,
+            expired_leases=(
+                replace(
+                    expiration_plan.expired_leases[0],
+                    retryable_status=replace(
+                        expiration_plan.expired_leases[0].retryable_status,
+                        error_message="delete temp outputs before retrying",
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(RenderWorkerError, "retryable status"):
+                persist_stale_render_leases(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    expiration_plan=forged_plan,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, running_manifest)
+
+    def test_persists_mixed_stale_lease_successes_and_conflicts(self) -> None:
+        trusted_plan = self._trusted_plan()
+        planned_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:00:00Z",
+                ),
+                RenderTaskStatus(
+                    task_id="export_instagram_photo_set_part_00001",
+                    state="running",
+                    renderer_adapter="ffmpeg-local",
+                    attempts=2,
+                    updated_at="2026-05-07T11:10:00Z",
+                ),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            planned_manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+        partially_refreshed_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                planned_manifest.task_statuses[1],
+                RenderTaskStatus(
+                    task_id="export_instagram_photo_set_part_00001",
+                    state="running",
+                    renderer_adapter="ffmpeg-local",
+                    attempts=2,
+                    updated_at="2026-05-07T11:45:00Z",
+                ),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(partially_refreshed_manifest, workspace, trusted_plan=trusted_plan)
+
+            persistence_result = persist_stale_render_leases(
+                workspace,
+                trusted_plan=trusted_plan,
+                expiration_plan=expiration_plan,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(
+            [persisted.task_id for persisted in persistence_result.persisted_leases],
+            ["render_instagram_carousel"],
+        )
+        self.assertEqual(
+            [conflict.task_id for conflict in persistence_result.conflicted_leases],
+            ["export_instagram_photo_set_part_00001"],
+        )
+        self.assertEqual(loaded_manifest.task_statuses[1].state, "retryable")
+        self.assertEqual(loaded_manifest.task_statuses[2], partially_refreshed_manifest.task_statuses[2])
+
+    def test_missing_status_manifest_is_not_reported_as_lease_conflict(self) -> None:
+        trusted_plan = self._trusted_plan()
+        planned_manifest = RenderStatusManifest(
+            shoot_slug="worker-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="running",
+                    renderer_adapter="core-image-local",
+                    attempts=1,
+                    updated_at="2026-05-07T11:00:00Z",
+                ),
+                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
+                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            ),
+        )
+        expiration_plan = plan_stale_render_leases(
+            trusted_plan,
+            planned_manifest,
+            stale_before="2026-05-07T11:30:00Z",
+            updated_at="2026-05-07T12:00:00Z",
+        )
+
+        with tempfile.TemporaryDirectory(prefix="precondition failed-") as tmpdir:
+            with self.assertRaisesRegex(RenderWorkerError, "untrusted status state"):
+                persist_stale_render_leases(
+                    Path(tmpdir),
+                    trusted_plan=trusted_plan,
+                    expiration_plan=expiration_plan,
+                )
 
     def test_claims_ready_action_as_running_status(self) -> None:
         action = self._ready_action()

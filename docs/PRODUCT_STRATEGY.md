@@ -69,6 +69,8 @@ The current core models a concrete promise for high-volume users:
     lease expirations from trusted status plus a caller-provided cutoff, then
     persisting each retryable transition through the same compare/write path so
     same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
+    Conflicted expirations remain visible to the scheduler/UI as "another worker
+    already changed this task" rather than being hidden as generic failures.
 13. Prove renderer orchestration with a dry-run adapter that consumes only
     ready worker actions, persists claim/result transitions, writes only
     declared deliverable outputs, and refuses to overwrite existing different
@@ -123,5 +125,7 @@ to automate.
    each action's serial/parallel flag, capping local concurrency, preserving
    blocked-task visibility, and recording stale-action failures without
    materializing outputs or deleting media.
+   Stale-running lease expirations can now be persisted as guarded retryable
+   status updates, with heartbeat-refresh conflicts reported at task granularity.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

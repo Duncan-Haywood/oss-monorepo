@@ -42,6 +42,10 @@ class RenderStatusError(ValueError):
     """Raised when render-worker status cannot be trusted."""
 
 
+class RenderStatusPreconditionError(RenderStatusError):
+    """Raised when a single-task status update loses its compare/write precondition."""
+
+
 @dataclass(frozen=True)
 class OutputChecksum:
     path: str
@@ -255,11 +259,11 @@ def _replace_render_task_status(
         raise RenderStatusError(f"Cannot update unknown render task status: {updated_status.task_id}")
     current_status = manifest.task_statuses[task_index]
     if current_status.state != expected_state or current_status.attempts != expected_attempts:
-        raise RenderStatusError(
+        raise RenderStatusPreconditionError(
             f"Render status precondition failed for task: {updated_status.task_id}"
         )
     if expected_updated_at is not None and current_status.updated_at != expected_updated_at:
-        raise RenderStatusError(
+        raise RenderStatusPreconditionError(
             f"Render status precondition failed for task: {updated_status.task_id}"
         )
 

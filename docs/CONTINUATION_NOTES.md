@@ -9,6 +9,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-8ef1`, pushed that baseline to
+  `cursor/media-content-automation-ccd0`, then added stale lease persistence.
+- Added `persist_stale_render_leases(...)` in `shootflow.render_worker`:
+  - consumes a trusted `RenderLeaseExpirationPlan` from `plan_stale_render_leases(...)`;
+  - persists each expired lease through `compare_and_write_render_task_status(...)` with
+    `expected_state="running"`, the original attempt count, and `expected_updated_at=running_since`;
+  - returns persisted lease records with the updated manifest for successful expirations;
+  - returns task-level conflict records for compare/write precondition failures so heartbeat-refresh wins are
+    surfaced as "another worker already changed this task" instead of being clobbered;
+  - keeps conflict messages explicit that no source, graded, or deliverable files were deleted or cleaned up.
+- Added render-worker tests for multi-lease persistence and conflict reporting without manifest clobbering.
+- Updated README, product strategy, and design decisions to make lease persistence the current safe retry
+  boundary for future scheduler loops.
+
+## Previous iteration
+
+- Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-d522`, pushed that baseline to
   `cursor/media-content-automation-8ef1`, then added the first dry-run batch scheduler.
 - Added `run_dry_run_render_batch(...)` in `shootflow.render_adapter`:
@@ -234,21 +251,18 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
 through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
-action through a deterministic dry-run adapter, and execute trusted ready-action batches with bounded local
-concurrency. The next useful layer is either lease-expiration persistence, real renderer temp-output
-contracts, or stronger distributed lease persistence.
+action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
+concurrency, and persist planned stale lease expirations with heartbeat-conflict reporting. The next useful
+layer is either an iterative dry-run scheduler loop, real renderer temp-output contracts, or stronger
+distributed lease persistence.
 
 Good test-first targets:
 
-- Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
-  outputs while keeping the same no-overwrite/no-delete status boundary.
-- Add a small scheduler helper that takes `RenderLeaseExpirationPlan.expired_leases` and persists each
-  retryable transition with `expected_state="running"`, the original attempt count, and
-  `expected_updated_at=running_since`, surfacing compare/write precondition failures as "another worker
-  already changed this task."
 - Add an iterative dry-run scheduler loop that alternates: load trusted status, plan stale lease expirations,
   persist safe expirations, plan ready actions, run a bounded dry-run batch, then stop when no actions or
   expirations remain. This would model the Mac background worker loop without opening real media.
+- Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
+  outputs while keeping the same no-overwrite/no-delete status boundary.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter

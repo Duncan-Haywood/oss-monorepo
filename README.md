@@ -41,8 +41,9 @@ This repo currently contains the first testable core utilities:
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
   ready work as running, and reports success/retry/failure statuses with
   checksums for declared deliverable outputs only. It can also plan explicit
-  stale-running lease expirations as retryable status transitions without
-  granting cleanup or deletion authority.
+  stale-running lease expirations as retryable status transitions and persist
+  those expirations through the same compare/write boundary without granting
+  cleanup or deletion authority.
 - `shootflow.render_adapter` adds the first renderer-adapter boundary: a
   deterministic dry-run adapter that claims one trusted worker action, writes
   only its declared `deliverables/` outputs through non-overwriting placeholder
@@ -97,7 +98,8 @@ The intended first workflow is:
 12. Let the scheduler plan stale running leases from the trusted status
     manifest when a caller supplies an explicit cutoff, then persist each
     retryable transition through the same compare/write boundary with the
-    observed `running_since` value as `expected_updated_at`.
+    observed `running_since` value as `expected_updated_at`, reporting
+    same-attempt heartbeat refreshes as conflicts instead of clobbering them.
 13. Exercise adapter orchestration with the dry-run renderer before introducing
     ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
     adapter consumes only worker actions, refuses symlinked or different
