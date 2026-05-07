@@ -73,7 +73,10 @@ The current core models a concrete promise for high-volume users:
     ready worker actions, persists claim/result transitions, writes only
     declared deliverable outputs, and refuses to overwrite existing different
     files.
-14. Assemble reels, carousels, and photo sets from graded masters.
+14. Execute trusted dry-run action batches with bounded local concurrency so
+    parallel-safe photo-set chunks can progress quickly while serial actions,
+    stale claims, and blocked tasks stay explicit.
+15. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -116,5 +119,9 @@ to automate.
    placeholder outputs under `deliverables/`, refusing symlinked or different
    existing outputs, and persisting success or retryable status updates through
    the same compare/write boundary.
+   The dry-run adapter can now run a trusted action plan in batches, respecting
+   each action's serial/parallel flag, capping local concurrency, preserving
+   blocked-task visibility, and recording stale-action failures without
+   materializing outputs or deleting media.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

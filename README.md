@@ -47,7 +47,10 @@ This repo currently contains the first testable core utilities:
   deterministic dry-run adapter that claims one trusted worker action, writes
   only its declared `deliverables/` outputs through non-overwriting placeholder
   files, reports checksums, and persists both claim and result through the
-  single-task compare/write status path.
+  single-task compare/write status path. It can also execute a trusted dry-run
+  action plan in batches, running parallel-safe ready actions up to a caller
+  supplied concurrency limit while preserving serial-only actions and leaving
+  blocked tasks untouched for UI/scheduler visibility.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -99,6 +102,10 @@ The intended first workflow is:
     ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
     adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
+14. Use the dry-run batch scheduler to execute dependency-ready actions at a
+    bounded local concurrency level, record stale-action failures without
+    materializing outputs, and keep blocked/running/failed work visible for
+    later retries or review.
 
 ## Run tests
 

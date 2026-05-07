@@ -56,7 +56,10 @@ The repo currently contains a Python core package because it is quick to test an
   consumes a single trusted `RenderWorkerAction`, persists a claim through `compare_and_write_render_task_status(...)`,
   materializes only the action's declared `deliverables/` outputs as non-overwriting placeholder files, reports
   success checksums or retryable errors, and persists the final status through the same compare/write boundary.
-  It intentionally does not open source or graded inputs, delete files, or implement real media rendering.
+  It also includes a dry-run batch scheduler for a trusted `RenderWorkerActionPlan`: serial-only actions run
+  alone, parallel-safe actions run in ordered groups up to a caller-provided concurrency limit, blocked tasks
+  remain visible and untouched, and stale scheduler-level action failures are reported without materializing
+  outputs. It intentionally does not open source or graded inputs, delete files, or implement real media rendering.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -82,8 +85,10 @@ The desired high-quality pipeline is:
     transition through the same single-task compare/write boundary.
 14. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
     rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
-15. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-16. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+15. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
+    progress while serial reels and blocked tasks stay deterministic and inspectable.
+16. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+17. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -188,7 +193,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   to overwrite any existing file with different bytes, and then reports success checksums or retryable
   materialization errors. It uses hard-link commit from a same-directory temp file instead of blind replace
   so a user/editor export that appears at the target path is preserved. This is the safety shape future
-  high-quality renderers should keep while replacing placeholder bytes with real media output.
+  high-quality renderers should keep while replacing placeholder bytes with real media output. Its batch
+  helper executes only a prevalidated `RenderWorkerActionPlan`, respects each action's `can_run_in_parallel`
+  flag, caps parallel groups with `max_concurrency`, surfaces blocked task IDs, and records stale-action
+  failures with an explicit no-deletion message instead of treating them as render results.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -214,6 +222,8 @@ Useful wedges:
   retried, or completed the same task."
 - "Prove renderer orchestration with a dry-run adapter before customers trust it with irreplaceable shoots or
   editor-produced deliverables."
+- "Safely chew through ready render-action batches on local hardware while keeping blocked, stale, and
+  interrupted work visible instead of hidden inside an opaque export queue."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

@@ -6,7 +6,27 @@ These notes are for the next automation run continuing the same product prompt.
 
 ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high-volume ingest, bulk color/story processing, and Instagram deliverables. The current implementation is a Python core that defines safety and planning contracts before native UI or renderer work begins.
 
-## What landed in the prior iteration
+## What landed in this iteration
+
+- Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-d522`, pushed that baseline to
+  `cursor/media-content-automation-8ef1`, then added the first dry-run batch scheduler.
+- Added `run_dry_run_render_batch(...)` in `shootflow.render_adapter`:
+  - consumes only a trusted `RenderWorkerActionPlan` produced by the existing render-worker planner;
+  - executes serial-only actions alone and contiguous parallel-safe action groups through a bounded
+    `ThreadPoolExecutor` with caller-provided `max_concurrency`;
+  - preserves action-order reporting even when parallel tasks finish out of order;
+  - leaves `blocked_tasks` untouched and reports their task IDs for UI/scheduler visibility;
+  - catches stale scheduler-level action failures, records explicit no-deletion failure messages, and does
+    not materialize outputs for those stale actions;
+  - still routes every real claim/result through `run_dry_run_render_action(...)`, which reloads the trusted
+    status manifest and uses `compare_and_write_render_task_status(...)` for each task transition.
+- Added focused render-adapter tests for successful mixed serial/parallel batches with blocked tasks and for
+  stale action-plan entries that fail without producing outputs while later ready actions continue.
+- Updated README, product strategy, and design decisions to describe bounded batch execution as the next
+  high-volume renderer-scheduler proof point.
+
+## Previous iteration
 
 - Merged the prior `shootflow` foundation onto the active branch.
 - Added a strict `deliverables/render_tasks.json` manifest contract in `shootflow.assembly`:
@@ -210,20 +230,22 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## Suggested next iteration
 
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
-through a manifest-level compare/write update, identify stale running leases for retry, and execute one
-trusted action through a deterministic dry-run adapter. The next useful layer is either real renderer temp
-output contracts or stronger distributed lease persistence.
+through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
+action through a deterministic dry-run adapter, and execute trusted ready-action batches with bounded local
+concurrency. The next useful layer is either lease-expiration persistence, real renderer temp-output
+contracts, or stronger distributed lease persistence.
 
 Good test-first targets:
 
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
-- Add a dry-run batch scheduler helper that iterates a `RenderWorkerActionPlan`, executes actions up to a
-  caller-provided concurrency limit, and leaves blocked/running/failed tasks untouched for UI visibility.
 - Add a small scheduler helper that takes `RenderLeaseExpirationPlan.expired_leases` and persists each
   retryable transition with `expected_state="running"`, the original attempt count, and
   `expected_updated_at=running_since`, surfacing compare/write precondition failures as "another worker
   already changed this task."
+- Add an iterative dry-run scheduler loop that alternates: load trusted status, plan stale lease expirations,
+  persist safe expirations, plan ready actions, run a bounded dry-run batch, then stop when no actions or
+  expirations remain. This would model the Mac background worker loop without opening real media.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
