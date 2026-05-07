@@ -6,7 +6,7 @@ from pathlib import Path
 
 from shootflow.analysis import AnalysisLoaderError, load_asset_analyses
 from shootflow.deliverables import MediaAsset
-from shootflow.production import build_production_plan
+from shootflow.production import ExecutionWave, ProductionJob, ProductionPlan, build_production_plan
 from shootflow.story import build_storyline_plan
 
 
@@ -79,6 +79,82 @@ class AnalysisLoaderTests(unittest.TestCase):
             with self.assertRaisesRegex(AnalysisLoaderError, "does not match planned asset"):
                 load_asset_analyses(plan, workspace)
 
+    def test_rejects_unplanned_numbered_analysis_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            plan = build_production_plan(
+                [MediaAsset(path="/shoot/originals/IMG_0001.JPG", media_type="photo")],
+                shoot_slug="launch-shoot",
+            )
+            _write_analysis(
+                workspace,
+                0,
+                source_asset_path="/shoot/originals/IMG_0001.JPG",
+                media_type="photo",
+                scene_label="details",
+            )
+            _write_analysis(
+                workspace,
+                1,
+                source_asset_path="/shoot/originals/ROGUE.JPG",
+                media_type="photo",
+                scene_label="rogue",
+            )
+
+            with self.assertRaisesRegex(AnalysisLoaderError, "Unplanned per-asset analysis file"):
+                load_asset_analyses(plan, workspace)
+
+    def test_rejects_malformed_plans_that_do_not_bind_analysis_to_safe_graded_outputs(self) -> None:
+        malformed_cases = [
+            (
+                "different-grade-input",
+                ProductionJob(
+                    job_id="grade_asset_00000",
+                    output_kind="graded_photo",
+                    inputs=("/shoot/originals/OTHER.JPG",),
+                    outputs=("graded/grade_asset_00000/IMG_0001.JPG",),
+                    depends_on=("develop_shoot_look", "analyze_asset_00000"),
+                ),
+                "same input",
+            ),
+            (
+                "escaping-grade-output",
+                ProductionJob(
+                    job_id="grade_asset_00000",
+                    output_kind="graded_photo",
+                    inputs=("/shoot/originals/IMG_0001.JPG",),
+                    outputs=("../raw/IMG_0001.JPG",),
+                    depends_on=("develop_shoot_look", "analyze_asset_00000"),
+                ),
+                "graded output",
+            ),
+            (
+                "wrong-grade-namespace",
+                ProductionJob(
+                    job_id="grade_asset_00000",
+                    output_kind="graded_photo",
+                    inputs=("/shoot/originals/IMG_0001.JPG",),
+                    outputs=("exports/IMG_0001.JPG",),
+                    depends_on=("develop_shoot_look", "analyze_asset_00000"),
+                ),
+                "graded output",
+            ),
+        ]
+        for _case_name, grade_job, error_match in malformed_cases:
+            with self.subTest(_case_name), tempfile.TemporaryDirectory() as tmp:
+                workspace = Path(tmp)
+                plan = _single_asset_plan_with_grade_job(grade_job)
+                _write_analysis(
+                    workspace,
+                    0,
+                    source_asset_path="/shoot/originals/IMG_0001.JPG",
+                    media_type="photo",
+                    scene_label="details",
+                )
+
+                with self.assertRaisesRegex(AnalysisLoaderError, error_match):
+                    load_asset_analyses(plan, workspace)
+
     def test_rejects_invalid_analysis_schema_and_values(self) -> None:
         invalid_cases = [
             ("empty-scene", {"scene_label": ""}, "scene label"),
@@ -86,6 +162,8 @@ class AnalysisLoaderTests(unittest.TestCase):
             ("nan-score", {"aesthetic_score": math.nan}, "aesthetic_score"),
             ("negative-duration", {"duration_seconds": -1.0}, "duration"),
             ("bad-tags", {"tags": ["details", 7]}, "tags"),
+            ("missing-video-duration", {"duration_seconds": None}, "duration"),
+            ("missing-source-path", {"source_asset_path": None}, "source_asset_path"),
         ]
         for _case_name, overrides, error_match in invalid_cases:
             with self.subTest(_case_name), tempfile.TemporaryDirectory() as tmp:
@@ -180,6 +258,22 @@ def _write_analysis(
     if duration_seconds is not None:
         payload["duration_seconds"] = duration_seconds
     (analysis_dir / f"{index:05d}.json").write_text(json.dumps(payload), encoding="utf-8")
+
+
+def _single_asset_plan_with_grade_job(grade_job: ProductionJob) -> ProductionPlan:
+    analysis_job = ProductionJob(
+        job_id="analyze_asset_00000",
+        output_kind="vlm_asset_analysis",
+        inputs=("/shoot/originals/IMG_0001.JPG",),
+        outputs=("analysis/00000.json",),
+        depends_on=("proxy_asset_00000",),
+    )
+    jobs = (analysis_job, grade_job)
+    return ProductionPlan(
+        shoot_slug="launch-shoot",
+        jobs=jobs,
+        execution_waves=(ExecutionWave(wave_index=0, jobs=jobs),),
+    )
 
 
 if __name__ == "__main__":
