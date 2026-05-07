@@ -8,6 +8,7 @@ __all__ = [
     "ingest",
     "production",
     "render_status",
+    "render_worker",
     "storage",
     "story",
 ]

@@ -90,6 +90,14 @@ def build_initial_render_status_manifest(trusted_plan: AssemblyPlan) -> RenderSt
     )
 
 
+def validate_render_status_manifest(
+    manifest: RenderStatusManifest,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> None:
+    _validate_manifest(manifest, trusted_plan=trusted_plan)
+
+
 def write_render_status_manifest(
     manifest: RenderStatusManifest,
     workspace_root: Path | str,
