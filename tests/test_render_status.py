@@ -293,6 +293,16 @@ class RenderStatusManifestTests(unittest.TestCase):
             with self.assertRaisesRegex(RenderStatusError, "temporary render status manifest"):
                 write_render_status_manifest(manifest, workspace, trusted_plan=trusted_plan)
 
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            manifest = build_initial_render_status_manifest(trusted_plan)
+            manifest_path = workspace / RENDER_STATUS_MANIFEST_PATH
+            manifest_path.parent.mkdir(parents=True)
+            manifest_path.with_suffix(".json.tmp").write_text("stale", encoding="utf-8")
+
+            with self.assertRaisesRegex(RenderStatusError, "stale temporary render status manifest"):
+                write_render_status_manifest(manifest, workspace, trusted_plan=trusted_plan)
+
     def _trusted_plan(self) -> AssemblyPlan:
         return AssemblyPlan(
             shoot_slug="status-contract",
