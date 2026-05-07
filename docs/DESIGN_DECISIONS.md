@@ -25,6 +25,8 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.ingest`: media discovery, import planning, checksum copy execution, and manifest writing.
 - `shootflow.catalog`: manifest loading, path validation, media typing, and the boundary between safe
   imports and production planning.
+- `shootflow.analysis`: VLM JSON loading that trusts the production plan instead of arbitrary model
+  output paths, validates analysis values, and binds story inputs to graded artifacts.
 - `shootflow.storage`: drive/storage candidate ranking for future Mac/iPhone device detection layers.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
@@ -76,6 +78,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   validates that manifest destinations stay under the import root, rejects destructive-source manifests,
   rechecks destination size/checksum, and ignores non-photo/video assets for production planning while
   preserving them in the original ingest manifest.
+- VLM analysis files are not trusted just because they exist. `shootflow.analysis` loads only the
+  `analysis/00000.json` style files declared by the production plan, requires each file to name the
+  planned source asset, rejects unplanned numbered analysis files, validates scores/durations/tags, and
+  emits `AssetAnalysis` records that point at graded artifacts rather than originals.
 - Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
   originals, which keeps social assembly downstream of the color pipeline.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as

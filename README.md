@@ -20,6 +20,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.ingest` plans and executes safe media copies.
 - `shootflow.catalog` loads ingest manifests into a photo/video catalog for
   downstream production planning.
+- `shootflow.analysis` loads per-asset VLM JSON outputs only when they match a
+  trusted production plan, then binds them to graded artifact paths for story
+  selection.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -39,6 +42,9 @@ The intended first workflow is:
 4. Build production waves from manifest-backed photo/video assets so proxies,
    VLM analysis, color decisions, graded masters, storyline choices, and
    Instagram packages all trace back to verified originals.
+5. Load VLM results with `shootflow.analysis` so social planning consumes graded
+   artifact paths and rejects analysis that does not match the planned source
+   assets.
 
 ## Run tests
 
