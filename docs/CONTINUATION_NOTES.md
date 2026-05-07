@@ -9,6 +9,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-5b63`, pushed that baseline to
+  `cursor/media-content-automation-8119`, then added a reviewed storage import-route recommendation layer.
+- Added `ImportRouteRecommendation` and `recommend_import_route(...)` in `shootflow.storage`:
+  - validates public candidate arguments before ranking;
+  - selects a likely camera-card/source candidate and a distinct automatic writable destination candidate;
+  - returns `ready_for_review` only when both sides exist, otherwise returns `blocked` with missing-source or
+    missing-destination safety notes;
+  - always marks the recommendation as review-required and includes no-delete, checksum-manifest, and
+    backup-verification notes so native UI/agent layers cannot treat drive detection as permission to delete or
+    blindly import media.
+- Added storage tests for a camera-card-to-SSD route, blocked missing-destination behavior, and invalid candidate
+  argument validation.
+- Updated README, product strategy, and design decisions to position this as the Mac ingest-assistant contract
+  before actual `shootflow.ingest` copy execution.
+
+## Previous iteration
+
+- Fast-forwarded the active branch from the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-301d`, pushed that baseline to
   `cursor/media-content-automation-5b63`, then added the first persisted-manifest scheduler CLI.
 - Added `load_trusted_render_tasks_manifest(...)` in `shootflow.assembly`:

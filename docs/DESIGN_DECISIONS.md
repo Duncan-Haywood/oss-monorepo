@@ -16,7 +16,10 @@ ShootFlow is a personal tool and product concept for photographers and videograp
 - Verify copies with SHA-256 before treating an import as complete.
 - Write ingest manifests so later editing jobs can reference immutable originals and checksums.
 - Reject symlink-based source or destination paths in the core importer. This is intentionally strict because camera-card imports are high-trust, high-value operations.
-- Rank detected drives conservatively. Camera-card-like volumes are review-only sources; large writable SSDs can be automatic destination candidates.
+- Rank detected drives conservatively. Camera-card-like volumes are review-only sources; large writable SSDs
+  can be automatic destination candidates. A source/destination route can be recommended only as
+  `ready_for_review`; the Mac app still has to show the user the source, destination, no-delete note, and
+  checksum-manifest requirement before invoking ingest.
 
 ## Core architecture
 
@@ -27,7 +30,10 @@ The repo currently contains a Python core package because it is quick to test an
   imports and production planning.
 - `shootflow.analysis`: VLM JSON loading that trusts the production plan instead of arbitrary model
   output paths, validates analysis values, and binds story inputs to graded artifacts.
-- `shootflow.storage`: drive/storage candidate ranking for future Mac/iPhone device detection layers.
+- `shootflow.storage`: drive/storage candidate ranking and reviewed import-route recommendation for future
+  Mac/iPhone device detection layers. It can pick a likely camera-card/source plus writable SSD/local
+  destination for UI review while preserving the rule that source media is never deleted and actual copies still
+  go through the checksum manifest importer.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.

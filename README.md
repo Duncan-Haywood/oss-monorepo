@@ -67,7 +67,9 @@ This repo currently contains the first testable core utilities:
   against the matching render-status manifest, writes the scheduler report, and
   can print that report as JSON for a Mac app or automation runner.
 - `shootflow.storage` ranks possible source and destination drives
-  conservatively.
+  conservatively, then can recommend a review-required import route from a
+  likely camera card/source to a writable SSD/local destination without granting
+  deletion or blind-import authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -79,58 +81,60 @@ This repo currently contains the first testable core utilities:
 
 The intended first workflow is:
 
-1. Plan and execute a safe import from a card, folder, or SSD.
-2. Keep the generated `ingest_manifest.json` as the boundary between file
+1. Detect/rank attached cards, folders, and SSDs, then present a reviewed
+   source-to-destination import route with explicit no-delete/checksum notes.
+2. Plan and execute a safe import from the approved card, folder, or SSD.
+3. Keep the generated `ingest_manifest.json` as the boundary between file
    management and AI/editing work.
-3. Load the manifest with `shootflow.catalog`, which rechecks manifest
+4. Load the manifest with `shootflow.catalog`, which rechecks manifest
    location, destination paths, file sizes, and checksums before production.
-4. Build production waves from manifest-backed photo/video assets so proxies,
+5. Build production waves from manifest-backed photo/video assets so proxies,
    VLM analysis, color decisions, graded masters, storyline choices, and
    Instagram packages all trace back to verified originals.
-5. Load VLM results with `shootflow.analysis` so social planning consumes graded
+6. Load VLM results with `shootflow.analysis` so social planning consumes graded
    artifact paths and rejects analysis that does not match the planned source
    assets.
-6. Persist `shootflow.story` selections as a trusted storyline artifact for
+7. Persist `shootflow.story` selections as a trusted storyline artifact for
    downstream reel, reel-variant, carousel, and photo-set assemblers.
-7. Build `shootflow.assembly` render tasks that verify selected graded files
+8. Build `shootflow.assembly` render tasks that verify selected graded files
    exist, keep raw originals out of social assembly inputs, and write
    deterministic `deliverables/` targets for future renderers. Large ranked
    photo sets are split into resumable chunks while preserving stable public
    output names like `photo_00001.jpg`; named reel variants render under
    `deliverables/instagram_reels/` without replacing the default reel handoff.
-8. Persist and reload `deliverables/render_tasks.json` against the trusted
+9. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.
-9. Persist and reload `deliverables/render_status.json` against the same trusted
+10. Persist and reload `deliverables/render_status.json` against the same trusted
    render tasks so a Mac app, local renderer, or cloud worker can show pending,
    running, succeeded, failed, and retryable work safely.
-10. Derive renderer-neutral worker actions from the trusted task/status pair
+11. Derive renderer-neutral worker actions from the trusted task/status pair
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
-11. Use worker status-transition helpers to claim ready work, reject stale
+12. Use worker status-transition helpers to claim ready work, reject stale
     attempts, and report completed outputs by checksum before persisting updated
     render status manifests through a single-task compare/write update.
-12. Let the scheduler plan stale running leases from the trusted status
+13. Let the scheduler plan stale running leases from the trusted status
     manifest when a caller supplies an explicit cutoff, then persist each
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`, reporting
     same-attempt heartbeat refreshes as conflicts instead of clobbering them.
-13. Exercise adapter orchestration with the dry-run renderer before introducing
+14. Exercise adapter orchestration with the dry-run renderer before introducing
     ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
     adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
-14. Use the dry-run batch scheduler to execute dependency-ready actions at a
+15. Use the dry-run batch scheduler to execute dependency-ready actions at a
     bounded local concurrency level, record stale-action failures without
     materializing outputs, and keep blocked/running/failed work visible for
     later retries or review.
-15. Use the iterative dry-run scheduler to alternate trusted status reloads,
+16. Use the iterative dry-run scheduler to alternate trusted status reloads,
     guarded stale-lease expiration, ready-action planning, and bounded batch
     execution until the current render plan is complete, blocked, failed,
     waiting, or has retryable work that should not be hammered again without review.
-16. Persist `deliverables/render_scheduler_report.json` against the trusted
+17. Persist `deliverables/render_scheduler_report.json` against the trusted
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-17. Run the same handoff through `python -m shootflow.cli dry-run-render-scheduler`
+18. Run the same handoff through `python -m shootflow.cli dry-run-render-scheduler`
     when a UI/background-agent process starts from persisted manifests instead of
     an in-memory production plan.
 

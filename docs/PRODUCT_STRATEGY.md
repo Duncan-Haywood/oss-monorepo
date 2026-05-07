@@ -25,11 +25,12 @@ The first wedge is not "replace the editor." It is "remove the boring parts of
 media operations while improving social output throughput." That wedge is easier
 to trust and sell:
 
-1. Safe ingest from SD cards and SSDs.
-2. Repeatable shoot organization and manifests.
-3. Bulk grading and select generation.
-4. IG-ready reels/carousels/photos from graded intermediates.
-5. Optional review and handoff to an editor.
+1. Safe source/destination detection for SD cards, local folders, and SSDs.
+2. Reviewed ingest from SD cards and SSDs with no source deletion.
+3. Repeatable shoot organization and manifests.
+4. Bulk grading and select generation.
+5. IG-ready reels/carousels/photos from graded intermediates.
+6. Optional review and handoff to an editor.
 
 ## Differentiation
 
@@ -49,46 +50,47 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Ingest safely from a card, local folder, or SSD.
-2. Preserve originals and emit a manifest.
-3. Fan out proxy and VLM analysis work across every asset.
-4. Rejoin at scene grouping and look development so the grade is consistent.
-5. Fan out graded master rendering.
-6. Rank storylines from VLM quality, scene, and narrative signals.
-7. Plan renderer-neutral assembly tasks from verified graded storyline selects.
-8. Track render progress and retry safety through a trusted status manifest.
-9. Schedule only dependency-ready pending/retryable render work through a dry-run
+1. Rank detected storage, then recommend a review-required source/destination route.
+2. Ingest safely from the approved card, local folder, or SSD.
+3. Preserve originals and emit a manifest.
+4. Fan out proxy and VLM analysis work across every asset.
+5. Rejoin at scene grouping and look development so the grade is consistent.
+6. Fan out graded master rendering.
+7. Rank storylines from VLM quality, scene, and narrative signals.
+8. Plan renderer-neutral assembly tasks from verified graded storyline selects.
+9. Track render progress and retry safety through a trusted status manifest.
+10. Schedule only dependency-ready pending/retryable render work through a dry-run
    worker action plan.
-10. Claim ready work as running and report success/retry/failure with checksums
+11. Claim ready work as running and report success/retry/failure with checksums
     for expected deliverable outputs.
-11. Persist each claim or result with a single-task compare/write status update
+12. Persist each claim or result with a single-task compare/write status update
     that holds a local advisory lock and rejects stale state or attempt
     preconditions, with an optional `updated_at` lease token for timeout-sensitive
     updates.
-12. Recover from interrupted local workers by planning explicit stale-running
+13. Recover from interrupted local workers by planning explicit stale-running
     lease expirations from trusted status plus a caller-provided cutoff, then
     persisting each retryable transition through the same compare/write path so
     same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
     Conflicted expirations remain visible to the scheduler/UI as "another worker
     already changed this task" rather than being hidden as generic failures.
-13. Prove renderer orchestration with a dry-run adapter that consumes only
+14. Prove renderer orchestration with a dry-run adapter that consumes only
     ready worker actions, persists claim/result transitions, writes only
     declared deliverable outputs, and refuses to overwrite existing different
     files.
-14. Execute trusted dry-run action batches with bounded local concurrency so
+15. Execute trusted dry-run action batches with bounded local concurrency so
     parallel-safe photo-set chunks can progress quickly while serial actions,
     stale claims, and blocked tasks stay explicit.
-15. Run an iterative dry-run scheduler loop that reloads trusted render status,
+16. Run an iterative dry-run scheduler loop that reloads trusted render status,
     safely expires stale leases, plans ready work, executes bounded batches, and
     stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
     or background agent.
-16. Persist a strict scheduler report for the Mac app or next background agent,
+17. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
     task IDs, stale-lease conflicts, and human-readable failure messages.
-17. Invoke the same scheduler/report handoff from a persisted-manifest CLI command
+18. Invoke the same scheduler/report handoff from a persisted-manifest CLI command
     so a Mac launch agent, menu-bar app, or automation runner can advance work
     without reconstructing the production planner in memory.
-18. Assemble reels, carousels, and photo sets from graded masters.
+19. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -107,7 +109,9 @@ to automate.
 
 ## Next product bets
 
-1. Desktop ingest assistant that ranks likely SD cards and SSD destinations.
+1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
+   import route. The current core now recommends the likely source/destination pair and required safety notes;
+   the next step is native macOS volume discovery and UI approval around that contract.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
