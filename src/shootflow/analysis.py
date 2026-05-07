@@ -144,6 +144,10 @@ def _analysis_from_json(
         raise AnalysisLoaderError(
             f"Analysis media type does not match planned asset: {planned_source_path}"
         )
+    if grade_job.inputs != analysis_job.inputs:
+        raise AnalysisLoaderError(
+            f"Analysis and graded jobs must use the same input asset: {analysis_job.job_id}"
+        )
 
     scene_label = _required_string(raw_analysis, "scene_label").strip()
     if not scene_label:
@@ -158,11 +162,10 @@ def _analysis_from_json(
     elif duration_seconds is not None and duration_seconds < 0:
         raise AnalysisLoaderError(f"Duration cannot be negative: {planned_source_path}")
 
-    if len(grade_job.outputs) != 1:
-        raise AnalysisLoaderError(f"Graded job must have exactly one output: {grade_job.job_id}")
+    graded_output = _validated_graded_output(grade_job)
 
     return AssetAnalysis(
-        asset_path=grade_job.outputs[0],
+        asset_path=graded_output,
         media_type=media_type,
         scene_label=scene_label,
         aesthetic_score=_required_score(raw_analysis, "aesthetic_score"),
@@ -186,6 +189,19 @@ def _media_type_from_grade_job(job: ProductionJob) -> Literal["photo", "video"]:
     if media_type not in _SUPPORTED_MEDIA_TYPES:
         raise AnalysisLoaderError(f"Unsupported graded media type: {job.output_kind}")
     return media_type  # type: ignore[return-value]
+
+
+def _validated_graded_output(job: ProductionJob) -> str:
+    if len(job.outputs) != 1:
+        raise AnalysisLoaderError(f"Graded job must have exactly one output: {job.job_id}")
+    output = job.outputs[0]
+    output_path = Path(output)
+    expected_prefix = ("graded", job.job_id)
+    if output_path.is_absolute() or ".." in output_path.parts:
+        raise AnalysisLoaderError(f"Unsafe graded output path: {output}")
+    if len(output_path.parts) < 3 or output_path.parts[:2] != expected_prefix:
+        raise AnalysisLoaderError(f"Unexpected graded output path: {output}")
+    return output
 
 
 def _required_string(raw_analysis: dict[str, object], key: str) -> str:
