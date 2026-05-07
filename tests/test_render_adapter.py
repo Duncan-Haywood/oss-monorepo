@@ -255,7 +255,7 @@ class DryRunRenderAdapterTests(unittest.TestCase):
 
     def _pending_manifest(self, trusted_plan: AssemblyPlan) -> RenderStatusManifest:
         return RenderStatusManifest(
-            shoot_slug="adapter-contract",
+            shoot_slug=trusted_plan.shoot_slug,
             render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
             task_statuses=tuple(
                 RenderTaskStatus(task_id=task.task_id, state="pending")
