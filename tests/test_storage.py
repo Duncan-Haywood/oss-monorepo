@@ -135,6 +135,73 @@ class StorageRankingTest(unittest.TestCase):
         self.assertIsNone(recommendation.destination)
         self.assertIn("no automatic destination candidate with enough writable space", recommendation.safety_notes)
 
+    def test_import_route_blocks_stale_destination_path(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            card = workspace / "EOS_DIGITAL"
+            missing_ssd = workspace / "Unmounted_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+
+            recommendation = recommend_import_route(
+                [
+                    StorageCandidate(
+                        name="EOS_DIGITAL",
+                        path=card,
+                        free_bytes=8 * 1024**3,
+                        total_bytes=128 * 1024**3,
+                        is_removable=True,
+                        is_read_only=True,
+                    ),
+                    StorageCandidate(
+                        name="Unmounted_T7",
+                        path=missing_ssd,
+                        free_bytes=800 * 1024**3,
+                        total_bytes=2 * 1024**4,
+                        is_removable=True,
+                        is_read_only=False,
+                    ),
+                ]
+            )
+
+        self.assertFalse(recommendation.ready)
+        self.assertEqual(recommendation.status, "blocked")
+        self.assertIsNone(recommendation.destination)
+        self.assertIn("no mounted destination directory candidate with enough writable space", recommendation.safety_notes)
+
+    def test_import_route_blocks_destination_nested_under_source(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            card = workspace / "EOS_DIGITAL"
+            nested_destination = card / "ImportTarget"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            nested_destination.mkdir()
+
+            recommendation = recommend_import_route(
+                [
+                    StorageCandidate(
+                        name="EOS_DIGITAL",
+                        path=card,
+                        free_bytes=8 * 1024**3,
+                        total_bytes=128 * 1024**3,
+                        is_removable=True,
+                        is_read_only=True,
+                    ),
+                    StorageCandidate(
+                        name="ImportTarget",
+                        path=nested_destination,
+                        free_bytes=800 * 1024**3,
+                        total_bytes=2 * 1024**4,
+                        is_removable=False,
+                        is_read_only=False,
+                    ),
+                ]
+            )
+
+        self.assertFalse(recommendation.ready)
+        self.assertEqual(recommendation.status, "blocked")
+        self.assertIsNone(recommendation.destination)
+        self.assertIn("destination candidate is inside the selected source", recommendation.safety_notes)
+
     def test_import_route_validates_candidate_arguments(self):
         with self.assertRaises(ValueError):
             recommend_import_route([])
