@@ -7,6 +7,7 @@ __all__ = [
     "deliverables",
     "ingest",
     "production",
+    "render_status",
     "storage",
     "story",
 ]
