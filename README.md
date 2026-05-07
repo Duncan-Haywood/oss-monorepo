@@ -32,7 +32,9 @@ This repo currently contains the first testable core utilities:
   manifest keyed by trusted render task IDs so workers can resume, retry, and
   report progress without adding source-media paths or delete instructions.
   Status files are bound to a render-plan fingerprint so stale progress cannot
-  be reused after storyline selections or render inputs change.
+  be reused after storyline selections or render inputs change. Manifest-level
+  compare/write helpers update exactly one task status after checking the
+  expected prior state and attempt.
 - `shootflow.render_worker` turns trusted render tasks plus trusted status into
   dry-run worker actions. It schedules only dependency-ready pending/retryable
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
@@ -80,7 +82,7 @@ The intended first workflow is:
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
 11. Use worker status-transition helpers to claim ready work, reject stale
     attempts, and report completed outputs by checksum before persisting updated
-    render status manifests.
+    render status manifests through a single-task compare/write update.
 
 ## Run tests
 

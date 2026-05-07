@@ -43,7 +43,9 @@ The repo currently contains a Python core package because it is quick to test an
   render task IDs and a canonical render-plan fingerprint. It records
   pending/running/succeeded/failed/retryable states, renderer adapter names, attempts, error messages,
   output checksums, and timestamps without accepting source-media paths, arbitrary task IDs, or deletion
-  instructions.
+  instructions. Its compare/write update helper reloads the latest manifest, checks the expected prior
+  state and attempt for one task, replaces only that status, and writes back through the same safe manifest
+  writer.
 - `shootflow.render_worker`: a dry-run worker action planner that consumes trusted `AssemblyPlan` and
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
@@ -68,8 +70,10 @@ The desired high-quality pipeline is:
 10. Plan renderer-neutral worker actions from the trusted task/status pair.
 11. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
     declared deliverable outputs only.
-12. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-13. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+12. Persist each worker transition through a single-task compare/write helper so stale workers cannot
+    overwrite newer claims or results.
+13. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+14. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -144,7 +148,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   exclusive no-follow temporary file creation and reject stale canonical temp files. Status validation
   reuses full assembly-plan validation before fingerprinting so in-memory callers cannot bypass the
   render-task manifest's path/dependency rules. Status files cannot introduce source paths, new tasks,
-  stale task contents, or destructive operations.
+  stale task contents, or destructive operations. Workers should persist status transitions through
+  `compare_and_write_render_task_status(...)`, which reloads the latest trusted manifest, verifies the
+  task's current state and attempt still match the transition precondition, replaces exactly one status,
+  preserves task order/fingerprint/slug, and writes through the safe manifest writer.
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for
@@ -152,8 +159,8 @@ High quality depends on scene-level consistency and reversible edits. The system
   explicit status-transition helpers: a worker can claim a pending/retryable action only when the current
   status and attempt number match, report success only after every declared deliverable output exists and
   has a SHA-256 checksum, or report retry/failure with a clear error message. It intentionally leaves real
-  media opening, output temp-file strategy, timeout handling, and durable manifest compare-and-swap to
-  future renderer adapters.
+  media opening, output temp-file strategy, timeout handling, worker leases, and cross-process file locking
+  to future renderer adapters.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -175,6 +182,8 @@ Useful wedges:
   a vague drive full of media."
 - "Let local or cloud workers claim and report render tasks without ever receiving authority to delete
   originals or invent output paths."
+- "Reject stale worker results at the manifest boundary when another worker has already claimed, retried,
+  or completed the same task."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

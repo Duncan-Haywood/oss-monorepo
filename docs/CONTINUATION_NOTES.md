@@ -46,7 +46,7 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated production planning so Instagram deliverable assembly depends on a serialized `rank_instagram_storylines` job after scene grouping, look development, and graded-master rendering.
 - Expanded product/legal docs around the story-planning layer, indemnification caution, and file deletion safety.
 
-## What landed in the previous iteration
+## Earlier render-worker planning iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-cd73` and pushed it to
@@ -91,6 +91,26 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/-bc-31236baa-8641-4baf-8424-88808ac9e52c-7f37`, pushed that baseline to
+  `cursor/media-content-automation-6863`, then added one focused render-status safety layer.
+- Added `compare_and_write_render_task_status(...)` in `shootflow.render_status`:
+  - loads the latest trusted `deliverables/render_status.json` from the workspace before updating;
+  - validates the manifest against the supplied trusted `AssemblyPlan`, including shoot slug, task order,
+    render-plan fingerprint, state-specific status fields, and assembly-plan path/dependency safety;
+  - checks that the target task's current state and attempt count match the worker transition's expected
+    precondition before accepting the update;
+  - replaces exactly one `RenderTaskStatus` while preserving the manifest shoot slug, render-plan
+    fingerprint, and task ordering;
+  - validates the updated manifest and writes it through the existing safe status-manifest writer, including
+    stale/symlinked temp-path rejection.
+- Expanded render-status tests for single-task replacement, stale precondition rejection without rewriting
+  the manifest, unknown task IDs, stale fingerprints, and safe writer behavior during compare/write updates.
+- Updated README, product strategy, and design decisions to describe single-task compare/write updates as
+  the current durable boundary between worker transition helpers and future renderer adapters.
+
+## What landed in the previous iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-7fad` and pushed that baseline to
   `cursor/-bc-31236baa-8641-4baf-8424-88808ac9e52c-7f37`.
 - Added safe render-worker status transition helpers in `shootflow.render_worker`:
@@ -108,7 +128,7 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated README, product strategy, and design decisions to document worker status transitions as the next
   contract between the trusted task/status manifests and real renderer adapters.
 
-## What landed in the previous iteration
+## Earlier render-worker planning iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-4a21`, pushed it to `cursor/media-content-automation-7fad`, and
@@ -136,19 +156,18 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-The worker can now plan ready actions and produce safe per-task status transitions, but manifest updates are
-still caller-managed. A useful next layer is a manifest-level compare/update helper that loads the latest
-trusted `deliverables/render_status.json`, verifies the current task status still matches the transition's
-expected precondition, replaces exactly one task status, and writes the updated manifest through the existing
-safe status-manifest writer.
+The worker can now plan ready actions, produce safe per-task status transitions, and persist one transition
+through a manifest-level compare/write update. The next useful layer is worker lease or renderer dry-run
+orchestration.
 
 Good test-first targets:
 
-- Add a helper that replaces exactly one `RenderTaskStatus` in a trusted `RenderStatusManifest` while
-  preserving the shoot slug, render-plan fingerprint, and task ordering.
-- Require the helper to check the expected previous state/attempt before accepting an updated status, so a
-  stale worker cannot overwrite another worker's newer claim or result.
-- Add tests for stale manifest fingerprints, wrong task IDs, duplicate status replacement, and failed writes
-  through symlinked/stale temp manifest paths.
-- Keep real ffmpeg/Core Image/DaVinci rendering out of scope until manifest-level compare/update semantics
-  are safe and well tested.
+- Add a lease/timeout policy for `running` statuses so interrupted workers can eventually be retried without
+  double-scheduling active work. Keep the policy explicit and conservative; do not infer deletion or cleanup
+  authority from a timeout.
+- Add a dry-run renderer adapter interface that consumes only `RenderWorkerAction` records and returns
+  `RenderTaskStatus` transitions, then persists them through `compare_and_write_render_task_status(...)`.
+- Add tests that simulate two workers racing to claim the same task: the first compare/write should succeed,
+  the second should fail on stale state/attempt without modifying the manifest.
+- Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
+  contracts are safe and well tested.
