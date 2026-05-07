@@ -56,9 +56,15 @@ def recommend_import_route(candidates: list[StorageCandidate]) -> ImportRouteRec
 
     ranked = rank_storage_candidates(candidates)
     source = _first_role(ranked, "source")
-    destination = _first_destination_not_source(ranked, source)
+    if source is not None and not source.candidate.path.is_dir():
+        source = None
+    destination, destination_rejection_notes = _first_destination_not_source(ranked, source)
     ready = source is not None and destination is not None
-    notes = _import_route_safety_notes(source=source, destination=destination)
+    notes = _import_route_safety_notes(
+        source=source,
+        destination=destination,
+        destination_rejection_notes=destination_rejection_notes,
+    )
 
     return ImportRouteRecommendation(
         source=source,
@@ -138,20 +144,31 @@ def _first_role(
 def _first_destination_not_source(
     ranked: list[RankedStorageCandidate],
     source: RankedStorageCandidate | None,
-) -> RankedStorageCandidate | None:
+) -> tuple[RankedStorageCandidate | None, tuple[str, ...]]:
+    rejection_notes: list[str] = []
+    source_path = source.candidate.path.resolve() if source is not None else None
     for candidate in ranked:
         if candidate.role != "destination":
             continue
-        if source is not None and candidate.candidate.path.resolve() == source.candidate.path.resolve():
+        if not candidate.candidate.path.is_dir():
+            rejection_notes.append("no mounted destination directory candidate with enough writable space")
             continue
-        return candidate
-    return None
+        destination_path = candidate.candidate.path.resolve()
+        if source_path is not None and destination_path == source_path:
+            rejection_notes.append("destination candidate matches the selected source")
+            continue
+        if source_path is not None and _path_is_relative_to(destination_path, source_path):
+            rejection_notes.append("destination candidate is inside the selected source")
+            continue
+        return candidate, ()
+    return None, tuple(dict.fromkeys(rejection_notes))
 
 
 def _import_route_safety_notes(
     *,
     source: RankedStorageCandidate | None,
     destination: RankedStorageCandidate | None,
+    destination_rejection_notes: tuple[str, ...],
 ) -> tuple[str, ...]:
     notes = [
         "review source and destination before importing",
@@ -162,5 +179,16 @@ def _import_route_safety_notes(
     if source is None:
         notes.append("no likely camera-card source candidate found")
     if destination is None:
-        notes.append("no automatic destination candidate with enough writable space")
+        if destination_rejection_notes:
+            notes.extend(destination_rejection_notes)
+        else:
+            notes.append("no automatic destination candidate with enough writable space")
     return tuple(notes)
+
+
+def _path_is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
