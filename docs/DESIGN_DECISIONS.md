@@ -64,6 +64,12 @@ The repo currently contains a Python core package because it is quick to test an
   remain visible and untouched, action fields are rebound to the trusted `AssemblyPlan` before any output is
   materialized, and stale scheduler-level action failures are reported without materializing outputs. It
   intentionally does not open source or graded inputs, delete files, or implement real media rendering.
+- `shootflow.render_scheduler`: a local dry-run orchestration loop above the adapter boundary. It reloads the
+  trusted status manifest on every pass, optionally plans and persists stale-running lease expirations through the
+  guarded lease helper, plans dependency-ready actions, runs bounded dry-run batches, and stops with explicit
+  `complete`, `blocked`, `retryable`, `failed`, `waiting`, or `max_iterations` reasons. It deliberately skips any task it
+  already attempted when that task becomes retryable in the same run, so a stuck output or manual editor export is
+  preserved for review instead of being hammered repeatedly.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -91,8 +97,10 @@ The desired high-quality pipeline is:
     rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
 15. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
     progress while serial reels and blocked tasks stay deterministic and inspectable.
-16. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-17. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+16. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
+    expiration, ready-action planning, bounded batch execution, and explicit stop summaries for UI/retry decisions.
+17. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+18. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -205,6 +213,11 @@ High quality depends on scene-level consistency and reversible edits. The system
   flag, caps parallel groups with `max_concurrency`, surfaces blocked task IDs, verifies action fields against
   the trusted render tasks, and records stale-action failures with an explicit no-deletion message instead of
   treating them as render results.
+- `shootflow.render_scheduler` is the first end-to-end local scheduler shape for the future Mac app. It runs the
+  trusted dry-run render loop until no immediately runnable work remains, including stale-running lease recovery
+  when the caller supplies an explicit cutoff. It reports final succeeded/retryable/failed/blocked task IDs and
+  a stop reason instead of hiding unfinished work. Retryable tasks attempted during the same scheduler run are not
+  retried again in a tight loop, preserving manual exports and unsafe output conflicts for user/editor review.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

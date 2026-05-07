@@ -9,6 +9,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-ccd0`, pushed that baseline to
+  `cursor/media-content-automation-47b6`, then added the first iterative dry-run render scheduler.
+- Added `shootflow.render_scheduler`:
+  - exposes `run_dry_run_render_scheduler(...)` for a local Mac/background-agent style loop that reloads
+    trusted render status each pass;
+  - optionally plans and persists stale-running leases before scheduling ready work, using the same guarded
+    lease persistence path and caller-supplied cutoff/updated timestamps;
+  - plans dependency-ready worker actions from the trusted task/status pair and runs them through
+    `run_dry_run_render_batch(...)` with bounded concurrency;
+  - stops with explicit `complete`, `blocked`, `retryable`, `failed`, `waiting`, or `max_iterations` reasons and returns
+    final succeeded/retryable/failed/blocked task IDs for UI/retry decisions;
+  - skips tasks already attempted in the same scheduler run if they come back as retryable, so a persistent
+    output conflict or manual editor export is preserved for review instead of being hammered repeatedly.
+- Added scheduler tests for ready-batch completion, stale lease recovery into a new attempt, and retryable
+  output conflicts that are attempted once without overwriting manual files.
+- Updated README, product strategy, and design decisions to make the iterative scheduler the current orchestration
+  boundary before real renderer backends.
+
+## Previous iteration
+
+- Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-8ef1`, pushed that baseline to
   `cursor/media-content-automation-ccd0`, then added stale lease persistence.
 - Added `persist_stale_render_leases(...)` in `shootflow.render_worker`:
@@ -252,17 +273,17 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
 through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
 action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
-concurrency, and persist planned stale lease expirations with heartbeat-conflict reporting. The next useful
-layer is either an iterative dry-run scheduler loop, real renderer temp-output contracts, or stronger
-distributed lease persistence.
+concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, and drive those pieces
+through an iterative dry-run scheduler loop. The next useful layer is either real renderer temp-output
+contracts, stronger distributed lease persistence, or a thin CLI/Mac-app-facing command wrapper around the
+trusted scheduler.
 
 Good test-first targets:
 
-- Add an iterative dry-run scheduler loop that alternates: load trusted status, plan stale lease expirations,
-  persist safe expirations, plan ready actions, run a bounded dry-run batch, then stop when no actions or
-  expirations remain. This would model the Mac background worker loop without opening real media.
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
+- Add a CLI-facing scheduler command that accepts a workspace root, trusted render plan/status files, concurrency,
+  and stale cutoff, then prints the scheduler's complete/blocked/retryable summary for future Mac UI integration.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter

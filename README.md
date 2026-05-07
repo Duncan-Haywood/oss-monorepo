@@ -52,6 +52,11 @@ This repo currently contains the first testable core utilities:
   action plan in batches, running parallel-safe ready actions up to a caller
   supplied concurrency limit while preserving serial-only actions and leaving
   blocked tasks untouched for UI/scheduler visibility.
+- `shootflow.render_scheduler` ties the dry-run render pieces into an iterative
+  local orchestration loop: it reloads trusted status each pass, optionally
+  persists stale lease expirations, plans dependency-ready actions, runs bounded
+  dry-run batches, avoids hammering retryable tasks within the same run, and
+  returns a compact completion/blocked/retryable/failed summary for a future Mac app.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -108,6 +113,10 @@ The intended first workflow is:
     bounded local concurrency level, record stale-action failures without
     materializing outputs, and keep blocked/running/failed work visible for
     later retries or review.
+15. Use the iterative dry-run scheduler to alternate trusted status reloads,
+    guarded stale-lease expiration, ready-action planning, and bounded batch
+    execution until the current render plan is complete, blocked, failed,
+    waiting, or has retryable work that should not be hammered again without review.
 
 ## Run tests
 

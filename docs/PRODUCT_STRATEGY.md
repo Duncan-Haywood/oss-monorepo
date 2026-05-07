@@ -78,7 +78,11 @@ The current core models a concrete promise for high-volume users:
 14. Execute trusted dry-run action batches with bounded local concurrency so
     parallel-safe photo-set chunks can progress quickly while serial actions,
     stale claims, and blocked tasks stay explicit.
-15. Assemble reels, carousels, and photo sets from graded masters.
+15. Run an iterative dry-run scheduler loop that reloads trusted render status,
+    safely expires stale leases, plans ready work, executes bounded batches, and
+    stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
+    or background agent.
+16. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -127,5 +131,11 @@ to automate.
    materializing outputs or deleting media.
    Stale-running lease expirations can now be persisted as guarded retryable
    status updates, with heartbeat-refresh conflicts reported at task granularity.
+   The dry-run scheduler now loops over trusted status reloads, stale-lease
+   expiration, ready-action planning, and bounded batch execution until the plan
+   is complete or explicitly blocked/retryable/failed/waiting. It also avoids retrying a
+   task again in the same run after that task becomes retryable, which protects
+   manual editor exports and other persistent output conflicts from tight-loop
+   overwrite attempts.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
