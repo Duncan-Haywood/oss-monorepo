@@ -11,6 +11,7 @@ from shootflow.assembly import (
     AssemblyPlanError,
     build_assembly_plan,
     load_render_tasks_manifest,
+    load_trusted_render_tasks_manifest,
     write_render_tasks_manifest,
 )
 from shootflow.deliverables import MediaAsset
@@ -502,11 +503,13 @@ class AssemblyPlanningTests(unittest.TestCase):
 
             manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
             loaded_plan = load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+            trusted_from_disk = load_trusted_render_tasks_manifest(workspace)
 
             raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
         self.assertEqual(manifest_path, workspace / "deliverables/render_tasks.json")
         self.assertEqual(loaded_plan, assembly_plan)
+        self.assertEqual(trusted_from_disk, assembly_plan)
         self.assertEqual(list(raw_manifest), ["render_tasks", "schema_version", "shoot_slug"])
         self.assertEqual(
             list(raw_manifest["render_tasks"][0]),
@@ -534,6 +537,8 @@ class AssemblyPlanningTests(unittest.TestCase):
 
             with self.assertRaisesRegex(AssemblyPlanError, "Unexpected render task field"):
                 load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+            with self.assertRaisesRegex(AssemblyPlanError, "Unexpected render task field"):
+                load_trusted_render_tasks_manifest(workspace)
 
     def test_rejects_render_task_manifest_with_unsafe_inputs_or_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -565,6 +570,8 @@ class AssemblyPlanningTests(unittest.TestCase):
 
             with self.assertRaisesRegex(AssemblyPlanError, "render task manifest symlink"):
                 load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+            with self.assertRaisesRegex(AssemblyPlanError, "render task manifest symlink"):
+                load_trusted_render_tasks_manifest(workspace)
 
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             workspace = Path(tmp)
