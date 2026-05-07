@@ -27,7 +27,8 @@ This repo currently contains the first testable core utilities:
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
-  carousel, and photo-set recommendations.
+  carousel, and photo-set recommendations, then persists the selections as a
+  deterministic `analysis/instagram_storylines.json` edit-decision artifact.
 - `shootflow.production` expands a shoot into deterministic proxy, VLM
   analysis, look-development, grading, storyline selection, and Instagram
   packaging waves.
@@ -45,6 +46,8 @@ The intended first workflow is:
 5. Load VLM results with `shootflow.analysis` so social planning consumes graded
    artifact paths and rejects analysis that does not match the planned source
    assets.
+6. Persist `shootflow.story` selections as a trusted storyline artifact for
+   downstream reel, carousel, and photo-set assemblers.
 
 ## Run tests
 

@@ -9,6 +9,13 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Merged the prior `shootflow` foundation onto the active branch.
+- Added a serialized storyline artifact contract around `StorylinePlan`:
+  - writes deterministic JSON to `analysis/instagram_storylines.json`;
+  - round-trips reel, carousel, and photo-set sequences with output kind, aspect ratio, asset paths,
+    durations, and rationale;
+  - rejects storyline artifacts that reference assets outside the trusted loaded analysis/graded
+    artifact set;
+  - avoids symlinked workspace/artifact paths and writes through a temporary file before replacement.
 - Added `shootflow.analysis` for manifest/production-plan-backed VLM analysis loading:
   - loads only planned `analysis/00000.json` style per-asset files;
   - requires analysis to match the planned raw source asset and media type;
@@ -32,19 +39,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   the manifest-backed production plan.
 - Storyline inputs should reference graded artifacts; raw/original paths stay behind the catalog and
   production planning boundary.
+- `analysis/instagram_storylines.json` is an edit-decision artifact. Renderers should consume it but
+  should still verify the referenced graded artifacts exist and match their expected production outputs.
 - First-cut reel selection intentionally prefers one strong clip per scene before repeated coverage. Future iterations can add alternate reel variants for longer cuts.
 - Full photo-set exports stay ranked but not capped; carousel is capped for Instagram.
 
 ## Suggested next iteration
 
-Add a serialized storyline artifact writer/reader around `StorylinePlan` so the `rank_instagram_storylines`
-job can persist `analysis/instagram_storylines.json` for downstream reel/carousel/photo-set assemblers.
-Keep the artifact an edit-decision contract rather than a renderer.
+Add a deliverable assembly planner/loader that consumes `analysis/instagram_storylines.json` and produces
+explicit render tasks for reel, carousel, and photo-set outputs without doing the actual media rendering
+yet. Keep it as another deterministic contract that a future local Metal/Core Image, ffmpeg, DaVinci, or
+cloud renderer can execute.
 
 Good test-first targets:
 
-- Serialize reel, carousel, and photo-set sequences with output kind, aspect ratio, asset paths,
-  durations, and rationale.
-- Reject storyline artifacts that reference assets outside the loaded analysis/graded artifact set.
-- Preserve deterministic ordering so retries and UI review do not reshuffle selects.
-- Keep the writer safe for large shoots by streaming or using simple linear data structures.
+- Build render tasks only from storyline-selected graded assets, not from raw originals.
+- Reject missing or extra storyline sequence names, unsupported output kinds, unsafe paths, and references
+  not present in the production plan.
+- Preserve deterministic output paths under `deliverables/` so retries and UI review do not reshuffle
+  reels/carousels/photo sets.
+- Model multiple reel variants next (`hero`, `behind_the_scenes`, `fast_cut`) without changing the
+  existing first-cut artifact schema until the renderer contract is ready.

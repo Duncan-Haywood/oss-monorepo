@@ -32,7 +32,7 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, carousels, and ranked
-  photo-set exports.
+  photo-set exports, plus a deterministic storyline artifact contract for downstream assemblers.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -91,6 +91,9 @@ High quality depends on scene-level consistency and reversible edits. The system
 - `shootflow.story` currently chooses a first-cut reel from the best clip per scene, carousels from
   diversified photo selects, and photo sets from every graded photo ranked by quality. This keeps the
   automatic output useful while still preserving all graded intermediates for human/editor review.
+- Storyline selection persists to `analysis/instagram_storylines.json` as an edit-decision contract
+  with reel, carousel, and photo-set sequences. The reader rejects references outside the trusted
+  graded artifact set so model-authored JSON cannot smuggle arbitrary files into a renderer.
 - The current planner is intentionally an edit-decision contract, not a renderer. Future renderers can be
   local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve automation, or cloud GPU workers as long as they
   honor the same job IDs and dependencies.

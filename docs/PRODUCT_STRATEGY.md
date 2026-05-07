@@ -80,6 +80,7 @@ to automate.
 3. Selects model that creates several reel/carousel narratives instead of one
    brittle "best" output. The first implemented contract now ranks VLM asset
    analysis into scene-diverse first-cut reels, scene-varied carousels, and
-   complete ranked photo sets for review/export.
+   complete ranked photo sets, then persists those choices as a deterministic
+   edit-decision artifact for review/export.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
