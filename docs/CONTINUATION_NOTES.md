@@ -16,6 +16,7 @@ what should happen next.
    - Writes `ingest_manifest.json`.
    - Verifies SHA-256 and byte size after copy.
    - Rejects symlinked media sources.
+   - Rejects symlinked path ancestors and broken symlink destinations.
    - Never deletes source files.
    - Never overwrites a different destination file with the same camera filename.
 2. Storage candidate ranking:
@@ -49,6 +50,14 @@ Add a manifest-backed production catalog and VLM analysis layer:
 4. Convert verified photo/video ingest items into `deliverables.MediaAsset`.
 5. Load per-asset VLM analysis JSON outputs and reject analysis for assets not in the verified catalog.
 6. Add tests before code for escaped paths, stale checksums, unsupported media, and unknown analysis assets.
+
+## Known residual risks
+
+- Concurrent imports into the same shoot folder are not yet race-safe. Add file
+  locks or per-import staging directories before allowing multiple workers to
+  write into the same destination at once.
+- The current package plans deliverables but does not render media, call VLMs,
+  or build macOS/iOS UI yet.
 
 ## Product direction notes
 
