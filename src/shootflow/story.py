@@ -339,7 +339,7 @@ def _read_json_object(path: Path) -> dict[str, object]:
 
 
 def _storyline_plan_from_json(raw_artifact: dict[str, object]) -> StorylinePlan:
-    _reject_unexpected_keys(raw_artifact, allowed_keys=_ARTIFACT_KEYS, label="artifact")
+    _validate_exact_keys(raw_artifact, allowed_keys=_ARTIFACT_KEYS, label="artifact")
     if raw_artifact.get("schema_version") != _STORYLINE_SCHEMA_VERSION:
         raise StoryPlanError("Unsupported storyline artifact schema version")
     raw_sequences = raw_artifact.get("sequences")
@@ -366,7 +366,7 @@ def _storyline_plan_from_json(raw_artifact: dict[str, object]) -> StorylinePlan:
 def _content_sequence_from_json(raw_sequence: object) -> ContentSequence:
     if not isinstance(raw_sequence, dict):
         raise StoryPlanError("Storyline sequence must be an object")
-    _reject_unexpected_keys(raw_sequence, allowed_keys=_SEQUENCE_KEYS, label="sequence")
+    _validate_exact_keys(raw_sequence, allowed_keys=_SEQUENCE_KEYS, label="sequence")
     asset_paths = raw_sequence.get("asset_paths")
     if not isinstance(asset_paths, list) or any(not isinstance(path, str) for path in asset_paths):
         raise StoryPlanError("Storyline sequence asset_paths must be a list of strings")
@@ -407,17 +407,21 @@ def _optional_sequence_duration(raw_sequence: dict[object, object]) -> float | N
     return duration
 
 
-def _reject_unexpected_keys(
+def _validate_exact_keys(
     raw_object: dict[object, object],
     *,
     allowed_keys: frozenset[str],
     label: str,
 ) -> None:
-    unexpected_keys = sorted(str(key) for key in set(raw_object) - allowed_keys)
+    actual_keys = set(raw_object)
+    unexpected_keys = sorted(str(key) for key in actual_keys - allowed_keys)
     if unexpected_keys:
         raise StoryPlanError(
             f"Unexpected storyline {label} field: {', '.join(unexpected_keys)}"
         )
+    missing_keys = sorted(allowed_keys - actual_keys)
+    if missing_keys:
+        raise StoryPlanError(f"Missing storyline {label} field: {', '.join(missing_keys)}")
 
 
 def _reject_symlink(path: Path, label: str) -> None:
