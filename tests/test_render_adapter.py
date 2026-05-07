@@ -48,8 +48,12 @@ class DryRunRenderAdapterTests(unittest.TestCase):
                 max_concurrency=2,
             )
             loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
-            photo_chunk_output = workspace / "deliverables" / "instagram_photo_set" / "photo_00002.jpg"
-            blocked_output = workspace / "deliverables" / "instagram_carousel" / "slide_00001.jpg"
+            photo_chunk_output_exists = (
+                workspace / "deliverables" / "instagram_photo_set" / "photo_00002.jpg"
+            ).exists()
+            blocked_output_exists = (
+                workspace / "deliverables" / "instagram_carousel" / "slide_00001.jpg"
+            ).exists()
 
         self.assertIsInstance(result, DryRunRenderBatchResult)
         self.assertEqual(result.shoot_slug, "adapter-batch")
@@ -69,8 +73,8 @@ class DryRunRenderAdapterTests(unittest.TestCase):
             [status.state for status in loaded_manifest.task_statuses],
             ["succeeded", "succeeded", "succeeded", "pending"],
         )
-        self.assertTrue(photo_chunk_output.exists())
-        self.assertFalse(blocked_output.exists())
+        self.assertTrue(photo_chunk_output_exists)
+        self.assertFalse(blocked_output_exists)
 
     def test_batch_records_stale_action_failure_and_continues(self) -> None:
         trusted_plan = self._trusted_plan()
