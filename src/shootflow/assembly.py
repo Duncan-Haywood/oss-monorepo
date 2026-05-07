@@ -190,12 +190,7 @@ def _safe_workspace_path(root: Path, relative_path: str) -> Path:
     path = Path(relative_path)
     if path.is_absolute() or ".." in path.parts:
         raise AssemblyPlanError(f"Unsafe selected asset path: {relative_path}")
-    workspace_path = root / path
-    try:
-        workspace_path.resolve().relative_to(root.resolve())
-    except ValueError as exc:
-        raise AssemblyPlanError(f"Selected asset escapes workspace: {relative_path}") from exc
-    return workspace_path
+    return root / path
 
 
 def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
