@@ -201,6 +201,29 @@ def load_render_tasks_manifest(
     return loaded_plan
 
 
+def load_trusted_render_tasks_manifest(workspace_root: Path | str) -> AssemblyPlan:
+    """Load the persisted render-task handoff as the trusted plan for worker CLIs.
+
+    This is intended for background agents that start from the strict
+    ``deliverables/render_tasks.json`` handoff rather than an in-memory
+    ``ProductionPlan``. The file still receives the same schema, path, and
+    canonical task validation before callers may use it as authority.
+    """
+
+    manifest_path = _render_tasks_manifest_path(workspace_root)
+    root = Path(workspace_root)
+    _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
+    _reject_symlink_path(manifest_path, root, "render task manifest")
+    _reject_symlink_path(
+        manifest_path.with_suffix(".json.tmp"),
+        root,
+        "temporary render task manifest",
+    )
+    loaded_plan = _assembly_plan_from_json(_read_json_object(manifest_path))
+    _validate_assembly_plan(loaded_plan)
+    return loaded_plan
+
+
 def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, _GradedOutput]:
     outputs: dict[str, _GradedOutput] = {}
     for job in plan.jobs:

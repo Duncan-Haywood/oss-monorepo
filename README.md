@@ -61,6 +61,11 @@ This repo currently contains the first testable core utilities:
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
+- `shootflow.cli` exposes the first background-agent command:
+  `python -m shootflow.cli dry-run-render-scheduler`. It loads the strict
+  persisted render-task manifest as the trusted plan, runs the dry-run scheduler
+  against the matching render-status manifest, writes the scheduler report, and
+  can print that report as JSON for a Mac app or automation runner.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -125,6 +130,9 @@ The intended first workflow is:
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
+17. Run the same handoff through `python -m shootflow.cli dry-run-render-scheduler`
+    when a UI/background-agent process starts from persisted manifests instead of
+    an in-memory production plan.
 
 ## Run tests
 

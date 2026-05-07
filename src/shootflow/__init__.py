@@ -4,6 +4,7 @@ __all__ = [
     "assembly",
     "analysis",
     "catalog",
+    "cli",
     "deliverables",
     "ingest",
     "production",

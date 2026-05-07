@@ -85,7 +85,10 @@ The current core models a concrete promise for high-volume users:
 16. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
     task IDs, stale-lease conflicts, and human-readable failure messages.
-17. Assemble reels, carousels, and photo sets from graded masters.
+17. Invoke the same scheduler/report handoff from a persisted-manifest CLI command
+    so a Mac launch agent, menu-bar app, or automation runner can advance work
+    without reconstructing the production planner in memory.
+18. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -144,5 +147,8 @@ to automate.
    the product-facing summary for UI/retry/agent handoff, bound to the trusted
    render-plan fingerprint and final status manifest so stale or model-authored
    reports cannot invent tasks, outputs, or review state.
+   The first CLI command now starts from the persisted render-task/status
+   manifests, runs the trusted dry-run scheduler, writes that report, and can
+   print it as JSON for a Mac app or background automation process.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

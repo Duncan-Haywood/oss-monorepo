@@ -73,6 +73,12 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.cli`: the first background-agent command surface. The dry-run scheduler command loads the persisted
+  `deliverables/render_tasks.json` handoff through the same strict task schema/path validation, treats that loaded
+  plan as the trusted renderer contract, validates the matching render-status manifest by fingerprint, runs the
+  scheduler, writes `deliverables/render_scheduler_report.json`, and optionally prints the report JSON for a Mac UI,
+  launch agent, or continuation automation. It does not accept model-authored paths, delete files, or widen renderer
+  authority beyond the persisted render-task/status contracts.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -105,8 +111,10 @@ The desired high-quality pipeline is:
 17. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-18. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-19. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+18. Run the persisted-manifest scheduler through a CLI/background-agent command so native app work can begin from
+    durable handoffs rather than an in-process Python object graph.
+19. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+20. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

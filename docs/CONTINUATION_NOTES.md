@@ -9,6 +9,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-301d`, pushed that baseline to
+  `cursor/media-content-automation-5b63`, then added the first persisted-manifest scheduler CLI.
+- Added `load_trusted_render_tasks_manifest(...)` in `shootflow.assembly`:
+  - loads `deliverables/render_tasks.json` without requiring an already in-memory `AssemblyPlan`;
+  - still rejects unknown fields, unsafe inputs/outputs, noncanonical tasks, symlinked manifests, and stale temp paths;
+  - lets background agents treat the strict persisted render-task handoff as the trusted plan when paired with the
+    fingerprint-bound render-status manifest.
+- Added `shootflow.cli` with `python -m shootflow.cli dry-run-render-scheduler`:
+  - loads the trusted persisted render tasks, runs `run_dry_run_render_scheduler(...)`, reloads final status, writes
+    `deliverables/render_scheduler_report.json`, and optionally prints that report JSON;
+  - keeps the command as a thin wrapper around existing trusted core APIs instead of adding renderer authority;
+  - exposes repeatable `--completed-dependency`, bounded `--max-concurrency`/`--max-iterations`, stale lease arguments,
+    and explicit started/completed/generated timestamps for Mac launch agents and automation runners.
+- Added CLI tests for successful report writing/printing and unsafe manifest rejection, plus assembly tests for the
+  new trusted persisted-manifest loader.
+- Updated README, product strategy, and design decisions to mark persisted-manifest CLI scheduling as the current
+  Mac UI/background-agent handoff.
+
+## Previous iteration
+
+- Fast-forwarded the active branch from the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-47b6`, pushed that baseline to
   `cursor/media-content-automation-301d`, then added a product-facing scheduler report handoff.
 - Added strict scheduler report persistence in `shootflow.render_scheduler`:
@@ -295,16 +316,16 @@ The worker can now plan ready actions, produce safe per-task status transitions,
 through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
 action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
 concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
-through an iterative dry-run scheduler loop, and persist a strict UI/agent scheduler report. The next useful
-layer is either real renderer temp-output contracts, stronger distributed lease persistence, or a thin
-CLI/Mac-app-facing command wrapper that runs the trusted scheduler and emits/reads the persisted report.
+through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, and invoke that
+handoff from a persisted-manifest CLI command. The next useful layer is either real renderer temp-output
+contracts, stronger distributed lease persistence, or a small example/smoke fixture for the CLI-to-report flow.
 
 Good test-first targets:
 
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
-- Add a CLI-facing scheduler command that accepts a workspace root, trusted render plan/status files, concurrency,
-  stale cutoff, and report timestamp, then writes/prints `render_scheduler_report.json` for future Mac UI integration.
+- Add a CLI smoke fixture or example workspace that demonstrates the persisted render-task/status input files and
+  the printed `render_scheduler_report.json` output a future Mac UI should consume.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
