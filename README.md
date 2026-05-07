@@ -31,6 +31,8 @@ This repo currently contains the first testable core utilities:
 - `shootflow.render_status` persists a strict `deliverables/render_status.json`
   manifest keyed by trusted render task IDs so workers can resume, retry, and
   report progress without adding source-media paths or delete instructions.
+  Status files are bound to a render-plan fingerprint so stale progress cannot
+  be reused after storyline selections or render inputs change.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.

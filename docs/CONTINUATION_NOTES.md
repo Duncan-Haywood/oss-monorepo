@@ -95,8 +95,10 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Added `shootflow.render_status` as a strict render-worker progress contract:
   - `RenderTaskStatus` records are keyed by trusted task ID and must appear in the same order as the current
     `AssemblyPlan`;
+  - status manifests include a canonical render-plan SHA-256 fingerprint so stale manifests for the same
+    task IDs/outputs cannot mark newly selected media as already rendered;
   - `deliverables/render_status.json` round-trips through exact schema validation and symlink-safe temp
-    writes;
+    writes, using exclusive no-follow temp creation and rejecting stale canonical temp files;
   - supported states are `pending`, `running`, `succeeded`, `failed`, and `retryable`;
   - worker-reported statuses can include renderer adapter name, attempts, error messages, output checksums,
     and timestamps, with state-specific validation;

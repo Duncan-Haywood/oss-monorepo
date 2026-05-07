@@ -40,9 +40,10 @@ The repo currently contains a Python core package because it is quick to test an
   ranked photo-set exports into parallel resumable tasks, creates collision-free tasks for named reel
   variants, and persists strict render manifests for future workers.
 - `shootflow.render_status`: a render-worker progress contract that persists status keyed by trusted
-  render task IDs. It records pending/running/succeeded/failed/retryable states, renderer adapter names,
-  attempts, error messages, output checksums, and timestamps without accepting source-media paths,
-  arbitrary task IDs, or deletion instructions.
+  render task IDs and a canonical render-plan fingerprint. It records
+  pending/running/succeeded/failed/retryable states, renderer adapter names, attempts, error messages,
+  output checksums, and timestamps without accepting source-media paths, arbitrary task IDs, or deletion
+  instructions.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -129,10 +130,11 @@ High quality depends on scene-level consistency and reversible edits. The system
   without deleting source or graded media. A Core Image/Metal adapter, ffmpeg adapter, DaVinci Resolve
   automation adapter, or cloud GPU adapter should all be swappable behind that contract.
 - `deliverables/render_status.json` is the companion worker-progress handoff. The loader requires exact
-  JSON fields, the same shoot slug and task ordering as the trusted `AssemblyPlan`, known status states,
-  state-appropriate attempts/error/checksum fields, symlink-safe manifest paths, and checksums only for
-  each task's expected deliverable outputs. Status files cannot introduce source paths, new tasks, or
-  destructive operations.
+  JSON fields, the same shoot slug, task ordering, and render-plan fingerprint as the trusted
+  `AssemblyPlan`, known status states, state-appropriate attempts/error/checksum fields, symlink-safe
+  manifest paths, and checksums only for each task's expected deliverable outputs. Status writes use
+  exclusive no-follow temporary file creation and reject stale canonical temp files. Status files cannot
+  introduce source paths, new tasks, stale task contents, or destructive operations.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
