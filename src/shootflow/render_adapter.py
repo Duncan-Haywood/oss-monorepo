@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow.assembly import AssemblyPlan
+from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_status import (
     RenderStatusError,
     RenderStatusManifest,
@@ -71,6 +71,7 @@ def run_dry_run_render_action(
     """
 
     _validate_action(action)
+    _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     root = _workspace_root(workspace_root)
@@ -143,7 +144,7 @@ def run_dry_run_render_batch(
     leaves blocked tasks untouched for the caller/UI to display.
     """
 
-    _validate_action_plan(action_plan)
+    _validate_action_plan(action_plan, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     _validate_max_concurrency(max_concurrency)
@@ -235,20 +236,30 @@ def _validate_action(action: RenderWorkerAction) -> None:
         seen_outputs.add(output)
 
 
-def _validate_action_plan(action_plan: RenderWorkerActionPlan) -> None:
+def _validate_action_plan(
+    action_plan: RenderWorkerActionPlan,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> None:
+    if not isinstance(trusted_plan, AssemblyPlan):
+        raise DryRunRendererError("trusted_plan must be an AssemblyPlan")
     if not isinstance(action_plan, RenderWorkerActionPlan):
         raise DryRunRendererError("action_plan must be a RenderWorkerActionPlan")
     if not isinstance(action_plan.shoot_slug, str) or not action_plan.shoot_slug.strip():
         raise DryRunRendererError("dry-run action plan shoot_slug cannot be empty")
+    if action_plan.shoot_slug != trusted_plan.shoot_slug:
+        raise DryRunRendererError("dry-run action plan shoot_slug does not match trusted plan")
     if not isinstance(action_plan.renderer_adapter, str) or not action_plan.renderer_adapter.strip():
         raise DryRunRendererError("dry-run action plan renderer_adapter cannot be empty")
     if not isinstance(action_plan.actions, tuple):
         raise DryRunRendererError("dry-run action plan actions must be a tuple")
     if not isinstance(action_plan.blocked_tasks, tuple):
         raise DryRunRendererError("dry-run action plan blocked_tasks must be a tuple")
+    trusted_tasks = _trusted_tasks_by_id(trusted_plan)
     seen_task_ids: set[str] = set()
     for action in action_plan.actions:
         _validate_action(action)
+        _validate_action_matches_trusted_tasks(action, trusted_tasks=trusted_tasks)
         if action.renderer_adapter != action_plan.renderer_adapter:
             raise DryRunRendererError("dry-run action renderer adapter does not match action plan")
         if action.task_id in seen_task_ids:
@@ -257,6 +268,47 @@ def _validate_action_plan(action_plan: RenderWorkerActionPlan) -> None:
     for blocked_task in action_plan.blocked_tasks:
         if not isinstance(blocked_task.task_id, str) or not blocked_task.task_id.strip():
             raise DryRunRendererError("dry-run action plan blocked task_id cannot be empty")
+        if blocked_task.task_id not in trusted_tasks:
+            raise DryRunRendererError(f"dry-run action plan blocked unknown task: {blocked_task.task_id}")
+
+
+def _validate_action_matches_trusted_plan(
+    action: RenderWorkerAction,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> None:
+    if not isinstance(trusted_plan, AssemblyPlan):
+        raise DryRunRendererError("trusted_plan must be an AssemblyPlan")
+    _validate_action_matches_trusted_tasks(action, trusted_tasks=_trusted_tasks_by_id(trusted_plan))
+
+
+def _trusted_tasks_by_id(trusted_plan: AssemblyPlan) -> dict[str, RenderTask]:
+    return {task.task_id: task for task in trusted_plan.render_tasks}
+
+
+def _validate_action_matches_trusted_tasks(
+    action: RenderWorkerAction,
+    *,
+    trusted_tasks: dict[str, RenderTask],
+) -> None:
+    trusted_task = trusted_tasks.get(action.task_id)
+    if trusted_task is None:
+        raise DryRunRendererError(f"dry-run action references unknown trusted task: {action.task_id}")
+    expected_fields = (
+        "sequence_name",
+        "source_job_id",
+        "output_kind",
+        "aspect_ratio",
+        "inputs",
+        "outputs",
+        "depends_on",
+        "can_run_in_parallel",
+    )
+    for field_name in expected_fields:
+        if getattr(action, field_name) != getattr(trusted_task, field_name):
+            raise DryRunRendererError(
+                f"dry-run action {field_name} does not match trusted task: {action.task_id}"
+            )
 
 
 def _validate_max_concurrency(max_concurrency: int) -> None:

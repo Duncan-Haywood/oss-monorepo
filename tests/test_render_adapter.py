@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 import tempfile
 import unittest
@@ -5,6 +6,7 @@ import unittest
 from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_adapter import (
     DryRunRenderBatchResult,
+    DryRunRendererError,
     DryRunRenderResult,
     run_dry_run_render_batch,
     run_dry_run_render_action,
@@ -130,6 +132,46 @@ class DryRunRenderAdapterTests(unittest.TestCase):
         self.assertTrue(continued_output_exists)
         self.assertEqual(loaded_manifest.task_statuses[0], stale_manifest.task_statuses[0])
         self.assertEqual(loaded_manifest.task_statuses[1].state, "succeeded")
+
+    def test_batch_rejects_forged_action_plan_before_materializing_outputs(self) -> None:
+        trusted_plan = self._trusted_plan()
+        pending_manifest = self._pending_manifest(trusted_plan)
+        action_plan = plan_render_worker_actions(
+            trusted_plan,
+            pending_manifest,
+            completed_dependency_ids={
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+            },
+            renderer_adapter="dry-run-local",
+        )
+        forged_action = replace(
+            action_plan.actions[0],
+            outputs=("deliverables/instagram_reels/model_authored.mp4",),
+        )
+        forged_action_plan = replace(action_plan, actions=(forged_action,))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(pending_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(DryRunRendererError, "outputs does not match trusted task"):
+                run_dry_run_render_batch(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action_plan=forged_action_plan,
+                    started_at="2026-05-07T14:02:00Z",
+                    completed_at="2026-05-07T14:02:05Z",
+                    max_concurrency=2,
+                )
+            forged_output_exists = (
+                workspace / "deliverables" / "instagram_reels" / "model_authored.mp4"
+            ).exists()
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertFalse(forged_output_exists)
+        self.assertEqual(loaded_manifest, pending_manifest)
 
     def test_persists_claim_and_success_for_declared_outputs(self) -> None:
         trusted_plan = self._trusted_plan()
