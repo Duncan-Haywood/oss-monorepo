@@ -33,8 +33,8 @@ This repo currently contains the first testable core utilities:
   report progress without adding source-media paths or delete instructions.
   Status files are bound to a render-plan fingerprint so stale progress cannot
   be reused after storyline selections or render inputs change. Manifest-level
-  compare/write helpers update exactly one task status after checking the
-  expected prior state and attempt.
+  compare/write helpers take a local advisory lock, update exactly one task
+  status, and check the expected prior state and attempt.
 - `shootflow.render_worker` turns trusted render tasks plus trusted status into
   dry-run worker actions. It schedules only dependency-ready pending/retryable
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims

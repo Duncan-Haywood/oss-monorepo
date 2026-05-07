@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import os
 import re
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -152,16 +155,51 @@ def compare_and_write_render_task_status(
     expected_state: RenderTaskState,
     expected_attempts: int,
 ) -> RenderStatusManifest:
-    current_manifest = load_render_status_manifest(workspace_root, trusted_plan=trusted_plan)
-    updated_manifest = _replace_render_task_status(
-        current_manifest,
-        updated_status=updated_status,
-        expected_state=expected_state,
-        expected_attempts=expected_attempts,
-        trusted_plan=trusted_plan,
-    )
-    write_render_status_manifest(updated_manifest, workspace_root, trusted_plan=trusted_plan)
-    return updated_manifest
+    with _render_status_manifest_lock(workspace_root):
+        current_manifest = load_render_status_manifest(workspace_root, trusted_plan=trusted_plan)
+        updated_manifest = _replace_render_task_status(
+            current_manifest,
+            updated_status=updated_status,
+            expected_state=expected_state,
+            expected_attempts=expected_attempts,
+            trusted_plan=trusted_plan,
+        )
+        write_render_status_manifest(updated_manifest, workspace_root, trusted_plan=trusted_plan)
+        return updated_manifest
+
+
+@contextmanager
+def _render_status_manifest_lock(workspace_root: Path | str) -> Iterator[None]:
+    root = Path(workspace_root)
+    manifest_path = _render_status_manifest_path(root)
+    _reject_symlink_path(manifest_path.parent, root, "render status lock directory")
+    try:
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise RenderStatusError(
+            f"Unable to create render status lock directory: {manifest_path.parent}"
+        ) from exc
+    _reject_symlink_path(manifest_path.parent, root, "render status lock directory")
+
+    lock_path = manifest_path.with_suffix(".json.lock")
+    _reject_symlink_path(lock_path, root, "render status lock")
+    flags = os.O_RDWR | os.O_CREAT
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(lock_path, flags, 0o600)
+    except OSError as exc:
+        raise RenderStatusError(f"Unable to open render status lock: {lock_path}") from exc
+
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        _reject_symlink_path(lock_path, root, "render status lock")
+        yield
+    finally:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
 
 
 def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: AssemblyPlan) -> None:

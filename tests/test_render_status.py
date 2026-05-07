@@ -1,9 +1,11 @@
 from dataclasses import replace
 import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
+import shootflow.render_status as render_status_module
 from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_status import (
     RENDER_STATUS_MANIFEST_PATH,
@@ -384,6 +386,125 @@ class RenderStatusManifestTests(unittest.TestCase):
             loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
 
         self.assertEqual(loaded_manifest, manifest)
+
+    def test_rejects_stale_attempt_precondition_without_rewriting_manifest(self) -> None:
+        trusted_plan = self._trusted_plan()
+        retryable_status = RenderTaskStatus(
+            task_id="render_instagram_reel",
+            state="retryable",
+            renderer_adapter="dry-run-local",
+            attempts=1,
+            error_message="Renderer interrupted before writing outputs.",
+            updated_at="2026-05-07T13:20:00Z",
+        )
+        next_running_status = RenderTaskStatus(
+            task_id="render_instagram_reel",
+            state="running",
+            renderer_adapter="dry-run-local",
+            attempts=2,
+            updated_at="2026-05-07T13:21:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            manifest = RenderStatusManifest(
+                shoot_slug="status-contract",
+                render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                task_statuses=(
+                    retryable_status,
+                    RenderTaskStatus(task_id="render_instagram_carousel", state="pending"),
+                ),
+            )
+            write_render_status_manifest(manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(RenderStatusError, "precondition"):
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=next_running_status,
+                    expected_state="retryable",
+                    expected_attempts=0,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, manifest)
+
+    def test_serializes_concurrent_status_updates_for_the_same_task(self) -> None:
+        trusted_plan = self._trusted_plan()
+        original_write_manifest_text = render_status_module._write_manifest_text
+        first_write_started = threading.Event()
+        release_first_write = threading.Event()
+        results: list[str] = []
+        errors: list[tuple[str, Exception]] = []
+        result_lock = threading.Lock()
+
+        def delayed_first_write(manifest_path: Path, *, root: Path, content: str) -> None:
+            if threading.current_thread().name == "first-render-worker":
+                first_write_started.set()
+                if not release_first_write.wait(timeout=5):
+                    raise AssertionError("timed out waiting to release first render worker")
+            original_write_manifest_text(manifest_path, root=root, content=content)
+
+        def update_status(worker_name: str, timestamp: str) -> None:
+            try:
+                compare_and_write_render_task_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=RenderTaskStatus(
+                        task_id="render_instagram_reel",
+                        state="running",
+                        renderer_adapter="dry-run-local",
+                        attempts=1,
+                        updated_at=timestamp,
+                    ),
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+            except Exception as exc:  # noqa: BLE001 - test captures thread failures.
+                with result_lock:
+                    errors.append((worker_name, exc))
+                return
+            with result_lock:
+                results.append(worker_name)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_status_manifest(
+                build_initial_render_status_manifest(trusted_plan),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+
+            render_status_module._write_manifest_text = delayed_first_write
+            try:
+                first_worker = threading.Thread(
+                    target=update_status,
+                    args=("first", "2026-05-07T13:30:00Z"),
+                    name="first-render-worker",
+                )
+                second_worker = threading.Thread(
+                    target=update_status,
+                    args=("second", "2026-05-07T13:31:00Z"),
+                    name="second-render-worker",
+                )
+                first_worker.start()
+                self.assertTrue(first_write_started.wait(timeout=5))
+                second_worker.start()
+                release_first_write.set()
+                first_worker.join(timeout=5)
+                second_worker.join(timeout=5)
+            finally:
+                render_status_module._write_manifest_text = original_write_manifest_text
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertFalse(first_worker.is_alive())
+        self.assertFalse(second_worker.is_alive())
+        self.assertEqual(results, ["first"])
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0][0], "second")
+        self.assertIsInstance(errors[0][1], RenderStatusError)
+        self.assertIn("precondition", str(errors[0][1]))
+        self.assertEqual(loaded_manifest.task_statuses[0].updated_at, "2026-05-07T13:30:00Z")
 
     def test_rejects_unknown_task_status_update(self) -> None:
         trusted_plan = self._trusted_plan()

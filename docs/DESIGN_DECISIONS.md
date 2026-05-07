@@ -43,9 +43,9 @@ The repo currently contains a Python core package because it is quick to test an
   render task IDs and a canonical render-plan fingerprint. It records
   pending/running/succeeded/failed/retryable states, renderer adapter names, attempts, error messages,
   output checksums, and timestamps without accepting source-media paths, arbitrary task IDs, or deletion
-  instructions. Its compare/write update helper reloads the latest manifest, checks the expected prior
-  state and attempt for one task, replaces only that status, and writes back through the same safe manifest
-  writer.
+  instructions. Its compare/write update helper takes a local advisory lock, reloads the latest manifest,
+  checks the expected prior state and attempt for one task, replaces only that status, and writes back
+  through the same safe manifest writer.
 - `shootflow.render_worker`: a dry-run worker action planner that consumes trusted `AssemblyPlan` and
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
@@ -149,9 +149,12 @@ High quality depends on scene-level consistency and reversible edits. The system
   reuses full assembly-plan validation before fingerprinting so in-memory callers cannot bypass the
   render-task manifest's path/dependency rules. Status files cannot introduce source paths, new tasks,
   stale task contents, or destructive operations. Workers should persist status transitions through
-  `compare_and_write_render_task_status(...)`, which reloads the latest trusted manifest, verifies the
-  task's current state and attempt still match the transition precondition, replaces exactly one status,
-  preserves task order/fingerprint/slug, and writes through the safe manifest writer.
+  `compare_and_write_render_task_status(...)`, which holds a local advisory lock across reload,
+  precondition check, replacement, and write. The helper verifies the task's current state and attempt still
+  match the transition precondition, replaces exactly one status, preserves task order/fingerprint/slug, and
+  writes through the safe manifest writer. This protects same-workspace local workers from last-writer-wins
+  status clobbering; distributed/cloud workers still need an external lease or storage-native compare-and-
+  swap around the same contract.
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for
@@ -182,8 +185,8 @@ Useful wedges:
   a vague drive full of media."
 - "Let local or cloud workers claim and report render tasks without ever receiving authority to delete
   originals or invent output paths."
-- "Reject stale worker results at the manifest boundary when another worker has already claimed, retried,
-  or completed the same task."
+- "Reject stale local worker results at the manifest boundary when another worker has already claimed,
+  retried, or completed the same task."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

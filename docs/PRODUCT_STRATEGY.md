@@ -62,7 +62,8 @@ The current core models a concrete promise for high-volume users:
 10. Claim ready work as running and report success/retry/failure with checksums
     for expected deliverable outputs.
 11. Persist each claim or result with a single-task compare/write status update
-    that rejects stale state or attempt preconditions.
+    that holds a local advisory lock and rejects stale state or attempt
+    preconditions.
 12. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -98,6 +99,6 @@ to automate.
    before any adapter opens media files. Worker status-transition helpers now
    let adapters claim a matching attempt and report completed outputs by checksum
    without receiving authority to invent paths or delete media; compare/write
-   status updates keep stale workers from overwriting newer task progress.
+   status updates keep stale local workers from overwriting newer task progress.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

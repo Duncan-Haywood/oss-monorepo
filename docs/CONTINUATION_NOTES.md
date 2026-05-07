@@ -94,6 +94,8 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   `origin/cursor/-bc-31236baa-8641-4baf-8424-88808ac9e52c-7f37`, pushed that baseline to
   `cursor/media-content-automation-6863`, then added one focused render-status safety layer.
 - Added `compare_and_write_render_task_status(...)` in `shootflow.render_status`:
+  - holds a local advisory lock file across load, precondition check, replacement, and write so two local
+    workers cannot both update from the same stale status snapshot;
   - loads the latest trusted `deliverables/render_status.json` from the workspace before updating;
   - validates the manifest against the supplied trusted `AssemblyPlan`, including shoot slug, task order,
     render-plan fingerprint, state-specific status fields, and assembly-plan path/dependency safety;
@@ -104,7 +106,8 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   - validates the updated manifest and writes it through the existing safe status-manifest writer, including
     stale/symlinked temp-path rejection.
 - Expanded render-status tests for single-task replacement, stale precondition rejection without rewriting
-  the manifest, unknown task IDs, stale fingerprints, and safe writer behavior during compare/write updates.
+  the manifest, attempt-only precondition failures, concurrent same-task claims, unknown task IDs, stale
+  fingerprints, and safe writer behavior during compare/write updates.
 - Updated README, product strategy, and design decisions to describe single-task compare/write updates as
   the current durable boundary between worker transition helpers and future renderer adapters.
 
@@ -167,7 +170,7 @@ Good test-first targets:
   authority from a timeout.
 - Add a dry-run renderer adapter interface that consumes only `RenderWorkerAction` records and returns
   `RenderTaskStatus` transitions, then persists them through `compare_and_write_render_task_status(...)`.
-- Add tests that simulate two workers racing to claim the same task: the first compare/write should succeed,
-  the second should fail on stale state/attempt without modifying the manifest.
+- If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
+  the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
   contracts are safe and well tested.
