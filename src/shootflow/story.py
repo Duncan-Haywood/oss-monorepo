@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 StoryMediaType = Literal["photo", "video"]
+STORYLINE_ARTIFACT_PATH = "analysis/instagram_storylines.json"
+_STORYLINE_SCHEMA_VERSION = 1
+_SEQUENCE_NAMES = ("reel", "carousel", "photo_set")
+_SEQUENCE_METADATA = {
+    "reel": ("instagram_reel", "9:16"),
+    "carousel": ("instagram_carousel", "4:5"),
+    "photo_set": ("instagram_photo_set", "4:5"),
+}
 
 
 class StoryPlanError(ValueError):
@@ -89,6 +99,44 @@ def build_storyline_plan(
             rationale="All graded photos ranked by VLM quality for editor review and export.",
         ),
     )
+
+
+def write_storyline_artifact(
+    plan: StorylinePlan,
+    workspace_root: Path | str,
+    *,
+    allowed_asset_paths: set[str] | frozenset[str],
+) -> Path:
+    if not isinstance(plan, StorylinePlan):
+        raise TypeError("plan must be a StorylinePlan")
+    allowed_paths = _validate_allowed_asset_paths(allowed_asset_paths)
+    _validate_storyline_plan(plan, allowed_paths=allowed_paths)
+
+    artifact_path = _storyline_artifact_path(workspace_root)
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    _reject_symlink(artifact_path.parent, "storyline artifact directory")
+    _reject_symlink(artifact_path, "storyline artifact")
+
+    temp_path = artifact_path.with_suffix(".json.tmp")
+    _reject_symlink(temp_path, "temporary storyline artifact")
+    temp_path.write_text(_storyline_plan_json(plan), encoding="utf-8")
+    temp_path.replace(artifact_path)
+    return artifact_path
+
+
+def load_storyline_artifact(
+    workspace_root: Path | str,
+    *,
+    allowed_asset_paths: set[str] | frozenset[str],
+) -> StorylinePlan:
+    allowed_paths = _validate_allowed_asset_paths(allowed_asset_paths)
+    artifact_path = _storyline_artifact_path(workspace_root)
+    _reject_symlink(artifact_path.parent, "storyline artifact directory")
+    _reject_symlink(artifact_path, "storyline artifact")
+    raw_artifact = _read_json_object(artifact_path)
+    plan = _storyline_plan_from_json(raw_artifact)
+    _validate_storyline_plan(plan, allowed_paths=allowed_paths)
+    return plan
 
 
 def _validate_limits(
@@ -182,6 +230,173 @@ def _duration_for_video(analysis: AssetAnalysis) -> float:
     if analysis.media_type != "video":
         return 0.0
     return analysis.duration_seconds or 0.0
+
+
+def _storyline_artifact_path(workspace_root: Path | str) -> Path:
+    root = Path(workspace_root)
+    if root.is_symlink():
+        raise StoryPlanError(f"Refusing storyline workspace symlink: {root}")
+    artifact_relative_path = Path(STORYLINE_ARTIFACT_PATH)
+    artifact_path = root / artifact_relative_path
+    try:
+        artifact_path.resolve().relative_to(root.resolve())
+    except ValueError as exc:
+        raise StoryPlanError(f"Storyline artifact escapes workspace: {STORYLINE_ARTIFACT_PATH}") from exc
+    return artifact_path
+
+
+def _validate_allowed_asset_paths(allowed_asset_paths: set[str] | frozenset[str]) -> frozenset[str]:
+    if not isinstance(allowed_asset_paths, (set, frozenset)):
+        raise TypeError("allowed_asset_paths must be a set or frozenset")
+    if any(not isinstance(path, str) or not path.strip() for path in allowed_asset_paths):
+        raise StoryPlanError("allowed_asset_paths must contain non-empty strings")
+    return frozenset(allowed_asset_paths)
+
+
+def _validate_storyline_plan(plan: StorylinePlan, *, allowed_paths: frozenset[str]) -> None:
+    sequences = (plan.reel, plan.carousel, plan.photo_set)
+    for sequence_name, sequence in zip(_SEQUENCE_NAMES, sequences, strict=True):
+        if not isinstance(sequence, ContentSequence):
+            raise TypeError(f"{sequence_name} must be a ContentSequence")
+        expected_output_kind, expected_aspect_ratio = _SEQUENCE_METADATA[sequence_name]
+        if sequence.output_kind != expected_output_kind:
+            raise StoryPlanError(f"Unexpected {sequence_name} output kind: {sequence.output_kind}")
+        if sequence.aspect_ratio != expected_aspect_ratio:
+            raise StoryPlanError(f"Unexpected {sequence_name} aspect ratio: {sequence.aspect_ratio}")
+        if not isinstance(sequence.asset_paths, tuple):
+            raise StoryPlanError(f"{sequence_name} asset paths must be a tuple")
+        for asset_path in sequence.asset_paths:
+            _validate_story_asset_path(asset_path, allowed_paths=allowed_paths)
+        if sequence.total_duration_seconds is not None:
+            if (
+                isinstance(sequence.total_duration_seconds, bool)
+                or not isinstance(sequence.total_duration_seconds, (int, float))
+                or not math.isfinite(sequence.total_duration_seconds)
+                or sequence.total_duration_seconds < 0
+            ):
+                raise StoryPlanError(f"{sequence_name} duration must be a non-negative number")
+        if not isinstance(sequence.rationale, str) or not sequence.rationale.strip():
+            raise StoryPlanError(f"{sequence_name} rationale cannot be empty")
+
+
+def _validate_story_asset_path(asset_path: str, *, allowed_paths: frozenset[str]) -> None:
+    if not isinstance(asset_path, str) or not asset_path.strip():
+        raise StoryPlanError("Storyline asset path cannot be empty")
+    path = Path(asset_path)
+    if path.is_absolute() or ".." in path.parts:
+        raise StoryPlanError(f"Unsafe storyline asset path: {asset_path}")
+    if asset_path not in allowed_paths:
+        raise StoryPlanError(f"Storyline references untrusted asset: {asset_path}")
+
+
+def _storyline_plan_json(plan: StorylinePlan) -> str:
+    return json.dumps(_storyline_plan_to_json(plan), indent=2, sort_keys=True) + "\n"
+
+
+def _storyline_plan_to_json(plan: StorylinePlan) -> dict[str, object]:
+    return {
+        "schema_version": _STORYLINE_SCHEMA_VERSION,
+        "sequences": [
+            _content_sequence_to_json("reel", plan.reel),
+            _content_sequence_to_json("carousel", plan.carousel),
+            _content_sequence_to_json("photo_set", plan.photo_set),
+        ],
+    }
+
+
+def _content_sequence_to_json(name: str, sequence: ContentSequence) -> dict[str, object]:
+    return {
+        "name": name,
+        "output_kind": sequence.output_kind,
+        "aspect_ratio": sequence.aspect_ratio,
+        "asset_paths": list(sequence.asset_paths),
+        "total_duration_seconds": sequence.total_duration_seconds,
+        "rationale": sequence.rationale,
+    }
+
+
+def _read_json_object(path: Path) -> dict[str, object]:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise StoryPlanError(f"Missing storyline artifact: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise StoryPlanError(f"Invalid storyline artifact JSON: {path}") from exc
+    if not isinstance(raw, dict):
+        raise StoryPlanError(f"Storyline artifact root must be an object: {path}")
+    return raw
+
+
+def _storyline_plan_from_json(raw_artifact: dict[str, object]) -> StorylinePlan:
+    if raw_artifact.get("schema_version") != _STORYLINE_SCHEMA_VERSION:
+        raise StoryPlanError("Unsupported storyline artifact schema version")
+    raw_sequences = raw_artifact.get("sequences")
+    if not isinstance(raw_sequences, list) or len(raw_sequences) != len(_SEQUENCE_NAMES):
+        raise StoryPlanError("Storyline artifact must contain reel, carousel, and photo_set sequences")
+
+    sequences_by_name: dict[str, ContentSequence] = {}
+    for raw_sequence in raw_sequences:
+        sequence = _content_sequence_from_json(raw_sequence)
+        name = _required_sequence_name(raw_sequence)
+        if name in sequences_by_name:
+            raise StoryPlanError(f"Duplicate storyline sequence: {name}")
+        sequences_by_name[name] = sequence
+
+    if tuple(sequences_by_name) != _SEQUENCE_NAMES:
+        raise StoryPlanError("Storyline sequences must be ordered as reel, carousel, and photo_set")
+    return StorylinePlan(
+        reel=sequences_by_name["reel"],
+        carousel=sequences_by_name["carousel"],
+        photo_set=sequences_by_name["photo_set"],
+    )
+
+
+def _content_sequence_from_json(raw_sequence: object) -> ContentSequence:
+    if not isinstance(raw_sequence, dict):
+        raise StoryPlanError("Storyline sequence must be an object")
+    asset_paths = raw_sequence.get("asset_paths")
+    if not isinstance(asset_paths, list) or any(not isinstance(path, str) for path in asset_paths):
+        raise StoryPlanError("Storyline sequence asset_paths must be a list of strings")
+    return ContentSequence(
+        output_kind=_required_sequence_string(raw_sequence, "output_kind"),
+        aspect_ratio=_required_sequence_string(raw_sequence, "aspect_ratio"),
+        asset_paths=tuple(asset_paths),
+        total_duration_seconds=_optional_sequence_duration(raw_sequence),
+        rationale=_required_sequence_string(raw_sequence, "rationale"),
+    )
+
+
+def _required_sequence_name(raw_sequence: object) -> str:
+    if not isinstance(raw_sequence, dict):
+        raise StoryPlanError("Storyline sequence must be an object")
+    name = _required_sequence_string(raw_sequence, "name")
+    if name not in _SEQUENCE_NAMES:
+        raise StoryPlanError(f"Unknown storyline sequence: {name}")
+    return name
+
+
+def _required_sequence_string(raw_sequence: dict[object, object], key: str) -> str:
+    value = raw_sequence.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise StoryPlanError(f"Storyline sequence field must be a non-empty string: {key}")
+    return value
+
+
+def _optional_sequence_duration(raw_sequence: dict[object, object]) -> float | None:
+    value = raw_sequence.get("total_duration_seconds")
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise StoryPlanError("Storyline sequence duration must be a number or null")
+    duration = float(value)
+    if not math.isfinite(duration) or duration < 0:
+        raise StoryPlanError("Storyline sequence duration must be non-negative")
+    return duration
+
+
+def _reject_symlink(path: Path, label: str) -> None:
+    if path.exists() and path.is_symlink():
+        raise StoryPlanError(f"Refusing {label} symlink: {path}")
 
 
 def _quality_score(analysis: AssetAnalysis) -> float:
