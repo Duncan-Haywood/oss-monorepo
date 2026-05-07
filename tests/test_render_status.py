@@ -1,3 +1,4 @@
+from dataclasses import replace
 import json
 import tempfile
 import unittest
@@ -163,6 +164,47 @@ class RenderStatusManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(RenderStatusError, "Unexpected checksum output path"):
                 write_render_status_manifest(manifest, Path(tmp), trusted_plan=trusted_plan)
+
+    def test_rejects_status_manifest_for_stale_task_inputs_even_when_outputs_match(self) -> None:
+        original_plan = self._trusted_plan()
+        stale_reel_task = replace(
+            original_plan.render_tasks[0],
+            inputs=(
+                "analysis/instagram_storylines.json",
+                "graded/grade_asset_00099/STALE_SELECTION.MOV",
+            ),
+            depends_on=("rank_instagram_storylines", "grade_asset_00099"),
+        )
+        stale_plan = replace(
+            original_plan,
+            render_tasks=(stale_reel_task,) + original_plan.render_tasks[1:],
+        )
+        stale_manifest = RenderStatusManifest(
+            shoot_slug="status-contract",
+            task_statuses=(
+                RenderTaskStatus(
+                    task_id="render_instagram_reel",
+                    state="succeeded",
+                    renderer_adapter="ffmpeg-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(
+                            path="deliverables/instagram_reel.mp4",
+                            sha256="a" * 64,
+                        ),
+                    ),
+                    updated_at="2026-05-07T09:21:00Z",
+                ),
+                RenderTaskStatus(task_id="render_instagram_carousel", state="pending"),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_status_manifest(stale_manifest, workspace, trusted_plan=stale_plan)
+
+            with self.assertRaisesRegex(RenderStatusError, "render plan fingerprint"):
+                load_render_status_manifest(workspace, trusted_plan=original_plan)
 
     def test_rejects_invalid_state_specific_worker_statuses(self) -> None:
         trusted_plan = self._trusted_plan()
