@@ -1,0 +1,195 @@
+import unittest
+
+from shootflow.story import (
+    AssetAnalysis,
+    StoryPlanError,
+    build_storyline_plan,
+)
+
+
+class StorylinePlanningTests(unittest.TestCase):
+    def test_builds_reel_and_carousel_sequences_from_vlm_scores(self) -> None:
+        analyses = [
+            AssetAnalysis(
+                asset_path="graded/ceremony-wide.mov",
+                media_type="video",
+                scene_label="ceremony",
+                aesthetic_score=0.91,
+                story_score=0.88,
+                technical_score=0.94,
+                motion_score=0.72,
+                duration_seconds=24.0,
+                tags=("wide", "vows"),
+            ),
+            AssetAnalysis(
+                asset_path="graded/prep-detail.mov",
+                media_type="video",
+                scene_label="prep",
+                aesthetic_score=0.82,
+                story_score=0.79,
+                technical_score=0.86,
+                motion_score=0.61,
+                duration_seconds=18.0,
+                tags=("details",),
+            ),
+            AssetAnalysis(
+                asset_path="graded/ceremony-close.mov",
+                media_type="video",
+                scene_label="ceremony",
+                aesthetic_score=0.96,
+                story_score=0.95,
+                technical_score=0.97,
+                motion_score=0.9,
+                duration_seconds=42.0,
+                tags=("close", "vows"),
+            ),
+            AssetAnalysis(
+                asset_path="graded/portrait-a.jpg",
+                media_type="photo",
+                scene_label="portraits",
+                aesthetic_score=0.95,
+                story_score=0.86,
+                technical_score=0.92,
+                motion_score=0.0,
+                tags=("couple",),
+            ),
+            AssetAnalysis(
+                asset_path="graded/detail-a.jpg",
+                media_type="photo",
+                scene_label="details",
+                aesthetic_score=0.89,
+                story_score=0.8,
+                technical_score=0.91,
+                motion_score=0.0,
+                tags=("rings",),
+            ),
+            AssetAnalysis(
+                asset_path="graded/portrait-b.jpg",
+                media_type="photo",
+                scene_label="portraits",
+                aesthetic_score=0.9,
+                story_score=0.83,
+                technical_score=0.9,
+                motion_score=0.0,
+                tags=("couple",),
+            ),
+        ]
+
+        plan = build_storyline_plan(analyses)
+
+        self.assertEqual(plan.reel.asset_paths, ("graded/ceremony-close.mov", "graded/prep-detail.mov"))
+        self.assertLessEqual(plan.reel.total_duration_seconds, 90)
+        self.assertEqual(
+            plan.carousel.asset_paths,
+            ("graded/portrait-a.jpg", "graded/detail-a.jpg", "graded/portrait-b.jpg"),
+        )
+        self.assertEqual(
+            plan.photo_set.asset_paths,
+            ("graded/portrait-a.jpg", "graded/portrait-b.jpg", "graded/detail-a.jpg"),
+        )
+        self.assertIn("scene variety", plan.reel.rationale)
+        self.assertIn("ranked", plan.photo_set.rationale)
+
+    def test_reel_planning_respects_duration_budget_and_item_cap(self) -> None:
+        analyses = [
+            AssetAnalysis(
+                asset_path=f"graded/clip-{index:02d}.mov",
+                media_type="video",
+                scene_label=f"scene-{index}",
+                aesthetic_score=1.0 - index * 0.01,
+                story_score=0.9,
+                technical_score=0.9,
+                motion_score=0.9,
+                duration_seconds=20.0,
+            )
+            for index in range(12)
+        ]
+
+        plan = build_storyline_plan(analyses, max_reel_items=4, max_reel_duration_seconds=65)
+
+        self.assertEqual(len(plan.reel.asset_paths), 3)
+        self.assertEqual(plan.reel.total_duration_seconds, 60.0)
+
+    def test_rejects_invalid_analysis_values(self) -> None:
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path=" ",
+                        media_type="photo",
+                        scene_label="portraits",
+                        aesthetic_score=0.8,
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.0,
+                    )
+                ]
+            )
+
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path="graded/bad.jpg",
+                        media_type="photo",
+                        scene_label="portraits",
+                        aesthetic_score=1.2,
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.0,
+                    )
+                ]
+            )
+
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path="graded/nan.jpg",
+                        media_type="photo",
+                        scene_label="portraits",
+                        aesthetic_score=float("nan"),
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.0,
+                    )
+                ]
+            )
+
+        with self.assertRaises(StoryPlanError):
+            build_storyline_plan(
+                [
+                    AssetAnalysis(
+                        asset_path="graded/unknown-duration.mov",
+                        media_type="video",
+                        scene_label="ceremony",
+                        aesthetic_score=0.8,
+                        story_score=0.8,
+                        technical_score=0.8,
+                        motion_score=0.6,
+                    )
+                ]
+            )
+
+    def test_large_storyline_plans_do_not_drop_ranked_photo_set_exports(self) -> None:
+        analyses = [
+            AssetAnalysis(
+                asset_path=f"graded/photo-{index:05d}.jpg",
+                media_type="photo",
+                scene_label=f"scene-{index % 20}",
+                aesthetic_score=(index % 100) / 100,
+                story_score=0.7,
+                technical_score=0.8,
+                motion_score=0.0,
+            )
+            for index in range(10_000)
+        ]
+
+        plan = build_storyline_plan(analyses)
+
+        self.assertEqual(len(plan.photo_set.asset_paths), 10_000)
+        self.assertEqual(len(plan.carousel.asset_paths), 10)
+
+
+if __name__ == "__main__":
+    unittest.main()
