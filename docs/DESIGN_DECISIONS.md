@@ -33,6 +33,9 @@ The repo currently contains a Python core package because it is quick to test an
   development, grading, and Instagram packaging waves.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, carousels, and ranked
   photo-set exports, plus a deterministic storyline artifact contract for downstream assemblers.
+- `shootflow.assembly`: a renderer-neutral handoff from trusted storyline selections to explicit social
+  render tasks. It verifies selected graded artifacts exist, rejects symlinked selected media, keeps raw
+  originals out of render inputs, and derives deterministic output paths under `deliverables/`.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -47,8 +50,9 @@ The desired high-quality pipeline is:
 5. Generate non-destructive color decisions per scene/set, not isolated per asset.
 6. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
 7. Export graded intermediates for all selects.
-8. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-9. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+8. Plan assembly tasks from trusted graded selections before invoking any renderer.
+9. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+10. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -94,6 +98,11 @@ High quality depends on scene-level consistency and reversible edits. The system
 - Storyline selection persists to `analysis/instagram_storylines.json` as an edit-decision contract
   with reel, carousel, and photo-set sequences. The reader rejects references outside the trusted
   graded artifact set so model-authored JSON cannot smuggle arbitrary files into a renderer.
+- Assembly planning consumes that storyline artifact and rechecks selected graded files on disk before
+  producing render tasks. Reel tasks use selected graded videos only; carousel and photo-set tasks use
+  selected graded photos only. Outputs are deterministic (`deliverables/instagram_reel.mp4`,
+  ordered carousel slides, and ordered photo-set JPEGs) so retries and UI review do not reshuffle the
+  package.
 - The current planner is intentionally an edit-decision contract, not a renderer. Future renderers can be
   local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve automation, or cloud GPU workers as long as they
   honor the same job IDs and dependencies.

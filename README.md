@@ -23,6 +23,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.analysis` loads per-asset VLM JSON outputs only when they match a
   trusted production plan, then binds them to graded artifact paths for story
   selection.
+- `shootflow.assembly` consumes trusted storyline selections and produces
+  explicit render tasks from verified graded assets, without performing media
+  rendering or destructive file operations.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -48,6 +51,9 @@ The intended first workflow is:
    assets.
 6. Persist `shootflow.story` selections as a trusted storyline artifact for
    downstream reel, carousel, and photo-set assemblers.
+7. Build `shootflow.assembly` render tasks that verify selected graded files
+   exist, keep raw originals out of social assembly inputs, and write
+   deterministic `deliverables/` targets for future renderers.
 
 ## Run tests
 
