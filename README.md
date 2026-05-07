@@ -57,6 +57,10 @@ This repo currently contains the first testable core utilities:
   persists stale lease expirations, plans dependency-ready actions, runs bounded
   dry-run batches, avoids hammering retryable tasks within the same run, and
   returns a compact completion/blocked/retryable/failed summary for a future Mac app.
+  It can also persist `deliverables/render_scheduler_report.json`, a strict
+  UI/agent handoff that records completed, retryable, failed, blocked,
+  review-required, materialized-output, lease-conflict, and failure-message
+  details without granting any new file authority.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -117,6 +121,10 @@ The intended first workflow is:
     guarded stale-lease expiration, ready-action planning, and bounded batch
     execution until the current render plan is complete, blocked, failed,
     waiting, or has retryable work that should not be hammered again without review.
+16. Persist `deliverables/render_scheduler_report.json` against the trusted
+    assembly plan and final render status so a Mac app, background agent, or next
+    automation run can show what finished and what needs review without parsing
+    worker internals.
 
 ## Run tests
 

@@ -69,7 +69,10 @@ The repo currently contains a Python core package because it is quick to test an
   guarded lease helper, plans dependency-ready actions, runs bounded dry-run batches, and stops with explicit
   `complete`, `blocked`, `retryable`, `failed`, `waiting`, or `max_iterations` reasons. It deliberately skips any task it
   already attempted when that task becomes retryable in the same run, so a stuck output or manual editor export is
-  preserved for review instead of being hammered repeatedly.
+  preserved for review instead of being hammered repeatedly. It can persist a strict
+  `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
+  manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
+  blocked, review-required, materialized-output, lease-conflict, and failure-message details.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -99,8 +102,11 @@ The desired high-quality pipeline is:
     progress while serial reels and blocked tasks stay deterministic and inspectable.
 16. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
     expiration, ready-action planning, bounded batch execution, and explicit stop summaries for UI/retry decisions.
-17. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-18. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+17. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
+    finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
+    attention.
+18. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+19. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -218,6 +224,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   when the caller supplies an explicit cutoff. It reports final succeeded/retryable/failed/blocked task IDs and
   a stop reason instead of hiding unfinished work. Retryable tasks attempted during the same scheduler run are not
   retried again in a tight loop, preserving manual exports and unsafe output conflicts for user/editor review.
+  `write_dry_run_render_scheduler_report(...)` turns the in-memory result plus the final trusted status manifest into
+  `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
+  not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
+  state, not a renderer authority: renderers still consume trusted render tasks and status manifests.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

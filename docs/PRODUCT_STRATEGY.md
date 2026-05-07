@@ -82,7 +82,10 @@ The current core models a concrete promise for high-volume users:
     safely expires stale leases, plans ready work, executes bounded batches, and
     stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
     or background agent.
-16. Assemble reels, carousels, and photo sets from graded masters.
+16. Persist a strict scheduler report for the Mac app or next background agent,
+    including completed outputs, retryable/failed/blocked tasks, review-required
+    task IDs, stale-lease conflicts, and human-readable failure messages.
+17. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -137,5 +140,9 @@ to automate.
    task again in the same run after that task becomes retryable, which protects
    manual editor exports and other persistent output conflicts from tight-loop
    overwrite attempts.
+   Scheduler runs can now persist `deliverables/render_scheduler_report.json` as
+   the product-facing summary for UI/retry/agent handoff, bound to the trusted
+   render-plan fingerprint and final status manifest so stale or model-authored
+   reports cannot invent tasks, outputs, or review state.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

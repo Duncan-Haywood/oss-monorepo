@@ -8,6 +8,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Fast-forwarded the active branch from the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-47b6`, pushed that baseline to
+  `cursor/media-content-automation-301d`, then added a product-facing scheduler report handoff.
+- Added strict scheduler report persistence in `shootflow.render_scheduler`:
+  - `write_dry_run_render_scheduler_report(...)` converts a scheduler result plus final trusted
+    `RenderStatusManifest` into `deliverables/render_scheduler_report.json`;
+  - the report is bound to the trusted `AssemblyPlan` render-plan fingerprint and final status manifest, so it cannot
+    invent tasks, outputs, or review-required state;
+  - it records completed, retryable, failed, blocked, attempted, skipped-retryable, expired-lease, conflicted-lease,
+    review-required, materialized-output, and failure-message details for a Mac UI, retry flow, or next automation run;
+  - `load_dry_run_render_scheduler_report(...)` rejects stale fingerprints, unknown task IDs, unknown materialized
+    outputs, inconsistent review-required IDs, unknown fields, and malformed failure-message records;
+  - report writes use a no-follow temporary file and replace only the metadata report, while renderers still consume
+    trusted render tasks/status and receive no new file authority.
+- Added scheduler report tests for successful UI summaries, retryable/manual-output conflicts that preserve the existing
+  file, and stale fingerprint rejection.
+- Updated README, product strategy, and design decisions to describe the scheduler report as the current Mac
+  UI/background-agent handoff.
+
+## Previous iteration
+
 - Fast-forwarded the active branch from the initial commit to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-ccd0`, pushed that baseline to
   `cursor/media-content-automation-47b6`, then added the first iterative dry-run render scheduler.
@@ -273,17 +294,17 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
 through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
 action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
-concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, and drive those pieces
-through an iterative dry-run scheduler loop. The next useful layer is either real renderer temp-output
-contracts, stronger distributed lease persistence, or a thin CLI/Mac-app-facing command wrapper around the
-trusted scheduler.
+concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
+through an iterative dry-run scheduler loop, and persist a strict UI/agent scheduler report. The next useful
+layer is either real renderer temp-output contracts, stronger distributed lease persistence, or a thin
+CLI/Mac-app-facing command wrapper that runs the trusted scheduler and emits/reads the persisted report.
 
 Good test-first targets:
 
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
 - Add a CLI-facing scheduler command that accepts a workspace root, trusted render plan/status files, concurrency,
-  and stale cutoff, then prints the scheduler's complete/blocked/retryable summary for future Mac UI integration.
+  stale cutoff, and report timestamp, then writes/prints `render_scheduler_report.json` for future Mac UI integration.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
