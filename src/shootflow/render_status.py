@@ -154,6 +154,7 @@ def compare_and_write_render_task_status(
     updated_status: RenderTaskStatus,
     expected_state: RenderTaskState,
     expected_attempts: int,
+    expected_updated_at: str | None = None,
 ) -> RenderStatusManifest:
     with _render_status_manifest_lock(workspace_root):
         current_manifest = load_render_status_manifest(workspace_root, trusted_plan=trusted_plan)
@@ -162,6 +163,7 @@ def compare_and_write_render_task_status(
             updated_status=updated_status,
             expected_state=expected_state,
             expected_attempts=expected_attempts,
+            expected_updated_at=expected_updated_at,
             trusted_plan=trusted_plan,
         )
         write_render_status_manifest(updated_manifest, workspace_root, trusted_plan=trusted_plan)
@@ -233,6 +235,7 @@ def _replace_render_task_status(
     updated_status: RenderTaskStatus,
     expected_state: RenderTaskState,
     expected_attempts: int,
+    expected_updated_at: str | None,
     trusted_plan: AssemblyPlan,
 ) -> RenderStatusManifest:
     _validate_manifest(manifest, trusted_plan=trusted_plan)
@@ -244,12 +247,18 @@ def _replace_render_task_status(
         raise RenderStatusError(f"Unsupported expected render status state: {expected_state}")
     if isinstance(expected_attempts, bool) or not isinstance(expected_attempts, int) or expected_attempts < 0:
         raise RenderStatusError("expected_attempts must be a non-negative integer")
+    if expected_updated_at is not None:
+        _validate_timestamp(expected_updated_at, task_id=updated_status.task_id)
 
     task_index = _status_index_for_task(manifest, updated_status.task_id)
     if task_index is None:
         raise RenderStatusError(f"Cannot update unknown render task status: {updated_status.task_id}")
     current_status = manifest.task_statuses[task_index]
     if current_status.state != expected_state or current_status.attempts != expected_attempts:
+        raise RenderStatusError(
+            f"Render status precondition failed for task: {updated_status.task_id}"
+        )
+    if expected_updated_at is not None and current_status.updated_at != expected_updated_at:
         raise RenderStatusError(
             f"Render status precondition failed for task: {updated_status.task_id}"
         )

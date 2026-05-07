@@ -34,7 +34,8 @@ This repo currently contains the first testable core utilities:
   Status files are bound to a render-plan fingerprint so stale progress cannot
   be reused after storyline selections or render inputs change. Manifest-level
   compare/write helpers take a local advisory lock, update exactly one task
-  status, and check the expected prior state and attempt.
+  status, and check the expected prior state, attempt, and optional timestamp
+  lease token.
 - `shootflow.render_worker` turns trusted render tasks plus trusted status into
   dry-run worker actions. It schedules only dependency-ready pending/retryable
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
@@ -87,7 +88,8 @@ The intended first workflow is:
     render status manifests through a single-task compare/write update.
 12. Let the scheduler plan stale running leases from the trusted status
     manifest when a caller supplies an explicit cutoff, then persist each
-    retryable transition through the same compare/write boundary.
+    retryable transition through the same compare/write boundary with the
+    observed `running_since` value as `expected_updated_at`.
 
 ## Run tests
 

@@ -44,8 +44,8 @@ The repo currently contains a Python core package because it is quick to test an
   pending/running/succeeded/failed/retryable states, renderer adapter names, attempts, error messages,
   output checksums, and timestamps without accepting source-media paths, arbitrary task IDs, or deletion
   instructions. Its compare/write update helper takes a local advisory lock, reloads the latest manifest,
-  checks the expected prior state and attempt for one task, replaces only that status, and writes back
-  through the same safe manifest writer.
+  checks the expected prior state, attempt, and optional `updated_at` lease token for one task, replaces only
+  that status, and writes back through the same safe manifest writer.
 - `shootflow.render_worker`: a dry-run worker action planner that consumes trusted `AssemblyPlan` and
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
@@ -154,10 +154,12 @@ High quality depends on scene-level consistency and reversible edits. The system
   stale task contents, or destructive operations. Workers should persist status transitions through
   `compare_and_write_render_task_status(...)`, which holds a local advisory lock across reload,
   precondition check, replacement, and write. The helper verifies the task's current state and attempt still
-  match the transition precondition, replaces exactly one status, preserves task order/fingerprint/slug, and
+  match the transition precondition, can also require the current `updated_at` value to match an
+  `expected_updated_at` lease token, replaces exactly one status, preserves task order/fingerprint/slug, and
   writes through the safe manifest writer. This protects same-workspace local workers from last-writer-wins
-  status clobbering; distributed/cloud workers still need an external lease or storage-native compare-and-
-  swap around the same contract.
+  status clobbering and lets stale lease expiration fail if a same-attempt heartbeat refreshed the task after
+  planning; distributed/cloud workers still need an external lease or storage-native compare-and-swap around
+  the same contract.
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for
@@ -170,7 +172,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   timezone-aware cutoff and the helper returns retryable transitions for running statuses whose `updated_at`
   is older than that cutoff. It skips fresh running work, validates the trusted status manifest first, and
   includes an explicit no-cleanup/no-deletion error message so a timeout cannot be confused with authority
-  to remove source, graded, or deliverable files.
+  to remove source, graded, or deliverable files. Persist each expiration with `expected_state=\"running\"`,
+  the lease's attempt number, and `expected_updated_at=running_since` so a refreshed same-attempt lease cannot
+  be expired by a stale scheduler snapshot.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

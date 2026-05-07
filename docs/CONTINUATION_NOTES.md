@@ -102,11 +102,15 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     pending, retryable, succeeded, failed, and fresh running statuses;
   - produces retryable `RenderTaskStatus` transitions that preserve the original renderer adapter and attempt
     count so callers can persist each task through `compare_and_write_render_task_status(...)` with
-    `expected_state="running"` and the matching attempt;
+    `expected_state="running"`, the matching attempt, and `expected_updated_at=running_since`;
   - includes a no-cleanup/no-deletion error message on each retryable status so an expired lease cannot be
     confused with authority to remove source, graded, or deliverable files.
+- Tightened `compare_and_write_render_task_status(...)` with an optional `expected_updated_at` precondition so
+  timeout-sensitive updates can fail if a same-attempt worker heartbeat refreshed `updated_at` after the
+  scheduler planned expiration.
 - Expanded render-worker tests for stale lease planning, exact-cutoff handling, invalid timestamp rejection,
-  and stale status-manifest rejection before timeout planning.
+  stale status-manifest rejection before timeout planning, and stale lease persistence rejection after a
+  same-attempt heartbeat refresh.
 - Updated README, product strategy, and design decisions to describe stale-running lease planning as the
   conservative retry boundary for interrupted local workers.
 
@@ -190,8 +194,9 @@ Good test-first targets:
 - Add a dry-run renderer adapter interface that consumes only `RenderWorkerAction` records and returns
   `RenderTaskStatus` transitions, then persists them through `compare_and_write_render_task_status(...)`.
 - Add a small scheduler helper that takes `RenderLeaseExpirationPlan.expired_leases` and persists each
-  retryable transition with `expected_state="running"` and the original attempt count, surfacing
-  compare/write precondition failures as "another worker already changed this task."
+  retryable transition with `expected_state="running"`, the original attempt count, and
+  `expected_updated_at=running_since`, surfacing compare/write precondition failures as "another worker
+  already changed this task."
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter

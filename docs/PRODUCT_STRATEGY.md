@@ -63,10 +63,12 @@ The current core models a concrete promise for high-volume users:
     for expected deliverable outputs.
 11. Persist each claim or result with a single-task compare/write status update
     that holds a local advisory lock and rejects stale state or attempt
-    preconditions.
+    preconditions, with an optional `updated_at` lease token for timeout-sensitive
+    updates.
 12. Recover from interrupted local workers by planning explicit stale-running
     lease expirations from trusted status plus a caller-provided cutoff, then
-    persisting each retryable transition through the same compare/write path.
+    persisting each retryable transition through the same compare/write path so
+    same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
 13. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
