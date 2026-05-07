@@ -332,7 +332,7 @@ class DryRunRenderAdapterTests(unittest.TestCase):
                 RenderTask(
                     task_id="export_instagram_photo_set_part_00001",
                     sequence_name="photo_set",
-                    source_job_id="export_instagram_photo_set_part_00001",
+                    source_job_id="export_instagram_photo_set",
                     output_kind="instagram_photo_set",
                     aspect_ratio="4:5",
                     inputs=(
@@ -346,7 +346,7 @@ class DryRunRenderAdapterTests(unittest.TestCase):
                 RenderTask(
                     task_id="export_instagram_photo_set_part_00002",
                     sequence_name="photo_set",
-                    source_job_id="export_instagram_photo_set_part_00002",
+                    source_job_id="export_instagram_photo_set",
                     output_kind="instagram_photo_set",
                     aspect_ratio="4:5",
                     inputs=(
