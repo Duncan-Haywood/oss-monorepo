@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -108,10 +110,7 @@ def write_render_status_manifest(
     _reject_symlink_path(manifest_path.parent, root, "render status manifest directory")
     _reject_symlink_path(manifest_path, root, "render status manifest")
 
-    temp_path = manifest_path.with_suffix(".json.tmp")
-    _reject_symlink_path(temp_path, root, "temporary render status manifest")
-    temp_path.write_text(_manifest_json(manifest), encoding="utf-8")
-    temp_path.replace(manifest_path)
+    _write_manifest_text(manifest_path, root=root, content=_manifest_json(manifest))
     return manifest_path
 
 
@@ -321,6 +320,38 @@ def _render_status_manifest_path(workspace_root: Path | str) -> Path:
 
 def _manifest_json(manifest: RenderStatusManifest) -> str:
     return json.dumps(_manifest_to_json(manifest), indent=2, sort_keys=True) + "\n"
+
+
+def _write_manifest_text(manifest_path: Path, *, root: Path, content: str) -> None:
+    legacy_temp_path = manifest_path.with_suffix(".json.tmp")
+    _reject_symlink_path(legacy_temp_path, root, "temporary render status manifest")
+    if legacy_temp_path.exists():
+        raise RenderStatusError(f"Refusing stale temporary render status manifest: {legacy_temp_path}")
+
+    temp_path = manifest_path.with_name(
+        f".{manifest_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+    )
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+
+    try:
+        fd = os.open(temp_path, flags, 0o600)
+    except OSError as exc:
+        raise RenderStatusError(f"Unable to create temporary render status manifest: {temp_path}") from exc
+
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as temp_file:
+            temp_file.write(content)
+        _reject_symlink_path(temp_path, root, "temporary render status manifest")
+        temp_path.replace(manifest_path)
+    except OSError as exc:
+        raise RenderStatusError(f"Unable to write render status manifest: {manifest_path}") from exc
+    finally:
+        try:
+            temp_path.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _manifest_to_json(manifest: RenderStatusManifest) -> dict[str, object]:
