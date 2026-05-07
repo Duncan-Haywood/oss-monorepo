@@ -58,7 +58,7 @@ def build_storyline_plan(
     photo_analyses = [analysis for analysis in analyses if analysis.media_type == "photo"]
 
     reel_assets = _limit_by_reel_budget(
-        _rank_with_scene_variety(video_analyses),
+        _rank_best_per_scene(video_analyses),
         max_items=max_reel_items,
         max_duration_seconds=max_reel_duration_seconds,
     )
@@ -142,6 +142,18 @@ def _rank_with_scene_variety(analyses: list[AssetAnalysis]) -> list[AssetAnalysi
         if not added:
             return diversified
         round_index += 1
+
+
+def _rank_best_per_scene(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
+    ranked = _rank_with_scene_variety(analyses)
+    seen_scenes: set[str] = set()
+    best_per_scene: list[AssetAnalysis] = []
+    for analysis in ranked:
+        if analysis.scene_label in seen_scenes:
+            continue
+        best_per_scene.append(analysis)
+        seen_scenes.add(analysis.scene_label)
+    return best_per_scene
 
 
 def _limit_by_reel_budget(
