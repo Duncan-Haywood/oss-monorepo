@@ -46,8 +46,9 @@ The repo currently contains a Python core package because it is quick to test an
   instructions.
 - `shootflow.render_worker`: a dry-run worker action planner that consumes trusted `AssemblyPlan` and
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
-  pending/retryable tasks, reports blocked tasks, and keeps running tasks out of duplicate scheduling until
-  a timeout policy exists.
+  pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
+  success/retry/failure without widening file access. It keeps running tasks out of duplicate scheduling
+  until a timeout policy exists.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -65,8 +66,10 @@ The desired high-quality pipeline is:
 8. Plan assembly tasks from trusted graded selections before invoking any renderer.
 9. Track render-worker progress through a resumable status manifest keyed by the trusted task plan.
 10. Plan renderer-neutral worker actions from the trusted task/status pair.
-11. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-12. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+11. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
+    declared deliverable outputs only.
+12. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+13. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -145,9 +148,12 @@ High quality depends on scene-level consistency and reversible edits. The system
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for
-  pending/retryable tasks, and returns blocked-task reasons for UI or scheduler visibility. It intentionally
-  leaves real media opening, output temp files, checksumming, timeout handling, and status updates to future
-  renderer adapters.
+  pending/retryable tasks, and returns blocked-task reasons for UI or scheduler visibility. It also exposes
+  explicit status-transition helpers: a worker can claim a pending/retryable action only when the current
+  status and attempt number match, report success only after every declared deliverable output exists and
+  has a SHA-256 checksum, or report retry/failure with a clear error message. It intentionally leaves real
+  media opening, output temp-file strategy, timeout handling, and durable manifest compare-and-swap to
+  future renderer adapters.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -167,6 +173,8 @@ Useful wedges:
 - "Know exactly what is ready, rendering, blocked, or safe to retry in a 10,000-asset shoot."
 - "Hand an editor or renderer a deterministic task list, progress file, and ready-action queue instead of
   a vague drive full of media."
+- "Let local or cloud workers claim and report render tasks without ever receiving authority to delete
+  originals or invent output paths."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

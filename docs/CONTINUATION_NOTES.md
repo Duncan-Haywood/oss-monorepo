@@ -91,6 +91,26 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-7fad` and pushed that baseline to
+  `cursor/-bc-31236baa-8641-4baf-8424-88808ac9e52c-7f37`.
+- Added safe render-worker status transition helpers in `shootflow.render_worker`:
+  - `claim_render_worker_action(...)` turns a trusted ready action plus matching current pending/retryable
+    status into a `running` status with the selected renderer adapter, attempt number, and timestamp;
+  - stale or mismatched claims are rejected if the current status task, state, or attempt count no longer
+    matches the worker action;
+  - `report_render_worker_success(...)` accepts only a running status matching the same action, verifies
+    every declared output exists under `deliverables/`, rejects symlinked output paths, computes streaming
+    SHA-256 checksums, and returns a `succeeded` status for exactly those outputs;
+  - `report_render_worker_retryable(...)` and `report_render_worker_failure(...)` require a matching
+    running status plus a clear error message and preserve the attempt count for retry/failure reporting.
+- Expanded render-worker tests around claim, stale claim, success checksum, missing/symlinked outputs,
+  mismatched running statuses, and retry/failure paths.
+- Updated README, product strategy, and design decisions to document worker status transitions as the next
+  contract between the trusted task/status manifests and real renderer adapters.
+
+## What landed in the previous iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-4a21`, pushed it to `cursor/media-content-automation-7fad`, and
   verified the restored baseline.
 - Added `shootflow.render_worker` as the dry-run render-worker action contract:
@@ -116,20 +136,19 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-The worker can now say what is ready or blocked, but it still does not persist action plans or update
-statuses. A useful next layer is a safe worker-lease/status-update contract that lets a renderer claim a
-ready task, mark it running, and later report success/retry/failure without racing or writing arbitrary
-paths.
+The worker can now plan ready actions and produce safe per-task status transitions, but manifest updates are
+still caller-managed. A useful next layer is a manifest-level compare/update helper that loads the latest
+trusted `deliverables/render_status.json`, verifies the current task status still matches the transition's
+expected precondition, replaces exactly one task status, and writes the updated manifest through the existing
+safe status-manifest writer.
 
 Good test-first targets:
 
-- Add a small status-transition helper that turns a trusted `RenderWorkerAction` into a `running`
-  `RenderTaskStatus` with renderer adapter, attempt count, and timestamp.
-- Require the transition to match the current trusted status state and attempt number so two workers cannot
-  both claim the same task silently.
-- Add a success-report helper that verifies output files exist under `deliverables/`, computes SHA-256
-  checksums for exactly the task outputs, and returns a `succeeded` status without deleting or overwriting
-  source/graded media.
-- Add retry/failure helpers that require clear error messages and preserve attempt counts.
-- Keep real ffmpeg/Core Image/DaVinci rendering out of scope until status transitions and output checksum
-  reporting are safe and well tested.
+- Add a helper that replaces exactly one `RenderTaskStatus` in a trusted `RenderStatusManifest` while
+  preserving the shoot slug, render-plan fingerprint, and task ordering.
+- Require the helper to check the expected previous state/attempt before accepting an updated status, so a
+  stale worker cannot overwrite another worker's newer claim or result.
+- Add tests for stale manifest fingerprints, wrong task IDs, duplicate status replacement, and failed writes
+  through symlinked/stale temp manifest paths.
+- Keep real ffmpeg/Core Image/DaVinci rendering out of scope until manifest-level compare/update semantics
+  are safe and well tested.

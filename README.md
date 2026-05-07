@@ -35,8 +35,9 @@ This repo currently contains the first testable core utilities:
   be reused after storyline selections or render inputs change.
 - `shootflow.render_worker` turns trusted render tasks plus trusted status into
   dry-run worker actions. It schedules only dependency-ready pending/retryable
-  tasks, reports blocked tasks, and skips running/succeeded/failed tasks so
-  future renderers do not duplicate work or read arbitrary status-file paths.
+  tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
+  ready work as running, and reports success/retry/failure statuses with
+  checksums for declared deliverable outputs only.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -77,6 +78,9 @@ The intended first workflow is:
    running, succeeded, failed, and retryable work safely.
 10. Derive renderer-neutral worker actions from the trusted task/status pair
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
+11. Use worker status-transition helpers to claim ready work, reject stale
+    attempts, and report completed outputs by checksum before persisting updated
+    render status manifests.
 
 ## Run tests
 

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
+from pathlib import Path
 
 from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_status import (
+    OutputChecksum,
     RenderStatusError,
     RenderStatusManifest,
     RenderTaskStatus,
@@ -107,6 +110,82 @@ def plan_render_worker_actions(
     return action_plan
 
 
+def claim_render_worker_action(
+    current_status: RenderTaskStatus,
+    action: RenderWorkerAction,
+    *,
+    updated_at: str,
+) -> RenderTaskStatus:
+    _validate_action(action)
+    _validate_timestamp(updated_at)
+    _validate_claimable_current_status(current_status, action=action)
+
+    running_status = RenderTaskStatus(
+        task_id=action.task_id,
+        state="running",
+        renderer_adapter=action.renderer_adapter,
+        attempts=action.attempt_number,
+        updated_at=updated_at,
+    )
+    _validate_return_status(running_status, expected_state="running")
+    return running_status
+
+
+def report_render_worker_success(
+    current_status: RenderTaskStatus,
+    action: RenderWorkerAction,
+    workspace_root: Path | str,
+    *,
+    updated_at: str,
+) -> RenderTaskStatus:
+    _validate_action(action)
+    _validate_timestamp(updated_at)
+    _validate_running_current_status(current_status, action=action)
+
+    succeeded_status = RenderTaskStatus(
+        task_id=action.task_id,
+        state="succeeded",
+        renderer_adapter=action.renderer_adapter,
+        attempts=action.attempt_number,
+        output_checksums=_output_checksums_for_action(action, workspace_root),
+        updated_at=updated_at,
+    )
+    _validate_return_status(succeeded_status, expected_state="succeeded")
+    return succeeded_status
+
+
+def report_render_worker_retryable(
+    current_status: RenderTaskStatus,
+    action: RenderWorkerAction,
+    *,
+    error_message: str,
+    updated_at: str,
+) -> RenderTaskStatus:
+    return _report_worker_error_status(
+        current_status,
+        action,
+        state="retryable",
+        error_message=error_message,
+        updated_at=updated_at,
+    )
+
+
+def report_render_worker_failure(
+    current_status: RenderTaskStatus,
+    action: RenderWorkerAction,
+    *,
+    error_message: str,
+    updated_at: str,
+) -> RenderTaskStatus:
+    return _report_worker_error_status(
+        current_status,
+        action,
+        state="failed",
+        error_message=error_message,
+        updated_at=updated_at,
+    )
+
+
 def _validate_renderer_adapter(renderer_adapter: str) -> None:
     if not isinstance(renderer_adapter, str) or not _RENDERER_PATTERN.fullmatch(renderer_adapter):
         raise RenderWorkerError("Invalid render worker renderer adapter")
@@ -204,6 +283,7 @@ def _validate_action(action: RenderWorkerAction) -> None:
         _validate_non_empty_string(getattr(action, value_name), value_name)
     _validate_string_tuple(action.inputs, "inputs")
     _validate_string_tuple(action.outputs, "outputs")
+    _validate_output_paths(action.outputs)
     _validate_string_tuple(action.depends_on, "depends_on")
     if not isinstance(action.can_run_in_parallel, bool):
         raise RenderWorkerError("render worker action can_run_in_parallel must be a bool")
@@ -227,3 +307,176 @@ def _validate_string_tuple(value: object, label: str) -> None:
     for item in value:
         if not isinstance(item, str) or not item.strip():
             raise RenderWorkerError(f"render worker {label} must contain non-empty strings")
+
+
+def _validate_output_paths(outputs: tuple[str, ...]) -> None:
+    seen_outputs: set[str] = set()
+    for output in outputs:
+        _validate_render_output_path(output)
+        if output in seen_outputs:
+            raise RenderWorkerError(f"render worker outputs contain a duplicate path: {output}")
+        seen_outputs.add(output)
+
+
+def _validate_render_output_path(path: str) -> None:
+    artifact_path = Path(path)
+    if artifact_path.is_absolute() or ".." in artifact_path.parts:
+        raise RenderWorkerError(f"Unsafe render worker output path: {path}")
+    if not artifact_path.parts or artifact_path.parts[0] != "deliverables":
+        raise RenderWorkerError(f"Render worker output must be under deliverables: {path}")
+
+
+def _validate_timestamp(timestamp: str) -> None:
+    if not isinstance(timestamp, str) or not timestamp.strip():
+        raise RenderWorkerError("render worker updated_at must be a non-empty string")
+    if len(timestamp) > 80 or "\x00" in timestamp or "\n" in timestamp or "\r" in timestamp:
+        raise RenderWorkerError("render worker updated_at is invalid")
+
+
+def _validate_error_message(message: str) -> None:
+    if not isinstance(message, str) or not message.strip():
+        raise RenderWorkerError("render worker error_message must be a non-empty string")
+    if len(message) > 2000 or "\x00" in message:
+        raise RenderWorkerError("render worker error_message is invalid")
+
+
+def _validate_current_status(status: RenderTaskStatus) -> None:
+    if not isinstance(status, RenderTaskStatus):
+        raise RenderWorkerError("current status must be a RenderTaskStatus")
+    _validate_non_empty_string(status.task_id, "current status task_id")
+    if status.state not in {"pending", "running", "succeeded", "failed", "retryable"}:
+        raise RenderWorkerError("current status has an unsupported state")
+    if isinstance(status.attempts, bool) or not isinstance(status.attempts, int) or status.attempts < 0:
+        raise RenderWorkerError("current status attempts must be a non-negative integer")
+    if status.renderer_adapter is not None:
+        _validate_renderer_adapter(status.renderer_adapter)
+    if status.updated_at is not None:
+        _validate_timestamp(status.updated_at)
+    if status.error_message is not None:
+        _validate_error_message(status.error_message)
+    if not isinstance(status.output_checksums, tuple):
+        raise RenderWorkerError("current status output_checksums must be a tuple")
+
+
+def _validate_claimable_current_status(
+    current_status: RenderTaskStatus,
+    *,
+    action: RenderWorkerAction,
+) -> None:
+    _validate_current_status(current_status)
+    if current_status.task_id != action.task_id:
+        raise RenderWorkerError("current status task does not match render worker action")
+    if current_status.state not in _RUNNABLE_STATES:
+        raise RenderWorkerError("current status is not claimable for this render worker action")
+    if current_status.attempts + 1 != action.attempt_number:
+        raise RenderWorkerError("current status attempts do not match render worker action")
+
+
+def _validate_running_current_status(
+    current_status: RenderTaskStatus,
+    *,
+    action: RenderWorkerAction,
+) -> None:
+    _validate_current_status(current_status)
+    if current_status.task_id != action.task_id:
+        raise RenderWorkerError("current status task does not match render worker action")
+    if current_status.state != "running":
+        raise RenderWorkerError("current status must be running before reporting a render result")
+    if current_status.renderer_adapter != action.renderer_adapter:
+        raise RenderWorkerError("current status renderer adapter does not match render worker action")
+    if current_status.attempts != action.attempt_number:
+        raise RenderWorkerError("current status attempts do not match render worker action")
+    if current_status.output_checksums:
+        raise RenderWorkerError("current status cannot include output checksums before success")
+    if current_status.error_message is not None:
+        raise RenderWorkerError("current status cannot include an error before reporting a render result")
+
+
+def _report_worker_error_status(
+    current_status: RenderTaskStatus,
+    action: RenderWorkerAction,
+    *,
+    state: str,
+    error_message: str,
+    updated_at: str,
+) -> RenderTaskStatus:
+    _validate_action(action)
+    _validate_timestamp(updated_at)
+    _validate_error_message(error_message)
+    _validate_running_current_status(current_status, action=action)
+    if state not in {"failed", "retryable"}:
+        raise RenderWorkerError("render worker error status must be failed or retryable")
+
+    error_status = RenderTaskStatus(
+        task_id=action.task_id,
+        state=state,  # type: ignore[arg-type]
+        renderer_adapter=action.renderer_adapter,
+        attempts=action.attempt_number,
+        error_message=error_message,
+        updated_at=updated_at,
+    )
+    _validate_return_status(error_status, expected_state=state)
+    return error_status
+
+
+def _output_checksums_for_action(
+    action: RenderWorkerAction,
+    workspace_root: Path | str,
+) -> tuple[OutputChecksum, ...]:
+    root = Path(workspace_root)
+    if root.is_symlink():
+        raise RenderWorkerError(f"Refusing render worker workspace symlink: {root}")
+    checksums: list[OutputChecksum] = []
+    for output in action.outputs:
+        output_path = _workspace_output_path(root, output)
+        _reject_symlink_path(output_path, root, "render output")
+        if not output_path.exists():
+            raise RenderWorkerError(f"Missing render output: {output}")
+        if not output_path.is_file():
+            raise RenderWorkerError(f"Render output is not a file: {output}")
+        checksums.append(
+            OutputChecksum(
+                path=output,
+                sha256=_sha256_file(output_path),
+            )
+        )
+    return tuple(checksums)
+
+
+def _workspace_output_path(root: Path, output: str) -> Path:
+    _validate_render_output_path(output)
+    output_path = root / output
+    try:
+        output_path.relative_to(root)
+    except ValueError as exc:
+        raise RenderWorkerError(f"Render output escapes workspace: {output}") from exc
+    return output_path
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as output_file:
+            for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise RenderWorkerError(f"Unable to checksum render output: {path}") from exc
+    return digest.hexdigest()
+
+
+def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
+    current = path
+    while True:
+        if current.is_symlink():
+            raise RenderWorkerError(f"Refusing {label} symlink: {current}")
+        if current == root or current.absolute() == root.absolute():
+            break
+        if current.parent == current:
+            break
+        current = current.parent
+
+
+def _validate_return_status(status: RenderTaskStatus, *, expected_state: str) -> None:
+    _validate_current_status(status)
+    if status.state != expected_state:
+        raise RenderWorkerError("render worker returned an unexpected status state")

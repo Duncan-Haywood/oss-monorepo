@@ -59,7 +59,9 @@ The current core models a concrete promise for high-volume users:
 8. Track render progress and retry safety through a trusted status manifest.
 9. Schedule only dependency-ready pending/retryable render work through a dry-run
    worker action plan.
-10. Assemble reels, carousels, and photo sets from graded masters.
+10. Claim ready work as running and report success/retry/failure with checksums
+    for expected deliverable outputs.
+11. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -91,6 +93,8 @@ to automate.
    raw model paths. Render status manifests now let that renderer report
    pending/running/succeeded/failed/retryable progress without introducing new
    file authority, and render-worker action plans identify ready or blocked work
-   before any adapter opens media files.
+   before any adapter opens media files. Worker status-transition helpers now
+   let adapters claim a matching attempt and report completed outputs by checksum
+   without receiving authority to invent paths or delete media.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
