@@ -445,8 +445,6 @@ def _scheduler_report(
     _validate_result(result)
     if result.shoot_slug != trusted_plan.shoot_slug:
         raise DryRunRenderSchedulerError("scheduler result shoot_slug does not match trusted plan")
-    if result.renderer_adapter not in _renderer_adapters_from_result(result, final_manifest):
-        raise DryRunRenderSchedulerError("scheduler result renderer_adapter does not match final manifest")
     report = DryRunRenderSchedulerReport(
         generated_at=generated_at,
         shoot_slug=trusted_plan.shoot_slug,
@@ -475,19 +473,6 @@ def _scheduler_report(
     )
     _validate_report(report, trusted_plan=trusted_plan, final_manifest=final_manifest)
     return report
-
-
-def _renderer_adapters_from_result(
-    result: DryRunRenderSchedulerResult,
-    final_manifest: RenderStatusManifest,
-) -> frozenset[str]:
-    adapters = {result.renderer_adapter}
-    adapters.update(
-        status.renderer_adapter
-        for status in final_manifest.task_statuses
-        if status.renderer_adapter is not None
-    )
-    return frozenset(adapters)
 
 
 def _unique_iteration_task_ids(
@@ -755,14 +740,14 @@ def _validate_report(
         raise DryRunRenderSchedulerError(
             "Render scheduler report review_required_task_ids are inconsistent"
         )
-    expected_outputs = {
-        output
+    expected_output_paths = {
+        output.path
         for status in final_manifest.task_statuses
         if status.state == "succeeded"
         for output in status.output_checksums
     }
     for output_path in report.outputs_materialized:
-        if output_path not in {checksum.path for checksum in expected_outputs}:
+        if output_path not in expected_output_paths:
             raise DryRunRenderSchedulerError(
                 "Render scheduler report outputs_materialized contains unknown outputs"
             )
