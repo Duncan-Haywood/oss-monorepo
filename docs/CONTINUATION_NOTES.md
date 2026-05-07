@@ -108,6 +108,9 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     of scope for future renderer adapters.
 - Added `validate_render_status_manifest(...)` as a public validation wrapper around the existing strict
   status-manifest trust boundary.
+- Tightened that trust boundary after review: render status validation now reuses full assembly-plan
+  validation so in-memory plans with source-media inputs, unsafe paths, noncanonical outputs, or malformed
+  dependencies cannot be fingerprinted or scheduled by the worker.
 - Updated README, product strategy, design decisions, and these continuation notes to describe the ready
   action queue between status tracking and real render adapters.
 

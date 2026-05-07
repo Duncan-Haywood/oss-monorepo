@@ -1,4 +1,6 @@
 from dataclasses import replace
+import hashlib
+import json
 import unittest
 
 from shootflow.assembly import AssemblyPlan, RenderTask
@@ -112,67 +114,33 @@ class RenderWorkerPlanningTests(unittest.TestCase):
             ],
         )
 
-    def test_treats_render_task_dependencies_as_satisfied_only_after_success(self) -> None:
-        base_plan = self._trusted_plan()
-        dependent_variant = replace(
-            base_plan.render_tasks[3],
-            depends_on=("render_instagram_reel", "grade_asset_00002"),
+    def test_rejects_in_memory_plans_with_source_media_inputs_before_scheduling(self) -> None:
+        trusted_plan = self._trusted_plan()
+        unsafe_task = replace(
+            trusted_plan.render_tasks[0],
+            inputs=("source/DCIM/A001.MOV",),
+            depends_on=("rank_instagram_storylines",),
         )
-        trusted_plan = replace(
-            base_plan,
-            render_tasks=base_plan.render_tasks[:3] + (dependent_variant,),
+        unsafe_plan = replace(
+            trusted_plan,
+            render_tasks=(unsafe_task,) + trusted_plan.render_tasks[1:],
         )
-
-        pending_manifest = RenderStatusManifest(
+        manifest = RenderStatusManifest(
             shoot_slug="worker-contract",
-            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
-            task_statuses=(
-                RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
-                RenderTaskStatus(task_id="render_instagram_carousel", state="pending"),
-                RenderTaskStatus(task_id="export_instagram_photo_set_part_00001", state="pending"),
-                RenderTaskStatus(task_id="render_instagram_reel_variant_fast_cut", state="pending"),
+            render_plan_fingerprint=self._legacy_fingerprint_for_unsafe_plan(unsafe_plan),
+            task_statuses=tuple(
+                RenderTaskStatus(task_id=task.task_id, state="pending")
+                for task in unsafe_plan.render_tasks
             ),
         )
-        blocked_plan = plan_render_worker_actions(
-            trusted_plan,
-            pending_manifest,
-            completed_dependency_ids={"grade_asset_00002"},
-            renderer_adapter="dry-run-local",
-        )
 
-        succeeded_manifest = replace(
-            pending_manifest,
-            task_statuses=(
-                RenderTaskStatus(
-                    task_id="render_instagram_reel",
-                    state="succeeded",
-                    renderer_adapter="dry-run-local",
-                    attempts=1,
-                    output_checksums=(
-                        OutputChecksum(path="deliverables/instagram_reel.mp4", sha256="b" * 64),
-                    ),
-                    updated_at="2026-05-07T10:13:00Z",
-                ),
-                pending_manifest.task_statuses[1],
-                pending_manifest.task_statuses[2],
-                pending_manifest.task_statuses[3],
-            ),
-        )
-        ready_plan = plan_render_worker_actions(
-            trusted_plan,
-            succeeded_manifest,
-            completed_dependency_ids={"grade_asset_00002"},
-            renderer_adapter="dry-run-local",
-        )
-
-        self.assertIn(
-            ("render_instagram_reel_variant_fast_cut", ("render_instagram_reel",)),
-            [(blocked.task_id, blocked.missing_dependencies) for blocked in blocked_plan.blocked_tasks],
-        )
-        self.assertIn(
-            "render_instagram_reel_variant_fast_cut",
-            [action.task_id for action in ready_plan.actions],
-        )
+        with self.assertRaisesRegex(RenderWorkerError, "status manifest"):
+            plan_render_worker_actions(
+                unsafe_plan,
+                manifest,
+                completed_dependency_ids={"rank_instagram_storylines"},
+                renderer_adapter="dry-run-local",
+            )
 
     def test_rejects_stale_status_manifest_before_planning_actions(self) -> None:
         trusted_plan = self._trusted_plan()
@@ -185,6 +153,7 @@ class RenderWorkerPlanningTests(unittest.TestCase):
                         "analysis/instagram_storylines.json",
                         "graded/grade_asset_99999/STALE.MOV",
                     ),
+                    depends_on=("rank_instagram_storylines", "grade_asset_99999"),
                 ),
             )
             + trusted_plan.render_tasks[1:],
@@ -287,6 +256,32 @@ class RenderWorkerPlanningTests(unittest.TestCase):
                 ),
             ),
         )
+
+    def _legacy_fingerprint_for_unsafe_plan(self, plan: AssemblyPlan) -> str:
+        fingerprint_input = {
+            "shoot_slug": plan.shoot_slug,
+            "render_tasks": [
+                {
+                    "task_id": task.task_id,
+                    "sequence_name": task.sequence_name,
+                    "source_job_id": task.source_job_id,
+                    "output_kind": task.output_kind,
+                    "aspect_ratio": task.aspect_ratio,
+                    "inputs": list(task.inputs),
+                    "outputs": list(task.outputs),
+                    "depends_on": list(task.depends_on),
+                    "can_run_in_parallel": task.can_run_in_parallel,
+                }
+                for task in plan.render_tasks
+            ],
+        }
+        encoded = json.dumps(
+            fingerprint_input,
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
 
 
 if __name__ == "__main__":

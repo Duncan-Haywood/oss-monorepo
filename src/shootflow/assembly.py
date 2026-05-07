@@ -146,6 +146,12 @@ def build_assembly_plan(
     return AssemblyPlan(shoot_slug=plan.shoot_slug, render_tasks=tuple(render_tasks))
 
 
+def validate_assembly_plan(plan: AssemblyPlan) -> None:
+    if not isinstance(plan, AssemblyPlan):
+        raise TypeError("plan must be an AssemblyPlan")
+    _validate_assembly_plan(plan)
+
+
 def write_render_tasks_manifest(plan: AssemblyPlan, workspace_root: Path | str) -> Path:
     if not isinstance(plan, AssemblyPlan):
         raise TypeError("plan must be an AssemblyPlan")

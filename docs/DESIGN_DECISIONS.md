@@ -138,8 +138,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   JSON fields, the same shoot slug, task ordering, and render-plan fingerprint as the trusted
   `AssemblyPlan`, known status states, state-appropriate attempts/error/checksum fields, symlink-safe
   manifest paths, and checksums only for each task's expected deliverable outputs. Status writes use
-  exclusive no-follow temporary file creation and reject stale canonical temp files. Status files cannot
-  introduce source paths, new tasks, stale task contents, or destructive operations.
+  exclusive no-follow temporary file creation and reject stale canonical temp files. Status validation
+  reuses full assembly-plan validation before fingerprinting so in-memory callers cannot bypass the
+  render-task manifest's path/dependency rules. Status files cannot introduce source paths, new tasks,
+  stale task contents, or destructive operations.
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for

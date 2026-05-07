@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from shootflow.assembly import AssemblyPlan, RenderTask
+from shootflow.assembly import AssemblyPlan, AssemblyPlanError, RenderTask, validate_assembly_plan
 
 RenderTaskState = Literal["pending", "running", "succeeded", "failed", "retryable"]
 RENDER_STATUS_MANIFEST_PATH = "deliverables/render_status.json"
@@ -172,11 +172,10 @@ def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: Assembly
 def _validate_trusted_plan(plan: AssemblyPlan) -> None:
     if not isinstance(plan, AssemblyPlan):
         raise TypeError("trusted_plan must be an AssemblyPlan")
-    if not isinstance(plan.shoot_slug, str) or not plan.shoot_slug.strip():
-        raise RenderStatusError("Trusted assembly plan shoot_slug cannot be empty")
-    if not isinstance(plan.render_tasks, tuple):
-        raise RenderStatusError("Trusted assembly plan render_tasks must be a tuple")
-    _trusted_tasks_by_id(plan)
+    try:
+        validate_assembly_plan(plan)
+    except AssemblyPlanError as exc:
+        raise RenderStatusError("Trusted assembly plan is invalid for render status") from exc
 
 
 def _trusted_tasks_by_id(plan: AssemblyPlan) -> dict[str, RenderTask]:
