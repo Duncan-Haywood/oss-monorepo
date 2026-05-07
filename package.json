@@ -1,0 +1,32 @@
+{
+  "name": "photo-editing",
+  "version": "1.0.0",
+  "description": "Bulk photo and video ingest, color grading, and social content automation planning tools.",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test test/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Duncan-Haywood/photo-editing.git"
+  },
+  "keywords": [
+    "photo",
+    "video",
+    "color-grading",
+    "ingest",
+    "instagram"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Duncan-Haywood/photo-editing/issues"
+  },
+  "homepage": "https://github.com/Duncan-Haywood/photo-editing#readme",
+  "devDependencies": {
+    "@types/node": "^25.6.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
