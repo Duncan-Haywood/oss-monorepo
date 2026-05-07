@@ -7,6 +7,7 @@ __all__ = [
     "deliverables",
     "ingest",
     "production",
+    "render_adapter",
     "render_status",
     "render_worker",
     "storage",

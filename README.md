@@ -43,6 +43,11 @@ This repo currently contains the first testable core utilities:
   checksums for declared deliverable outputs only. It can also plan explicit
   stale-running lease expirations as retryable status transitions without
   granting cleanup or deletion authority.
+- `shootflow.render_adapter` adds the first renderer-adapter boundary: a
+  deterministic dry-run adapter that claims one trusted worker action, writes
+  only its declared `deliverables/` outputs through non-overwriting placeholder
+  files, reports checksums, and persists both claim and result through the
+  single-task compare/write status path.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -90,6 +95,10 @@ The intended first workflow is:
     manifest when a caller supplies an explicit cutoff, then persist each
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`.
+13. Exercise adapter orchestration with the dry-run renderer before introducing
+    ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
+    adapter consumes only worker actions, refuses symlinked or different
+    existing outputs, and never deletes source, graded, or deliverable files.
 
 ## Run tests
 

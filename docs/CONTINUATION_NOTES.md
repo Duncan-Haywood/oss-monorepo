@@ -183,16 +183,43 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated README, product strategy, design decisions, and these continuation notes to describe the ready
   action queue between status tracking and real render adapters.
 
+## What landed in this iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-26a1`, pushed that baseline to
+  `cursor/media-content-automation-d522`, then added the first safe renderer-adapter orchestration layer.
+- Added `shootflow.render_adapter`:
+  - `run_dry_run_render_action(...)` loads the latest trusted render status manifest, claims exactly one
+    matching `RenderWorkerAction`, persists the claim with `compare_and_write_render_task_status(...)`, writes
+    deterministic placeholder outputs, reports success checksums or retryable materialization errors, and
+    persists the final status through the same compare/write boundary;
+  - `materialize_dry_run_render_outputs(...)` consumes only the trusted action fields and never opens raw,
+    source, or graded input files;
+  - dry-run outputs are limited to declared `deliverables/` paths, reject unsafe/absolute/parent paths,
+    reject symlinked workspaces/output directories/output files/temp files, and refuse to overwrite existing
+    different bytes;
+  - output commits use a same-directory exclusive temp file plus hard-link creation instead of blind replace,
+    so a user/editor export that appears at the target path is preserved rather than overwritten;
+  - if output materialization fails after a claim, the adapter persists a retryable status with an explicit
+    no-deletion message rather than cleaning up files.
+- Added focused tests for dry-run claim/success persistence, existing-output preservation, symlinked-output
+  rejection, and stale-claim rejection before output materialization.
+- Updated README, product strategy, design decisions, and terms draft notes to describe the dry-run adapter
+  as a proof point for future ffmpeg/Core Image/Metal/DaVinci/cloud renderers.
+
 ## Suggested next iteration
 
 The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
-through a manifest-level compare/write update, and identify stale running leases for retry. The next useful
-layer is renderer dry-run orchestration or stronger distributed lease persistence.
+through a manifest-level compare/write update, identify stale running leases for retry, and execute one
+trusted action through a deterministic dry-run adapter. The next useful layer is either real renderer temp
+output contracts or stronger distributed lease persistence.
 
 Good test-first targets:
 
-- Add a dry-run renderer adapter interface that consumes only `RenderWorkerAction` records and returns
-  `RenderTaskStatus` transitions, then persists them through `compare_and_write_render_task_status(...)`.
+- Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
+  outputs while keeping the same no-overwrite/no-delete status boundary.
+- Add a dry-run batch scheduler helper that iterates a `RenderWorkerActionPlan`, executes actions up to a
+  caller-provided concurrency limit, and leaves blocked/running/failed tasks untouched for UI visibility.
 - Add a small scheduler helper that takes `RenderLeaseExpirationPlan.expired_leases` and persists each
   retryable transition with `expected_state="running"`, the original attempt count, and
   `expected_updated_at=running_since`, surfacing compare/write precondition failures as "another worker

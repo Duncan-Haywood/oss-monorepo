@@ -52,6 +52,11 @@ The repo currently contains a Python core package because it is quick to test an
   success/retry/failure without widening file access. It keeps running tasks out of duplicate scheduling
   until a caller explicitly plans stale lease expiration; that lease plan only returns retryable status
   transitions and never authorizes file cleanup or deletion.
+- `shootflow.render_adapter`: the first adapter-orchestration layer. Its deterministic dry-run adapter
+  consumes a single trusted `RenderWorkerAction`, persists a claim through `compare_and_write_render_task_status(...)`,
+  materializes only the action's declared `deliverables/` outputs as non-overwriting placeholder files, reports
+  success checksums or retryable errors, and persists the final status through the same compare/write boundary.
+  It intentionally does not open source or graded inputs, delete files, or implement real media rendering.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -75,8 +80,10 @@ The desired high-quality pipeline is:
     overwrite newer claims or results.
 13. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
     transition through the same single-task compare/write boundary.
-14. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-15. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+14. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
+    rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
+15. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+16. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -172,9 +179,16 @@ High quality depends on scene-level consistency and reversible edits. The system
   timezone-aware cutoff and the helper returns retryable transitions for running statuses whose `updated_at`
   is older than that cutoff. It skips fresh running work, validates the trusted status manifest first, and
   includes an explicit no-cleanup/no-deletion error message so a timeout cannot be confused with authority
-  to remove source, graded, or deliverable files. Persist each expiration with `expected_state=\"running\"`,
+  to remove source, graded, or deliverable files. Persist each expiration with `expected_state="running"`,
   the lease's attempt number, and `expected_updated_at=running_since` so a refreshed same-attempt lease cannot
   be expired by a stale scheduler snapshot.
+- `shootflow.render_adapter` now exercises the adapter handoff without real media rendering. The dry-run
+  adapter loads the latest trusted status manifest, claims a matching pending/retryable action, writes
+  deterministic placeholder outputs only for declared deliverable paths, refuses symlinked outputs, refuses
+  to overwrite any existing file with different bytes, and then reports success checksums or retryable
+  materialization errors. It uses hard-link commit from a same-directory temp file instead of blind replace
+  so a user/editor export that appears at the target path is preserved. This is the safety shape future
+  high-quality renderers should keep while replacing placeholder bytes with real media output.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -198,6 +212,8 @@ Useful wedges:
   originals or invent output paths."
 - "Reject stale local worker results at the manifest boundary when another worker has already claimed,
   retried, or completed the same task."
+- "Prove renderer orchestration with a dry-run adapter before customers trust it with irreplaceable shoots or
+  editor-produced deliverables."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 

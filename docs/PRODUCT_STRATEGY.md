@@ -69,7 +69,11 @@ The current core models a concrete promise for high-volume users:
     lease expirations from trusted status plus a caller-provided cutoff, then
     persisting each retryable transition through the same compare/write path so
     same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
-13. Assemble reels, carousels, and photo sets from graded masters.
+13. Prove renderer orchestration with a dry-run adapter that consumes only
+    ready worker actions, persists claim/result transitions, writes only
+    declared deliverable outputs, and refuses to overwrite existing different
+    files.
+14. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -107,6 +111,10 @@ to automate.
    status updates keep stale local workers from overwriting newer task progress.
    Stale-running lease plans now give schedulers a conservative way to retry
    interrupted work without treating a timeout as permission to clean up or
-   delete media.
+   delete media. The first dry-run renderer adapter now exercises this contract
+   end-to-end by claiming one trusted action, materializing deterministic
+   placeholder outputs under `deliverables/`, refusing symlinked or different
+   existing outputs, and persisting success or retryable status updates through
+   the same compare/write boundary.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

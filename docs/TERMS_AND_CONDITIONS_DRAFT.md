@@ -12,6 +12,7 @@ This is a working product/legal draft for review by counsel before any public la
 
 - The product is designed to copy source media, not delete it.
 - Source deletion, card formatting, destructive overwrite, and archive cleanup are excluded from early product scope.
+- Generated deliverables should be written through safe output paths and should not overwrite user/editor-created files unless the product can prove the existing bytes match the intended output or the user explicitly approves replacement.
 - If destructive actions are ever added, they must require explicit confirmation, visible manifest review, and a recoverable holding period where technically possible.
 - Drive detection and import suggestions should be treated as recommendations until the user reviews the source and destination. The legal terms should avoid promising that the product can identify every SD card, SSD, corrupt file, or unsafe path perfectly.
 - Generated manifests should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
