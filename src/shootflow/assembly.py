@@ -26,6 +26,11 @@ _SEQUENCE_TASK_IDS: dict[SequenceName, str] = {
     "carousel": "render_instagram_carousel",
     "photo_set": "export_instagram_photo_set",
 }
+_SEQUENCE_CANONICAL_OUTPUTS: dict[SequenceName, str] = {
+    "reel": "deliverables/instagram_reel.mp4",
+    "carousel": "deliverables/instagram_carousel/",
+    "photo_set": "deliverables/instagram_photo_set/",
+}
 
 
 class AssemblyPlanError(ValueError):
@@ -51,6 +56,12 @@ class AssemblyPlan:
     render_tasks: tuple[RenderTask, ...]
 
 
+@dataclass(frozen=True)
+class _GradedOutput:
+    job_id: str
+    media_kind: MediaKind
+
+
 def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> AssemblyPlan:
     if not isinstance(plan, ProductionPlan):
         raise TypeError("plan must be a ProductionPlan")
@@ -73,6 +84,7 @@ def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> Ass
             _render_task_for_sequence(
                 sequence_name,
                 sequence,
+                graded_outputs=graded_outputs,
                 deliverable_jobs=deliverable_jobs,
             )
         )
@@ -80,8 +92,8 @@ def build_assembly_plan(plan: ProductionPlan, workspace_root: Path | str) -> Ass
     return AssemblyPlan(shoot_slug=plan.shoot_slug, render_tasks=tuple(render_tasks))
 
 
-def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, MediaKind]:
-    outputs: dict[str, MediaKind] = {}
+def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, _GradedOutput]:
+    outputs: dict[str, _GradedOutput] = {}
     for job in plan.jobs:
         if not job.output_kind.startswith("graded_"):
             continue
@@ -90,7 +102,7 @@ def _graded_outputs_by_path(plan: ProductionPlan) -> dict[str, MediaKind]:
         _validate_relative_artifact_path(output, expected_root="graded")
         if output in outputs:
             raise AssemblyPlanError(f"Duplicate graded output path: {output}")
-        outputs[output] = media_kind
+        outputs[output] = _GradedOutput(job_id=job.job_id, media_kind=media_kind)
     return outputs
 
 
@@ -106,12 +118,12 @@ def _validate_sequence_media(
     sequence_name: SequenceName,
     sequence: ContentSequence,
     *,
-    graded_outputs: dict[str, MediaKind],
+    graded_outputs: dict[str, _GradedOutput],
 ) -> None:
     required_media = _SEQUENCE_MEDIA[sequence_name]
     for asset_path in sequence.asset_paths:
-        media_kind = graded_outputs.get(asset_path)
-        if media_kind != required_media:
+        graded_output = graded_outputs.get(asset_path)
+        if graded_output is None or graded_output.media_kind != required_media:
             raise AssemblyPlanError(f"{sequence_name} requires {required_media} graded assets: {asset_path}")
 
 
@@ -127,6 +139,7 @@ def _render_task_for_sequence(
     sequence_name: SequenceName,
     sequence: ContentSequence,
     *,
+    graded_outputs: dict[str, _GradedOutput],
     deliverable_jobs: dict[str, ProductionJob],
 ) -> RenderTask:
     source_job_id = _SEQUENCE_JOB_IDS[sequence_name]
@@ -136,6 +149,7 @@ def _render_task_for_sequence(
         raise AssemblyPlanError(f"Missing deliverable job for sequence: {sequence_name}") from exc
 
     outputs = _outputs_for_sequence(sequence_name, source_job, item_count=len(sequence.asset_paths))
+    selected_dependencies = tuple(graded_outputs[asset_path].job_id for asset_path in sequence.asset_paths)
     return RenderTask(
         task_id=_SEQUENCE_TASK_IDS[sequence_name],
         sequence_name=sequence_name,
@@ -144,7 +158,7 @@ def _render_task_for_sequence(
         aspect_ratio=sequence.aspect_ratio,
         inputs=(STORYLINE_ARTIFACT_PATH,) + sequence.asset_paths,
         outputs=outputs,
-        depends_on=source_job.depends_on,
+        depends_on=("rank_instagram_storylines",) + selected_dependencies,
         can_run_in_parallel=source_job.can_run_in_parallel,
     )
 
@@ -157,10 +171,13 @@ def _outputs_for_sequence(
 ) -> tuple[str, ...]:
     output = _single_job_output(source_job)
     _validate_relative_artifact_path(output, expected_root="deliverables")
+    expected_output = _SEQUENCE_CANONICAL_OUTPUTS[sequence_name]
+    if output != expected_output:
+        raise AssemblyPlanError(f"Unexpected {sequence_name} output path: {output}")
     if sequence_name == "reel":
         return (output,)
 
-    output_dir = output.rstrip("/")
+    output_dir = expected_output.rstrip("/")
     prefix = "slide" if sequence_name == "carousel" else "photo"
     return tuple(f"{output_dir}/{prefix}_{index:05d}.jpg" for index in range(1, item_count + 1))
 
