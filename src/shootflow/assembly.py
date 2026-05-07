@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from shootflow.production import ProductionJob, ProductionPlan
-from shootflow.story import ContentSequence, STORYLINE_ARTIFACT_PATH, load_storyline_artifact
+from shootflow.story import ContentSequence, ReelVariant, STORYLINE_ARTIFACT_PATH, load_storyline_artifact
 
 SequenceName = Literal["reel", "carousel", "photo_set"]
 MediaKind = Literal["photo", "video"]
@@ -49,6 +49,9 @@ _SEQUENCE_CANONICAL_OUTPUTS: dict[SequenceName, str] = {
 _PHOTO_SET_CHUNK_TASK_PREFIX = "export_instagram_photo_set_part_"
 _PHOTO_SET_CHUNK_TASK_PATTERN = re.compile(r"^export_instagram_photo_set_part_(\d{5})$")
 _PHOTO_SET_OUTPUT_PATTERN = re.compile(r"^deliverables/instagram_photo_set/photo_(\d{5})\.jpg$")
+_REEL_VARIANT_TASK_PREFIX = "render_instagram_reel_variant_"
+_REEL_VARIANT_TASK_PATTERN = re.compile(r"^render_instagram_reel_variant_([a-z0-9][a-z0-9_]{0,63})$")
+_REEL_VARIANT_OUTPUT_PATTERN = re.compile(r"^deliverables/instagram_reels/([a-z0-9][a-z0-9_]{0,63})\.mp4$")
 _MANIFEST_KEYS = frozenset({"schema_version", "shoot_slug", "render_tasks"})
 _TASK_KEYS = frozenset(
     {
@@ -114,19 +117,31 @@ def build_assembly_plan(
     render_tasks: list[RenderTask] = []
     for sequence_name in _SEQUENCE_ORDER:
         sequence = getattr(storyline, sequence_name)
-        if not sequence.asset_paths:
-            continue
-        _validate_sequence_media(sequence_name, sequence, graded_outputs=graded_outputs)
-        _verify_selected_assets_exist(root, sequence.asset_paths)
-        render_tasks.extend(
-            _render_tasks_for_sequence(
-                sequence_name,
-                sequence,
-                photo_set_chunk_size=photo_set_chunk_size,
-                graded_outputs=graded_outputs,
-                deliverable_jobs=deliverable_jobs,
+        if sequence.asset_paths:
+            _validate_sequence_media(sequence_name, sequence, graded_outputs=graded_outputs)
+            _verify_selected_assets_exist(root, sequence.asset_paths)
+            render_tasks.extend(
+                _render_tasks_for_sequence(
+                    sequence_name,
+                    sequence,
+                    photo_set_chunk_size=photo_set_chunk_size,
+                    graded_outputs=graded_outputs,
+                    deliverable_jobs=deliverable_jobs,
+                )
             )
-        )
+        if sequence_name == "reel":
+            for variant in storyline.reel_variants:
+                if not variant.sequence.asset_paths:
+                    continue
+                _validate_sequence_media("reel", variant.sequence, graded_outputs=graded_outputs)
+                _verify_selected_assets_exist(root, variant.sequence.asset_paths)
+                render_tasks.extend(
+                    _render_tasks_for_reel_variant(
+                        variant,
+                        graded_outputs=graded_outputs,
+                        deliverable_jobs=deliverable_jobs,
+                    )
+                )
 
     return AssemblyPlan(shoot_slug=plan.shoot_slug, render_tasks=tuple(render_tasks))
 
@@ -263,6 +278,28 @@ def _render_tasks_for_sequence(
     return tuple(tasks)
 
 
+def _render_tasks_for_reel_variant(
+    variant: ReelVariant,
+    *,
+    graded_outputs: dict[str, _GradedOutput],
+    deliverable_jobs: dict[str, ProductionJob],
+) -> tuple[RenderTask, ...]:
+    _validate_reel_variant_id(variant.variant_id)
+    return (
+        _render_task_for_sequence_chunk(
+            "reel",
+            variant.sequence,
+            chunk_asset_paths=variant.sequence.asset_paths,
+            start_index=1,
+            chunk_number=None,
+            variant_id=variant.variant_id,
+            can_run_in_parallel=True,
+            graded_outputs=graded_outputs,
+            deliverable_jobs=deliverable_jobs,
+        ),
+    )
+
+
 def _render_task_for_sequence_chunk(
     sequence_name: SequenceName,
     sequence: ContentSequence,
@@ -273,6 +310,7 @@ def _render_task_for_sequence_chunk(
     can_run_in_parallel: bool | None,
     graded_outputs: dict[str, _GradedOutput],
     deliverable_jobs: dict[str, ProductionJob],
+    variant_id: str | None = None,
 ) -> RenderTask:
     source_job_id = _SEQUENCE_JOB_IDS[sequence_name]
     try:
@@ -285,10 +323,11 @@ def _render_task_for_sequence_chunk(
         source_job,
         item_count=len(chunk_asset_paths),
         start_index=start_index,
+        variant_id=variant_id,
     )
     selected_dependencies = tuple(graded_outputs[asset_path].job_id for asset_path in chunk_asset_paths)
     return RenderTask(
-        task_id=_render_task_id(sequence_name, chunk_number=chunk_number),
+        task_id=_render_task_id(sequence_name, chunk_number=chunk_number, variant_id=variant_id),
         sequence_name=sequence_name,
         source_job_id=source_job_id,
         output_kind=sequence.output_kind,
@@ -302,7 +341,17 @@ def _render_task_for_sequence_chunk(
     )
 
 
-def _render_task_id(sequence_name: SequenceName, *, chunk_number: int | None) -> str:
+def _render_task_id(
+    sequence_name: SequenceName,
+    *,
+    chunk_number: int | None,
+    variant_id: str | None = None,
+) -> str:
+    if variant_id is not None:
+        if sequence_name != "reel" or chunk_number is not None:
+            raise AssemblyPlanError("Only reel render tasks can have variants")
+        _validate_reel_variant_id(variant_id)
+        return f"{_REEL_VARIANT_TASK_PREFIX}{variant_id}"
     if chunk_number is None:
         return _SEQUENCE_TASK_IDS[sequence_name]
     return f"{_PHOTO_SET_CHUNK_TASK_PREFIX}{chunk_number:05d}"
@@ -314,12 +363,18 @@ def _outputs_for_sequence(
     *,
     item_count: int,
     start_index: int = 1,
+    variant_id: str | None = None,
 ) -> tuple[str, ...]:
     output = _single_job_output(source_job)
     _validate_relative_artifact_path(output, expected_root="deliverables")
     expected_output = _SEQUENCE_CANONICAL_OUTPUTS[sequence_name]
     if output != expected_output:
         raise AssemblyPlanError(f"Unexpected {sequence_name} output path: {output}")
+    if variant_id is not None:
+        if sequence_name != "reel":
+            raise AssemblyPlanError("Only reel render tasks can have variant outputs")
+        _validate_reel_variant_id(variant_id)
+        return (f"deliverables/instagram_reels/{variant_id}.mp4",)
     if sequence_name == "reel":
         return (output,)
 
@@ -430,7 +485,7 @@ def _validate_render_task(
         _validate_photo_set_chunk_outputs(task, item_count=len(graded_inputs))
     else:
         expected_outputs = _canonical_outputs_for_task(
-            task.sequence_name,
+            task,
             item_count=len(graded_inputs),
         )
         if task.outputs != expected_outputs:
@@ -438,6 +493,8 @@ def _validate_render_task(
 
 
 def _is_expected_task_id(task: RenderTask) -> bool:
+    if task.sequence_name == "reel" and _reel_variant_id_from_task(task) is not None:
+        return True
     if task.sequence_name == "photo_set" and _is_photo_set_chunk_task(task):
         return True
     return task.task_id == _SEQUENCE_TASK_IDS[task.sequence_name]
@@ -448,6 +505,22 @@ def _is_photo_set_chunk_task(task: RenderTask) -> bool:
         task.sequence_name == "photo_set"
         and _PHOTO_SET_CHUNK_TASK_PATTERN.fullmatch(task.task_id) is not None
     )
+
+
+def _reel_variant_id_from_task(task: RenderTask) -> str | None:
+    if task.sequence_name != "reel":
+        return None
+    match = _REEL_VARIANT_TASK_PATTERN.fullmatch(task.task_id)
+    if match is None:
+        return None
+    return match.group(1)
+
+
+def _validate_reel_variant_id(variant_id: str) -> None:
+    if not isinstance(variant_id, str) or not _REEL_VARIANT_TASK_PATTERN.fullmatch(
+        f"{_REEL_VARIANT_TASK_PREFIX}{variant_id}"
+    ):
+        raise AssemblyPlanError(f"Invalid reel variant id: {variant_id}")
 
 
 def _validate_render_input_path(path: str) -> None:
@@ -491,11 +564,11 @@ def _grade_job_id_for_input(input_path: str) -> str:
     return parts[1]
 
 
-def _canonical_outputs_for_task(
-    sequence_name: SequenceName,
-    *,
-    item_count: int,
-) -> tuple[str, ...]:
+def _canonical_outputs_for_task(task: RenderTask, *, item_count: int) -> tuple[str, ...]:
+    sequence_name = task.sequence_name
+    reel_variant_id = _reel_variant_id_from_task(task)
+    if reel_variant_id is not None:
+        return (f"deliverables/instagram_reels/{reel_variant_id}.mp4",)
     expected_output = _SEQUENCE_CANONICAL_OUTPUTS[sequence_name]
     if sequence_name == "reel":
         return (expected_output,)

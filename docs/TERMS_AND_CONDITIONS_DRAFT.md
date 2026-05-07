@@ -27,7 +27,7 @@ Customers are responsible for:
 
 ## AI output disclaimer
 
-ShootFlow may use computer vision, VLMs, LLMs, and automated editing models to suggest selects, grades, reels, captions, and publishing packages. Outputs may be inaccurate, incomplete, off-brand, or unsuitable for a specific client. Customers must review outputs before client delivery or publication.
+ShootFlow may use computer vision, VLMs, LLMs, and automated editing models to suggest selects, grades, reel variants, captions, and publishing packages. Outputs may be inaccurate, incomplete, off-brand, duplicative, or unsuitable for a specific client. Customers must review outputs before client delivery or publication.
 
 ## Indemnification concept
 

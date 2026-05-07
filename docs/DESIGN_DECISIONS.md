@@ -31,13 +31,14 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
-- `shootflow.story`: VLM-score-driven selection planning for first-cut reels, carousels, and ranked
-  photo-set exports, plus a deterministic storyline artifact contract for downstream assemblers.
+- `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
+  carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
+  downstream assemblers.
 - `shootflow.assembly`: a renderer-neutral handoff from trusted storyline selections to explicit social
   render tasks. It verifies selected graded artifacts exist, rejects symlinked selected media, keeps raw
   originals out of render inputs, derives deterministic output paths under `deliverables/`, chunks large
-  ranked photo-set exports into parallel resumable tasks, and persists strict render manifests for future
-  workers.
+  ranked photo-set exports into parallel resumable tasks, creates collision-free tasks for named reel
+  variants, and persists strict render manifests for future workers.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -94,17 +95,19 @@ High quality depends on scene-level consistency and reversible edits. The system
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
   carousels and photo sets only depend on photo grades.
-- `shootflow.story` currently chooses a first-cut reel from the best clip per scene, carousels from
-  diversified photo selects, and photo sets from every graded photo ranked by quality. This keeps the
-  automatic output useful while still preserving all graded intermediates for human/editor review.
+- `shootflow.story` currently chooses a first-cut reel from the best clip per scene, then adds named
+  `hero`, `behind_the_scenes`, and `fast_cut` reel variants for reviewable social narratives. Carousels
+  come from diversified photo selects, and photo sets come from every graded photo ranked by quality.
+  This keeps the automatic output useful while still preserving all graded intermediates for human/editor
+  review.
 - Storyline selection persists to `analysis/instagram_storylines.json` as an edit-decision contract
-  with reel, carousel, and photo-set sequences. The reader rejects references outside the trusted
-  graded artifact set so model-authored JSON cannot smuggle arbitrary files into a renderer.
+  with reel, reel-variant, carousel, and photo-set sequences. The reader rejects references outside the
+  trusted graded artifact set so model-authored JSON cannot smuggle arbitrary files into a renderer.
 - Assembly planning consumes that storyline artifact and rechecks selected graded files on disk before
   producing render tasks. Reel tasks use selected graded videos only; carousel and photo-set tasks use
   selected graded photos only. Outputs are deterministic (`deliverables/instagram_reel.mp4`,
-  ordered carousel slides, and ordered photo-set JPEGs) so retries and UI review do not reshuffle the
-  package.
+  named reel variants under `deliverables/instagram_reels/`, ordered carousel slides, and ordered
+  photo-set JPEGs) so retries and UI review do not reshuffle the package.
 - `deliverables/render_tasks.json` is the render-worker handoff. The loader requires exact JSON fields,
   safe analysis/graded inputs, deliverables-only outputs, no symlinked manifest/temp paths, no duplicate
   output targets, and an exact match with the trusted in-memory `AssemblyPlan` before a renderer may

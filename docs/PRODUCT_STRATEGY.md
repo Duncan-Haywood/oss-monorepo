@@ -79,11 +79,12 @@ to automate.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
-   brittle "best" output. The first implemented contract now ranks VLM asset
-   analysis into scene-diverse first-cut reels, scene-varied carousels, and
-   complete ranked photo sets, then persists those choices as a deterministic
-   edit-decision artifact for review/export. The next contract turns those
-   selections into verified render tasks so a future local or cloud renderer can
-   execute the package without trusting raw model paths.
+   brittle "best" output. The implemented contract now ranks VLM asset analysis
+   into a scene-diverse first-cut reel, named `hero`, `behind_the_scenes`, and
+   `fast_cut` reel variants, scene-varied carousels, and complete ranked photo
+   sets, then persists those choices as a deterministic edit-decision artifact
+   for review/export. Assembly turns those selections into verified render tasks
+   so a future local or cloud renderer can execute the package without trusting
+   raw model paths.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

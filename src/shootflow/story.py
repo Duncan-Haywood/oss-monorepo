@@ -2,20 +2,23 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
 StoryMediaType = Literal["photo", "video"]
 STORYLINE_ARTIFACT_PATH = "analysis/instagram_storylines.json"
-_STORYLINE_SCHEMA_VERSION = 1
+_STORYLINE_SCHEMA_VERSION = 2
+_LEGACY_STORYLINE_SCHEMA_VERSION = 1
 _SEQUENCE_NAMES = ("reel", "carousel", "photo_set")
 _SEQUENCE_METADATA = {
     "reel": ("instagram_reel", "9:16"),
     "carousel": ("instagram_carousel", "4:5"),
     "photo_set": ("instagram_photo_set", "4:5"),
 }
-_ARTIFACT_KEYS = frozenset({"schema_version", "sequences"})
+_ARTIFACT_KEYS = frozenset({"schema_version", "sequences", "reel_variants"})
+_LEGACY_ARTIFACT_KEYS = frozenset({"schema_version", "sequences"})
 _SEQUENCE_KEYS = frozenset(
     {
         "name",
@@ -26,6 +29,18 @@ _SEQUENCE_KEYS = frozenset(
         "rationale",
     }
 )
+_REEL_VARIANT_KEYS = frozenset(
+    {
+        "variant_id",
+        "output_kind",
+        "aspect_ratio",
+        "asset_paths",
+        "total_duration_seconds",
+        "rationale",
+    }
+)
+_VARIANT_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_]{0,63}$")
+_BTS_HINTS = frozenset({"behind", "behind_the_scenes", "bts", "prep", "detail", "details", "setup"})
 
 
 class StoryPlanError(ValueError):
@@ -55,10 +70,17 @@ class ContentSequence:
 
 
 @dataclass(frozen=True)
+class ReelVariant:
+    variant_id: str
+    sequence: ContentSequence
+
+
+@dataclass(frozen=True)
 class StorylinePlan:
     reel: ContentSequence
     carousel: ContentSequence
     photo_set: ContentSequence
+    reel_variants: tuple[ReelVariant, ...] = ()
 
 
 def build_storyline_plan(
@@ -87,14 +109,13 @@ def build_storyline_plan(
     carousel_assets = tuple(_rank_with_scene_variety(photo_analyses)[:max_carousel_items])
     photo_set_assets = tuple(sorted(photo_analyses, key=_quality_score, reverse=True))
 
+    reel_sequence = _reel_sequence(
+        reel_assets,
+        rationale="Ranked VLM video selects with scene variety before repeated coverage.",
+    )
+
     return StorylinePlan(
-        reel=ContentSequence(
-            output_kind="instagram_reel",
-            aspect_ratio="9:16",
-            asset_paths=tuple(asset.asset_path for asset in reel_assets),
-            total_duration_seconds=sum(_duration_for_video(asset) for asset in reel_assets),
-            rationale="Ranked VLM video selects with scene variety before repeated coverage.",
-        ),
+        reel=reel_sequence,
         carousel=ContentSequence(
             output_kind="instagram_carousel",
             aspect_ratio="4:5",
@@ -108,6 +129,12 @@ def build_storyline_plan(
             asset_paths=tuple(asset.asset_path for asset in photo_set_assets),
             total_duration_seconds=None,
             rationale="All graded photos ranked by VLM quality for editor review and export.",
+        ),
+        reel_variants=_build_reel_variants(
+            video_analyses,
+            hero_assets=reel_assets,
+            max_items=max_reel_items,
+            max_duration_seconds=max_reel_duration_seconds,
         ),
     )
 
@@ -237,6 +264,87 @@ def _limit_by_reel_budget(
     return tuple(selected)
 
 
+def _build_reel_variants(
+    video_analyses: list[AssetAnalysis],
+    *,
+    hero_assets: tuple[AssetAnalysis, ...],
+    max_items: int,
+    max_duration_seconds: int,
+) -> tuple[ReelVariant, ...]:
+    if not hero_assets:
+        return ()
+
+    behind_the_scenes_assets = _limit_by_reel_budget(
+        _rank_best_per_scene([analysis for analysis in video_analyses if _is_bts_candidate(analysis)])
+        or _rank_best_per_scene(video_analyses),
+        max_items=max_items,
+        max_duration_seconds=_max_reel_variant_duration(max_duration_seconds),
+    )
+    fast_cut_assets = _limit_by_reel_budget(
+        _rank_fast_cut_candidates(video_analyses),
+        max_items=max_items,
+        max_duration_seconds=_max_reel_variant_duration(max_duration_seconds),
+    )
+
+    return (
+        ReelVariant(
+            variant_id="hero",
+            sequence=_reel_sequence(
+                hero_assets,
+                rationale="Hero reel variant mirrors the primary scene-diverse first cut for review.",
+            ),
+        ),
+        ReelVariant(
+            variant_id="behind_the_scenes",
+            sequence=_reel_sequence(
+                behind_the_scenes_assets,
+                rationale="Behind-the-scenes reel variant prioritizes prep, detail, and BTS-tagged clips.",
+            ),
+        ),
+        ReelVariant(
+            variant_id="fast_cut",
+            sequence=_reel_sequence(
+                fast_cut_assets,
+                rationale="Fast-cut reel variant prioritizes high-motion shorter clips for a punchier edit.",
+            ),
+        ),
+    )
+
+
+def _max_reel_variant_duration(max_duration_seconds: int) -> int:
+    return max(1, min(max_duration_seconds, 45))
+
+
+def _reel_sequence(assets: tuple[AssetAnalysis, ...], *, rationale: str) -> ContentSequence:
+    return ContentSequence(
+        output_kind="instagram_reel",
+        aspect_ratio="9:16",
+        asset_paths=tuple(asset.asset_path for asset in assets),
+        total_duration_seconds=sum(_duration_for_video(asset) for asset in assets),
+        rationale=rationale,
+    )
+
+
+def _is_bts_candidate(analysis: AssetAnalysis) -> bool:
+    tokens = {_normalize_hint(analysis.scene_label)}
+    tokens.update(_normalize_hint(tag) for tag in analysis.tags)
+    return any(token in _BTS_HINTS for token in tokens)
+
+
+def _normalize_hint(value: str) -> str:
+    return value.strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _rank_fast_cut_candidates(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
+    return sorted(analyses, key=_fast_cut_score, reverse=True)
+
+
+def _fast_cut_score(analysis: AssetAnalysis) -> float:
+    duration = _duration_for_video(analysis)
+    short_clip_bonus = 1 / max(duration, 1)
+    return analysis.motion_score * 0.5 + _quality_score(analysis) * 0.35 + short_clip_bonus * 0.15
+
+
 def _duration_for_video(analysis: AssetAnalysis) -> float:
     if analysis.media_type != "video":
         return 0.0
@@ -267,27 +375,67 @@ def _validate_allowed_asset_paths(allowed_asset_paths: set[str] | frozenset[str]
 def _validate_storyline_plan(plan: StorylinePlan, *, allowed_paths: frozenset[str]) -> None:
     sequences = (plan.reel, plan.carousel, plan.photo_set)
     for sequence_name, sequence in zip(_SEQUENCE_NAMES, sequences, strict=True):
-        if not isinstance(sequence, ContentSequence):
-            raise TypeError(f"{sequence_name} must be a ContentSequence")
         expected_output_kind, expected_aspect_ratio = _SEQUENCE_METADATA[sequence_name]
-        if sequence.output_kind != expected_output_kind:
-            raise StoryPlanError(f"Unexpected {sequence_name} output kind: {sequence.output_kind}")
-        if sequence.aspect_ratio != expected_aspect_ratio:
-            raise StoryPlanError(f"Unexpected {sequence_name} aspect ratio: {sequence.aspect_ratio}")
-        if not isinstance(sequence.asset_paths, tuple):
-            raise StoryPlanError(f"{sequence_name} asset paths must be a tuple")
-        for asset_path in sequence.asset_paths:
-            _validate_story_asset_path(asset_path, allowed_paths=allowed_paths)
-        if sequence.total_duration_seconds is not None:
-            if (
-                isinstance(sequence.total_duration_seconds, bool)
-                or not isinstance(sequence.total_duration_seconds, (int, float))
-                or not math.isfinite(sequence.total_duration_seconds)
-                or sequence.total_duration_seconds < 0
-            ):
-                raise StoryPlanError(f"{sequence_name} duration must be a non-negative number")
-        if not isinstance(sequence.rationale, str) or not sequence.rationale.strip():
-            raise StoryPlanError(f"{sequence_name} rationale cannot be empty")
+        _validate_content_sequence(
+            sequence_name,
+            sequence,
+            allowed_paths=allowed_paths,
+            expected_output_kind=expected_output_kind,
+            expected_aspect_ratio=expected_aspect_ratio,
+        )
+
+    if not isinstance(plan.reel_variants, tuple):
+        raise StoryPlanError("reel_variants must be a tuple")
+    variant_ids: set[str] = set()
+    for variant in plan.reel_variants:
+        if not isinstance(variant, ReelVariant):
+            raise TypeError("reel variant must be a ReelVariant")
+        _validate_variant_id(variant.variant_id)
+        if variant.variant_id in variant_ids:
+            raise StoryPlanError(f"Duplicate reel variant: {variant.variant_id}")
+        variant_ids.add(variant.variant_id)
+        _validate_content_sequence(
+            f"reel variant {variant.variant_id}",
+            variant.sequence,
+            allowed_paths=allowed_paths,
+            expected_output_kind="instagram_reel",
+            expected_aspect_ratio="9:16",
+        )
+
+
+def _validate_content_sequence(
+    sequence_name: str,
+    sequence: ContentSequence,
+    *,
+    allowed_paths: frozenset[str],
+    expected_output_kind: str,
+    expected_aspect_ratio: str,
+) -> None:
+    if not isinstance(sequence, ContentSequence):
+        raise TypeError(f"{sequence_name} must be a ContentSequence")
+    if sequence.output_kind != expected_output_kind:
+        raise StoryPlanError(f"Unexpected {sequence_name} output kind: {sequence.output_kind}")
+    if sequence.aspect_ratio != expected_aspect_ratio:
+        raise StoryPlanError(f"Unexpected {sequence_name} aspect ratio: {sequence.aspect_ratio}")
+    if not isinstance(sequence.asset_paths, tuple):
+        raise StoryPlanError(f"{sequence_name} asset paths must be a tuple")
+    for asset_path in sequence.asset_paths:
+        _validate_story_asset_path(asset_path, allowed_paths=allowed_paths)
+    if sequence.total_duration_seconds is not None:
+        if (
+            isinstance(sequence.total_duration_seconds, bool)
+            or not isinstance(sequence.total_duration_seconds, (int, float))
+            or not math.isfinite(sequence.total_duration_seconds)
+            or sequence.total_duration_seconds < 0
+        ):
+            raise StoryPlanError(f"{sequence_name} duration must be a non-negative number")
+    if not isinstance(sequence.rationale, str) or not sequence.rationale.strip():
+        raise StoryPlanError(f"{sequence_name} rationale cannot be empty")
+
+
+def _validate_variant_id(variant_id: str) -> None:
+    if not isinstance(variant_id, str) or _VARIANT_ID_PATTERN.fullmatch(variant_id) is None:
+        raise StoryPlanError(f"Invalid reel variant id: {variant_id}")
 
 
 def _validate_story_asset_path(asset_path: str, *, allowed_paths: frozenset[str]) -> None:
@@ -306,12 +454,24 @@ def _storyline_plan_json(plan: StorylinePlan) -> str:
 
 def _storyline_plan_to_json(plan: StorylinePlan) -> dict[str, object]:
     return {
+        "reel_variants": [_reel_variant_to_json(variant) for variant in plan.reel_variants],
         "schema_version": _STORYLINE_SCHEMA_VERSION,
         "sequences": [
             _content_sequence_to_json("reel", plan.reel),
             _content_sequence_to_json("carousel", plan.carousel),
             _content_sequence_to_json("photo_set", plan.photo_set),
         ],
+    }
+
+
+def _reel_variant_to_json(variant: ReelVariant) -> dict[str, object]:
+    return {
+        "variant_id": variant.variant_id,
+        "output_kind": variant.sequence.output_kind,
+        "aspect_ratio": variant.sequence.aspect_ratio,
+        "asset_paths": list(variant.sequence.asset_paths),
+        "total_duration_seconds": variant.sequence.total_duration_seconds,
+        "rationale": variant.sequence.rationale,
     }
 
 
@@ -339,8 +499,17 @@ def _read_json_object(path: Path) -> dict[str, object]:
 
 
 def _storyline_plan_from_json(raw_artifact: dict[str, object]) -> StorylinePlan:
-    _validate_exact_keys(raw_artifact, allowed_keys=_ARTIFACT_KEYS, label="artifact")
-    if raw_artifact.get("schema_version") != _STORYLINE_SCHEMA_VERSION:
+    schema_version = raw_artifact.get("schema_version")
+    if schema_version == _LEGACY_STORYLINE_SCHEMA_VERSION:
+        _validate_exact_keys(raw_artifact, allowed_keys=_LEGACY_ARTIFACT_KEYS, label="artifact")
+        raw_reel_variants: list[object] = []
+    elif schema_version == _STORYLINE_SCHEMA_VERSION:
+        _validate_exact_keys(raw_artifact, allowed_keys=_ARTIFACT_KEYS, label="artifact")
+        raw_reel_variants_value = raw_artifact.get("reel_variants")
+        if not isinstance(raw_reel_variants_value, list):
+            raise StoryPlanError("Storyline artifact reel_variants must be a list")
+        raw_reel_variants = raw_reel_variants_value
+    else:
         raise StoryPlanError("Unsupported storyline artifact schema version")
     raw_sequences = raw_artifact.get("sequences")
     if not isinstance(raw_sequences, list) or len(raw_sequences) != len(_SEQUENCE_NAMES):
@@ -360,6 +529,23 @@ def _storyline_plan_from_json(raw_artifact: dict[str, object]) -> StorylinePlan:
         reel=sequences_by_name["reel"],
         carousel=sequences_by_name["carousel"],
         photo_set=sequences_by_name["photo_set"],
+        reel_variants=tuple(_reel_variant_from_json(raw_variant) for raw_variant in raw_reel_variants),
+    )
+
+
+def _reel_variant_from_json(raw_variant: object) -> ReelVariant:
+    if not isinstance(raw_variant, dict):
+        raise StoryPlanError("Storyline reel variant must be an object")
+    _validate_exact_keys(raw_variant, allowed_keys=_REEL_VARIANT_KEYS, label="reel variant")
+    return ReelVariant(
+        variant_id=_required_variant_id(raw_variant),
+        sequence=ContentSequence(
+            output_kind=_required_sequence_string(raw_variant, "output_kind"),
+            aspect_ratio=_required_sequence_string(raw_variant, "aspect_ratio"),
+            asset_paths=_required_asset_paths(raw_variant),
+            total_duration_seconds=_optional_sequence_duration(raw_variant),
+            rationale=_required_sequence_string(raw_variant, "rationale"),
+        ),
     )
 
 
@@ -367,13 +553,10 @@ def _content_sequence_from_json(raw_sequence: object) -> ContentSequence:
     if not isinstance(raw_sequence, dict):
         raise StoryPlanError("Storyline sequence must be an object")
     _validate_exact_keys(raw_sequence, allowed_keys=_SEQUENCE_KEYS, label="sequence")
-    asset_paths = raw_sequence.get("asset_paths")
-    if not isinstance(asset_paths, list) or any(not isinstance(path, str) for path in asset_paths):
-        raise StoryPlanError("Storyline sequence asset_paths must be a list of strings")
     return ContentSequence(
         output_kind=_required_sequence_string(raw_sequence, "output_kind"),
         aspect_ratio=_required_sequence_string(raw_sequence, "aspect_ratio"),
-        asset_paths=tuple(asset_paths),
+        asset_paths=_required_asset_paths(raw_sequence),
         total_duration_seconds=_optional_sequence_duration(raw_sequence),
         rationale=_required_sequence_string(raw_sequence, "rationale"),
     )
@@ -386,6 +569,19 @@ def _required_sequence_name(raw_sequence: object) -> str:
     if name not in _SEQUENCE_NAMES:
         raise StoryPlanError(f"Unknown storyline sequence: {name}")
     return name
+
+
+def _required_variant_id(raw_variant: dict[object, object]) -> str:
+    variant_id = _required_sequence_string(raw_variant, "variant_id")
+    _validate_variant_id(variant_id)
+    return variant_id
+
+
+def _required_asset_paths(raw_sequence: dict[object, object]) -> tuple[str, ...]:
+    asset_paths = raw_sequence.get("asset_paths")
+    if not isinstance(asset_paths, list) or any(not isinstance(path, str) for path in asset_paths):
+        raise StoryPlanError("Storyline sequence asset_paths must be a list of strings")
+    return tuple(asset_paths)
 
 
 def _required_sequence_string(raw_sequence: dict[object, object], key: str) -> str:

@@ -32,8 +32,9 @@ This repo currently contains the first testable core utilities:
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
-  carousel, and photo-set recommendations, then persists the selections as a
-  deterministic `analysis/instagram_storylines.json` edit-decision artifact.
+  carousel, photo-set, and named reel-variant recommendations, then persists
+  the selections as a deterministic `analysis/instagram_storylines.json`
+  edit-decision artifact.
 - `shootflow.production` expands a shoot into deterministic proxy, VLM
   analysis, look-development, grading, storyline selection, and Instagram
   packaging waves.
@@ -52,12 +53,13 @@ The intended first workflow is:
    artifact paths and rejects analysis that does not match the planned source
    assets.
 6. Persist `shootflow.story` selections as a trusted storyline artifact for
-   downstream reel, carousel, and photo-set assemblers.
+   downstream reel, reel-variant, carousel, and photo-set assemblers.
 7. Build `shootflow.assembly` render tasks that verify selected graded files
    exist, keep raw originals out of social assembly inputs, and write
    deterministic `deliverables/` targets for future renderers. Large ranked
    photo sets are split into resumable chunks while preserving stable public
-   output names like `photo_00001.jpg`.
+   output names like `photo_00001.jpg`; named reel variants render under
+   `deliverables/instagram_reels/` without replacing the default reel handoff.
 8. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.

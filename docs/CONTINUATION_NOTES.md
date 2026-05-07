@@ -49,19 +49,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 ## What landed in this iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
-  `origin/cursor/media-content-automation-c365`.
-- Added deterministic high-volume render grouping for `photo_set` assembly:
-  - `build_assembly_plan(..., photo_set_chunk_size=250)` now keeps reels/carousels whole, keeps small
-    photo sets as the existing single task, and splits larger ranked photo sets into chunk tasks such as
-    `export_instagram_photo_set_part_00001`;
-  - chunk tasks preserve stable public outputs like
-    `deliverables/instagram_photo_set/photo_00001.jpg` so retries and UI review do not reshuffle exports;
-  - each chunk depends only on `rank_instagram_storylines` plus the graded assets in that chunk, allowing
-    independent workers to render photo chunks in parallel after grading completes;
-  - render plan validation rejects duplicate output paths across tasks before writing or loading a manifest.
-- Documented the renderer-adapter boundary: future Core Image/Metal, ffmpeg, DaVinci Resolve, or cloud GPU
-  renderers should consume trusted `RenderTask` records, recheck inputs, write via temp files, and never
-  delete source or graded media.
+  `origin/cursor/media-content-automation-cd73` and pushed it to
+  `cursor/media-content-automation-33f5`.
+- Added deterministic multi-reel storyline variants:
+  - `StorylinePlan` now carries named `ReelVariant` records alongside the existing default reel, carousel,
+    and photo-set sequences;
+  - `build_storyline_plan` emits `hero`, `behind_the_scenes`, and `fast_cut` variants from the same trusted
+    VLM analysis records, keeping the default `plan.reel` behavior as the stable first cut;
+  - `analysis/instagram_storylines.json` is now schema version 2 with a strict `reel_variants` list, while
+    the loader still accepts legacy schema version 1 artifacts with no variants;
+  - variant validation uses the same allowlist as primary sequences, so model-authored JSON cannot point a
+    reel variant at raw originals or arbitrary files.
+- Extended assembly planning for named reel variants:
+  - default reels still render to `deliverables/instagram_reel.mp4`;
+  - named variants render to collision-free paths such as `deliverables/instagram_reels/fast_cut.mp4`;
+  - variant tasks use selected graded video inputs only, depend only on `rank_instagram_storylines` plus
+    their selected grade jobs, and can be scheduled independently by future render workers;
+  - render task manifest validation now accepts these deterministic variant task IDs/outputs without adding
+    new model-controlled fields to the manifest.
 
 ## Design decisions to preserve
 
@@ -76,6 +81,8 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   graded artifacts before opening media files.
 - Assembly tasks are still contracts, not renderers. They should remain deterministic and renderer-neutral
   until the project chooses a local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve, or cloud GPU backend.
+- Reel variants are review/export alternatives, not destructive edits. Keep the stable default reel path
+  for backwards compatibility and put variants under `deliverables/instagram_reels/`.
 - Photo-set chunking is a render-worker scheduling boundary only. It must not change graded artifact names,
   public photo output numbering, storyline ranking, or source-media handling.
 - First-cut reel selection intentionally prefers one strong clip per scene before repeated coverage. Future iterations can add alternate reel variants for longer cuts.
@@ -83,16 +90,17 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-Model multiple reel variants before implementing a renderer. The current storyline planner creates one
-first-cut reel, one carousel, and one ranked photo set; the product will be more useful if it can propose
-several social narratives from the same shoot.
+Add a first render-worker status contract before implementing a real renderer. The planner now emits
+trusted render tasks for default reels, reel variants, carousels, and chunked photo sets; the next useful
+layer is a resumable status manifest that records which tasks are pending, running, succeeded, failed, or
+safe to retry.
 
 Good test-first targets:
 
-- Extend the story contract to represent multiple reel variants (`hero`, `behind_the_scenes`, `fast_cut`)
-  without weakening the trusted graded-asset allowlist.
-- Keep each variant's selected clips, rationale, duration, and aspect ratio explicit enough for review UI.
-- Update assembly planning so each reel variant gets a deterministic output path under `deliverables/`
-  without colliding with the existing default `instagram_reel.mp4` handoff.
-- Preserve the current single-reel API behavior for callers that only need the default first cut, unless the
-  branch intentionally replaces it with a versioned artifact schema.
+- Add `RenderTaskStatus` records keyed by trusted task ID, not arbitrary file paths.
+- Persist status under `deliverables/render_status.json` with exact schema validation and symlink-safe temp
+  writes.
+- Let status include renderer adapter name, attempts, error messages, output checksums, and timestamps
+  supplied by the worker, but never include delete instructions or source-media paths.
+- Add loader checks that status tasks must match the current trusted `AssemblyPlan`, so stale or model-authored
+  status files cannot mark unknown work as complete.

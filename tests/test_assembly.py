@@ -15,7 +15,7 @@ from shootflow.assembly import (
 )
 from shootflow.deliverables import MediaAsset
 from shootflow.production import build_production_plan
-from shootflow.story import ContentSequence, StorylinePlan, write_storyline_artifact
+from shootflow.story import ContentSequence, ReelVariant, StorylinePlan, write_storyline_artifact
 
 
 class AssemblyPlanningTests(unittest.TestCase):
@@ -88,6 +88,152 @@ class AssemblyPlanningTests(unittest.TestCase):
                 "deliverables/instagram_photo_set/photo_00001.jpg",
                 "deliverables/instagram_photo_set/photo_00002.jpg",
             ),
+        )
+
+    def test_builds_collision_free_render_tasks_for_named_reel_variants(self) -> None:
+        assets = [
+            MediaAsset(path="card/DCIM/A001.MOV", media_type="video", duration_seconds=24.0),
+            MediaAsset(path="card/DCIM/A002.MOV", media_type="video", duration_seconds=8.0),
+            MediaAsset(path="card/DCIM/IMG_0001.CR3", media_type="photo"),
+        ]
+        production_plan = build_production_plan(assets, shoot_slug="multi-reel-launch")
+        hero_asset = "graded/grade_asset_00000/A001.MOV"
+        fast_asset = "graded/grade_asset_00001/A002.MOV"
+        photo_asset = "graded/grade_asset_00002/IMG_0001.CR3"
+        storyline = StorylinePlan(
+            reel=ContentSequence(
+                output_kind="instagram_reel",
+                aspect_ratio="9:16",
+                asset_paths=(hero_asset,),
+                total_duration_seconds=24.0,
+                rationale="Default hero reel.",
+            ),
+            carousel=ContentSequence(
+                output_kind="instagram_carousel",
+                aspect_ratio="4:5",
+                asset_paths=(photo_asset,),
+                total_duration_seconds=None,
+                rationale="Single carousel select.",
+            ),
+            photo_set=ContentSequence(
+                output_kind="instagram_photo_set",
+                aspect_ratio="4:5",
+                asset_paths=(photo_asset,),
+                total_duration_seconds=None,
+                rationale="Single ranked photo.",
+            ),
+            reel_variants=(
+                ReelVariant(
+                    variant_id="hero",
+                    sequence=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(hero_asset,),
+                        total_duration_seconds=24.0,
+                        rationale="Reviewable hero variant.",
+                    ),
+                ),
+                ReelVariant(
+                    variant_id="fast_cut",
+                    sequence=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(fast_asset, hero_asset),
+                        total_duration_seconds=32.0,
+                        rationale="Reviewable fast-cut variant.",
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_workspace_files(workspace, (hero_asset, fast_asset, photo_asset))
+            write_storyline_artifact(
+                storyline,
+                workspace,
+                allowed_asset_paths={hero_asset, fast_asset, photo_asset},
+            )
+
+            assembly_plan = build_assembly_plan(production_plan, workspace)
+
+        self.assertEqual(
+            [task.task_id for task in assembly_plan.render_tasks],
+            [
+                "render_instagram_reel",
+                "render_instagram_reel_variant_hero",
+                "render_instagram_reel_variant_fast_cut",
+                "render_instagram_carousel",
+                "export_instagram_photo_set",
+            ],
+        )
+        default_reel, hero_variant, fast_cut_variant = assembly_plan.render_tasks[:3]
+        self.assertEqual(default_reel.outputs, ("deliverables/instagram_reel.mp4",))
+        self.assertEqual(hero_variant.outputs, ("deliverables/instagram_reels/hero.mp4",))
+        self.assertEqual(fast_cut_variant.inputs, ("analysis/instagram_storylines.json", fast_asset, hero_asset))
+        self.assertEqual(fast_cut_variant.outputs, ("deliverables/instagram_reels/fast_cut.mp4",))
+        self.assertEqual(
+            fast_cut_variant.depends_on,
+            ("rank_instagram_storylines", "grade_asset_00001", "grade_asset_00000"),
+        )
+        self.assertTrue(hero_variant.can_run_in_parallel)
+
+    def test_builds_reel_variant_tasks_when_default_reel_is_empty(self) -> None:
+        assets = [
+            MediaAsset(path="card/DCIM/A001.MOV", media_type="video", duration_seconds=24.0),
+        ]
+        production_plan = build_production_plan(assets, shoot_slug="variant-only")
+        variant_asset = "graded/grade_asset_00000/A001.MOV"
+        storyline = StorylinePlan(
+            reel=ContentSequence(
+                output_kind="instagram_reel",
+                aspect_ratio="9:16",
+                asset_paths=(),
+                total_duration_seconds=0.0,
+                rationale="No default reel approved.",
+            ),
+            carousel=ContentSequence(
+                output_kind="instagram_carousel",
+                aspect_ratio="4:5",
+                asset_paths=(),
+                total_duration_seconds=None,
+                rationale="No photos.",
+            ),
+            photo_set=ContentSequence(
+                output_kind="instagram_photo_set",
+                aspect_ratio="4:5",
+                asset_paths=(),
+                total_duration_seconds=None,
+                rationale="No photos.",
+            ),
+            reel_variants=(
+                ReelVariant(
+                    variant_id="fast_cut",
+                    sequence=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(variant_asset,),
+                        total_duration_seconds=24.0,
+                        rationale="Only the fast-cut variant is selected.",
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_workspace_files(workspace, (variant_asset,))
+            write_storyline_artifact(storyline, workspace, allowed_asset_paths={variant_asset})
+
+            assembly_plan = build_assembly_plan(production_plan, workspace)
+
+        self.assertEqual(
+            [task.task_id for task in assembly_plan.render_tasks],
+            ["render_instagram_reel_variant_fast_cut"],
+        )
+        self.assertEqual(
+            assembly_plan.render_tasks[0].outputs,
+            ("deliverables/instagram_reels/fast_cut.mp4",),
         )
 
     def test_rejects_storyline_assets_that_are_missing_from_workspace(self) -> None:
