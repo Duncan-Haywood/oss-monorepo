@@ -1,3 +1,4 @@
+from dataclasses import replace
 import tempfile
 import unittest
 from pathlib import Path
@@ -65,8 +66,13 @@ class AssemblyPlanningTests(unittest.TestCase):
         self.assertEqual(reel_task.inputs, ("analysis/instagram_storylines.json", reel_asset))
         self.assertEqual(reel_task.outputs, ("deliverables/instagram_reel.mp4",))
         self.assertEqual(carousel_task.inputs, ("analysis/instagram_storylines.json", first_photo))
+        self.assertEqual(carousel_task.depends_on, ("rank_instagram_storylines", "grade_asset_00001"))
         self.assertEqual(carousel_task.outputs, ("deliverables/instagram_carousel/slide_00001.jpg",))
         self.assertEqual(photo_set_task.inputs, ("analysis/instagram_storylines.json", first_photo, second_photo))
+        self.assertEqual(
+            photo_set_task.depends_on,
+            ("rank_instagram_storylines", "grade_asset_00001", "grade_asset_00002"),
+        )
         self.assertEqual(
             photo_set_task.outputs,
             (
@@ -193,6 +199,49 @@ class AssemblyPlanningTests(unittest.TestCase):
 
             with self.assertRaisesRegex(AssemblyPlanError, "symlink"):
                 build_assembly_plan(production_plan, workspace)
+
+    def test_rejects_production_jobs_with_noncanonical_deliverable_outputs(self) -> None:
+        assets = [MediaAsset(path="card/DCIM/IMG_0001.CR3", media_type="photo")]
+        production_plan = build_production_plan(assets, shoot_slug="canonical-outputs")
+        photo_asset = "graded/grade_asset_00000/IMG_0001.CR3"
+        storyline = StorylinePlan(
+            reel=ContentSequence(
+                output_kind="instagram_reel",
+                aspect_ratio="9:16",
+                asset_paths=(),
+                total_duration_seconds=0.0,
+                rationale="No videos.",
+            ),
+            carousel=ContentSequence(
+                output_kind="instagram_carousel",
+                aspect_ratio="4:5",
+                asset_paths=(photo_asset,),
+                total_duration_seconds=None,
+                rationale="Trusted photo.",
+            ),
+            photo_set=ContentSequence(
+                output_kind="instagram_photo_set",
+                aspect_ratio="4:5",
+                asset_paths=(photo_asset,),
+                total_duration_seconds=None,
+                rationale="Trusted photo.",
+            ),
+        )
+        mutated_jobs = tuple(
+            replace(job, outputs=("deliverables/custom_carousel/",))
+            if job.job_id == "assemble_instagram_carousel"
+            else job
+            for job in production_plan.jobs
+        )
+        mutated_plan = replace(production_plan, jobs=mutated_jobs)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_workspace_files(workspace, (photo_asset,))
+            write_storyline_artifact(storyline, workspace, allowed_asset_paths={photo_asset})
+
+            with self.assertRaisesRegex(AssemblyPlanError, "Unexpected carousel output path"):
+                build_assembly_plan(mutated_plan, workspace)
 
     def _touch_workspace_files(self, workspace: Path, relative_paths: tuple[str, ...]) -> None:
         for relative_path in relative_paths:
