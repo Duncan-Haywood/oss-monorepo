@@ -82,6 +82,50 @@ class IngestTests(unittest.TestCase):
             with self.assertRaises(IngestSafetyError):
                 import_shoot(source, destination, shoot_slug="unsafe", shoot_date="2026-05-07")
 
+    def test_import_shoot_rejects_source_with_symlinked_ancestor(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            actual = root / "actual"
+            source = actual / "card"
+            destination = root / "library"
+            source.mkdir(parents=True)
+            (source / "IMG_0001.JPG").write_bytes(b"image")
+            link = root / "linked"
+            link.symlink_to(actual, target_is_directory=True)
+
+            with self.assertRaises(IngestSafetyError):
+                import_shoot(link / "card", destination, shoot_slug="unsafe", shoot_date="2026-05-07")
+
+    def test_import_shoot_rejects_existing_destination_with_symlinked_ancestor(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "card"
+            source.mkdir()
+            (source / "IMG_0001.JPG").write_bytes(b"image")
+
+            actual_destination_parent = root / "actual"
+            existing_destination = actual_destination_parent / "library"
+            existing_destination.mkdir(parents=True)
+            link = root / "linked"
+            link.symlink_to(actual_destination_parent, target_is_directory=True)
+
+            with self.assertRaises(IngestSafetyError):
+                import_shoot(source, link / "library", shoot_slug="unsafe", shoot_date="2026-05-07")
+
+    def test_import_shoot_rejects_broken_symlink_destination_file(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "card"
+            destination = root / "library"
+            source.mkdir()
+            (source / "IMG_0001.JPG").write_bytes(b"image")
+            originals = destination / "2026-05-07_unsafe" / "originals"
+            originals.mkdir(parents=True)
+            (originals / "IMG_0001.JPG").symlink_to(root / "missing.JPG")
+
+            with self.assertRaises(IngestSafetyError):
+                import_shoot(source, destination, shoot_slug="unsafe", shoot_date="2026-05-07")
+
 
 if __name__ == "__main__":
     unittest.main()

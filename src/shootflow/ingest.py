@@ -230,16 +230,16 @@ def _write_manifest(manifest: IngestManifest) -> None:
 
 
 def _reject_symlink_path(path: Path, label: str) -> None:
-    existing_parts: list[Path] = []
+    parts: list[Path] = []
     current = path
     while True:
-        existing_parts.append(current)
-        if current.exists() or current.parent == current:
+        parts.append(current)
+        if current.parent == current:
             break
         current = current.parent
 
-    for part in reversed(existing_parts):
-        if part.exists() and part.is_symlink():
+    for part in reversed(parts):
+        if part.is_symlink():
             raise IngestSafetyError(f"{label} contains a symlink: {part}")
 
 
