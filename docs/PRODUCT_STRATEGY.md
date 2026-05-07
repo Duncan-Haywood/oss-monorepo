@@ -56,7 +56,8 @@ The current core models a concrete promise for high-volume users:
 5. Fan out graded master rendering.
 6. Rank storylines from VLM quality, scene, and narrative signals.
 7. Plan renderer-neutral assembly tasks from verified graded storyline selects.
-8. Assemble reels, carousels, and photo sets from graded masters.
+8. Track render progress and retry safety through a trusted status manifest.
+9. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -85,6 +86,8 @@ to automate.
    sets, then persists those choices as a deterministic edit-decision artifact
    for review/export. Assembly turns those selections into verified render tasks
    so a future local or cloud renderer can execute the package without trusting
-   raw model paths.
+   raw model paths. Render status manifests now let that renderer report
+   pending/running/succeeded/failed/retryable progress without introducing new
+   file authority.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

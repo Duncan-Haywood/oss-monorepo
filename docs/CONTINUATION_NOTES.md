@@ -46,7 +46,7 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated production planning so Instagram deliverable assembly depends on a serialized `rank_instagram_storylines` job after scene grouping, look development, and graded-master rendering.
 - Expanded product/legal docs around the story-planning layer, indemnification caution, and file deletion safety.
 
-## What landed in this iteration
+## What landed in the previous iteration
 
 - Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-cd73` and pushed it to
@@ -88,19 +88,37 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - First-cut reel selection intentionally prefers one strong clip per scene before repeated coverage. Future iterations can add alternate reel variants for longer cuts.
 - Full photo-set exports stay ranked but not capped; carousel is capped for Instagram.
 
+## What landed in this iteration
+
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation and pushed it
+  to `cursor/media-content-automation-4a21`.
+- Added `shootflow.render_status` as a strict render-worker progress contract:
+  - `RenderTaskStatus` records are keyed by trusted task ID and must appear in the same order as the current
+    `AssemblyPlan`;
+  - `deliverables/render_status.json` round-trips through exact schema validation and symlink-safe temp
+    writes;
+  - supported states are `pending`, `running`, `succeeded`, `failed`, and `retryable`;
+  - worker-reported statuses can include renderer adapter name, attempts, error messages, output checksums,
+    and timestamps, with state-specific validation;
+  - succeeded tasks must include SHA-256 checksums for exactly the task's expected deliverable outputs;
+  - status manifests cannot introduce unknown task IDs, source-media paths, arbitrary output paths, unknown
+    fields, or delete instructions.
+- Updated README/product/design docs to include the status handoff as the bridge between trusted render task
+  planning and future renderer adapters.
+
 ## Suggested next iteration
 
-Add a first render-worker status contract before implementing a real renderer. The planner now emits
-trusted render tasks for default reels, reel variants, carousels, and chunked photo sets; the next useful
-layer is a resumable status manifest that records which tasks are pending, running, succeeded, failed, or
-safe to retry.
+The render-worker status contract is now in place. A useful next layer is a dry-run renderer adapter
+contract that consumes trusted `RenderTask` records plus `RenderStatusManifest` records, decides which
+tasks are ready to run or retry, and writes planned worker actions without opening or rendering media yet.
 
 Good test-first targets:
 
-- Add `RenderTaskStatus` records keyed by trusted task ID, not arbitrary file paths.
-- Persist status under `deliverables/render_status.json` with exact schema validation and symlink-safe temp
-  writes.
-- Let status include renderer adapter name, attempts, error messages, output checksums, and timestamps
-  supplied by the worker, but never include delete instructions or source-media paths.
-- Add loader checks that status tasks must match the current trusted `AssemblyPlan`, so stale or model-authored
-  status files cannot mark unknown work as complete.
+- Add a `shootflow.render_worker` or similarly named module that derives ready work from an
+  `AssemblyPlan` and `RenderStatusManifest`.
+- Treat `pending` and `retryable` tasks as runnable only when their dependencies are satisfied by trusted
+  production jobs/statuses; keep `running` tasks out of duplicate scheduling until a timeout policy exists.
+- Emit a renderer-neutral worker action plan that references task IDs and `RenderTask` inputs/outputs, not
+  arbitrary status-file paths.
+- Keep real rendering out of scope for this pass. The contract should make future ffmpeg/Core Image/DaVinci
+  adapters easy to plug in while preserving the no-delete/no-source-path invariants.

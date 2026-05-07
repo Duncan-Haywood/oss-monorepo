@@ -28,6 +28,9 @@ This repo currently contains the first testable core utilities:
   rendering or destructive file operations. It can persist those tasks to a
   strict `deliverables/render_tasks.json` manifest for future render workers,
   including chunked photo-set export tasks for high-volume shoots.
+- `shootflow.render_status` persists a strict `deliverables/render_status.json`
+  manifest keyed by trusted render task IDs so workers can resume, retry, and
+  report progress without adding source-media paths or delete instructions.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -63,6 +66,9 @@ The intended first workflow is:
 8. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.
+9. Persist and reload `deliverables/render_status.json` against the same trusted
+   render tasks so a Mac app, local renderer, or cloud worker can show pending,
+   running, succeeded, failed, and retryable work safely.
 
 ## Run tests
 

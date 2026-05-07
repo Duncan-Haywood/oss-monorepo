@@ -39,6 +39,10 @@ The repo currently contains a Python core package because it is quick to test an
   originals out of render inputs, derives deterministic output paths under `deliverables/`, chunks large
   ranked photo-set exports into parallel resumable tasks, creates collision-free tasks for named reel
   variants, and persists strict render manifests for future workers.
+- `shootflow.render_status`: a render-worker progress contract that persists status keyed by trusted
+  render task IDs. It records pending/running/succeeded/failed/retryable states, renderer adapter names,
+  attempts, error messages, output checksums, and timestamps without accepting source-media paths,
+  arbitrary task IDs, or deletion instructions.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -54,8 +58,9 @@ The desired high-quality pipeline is:
 6. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
 7. Export graded intermediates for all selects.
 8. Plan assembly tasks from trusted graded selections before invoking any renderer.
-9. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-10. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+9. Track render-worker progress through a resumable status manifest keyed by the trusted task plan.
+10. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+11. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -123,6 +128,11 @@ High quality depends on scene-level consistency and reversible edits. The system
   opening it, write outputs through temporary files before atomic replacement, and report per-task status
   without deleting source or graded media. A Core Image/Metal adapter, ffmpeg adapter, DaVinci Resolve
   automation adapter, or cloud GPU adapter should all be swappable behind that contract.
+- `deliverables/render_status.json` is the companion worker-progress handoff. The loader requires exact
+  JSON fields, the same shoot slug and task ordering as the trusted `AssemblyPlan`, known status states,
+  state-appropriate attempts/error/checksum fields, symlink-safe manifest paths, and checksums only for
+  each task's expected deliverable outputs. Status files cannot introduce source paths, new tasks, or
+  destructive operations.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -140,6 +150,7 @@ Useful wedges:
 - "Turn a wedding/editorial/event shoot into 3 reels, 2 carousels, and graded selects overnight."
 - "Consistent look across photo and video without managing files by hand."
 - "Know exactly what is ready, rendering, blocked, or safe to retry in a 10,000-asset shoot."
+- "Hand an editor or renderer a deterministic task list plus progress file instead of a vague drive full of media."
 
 Avoid competing only on generic AI editing. The differentiator is end-to-end workflow: ingest safety, organization, grade consistency, social packaging, and iteration.
 
