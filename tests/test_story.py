@@ -1,9 +1,15 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from shootflow.story import (
     AssetAnalysis,
+    STORYLINE_ARTIFACT_PATH,
     StoryPlanError,
     build_storyline_plan,
+    load_storyline_artifact,
+    write_storyline_artifact,
 )
 
 
@@ -189,6 +195,95 @@ class StorylinePlanningTests(unittest.TestCase):
 
         self.assertEqual(len(plan.photo_set.asset_paths), 10_000)
         self.assertEqual(len(plan.carousel.asset_paths), 10)
+
+    def test_writes_and_loads_storyline_artifact_deterministically(self) -> None:
+        analyses = [
+            AssetAnalysis(
+                asset_path="graded/grade_asset_00000/A001.MOV",
+                media_type="video",
+                scene_label="ceremony",
+                aesthetic_score=0.93,
+                story_score=0.91,
+                technical_score=0.87,
+                motion_score=0.82,
+                duration_seconds=12.5,
+            ),
+            AssetAnalysis(
+                asset_path="graded/grade_asset_00001/IMG_0001.JPG",
+                media_type="photo",
+                scene_label="portraits",
+                aesthetic_score=0.95,
+                story_score=0.88,
+                technical_score=0.92,
+                motion_score=0.0,
+            ),
+        ]
+        plan = build_storyline_plan(analyses)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            artifact_path = write_storyline_artifact(
+                plan,
+                workspace,
+                allowed_asset_paths={analysis.asset_path for analysis in analyses},
+            )
+            first_write = artifact_path.read_text(encoding="utf-8")
+            second_path = write_storyline_artifact(
+                plan,
+                workspace,
+                allowed_asset_paths={analysis.asset_path for analysis in analyses},
+            )
+
+            self.assertEqual(artifact_path, workspace / STORYLINE_ARTIFACT_PATH)
+            self.assertEqual(first_write, second_path.read_text(encoding="utf-8"))
+            self.assertEqual(load_storyline_artifact(workspace, allowed_asset_paths={analysis.asset_path for analysis in analyses}), plan)
+            raw = json.loads(first_write)
+            self.assertEqual(raw["schema_version"], 1)
+            self.assertEqual(raw["sequences"][0]["output_kind"], "instagram_reel")
+            self.assertEqual(raw["sequences"][0]["asset_paths"], ["graded/grade_asset_00000/A001.MOV"])
+
+    def test_rejects_storyline_artifacts_that_reference_untrusted_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            artifact_path = workspace / STORYLINE_ARTIFACT_PATH
+            artifact_path.parent.mkdir()
+            artifact_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "sequences": [
+                            {
+                                "name": "reel",
+                                "output_kind": "instagram_reel",
+                                "aspect_ratio": "9:16",
+                                "asset_paths": ["graded/grade_asset_99999/ROGUE.MOV"],
+                                "total_duration_seconds": 8.0,
+                                "rationale": "Untrusted model reference.",
+                            },
+                            {
+                                "name": "carousel",
+                                "output_kind": "instagram_carousel",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                            },
+                            {
+                                "name": "photo_set",
+                                "output_kind": "instagram_photo_set",
+                                "aspect_ratio": "4:5",
+                                "asset_paths": [],
+                                "total_duration_seconds": None,
+                                "rationale": "No photos.",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(StoryPlanError, "untrusted asset"):
+                load_storyline_artifact(workspace, allowed_asset_paths={"graded/grade_asset_00000/A001.MOV"})
 
 
 if __name__ == "__main__":
