@@ -22,6 +22,7 @@ class ShootFlowCliTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
             write_render_tasks_manifest(trusted_plan, workspace)
             write_render_status_manifest(
                 self._pending_manifest(trusted_plan),
@@ -67,6 +68,7 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.completed_task_ids, ("render_instagram_reel",))
         self.assertEqual(printed_report["stopped_reason"], "complete")
+        self.assertEqual(printed_report["schema_version"], 1)
         self.assertEqual(printed_report["completed_task_ids"], ["render_instagram_reel"])
         self.assertEqual(printed_report["outputs_materialized"], ["deliverables/instagram_reel.mp4"])
 
@@ -120,6 +122,13 @@ class ShootFlowCliTests(unittest.TestCase):
                 for task in trusted_plan.render_tasks
             ),
         )
+
+    def _touch_task_inputs(self, workspace: Path, trusted_plan: AssemblyPlan) -> None:
+        for task in trusted_plan.render_tasks:
+            for relative_path in task.inputs:
+                path = workspace / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"trusted input")
 
     def _single_task_plan(self) -> AssemblyPlan:
         return AssemblyPlan(

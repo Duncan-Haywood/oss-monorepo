@@ -559,6 +559,47 @@ class AssemblyPlanningTests(unittest.TestCase):
             with self.assertRaisesRegex(AssemblyPlanError, "Unsafe render task output path"):
                 load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
 
+    def test_trusted_render_task_manifest_loader_rejects_missing_or_symlinked_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+            manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+            raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            raw_manifest["render_tasks"][0]["inputs"] = [
+                "analysis/instagram_storylines.json",
+                "graded/grade_asset_99999/SECRET.MOV",
+            ]
+            raw_manifest["render_tasks"][0]["depends_on"] = [
+                "rank_instagram_storylines",
+                "grade_asset_99999",
+            ]
+            manifest_path.write_text(json.dumps(raw_manifest), encoding="utf-8")
+
+            with self.assertRaisesRegex(AssemblyPlanError, "Missing render task input"):
+                load_trusted_render_tasks_manifest(workspace)
+
+        with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
+            workspace = Path(tmp)
+            outside = Path(outside_tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+            manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+            raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            symlink_input = workspace / "graded/grade_asset_99999/SECRET.MOV"
+            symlink_input.parent.mkdir(parents=True)
+            symlink_input.symlink_to(outside / "SECRET.MOV")
+            raw_manifest["render_tasks"][0]["inputs"] = [
+                "analysis/instagram_storylines.json",
+                "graded/grade_asset_99999/SECRET.MOV",
+            ]
+            raw_manifest["render_tasks"][0]["depends_on"] = [
+                "rank_instagram_storylines",
+                "grade_asset_99999",
+            ]
+            manifest_path.write_text(json.dumps(raw_manifest), encoding="utf-8")
+
+            with self.assertRaisesRegex(AssemblyPlanError, "render task input symlink"):
+                load_trusted_render_tasks_manifest(workspace)
+
     def test_rejects_symlinked_render_task_manifest_and_temp_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as outside_tmp:
             workspace = Path(tmp)
