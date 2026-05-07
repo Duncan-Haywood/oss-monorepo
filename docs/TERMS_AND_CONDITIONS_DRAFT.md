@@ -13,6 +13,8 @@ This is a working product/legal draft for review by counsel before any public la
 - The product is designed to copy source media, not delete it.
 - Source deletion, card formatting, destructive overwrite, and archive cleanup are excluded from early product scope.
 - If destructive actions are ever added, they must require explicit confirmation, visible manifest review, and a recoverable holding period where technically possible.
+- Drive detection and import suggestions should be treated as recommendations until the user reviews the source and destination. The legal terms should avoid promising that the product can identify every SD card, SSD, corrupt file, or unsafe path perfectly.
+- Generated manifests should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
 
 ## Customer responsibilities
 
@@ -32,9 +34,10 @@ ShootFlow may use computer vision, VLMs, LLMs, and automated editing models to s
 Customers should indemnify and hold harmless the company, its affiliates, employees, contractors, and service providers from claims arising out of:
 
 - Customer media, including rights of publicity, privacy, copyright, trademark, music, venue restrictions, and client contractual restrictions.
-- Customer publication or distribution of generated content.
+- Customer publication, client delivery, paid advertising, or distribution of generated content.
 - Customer misuse of the service, including attempts to process unlawful, infringing, or non-consensual content.
 - Customer failure to maintain backups before ingest or editing workflows.
+- Customer instructions, prompts, presets, reference images, brand assets, music, captions, and publishing metadata supplied to the service.
 
 The company should indemnify customers only for narrow claims that the hosted software, as provided by the company and used according to the terms, infringes third-party intellectual property rights, subject to standard exclusions for customer media, modifications, unsupported workflows, and third-party services.
 

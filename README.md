@@ -23,8 +23,11 @@ This repo currently contains the first testable core utilities:
 - `shootflow.storage` ranks possible source and destination drives
   conservatively.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
+- `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
+  carousel, and photo-set recommendations.
 - `shootflow.production` expands a shoot into deterministic proxy, VLM
-  analysis, look-development, grading, and Instagram packaging waves.
+  analysis, look-development, grading, storyline selection, and Instagram
+  packaging waves.
 
 The intended first workflow is:
 
@@ -34,8 +37,8 @@ The intended first workflow is:
 3. Load the manifest with `shootflow.catalog`, which rechecks manifest
    location, destination paths, file sizes, and checksums before production.
 4. Build production waves from manifest-backed photo/video assets so proxies,
-   VLM analysis, color decisions, graded masters, and Instagram packages all
-   trace back to verified originals.
+   VLM analysis, color decisions, graded masters, storyline choices, and
+   Instagram packages all trace back to verified originals.
 
 ## Run tests
 
@@ -48,3 +51,4 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/DESIGN_DECISIONS.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
+- `docs/CONTINUATION_NOTES.md`

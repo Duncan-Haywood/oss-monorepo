@@ -54,7 +54,8 @@ The current core models a concrete promise for high-volume users:
 3. Fan out proxy and VLM analysis work across every asset.
 4. Rejoin at scene grouping and look development so the grade is consistent.
 5. Fan out graded master rendering.
-6. Assemble reels, carousels, and photo sets from graded masters.
+6. Rank storylines from VLM quality, scene, and narrative signals.
+7. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -77,6 +78,8 @@ to automate.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
-   brittle "best" output.
+   brittle "best" output. The first implemented contract now ranks VLM asset
+   analysis into scene-diverse first-cut reels, scene-varied carousels, and
+   complete ranked photo sets for review/export.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.

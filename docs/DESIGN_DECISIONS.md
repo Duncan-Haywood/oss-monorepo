@@ -29,6 +29,8 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
+- `shootflow.story`: VLM-score-driven selection planning for first-cut reels, carousels, and ranked
+  photo-set exports.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -41,9 +43,10 @@ The desired high-quality pipeline is:
 3. Run content understanding: scene grouping, face/object/context tags, sharpness, exposure, motion, audio energy, and duplicate detection.
 4. Build look references from user presets, past shoots, brand mood boards, or a hero frame.
 5. Generate non-destructive color decisions per scene/set, not isolated per asset.
-6. Export graded intermediates for all selects.
-7. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-8. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+6. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
+7. Export graded intermediates for all selects.
+8. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+9. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -59,7 +62,8 @@ High quality depends on scene-level consistency and reversible edits. The system
   3. group scenes and narrative sets;
   4. derive a shoot-level look;
   5. render per-asset graded masters in parallel;
-  6. assemble social packages from the graded masters.
+  6. rank IG storylines from analysis, scene, and look data;
+  7. assemble social packages from the graded masters.
 - This structure keeps expensive per-asset work highly parallel while preserving quality-critical global
   decisions, especially scene consistency and look development.
 
@@ -78,6 +82,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
   carousels and photo sets only depend on photo grades.
+- `shootflow.story` currently chooses a first-cut reel from the best clip per scene, carousels from
+  diversified photo selects, and photo sets from every graded photo ranked by quality. This keeps the
+  automatic output useful while still preserving all graded intermediates for human/editor review.
 - The current planner is intentionally an edit-decision contract, not a renderer. Future renderers can be
   local Metal/Core Image, ffmpeg/LUT, DaVinci Resolve automation, or cloud GPU workers as long as they
   honor the same job IDs and dependencies.
