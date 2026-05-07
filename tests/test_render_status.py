@@ -13,6 +13,7 @@ from shootflow.render_status import (
     RenderTaskStatus,
     build_initial_render_status_manifest,
     load_render_status_manifest,
+    render_plan_fingerprint,
     write_render_status_manifest,
 )
 
@@ -40,7 +41,10 @@ class RenderStatusManifestTests(unittest.TestCase):
             "render_instagram_carousel",
         ])
         self.assertTrue(all(status.state == "pending" for status in manifest.task_statuses))
-        self.assertEqual(list(raw_manifest), ["schema_version", "shoot_slug", "task_statuses"])
+        self.assertEqual(
+            list(raw_manifest),
+            ["render_plan_fingerprint", "schema_version", "shoot_slug", "task_statuses"],
+        )
         self.assertEqual(
             list(raw_manifest["task_statuses"][0]),
             [
@@ -58,6 +62,7 @@ class RenderStatusManifestTests(unittest.TestCase):
         trusted_plan = self._trusted_plan()
         manifest = RenderStatusManifest(
             shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
             task_statuses=(
                 RenderTaskStatus(
                     task_id="render_instagram_reel",
@@ -113,6 +118,7 @@ class RenderStatusManifestTests(unittest.TestCase):
         trusted_plan = self._trusted_plan()
         unknown_task_manifest = RenderStatusManifest(
             shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
             task_statuses=(
                 RenderTaskStatus(task_id="render_instagram_reel", state="pending"),
                 RenderTaskStatus(task_id="render_unknown_social_package", state="pending"),
@@ -120,6 +126,7 @@ class RenderStatusManifestTests(unittest.TestCase):
         )
         missing_task_manifest = RenderStatusManifest(
             shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
             task_statuses=(RenderTaskStatus(task_id="render_instagram_reel", state="pending"),),
         )
 
@@ -143,6 +150,7 @@ class RenderStatusManifestTests(unittest.TestCase):
         trusted_plan = self._trusted_plan()
         manifest = RenderStatusManifest(
             shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
             task_statuses=(
                 RenderTaskStatus(
                     task_id="render_instagram_reel",
@@ -181,6 +189,7 @@ class RenderStatusManifestTests(unittest.TestCase):
         )
         stale_manifest = RenderStatusManifest(
             shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(stale_plan),
             task_statuses=(
                 RenderTaskStatus(
                     task_id="render_instagram_reel",
@@ -249,6 +258,7 @@ class RenderStatusManifestTests(unittest.TestCase):
                 with self.subTest(expected_error=expected_error):
                     manifest = RenderStatusManifest(
                         shoot_slug="status-contract",
+                        render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
                         task_statuses=(
                             invalid_status,
                             RenderTaskStatus(task_id="render_instagram_carousel", state="pending"),

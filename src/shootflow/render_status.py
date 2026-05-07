@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -12,7 +13,9 @@ RenderTaskState = Literal["pending", "running", "succeeded", "failed", "retryabl
 RENDER_STATUS_MANIFEST_PATH = "deliverables/render_status.json"
 _RENDER_STATUS_SCHEMA_VERSION = 1
 
-_MANIFEST_KEYS = frozenset({"schema_version", "shoot_slug", "task_statuses"})
+_MANIFEST_KEYS = frozenset(
+    {"schema_version", "shoot_slug", "render_plan_fingerprint", "task_statuses"}
+)
 _STATUS_KEYS = frozenset(
     {
         "task_id",
@@ -54,13 +57,30 @@ class RenderTaskStatus:
 @dataclass(frozen=True)
 class RenderStatusManifest:
     shoot_slug: str
+    render_plan_fingerprint: str
     task_statuses: tuple[RenderTaskStatus, ...]
+
+
+def render_plan_fingerprint(trusted_plan: AssemblyPlan) -> str:
+    _validate_trusted_plan(trusted_plan)
+    raw_fingerprint_input = {
+        "shoot_slug": trusted_plan.shoot_slug,
+        "render_tasks": [_trusted_task_fingerprint_input(task) for task in trusted_plan.render_tasks],
+    }
+    encoded = json.dumps(
+        raw_fingerprint_input,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def build_initial_render_status_manifest(trusted_plan: AssemblyPlan) -> RenderStatusManifest:
     _validate_trusted_plan(trusted_plan)
     return RenderStatusManifest(
         shoot_slug=trusted_plan.shoot_slug,
+        render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
         task_statuses=tuple(
             RenderTaskStatus(task_id=task.task_id, state="pending")
             for task in trusted_plan.render_tasks
@@ -123,6 +143,8 @@ def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: Assembly
         raise RenderStatusError("manifest must be a RenderStatusManifest")
     if manifest.shoot_slug != trusted_plan.shoot_slug:
         raise RenderStatusError("Render status shoot slug does not match trusted assembly plan")
+    if manifest.render_plan_fingerprint != render_plan_fingerprint(trusted_plan):
+        raise RenderStatusError("Render status render plan fingerprint does not match trusted assembly plan")
     if not isinstance(manifest.task_statuses, tuple):
         raise RenderStatusError("Render status task_statuses must be a tuple")
 
@@ -305,6 +327,7 @@ def _manifest_to_json(manifest: RenderStatusManifest) -> dict[str, object]:
     return {
         "schema_version": _RENDER_STATUS_SCHEMA_VERSION,
         "shoot_slug": manifest.shoot_slug,
+        "render_plan_fingerprint": manifest.render_plan_fingerprint,
         "task_statuses": [_status_to_json(status) for status in manifest.task_statuses],
     }
 
@@ -349,8 +372,23 @@ def _manifest_from_json(raw_manifest: dict[str, object]) -> RenderStatusManifest
         raise RenderStatusError("Render status manifest must contain a task_statuses list")
     return RenderStatusManifest(
         shoot_slug=_required_manifest_string(raw_manifest, "shoot_slug"),
+        render_plan_fingerprint=_required_plan_fingerprint(raw_manifest),
         task_statuses=tuple(_status_from_json(raw_status) for raw_status in raw_statuses),
     )
+
+
+def _trusted_task_fingerprint_input(task: RenderTask) -> dict[str, object]:
+    return {
+        "task_id": task.task_id,
+        "sequence_name": task.sequence_name,
+        "source_job_id": task.source_job_id,
+        "output_kind": task.output_kind,
+        "aspect_ratio": task.aspect_ratio,
+        "inputs": list(task.inputs),
+        "outputs": list(task.outputs),
+        "depends_on": list(task.depends_on),
+        "can_run_in_parallel": task.can_run_in_parallel,
+    }
 
 
 def _status_from_json(raw_status: object) -> RenderTaskStatus:
@@ -391,6 +429,13 @@ def _required_manifest_string(raw_manifest: dict[object, object], key: str) -> s
     if not isinstance(value, str) or not value.strip():
         raise RenderStatusError(f"Render status manifest field must be a non-empty string: {key}")
     return value
+
+
+def _required_plan_fingerprint(raw_manifest: dict[object, object]) -> str:
+    fingerprint = _required_manifest_string(raw_manifest, "render_plan_fingerprint")
+    if not _SHA256_PATTERN.fullmatch(fingerprint):
+        raise RenderStatusError("Render status render plan fingerprint must be a SHA-256 hex digest")
+    return fingerprint
 
 
 def _required_status_string(raw_status: dict[object, object], key: str) -> str:
