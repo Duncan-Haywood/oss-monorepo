@@ -98,7 +98,15 @@ def build_production_plan(assets: list[MediaAsset], shoot_slug: str) -> Producti
         )
         for index, asset in enumerate(assets)
     )
-    deliverable_jobs = _build_instagram_jobs(assets, grade_jobs)
+    storyline_job = ProductionJob(
+        job_id="rank_instagram_storylines",
+        output_kind="storyline_selection",
+        inputs=tuple(job.outputs[0] for job in analysis_jobs) + (scene_job.outputs[0], look_job.outputs[0]),
+        outputs=("analysis/instagram_storylines.json",),
+        depends_on=(scene_job.job_id, look_job.job_id),
+        can_run_in_parallel=False,
+    )
+    deliverable_jobs = _build_instagram_jobs(assets, grade_jobs, storyline_job)
 
     waves = (
         ExecutionWave(wave_index=0, jobs=proxy_jobs),
@@ -106,9 +114,10 @@ def build_production_plan(assets: list[MediaAsset], shoot_slug: str) -> Producti
         ExecutionWave(wave_index=2, jobs=(scene_job,)),
         ExecutionWave(wave_index=3, jobs=(look_job,)),
         ExecutionWave(wave_index=4, jobs=grade_jobs),
-        ExecutionWave(wave_index=5, jobs=deliverable_jobs),
+        ExecutionWave(wave_index=5, jobs=(storyline_job,)),
+        ExecutionWave(wave_index=6, jobs=deliverable_jobs),
     )
-    jobs = proxy_jobs + analysis_jobs + (scene_job, look_job) + grade_jobs + deliverable_jobs
+    jobs = proxy_jobs + analysis_jobs + (scene_job, look_job) + grade_jobs + (storyline_job,) + deliverable_jobs
     return ProductionPlan(shoot_slug=shoot_slug, jobs=jobs, execution_waves=waves)
 
 
@@ -134,6 +143,7 @@ def _artifact_path(root: str, job_id: str, asset: MediaAsset) -> str:
 def _build_instagram_jobs(
     assets: list[MediaAsset],
     grade_jobs: tuple[ProductionJob, ...],
+    storyline_job: ProductionJob,
 ) -> tuple[ProductionJob, ...]:
     video_pairs = tuple(
         (asset, job)
@@ -154,7 +164,7 @@ def _build_instagram_jobs(
                 output_kind="instagram_reel",
                 inputs=tuple(job.outputs[0] for _asset, job in video_pairs),
                 outputs=("deliverables/instagram_reel.mp4",),
-                depends_on=tuple(job.job_id for _asset, job in video_pairs),
+                depends_on=(storyline_job.job_id,) + tuple(job.job_id for _asset, job in video_pairs),
                 can_run_in_parallel=False,
                 spec=instagram_reel_spec(),
             )
@@ -168,7 +178,7 @@ def _build_instagram_jobs(
                 output_kind="instagram_carousel",
                 inputs=photo_inputs,
                 outputs=("deliverables/instagram_carousel/",),
-                depends_on=photo_dependencies,
+                depends_on=(storyline_job.job_id,) + photo_dependencies,
                 can_run_in_parallel=False,
                 spec=instagram_carousel_spec(),
             )
@@ -179,7 +189,7 @@ def _build_instagram_jobs(
                 output_kind="instagram_photo_set",
                 inputs=photo_inputs,
                 outputs=("deliverables/instagram_photo_set/",),
-                depends_on=photo_dependencies,
+                depends_on=(storyline_job.job_id,) + photo_dependencies,
                 can_run_in_parallel=False,
                 spec=instagram_photo_set_spec(),
             )

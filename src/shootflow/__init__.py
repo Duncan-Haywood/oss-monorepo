@@ -6,4 +6,5 @@ __all__ = [
     "ingest",
     "production",
     "storage",
+    "story",
 ]
