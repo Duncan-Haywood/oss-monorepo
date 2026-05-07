@@ -90,37 +90,43 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
-- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation and pushed it
-  to `cursor/media-content-automation-4a21`.
-- Added `shootflow.render_status` as a strict render-worker progress contract:
-  - `RenderTaskStatus` records are keyed by trusted task ID and must appear in the same order as the current
-    `AssemblyPlan`;
-  - status manifests include a canonical render-plan SHA-256 fingerprint so stale manifests for the same
-    task IDs/outputs cannot mark newly selected media as already rendered;
-  - `deliverables/render_status.json` round-trips through exact schema validation and symlink-safe temp
-    writes, using exclusive no-follow temp creation and rejecting stale canonical temp files;
-  - supported states are `pending`, `running`, `succeeded`, `failed`, and `retryable`;
-  - worker-reported statuses can include renderer adapter name, attempts, error messages, output checksums,
-    and timestamps, with state-specific validation;
-  - succeeded tasks must include SHA-256 checksums for exactly the task's expected deliverable outputs;
-  - status manifests cannot introduce unknown task IDs, source-media paths, arbitrary output paths, unknown
-    fields, or delete instructions.
-- Updated README/product/design docs to include the status handoff as the bridge between trusted render task
-  planning and future renderer adapters.
+- Fast-forwarded the active branch from the initial README to the latest ShootFlow foundation on
+  `origin/cursor/media-content-automation-4a21`, pushed it to `cursor/media-content-automation-7fad`, and
+  verified the restored baseline.
+- Added `shootflow.render_worker` as the dry-run render-worker action contract:
+  - validates the supplied `RenderStatusManifest` against the trusted `AssemblyPlan` before scheduling;
+  - accepts a trusted set of completed non-render dependency IDs from the future production/job executor;
+  - treats dependencies that name render tasks as satisfied only when that render task status is
+    `succeeded`;
+  - schedules only `pending` and `retryable` tasks whose dependencies are complete;
+  - skips `running` tasks so workers are not duplicated before a timeout/lease policy exists;
+  - skips `succeeded` and `failed` tasks, leaving failed-task retry decisions explicit;
+  - emits `RenderWorkerAction` records with task ID, adapter name, next attempt number, inputs, outputs,
+    dependency IDs, aspect ratio, output kind, and parallelism flag;
+  - reports `BlockedRenderTask` records with missing dependency IDs for UI/scheduler visibility;
+  - keeps actual media opening, rendering, output checksumming, status updates, and temp-output safety out
+    of scope for future renderer adapters.
+- Added `validate_render_status_manifest(...)` as a public validation wrapper around the existing strict
+  status-manifest trust boundary.
+- Updated README, product strategy, design decisions, and these continuation notes to describe the ready
+  action queue between status tracking and real render adapters.
 
 ## Suggested next iteration
 
-The render-worker status contract is now in place. A useful next layer is a dry-run renderer adapter
-contract that consumes trusted `RenderTask` records plus `RenderStatusManifest` records, decides which
-tasks are ready to run or retry, and writes planned worker actions without opening or rendering media yet.
+The worker can now say what is ready or blocked, but it still does not persist action plans or update
+statuses. A useful next layer is a safe worker-lease/status-update contract that lets a renderer claim a
+ready task, mark it running, and later report success/retry/failure without racing or writing arbitrary
+paths.
 
 Good test-first targets:
 
-- Add a `shootflow.render_worker` or similarly named module that derives ready work from an
-  `AssemblyPlan` and `RenderStatusManifest`.
-- Treat `pending` and `retryable` tasks as runnable only when their dependencies are satisfied by trusted
-  production jobs/statuses; keep `running` tasks out of duplicate scheduling until a timeout policy exists.
-- Emit a renderer-neutral worker action plan that references task IDs and `RenderTask` inputs/outputs, not
-  arbitrary status-file paths.
-- Keep real rendering out of scope for this pass. The contract should make future ffmpeg/Core Image/DaVinci
-  adapters easy to plug in while preserving the no-delete/no-source-path invariants.
+- Add a small status-transition helper that turns a trusted `RenderWorkerAction` into a `running`
+  `RenderTaskStatus` with renderer adapter, attempt count, and timestamp.
+- Require the transition to match the current trusted status state and attempt number so two workers cannot
+  both claim the same task silently.
+- Add a success-report helper that verifies output files exist under `deliverables/`, computes SHA-256
+  checksums for exactly the task outputs, and returns a `succeeded` status without deleting or overwriting
+  source/graded media.
+- Add retry/failure helpers that require clear error messages and preserve attempt counts.
+- Keep real ffmpeg/Core Image/DaVinci rendering out of scope until status transitions and output checksum
+  reporting are safe and well tested.
