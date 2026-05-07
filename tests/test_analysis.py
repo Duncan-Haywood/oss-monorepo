@@ -94,15 +94,14 @@ class AnalysisLoaderTests(unittest.TestCase):
                     [MediaAsset(path="/shoot/originals/A001.MOV", media_type="video")],
                     shoot_slug="launch-shoot",
                 )
-                _write_analysis(
-                    workspace,
-                    0,
-                    source_asset_path="/shoot/originals/A001.MOV",
-                    media_type="video",
-                    scene_label="ceremony",
-                    duration_seconds=10.0,
+                payload = {
+                    "source_asset_path": "/shoot/originals/A001.MOV",
+                    "media_type": "video",
+                    "scene_label": "ceremony",
+                    "duration_seconds": 10.0,
                     **overrides,
-                )
+                }
+                _write_analysis(workspace, 0, **payload)
 
                 with self.assertRaisesRegex(AnalysisLoaderError, error_match):
                     load_asset_analyses(plan, workspace)
