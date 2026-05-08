@@ -21,6 +21,9 @@ ShootFlow is a personal tool and product concept for photographers and videograp
   symlinks and files rather than following them. A source/destination route can be recommended only as
   `ready_for_review`; the Mac app still has to show the user the source, destination, no-delete note, and
   checksum-manifest requirement before invoking ingest.
+- Native macOS metadata is also advisory. System volumes, network volumes, missing mounts, non-directories,
+  and symlinked mounts are skipped before route ranking, and ejectable external drives are treated as
+  removable only for conservative source/destination heuristics.
 
 ## Core architecture
 
@@ -39,6 +42,10 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+- `shootflow.macos_volume_metadata`: richer native-metadata normalization for a future Swift/Disk
+  Arbitration shell. It accepts typed records with removable, ejectable, internal, read-only, network, and
+  system-volume flags, skips unsafe mounts, and then delegates to the same reviewed route and capacity-gate
+  logic used by portable mounted-volume discovery.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -154,10 +161,13 @@ The desired high-quality pipeline is:
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+21. Let future Swift/Disk Arbitration layers pass native volume metadata through
+    `shootflow.macos_volume_metadata` instead of duplicating ranking, capacity,
+    or no-delete policy in UI code.
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
 23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
@@ -366,6 +376,19 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native macOS metadata stays a pure routing adapter
+
+- **Status:** accepted
+- **Rationale:** Disk Arbitration and Swift APIs can identify system, network,
+  internal, ejectable, removable, and read-only volumes more accurately than a
+  portable `/Volumes` scan, but those facts should not give UI code separate
+  ingest authority.
+- **Consequence:** `storage_candidates_from_macos_metadata(...)` and
+  `recommend_import_route_from_macos_metadata(...)` normalize native records into
+  the existing `StorageCandidate` and review-required route contracts. The
+  adapter performs no copy, delete, recursive scan, card formatting, or UI
+  approval; it only improves candidate metadata before the same safety gates run.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 

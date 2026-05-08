@@ -87,6 +87,10 @@ This repo currently contains the first testable core utilities:
   skips symlinks/files/inaccessible entries, turns immediate volume directories
   into `StorageCandidate` records, and can feed the same capacity-gated route
   recommendation contract.
+- `shootflow.macos_volume_metadata` is the richer Swift/Disk
+  Arbitration-facing adapter: native volume records can mark system, network,
+  internal, ejectable, removable, and read-only volumes before the core skips
+  unsafe mounts and feeds usable records into the same reviewed route contract.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -107,7 +111,8 @@ This repo currently contains the first testable core utilities:
 The intended first workflow is:
 
 1. Discover mounted-volume candidates from reviewed roots such as `/Volumes`,
-   then rank attached cards, folders, and SSDs and present a reviewed
+   or accept richer native macOS volume metadata from a future Swift shell.
+   Then rank attached cards, folders, and SSDs and present a reviewed
    source-to-destination import route with explicit no-delete/checksum notes.
 2. Plan and execute a safe import from the approved card, folder, or SSD.
 3. Keep the generated `ingest_manifest.json` as the boundary between file
@@ -172,7 +177,11 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+21. Use `shootflow.macos_volume_metadata.storage_candidates_from_macos_metadata(...)`
+    when a native macOS shell can supply Disk Arbitration-style volume records;
+    it remains advisory and grants no copy, delete, overwrite, or card-format
+    authority.
+22. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
