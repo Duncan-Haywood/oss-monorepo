@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from shootflow.assembly import (
     AssemblyPlan,
@@ -560,6 +561,19 @@ class AssemblyPlanningTests(unittest.TestCase):
 
         self.assertEqual(reused_manifest_path, manifest_path)
         self.assertEqual(after_manifest, original_manifest)
+
+    def test_write_render_tasks_manifest_falls_back_when_hardlinks_are_unsupported(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+
+            with patch("shootflow.assembly.os.link", side_effect=OSError("hard links unsupported")):
+                manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+
+            loaded_plan = load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+
+        self.assertEqual(manifest_path, workspace / "deliverables/render_tasks.json")
+        self.assertEqual(loaded_plan, assembly_plan)
 
     def test_rejects_render_task_manifest_with_unknown_task_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

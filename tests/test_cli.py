@@ -886,6 +886,35 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             manifest_data = json.loads(
                 (workspace / "deliverables" / "render_tasks.json").read_text(encoding="utf-8")
             )
+            reel_output_exists_before_scheduler = (
+                workspace / "deliverables" / "instagram_reel.mp4"
+            ).exists()
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+            init_exit_code = main(
+                summary["next_actions"][0]["command"],
+                stdout=init_stdout,
+            )
+            scheduler_exit_code = main(
+                [
+                    *summary["next_actions"][1]["command"],
+                    "--renderer",
+                    "dry-run-local",
+                    "--started-at",
+                    "2026-05-08T16:30:00Z",
+                    "--completed-at",
+                    "2026-05-08T16:30:05Z",
+                    "--generated-at",
+                    "2026-05-08T16:30:06Z",
+                    "--max-concurrency",
+                    "2",
+                    "--max-iterations",
+                    "4",
+                    "--print-report",
+                ],
+                stdout=scheduler_stdout,
+            )
+            scheduler_report = json.loads(scheduler_stdout.getvalue())
 
         self.assertEqual(exit_code, 0)
         self.assertTrue(summary["created"])
@@ -923,6 +952,12 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
                         str(workspace),
                         "--completed-dependency",
                         "rank_instagram_storylines",
+                        "--completed-dependency",
+                        "grade_asset_00000",
+                        "--completed-dependency",
+                        "grade_asset_00001",
+                        "--completed-dependency",
+                        "grade_asset_00002",
                     ],
                     "requires_runtime_args": [
                         "--renderer",
@@ -938,7 +973,11 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             [task["task_id"] for task in manifest_data["render_tasks"]],
             summary["task_ids"],
         )
-        self.assertFalse((workspace / "deliverables" / "instagram_reel.mp4").exists())
+        self.assertFalse(reel_output_exists_before_scheduler)
+        self.assertEqual(init_exit_code, 0)
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(scheduler_report["completed_task_ids"], summary["task_ids"])
 
     def test_write_render_tasks_command_refuses_existing_different_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
