@@ -6,6 +6,10 @@ import unittest
 
 from shootflow.assembly import AssemblyPlan, RenderTask, write_render_tasks_manifest
 from shootflow.cli import main
+from shootflow.demo_workspace import (
+    DemoWorkspaceError,
+    create_persisted_cli_demo_workspace,
+)
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
     RenderStatusManifest,
@@ -17,6 +21,101 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            demo = create_persisted_cli_demo_workspace(workspace)
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+
+            init_exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=init_stdout,
+            )
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(workspace),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-08T15:10:00Z",
+                "--completed-at",
+                "2026-05-08T15:10:05Z",
+                "--generated-at",
+                "2026-05-08T15:10:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+                "--print-report",
+            ]
+            for dependency_id in demo.required_completed_dependency_ids:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+
+            scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=demo.trusted_plan)
+            loaded_report = load_dry_run_render_scheduler_report(
+                workspace,
+                trusted_plan=demo.trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        init_summary = json.loads(init_stdout.getvalue())
+        printed_report = json.loads(scheduler_stdout.getvalue())
+        self.assertEqual(init_exit_code, 0)
+        self.assertTrue(init_summary["created"])
+        self.assertEqual(init_summary["task_count"], 4)
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(loaded_report.stopped_reason, "complete")
+        self.assertEqual(loaded_report.total_task_count, 4)
+        self.assertEqual(tuple(printed_report["completed_task_ids"]), loaded_report.completed_task_ids)
+        self.assertEqual(tuple(printed_report["outputs_materialized"]), demo.expected_output_paths)
+        self.assertEqual(loaded_report.review_required_task_ids, ())
+
+    def test_persisted_cli_demo_workspace_refuses_to_overwrite_existing_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            storyline_path = workspace / "analysis" / "instagram_storylines.json"
+            storyline_path.parent.mkdir(parents=True)
+            storyline_path.write_bytes(b"user-owned storyline")
+
+            with self.assertRaisesRegex(DemoWorkspaceError, "Refusing to overwrite"):
+                create_persisted_cli_demo_workspace(workspace)
+
+            self.assertEqual(storyline_path.read_bytes(), b"user-owned storyline")
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+
+    def test_persisted_cli_demo_workspace_rejects_later_input_conflict_without_side_effects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            later_input = workspace / "graded" / "grade_asset_00002" / "BTS.MOV"
+            later_input.parent.mkdir(parents=True)
+            later_input.write_bytes(b"user-owned bts edit")
+
+            with self.assertRaisesRegex(DemoWorkspaceError, "Refusing to overwrite"):
+                create_persisted_cli_demo_workspace(workspace)
+
+            self.assertEqual(later_input.read_bytes(), b"user-owned bts edit")
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "graded" / "grade_asset_00000" / "A001.MOV").exists())
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+
+    def test_persisted_cli_demo_workspace_rejects_existing_manifest_without_side_effects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_tasks_manifest(self._single_task_plan(), workspace)
+
+            with self.assertRaisesRegex(DemoWorkspaceError, "render task manifest"):
+                create_persisted_cli_demo_workspace(workspace)
+
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "graded" / "grade_asset_00000" / "A001.MOV").exists())
+
     def test_init_render_status_command_creates_status_manifest_from_persisted_tasks(self) -> None:
         trusted_plan = self._single_task_plan()
 

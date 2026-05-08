@@ -96,6 +96,12 @@ The repo currently contains a Python core package because it is quick to test an
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
   Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
+- `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
+  a tiny persisted render workspace by writing deterministic placeholder inputs
+  and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
+  different files, and intentionally leaves status initialization plus scheduler
+  report creation to the normal CLI path so demos exercise the same no-reset
+  contract as the product.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -130,8 +136,11 @@ The desired high-quality pipeline is:
     attention.
 18. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-19. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-20. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+19. Keep a small persisted-manifest demo workspace helper available so Mac UI
+    shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
+    flow without constructing trusted render tasks by hand.
+20. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+21. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -376,3 +385,15 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   `json.dumps(..., indent=2, sort_keys=True, ensure_ascii=True)` and never log
   free-form text on the success path. Errors still surface as
   `shootflow: <message>` on stderr with exit code 1.
+
+### Decision: persisted CLI demos should use the real manifest/status path
+
+- **Status:** accepted
+- **Rationale:** Mac UI work and GTM proof demos need a repeatable workspace, but
+  a bespoke demo shortcut would hide the safety contracts that differentiate the
+  product.
+- **Consequence:** `shootflow.demo_workspace.create_persisted_cli_demo_workspace`
+  writes only placeholder trusted inputs and `deliverables/render_tasks.json`;
+  demos must still call `init-render-status` and `dry-run-render-scheduler` to
+  create progress and reports through the same strict persisted-manifest path as
+  production workflows.

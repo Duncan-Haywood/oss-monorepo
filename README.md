@@ -71,6 +71,11 @@ This repo currently contains the first testable core utilities:
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
   as JSON for a Mac app or automation runner.
+- `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
+  demos and native-shell testing. It writes deterministic placeholder graded
+  inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
+  different files, and leaves render-status/report creation to the normal CLI
+  commands so existing progress is not reset.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -153,6 +158,10 @@ The intended first workflow is:
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
+19. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
+    GTM demos, and continuation agents without touching source media or resetting
+    render progress.
 
 The current persisted-manifest CLI flow is:
 

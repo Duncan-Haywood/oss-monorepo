@@ -8,6 +8,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added `shootflow.demo_workspace` as a safe persisted CLI smoke/demo helper:
+  - `create_persisted_cli_demo_workspace(...)` writes deterministic placeholder
+    storyline/graded inputs plus `deliverables/render_tasks.json` for a tiny
+    reel, reel variant, carousel, and photo-set package;
+  - it refuses symlinked workspace roots, refuses existing different input files,
+    and refuses to overwrite an existing different render-task manifest;
+  - it deliberately does not create render status, scheduler reports, source
+    media, or deliverable outputs so demos still exercise the real
+    `init-render-status` and `dry-run-render-scheduler` path.
+- Added a CLI smoke test that creates the demo workspace, initializes render
+  status, runs the dry-run scheduler with bounded concurrency, reloads the
+  persisted scheduler report, and verifies all expected outputs materialize
+  through the trusted status/report boundary.
+- Updated README/product/business/design docs to treat the demo helper as the
+  current proof point for Mac UI shells, launch-agent smoke tests, and GTM demos.
+
+## Previous iteration
+
 - Added safe-ingest CLI commands that finally let a Mac launch agent or human
   operator drive the existing `shootflow.ingest` contracts from the command
   line:

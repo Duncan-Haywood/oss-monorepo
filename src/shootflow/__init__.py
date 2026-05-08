@@ -6,6 +6,7 @@ __all__ = [
     "catalog",
     "cli",
     "deliverables",
+    "demo_workspace",
     "ingest",
     "production",
     "render_adapter",
