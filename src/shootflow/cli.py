@@ -15,7 +15,12 @@ from shootflow.render_scheduler import (
     run_dry_run_render_scheduler,
     write_dry_run_render_scheduler_report,
 )
-from shootflow.render_status import RenderStatusError, load_render_status_manifest
+from shootflow.render_status import (
+    RenderStatusError,
+    RenderStatusInitializationResult,
+    initialize_render_status_manifest,
+    load_render_status_manifest,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -48,7 +53,9 @@ def main(
         return _system_exit_code(exc)
 
     try:
-        if args.command == "dry-run-render-scheduler":
+        if args.command == "init-render-status":
+            _run_init_render_status_command(args, stdout=out)
+        elif args.command == "dry-run-render-scheduler":
             _run_dry_run_render_scheduler_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
@@ -61,6 +68,13 @@ def main(
         print(f"shootflow: {exc}", file=err)
         return 1
     return 0
+
+
+def _run_init_render_status_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    workspace = Path(args.workspace)
+    trusted_plan = load_trusted_render_tasks_manifest(workspace)
+    result = initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
+    stdout.write(_render_status_initialization_json(result) + "\n")
 
 
 def _run_dry_run_render_scheduler_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -114,6 +128,16 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    init_status = subparsers.add_parser(
+        "init-render-status",
+        help="Create deliverables/render_status.json from trusted render tasks if missing.",
+    )
+    init_status.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing deliverables/render_tasks.json.",
+    )
+
     scheduler = subparsers.add_parser(
         "dry-run-render-scheduler",
         help="Run the trusted dry-run render scheduler and persist the UI report.",
@@ -143,6 +167,33 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Print the persisted scheduler report JSON to stdout.",
     )
     return parser
+
+
+def _render_status_initialization_json(result: object) -> str:
+    if not isinstance(result, RenderStatusInitializationResult):
+        raise ShootFlowCliError("result must be a RenderStatusInitializationResult")
+    return json.dumps(
+        {
+            "created": result.created,
+            "status_path": str(result.manifest_path),
+            "shoot_slug": result.manifest.shoot_slug,
+            "render_plan_fingerprint": result.manifest.render_plan_fingerprint,
+            "task_count": len(result.manifest.task_statuses),
+            "pending_task_count": _render_status_count(result, "pending"),
+            "running_task_count": _render_status_count(result, "running"),
+            "succeeded_task_count": _render_status_count(result, "succeeded"),
+            "failed_task_count": _render_status_count(result, "failed"),
+            "retryable_task_count": _render_status_count(result, "retryable"),
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+
+
+def _render_status_count(result: object, state: str) -> int:
+    if not isinstance(result, RenderStatusInitializationResult):
+        raise ShootFlowCliError("result must be a RenderStatusInitializationResult")
+    return sum(1 for status in result.manifest.task_statuses if status.state == state)
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:

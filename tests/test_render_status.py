@@ -15,6 +15,7 @@ from shootflow.render_status import (
     RenderTaskStatus,
     build_initial_render_status_manifest,
     compare_and_write_render_task_status,
+    initialize_render_status_manifest,
     load_render_status_manifest,
     render_plan_fingerprint,
     write_render_status_manifest,
@@ -60,6 +61,84 @@ class RenderStatusManifestTests(unittest.TestCase):
                 "updated_at",
             ],
         )
+
+    def test_initializes_missing_render_status_manifest_from_trusted_plan(self) -> None:
+        trusted_plan = self._trusted_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+
+            result = initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertTrue(result.created)
+        self.assertEqual(result.manifest_path, workspace / RENDER_STATUS_MANIFEST_PATH)
+        self.assertEqual(result.manifest, loaded_manifest)
+        self.assertEqual([status.state for status in result.manifest.task_statuses], ["pending", "pending"])
+
+    def test_initializing_existing_render_status_manifest_preserves_progress(self) -> None:
+        trusted_plan = self._trusted_plan()
+        existing_manifest = RenderStatusManifest(
+            shoot_slug="status-contract",
+            render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+            task_statuses=(
+                RenderTaskStatus(
+                    task_id="render_instagram_reel",
+                    state="running",
+                    renderer_adapter="dry-run-local",
+                    attempts=1,
+                    updated_at="2026-05-07T13:30:00Z",
+                ),
+                RenderTaskStatus(
+                    task_id="render_instagram_carousel",
+                    state="retryable",
+                    renderer_adapter="dry-run-local",
+                    attempts=2,
+                    error_message="Manual export already exists and needs review.",
+                    updated_at="2026-05-07T13:31:00Z",
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_status_manifest(existing_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertFalse(result.created)
+        self.assertEqual(result.manifest, existing_manifest)
+        self.assertEqual(loaded_manifest, existing_manifest)
+        self.assertEqual([status.state for status in result.manifest.task_statuses], ["running", "retryable"])
+
+    def test_initializing_existing_stale_status_manifest_rejects_without_reset(self) -> None:
+        trusted_plan = self._trusted_plan()
+        stale_plan = replace(
+            trusted_plan,
+            render_tasks=(
+                replace(
+                    trusted_plan.render_tasks[0],
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00099/STALE.MOV",
+                    ),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00099"),
+                ),
+            )
+            + trusted_plan.render_tasks[1:],
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stale_manifest = build_initial_render_status_manifest(stale_plan)
+            write_render_status_manifest(stale_manifest, workspace, trusted_plan=stale_plan)
+
+            with self.assertRaisesRegex(RenderStatusError, "render plan fingerprint"):
+                initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            loaded_stale_manifest = load_render_status_manifest(workspace, trusted_plan=stale_plan)
+
+        self.assertEqual(loaded_stale_manifest, stale_manifest)
 
     def test_round_trips_worker_reported_success_and_retryable_statuses(self) -> None:
         trusted_plan = self._trusted_plan()

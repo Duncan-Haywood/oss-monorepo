@@ -70,6 +70,13 @@ class RenderStatusManifest:
     task_statuses: tuple[RenderTaskStatus, ...]
 
 
+@dataclass(frozen=True)
+class RenderStatusInitializationResult:
+    manifest_path: Path
+    manifest: RenderStatusManifest
+    created: bool
+
+
 def render_plan_fingerprint(trusted_plan: AssemblyPlan) -> str:
     _validate_trusted_plan(trusted_plan)
     raw_fingerprint_input = {
@@ -151,6 +158,52 @@ def load_render_status_manifest(
     return manifest
 
 
+def initialize_render_status_manifest(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> RenderStatusInitializationResult:
+    """Create or load the trusted render-status handoff without resetting progress.
+
+    This bootstrap helper is for UI/background agents that already have a
+    strict ``deliverables/render_tasks.json`` plan and need the companion
+    ``deliverables/render_status.json`` file before scheduling work. If a
+    matching status manifest exists, it is loaded and returned exactly as-is.
+    Stale, malformed, or fingerprint-mismatched status files fail validation
+    instead of being overwritten.
+    """
+
+    _validate_trusted_plan(trusted_plan)
+    root = Path(workspace_root)
+    manifest_path = _render_status_manifest_path(root)
+    with _render_status_manifest_lock(root):
+        _reject_symlink_path(manifest_path.parent, root, "render status manifest directory")
+        _reject_symlink_path(manifest_path, root, "render status manifest")
+        _reject_symlink_path(
+            manifest_path.with_suffix(".json.tmp"),
+            root,
+            "temporary render status manifest",
+        )
+        if manifest_path.exists():
+            manifest = load_render_status_manifest(root, trusted_plan=trusted_plan)
+            return _initialization_result(
+                manifest_path=manifest_path,
+                manifest=manifest,
+                created=False,
+                trusted_plan=trusted_plan,
+            )
+
+        manifest = build_initial_render_status_manifest(trusted_plan)
+        written_path = write_render_status_manifest(manifest, root, trusted_plan=trusted_plan)
+        loaded_manifest = load_render_status_manifest(root, trusted_plan=trusted_plan)
+        return _initialization_result(
+            manifest_path=written_path,
+            manifest=loaded_manifest,
+            created=True,
+            trusted_plan=trusted_plan,
+        )
+
+
 def compare_and_write_render_task_status(
     workspace_root: Path | str,
     *,
@@ -206,6 +259,26 @@ def _render_status_manifest_lock(workspace_root: Path | str) -> Iterator[None]:
             fcntl.flock(fd, fcntl.LOCK_UN)
         finally:
             os.close(fd)
+
+
+def _initialization_result(
+    *,
+    manifest_path: Path,
+    manifest: RenderStatusManifest,
+    created: bool,
+    trusted_plan: AssemblyPlan,
+) -> RenderStatusInitializationResult:
+    _validate_manifest(manifest, trusted_plan=trusted_plan)
+    if not isinstance(created, bool):
+        raise RenderStatusError("created must be a boolean")
+    result = RenderStatusInitializationResult(
+        manifest_path=manifest_path,
+        manifest=manifest,
+        created=created,
+    )
+    if not isinstance(result.manifest_path, Path):
+        raise RenderStatusError("initialization manifest_path must be a Path")
+    return result
 
 
 def _validate_manifest(manifest: RenderStatusManifest, *, trusted_plan: AssemblyPlan) -> None:

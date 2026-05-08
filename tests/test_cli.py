@@ -17,6 +17,129 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_init_render_status_command_creates_status_manifest_from_persisted_tasks(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertTrue(printed_summary["created"])
+        self.assertEqual(printed_summary["shoot_slug"], "cli-scheduler")
+        self.assertEqual(printed_summary["task_count"], 1)
+        self.assertEqual(printed_summary["pending_task_count"], 1)
+        self.assertEqual(printed_summary["running_task_count"], 0)
+        self.assertEqual(loaded_manifest.task_statuses[0].state, "pending")
+
+    def test_init_render_status_command_is_idempotent_for_existing_status(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="retryable",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            error_message="Manual output conflict needs review.",
+                            updated_at="2026-05-07T16:00:30Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertFalse(printed_summary["created"])
+        self.assertEqual(printed_summary["pending_task_count"], 0)
+        self.assertEqual(printed_summary["retryable_task_count"], 1)
+        self.assertEqual(loaded_manifest.task_statuses[0].state, "retryable")
+        self.assertEqual(loaded_manifest.task_statuses[0].attempts, 1)
+
+    def test_init_render_status_command_rejects_stale_existing_status(self) -> None:
+        trusted_plan = self._single_task_plan()
+        stale_plan = AssemblyPlan(
+            shoot_slug="cli-scheduler",
+            render_tasks=(
+                RenderTask(
+                    task_id="render_instagram_reel",
+                    sequence_name="reel",
+                    source_job_id="assemble_instagram_reel",
+                    output_kind="instagram_reel",
+                    aspect_ratio="9:16",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00099/STALE.MOV",
+                    ),
+                    outputs=("deliverables/instagram_reel.mp4",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00099"),
+                    can_run_in_parallel=False,
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            write_render_status_manifest(
+                self._pending_manifest(stale_plan),
+                workspace,
+                trusted_plan=stale_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+            loaded_stale_manifest = load_render_status_manifest(workspace, trusted_plan=stale_plan)
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("render plan fingerprint", stderr.getvalue())
+        self.assertEqual(loaded_stale_manifest.render_plan_fingerprint, render_plan_fingerprint(stale_plan))
+
     def test_dry_run_scheduler_command_writes_and_prints_report(self) -> None:
         trusted_plan = self._single_task_plan()
 
