@@ -384,5 +384,217 @@ class ShootFlowCliTests(unittest.TestCase):
         )
 
 
+class ShootFlowIngestCliTests(unittest.TestCase):
+    def test_preview_ingest_command_outputs_planned_items_without_copying(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            jpeg = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            raw.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            jpeg.write_bytes(b"jpeg-bytes")
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "preview-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                ],
+                stdout=stdout,
+            )
+
+            shoot_folder = destination / "2026-05-08_desert-editorial"
+            preview = json.loads(stdout.getvalue())
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(preview["item_count"], 2)
+            self.assertEqual(
+                sorted(item["relative_path"] for item in preview["items"]),
+                [
+                    "DCIM/100EOS5D/IMG_0001.CR3",
+                    "DCIM/100EOS5D/IMG_0001.JPG",
+                ],
+            )
+            for item in preview["items"]:
+                self.assertEqual(len(item["checksum_sha256"]), 64)
+                self.assertGreater(item["size_bytes"], 0)
+            self.assertEqual(preview["shoot_slug"], "desert-editorial")
+            self.assertEqual(preview["shoot_date"], "2026-05-08")
+            self.assertEqual(preview["shoot_folder"], str(shoot_folder))
+            self.assertIn("preview only - no files were copied", preview["notes"])
+            # Confirm no destination-side files were created.
+            self.assertFalse(shoot_folder.exists())
+
+    def test_execute_ingest_command_requires_confirm_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            raw.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            shoot_folder = destination / "2026-05-08_desert-editorial"
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("--confirm", stderr.getvalue())
+            # No copy or manifest occurred.
+            self.assertFalse(shoot_folder.exists())
+            # Source still intact.
+            self.assertEqual(raw.read_bytes(), b"raw-bytes")
+
+    def test_execute_ingest_command_with_confirm_writes_checksum_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            jpeg = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            raw.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            jpeg.write_bytes(b"jpeg-bytes")
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                    "--confirm",
+                ],
+                stdout=stdout,
+            )
+
+            shoot_folder = destination / "2026-05-08_desert-editorial"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            response = json.loads(stdout.getvalue())
+            manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(response["copied"], 2)
+            self.assertEqual(response["skipped"], 0)
+            self.assertEqual(response["item_count"], 2)
+            self.assertEqual(response["shoot_slug"], "desert-editorial")
+            self.assertEqual(response["shoot_folder"], str(shoot_folder))
+            self.assertEqual(response["manifest_path"], str(manifest_path))
+            self.assertIn("no source files were deleted", response["notes"])
+            # Source files untouched.
+            self.assertEqual(raw.read_bytes(), b"raw-bytes")
+            self.assertEqual(jpeg.read_bytes(), b"jpeg-bytes")
+            # Destination files match source bytes.
+            copied_raw = shoot_folder / "originals" / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            copied_jpeg = shoot_folder / "originals" / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            self.assertEqual(copied_raw.read_bytes(), b"raw-bytes")
+            self.assertEqual(copied_jpeg.read_bytes(), b"jpeg-bytes")
+            # Manifest records non-destructive copy.
+            self.assertFalse(manifest_data["source_deleted"])
+            self.assertEqual(len(manifest_data["items"]), 2)
+
+    def test_execute_ingest_command_rejects_symlinked_source_without_deleting_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            real_media = card / "real" / "IMG_0001.MOV"
+            symlink_media = card / "linked.MOV"
+            real_media.parent.mkdir(parents=True)
+            real_media.write_bytes(b"video-bytes")
+            symlink_media.symlink_to(real_media)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "wedding",
+                    "--confirm",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            shoot_folder = destination / "2026-05-08_wedding"
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("symlink", stderr.getvalue().lower())
+            # No destination-side artifacts were created.
+            self.assertFalse(shoot_folder.exists())
+            # Source untouched.
+            self.assertEqual(real_media.read_bytes(), b"video-bytes")
+            self.assertTrue(symlink_media.is_symlink())
+
+    def test_preview_ingest_command_rejects_invalid_shoot_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            (card / "IMG_0001.JPG").parent.mkdir(parents=True)
+            (card / "IMG_0001.JPG").write_bytes(b"jpeg-bytes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "preview-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "../escape",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Invalid shoot slug", stderr.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
