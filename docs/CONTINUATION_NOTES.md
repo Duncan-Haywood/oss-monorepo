@@ -23,13 +23,15 @@ This run then added a read-only continuation health layer:
   workflow state (`write_render_tasks` / `init_render_status` /
   `run_dry_run_render_scheduler`).
 
-Expected verification after this change is:
+Fresh verification after this change:
 
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests
 python3 -m compileall -q src tests
 git diff --check
 ```
+
+Result: 183 tests passed; compileall and diff-check exited 0.
 
 ## Branch consolidation note - 2026-05-08 23:00 UTC
 
