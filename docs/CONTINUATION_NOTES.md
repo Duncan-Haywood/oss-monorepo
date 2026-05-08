@@ -8,6 +8,33 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added a native macOS metadata adapter for future Swift/Disk Arbitration
+  integration:
+  - `shootflow.macos_volume_metadata.MacOSVolumeMetadata` captures typed native
+    volume facts: name, mount path, free/total bytes, removable/ejectable/internal
+    flags, read-only, network, and system-volume state;
+  - `storage_candidates_from_macos_metadata(...)` validates the records, skips
+    system volumes, network volumes, missing mounts, file-backed mounts, symlinked
+    mount leaves, and symlinked mount parents, then maps usable records into the
+    existing `StorageCandidate` ranking contract;
+  - ejectable external drives are treated as removable for ranking while internal
+    or ejectable detail remains advisory and cannot bypass review;
+  - `recommend_import_route_from_macos_metadata(...)` reuses the same
+    review-required and capacity-gated route recommendation logic as portable
+    discovery, including a clean blocked report when all native records are
+    skipped;
+  - the adapter remains pure and non-destructive: no copy, delete, eject, format,
+    recursive scan, or UI approval authority.
+- Added `tests/test_macos_volume_metadata.py` covering native record conversion,
+  unsafe record skipping, capacity-gated routing, all-skipped blocked
+  recommendations, and validation of metadata/capacity arguments.
+- Updated README, product strategy, business plan, design decisions, package
+  exports, and continuation notes so the next agent can treat native metadata as
+  the bridge between portable `/Volumes` scanning and a future SwiftUI/menu-bar
+  approval shell.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,
