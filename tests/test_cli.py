@@ -953,11 +953,11 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
                         "--completed-dependency",
                         "rank_instagram_storylines",
                         "--completed-dependency",
+                        "grade_asset_00002",
+                        "--completed-dependency",
                         "grade_asset_00000",
                         "--completed-dependency",
                         "grade_asset_00001",
-                        "--completed-dependency",
-                        "grade_asset_00002",
                     ],
                     "requires_runtime_args": [
                         "--renderer",
