@@ -140,6 +140,37 @@ class RenderStatusManifestTests(unittest.TestCase):
 
         self.assertEqual(loaded_stale_manifest, stale_manifest)
 
+    def test_concurrent_initialization_creates_once_without_resetting_progress(self) -> None:
+        trusted_plan = self._trusted_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            barrier = threading.Barrier(2)
+            results = []
+            errors = []
+
+            def initialize() -> None:
+                try:
+                    barrier.wait()
+                    results.append(
+                        initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
+                    )
+                except Exception as exc:  # pragma: no cover - re-raised by assertion below
+                    errors.append(exc)
+
+            threads = [threading.Thread(target=initialize) for _index in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(errors, [])
+        self.assertEqual(len(results), 2)
+        self.assertEqual(sorted(result.created for result in results), [False, True])
+        self.assertTrue(all(result.manifest == loaded_manifest for result in results))
+        self.assertEqual([status.state for status in loaded_manifest.task_statuses], ["pending", "pending"])
+
     def test_round_trips_worker_reported_success_and_retryable_statuses(self) -> None:
         trusted_plan = self._trusted_plan()
         manifest = RenderStatusManifest(
