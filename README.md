@@ -306,9 +306,9 @@ against trusted graded outputs, writes `deliverables/render_tasks.json` only whe
 missing, and refuses to replace an existing different render-task manifest. It
 does not render media, delete sources, or create deliverable outputs. Its JSON
 summary includes `next_actions` for `init-render-status` and the
-`dry-run-render-scheduler` command, with runtime-only arguments called out
-separately so app shells can ask for timestamps/render adapter settings at the
-right layer.
+`dry-run-render-scheduler` command, including the trusted completed dependency
+IDs the scheduler needs. Runtime-only arguments are called out separately so app
+shells can ask for timestamps/render adapter settings at the right layer.
 
 ## Run tests
 

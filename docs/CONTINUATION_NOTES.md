@@ -52,10 +52,18 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     storyline/graded-artifact preparation step and the exact
     `write-render-tasks --ingest-manifest <path>` handoff;
   - `write-render-tasks` summaries now point at `init-render-status` and
-    `dry-run-render-scheduler`, while listing scheduler runtime arguments that
-    still need to be supplied by the caller;
+    `dry-run-render-scheduler`, including the trusted non-render dependencies
+    each render task needs while still listing scheduler runtime arguments that
+    must be supplied by the caller;
   - these fields are advisory orchestration hints only and grant no new copy,
     render, overwrite, delete, or source-media authority.
+- Hardened the render-task manifest writer for external/media filesystems that
+  do not support hard links: it still prefers the hard-link no-clobber commit,
+  but falls back to exclusive final-file creation instead of surfacing an
+  uncaught `OSError`.
+- Added regression coverage that follows the emitted `write-render-tasks`
+  `next_actions` through `init-render-status` and the dry-run scheduler, plus
+  coverage for hard-link-unsupported manifest creation.
 
 ## Previous iteration
 

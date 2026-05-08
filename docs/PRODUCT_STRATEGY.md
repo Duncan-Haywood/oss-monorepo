@@ -115,8 +115,9 @@ The current core models a concrete promise for high-volume users:
 22. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
     flow that demos already exercise. Its summary now points native shells at
-    `init-render-status` and `dry-run-render-scheduler` while keeping runtime
-    scheduler parameters outside the static handoff.
+    `init-render-status` and `dry-run-render-scheduler` with the trusted
+    completed dependency IDs included, while keeping runtime scheduler
+    parameters outside the static handoff.
 23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.

@@ -117,8 +117,9 @@ The repo currently contains a Python core package because it is quick to test an
   graded artifact inputs, then creates or reuses `deliverables/render_tasks.json`
   without replacing a different existing manifest or creating deliverable
   outputs. Its JSON summary includes advisory `next_actions` for status
-  initialization and scheduler execution, keeping runtime timestamps and renderer
-  choices explicit instead of baking them into the manifest.
+  initialization and scheduler execution, including trusted completed dependency
+  IDs while keeping runtime timestamps and renderer choices explicit instead of
+  baking them into the manifest.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
