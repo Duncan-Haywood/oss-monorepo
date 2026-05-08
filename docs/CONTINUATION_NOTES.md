@@ -35,9 +35,8 @@ python3 -m compileall -q src tests
 git diff --check
 ```
 
-Result before the review follow-up: 183 tests passed; compileall and diff-check
-exited 0. The review follow-up adds one regression test, so final verification
-should report 184 tests.
+Final result after the review follow-up: 184 tests passed; compileall and
+diff-check exited 0.
 
 ## Branch consolidation note - 2026-05-08 23:00 UTC
 
