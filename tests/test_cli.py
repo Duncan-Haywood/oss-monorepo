@@ -825,5 +825,223 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             self.assertFalse((shoot_folder / "deliverables").exists())
 
 
+class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
+    def test_card_dump_workflow_previews_route_without_copying(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            video = card / "PRIVATE" / "A001.MOV"
+            photo.parent.mkdir(parents=True)
+            video.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            video.write_bytes(b"video-bytes")
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                    "--headroom-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+            )
+
+            report = json.loads(stdout.getvalue())
+            shoot_folder = ssd / "ShootFlow" / "2026-05-08_desert-editorial"
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "ready_for_review")
+            self.assertFalse(report["ingest_executed"])
+            self.assertEqual(report["route"]["source"]["name"], "EOS_DIGITAL")
+            self.assertEqual(report["route"]["destination"]["name"], "Samsung_T7")
+            self.assertEqual(report["estimated_source_media"]["media_file_count"], 2)
+            self.assertEqual(report["estimated_source_media"]["estimated_bytes"], 22)
+            self.assertEqual(report["preview"]["item_count"], 2)
+            self.assertEqual(report["preview"]["total_bytes"], 22)
+            self.assertEqual(report["preview"]["shoot_folder"], str(shoot_folder))
+            self.assertIsNone(report["ingest"])
+            self.assertIsNone(report["production_report"])
+            self.assertFalse(shoot_folder.exists())
+            self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
+            self.assertFalse((shoot_folder / "originals").exists())
+
+    def test_card_dump_workflow_confirm_ingests_and_reports_production(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            jpeg = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            clip = card / "PRIVATE" / "A001.MOV"
+            audio = card / "PRIVATE" / "A001.WAV"
+            raw.parent.mkdir(parents=True)
+            clip.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            jpeg.write_bytes(b"jpeg-bytes")
+            clip.write_bytes(b"video-bytes")
+            audio.write_bytes(b"scratch-audio")
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "wedding-preview",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                    "--headroom-bytes",
+                    "0",
+                    "--confirm-ingest",
+                ],
+                stdout=stdout,
+            )
+
+            report = json.loads(stdout.getvalue())
+            shoot_folder = ssd / "ShootFlow" / "2026-05-08_wedding-preview"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["status"], "ingest_complete")
+            self.assertTrue(report["ingest_executed"])
+            self.assertEqual(report["preview"]["item_count"], 4)
+            self.assertEqual(report["ingest"]["copied"], 4)
+            self.assertEqual(report["ingest"]["skipped"], 0)
+            self.assertEqual(report["ingest"]["manifest_path"], str(manifest_path))
+            self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
+            self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
+            self.assertFalse(report["production_report"]["wrote_downstream_files"])
+            self.assertTrue(manifest_path.exists())
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+            self.assertEqual(raw.read_bytes(), b"raw-bytes")
+            self.assertEqual(clip.read_bytes(), b"video-bytes")
+
+    def test_card_dump_workflow_blocks_without_route_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            volumes = Path(tmp) / "Volumes"
+            volumes.mkdir()
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "blocked-shoot",
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "blocked")
+        self.assertFalse(report["ingest_executed"])
+        self.assertIsNone(report["route"]["source"])
+        self.assertIsNone(report["route"]["destination"])
+        self.assertIsNone(report["preview"])
+        self.assertIsNone(report["production_report"])
+        self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
+
+    def test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            outside = workspace / "outside-library"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            outside.mkdir()
+            (ssd / "ShootFlow").symlink_to(outside, target_is_directory=True)
+            photo.write_bytes(b"photo-bytes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "unsafe-destination",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                    "--headroom-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("destination subfolder", stderr.getvalue())
+            self.assertFalse((outside / "2026-05-08_unsafe-destination").exists())
+            self.assertEqual(photo.read_bytes(), b"photo-bytes")
+
+    def test_card_dump_workflow_rejects_broken_symlinked_destination_subfolder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            (ssd / "ShootFlow").symlink_to(ssd / "missing-library", target_is_directory=True)
+            photo.write_bytes(b"photo-bytes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "broken-symlink-destination",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                    "--headroom-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("destination subfolder", stderr.getvalue())
+            self.assertEqual(photo.read_bytes(), b"photo-bytes")
+
+
 if __name__ == "__main__":
     unittest.main()

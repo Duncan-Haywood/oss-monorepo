@@ -99,6 +99,10 @@ This repo currently contains the first testable core utilities:
   compact read-only production-wave report, giving a Mac app or launch agent the
   next safe screen after card offload without creating analysis, graded, or
   render files.
+- `shootflow.card_workflow` ties mounted-volume route discovery, source-size
+  estimation, checksum ingest preview, optional confirmed copy, and read-only
+  production reporting into one product-facing card-dump workflow for Mac app
+  shells and GTM demos.
 
 The intended first workflow is:
 
@@ -165,7 +169,10 @@ The intended first workflow is:
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-20. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+    native-shell handoff from detected volumes to previewed ingest, and only
+    with `--confirm-ingest`, verified copy plus a read-only production summary.
+21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
@@ -200,6 +207,31 @@ This command performs mounted-volume discovery and emits a review-required JSON
 recommendation for source/destination routing. It can estimate media bytes from
 the discovered source and apply a destination capacity gate before ingest.
 It does not copy files, delete source media, or grant destructive authority.
+
+The unified card-dump workflow for a Mac app shell or demo is:
+
+```bash
+# Preview detected route + checksum copy plan. No bytes are copied.
+PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
+  --volume-root /Volumes \
+  --shoot-date 2026-05-08 \
+  --shoot-slug desert-editorial \
+  --destination-subfolder ShootFlow
+
+# Execute the same reviewed route and then print the read-only production summary.
+PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
+  --volume-root /Volumes \
+  --shoot-date 2026-05-08 \
+  --shoot-slug desert-editorial \
+  --destination-subfolder ShootFlow \
+  --confirm-ingest
+```
+
+Without `--confirm-ingest`, this command only discovers, estimates, and previews
+the copy plan. With `--confirm-ingest`, it still never deletes source media,
+never overwrites different destination bytes, verifies every copied item by
+SHA-256, writes `ingest_manifest.json`, and then runs read-only production
+planning from that manifest.
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 

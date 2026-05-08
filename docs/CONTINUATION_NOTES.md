@@ -8,6 +8,28 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first unified card-dump workflow handoff:
+  - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
+    discovery, source media size estimation, capacity-gated route recommendation,
+    checksum ingest preview, optional confirmed copy, and read-only production
+    reporting;
+  - `python -m shootflow.cli card-dump-workflow` prints one schema-versioned JSON
+    report for Mac app shells, launch agents, and GTM demos;
+  - without `--confirm-ingest`, it only discovers/estimates/previews and copies
+    no bytes; with `--confirm-ingest`, it runs the existing safe ingest boundary
+    and then `plan-production` from the manifest;
+  - destination subfolders such as `ShootFlow` are constrained to relative paths
+    under the selected destination volume, preserving the no-escape/no-delete
+    design posture.
+- Added CLI tests covering preview-only operation with no destination side
+  effects, confirmed ingest plus production reporting without downstream
+  analysis/graded/deliverable writes, and blocked no-candidate route behavior.
+- Updated README and product/business/design/legal/continuation docs to position
+  this command as the next native-shell proof point between drive detection and
+  AI/color execution.
+
+## Previous iteration
+
 - Added a read-only post-ingest production-plan handoff:
   - `shootflow.production_report.build_production_plan_report(...)` reloads a
     verified `ingest_manifest.json`, builds the deterministic production plan,

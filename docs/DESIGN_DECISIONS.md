@@ -47,6 +47,11 @@ The repo currently contains a Python core package because it is quick to test an
   parallel/serial wave shape, and planned Instagram deliverables without writing analysis, graded, render,
   status, or deliverable files. This gives the future Mac UI a safe "what happens next" screen between
   card offload and AI/color execution.
+- `shootflow.card_workflow`: a product-facing orchestration layer for the first
+  Mac/native-shell demo. It composes mounted-volume discovery, source-size
+  estimation, capacity-gated route recommendation, checksum ingest preview,
+  optional confirmed copy, and read-only production reporting while preserving
+  the same no-delete/no-overwrite boundaries as the lower-level commands.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.
@@ -101,6 +106,9 @@ The repo currently contains a Python core package because it is quick to test an
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
   Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
+  The `card-dump-workflow` command now exposes the first complete product
+  handoff for local media operations: preview route + ingest plan by default,
+  and copy + production summary only when the caller supplies `--confirm-ingest`.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -143,11 +151,14 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Keep a small persisted-manifest demo workspace helper available so Mac UI
+20. Drive the route -> preview -> optional ingest -> production-summary path
+    through a single `card-dump-workflow` command so native UI shells can prove
+    the card-dump experience without reimplementing storage or ingest safety.
+21. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-21. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-22. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

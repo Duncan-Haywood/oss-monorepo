@@ -8,6 +8,11 @@ from pathlib import Path
 from typing import TextIO
 
 from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
+from shootflow.card_workflow import (
+    CardDumpWorkflowError,
+    CardDumpWorkflowReport,
+    run_card_dump_workflow,
+)
 from shootflow.catalog import CatalogError
 from shootflow.ingest import (
     CopyPlan,
@@ -79,6 +84,8 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "card-dump-workflow":
+            _run_card_dump_workflow_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -90,6 +97,7 @@ def main(
         IngestError,
         FileNotFoundError,
         ProductionPlanError,
+        CardDumpWorkflowError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -229,6 +237,20 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    if args.headroom_bytes < 0:
+        raise ShootFlowCliError("--headroom-bytes cannot be negative")
+    report = run_card_dump_workflow(
+        _parse_volume_roots(args.volume_root),
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+        destination_subfolder=args.destination_subfolder,
+        headroom_bytes=args.headroom_bytes,
+        confirm_ingest=args.confirm_ingest,
+    )
+    stdout.write(_card_dump_workflow_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -329,6 +351,42 @@ def _build_parser() -> argparse.ArgumentParser:
         "--ingest-manifest",
         required=True,
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
+    card_dump = subparsers.add_parser(
+        "card-dump-workflow",
+        help="Run the reviewed route -> ingest preview -> optional safe copy -> production summary flow.",
+    )
+    card_dump.add_argument(
+        "--volume-root",
+        action="append",
+        required=True,
+        help="Volume root to scan for mounted sources/destinations (repeatable).",
+    )
+    card_dump.add_argument(
+        "--shoot-date",
+        required=True,
+        help="ISO-8601 shoot date, such as 2026-05-08.",
+    )
+    card_dump.add_argument(
+        "--shoot-slug",
+        required=True,
+        help="Slug for the shoot folder. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
+    card_dump.add_argument(
+        "--destination-subfolder",
+        help="Optional relative library folder inside the selected destination volume, such as ShootFlow.",
+    )
+    card_dump.add_argument(
+        "--headroom-bytes",
+        type=int,
+        default=32 * 1024**3,
+        help="Safety headroom added to estimated media bytes when capacity gating the route.",
+    )
+    card_dump.add_argument(
+        "--confirm-ingest",
+        action="store_true",
+        help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
     )
 
     return parser
@@ -603,6 +661,115 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
+    if not isinstance(report, CardDumpWorkflowReport):
+        raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "status": report.status,
+            "ingest_executed": report.ingest_executed,
+            "volume_roots": [str(root) for root in report.volume_roots],
+            "route": {
+                "status": report.route.status,
+                "ready": report.route.ready,
+                "review_required": report.route.review_required,
+                "source": _ranked_storage_candidate_json(report.route.source),
+                "destination": _ranked_storage_candidate_json(report.route.destination),
+                "safety_notes": list(report.route.safety_notes),
+            },
+            "estimated_source_media": _source_estimate_json(report),
+            "destination_root": (
+                None if report.destination_root is None else str(report.destination_root)
+            ),
+            "preview": _card_dump_preview_json(report),
+            "ingest": _card_dump_ingest_json(report),
+            "production_report": _card_dump_production_report_json(report),
+            "notes": list(report.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
+    if report.source_estimate is None:
+        return None
+    return {
+        "source_root": str(report.source_estimate.source_root),
+        "media_file_count": report.source_estimate.media_file_count,
+        "estimated_bytes": report.source_estimate.estimated_bytes,
+    }
+
+
+def _card_dump_preview_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
+    if report.preview_plan is None:
+        return None
+    total_bytes = sum(item.size_bytes for item in report.preview_plan.items)
+    return {
+        "source_root": str(report.preview_plan.source_root),
+        "destination_root": str(report.preview_plan.destination_root),
+        "shoot_folder": str(report.preview_plan.shoot_folder),
+        "shoot_date": report.preview_plan.shoot_date,
+        "shoot_slug": report.preview_plan.shoot_slug,
+        "item_count": len(report.preview_plan.items),
+        "total_bytes": total_bytes,
+        "items": [
+            {
+                "relative_path": item.relative_path.as_posix(),
+                "checksum_sha256": item.checksum_sha256,
+                "size_bytes": item.size_bytes,
+            }
+            for item in report.preview_plan.items
+        ],
+    }
+
+
+def _card_dump_ingest_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
+    if report.copy_report is None:
+        return None
+    return {
+        "copied": report.copy_report.copied,
+        "skipped": report.copy_report.skipped,
+        "manifest_path": str(report.copy_report.manifest_path),
+    }
+
+
+def _card_dump_production_report_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
+    if report.production_report is None:
+        return None
+    production_report = report.production_report
+    return {
+        "manifest_path": str(production_report.manifest_path),
+        "workspace": str(production_report.workspace),
+        "shoot_date": production_report.shoot_date,
+        "shoot_slug": production_report.shoot_slug,
+        "copied_manifest_item_count": production_report.copied_manifest_item_count,
+        "asset_counts": {
+            "photo": production_report.photo_asset_count,
+            "video": production_report.video_asset_count,
+            "total": production_report.photo_asset_count + production_report.video_asset_count,
+        },
+        "production_plan": {
+            "job_count": production_report.production_job_count,
+            "parallel_job_count": production_report.parallel_job_count,
+            "serial_job_count": production_report.serial_job_count,
+            "wave_count": len(production_report.waves),
+        },
+        "deliverables": [
+            {
+                "job_id": deliverable.job_id,
+                "output_kind": deliverable.output_kind,
+                "outputs": list(deliverable.outputs),
+                "depends_on": list(deliverable.depends_on),
+            }
+            for deliverable in production_report.deliverables
+        ],
+        "wrote_downstream_files": False,
+    }
 
 
 def _validate_main_args(
