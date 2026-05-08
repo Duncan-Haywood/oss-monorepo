@@ -2,11 +2,98 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-08 21:30 UTC
+
+The assigned branch `cursor/autonomous-media-studio-3cfb` was intentionally
+advanced from `origin/main` by merging the previously verified sibling branch
+`origin/cursor/ai-media-operating-system-37cf`. This brings the native macOS
+volume metadata bridge, real-shoot `write-render-tasks` CLI handoff, advisory
+CLI `next_actions`, hard-link fallback, documentation, and 179-test regression
+suite onto the active automation branch without changing the safety invariants
+below. Future agents should continue from this branch rather than reimplementing
+that sibling work.
+
+Review follow-up on this branch hardened the render-task handoff after a
+multi-agent review pass:
+
+- `shootflow.assembly.ensure_render_tasks_manifest(...)` now reports whether the
+  trusted manifest was created or safely reused, while preserving
+  `write_render_tasks_manifest(...)` as the existing path-returning wrapper.
+- Temporary render-task manifest write failures are wrapped as
+  `AssemblyPlanError` and clean up partial `.tmp` files, so transient disk
+  failures do not poison later retries with stale temp manifests.
+- `write-render-tasks` now uses the single assembly-layer create/reuse policy,
+  so concurrent matching manifest creation is reported as `created: false`.
+- Empty native macOS metadata recommendation input now returns the same blocked,
+  review-required route as "all native records skipped"; the lower-level
+  converter still treats an empty candidate conversion call as invalid.
+- Added regression coverage for those cases plus preview-only and blocked
+  `card-dump-workflow` `next_actions`.
+
 ## Current direction
 
 ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high-volume ingest, bulk color/story processing, and Instagram deliverables. The current implementation is a Python core that defines safety and planning contracts before native UI or renderer work begins.
 
 ## What landed in this iteration
+
+- Added a native macOS metadata adapter for future Swift/Disk Arbitration
+  integration:
+  - `shootflow.macos_volume_metadata.MacOSVolumeMetadata` captures typed native
+    volume facts: name, mount path, free/total bytes, removable/ejectable/internal
+    flags, read-only, network, and system-volume state;
+  - `storage_candidates_from_macos_metadata(...)` validates the records, skips
+    system volumes, network volumes, missing mounts, file-backed mounts, symlinked
+    mount leaves, and symlinked mount parents, then maps usable records into the
+    existing `StorageCandidate` ranking contract;
+  - ejectable external drives are treated as removable for ranking while internal
+    or ejectable detail remains advisory and cannot bypass review;
+  - `recommend_import_route_from_macos_metadata(...)` reuses the same
+    review-required and capacity-gated route recommendation logic as portable
+    discovery, including a clean blocked report when all native records are
+    skipped;
+  - the adapter remains pure and non-destructive: no copy, delete, eject, format,
+    recursive scan, or UI approval authority.
+- Added `tests/test_macos_volume_metadata.py` covering native record conversion,
+  unsafe record skipping, capacity-gated routing, all-skipped blocked
+  recommendations, and validation of metadata/capacity arguments.
+- Updated README, product strategy, business plan, design decisions, package
+  exports, and continuation notes so the next agent can treat native metadata as
+  the bridge between portable `/Volumes` scanning and a future SwiftUI/menu-bar
+  approval shell.
+- Added a real-shoot persisted assembly CLI handoff:
+  - `python -m shootflow.cli write-render-tasks --ingest-manifest <path>` reloads
+    the verified ingest manifest, rebuilds the production plan, verifies trusted
+    `analysis/instagram_storylines.json` selections plus `graded/` artifacts
+    through `shootflow.assembly`, then creates or reuses
+    `deliverables/render_tasks.json`;
+  - `--photo-set-chunk-size` exposes the existing high-volume chunking contract;
+  - an existing different render-task manifest is rejected instead of overwritten;
+  - the command writes no deliverable outputs, renders no media, and deletes no
+    source files.
+- Added tests covering successful render-task handoff creation, refusal to
+  replace an existing different handoff, reuse of an existing matching handoff,
+  and friendly CLI reporting for invalid ingest-manifest JSON.
+- Updated README/product/business/design docs to place `write-render-tasks`
+  between trusted storyline/grading work and `init-render-status`.
+- Added machine-readable CLI `next_actions` fields:
+  - confirmed `card-dump-workflow` reports now point native shells at the trusted
+    storyline/graded-artifact preparation step and the exact
+    `write-render-tasks --ingest-manifest <path>` handoff;
+  - `write-render-tasks` summaries now point at `init-render-status` and
+    `dry-run-render-scheduler`, including the trusted non-render dependencies
+    each render task needs while still listing scheduler runtime arguments that
+    must be supplied by the caller;
+  - these fields are advisory orchestration hints only and grant no new copy,
+    render, overwrite, delete, or source-media authority.
+- Hardened the render-task manifest writer for external/media filesystems that
+  do not support hard links: it still prefers the hard-link no-clobber commit,
+  but falls back to exclusive final-file creation instead of surfacing an
+  uncaught `OSError`.
+- Added regression coverage that follows the emitted `write-render-tasks`
+  `next_actions` through `init-render-status` and the dry-run scheduler, plus
+  coverage for hard-link-unsupported manifest creation.
+
+## Previous iteration
 
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume

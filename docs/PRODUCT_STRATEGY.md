@@ -50,8 +50,9 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Discover mounted-volume candidates from reviewed roots, rank detected storage, then recommend a
-   review-required source/destination route.
+1. Discover mounted-volume candidates from reviewed roots or typed native macOS
+   metadata, rank detected storage, then recommend a review-required
+   source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -61,7 +62,9 @@ The current core models a concrete promise for high-volume users:
 6. Rejoin at scene grouping and look development so the grade is consistent.
 7. Fan out graded master rendering.
 8. Rank storylines from VLM quality, scene, and narrative signals.
-9. Plan renderer-neutral assembly tasks from verified graded storyline selects.
+9. Persist renderer-neutral assembly tasks from verified graded storyline
+   selects through `write-render-tasks`, creating or reusing
+   `deliverables/render_tasks.json` without rendering deliverables.
 10. Initialize and track render progress and retry safety through a trusted
    status manifest that never resets existing matching progress.
 11. Schedule only dependency-ready pending/retryable render work through a dry-run
@@ -107,11 +110,18 @@ The current core models a concrete promise for high-volume users:
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
-    summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
+    summary. Confirmed reports now include explicit `next_actions` for trusted
+    storyline/grading preparation and the subsequent render-task handoff.
+22. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
+    exist so production shoots can enter the same persisted init/status/scheduler
+    flow that demos already exercise. Its summary now points native shells at
+    `init-render-status` and `dry-run-render-scheduler` with the trusted
+    completed dependency IDs included, while keeping runtime scheduler
+    parameters outside the static handoff.
+23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -131,10 +141,12 @@ to automate.
 ## Next product bets
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
-   import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
-   recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   import route. The current core now includes portable mounted-volume discovery, a typed native macOS
+   metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
+   commands, a read-only `plan-production` report after ingest, and a
+   `write-render-tasks` handoff once trusted storyline/graded artifacts exist;
+   the next step is a SwiftUI/menu-bar approval screen around the
+   `card-dump-workflow` contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
