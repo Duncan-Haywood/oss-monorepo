@@ -100,7 +100,10 @@ The current core models a concrete promise for high-volume users:
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-20. Assemble reels, carousels, and photo sets from graded masters.
+20. Create repeatable persisted-manifest smoke/demo workspaces through the core
+    helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
+    handoff as real shoots.
+21. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -166,7 +169,9 @@ to automate.
    safely initialize the matching render-status manifest when it is missing,
    preserve existing progress on repeated launches, run the trusted dry-run
    scheduler, write that report, and can print JSON summaries for a Mac app or
-   background automation process.
+   background automation process. The demo workspace helper now creates a tiny
+   trusted persisted render-task workspace for smoke tests and product demos
+   without bypassing the real init/status/scheduler path.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

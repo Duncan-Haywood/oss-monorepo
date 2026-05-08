@@ -162,9 +162,11 @@ Run practical experiments tied to this ICP-first plan:
    commands now expose the full operator-review-then-copy path, so the next
    step is binding them to a SwiftUI/menu-bar shell with native Disk
    Arbitration metadata.
-2. Build a small persisted-manifest demo workspace around the new ingest CLI
-   plus `init-render-status` and `dry-run-render-scheduler` so Mac UI and GTM
-   demos can show a repeatable card-dump-to-scheduler-report flow end to end.
+2. Extend the new persisted-manifest demo workspace toward a full card-dump demo.
+   The render-task half now exists in `shootflow.demo_workspace`, so Mac UI and
+   GTM demos can already exercise `init-render-status` plus
+   `dry-run-render-scheduler` repeatably; next, connect that to safe ingest
+   fixtures or a native shell.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.
