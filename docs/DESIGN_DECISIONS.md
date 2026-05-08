@@ -39,6 +39,11 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+- `shootflow.macos_volume_metadata`: native metadata handoff for a future Swift/Disk Arbitration shell. It
+  accepts typed volume facts, validates capacity and boolean flags, skips system/network/missing/file-backed
+  or symlinked mounts, and then feeds the same `StorageCandidate` route contract used by portable discovery.
+  Ejectable external drives count as removable for ranking, but the metadata adapter remains advisory: it
+  does not copy, delete, eject, recursively scan, or bypass operator review.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -366,6 +371,20 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native macOS metadata still feeds the same reviewed route contract
+
+- **Status:** accepted
+- **Rationale:** Disk Arbitration/Swift can identify ejectable, removable,
+  internal, network, read-only, and system volumes more accurately than a
+  portable `/Volumes` directory scan, but richer metadata should not create a
+  separate authority path for ingest.
+- **Consequence:** `MacOSVolumeMetadata` and
+  `recommend_import_route_from_macos_metadata(...)` are pure adapters. They
+  filter unsafe native records and then reuse `StorageCandidate` ranking plus
+  capacity-gated route recommendation. Future Mac UI work should pass native
+  facts through this adapter, then still require source/destination review and
+  explicit ingest confirmation.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 
