@@ -22,6 +22,10 @@ This run then added a read-only continuation health layer:
   instead of being overwritten or reset; missing handoffs are treated as normal
   workflow state (`write_render_tasks` / `init_render_status` /
   `run_dry_run_render_scheduler`).
+- A post-implementation review found that valid scheduler reports with
+  retryable/failed/blocked work should not recommend another scheduler run. The
+  follow-up fix now routes any valid non-complete scheduler report to
+  `review_scheduler_report`, with regression coverage for a retryable report.
 
 Fresh verification after this change:
 
@@ -31,7 +35,9 @@ python3 -m compileall -q src tests
 git diff --check
 ```
 
-Result: 183 tests passed; compileall and diff-check exited 0.
+Result before the review follow-up: 183 tests passed; compileall and diff-check
+exited 0. The review follow-up adds one regression test, so final verification
+should report 184 tests.
 
 ## Branch consolidation note - 2026-05-08 23:00 UTC
 

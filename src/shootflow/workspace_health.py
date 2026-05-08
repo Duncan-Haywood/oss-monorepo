@@ -280,8 +280,10 @@ def _next_action(
         )
     if scheduler_report.exists and not scheduler_report.valid:
         return WorkspaceNextAction(name="review_invalid_scheduler_report")
-    if scheduler_report.valid and status_counts.succeeded == len(trusted_plan.render_tasks):
-        return WorkspaceNextAction(name="review_deliverables")
+    if scheduler_report.valid:
+        if status_counts.succeeded == len(trusted_plan.render_tasks):
+            return WorkspaceNextAction(name="review_deliverables")
+        return WorkspaceNextAction(name="review_scheduler_report")
     return WorkspaceNextAction(
         name="run_dry_run_render_scheduler",
         command=_scheduler_command(workspace_root, trusted_plan),

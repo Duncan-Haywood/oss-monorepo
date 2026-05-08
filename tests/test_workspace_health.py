@@ -6,7 +6,11 @@ import unittest
 
 from shootflow.cli import main
 from shootflow.demo_workspace import create_persisted_cli_demo_workspace
-from shootflow.render_status import initialize_render_status_manifest
+from shootflow.render_scheduler import (
+    run_dry_run_render_scheduler,
+    write_dry_run_render_scheduler_report,
+)
+from shootflow.render_status import initialize_render_status_manifest, load_render_status_manifest
 from shootflow.workspace_health import build_workspace_health_summary
 
 
@@ -92,6 +96,41 @@ class WorkspaceHealthTests(unittest.TestCase):
         self.assertEqual(summary.next_action.name, "review_invalid_render_status")
         self.assertFalse(summary.next_action.writes_files)
         self.assertEqual(status_after, status_before)
+
+    def test_valid_retryable_scheduler_report_points_to_review_not_rerun(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            demo = create_persisted_cli_demo_workspace(workspace)
+            initialize_render_status_manifest(workspace, trusted_plan=demo.trusted_plan)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.write_bytes(b"manual editor export")
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=demo.trusted_plan,
+                completed_dependency_ids=demo.required_completed_dependency_ids,
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-08T23:40:00Z",
+                completed_at="2026-05-08T23:40:05Z",
+                max_concurrency=3,
+                max_iterations=4,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=demo.trusted_plan)
+            write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=demo.trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-08T23:40:06Z",
+            )
+
+            summary = build_workspace_health_summary(workspace)
+
+        self.assertTrue(summary.scheduler_report.exists)
+        self.assertTrue(summary.scheduler_report.valid)
+        self.assertEqual(summary.status_counts.retryable, 1)
+        self.assertEqual(summary.next_action.name, "review_scheduler_report")
+        self.assertFalse(summary.next_action.writes_files)
 
     def test_workspace_health_cli_prints_summary_and_creates_no_status_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
