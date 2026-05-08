@@ -47,6 +47,12 @@ from shootflow.render_status import (
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
 from shootflow.story import StoryPlanError
+from shootflow.workspace_health import (
+    WorkspaceHealthError,
+    WorkspaceHealthSummary,
+    build_workspace_health_summary,
+    workspace_health_summary_to_dict,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -95,6 +101,8 @@ def main(
             _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "workspace-health":
+            _run_workspace_health_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -108,6 +116,7 @@ def main(
         ProductionPlanError,
         CardDumpWorkflowError,
         StoryPlanError,
+        WorkspaceHealthError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -290,6 +299,11 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    summary = build_workspace_health_summary(args.workspace)
+    stdout.write(_workspace_health_summary_json(summary))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -442,6 +456,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    workspace_health = subparsers.add_parser(
+        "workspace-health",
+        help="Summarize trusted handoff health and the next safe CLI action without writing files.",
+    )
+    workspace_health.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing ShootFlow handoff manifests.",
     )
 
     return parser
@@ -833,6 +857,20 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _workspace_health_summary_json(summary: WorkspaceHealthSummary) -> str:
+    if not isinstance(summary, WorkspaceHealthSummary):
+        raise ShootFlowCliError("summary must be a WorkspaceHealthSummary")
+    return (
+        json.dumps(
+            workspace_health_summary_to_dict(summary),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:

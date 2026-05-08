@@ -92,6 +92,11 @@ This repo currently contains the first testable core utilities:
   skips system, network, missing, file-backed, and symlinked mounts, maps
   ejectable/removable drives into the existing `StorageCandidate` contract, and
   reuses the same review-required, capacity-gated import-route recommendation.
+- `shootflow.workspace_health` gives Mac shells, launch agents, and continuation
+  automations a read-only health check over trusted handoff files. It reports
+  whether render tasks, render status, and scheduler reports exist and validate,
+  summarizes status counts, and suggests the next safe CLI action without
+  creating, resetting, deleting, or repairing any files.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -192,10 +197,16 @@ The intended first workflow is:
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
+23. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+    native shell, launch agent, or automation resumes a shoot. The command
+    validates the durable handoff files it can trust, reports invalid handoffs
+    for review, and prints the next safe command instead of trying to repair or
+    advance the workspace itself.
 
 The current persisted-manifest CLI flow is:
 
 ```bash
+PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \

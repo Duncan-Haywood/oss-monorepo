@@ -102,6 +102,11 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.workspace_health`: a read-only continuation diagnostic for native shells, launch agents, and future
+  agents. It validates the persisted render-task manifest, matching render-status manifest, and scheduler report when
+  enough trusted context exists; summarizes status counts; and emits a single next safe action. Missing files are
+  treated as workflow state, while invalid files are surfaced for review instead of being reset, repaired, or
+  overwritten.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -126,6 +131,10 @@ The repo currently contains a Python core package because it is quick to test an
   Confirmed reports expose advisory `next_actions` for trusted storyline/graded
   preparation and render-task writing so native shells can guide the user without
   expanding file authority.
+  The `workspace-health` command exposes the read-only continuation diagnostic as
+  schema-versioned JSON. It is intentionally non-advancing: it may recommend
+  `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
+  it never performs those writes itself.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing

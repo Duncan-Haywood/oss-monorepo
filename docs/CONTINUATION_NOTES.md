@@ -2,6 +2,35 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-08 23:30 UTC
+
+The assigned branch `cursor/autonomous-media-studio-8ebc` started this cron run
+at `origin/main`, so it first merged the already-verified
+`origin/cursor/ai-media-operating-system-d72f` lineage and pushed that merge as
+`merge: consolidate prior autonomous media studio iteration`.
+
+This run then added a read-only continuation health layer:
+
+- `shootflow.workspace_health.build_workspace_health_summary(...)` validates the
+  trusted render-task manifest, matching render-status manifest, and scheduler
+  report when present, summarizes render status counts, and returns a single next
+  safe action without writing or repairing files.
+- `python -m shootflow.cli workspace-health --workspace <dir>` prints the same
+  schema-versioned JSON for Mac shells, launch agents, and future autonomous
+  runs.
+- Invalid handoffs are reported as review actions (`review_invalid_render_*`)
+  instead of being overwritten or reset; missing handoffs are treated as normal
+  workflow state (`write_render_tasks` / `init_render_status` /
+  `run_dry_run_render_scheduler`).
+
+Expected verification after this change is:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests
+python3 -m compileall -q src tests
+git diff --check
+```
+
 ## Branch consolidation note - 2026-05-08 23:00 UTC
 
 The assigned branch `cursor/ai-media-operating-system-d72f` started this run at
