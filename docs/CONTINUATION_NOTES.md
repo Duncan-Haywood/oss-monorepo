@@ -8,6 +8,29 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added high-volume-aware import-route capacity gating in `shootflow.storage`:
+  - new `recommend_import_route_with_capacity(...)` takes `expected_import_bytes`
+    plus configurable `headroom_bytes`;
+  - destination recommendation is blocked when free space is insufficient for the
+    estimated import plus safety headroom;
+  - recommendation safety notes now include the active capacity gate requirement;
+  - preserved non-destructive route semantics (review required, no source deletion
+    authority, checksum-manifest reminder).
+- Added storage tests for:
+  - capacity-gated destination rejection with explicit safety notes;
+  - capacity-gated ready route when destination free space is sufficient;
+  - capacity-gated argument validation.
+- Deepened product docs:
+  - `docs/PRODUCT_STRATEGY.md` now includes explicit ICP prioritization,
+    Mac-first packaging rationale, monetization shape, and Instagram-led GTM
+    framing;
+  - `docs/BUSINESS_PLAN.md` added as a dedicated business/monetization/GTM and
+    execution artifact;
+  - `docs/TERMS_AND_CONDITIONS_DRAFT.md` now includes explicit draft clause
+    language for indemnification and non-destructive file handling.
+
+## Previous iteration
+
 - Fast-forwarded the active branch from the latest ShootFlow foundation on
   `origin/cursor/media-content-automation-5b63`, pushed that baseline to
   `cursor/media-content-automation-8119`, then added a reviewed storage import-route recommendation layer.

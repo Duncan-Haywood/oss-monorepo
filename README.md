@@ -69,7 +69,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
-  deletion or blind-import authority.
+  deletion or blind-import authority. It also includes an optional
+  capacity-gated recommendation path for high-volume shoots so estimated import
+  size plus safety headroom can block risky destination choices.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -147,6 +149,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 ## Product docs
 
 - `docs/PRODUCT_STRATEGY.md`
+- `docs/BUSINESS_PLAN.md`
 - `docs/DESIGN_DECISIONS.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
 - `docs/CONTINUATION_NOTES.md`

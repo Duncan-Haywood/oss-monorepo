@@ -156,3 +156,64 @@ to automate.
    print it as JSON for a Mac app or background automation process.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
+
+## Focus decision: who we serve first
+
+ShootFlow should prioritize one paying segment first, then expand:
+
+1. **Primary ICP (v1):** professional photographers/videographers with recurring
+   client work (weddings, events, portrait/editorial teams) who process large
+   weekly batches and can justify paid software quickly.
+2. **Secondary ICP (v1.5+):** creator businesses (small teams or solo creators
+   with sponsorship workflows) that need more output consistency and throughput.
+3. **Later ICP:** casual creators and hobbyists, once the workflow is stable and
+   support burden is low enough for lower-price plans.
+
+Why this order:
+
+- Pros feel pain weekly, not occasionally.
+- Pros already pay either with hours or with editor spend.
+- Pros care about safe ingest + predictable turnaround, which is ShootFlow's
+  strongest moat versus generic AI editing apps.
+
+## Product packaging and platform strategy
+
+- **Mac app first:** full ingest/organize/edit/export automation for high-volume
+  local media workflows and attached drives.
+- **iPhone app second (companion):** review selects, approve reels/carousels,
+  annotate grade tweaks, and prep captions/calendars while away from desk.
+- **Cloud optional, local default:** local processing and storage should remain
+  first-class so customers are not forced to upload terabytes. Cloud acceleration
+  can be an opt-in compute booster for burst jobs.
+
+## Monetization strategy (working model)
+
+- **Base subscription:** local-first pipeline (ingest safety, organization, batch
+  grading, draft IG deliverables).
+- **Pro tier:** stronger presets/looks, collaboration/review tools, and faster
+  job orchestration.
+- **Usage add-on:** optional accelerated VLM/render credits for very large shoots
+  or faster turnaround windows.
+
+Pricing should be anchored against time/editor replacement value, not only
+"software category" pricing. A credible value story:
+
+- If users save 8-15 hours/week of editing/admin time or avoid part of editor
+  spend, even a premium monthly price can remain ROI-positive.
+- The product promise should be "more high-quality outputs per week with less
+  operational overhead," not guaranteed engagement outcomes.
+
+## Go-to-market thesis
+
+- **Primary channel:** Instagram-native marketing (creator/pro reels showing
+  before/after workflow speed, not only visual quality).
+- **Secondary channels:** partnerships with editing educators, wedding/photo
+  communities, and post-production agencies.
+- **Positioning:** "the safest way to turn card dumps into client-ready and
+  IG-ready deliverables at scale."
+
+Messaging should emphasize:
+
+1. Source-media safety (no destructive ingest).
+2. Predictable ingest-to-deliverable turnaround.
+3. Better content throughput without adding editing headcount.

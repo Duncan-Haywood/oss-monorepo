@@ -46,13 +46,7 @@ def recommend_import_route(candidates: list[StorageCandidate]) -> ImportRouteRec
     ingest planner and checksum-copy manifest boundary.
     """
 
-    if not isinstance(candidates, list):
-        raise TypeError("candidates must be a list of StorageCandidate objects")
-    if not candidates:
-        raise ValueError("candidates cannot be empty")
-    for candidate in candidates:
-        if not isinstance(candidate, StorageCandidate):
-            raise TypeError("candidates must contain only StorageCandidate objects")
+    _validate_candidates(candidates)
 
     ranked = rank_storage_candidates(candidates)
     source = _first_role(ranked, "source")
@@ -64,6 +58,57 @@ def recommend_import_route(candidates: list[StorageCandidate]) -> ImportRouteRec
         source=source,
         destination=destination,
         destination_rejection_notes=destination_rejection_notes,
+    )
+
+    return ImportRouteRecommendation(
+        source=source,
+        destination=destination,
+        status="ready_for_review" if ready else "blocked",
+        ready=ready,
+        review_required=True,
+        safety_notes=notes,
+    )
+
+
+def recommend_import_route_with_capacity(
+    candidates: list[StorageCandidate],
+    *,
+    expected_import_bytes: int,
+    headroom_bytes: int = 32 * 1024**3,
+) -> ImportRouteRecommendation:
+    """Recommend an import route only if destination free space is clearly safe.
+
+    This wrapper keeps the same conservative source/destination selection rules as
+    recommend_import_route(...) and adds one more guardrail for high-volume runs:
+    destination free bytes must be at least expected_import_bytes + headroom_bytes.
+    """
+
+    if not isinstance(expected_import_bytes, int):
+        raise TypeError("expected_import_bytes must be an integer")
+    if expected_import_bytes <= 0:
+        raise ValueError("expected_import_bytes must be greater than zero")
+    if not isinstance(headroom_bytes, int):
+        raise TypeError("headroom_bytes must be an integer")
+    if headroom_bytes < 0:
+        raise ValueError("headroom_bytes cannot be negative")
+
+    _validate_candidates(candidates)
+    required_free_bytes = expected_import_bytes + headroom_bytes
+    ranked = rank_storage_candidates(candidates)
+    source = _first_role(ranked, "source")
+    if source is not None and not source.candidate.path.is_dir():
+        source = None
+    destination, destination_rejection_notes = _first_destination_not_source(
+        ranked,
+        source,
+        required_free_bytes=required_free_bytes,
+    )
+    ready = source is not None and destination is not None
+    notes = _import_route_safety_notes(
+        source=source,
+        destination=destination,
+        destination_rejection_notes=destination_rejection_notes,
+        required_free_bytes=required_free_bytes,
     )
 
     return ImportRouteRecommendation(
@@ -131,6 +176,16 @@ def _rank_candidate(candidate: StorageCandidate) -> RankedStorageCandidate:
     )
 
 
+def _validate_candidates(candidates: list[StorageCandidate]) -> None:
+    if not isinstance(candidates, list):
+        raise TypeError("candidates must be a list of StorageCandidate objects")
+    if not candidates:
+        raise ValueError("candidates cannot be empty")
+    for candidate in candidates:
+        if not isinstance(candidate, StorageCandidate):
+            raise TypeError("candidates must contain only StorageCandidate objects")
+
+
 def _first_role(
     ranked: list[RankedStorageCandidate],
     role: str,
@@ -144,6 +199,8 @@ def _first_role(
 def _first_destination_not_source(
     ranked: list[RankedStorageCandidate],
     source: RankedStorageCandidate | None,
+    *,
+    required_free_bytes: int | None = None,
 ) -> tuple[RankedStorageCandidate | None, tuple[str, ...]]:
     rejection_notes: list[str] = []
     source_path = source.candidate.path.resolve() if source is not None else None
@@ -160,6 +217,11 @@ def _first_destination_not_source(
         if source_path is not None and _path_is_relative_to(destination_path, source_path):
             rejection_notes.append("destination candidate is inside the selected source")
             continue
+        if required_free_bytes is not None and candidate.candidate.free_bytes < required_free_bytes:
+            rejection_notes.append(
+                "destination candidate does not have enough free space for estimated import plus safety headroom"
+            )
+            continue
         return candidate, ()
     return None, tuple(dict.fromkeys(rejection_notes))
 
@@ -169,6 +231,7 @@ def _import_route_safety_notes(
     source: RankedStorageCandidate | None,
     destination: RankedStorageCandidate | None,
     destination_rejection_notes: tuple[str, ...],
+    required_free_bytes: int | None = None,
 ) -> tuple[str, ...]:
     notes = [
         "review source and destination before importing",
@@ -183,6 +246,10 @@ def _import_route_safety_notes(
             notes.extend(destination_rejection_notes)
         else:
             notes.append("no automatic destination candidate with enough writable space")
+    if required_free_bytes is not None:
+        notes.append(
+            f"capacity gate active: destination should have at least {_format_bytes(required_free_bytes)} free"
+        )
     return tuple(notes)
 
 
@@ -192,3 +259,19 @@ def _path_is_relative_to(path: Path, root: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _format_bytes(num_bytes: int) -> str:
+    kib = 1024
+    mib = kib * 1024
+    gib = mib * 1024
+    tib = gib * 1024
+    if num_bytes >= tib:
+        return f"{num_bytes / tib:.2f} TiB"
+    if num_bytes >= gib:
+        return f"{num_bytes / gib:.2f} GiB"
+    if num_bytes >= mib:
+        return f"{num_bytes / mib:.2f} MiB"
+    if num_bytes >= kib:
+        return f"{num_bytes / kib:.2f} KiB"
+    return f"{num_bytes} B"

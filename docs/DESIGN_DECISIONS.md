@@ -282,3 +282,35 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
 - VLM providers: local model support for privacy vs. hosted APIs for quality and throughput.
 - Sync model between Mac and iPhone.
 - Pricing: one-time pro tool, subscription, or usage-based render credits.
+
+## New decisions (current iteration)
+
+### Decision: prioritize pro service providers first
+
+- **Status:** accepted
+- **Rationale:** working pros (wedding/event/photo-video teams) have persistent
+  workflow pain, existing spend, and stronger willingness to pay versus casual
+  creator users.
+- **Consequence:** feature prioritization should bias toward ingest reliability,
+  batch safety, repeatable quality, and fast review/handoff over broad social
+  novelty features.
+
+### Decision: Mac-first product, iPhone as companion
+
+- **Status:** accepted
+- **Rationale:** SD/SSD ingest, large local catalogs, and heavy parallel media
+  workflows are desktop-native jobs. iPhone remains valuable for review and
+  approvals, but not as the core execution runtime.
+- **Consequence:** keep the core pipeline local-first and deterministic so a
+  future SwiftUI desktop shell and background agent can orchestrate without
+  cloud lock-in.
+
+### Decision: destination capacity gate for route recommendation
+
+- **Status:** accepted
+- **Rationale:** static "writable destination" checks are not sufficient for
+  10,000-asset shoots. Route recommendation should optionally enforce estimated
+  import bytes plus safety headroom before marking a route review-ready.
+- **Consequence:** `recommend_import_route_with_capacity(...)` now exists as the
+  high-volume recommendation entry point; UI/agent layers should prefer it when
+  an estimated import size is available.

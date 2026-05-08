@@ -2,7 +2,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from shootflow.storage import StorageCandidate, rank_storage_candidates, recommend_import_route
+from shootflow.storage import (
+    StorageCandidate,
+    rank_storage_candidates,
+    recommend_import_route,
+    recommend_import_route_with_capacity,
+)
 
 
 class StorageRankingTest(unittest.TestCase):
@@ -208,6 +213,105 @@ class StorageRankingTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             recommend_import_route([object()])
+
+    def test_capacity_route_blocks_when_estimated_import_would_overfill_destination(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            card = workspace / "EOS_DIGITAL"
+            ssd = workspace / "Samsung_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir()
+
+            recommendation = recommend_import_route_with_capacity(
+                [
+                    StorageCandidate(
+                        name="EOS_DIGITAL",
+                        path=card,
+                        free_bytes=8 * 1024**3,
+                        total_bytes=128 * 1024**3,
+                        is_removable=True,
+                        is_read_only=True,
+                    ),
+                    StorageCandidate(
+                        name="Samsung_T7",
+                        path=ssd,
+                        free_bytes=90 * 1024**3,
+                        total_bytes=2 * 1024**4,
+                        is_removable=True,
+                        is_read_only=False,
+                    ),
+                ],
+                expected_import_bytes=80 * 1024**3,
+                headroom_bytes=32 * 1024**3,
+            )
+
+        self.assertFalse(recommendation.ready)
+        self.assertEqual(recommendation.status, "blocked")
+        self.assertIsNone(recommendation.destination)
+        self.assertIn(
+            "destination candidate does not have enough free space for estimated import plus safety headroom",
+            recommendation.safety_notes,
+        )
+        self.assertIn("capacity gate active", " ".join(recommendation.safety_notes))
+
+    def test_capacity_route_allows_ready_destination_when_capacity_gate_passes(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            card = workspace / "EOS_DIGITAL"
+            ssd = workspace / "Samsung_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir()
+
+            recommendation = recommend_import_route_with_capacity(
+                [
+                    StorageCandidate(
+                        name="EOS_DIGITAL",
+                        path=card,
+                        free_bytes=8 * 1024**3,
+                        total_bytes=128 * 1024**3,
+                        is_removable=True,
+                        is_read_only=True,
+                    ),
+                    StorageCandidate(
+                        name="Samsung_T7",
+                        path=ssd,
+                        free_bytes=300 * 1024**3,
+                        total_bytes=2 * 1024**4,
+                        is_removable=True,
+                        is_read_only=False,
+                    ),
+                ],
+                expected_import_bytes=80 * 1024**3,
+                headroom_bytes=32 * 1024**3,
+            )
+
+        self.assertTrue(recommendation.ready)
+        self.assertEqual(recommendation.status, "ready_for_review")
+        self.assertEqual(recommendation.destination.candidate.name, "Samsung_T7")
+        self.assertIn("capacity gate active", " ".join(recommendation.safety_notes))
+
+    def test_capacity_route_validates_arguments(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            card = workspace / "EOS_DIGITAL"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            candidates = [
+                StorageCandidate(
+                    name="EOS_DIGITAL",
+                    path=card,
+                    free_bytes=8 * 1024**3,
+                    total_bytes=128 * 1024**3,
+                    is_removable=True,
+                    is_read_only=True,
+                )
+            ]
+
+            with self.assertRaises(ValueError):
+                recommend_import_route_with_capacity(candidates, expected_import_bytes=0)
+            with self.assertRaises(TypeError):
+                recommend_import_route_with_capacity(candidates, expected_import_bytes=1, headroom_bytes=1.5)
+            with self.assertRaises(TypeError):
+                recommend_import_route_with_capacity(candidates, expected_import_bytes="x")  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":

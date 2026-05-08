@@ -42,6 +42,39 @@ Customers should indemnify and hold harmless the company, its affiliates, employ
 
 The company should indemnify customers only for narrow claims that the hosted software, as provided by the company and used according to the terms, infringes third-party intellectual property rights, subject to standard exclusions for customer media, modifications, unsupported workflows, and third-party services.
 
+## Draft clause language (for counsel refinement)
+
+The following is intentionally non-final and should be reviewed by counsel
+before launch.
+
+### Customer indemnification (draft)
+
+"You will defend, indemnify, and hold harmless Company, its affiliates, and
+their respective officers, directors, employees, contractors, and agents from
+and against any third-party claims, liabilities, damages, losses, and expenses
+(including reasonable attorneys' fees) arising out of or related to: (a) Your
+Media; (b) Your use of the Services in violation of applicable law, platform
+terms, or third-party rights; (c) Your instructions, prompts, presets, metadata,
+or publication decisions; or (d) Your failure to maintain independent backups of
+source media."
+
+### Company indemnification (draft)
+
+"Company will defend You against third-party claims alleging that the Services,
+as provided by Company and used by You in accordance with this Agreement,
+infringe such third party's intellectual property rights, and will indemnify You
+for resulting damages and settlement amounts, subject to exclusions for
+customer-provided media/content, customer modifications, combinations not
+provided by Company, and use of unsupported third-party systems."
+
+### File safety and deletion boundary (draft)
+
+"Unless expressly enabled in a separately documented feature with explicit user
+confirmation, the Services are designed to copy and organize media, not delete
+source media. You acknowledge that device detection, route recommendations, and
+automation suggestions are advisory, may be incomplete, and do not replace Your
+independent verification and backup practices."
+
 ## Limitation of liability concept
 
 - Exclude liability for lost profits, lost business, reputational harm, lost data, corrupted media, platform account penalties, and indirect damages to the maximum extent allowed by law.
