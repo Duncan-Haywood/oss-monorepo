@@ -18,6 +18,9 @@ This is a working product/legal draft for review by counsel before any public la
 - Mounted-volume discovery should be framed as advisory scanning of user/system-provided locations. Skipping symlinks, files, inaccessible paths, or unusual devices is a safety feature, not a guarantee that every connected device will be detected.
 - Generated manifests, render status files, and scheduler reports should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
 - Command-line ingest automation requires an explicit `--confirm` flag before any media is copied. Discovery and preview commands are advisory; they never copy files, never write a manifest, and never delete media. Even with `--confirm`, source media is not deleted, destination files are never overwritten with different bytes, and every copy is verified by SHA-256 before the manifest is written.
+- Post-ingest production planning is read-only. The current `plan-production`
+  command reloads and validates the manifest, summarizes planned work, and does
+  not create analysis, graded, render-status, or deliverable files.
 
 ## Customer responsibilities
 

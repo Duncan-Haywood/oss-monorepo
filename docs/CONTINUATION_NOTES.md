@@ -8,6 +8,26 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added a read-only post-ingest production-plan handoff:
+  - `shootflow.production_report.build_production_plan_report(...)` reloads a
+    verified `ingest_manifest.json`, builds the deterministic production plan,
+    and returns asset counts, job counts, wave summaries, and planned Instagram
+    deliverables;
+  - `python -m shootflow.cli plan-production --ingest-manifest <path>` prints
+    that report as compact JSON for a Mac app, launch agent, or native-shell
+    demo;
+  - the command creates no `analysis/`, `graded/`, `deliverables/`, render-task,
+    status, or scheduler-report files, so it is safe to run immediately after
+    card offload before starting AI/color work.
+- Added CLI tests covering a real `execute-ingest --confirm` output feeding the
+  new production-plan report, preserving copied WAV/scratch audio in the ingest
+  manifest while excluding it from photo/video production assets, and rejecting
+  manifests that claim source media was deleted without downstream side effects.
+- Updated README, design/product/business/legal docs to describe the new safe
+  "what happens next" screen between ingest and production execution.
+
+## Previous iteration
+
 - Added `shootflow.demo_workspace` as a safe persisted CLI smoke/demo helper:
   - `create_persisted_cli_demo_workspace(...)` writes deterministic placeholder
     storyline/graded inputs plus `deliverables/render_tasks.json` for a tiny

@@ -54,56 +54,59 @@ The current core models a concrete promise for high-volume users:
    review-required source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
-4. Fan out proxy and VLM analysis work across every asset.
-5. Rejoin at scene grouping and look development so the grade is consistent.
-6. Fan out graded master rendering.
-7. Rank storylines from VLM quality, scene, and narrative signals.
-8. Plan renderer-neutral assembly tasks from verified graded storyline selects.
-9. Initialize and track render progress and retry safety through a trusted
+4. Generate a read-only production-plan report from that manifest so the user
+   can review asset counts, parallel wave shape, and planned IG deliverables
+   before AI/color jobs start writing new artifacts.
+5. Fan out proxy and VLM analysis work across every asset.
+6. Rejoin at scene grouping and look development so the grade is consistent.
+7. Fan out graded master rendering.
+8. Rank storylines from VLM quality, scene, and narrative signals.
+9. Plan renderer-neutral assembly tasks from verified graded storyline selects.
+10. Initialize and track render progress and retry safety through a trusted
    status manifest that never resets existing matching progress.
-10. Schedule only dependency-ready pending/retryable render work through a dry-run
+11. Schedule only dependency-ready pending/retryable render work through a dry-run
    worker action plan.
-11. Claim ready work as running and report success/retry/failure with checksums
+12. Claim ready work as running and report success/retry/failure with checksums
     for expected deliverable outputs.
-12. Persist each claim or result with a single-task compare/write status update
+13. Persist each claim or result with a single-task compare/write status update
     that holds a local advisory lock and rejects stale state or attempt
     preconditions, with an optional `updated_at` lease token for timeout-sensitive
     updates.
-13. Recover from interrupted local workers by planning explicit stale-running
+14. Recover from interrupted local workers by planning explicit stale-running
     lease expirations from trusted status plus a caller-provided cutoff, then
     persisting each retryable transition through the same compare/write path so
     same-attempt heartbeat refreshes cannot be overwritten by stale schedulers.
     Conflicted expirations remain visible to the scheduler/UI as "another worker
     already changed this task" rather than being hidden as generic failures.
-14. Prove renderer orchestration with a dry-run adapter that consumes only
+15. Prove renderer orchestration with a dry-run adapter that consumes only
     ready worker actions, persists claim/result transitions, writes only
     declared deliverable outputs, and refuses to overwrite existing different
     files.
-15. Execute trusted dry-run action batches with bounded local concurrency so
+16. Execute trusted dry-run action batches with bounded local concurrency so
     parallel-safe photo-set chunks can progress quickly while serial actions,
     stale claims, and blocked tasks stay explicit.
-16. Run an iterative dry-run scheduler loop that reloads trusted render status,
+17. Run an iterative dry-run scheduler loop that reloads trusted render status,
     safely expires stale leases, plans ready work, executes bounded batches, and
     stops with explicit complete/blocked/retryable/failed/waiting state for the Mac app
     or background agent.
-17. Persist a strict scheduler report for the Mac app or next background agent,
+18. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
     task IDs, stale-lease conflicts, and human-readable failure messages.
-18. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
+19. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
     commands so a Mac launch agent, menu-bar app, or automation runner can
     bootstrap and advance work without reconstructing the production planner in
     memory.
-19. Drive safe ingest itself through the same CLI surface: `preview-ingest`
+20. Drive safe ingest itself through the same CLI surface: `preview-ingest`
     plans a checksum-verified copy and prints planned items as JSON without
     moving bytes; `execute-ingest --confirm` runs the existing safe copy +
     manifest contract (no source deletion, no overwriting different bytes,
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-20. Create repeatable persisted-manifest smoke/demo workspaces through the core
+21. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-21. Assemble reels, carousels, and photo sets from graded masters.
+22. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -124,8 +127,9 @@ to automate.
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
-   recommendation; the next step is native macOS metadata (Disk Arbitration/Swift UI approval) around that
-   contract.
+   recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
+   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around that
+   contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one

@@ -42,6 +42,11 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
+- `shootflow.production_report`: a read-only post-ingest report layer. It reloads a verified
+  `ingest_manifest.json`, builds the deterministic production plan, and summarizes asset counts,
+  parallel/serial wave shape, and planned Instagram deliverables without writing analysis, graded, render,
+  status, or deliverable files. This gives the future Mac UI a safe "what happens next" screen between
+  card offload and AI/color execution.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.
@@ -110,37 +115,39 @@ Future native applications should wrap these contracts rather than reimplementin
 The desired high-quality pipeline is:
 
 1. Ingest originals to a dated shoot folder.
-2. Generate proxies and technical metadata in parallel.
-3. Run content understanding: scene grouping, face/object/context tags, sharpness, exposure, motion, audio energy, and duplicate detection.
-4. Build look references from user presets, past shoots, brand mood boards, or a hero frame.
-5. Generate non-destructive color decisions per scene/set, not isolated per asset.
-6. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
-7. Export graded intermediates for all selects.
-8. Plan assembly tasks from trusted graded selections before invoking any renderer.
-9. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
-10. Plan renderer-neutral worker actions from the trusted task/status pair.
-11. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
+2. Produce a read-only production-plan report from the verified ingest manifest so the operator can see
+   asset counts, parallel wave shape, and planned IG deliverables before automation creates new artifacts.
+3. Generate proxies and technical metadata in parallel.
+4. Run content understanding: scene grouping, face/object/context tags, sharpness, exposure, motion, audio energy, and duplicate detection.
+5. Build look references from user presets, past shoots, brand mood boards, or a hero frame.
+6. Generate non-destructive color decisions per scene/set, not isolated per asset.
+7. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
+8. Export graded intermediates for all selects.
+9. Plan assembly tasks from trusted graded selections before invoking any renderer.
+10. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
+11. Plan renderer-neutral worker actions from the trusted task/status pair.
+12. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
     declared deliverable outputs only.
-12. Persist each worker transition through a single-task compare/write helper so stale workers cannot
+13. Persist each worker transition through a single-task compare/write helper so stale workers cannot
     overwrite newer claims or results.
-13. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
+14. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
     transition through the same single-task compare/write boundary.
-14. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
+15. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
     rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
-15. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
+16. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
     progress while serial reels and blocked tasks stay deterministic and inspectable.
-16. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
+17. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
     expiration, ready-action planning, bounded batch execution, and explicit stop summaries for UI/retry decisions.
-17. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
+18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-18. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
+19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-19. Keep a small persisted-manifest demo workspace helper available so Mac UI
+20. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-20. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-21. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+21. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+22. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

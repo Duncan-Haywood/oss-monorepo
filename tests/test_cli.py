@@ -695,5 +695,135 @@ class ShootFlowIngestCliTests(unittest.TestCase):
             self.assertIn("Invalid shoot slug", stderr.getvalue())
 
 
+class ShootFlowProductionPlanCliTests(unittest.TestCase):
+    def test_plan_production_command_summarizes_manifest_backed_pipeline_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            jpeg = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            clip = card / "PRIVATE" / "A001.MOV"
+            audio = card / "PRIVATE" / "A001.WAV"
+            raw.parent.mkdir(parents=True)
+            clip.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            jpeg.write_bytes(b"jpeg-bytes")
+            clip.write_bytes(b"video-bytes")
+            audio.write_bytes(b"scratch-audio")
+            ingest_stdout = io.StringIO()
+
+            ingest_exit_code = main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-08_desert-editorial"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            plan_stdout = io.StringIO()
+
+            plan_exit_code = main(
+                [
+                    "plan-production",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=plan_stdout,
+            )
+
+            report = json.loads(plan_stdout.getvalue())
+            self.assertEqual(ingest_exit_code, 0)
+            self.assertEqual(plan_exit_code, 0)
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["manifest_path"], str(manifest_path))
+            self.assertEqual(report["workspace"], str(shoot_folder))
+            self.assertEqual(report["shoot_date"], "2026-05-08")
+            self.assertEqual(report["shoot_slug"], "desert-editorial")
+            self.assertEqual(report["asset_counts"], {"photo": 2, "video": 1, "total": 3})
+            self.assertEqual(report["copied_manifest_item_count"], 4)
+            self.assertEqual(report["production_plan"]["job_count"], 15)
+            self.assertEqual(report["production_plan"]["parallel_job_count"], 9)
+            self.assertEqual(report["production_plan"]["serial_job_count"], 6)
+            self.assertEqual(
+                [(wave["wave_index"], wave["job_count"], wave["output_kinds"]) for wave in report["waves"]],
+                [
+                    (0, 3, ["proxy_media"]),
+                    (1, 3, ["vlm_asset_analysis"]),
+                    (2, 1, ["scene_grouping"]),
+                    (3, 1, ["look_development"]),
+                    (4, 3, ["graded_photo", "graded_video"]),
+                    (5, 1, ["storyline_selection"]),
+                    (6, 3, ["instagram_carousel", "instagram_photo_set", "instagram_reel"]),
+                ],
+            )
+            self.assertEqual(
+                [deliverable["output_kind"] for deliverable in report["deliverables"]],
+                ["instagram_reel", "instagram_carousel", "instagram_photo_set"],
+            )
+            self.assertIn("read-only production plan", report["notes"])
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
+    def test_plan_production_command_rejects_deleted_source_manifest_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            photo = card / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "unsafe-deletion",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-08_unsafe-deletion"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest_data["source_deleted"] = True
+            manifest_path.write_text(json.dumps(manifest_data), encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-production",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("source media was deleted", stderr.getvalue())
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

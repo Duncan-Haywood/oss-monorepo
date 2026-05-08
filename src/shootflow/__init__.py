@@ -9,6 +9,7 @@ __all__ = [
     "demo_workspace",
     "ingest",
     "production",
+    "production_report",
     "render_adapter",
     "render_scheduler",
     "render_status",

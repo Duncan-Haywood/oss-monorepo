@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TextIO
 
 from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
+from shootflow.catalog import CatalogError
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -17,6 +18,8 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
+from shootflow.production import ProductionPlanError
+from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -74,15 +77,19 @@ def main(
             _run_preview_ingest_command(args, stdout=out)
         elif args.command == "execute-ingest":
             _run_execute_ingest_command(args, stdout=out)
+        elif args.command == "plan-production":
+            _run_plan_production_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
         AssemblyPlanError,
+        CatalogError,
         DryRunRenderSchedulerError,
         RenderStatusError,
         ShootFlowCliError,
         IngestError,
         FileNotFoundError,
+        ProductionPlanError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -217,6 +224,11 @@ def _run_execute_ingest_command(args: argparse.Namespace, *, stdout: TextIO) -> 
     stdout.write(_execute_ingest_json(plan, report))
 
 
+def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = build_production_plan_report(args.ingest_manifest)
+    stdout.write(_production_plan_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -307,6 +319,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm",
         action="store_true",
         help="Required to actually copy media. Without --confirm the command refuses to run.",
+    )
+
+    production = subparsers.add_parser(
+        "plan-production",
+        help="Summarize manifest-backed production waves after safe ingest.",
+    )
+    production.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
     )
 
     return parser
@@ -522,6 +544,59 @@ def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
                 "no source files were deleted",
                 "all copied files were verified by SHA-256 checksum",
                 "review ingest_manifest.json before formatting the source card",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _production_plan_report_json(report: ProductionPlanReport) -> str:
+    if not isinstance(report, ProductionPlanReport):
+        raise ShootFlowCliError("report must be a ProductionPlanReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "manifest_path": str(report.manifest_path),
+            "workspace": str(report.workspace),
+            "shoot_date": report.shoot_date,
+            "shoot_slug": report.shoot_slug,
+            "copied_manifest_item_count": report.copied_manifest_item_count,
+            "asset_counts": {
+                "photo": report.photo_asset_count,
+                "video": report.video_asset_count,
+                "total": report.photo_asset_count + report.video_asset_count,
+            },
+            "production_plan": {
+                "job_count": report.production_job_count,
+                "parallel_job_count": report.parallel_job_count,
+                "serial_job_count": report.serial_job_count,
+                "wave_count": len(report.waves),
+            },
+            "waves": [
+                {
+                    "wave_index": wave.wave_index,
+                    "job_count": wave.job_count,
+                    "output_kinds": list(wave.output_kinds),
+                    "parallel_job_count": wave.parallel_job_count,
+                    "serial_job_count": wave.serial_job_count,
+                }
+                for wave in report.waves
+            ],
+            "deliverables": [
+                {
+                    "job_id": deliverable.job_id,
+                    "output_kind": deliverable.output_kind,
+                    "outputs": list(deliverable.outputs),
+                    "depends_on": list(deliverable.depends_on),
+                }
+                for deliverable in report.deliverables
+            ],
+            "notes": [
+                "read-only production plan",
+                "no analysis, grading, render, or deliverable files were written",
+                "ingest manifest remains the safety boundary before AI/editing work",
             ],
         },
         ensure_ascii=True,

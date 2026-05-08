@@ -95,6 +95,10 @@ This repo currently contains the first testable core utilities:
 - `shootflow.production` expands a shoot into deterministic proxy, VLM
   analysis, look-development, grading, storyline selection, and Instagram
   packaging waves.
+- `shootflow.production_report` turns a verified `ingest_manifest.json` into a
+  compact read-only production-wave report, giving a Mac app or launch agent the
+  next safe screen after card offload without creating analysis, graded, or
+  render files.
 
 The intended first workflow is:
 
@@ -106,59 +110,62 @@ The intended first workflow is:
    management and AI/editing work.
 4. Load the manifest with `shootflow.catalog`, which rechecks manifest
    location, destination paths, file sizes, and checksums before production.
-5. Build production waves from manifest-backed photo/video assets so proxies,
+5. Summarize the manifest-backed production plan with `plan-production` so a Mac
+   UI can show asset counts, parallel waves, and planned IG deliverables before
+   starting AI/color work.
+6. Build production waves from manifest-backed photo/video assets so proxies,
    VLM analysis, color decisions, graded masters, storyline choices, and
    Instagram packages all trace back to verified originals.
-6. Load VLM results with `shootflow.analysis` so social planning consumes graded
+7. Load VLM results with `shootflow.analysis` so social planning consumes graded
    artifact paths and rejects analysis that does not match the planned source
    assets.
-7. Persist `shootflow.story` selections as a trusted storyline artifact for
+8. Persist `shootflow.story` selections as a trusted storyline artifact for
    downstream reel, reel-variant, carousel, and photo-set assemblers.
-8. Build `shootflow.assembly` render tasks that verify selected graded files
+9. Build `shootflow.assembly` render tasks that verify selected graded files
    exist, keep raw originals out of social assembly inputs, and write
    deterministic `deliverables/` targets for future renderers. Large ranked
    photo sets are split into resumable chunks while preserving stable public
    output names like `photo_00001.jpg`; named reel variants render under
    `deliverables/instagram_reels/` without replacing the default reel handoff.
-9. Persist and reload `deliverables/render_tasks.json` against the trusted
+10. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.
-10. Initialize, persist, and reload `deliverables/render_status.json` against the
+11. Initialize, persist, and reload `deliverables/render_status.json` against the
    same trusted render tasks so a Mac app, local renderer, or cloud worker can
    show pending, running, succeeded, failed, and retryable work safely without
    resetting prior progress.
-11. Derive renderer-neutral worker actions from the trusted task/status pair
+12. Derive renderer-neutral worker actions from the trusted task/status pair
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
-12. Use worker status-transition helpers to claim ready work, reject stale
+13. Use worker status-transition helpers to claim ready work, reject stale
     attempts, and report completed outputs by checksum before persisting updated
     render status manifests through a single-task compare/write update.
-13. Let the scheduler plan stale running leases from the trusted status
+14. Let the scheduler plan stale running leases from the trusted status
     manifest when a caller supplies an explicit cutoff, then persist each
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`, reporting
     same-attempt heartbeat refreshes as conflicts instead of clobbering them.
-14. Exercise adapter orchestration with the dry-run renderer before introducing
+15. Exercise adapter orchestration with the dry-run renderer before introducing
     ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
     adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
-15. Use the dry-run batch scheduler to execute dependency-ready actions at a
+16. Use the dry-run batch scheduler to execute dependency-ready actions at a
     bounded local concurrency level, record stale-action failures without
     materializing outputs, and keep blocked/running/failed work visible for
     later retries or review.
-16. Use the iterative dry-run scheduler to alternate trusted status reloads,
+17. Use the iterative dry-run scheduler to alternate trusted status reloads,
     guarded stale-lease expiration, ready-action planning, and bounded batch
     execution until the current render plan is complete, blocked, failed,
     waiting, or has retryable work that should not be hammered again without review.
-17. Persist `deliverables/render_scheduler_report.json` against the trusted
+18. Persist `deliverables/render_scheduler_report.json` against the trusted
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-18. Run the same handoff through
+19. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-19. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+20. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
@@ -207,7 +214,7 @@ PYTHONPATH=src python3 -m shootflow.cli preview-ingest \
 
 # 2) Execute the safe checksum-verified copy. Without --confirm the command
 #    refuses to run; with --confirm it copies through temporary files, verifies
-#    each destination's SHA-256, and writes deliverables/ingest_manifest.json.
+#    each destination's SHA-256, and writes ingest_manifest.json in the shoot folder.
 PYTHONPATH=src python3 -m shootflow.cli execute-ingest \
   --source /Volumes/EOS_DIGITAL \
   --destination /Volumes/Samsung_T7/ShootFlow \
@@ -221,6 +228,18 @@ with different bytes, rejects symlinked source/destination paths, and writes
 the manifest only after every copy passes its SHA-256 check. `execute-ingest`
 requires explicit `--confirm` so background-agent automation cannot trigger a
 copy by accident.
+
+After ingest, the read-only production-plan report is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli plan-production \
+  --ingest-manifest /Volumes/Samsung_T7/ShootFlow/2026-05-08_desert-editorial/ingest_manifest.json
+```
+
+This reloads and revalidates the manifest, skips non-photo/video files for
+production, summarizes asset counts, parallel production waves, and planned IG
+deliverables, and writes no analysis, graded, render-task, status, or
+deliverable files.
 
 ## Run tests
 
