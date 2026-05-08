@@ -43,7 +43,7 @@ Why this wedge wins:
 
 ## Phase 1: trusted automation core (current direction)
 
-- SD/SSD/local source detection and route recommendation.
+- SD/SSD/local source discovery and route recommendation.
 - Safe ingest with checksums and immutable manifests.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
@@ -129,7 +129,8 @@ Track product and business metrics together:
 
 ## 8) Execution priorities for next iteration
 
-1. Finish safe route recommendation + ingest assistant flow for high-volume use.
+1. Finish native Mac metadata and UI approval around the mounted-volume
+   discovery, safe route recommendation, and ingest assistant flow.
 2. Add a small persisted-manifest smoke/example workspace around
    `init-render-status` plus `dry-run-render-scheduler` so Mac UI and GTM demos
    can show a repeatable bootstrap-to-report flow.

@@ -77,6 +77,11 @@ This repo currently contains the first testable core utilities:
   deletion or blind-import authority. It also includes an optional
   capacity-gated recommendation path for high-volume shoots so estimated import
   size plus safety headroom can block risky destination choices.
+- `shootflow.storage_discovery` is the first native-app-facing discovery
+  bridge: it scans reviewed mounted-volume roots such as macOS `/Volumes`,
+  skips symlinks/files/inaccessible entries, turns immediate volume directories
+  into `StorageCandidate` records, and can feed the same capacity-gated route
+  recommendation contract.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -88,7 +93,8 @@ This repo currently contains the first testable core utilities:
 
 The intended first workflow is:
 
-1. Detect/rank attached cards, folders, and SSDs, then present a reviewed
+1. Discover mounted-volume candidates from reviewed roots such as `/Volumes`,
+   then rank attached cards, folders, and SSDs and present a reviewed
    source-to-destination import route with explicit no-delete/checksum notes.
 2. Plan and execute a safe import from the approved card, folder, or SSD.
 3. Keep the generated `ingest_manifest.json` as the boundary between file

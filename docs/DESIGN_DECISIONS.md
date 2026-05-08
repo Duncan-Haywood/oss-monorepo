@@ -17,7 +17,8 @@ ShootFlow is a personal tool and product concept for photographers and videograp
 - Write ingest manifests so later editing jobs can reference immutable originals and checksums.
 - Reject symlink-based source or destination paths in the core importer. This is intentionally strict because camera-card imports are high-trust, high-value operations.
 - Rank detected drives conservatively. Camera-card-like volumes are review-only sources; large writable SSDs
-  can be automatic destination candidates. A source/destination route can be recommended only as
+  can be automatic destination candidates. Discovery is advisory and scans only reviewed mount roots, skipping
+  symlinks and files rather than following them. A source/destination route can be recommended only as
   `ready_for_review`; the Mac app still has to show the user the source, destination, no-delete note, and
   checksum-manifest requirement before invoking ingest.
 
@@ -34,6 +35,10 @@ The repo currently contains a Python core package because it is quick to test an
   Mac/iPhone device detection layers. It can pick a likely camera-card/source plus writable SSD/local
   destination for UI review while preserving the rule that source media is never deleted and actual copies still
   go through the checksum manifest importer.
+- `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
+  roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
+  produces conservative `StorageCandidate` records before handing off to the existing reviewed route
+  recommendation and capacity-gate logic.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -321,3 +326,16 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
 - **Consequence:** `recommend_import_route_with_capacity(...)` now exists as the
   high-volume recommendation entry point; UI/agent layers should prefer it when
   an estimated import size is available.
+
+### Decision: mount-root discovery before native drive APIs
+
+- **Status:** accepted
+- **Rationale:** before wiring Swift, Disk Arbitration, or iPhone import APIs,
+  the product needs a small tested contract that says which filesystem entries
+  can become route candidates. Scanning immediate children of reviewed roots
+  keeps the core portable and avoids granting broad filesystem authority.
+- **Consequence:** `discover_storage_candidates(...)` and
+  `discover_import_route(...)` are the Mac-ingest bridge for now. A future native
+  adapter can provide richer removable/read-only metadata, but it should still
+  preserve the symlink skip, no-delete, review-required, and capacity-gated
+  handoff semantics.
