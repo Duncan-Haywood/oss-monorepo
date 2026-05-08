@@ -1198,32 +1198,32 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
             self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
             self.assertFalse(report["production_report"]["wrote_downstream_files"])
-        self.assertEqual(
-            report["next_actions"],
-            [
-                {
-                    "name": "prepare_storyline_and_graded_assets",
-                    "requires": [
-                        "analysis/instagram_storylines.json",
-                        "graded outputs for selected storyline assets",
-                    ],
-                    "writes_files": True,
-                },
-                {
-                    "name": "write_render_tasks",
-                    "command": [
-                        "write-render-tasks",
-                        "--ingest-manifest",
-                        str(manifest_path),
-                    ],
-                    "requires": [
-                        "analysis/instagram_storylines.json",
-                        "graded outputs for selected storyline assets",
-                    ],
-                    "writes_files": True,
-                },
-            ],
-        )
+            self.assertEqual(
+                report["next_actions"],
+                [
+                    {
+                        "name": "prepare_storyline_and_graded_assets",
+                        "requires": [
+                            "analysis/instagram_storylines.json",
+                            "graded outputs for selected storyline assets",
+                        ],
+                        "writes_files": True,
+                    },
+                    {
+                        "name": "write_render_tasks",
+                        "command": [
+                            "write-render-tasks",
+                            "--ingest-manifest",
+                            str(manifest_path),
+                        ],
+                        "requires": [
+                            "analysis/instagram_storylines.json",
+                            "graded outputs for selected storyline assets",
+                        ],
+                        "writes_files": True,
+                    },
+                ],
+            )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
