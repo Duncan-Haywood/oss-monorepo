@@ -29,6 +29,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Updated README, product strategy, business plan, and design decisions to
   document the two-step persisted-manifest flow:
   `init-render-status` then `dry-run-render-scheduler`.
+- Added `shootflow.storage_discovery`:
+  - `discover_storage_candidates(...)` validates caller-provided volume roots,
+    scans only immediate child directories, skips symlinked/non-directory/inaccessible
+    entries, reads filesystem capacity with `statvfs`, and emits conservative
+    `StorageCandidate` records for the existing storage ranking layer;
+  - `discover_import_route(...)` composes discovery with the existing reviewed
+    import-route recommendation, including the high-volume capacity gate when an
+    estimated import size is supplied;
+  - empty volume roots now produce a blocked, review-required recommendation
+    with no-delete/checksum safety notes instead of crashing a future Mac UI.
+- Added `tests/test_storage_discovery.py` for mounted-volume discovery, symlink/file
+  skipping, argument validation, capacity-gated route composition, and empty-volume
+  blocked recommendations.
+- Updated README, design/product/business/legal docs, and AGENTS notes to treat
+  both render-status bootstrapping and mounted-volume discovery as the current
+  Mac app/background-agent handoffs before native macOS Disk Arbitration or
+  SwiftUI approval work.
 
 ## Previous iteration
 
@@ -385,12 +402,15 @@ through a manifest-level compare/write update, identify stale running leases for
 action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
 concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
 through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, initialize missing
-render-status manifests from persisted render tasks without resetting progress, and invoke that handoff from
-persisted-manifest CLI commands. The next useful layer is either real renderer temp-output contracts, stronger
+render-status manifests from persisted render tasks without resetting progress, invoke that handoff from
+persisted-manifest CLI commands, and discover mounted-volume candidates for reviewed import routing. The next
+useful layer is either richer native macOS volume metadata, a real renderer temp-output contract, stronger
 distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
 
 Good test-first targets:
 
+- Add a native macOS metadata adapter (or a pure testable abstraction for it) that can mark internal disks,
+  removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
 - Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe

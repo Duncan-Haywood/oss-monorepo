@@ -15,6 +15,7 @@ This is a working product/legal draft for review by counsel before any public la
 - Generated deliverables should be written through safe output paths and should not overwrite user/editor-created files unless the product can prove the existing bytes match the intended output or the user explicitly approves replacement.
 - If destructive actions are ever added, they must require explicit confirmation, visible manifest review, and a recoverable holding period where technically possible.
 - Drive detection and import suggestions should be treated as recommendations until the user reviews the source and destination. The legal terms should avoid promising that the product can identify every SD card, SSD, corrupt file, or unsafe path perfectly.
+- Mounted-volume discovery should be framed as advisory scanning of user/system-provided locations. Skipping symlinks, files, inaccessible paths, or unusual devices is a safety feature, not a guarantee that every connected device will be detected.
 - Generated manifests, render status files, and scheduler reports should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
 
 ## Customer responsibilities

@@ -5,9 +5,9 @@
 ### Project overview
 
 ShootFlow is a pure-Python (stdlib-only, zero third-party dependencies) media
-automation tool for photographers/videographers. All code lives on feature
-branches (most active: `cursor/media-content-automation-8119`); the `main`
-branch has only a README.
+automation tool for photographers/videographers. The repository now contains the
+tested core on `main`; continue feature work on the branch assigned by the
+automation prompt.
 
 ### Python version
 
@@ -19,13 +19,14 @@ Requires Python 3.10+. The VM ships with Python 3.12.3, which works.
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-All 128 tests use `unittest` (stdlib). No pytest, no test dependencies. The
+All 144 tests use `unittest` (stdlib). No pytest, no test dependencies. The
 `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
 
 ### Running the CLI
 
 ```bash
 PYTHONPATH=src python3 -m shootflow.cli --help
+PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
 ```
 

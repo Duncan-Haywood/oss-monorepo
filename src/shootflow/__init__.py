@@ -13,5 +13,6 @@ __all__ = [
     "render_status",
     "render_worker",
     "storage",
+    "storage_discovery",
     "story",
 ]
