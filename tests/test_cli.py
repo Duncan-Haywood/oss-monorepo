@@ -904,6 +904,37 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
         )
         self.assertIn("writes render task manifest only", summary["notes"])
         self.assertEqual(
+            summary["next_actions"],
+            [
+                {
+                    "name": "init_render_status",
+                    "command": [
+                        "init-render-status",
+                        "--workspace",
+                        str(workspace),
+                    ],
+                    "writes_files": True,
+                },
+                {
+                    "name": "run_dry_run_render_scheduler",
+                    "command": [
+                        "dry-run-render-scheduler",
+                        "--workspace",
+                        str(workspace),
+                        "--completed-dependency",
+                        "rank_instagram_storylines",
+                    ],
+                    "requires_runtime_args": [
+                        "--renderer",
+                        "--started-at",
+                        "--completed-at",
+                        "--generated-at",
+                    ],
+                    "writes_files": True,
+                },
+            ],
+        )
+        self.assertEqual(
             [task["task_id"] for task in manifest_data["render_tasks"]],
             summary["task_ids"],
         )
@@ -1167,6 +1198,32 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
             self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
             self.assertFalse(report["production_report"]["wrote_downstream_files"])
+        self.assertEqual(
+            report["next_actions"],
+            [
+                {
+                    "name": "prepare_storyline_and_graded_assets",
+                    "requires": [
+                        "analysis/instagram_storylines.json",
+                        "graded outputs for selected storyline assets",
+                    ],
+                    "writes_files": True,
+                },
+                {
+                    "name": "write_render_tasks",
+                    "command": [
+                        "write-render-tasks",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                    ],
+                    "requires": [
+                        "analysis/instagram_storylines.json",
+                        "graded outputs for selected storyline assets",
+                    ],
+                    "writes_files": True,
+                },
+            ],
+        )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
