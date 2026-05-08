@@ -8,6 +8,7 @@ __all__ = [
     "deliverables",
     "demo_workspace",
     "ingest",
+    "macos_volume_metadata",
     "production",
     "production_report",
     "render_adapter",
