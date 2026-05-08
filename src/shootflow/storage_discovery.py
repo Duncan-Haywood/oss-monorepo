@@ -26,7 +26,7 @@ def discover_storage_candidates(volume_roots: list[Path]) -> list[StorageCandida
     for root in volume_roots:
         if not root.exists() or not root.is_dir() or root.is_symlink():
             continue
-        for child in sorted(root.iterdir(), key=lambda path: path.name.casefold()):
+        for child in _iter_volume_children(root):
             if not child.is_dir() or child.is_symlink():
                 continue
             stats = _read_filesystem_stats(child)
@@ -107,6 +107,13 @@ def _empty_discovery_recommendation(*, capacity_gate_active: bool) -> ImportRout
         review_required=True,
         safety_notes=tuple(notes),
     )
+
+
+def _iter_volume_children(root: Path) -> list[Path]:
+    try:
+        return sorted(root.iterdir(), key=lambda path: path.name.casefold())
+    except OSError:
+        return []
 
 
 def _read_filesystem_stats(path: Path) -> tuple[int, int] | None:

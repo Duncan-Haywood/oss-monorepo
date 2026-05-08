@@ -19,7 +19,7 @@ Requires Python 3.10+. The VM ships with Python 3.12.3, which works.
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-All 144 tests use `unittest` (stdlib). No pytest, no test dependencies. The
+All 145 tests use `unittest` (stdlib). No pytest, no test dependencies. The
 `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
 
 ### Running the CLI

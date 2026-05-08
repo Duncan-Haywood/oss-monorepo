@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from shootflow.storage_discovery import (
     discover_import_route,
@@ -41,6 +42,25 @@ class StorageDiscoveryTest(unittest.TestCase):
 
         self.assertEqual(candidates, [])
 
+    def test_discovery_skips_roots_that_cannot_be_listed(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            volumes.mkdir()
+            original_iterdir = Path.iterdir
+
+            def guarded_iterdir(path):
+                if path == volumes:
+                    raise PermissionError("cannot list volume root")
+                return original_iterdir(path)
+
+            with mock.patch.object(Path, "iterdir", guarded_iterdir):
+                candidates = discover_storage_candidates([volumes])
+                recommendation = discover_import_route([volumes])
+
+        self.assertEqual(candidates, [])
+        self.assertFalse(recommendation.ready)
+        self.assertIn("no discovered storage candidates found", recommendation.safety_notes)
+
     def test_discovery_validates_volume_roots(self):
         with tempfile.TemporaryDirectory() as root:
             with self.assertRaises(TypeError):
@@ -72,11 +92,12 @@ class StorageDiscoveryTest(unittest.TestCase):
             (card / "DCIM" / "100CANON").mkdir(parents=True)
             ssd.mkdir(parents=True)
 
-            recommendation = discover_import_route(
-                [volumes],
-                expected_import_bytes=1024,
-                headroom_bytes=0,
-            )
+            with mock.patch("shootflow.storage_discovery._read_filesystem_stats", return_value=(900 * 1024**3, 2 * 1024**4)):
+                recommendation = discover_import_route(
+                    [volumes],
+                    expected_import_bytes=1024,
+                    headroom_bytes=0,
+                )
 
         self.assertTrue(recommendation.ready)
         self.assertEqual(recommendation.source.candidate.name, "EOS_DIGITAL")
