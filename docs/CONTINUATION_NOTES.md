@@ -8,10 +8,27 @@ The assigned branch `cursor/autonomous-media-studio-3cfb` was intentionally
 advanced from `origin/main` by merging the previously verified sibling branch
 `origin/cursor/ai-media-operating-system-37cf`. This brings the native macOS
 volume metadata bridge, real-shoot `write-render-tasks` CLI handoff, advisory
-CLI `next_actions`, hard-link fallback, documentation, and 176-test regression
+CLI `next_actions`, hard-link fallback, documentation, and 179-test regression
 suite onto the active automation branch without changing the safety invariants
 below. Future agents should continue from this branch rather than reimplementing
 that sibling work.
+
+Review follow-up on this branch hardened the render-task handoff after a
+multi-agent review pass:
+
+- `shootflow.assembly.ensure_render_tasks_manifest(...)` now reports whether the
+  trusted manifest was created or safely reused, while preserving
+  `write_render_tasks_manifest(...)` as the existing path-returning wrapper.
+- Temporary render-task manifest write failures are wrapped as
+  `AssemblyPlanError` and clean up partial `.tmp` files, so transient disk
+  failures do not poison later retries with stale temp manifests.
+- `write-render-tasks` now uses the single assembly-layer create/reuse policy,
+  so concurrent matching manifest creation is reported as `created: false`.
+- Empty native macOS metadata recommendation input now returns the same blocked,
+  review-required route as "all native records skipped"; the lower-level
+  converter still treats an empty candidate conversion call as invalid.
+- Added regression coverage for those cases plus preview-only and blocked
+  `card-dump-workflow` `next_actions`.
 
 ## Current direction
 
