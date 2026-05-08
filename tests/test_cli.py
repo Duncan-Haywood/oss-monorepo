@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from shootflow.assembly import AssemblyPlan, RenderTask, write_render_tasks_manifest
 from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
@@ -1039,6 +1040,65 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
         self.assertIn("not match trusted assembly plan", stderr.getvalue())
         self.assertEqual(after_manifest, existing_manifest)
 
+    def test_write_render_tasks_command_reports_reused_manifest_after_creation_race(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            video_grade = self._graded_outputs(production_plan, "graded_video")[0]
+            self._touch_graded_files(workspace, (video_grade,))
+            write_storyline_artifact(
+                StorylinePlan(
+                    reel=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(video_grade,),
+                        total_duration_seconds=8.0,
+                        rationale="Use the hero video.",
+                    ),
+                    carousel=ContentSequence(
+                        output_kind="instagram_carousel",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No carousel selected.",
+                    ),
+                    photo_set=ContentSequence(
+                        output_kind="instagram_photo_set",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No photo set selected.",
+                    ),
+                ),
+                workspace,
+                allowed_asset_paths={video_grade},
+            )
+            stdout = io.StringIO()
+
+            def simulate_matching_manifest_race(src, dst):
+                Path(dst).write_text(Path(src).read_text(encoding="utf-8"), encoding="utf-8")
+                raise FileExistsError("matching manifest appeared concurrently")
+
+            with patch("shootflow.assembly.os.link", side_effect=simulate_matching_manifest_race):
+                exit_code = main(
+                    [
+                        "write-render-tasks",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                    ],
+                    stdout=stdout,
+                )
+
+            summary = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertFalse(summary["created"])
+        self.assertEqual(
+            summary["render_tasks_manifest_path"],
+            str(workspace / "deliverables" / "render_tasks.json"),
+        )
+
     def test_write_render_tasks_command_reports_invalid_ingest_manifest_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1182,6 +1242,18 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["preview"]["shoot_folder"], str(shoot_folder))
             self.assertIsNone(report["ingest"])
             self.assertIsNone(report["production_report"])
+            self.assertEqual(
+                report["next_actions"],
+                [
+                    {
+                        "name": "review_and_confirm_ingest",
+                        "requires": [
+                            "human review of source, destination, checksums, and backup notes",
+                        ],
+                        "writes_files": True,
+                    }
+                ],
+            )
             self.assertFalse(shoot_folder.exists())
             self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
             self.assertFalse((shoot_folder / "originals").exists())
@@ -1298,6 +1370,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
         self.assertIsNone(report["preview"])
         self.assertIsNone(report["production_report"])
         self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
+        self.assertEqual(report["next_actions"], [])
 
     def test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

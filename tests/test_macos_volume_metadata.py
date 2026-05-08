@@ -141,6 +141,14 @@ class MacOSVolumeMetadataTest(unittest.TestCase):
         self.assertIn("no usable macOS volume metadata records found", recommendation.safety_notes)
         self.assertIn("capacity gate active", " ".join(recommendation.safety_notes))
 
+    def test_route_blocks_cleanly_when_native_metadata_is_empty(self):
+        recommendation = recommend_import_route_from_macos_metadata([])
+
+        self.assertFalse(recommendation.ready)
+        self.assertEqual(recommendation.status, "blocked")
+        self.assertIn("no usable macOS volume metadata records found", recommendation.safety_notes)
+        self.assertNotIn("capacity gate active", " ".join(recommendation.safety_notes))
+
     def test_validates_native_metadata_records_and_capacity_arguments(self):
         with tempfile.TemporaryDirectory() as root:
             volume = Path(root).resolve() / "EOS_DIGITAL"

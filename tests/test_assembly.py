@@ -575,6 +575,40 @@ class AssemblyPlanningTests(unittest.TestCase):
         self.assertEqual(manifest_path, workspace / "deliverables/render_tasks.json")
         self.assertEqual(loaded_plan, assembly_plan)
 
+    def test_write_render_tasks_manifest_cleans_up_temp_file_after_write_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+            temp_path = (workspace / RENDER_TASKS_MANIFEST_PATH).with_suffix(".json.tmp")
+            original_open = Path.open
+
+            class FailingWriteHandle:
+                def __init__(self, handle):
+                    self._handle = handle
+
+                def __enter__(self):
+                    self._handle.__enter__()
+                    return self
+
+                def __exit__(self, exc_type, exc_value, traceback):
+                    return self._handle.__exit__(exc_type, exc_value, traceback)
+
+                def write(self, text):
+                    self._handle.write(text[:1])
+                    raise OSError("disk full while writing temp manifest")
+
+            def open_with_write_failure(path, mode="r", *args, **kwargs):
+                if path == temp_path and mode == "x":
+                    return FailingWriteHandle(original_open(path, mode, *args, **kwargs))
+                return original_open(path, mode, *args, **kwargs)
+
+            with patch.object(Path, "open", open_with_write_failure):
+                with self.assertRaisesRegex(AssemblyPlanError, "temporary render task manifest"):
+                    write_render_tasks_manifest(assembly_plan, workspace)
+
+            self.assertFalse(temp_path.exists())
+            self.assertFalse((workspace / RENDER_TASKS_MANIFEST_PATH).exists())
+
     def test_rejects_render_task_manifest_with_unknown_task_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

@@ -84,6 +84,10 @@ def recommend_import_route_from_macos_metadata(
     """Recommend a reviewed import route from native macOS volume metadata."""
 
     _validate_capacity_arguments(expected_import_bytes=expected_import_bytes, headroom_bytes=headroom_bytes)
+    if not isinstance(records, list):
+        raise TypeError("records must be a list of MacOSVolumeMetadata objects")
+    if not records:
+        return _empty_metadata_recommendation(capacity_gate_active=expected_import_bytes is not None)
     candidates = storage_candidates_from_macos_metadata(records)
     if not candidates:
         return _empty_metadata_recommendation(capacity_gate_active=expected_import_bytes is not None)

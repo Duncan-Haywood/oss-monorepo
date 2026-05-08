@@ -8,13 +8,11 @@ from pathlib import Path
 from typing import TextIO
 
 from shootflow.assembly import (
-    RENDER_TASKS_MANIFEST_PATH,
     AssemblyPlan,
     AssemblyPlanError,
     build_assembly_plan,
-    load_render_tasks_manifest,
+    ensure_render_tasks_manifest,
     load_trusted_render_tasks_manifest,
-    write_render_tasks_manifest,
 )
 from shootflow.card_workflow import (
     CardDumpWorkflowError,
@@ -265,22 +263,15 @@ def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO)
         workspace,
         photo_set_chunk_size=args.photo_set_chunk_size,
     )
-    manifest_path = workspace / RENDER_TASKS_MANIFEST_PATH
-    created = False
-
-    if manifest_path.exists() or manifest_path.is_symlink():
-        load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
-    else:
-        manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
-        created = True
+    write_result = ensure_render_tasks_manifest(assembly_plan, workspace)
 
     stdout.write(
         _write_render_tasks_summary_json(
             assembly_plan,
             ingest_manifest_path=ingest_manifest_path,
             workspace=workspace,
-            manifest_path=manifest_path,
-            created=created,
+            manifest_path=write_result.manifest_path,
+            created=write_result.created,
         )
     )
 
