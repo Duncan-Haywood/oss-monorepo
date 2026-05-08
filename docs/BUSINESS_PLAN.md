@@ -43,7 +43,7 @@ Why this wedge wins:
 
 ## Phase 1: trusted automation core (current direction)
 
-- SD/SSD/local source detection and route recommendation.
+- SD/SSD/local source discovery and route recommendation.
 - Safe ingest with checksums and immutable manifests.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
@@ -128,7 +128,7 @@ Track product and business metrics together:
 
 ## 8) Execution priorities for next iteration
 
-1. Finish safe route recommendation + ingest assistant flow for high-volume use.
+1. Finish native Mac metadata and UI approval around the safe route recommendation + ingest assistant flow.
 2. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 3. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 4. Instrument key product metrics at scheduler/report boundaries.
