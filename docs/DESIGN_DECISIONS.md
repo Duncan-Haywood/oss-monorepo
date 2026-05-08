@@ -51,7 +51,10 @@ The repo currently contains a Python core package because it is quick to test an
   output checksums, and timestamps without accepting source-media paths, arbitrary task IDs, or deletion
   instructions. Its compare/write update helper takes a local advisory lock, reloads the latest manifest,
   checks the expected prior state, attempt, and optional `updated_at` lease token for one task, replaces only
-  that status, and writes back through the same safe manifest writer.
+  that status, and writes back through the same safe manifest writer. Its initialization helper uses the
+  same fingerprint-bound validation and local lock to create the first all-pending status manifest from
+  trusted render tasks only when the status file is missing; matching existing progress is preserved, and
+  stale or malformed status files are rejected instead of reset.
 - `shootflow.render_worker`: a dry-run worker action planner that consumes trusted `AssemblyPlan` and
   `RenderStatusManifest` records, validates the status fingerprint, schedules only dependency-ready
   pending/retryable tasks, reports blocked tasks, claims ready tasks as running, and lets adapters report
@@ -79,12 +82,14 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
-- `shootflow.cli`: the first background-agent command surface. The dry-run scheduler command loads the persisted
-  `deliverables/render_tasks.json` handoff through the same strict task schema/path validation, treats that loaded
-  plan as the trusted renderer contract only after persisted task inputs exist and are not symlinks, validates the
-  matching render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`,
-  and optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
-  It does not accept model-authored paths, delete files, or widen renderer authority beyond the persisted
+- `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
+  `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
+  matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
+  launch agent. It never deletes media and never resets existing matching status progress. The dry-run scheduler
+  command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
+  render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`, and
+  optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
+  Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
@@ -101,7 +106,7 @@ The desired high-quality pipeline is:
 6. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
 7. Export graded intermediates for all selects.
 8. Plan assembly tasks from trusted graded selections before invoking any renderer.
-9. Track render-worker progress through a resumable status manifest keyed by the trusted task plan.
+9. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
 10. Plan renderer-neutral worker actions from the trusted task/status pair.
 11. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
     declared deliverable outputs only.
@@ -118,8 +123,8 @@ The desired high-quality pipeline is:
 17. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-18. Run the persisted-manifest scheduler through a CLI/background-agent command so native app work can begin from
-    durable handoffs rather than an in-process Python object graph.
+18. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
+    begin from durable handoffs rather than an in-process Python object graph.
 19. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
 20. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
@@ -203,8 +208,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   `expected_updated_at` lease token, replaces exactly one status, preserves task order/fingerprint/slug, and
   writes through the safe manifest writer. This protects same-workspace local workers from last-writer-wins
   status clobbering and lets stale lease expiration fail if a same-attempt heartbeat refreshed the task after
-  planning; distributed/cloud workers still need an external lease or storage-native compare-and-swap around
-  the same contract.
+  planning. The initialization helper uses that same local lock to safely bootstrap a missing status manifest
+  from trusted render tasks, while loading matching existing status as-is and rejecting stale fingerprints
+  instead of resetting progress; distributed/cloud workers still need an external lease or storage-native
+  compare-and-swap around the same contract.
 - `shootflow.render_worker` is the next handoff after status validation, not a renderer. It accepts a
   caller-provided set of completed non-render dependency IDs from the trusted production/job executor,
   treats render-task dependencies as satisfied only by succeeded render statuses, plans attempts for

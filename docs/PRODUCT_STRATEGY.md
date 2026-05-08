@@ -58,7 +58,8 @@ The current core models a concrete promise for high-volume users:
 6. Fan out graded master rendering.
 7. Rank storylines from VLM quality, scene, and narrative signals.
 8. Plan renderer-neutral assembly tasks from verified graded storyline selects.
-9. Track render progress and retry safety through a trusted status manifest.
+9. Initialize and track render progress and retry safety through a trusted
+   status manifest that never resets existing matching progress.
 10. Schedule only dependency-ready pending/retryable render work through a dry-run
    worker action plan.
 11. Claim ready work as running and report success/retry/failure with checksums
@@ -87,9 +88,10 @@ The current core models a concrete promise for high-volume users:
 17. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
     task IDs, stale-lease conflicts, and human-readable failure messages.
-18. Invoke the same scheduler/report handoff from a persisted-manifest CLI command
-    so a Mac launch agent, menu-bar app, or automation runner can advance work
-    without reconstructing the production planner in memory.
+18. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
+    commands so a Mac launch agent, menu-bar app, or automation runner can
+    bootstrap and advance work without reconstructing the production planner in
+    memory.
 19. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -151,9 +153,11 @@ to automate.
    the product-facing summary for UI/retry/agent handoff, bound to the trusted
    render-plan fingerprint and final status manifest so stale or model-authored
    reports cannot invent tasks, outputs, or review state.
-   The first CLI command now starts from the persisted render-task/status
-   manifests, runs the trusted dry-run scheduler, writes that report, and can
-   print it as JSON for a Mac app or background automation process.
+   The first CLI commands now start from persisted render-task manifests,
+   safely initialize the matching render-status manifest when it is missing,
+   preserve existing progress on repeated launches, run the trusted dry-run
+   scheduler, write that report, and can print JSON summaries for a Mac app or
+   background automation process.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

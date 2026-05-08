@@ -35,7 +35,9 @@ This repo currently contains the first testable core utilities:
   be reused after storyline selections or render inputs change. Manifest-level
   compare/write helpers take a local advisory lock, update exactly one task
   status, and check the expected prior state, attempt, and optional timestamp
-  lease token.
+  lease token. A matching initialization helper can create the first all-pending
+  status manifest from trusted render tasks, while refusing to reset existing
+  progress or overwrite stale/mismatched status files.
 - `shootflow.render_worker` turns trusted render tasks plus trusted status into
   dry-run worker actions. It schedules only dependency-ready pending/retryable
   tasks, reports blocked tasks, skips running/succeeded/failed tasks, claims
@@ -61,11 +63,14 @@ This repo currently contains the first testable core utilities:
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
-- `shootflow.cli` exposes the first background-agent command:
-  `python -m shootflow.cli dry-run-render-scheduler`. It loads the strict
-  persisted render-task manifest as the trusted plan, runs the dry-run scheduler
-  against the matching render-status manifest, writes the scheduler report, and
-  can print that report as JSON for a Mac app or automation runner.
+- `shootflow.cli` exposes the first background-agent commands:
+  `python -m shootflow.cli init-render-status` and
+  `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
+  strict persisted render-task manifest, creates the companion render-status
+  manifest only when missing, and never resets existing matching progress. The
+  scheduler command then runs the dry-run scheduler against the matching
+  render-status manifest, writes the scheduler report, and can print that report
+  as JSON for a Mac app or automation runner.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -107,9 +112,10 @@ The intended first workflow is:
 9. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.
-10. Persist and reload `deliverables/render_status.json` against the same trusted
-   render tasks so a Mac app, local renderer, or cloud worker can show pending,
-   running, succeeded, failed, and retryable work safely.
+10. Initialize, persist, and reload `deliverables/render_status.json` against the
+   same trusted render tasks so a Mac app, local renderer, or cloud worker can
+   show pending, running, succeeded, failed, and retryable work safely without
+   resetting prior progress.
 11. Derive renderer-neutral worker actions from the trusted task/status pair
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
 12. Use worker status-transition helpers to claim ready work, reject stale
@@ -136,9 +142,27 @@ The intended first workflow is:
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-18. Run the same handoff through `python -m shootflow.cli dry-run-render-scheduler`
-    when a UI/background-agent process starts from persisted manifests instead of
-    an in-memory production plan.
+18. Run the same handoff through
+    `python -m shootflow.cli init-render-status` followed by
+    `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
+    process starts from persisted manifests instead of an in-memory production
+    plan.
+
+The current persisted-manifest CLI flow is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
+PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
+  --completed-dependency rank_instagram_storylines \
+  --renderer dry-run-local \
+  --started-at 2026-05-07T16:00:00Z \
+  --completed-at 2026-05-07T16:00:05Z \
+  --generated-at 2026-05-07T16:00:06Z
+```
+
+The init command writes only metadata under `deliverables/`, never deletes media,
+and fails rather than overwriting an existing status manifest that no longer
+matches the trusted render-task plan.
 
 ## Run tests
 

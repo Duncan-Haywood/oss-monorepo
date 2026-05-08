@@ -47,7 +47,8 @@ Why this wedge wins:
 - Safe ingest with checksums and immutable manifests.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
-- Dry-run worker scheduler/status reporting for resumable pipelines.
+- Safe render-status initialization plus dry-run worker scheduler/status
+  reporting for resumable pipelines.
 
 ## Phase 2: productionized deliverables
 
@@ -129,7 +130,10 @@ Track product and business metrics together:
 ## 8) Execution priorities for next iteration
 
 1. Finish safe route recommendation + ingest assistant flow for high-volume use.
-2. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
-3. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-4. Instrument key product metrics at scheduler/report boundaries.
-5. Start proof-based GTM content showing real workflows and outcomes.
+2. Add a small persisted-manifest smoke/example workspace around
+   `init-render-status` plus `dry-run-render-scheduler` so Mac UI and GTM demos
+   can show a repeatable bootstrap-to-report flow.
+3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
+5. Instrument key product metrics at scheduler/report boundaries.
+6. Start proof-based GTM content showing real workflows and outcomes.

@@ -8,6 +8,30 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added safe render-status bootstrapping for persisted render-task handoffs:
+  - `initialize_render_status_manifest(...)` in `shootflow.render_status` loads
+    an existing fingerprint-matching `deliverables/render_status.json` as-is or
+    creates the first all-pending manifest only when the file is missing;
+  - initialization holds the existing local advisory lock across the check/create
+    path so two Mac launch agents do not both initialize from stale state;
+  - stale, malformed, symlinked, or render-plan-mismatched status files are
+    rejected instead of overwritten, preserving the no-reset/no-delete safety
+    contract.
+- Added `python -m shootflow.cli init-render-status`:
+  - loads the strict persisted `deliverables/render_tasks.json` manifest as the
+    trusted plan;
+  - creates or reuses `deliverables/render_status.json`;
+  - prints a compact JSON summary with task counts by status for Mac UI,
+    background-agent, or smoke-test automation.
+- Added tests covering initial creation, idempotent reuse with retryable/running
+  progress preserved, stale fingerprint rejection, CLI JSON summaries, and CLI
+  stale-status failures.
+- Updated README, product strategy, business plan, and design decisions to
+  document the two-step persisted-manifest flow:
+  `init-render-status` then `dry-run-render-scheduler`.
+
+## Previous iteration
+
 - Added high-volume-aware import-route capacity gating in `shootflow.storage`:
   - new `recommend_import_route_with_capacity(...)` takes `expected_import_bytes`
     plus configurable `headroom_bytes`;
@@ -360,16 +384,18 @@ The worker can now plan ready actions, produce safe per-task status transitions,
 through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
 action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
 concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
-through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, and invoke that
-handoff from a persisted-manifest CLI command. The next useful layer is either real renderer temp-output
-contracts, stronger distributed lease persistence, or a small example/smoke fixture for the CLI-to-report flow.
+through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, initialize missing
+render-status manifests from persisted render tasks without resetting progress, and invoke that handoff from
+persisted-manifest CLI commands. The next useful layer is either real renderer temp-output contracts, stronger
+distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
 
 Good test-first targets:
 
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
-- Add a CLI smoke fixture or example workspace that demonstrates the persisted render-task/status input files and
-  the printed `render_scheduler_report.json` output a future Mac UI should consume.
+- Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe
+  `init-render-status` bootstrapping, and the printed `render_scheduler_report.json` output a future Mac UI should
+  consume.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
