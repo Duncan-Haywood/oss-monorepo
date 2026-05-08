@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -160,6 +161,14 @@ def write_render_tasks_manifest(plan: AssemblyPlan, workspace_root: Path | str) 
     manifest_path = _render_tasks_manifest_path(workspace_root)
     root = Path(workspace_root)
     _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
+    if manifest_path.exists() or manifest_path.is_symlink():
+        try:
+            load_render_tasks_manifest(root, trusted_plan=plan)
+        except AssemblyPlanError as exc:
+            raise AssemblyPlanError(
+                f"Refusing to overwrite existing render task manifest: {manifest_path}"
+            ) from exc
+        return manifest_path
     try:
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
@@ -169,11 +178,67 @@ def write_render_tasks_manifest(plan: AssemblyPlan, workspace_root: Path | str) 
     _reject_symlink_path(manifest_path.parent, root, "render task manifest directory")
     _reject_symlink_path(manifest_path, root, "render task manifest")
 
+    manifest_json = _assembly_plan_json(plan)
     temp_path = manifest_path.with_suffix(".json.tmp")
     _reject_symlink_path(temp_path, root, "temporary render task manifest")
-    temp_path.write_text(_assembly_plan_json(plan), encoding="utf-8")
-    temp_path.replace(manifest_path)
+    try:
+        with temp_path.open("x", encoding="utf-8") as handle:
+            handle.write(manifest_json)
+    except FileExistsError as exc:
+        raise AssemblyPlanError(
+            f"Refusing existing temporary render task manifest: {temp_path}"
+        ) from exc
+    try:
+        os.link(temp_path, manifest_path)
+    except FileExistsError as exc:
+        try:
+            load_render_tasks_manifest(root, trusted_plan=plan)
+        except AssemblyPlanError as load_exc:
+            raise AssemblyPlanError(
+                f"Refusing to overwrite existing render task manifest: {manifest_path}"
+            ) from load_exc
+        return manifest_path
+    except OSError:
+        _write_render_tasks_manifest_without_hardlink(
+            manifest_path,
+            root,
+            plan,
+            manifest_json,
+        )
+        return manifest_path
+    finally:
+        try:
+            temp_path.unlink()
+        except FileNotFoundError:
+            pass
     return manifest_path
+
+
+def _write_render_tasks_manifest_without_hardlink(
+    manifest_path: Path,
+    root: Path,
+    plan: AssemblyPlan,
+    manifest_json: str,
+) -> None:
+    try:
+        with manifest_path.open("x", encoding="utf-8") as handle:
+            handle.write(manifest_json)
+    except FileExistsError as exc:
+        try:
+            load_render_tasks_manifest(root, trusted_plan=plan)
+        except AssemblyPlanError as load_exc:
+            raise AssemblyPlanError(
+                f"Refusing to overwrite existing render task manifest: {manifest_path}"
+            ) from load_exc
+        return
+    except OSError as exc:
+        try:
+            manifest_path.unlink()
+        except FileNotFoundError:
+            pass
+        raise AssemblyPlanError(
+            f"Unable to create render task manifest without hard links: {manifest_path}"
+        ) from exc
 
 
 def load_render_tasks_manifest(
