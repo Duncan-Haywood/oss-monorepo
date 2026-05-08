@@ -77,6 +77,13 @@ class CopyReport:
     manifest_path: Path
 
 
+@dataclass(frozen=True)
+class ImportSourceEstimate:
+    source_root: Path
+    media_file_count: int
+    estimated_bytes: int
+
+
 def plan_import(
     source_root: Path | str,
     destination_root: Path | str,
@@ -151,6 +158,21 @@ def execute_copy_plan(plan: CopyPlan) -> CopyReport:
 
     manifest_path = _write_manifest(plan)
     return CopyReport(copied=copied, skipped=skipped, manifest_path=manifest_path)
+
+
+def estimate_import_source(source_root: Path | str) -> ImportSourceEstimate:
+    source = Path(source_root)
+    _reject_symlink(source, "source root")
+    files = _iter_media_files(source)
+    total_bytes = 0
+    for media_path in files:
+        _reject_symlink(media_path, "source media")
+        total_bytes += media_path.stat().st_size
+    return ImportSourceEstimate(
+        source_root=source,
+        media_file_count=len(files),
+        estimated_bytes=total_bytes,
+    )
 
 
 def sha256_file(path: Path) -> str:

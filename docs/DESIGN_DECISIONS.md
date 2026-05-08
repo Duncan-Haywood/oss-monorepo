@@ -339,3 +339,15 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: CLI offload planning should support source-size-derived capacity gating
+
+- **Status:** accepted
+- **Rationale:** high-volume users need a conservative pre-ingest answer to
+  "is this destination safe for this card right now?" without manually estimating
+  source payload size.
+- **Consequence:** `shootflow.cli plan-import-route` now supports
+  `--estimate-source-bytes`, which discovers a likely source, estimates media
+  bytes from that source, and reapplies route recommendation with capacity
+  headroom checks. The command remains advisory-only, review-required, and
+  non-destructive.

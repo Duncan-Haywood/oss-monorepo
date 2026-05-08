@@ -223,3 +223,33 @@ Messaging should emphasize:
 1. Source-media safety (no destructive ingest).
 2. Predictable ingest-to-deliverable turnaround.
 3. Better content throughput without adding editing headcount.
+
+## Operational trust policy (card offload + deletion boundaries)
+
+To keep the product useful for professionals, ingest must stay conservative:
+
+1. **Detection is advisory:** drive/card detection proposes a route for review; it
+   is never permission to start destructive actions.
+2. **Offload before edit:** users should route source card -> working destination
+   first, then run grading/assembly from the ingest manifest boundary.
+3. **Capacity gate by default:** destination selection should require estimated
+   import bytes plus safety headroom before route status is `ready_for_review`.
+4. **No-delete lock:** source deletion and card formatting remain explicitly out of
+   scope for default workflows; any future cleanup features should be opt-in,
+   delayed, and recoverable.
+5. **Backup reminder baked in:** route recommendations should continue to include
+   notes to verify backups before ejecting cards.
+
+## Audience split: one core engine, staged packaging
+
+The request spans three real segments, but they should share one execution core:
+
+- **Pro service teams (primary):** photographers/videographers with recurring
+  paid client turnaround pressure.
+- **Creator businesses (secondary):** social-first teams optimizing weekly output
+  velocity and consistency.
+- **Casual creators (later):** lower willingness to pay, higher support load.
+
+Execution implication: the product should keep one deterministic ingest -> grade
+-> social package engine while exposing different workflow presets and pricing,
+instead of branching into separate codebases too early.

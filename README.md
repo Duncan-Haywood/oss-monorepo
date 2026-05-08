@@ -170,6 +170,21 @@ The init command writes only metadata under `deliverables/`, never deletes media
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
 
+The import-route planning flow is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli plan-import-route \
+  --volume-root /Volumes \
+  --estimate-source-bytes \
+  --headroom-bytes 34359738368 \
+  --print-candidates
+```
+
+This command performs mounted-volume discovery and emits a review-required JSON
+recommendation for source/destination routing. It can estimate media bytes from
+the discovered source and apply a destination capacity gate before ingest.
+It does not copy files, delete source media, or grant destructive authority.
+
 ## Run tests
 
 ```bash

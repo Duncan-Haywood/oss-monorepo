@@ -114,6 +114,33 @@ Track product and business metrics together:
 - retention at 30/90 days,
 - expansion (seat upgrades or usage add-ons).
 
+## 6.1) Unit-economics guardrails (working assumptions)
+
+Use pricing and packaging that stays obviously ROI-positive for the pro ICP:
+
+- If a customer saves even 6-10 hours/week, price can be anchored against
+  recovered billable time and reduced editor coordination.
+- For customers currently spending $100-$1,000+/week on editing/coordination,
+  software pricing should target a clear fraction of that spend, while proving
+  better throughput and consistency.
+- Optional compute add-ons should be margin-protected and transparent; local-first
+  defaults reduce cloud cost volatility and preserve trust with large datasets.
+
+## 6.2) Validation experiments before broad scale
+
+Run practical experiments tied to this ICP-first plan:
+
+1. **Workflow proof demos:** show end-to-end "card dump -> graded social draft"
+   with concrete turnaround deltas and safety notes.
+2. **Instagram demand tests:** short-form before/after process ads targeted to
+   wedding/event/photo-video professionals.
+3. **Problem-interview loop:** weekly interviews with active pros to validate
+   top blockers (ingest risk, quality consistency, revision overhead).
+4. **Pilot cohort pricing tests:** test one base plan + one pro plan + optional
+   burst compute credits with usage telemetry.
+5. **Quality confidence metric:** track how often users accept default selects/
+   grades/deliverables vs requiring manual intervention.
+
 ## 7) Key risks and mitigations
 
 - **Risk:** perceived output quality is inconsistent.

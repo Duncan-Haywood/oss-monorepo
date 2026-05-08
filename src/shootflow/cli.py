@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TextIO
 
 from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
+from shootflow.ingest import ImportSourceEstimate, estimate_import_source
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -21,6 +22,8 @@ from shootflow.render_status import (
     initialize_render_status_manifest,
     load_render_status_manifest,
 )
+from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
+from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -55,6 +58,8 @@ def main(
     try:
         if args.command == "init-render-status":
             _run_init_render_status_command(args, stdout=out)
+        elif args.command == "plan-import-route":
+            _run_plan_import_route_command(args, stdout=out)
         elif args.command == "dry-run-render-scheduler":
             _run_dry_run_render_scheduler_command(args, stdout=out)
         else:
@@ -75,6 +80,55 @@ def _run_init_render_status_command(args: argparse.Namespace, *, stdout: TextIO)
     trusted_plan = load_trusted_render_tasks_manifest(workspace)
     result = initialize_render_status_manifest(workspace, trusted_plan=trusted_plan)
     stdout.write(_render_status_initialization_json(result) + "\n")
+
+
+def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    if args.estimate_source_bytes and args.expected_import_bytes is not None:
+        raise ShootFlowCliError("--estimate-source-bytes cannot be combined with --expected-import-bytes")
+    if args.expected_import_bytes is not None and args.expected_import_bytes <= 0:
+        raise ShootFlowCliError("--expected-import-bytes must be greater than zero")
+    if args.headroom_bytes < 0:
+        raise ShootFlowCliError("--headroom-bytes cannot be negative")
+    volume_roots = _parse_volume_roots(args.volume_root)
+    expected_import_bytes = args.expected_import_bytes
+    source_estimate: ImportSourceEstimate | None = None
+
+    if args.estimate_source_bytes:
+        initial_recommendation = discover_import_route(volume_roots)
+        if initial_recommendation.source is not None:
+            source_estimate = estimate_import_source(initial_recommendation.source.candidate.path)
+            expected_import_bytes = source_estimate.estimated_bytes
+            recommendation = discover_import_route(
+                volume_roots,
+                expected_import_bytes=expected_import_bytes,
+                headroom_bytes=args.headroom_bytes,
+            )
+        else:
+            recommendation = initial_recommendation
+    elif expected_import_bytes is not None:
+        recommendation = discover_import_route(
+            volume_roots,
+            expected_import_bytes=expected_import_bytes,
+            headroom_bytes=args.headroom_bytes,
+        )
+    else:
+        recommendation = discover_import_route(volume_roots)
+
+    discovered_candidates: list[StorageCandidate] = []
+    if args.print_candidates:
+        discovered_candidates = discover_storage_candidates(volume_roots)
+
+    stdout.write(
+        _import_route_json(
+            recommendation,
+            volume_roots=volume_roots,
+            expected_import_bytes=expected_import_bytes,
+            headroom_bytes=args.headroom_bytes,
+            source_estimate=source_estimate,
+            discovered_candidates=discovered_candidates,
+        )
+        + "\n"
+    )
 
 
 def _run_dry_run_render_scheduler_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -136,6 +190,38 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workspace",
         default=".",
         help="Workspace containing deliverables/render_tasks.json.",
+    )
+
+    plan_import_route = subparsers.add_parser(
+        "plan-import-route",
+        help="Discover mounted storage and emit a review-required import route recommendation.",
+    )
+    plan_import_route.add_argument(
+        "--volume-root",
+        action="append",
+        required=True,
+        help="Volume root to scan for mounted sources/destinations (repeatable).",
+    )
+    plan_import_route.add_argument(
+        "--expected-import-bytes",
+        type=int,
+        help="Estimated import bytes for destination capacity gating.",
+    )
+    plan_import_route.add_argument(
+        "--estimate-source-bytes",
+        action="store_true",
+        help="Estimate import size from the discovered source media before capacity gating.",
+    )
+    plan_import_route.add_argument(
+        "--headroom-bytes",
+        type=int,
+        default=32 * 1024**3,
+        help="Safety headroom added to expected bytes when capacity gating is active.",
+    )
+    plan_import_route.add_argument(
+        "--print-candidates",
+        action="store_true",
+        help="Include discovered storage candidates in command output.",
     )
 
     scheduler = subparsers.add_parser(
@@ -228,6 +314,78 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _import_route_json(
+    recommendation: ImportRouteRecommendation,
+    *,
+    volume_roots: list[Path],
+    expected_import_bytes: int | None,
+    headroom_bytes: int,
+    source_estimate: ImportSourceEstimate | None,
+    discovered_candidates: list[StorageCandidate],
+) -> str:
+    if not isinstance(recommendation, ImportRouteRecommendation):
+        raise ShootFlowCliError("recommendation must be an ImportRouteRecommendation")
+    payload = {
+        "status": recommendation.status,
+        "ready": recommendation.ready,
+        "review_required": recommendation.review_required,
+        "volume_roots": [str(root) for root in volume_roots],
+        "source": _ranked_storage_candidate_json(recommendation.source),
+        "destination": _ranked_storage_candidate_json(recommendation.destination),
+        "safety_notes": list(recommendation.safety_notes),
+        "expected_import_bytes": expected_import_bytes,
+        "headroom_bytes": headroom_bytes if expected_import_bytes is not None else None,
+        "estimated_source_media": (
+            None
+            if source_estimate is None
+            else {
+                "source_root": str(source_estimate.source_root),
+                "media_file_count": source_estimate.media_file_count,
+                "estimated_bytes": source_estimate.estimated_bytes,
+            }
+        ),
+        "discovered_candidates": [_storage_candidate_json(candidate) for candidate in discovered_candidates],
+    }
+    return json.dumps(payload, ensure_ascii=True, sort_keys=True)
+
+
+def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
+    roots: list[Path] = []
+    for raw_root in raw_roots:
+        if not isinstance(raw_root, str) or not raw_root.strip():
+            raise ShootFlowCliError("volume roots must be non-empty strings")
+        roots.append(Path(raw_root))
+    return roots
+
+
+def _ranked_storage_candidate_json(candidate: RankedStorageCandidate | None) -> dict[str, object] | None:
+    if candidate is None:
+        return None
+    return {
+        "name": candidate.candidate.name,
+        "path": str(candidate.candidate.path),
+        "free_bytes": candidate.candidate.free_bytes,
+        "total_bytes": candidate.candidate.total_bytes,
+        "is_removable": candidate.candidate.is_removable,
+        "is_read_only": candidate.candidate.is_read_only,
+        "role": candidate.role,
+        "safety": candidate.safety,
+        "confidence": candidate.confidence,
+        "reasons": list(candidate.reasons),
+    }
+
+
+def _storage_candidate_json(candidate: StorageCandidate) -> dict[str, object]:
+    return {
+        "name": candidate.name,
+        "path": str(candidate.path),
+        "free_bytes": candidate.free_bytes,
+        "total_bytes": candidate.total_bytes,
+        "is_removable": candidate.is_removable,
+        "is_read_only": candidate.is_read_only,
+    }
 
 
 def _validate_main_args(

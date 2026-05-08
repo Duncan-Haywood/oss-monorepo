@@ -76,6 +76,25 @@ source media. You acknowledge that device detection, route recommendations, and
 automation suggestions are advisory, may be incomplete, and do not replace Your
 independent verification and backup practices."
 
+### Limitation of liability (draft)
+
+"To the maximum extent permitted by law, neither party will be liable for any
+indirect, incidental, special, consequential, exemplary, or punitive damages,
+or for any loss of profits, revenue, goodwill, use, data, media, or business
+interruption, arising out of or related to the Services, even if advised of the
+possibility of those damages. Company's aggregate liability for all claims
+arising out of or relating to the Services will not exceed the fees paid by You
+for the Services during the twelve (12) months before the event giving rise to
+the claim (or, for free-tier users, a nominal cap to be defined in final terms)."
+
+### Customer backup and verification acknowledgment (draft)
+
+"You acknowledge that You are solely responsible for maintaining independent
+copies of source media and verifying successful import, backup, and export
+results before deleting, formatting, or repurposing source devices. Operational
+records produced by the Services (including manifests and status reports) are
+provided as workflow aids and do not constitute a backup guarantee."
+
 ## Limitation of liability concept
 
 - Exclude liability for lost profits, lost business, reputational harm, lost data, corrupted media, platform account penalties, and indirect damages to the maximum extent allowed by law.

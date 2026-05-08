@@ -8,6 +8,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added source-size estimation to ingest planning:
+  - `estimate_import_source(...)` in `shootflow.ingest` reports media file count
+    and estimated bytes for a reviewed source path without copying or deleting
+    files;
+  - this estimate can drive destination capacity checks before import starts.
+- Added `python -m shootflow.cli plan-import-route`:
+  - scans caller-provided volume roots, emits a review-required source/destination
+    route recommendation, and can include discovered candidates in JSON output;
+  - supports `--estimate-source-bytes` to estimate payload from the discovered
+    source and enforce capacity headroom via the existing capacity-gated routing
+    contract;
+  - remains advisory-only and non-destructive (no copy, no delete, no format).
+- Added CLI and ingest tests covering source-size estimation, successful route
+  planning, blocked no-volume behavior, and conflicting capacity-input rejection.
+- Updated README, product strategy, business plan, terms draft, and design
+  decisions with deeper guidance on offload safety policy, ICP packaging
+  strategy, monetization/validation guardrails, and indemnification/liability
+  draft language.
 - Added safe render-status bootstrapping for persisted render-task handoffs:
   - `initialize_render_status_manifest(...)` in `shootflow.render_status` loads
     an existing fingerprint-matching `deliverables/render_status.json` as-is or

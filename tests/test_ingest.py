@@ -6,6 +6,7 @@ from pathlib import Path
 from shootflow.ingest import (
     CopyConflictError,
     UnsafePathError,
+    estimate_import_source,
     execute_copy_plan,
     plan_import,
 )
@@ -83,6 +84,24 @@ class IngestSafetyTests(unittest.TestCase):
                 execute_copy_plan(plan)
             self.assertEqual(b"source-video", source.read_bytes())
             self.assertEqual(b"different-video", existing.read_bytes())
+
+    def test_estimates_media_payload_bytes_for_capacity_gating(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            media_one = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            media_two = card / "DCIM" / "100EOS5D" / "A001.MOV"
+            ignored = card / "notes.txt"
+            media_one.parent.mkdir(parents=True)
+            media_one.write_bytes(b"a" * 13)
+            media_two.write_bytes(b"b" * 29)
+            ignored.write_text("ignore", encoding="utf-8")
+
+            estimate = estimate_import_source(card)
+
+        self.assertEqual(estimate.source_root, card)
+        self.assertEqual(estimate.media_file_count, 2)
+        self.assertEqual(estimate.estimated_bytes, 42)
 
 
 if __name__ == "__main__":

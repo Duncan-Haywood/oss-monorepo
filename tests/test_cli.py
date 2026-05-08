@@ -140,6 +140,115 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertIn("render plan fingerprint", stderr.getvalue())
         self.assertEqual(loaded_stale_manifest.render_plan_fingerprint, render_plan_fingerprint(stale_plan))
 
+    def test_plan_import_route_command_discovers_capacity_gated_route_from_estimated_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            (card / "DCIM" / "100CANON" / "A001.MOV").write_bytes(b"video-bytes")
+            (card / "DCIM" / "100CANON" / "A001.JPG").write_bytes(b"photo-bytes")
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--estimate-source-bytes",
+                    "--headroom-bytes",
+                    "0",
+                    "--print-candidates",
+                ],
+                stdout=stdout,
+            )
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["status"], "ready_for_review")
+        self.assertTrue(printed_summary["ready"])
+        self.assertEqual(printed_summary["source"]["name"], "EOS_DIGITAL")
+        self.assertEqual(printed_summary["destination"]["name"], "Samsung_T7")
+        self.assertEqual(printed_summary["estimated_source_media"]["media_file_count"], 2)
+        self.assertEqual(printed_summary["expected_import_bytes"], 22)
+        self.assertIn("capacity gate active", " ".join(printed_summary["safety_notes"]))
+        self.assertEqual(
+            [candidate["name"] for candidate in printed_summary["discovered_candidates"]],
+            ["EOS_DIGITAL", "Samsung_T7"],
+        )
+
+    def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            volumes = Path(tmp) / "Volumes"
+            volumes.mkdir()
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                ],
+                stdout=stdout,
+            )
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["status"], "blocked")
+        self.assertFalse(printed_summary["ready"])
+        self.assertIsNone(printed_summary["source"])
+        self.assertIsNone(printed_summary["destination"])
+        self.assertIn("no discovered storage candidates found", printed_summary["safety_notes"])
+
+    def test_plan_import_route_command_rejects_conflicting_capacity_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            volumes = Path(tmp) / "Volumes"
+            volumes.mkdir()
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--expected-import-bytes",
+                    "123",
+                    "--estimate-source-bytes",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("cannot be combined", stderr.getvalue())
+
+    def test_plan_import_route_command_rejects_invalid_capacity_values(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            volumes = Path(tmp) / "Volumes"
+            volumes.mkdir()
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            zero_exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--expected-import-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(zero_exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("greater than zero", stderr.getvalue())
+
     def test_dry_run_scheduler_command_writes_and_prints_report(self) -> None:
         trusted_plan = self._single_task_plan()
 
