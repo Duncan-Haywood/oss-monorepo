@@ -87,6 +87,11 @@ This repo currently contains the first testable core utilities:
   skips symlinks/files/inaccessible entries, turns immediate volume directories
   into `StorageCandidate` records, and can feed the same capacity-gated route
   recommendation contract.
+- `shootflow.macos_volume_metadata` is the next native Mac bridge: a future
+  Swift/Disk Arbitration layer can pass explicit mounted-volume facts (removable,
+  ejectable, internal, read-only, system, network) into the same conservative
+  `StorageCandidate` and route-recommendation contracts without relying on the
+  portable `/Volumes` scanner to infer device class.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -107,7 +112,8 @@ This repo currently contains the first testable core utilities:
 The intended first workflow is:
 
 1. Discover mounted-volume candidates from reviewed roots such as `/Volumes`,
-   then rank attached cards, folders, and SSDs and present a reviewed
+   or accept native macOS volume metadata from a future Swift/Disk Arbitration
+   layer, then rank attached cards, folders, and SSDs and present a reviewed
    source-to-destination import route with explicit no-delete/checksum notes.
 2. Plan and execute a safe import from the approved card, folder, or SSD.
 3. Keep the generated `ingest_manifest.json` as the boundary between file

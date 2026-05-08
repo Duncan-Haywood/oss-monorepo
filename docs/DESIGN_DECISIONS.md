@@ -39,6 +39,11 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+- `shootflow.macos_volume_metadata`: native Mac metadata adapter. A future Swift/Disk Arbitration layer can
+  pass explicit volume facts such as removable/ejectable/internal/read-only/system/network into this pure
+  adapter, which skips system, network, missing, and symlinked mounts before converting usable records to the
+  same `StorageCandidate` route-recommendation boundary. This keeps native device detection richer without
+  moving ingest, deletion, or overwrite authority into UI code.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -151,14 +156,17 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Use native macOS volume metadata when available so the future Mac shell can distinguish cards,
+    ejectable external SSDs, system volumes, and network mounts before storage ranking, while preserving the
+    same reviewed-route/no-delete contract.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -362,10 +370,21 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   can become route candidates. Scanning immediate children of reviewed roots
   keeps the core portable and avoids granting broad filesystem authority.
 - **Consequence:** `discover_storage_candidates(...)` and
-  `discover_import_route(...)` are the Mac-ingest bridge for now. A future native
-  adapter can provide richer removable/read-only metadata, but it should still
-  preserve the symlink skip, no-delete, review-required, and capacity-gated
-  handoff semantics.
+  `discover_import_route(...)` are the portable Mac-ingest bridge. Native
+  metadata can bypass the inference step, but it should still preserve the
+  symlink skip, no-delete, review-required, and capacity-gated handoff semantics.
+
+### Decision: native macOS volume metadata is an adapter, not an ingest authority
+
+- **Status:** accepted
+- **Rationale:** Disk Arbitration/Swift can distinguish internal, ejectable,
+  removable, read-only, network, and system volumes more accurately than a
+  portable filesystem scan, but richer metadata should not move file-operation
+  safety rules into UI code.
+- **Consequence:** `shootflow.macos_volume_metadata` converts native records into
+  the existing `StorageCandidate` route boundary, skipping system/network/missing
+  and symlinked mounts. Actual copy authority still requires reviewed route
+  output plus the checksum ingest contract.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 

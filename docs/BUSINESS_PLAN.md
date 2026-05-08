@@ -43,7 +43,8 @@ Why this wedge wins:
 
 ## Phase 1: trusted automation core (current direction)
 
-- SD/SSD/local source discovery and route recommendation.
+- SD/SSD/local source discovery and route recommendation, including a native
+  macOS metadata adapter for future Swift/Disk Arbitration volume facts.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -161,15 +162,14 @@ Run practical experiments tied to this ICP-first plan:
 
 ## 8) Execution priorities for next iteration
 
-1. Finish native Mac metadata and UI approval around the mounted-volume
-   discovery, safe route recommendation, and ingest assistant flow. The
-   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
-   commands now expose the full operator-review-then-copy path, and
-   `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+1. Bind native Mac metadata and UI approval around the safe route recommendation
+   and ingest assistant flow. The core now has both portable `/Volumes`
+   discovery and a native macOS metadata adapter for richer Disk Arbitration
+   facts; `plan-import-route` + `preview-ingest` + `execute-ingest --confirm`
+   expose the full operator-review-then-copy path, `plan-production` exposes the
+   next read-only post-ingest summary, and `card-dump-workflow` combines those
+   steps into one native-shell contract. The next step is a SwiftUI/menu-bar
+   approval shell before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect
