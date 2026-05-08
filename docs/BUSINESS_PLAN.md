@@ -157,10 +157,14 @@ Run practical experiments tied to this ICP-first plan:
 ## 8) Execution priorities for next iteration
 
 1. Finish native Mac metadata and UI approval around the mounted-volume
-   discovery, safe route recommendation, and ingest assistant flow.
-2. Add a small persisted-manifest smoke/example workspace around
-   `init-render-status` plus `dry-run-render-scheduler` so Mac UI and GTM demos
-   can show a repeatable bootstrap-to-report flow.
+   discovery, safe route recommendation, and ingest assistant flow. The
+   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
+   commands now expose the full operator-review-then-copy path, so the next
+   step is binding them to a SwiftUI/menu-bar shell with native Disk
+   Arbitration metadata.
+2. Build a small persisted-manifest demo workspace around the new ingest CLI
+   plus `init-render-status` and `dry-run-render-scheduler` so Mac UI and GTM
+   demos can show a repeatable card-dump-to-scheduler-report flow end to end.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

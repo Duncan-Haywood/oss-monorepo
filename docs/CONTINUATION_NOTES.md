@@ -8,6 +8,32 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added safe-ingest CLI commands that finally let a Mac launch agent or human
+  operator drive the existing `shootflow.ingest` contracts from the command
+  line:
+  - `python -m shootflow.cli preview-ingest` wraps `plan_import(...)` and
+    prints the planned items, SHA-256 checksums, sizes, and shoot folder as
+    indented JSON. It never copies bytes and never writes a manifest, so it
+    is safe to run repeatedly during operator review.
+  - `python -m shootflow.cli execute-ingest` wraps `plan_import(...)` plus
+    `execute_copy_plan(...)`. Without `--confirm` it refuses to run and prints
+    a friendly stderr hint pointing at `preview-ingest`. With `--confirm` it
+    performs the existing safety contract: no source deletion, no overwriting
+    different bytes, SHA-256-verified copies through temp files, and a
+    deterministic `ingest_manifest.json`.
+- Widened `shootflow.cli.main`'s exception handling to also surface
+  `IngestError` and `FileNotFoundError` as `shootflow: <message>` on stderr
+  with exit code 1, without changing how the existing render-side or
+  import-route commands behave.
+- Added five focused CLI tests in a new `ShootFlowIngestCliTests` class:
+  preview happy-path, `--confirm` refusal, `--confirm` success with manifest
+  verification, symlinked-source rejection without destination side-effects,
+  and shoot-slug validation surfacing as a stderr error.
+- Updated README to document the `preview-ingest` / `execute-ingest --confirm`
+  flow as the operator-facing handoff after `plan-import-route`.
+
+## Previous iteration
+
 - Added source-size estimation to ingest planning:
   - `estimate_import_source(...)` in `shootflow.ingest` reports media file count
     and estimated bytes for a reviewed source path without copying or deleting

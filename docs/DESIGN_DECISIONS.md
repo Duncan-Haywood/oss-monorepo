@@ -351,3 +351,28 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   bytes from that source, and reapplies route recommendation with capacity
   headroom checks. The command remains advisory-only, review-required, and
   non-destructive.
+
+### Decision: ingest CLI requires explicit --confirm before copying
+
+- **Status:** accepted
+- **Rationale:** background agents, CI runners, and Mac launch agents should
+  never trigger a card copy by accident. A separate preview command provides
+  the JSON the operator reviews before any bytes move.
+- **Consequence:** `shootflow.cli preview-ingest` plans an ingest and prints
+  planned items with SHA-256 checksums and sizes but never copies bytes.
+  `shootflow.cli execute-ingest` refuses to run without `--confirm` and prints
+  a friendly stderr hint pointing at `preview-ingest`. With `--confirm` it
+  defers to the existing `plan_import` + `execute_copy_plan` safety contract
+  (no source deletion, no overwriting different bytes, SHA-256-verified copies,
+  deterministic `ingest_manifest.json`).
+
+### Decision: ingest CLI emits indented JSON for Mac UI consumption
+
+- **Status:** accepted
+- **Rationale:** the future Mac UI / SwiftUI menu-bar app and shell scripting
+  surface both want stable, sorted, indented JSON they can pretty-print or
+  re-parse without invoking Python.
+- **Consequence:** `preview-ingest` and `execute-ingest` emit
+  `json.dumps(..., indent=2, sort_keys=True, ensure_ascii=True)` and never log
+  free-form text on the success path. Errors still surface as
+  `shootflow: <message>` on stderr with exit code 1.

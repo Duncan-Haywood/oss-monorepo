@@ -185,6 +185,34 @@ recommendation for source/destination routing. It can estimate media bytes from
 the discovered source and apply a destination capacity gate before ingest.
 It does not copy files, delete source media, or grant destructive authority.
 
+The safe ingest CLI flow (after operator review of the planned route) is:
+
+```bash
+# 1) Preview which media files would be copied. Computes SHA-256 checksums but
+#    never copies bytes and never writes a manifest.
+PYTHONPATH=src python3 -m shootflow.cli preview-ingest \
+  --source /Volumes/EOS_DIGITAL \
+  --destination /Volumes/Samsung_T7/ShootFlow \
+  --shoot-date 2026-05-08 \
+  --shoot-slug desert-editorial
+
+# 2) Execute the safe checksum-verified copy. Without --confirm the command
+#    refuses to run; with --confirm it copies through temporary files, verifies
+#    each destination's SHA-256, and writes deliverables/ingest_manifest.json.
+PYTHONPATH=src python3 -m shootflow.cli execute-ingest \
+  --source /Volumes/EOS_DIGITAL \
+  --destination /Volumes/Samsung_T7/ShootFlow \
+  --shoot-date 2026-05-08 \
+  --shoot-slug desert-editorial \
+  --confirm
+```
+
+The ingest CLI never deletes source media, never overwrites destination files
+with different bytes, rejects symlinked source/destination paths, and writes
+the manifest only after every copy passes its SHA-256 check. `execute-ingest`
+requires explicit `--confirm` so background-agent automation cannot trigger a
+copy by accident.
+
 ## Run tests
 
 ```bash

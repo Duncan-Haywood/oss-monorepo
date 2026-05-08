@@ -93,7 +93,14 @@ The current core models a concrete promise for high-volume users:
     commands so a Mac launch agent, menu-bar app, or automation runner can
     bootstrap and advance work without reconstructing the production planner in
     memory.
-19. Assemble reels, carousels, and photo sets from graded masters.
+19. Drive safe ingest itself through the same CLI surface: `preview-ingest`
+    plans a checksum-verified copy and prints planned items as JSON without
+    moving bytes; `execute-ingest --confirm` runs the existing safe copy +
+    manifest contract (no source deletion, no overwriting different bytes,
+    SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
+    `--confirm` requirement keeps background-agent automation from triggering
+    a card copy by accident.
+20. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
