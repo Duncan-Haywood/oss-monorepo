@@ -8,7 +8,15 @@ from pathlib import Path
 from typing import TextIO
 
 from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
-from shootflow.ingest import ImportSourceEstimate, estimate_import_source
+from shootflow.ingest import (
+    CopyPlan,
+    CopyReport,
+    ImportSourceEstimate,
+    IngestError,
+    estimate_import_source,
+    execute_copy_plan,
+    plan_import,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -62,6 +70,10 @@ def main(
             _run_plan_import_route_command(args, stdout=out)
         elif args.command == "dry-run-render-scheduler":
             _run_dry_run_render_scheduler_command(args, stdout=out)
+        elif args.command == "preview-ingest":
+            _run_preview_ingest_command(args, stdout=out)
+        elif args.command == "execute-ingest":
+            _run_execute_ingest_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -69,6 +81,8 @@ def main(
         DryRunRenderSchedulerError,
         RenderStatusError,
         ShootFlowCliError,
+        IngestError,
+        FileNotFoundError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -178,6 +192,31 @@ def _run_dry_run_render_scheduler_command(args: argparse.Namespace, *, stdout: T
     )
 
 
+def _run_preview_ingest_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    plan = plan_import(
+        args.source,
+        args.destination,
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+    )
+    stdout.write(_preview_ingest_json(plan))
+
+
+def _run_execute_ingest_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    if not args.confirm:
+        raise ShootFlowCliError(
+            "execute-ingest requires --confirm; run preview-ingest first to review the planned items"
+        )
+    plan = plan_import(
+        args.source,
+        args.destination,
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+    )
+    report = execute_copy_plan(plan)
+    stdout.write(_execute_ingest_json(plan, report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -252,7 +291,48 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print the persisted scheduler report JSON to stdout.",
     )
+
+    preview = subparsers.add_parser(
+        "preview-ingest",
+        help="Plan a safe checksum-verified copy without copying any bytes.",
+    )
+    _add_ingest_shared_arguments(preview)
+
+    execute = subparsers.add_parser(
+        "execute-ingest",
+        help="Execute a safe checksum-verified copy and write ingest_manifest.json.",
+    )
+    _add_ingest_shared_arguments(execute)
+    execute.add_argument(
+        "--confirm",
+        action="store_true",
+        help="Required to actually copy media. Without --confirm the command refuses to run.",
+    )
+
     return parser
+
+
+def _add_ingest_shared_arguments(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument(
+        "--source",
+        required=True,
+        help="Reviewed source root, such as /Volumes/EOS_DIGITAL.",
+    )
+    subparser.add_argument(
+        "--destination",
+        required=True,
+        help="Writable destination root for the dated shoot folder.",
+    )
+    subparser.add_argument(
+        "--shoot-date",
+        required=True,
+        help="ISO-8601 shoot date, such as 2026-05-08.",
+    )
+    subparser.add_argument(
+        "--shoot-slug",
+        required=True,
+        help="Slug for the shoot folder. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
 
 
 def _render_status_initialization_json(result: object) -> str:
@@ -386,6 +466,68 @@ def _storage_candidate_json(candidate: StorageCandidate) -> dict[str, object]:
         "is_removable": candidate.is_removable,
         "is_read_only": candidate.is_read_only,
     }
+
+
+def _preview_ingest_json(plan: CopyPlan) -> str:
+    if not isinstance(plan, CopyPlan):
+        raise ShootFlowCliError("plan must be a CopyPlan")
+    total_bytes = sum(item.size_bytes for item in plan.items)
+    return json.dumps(
+        {
+            "shoot_folder": str(plan.shoot_folder),
+            "source_root": str(plan.source_root),
+            "destination_root": str(plan.destination_root),
+            "shoot_date": plan.shoot_date,
+            "shoot_slug": plan.shoot_slug,
+            "item_count": len(plan.items),
+            "total_bytes": total_bytes,
+            "items": [
+                {
+                    "relative_path": item.relative_path.as_posix(),
+                    "checksum_sha256": item.checksum_sha256,
+                    "size_bytes": item.size_bytes,
+                }
+                for item in plan.items
+            ],
+            "notes": [
+                "preview only - no files were copied",
+                "source media will not be deleted",
+                "run execute-ingest --confirm to perform the copy",
+                "copy is verified by SHA-256 before manifest write",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
+    if not isinstance(plan, CopyPlan):
+        raise ShootFlowCliError("plan must be a CopyPlan")
+    if not isinstance(report, CopyReport):
+        raise ShootFlowCliError("report must be a CopyReport")
+    total_bytes = sum(item.size_bytes for item in plan.items)
+    return json.dumps(
+        {
+            "shoot_folder": str(plan.shoot_folder),
+            "manifest_path": str(report.manifest_path),
+            "shoot_date": plan.shoot_date,
+            "shoot_slug": plan.shoot_slug,
+            "copied": report.copied,
+            "skipped": report.skipped,
+            "item_count": len(plan.items),
+            "total_bytes": total_bytes,
+            "notes": [
+                "no source files were deleted",
+                "all copied files were verified by SHA-256 checksum",
+                "review ingest_manifest.json before formatting the source card",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _validate_main_args(
