@@ -2,6 +2,27 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-08 23:00 UTC
+
+The assigned branch `cursor/ai-media-operating-system-d72f` started this run at
+`origin/main` and did not contain the richer autonomous media-studio work already
+verified on `origin/cursor/autonomous-media-studio-3cfb`. This run merged that
+branch into the assigned branch with merge commit
+`merge: consolidate autonomous media studio work`, then pushed
+`cursor/ai-media-operating-system-d72f` to origin.
+
+Fresh post-merge verification on the assigned branch:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests
+```
+
+Result: 179 tests passed. Future agents should continue from
+`cursor/ai-media-operating-system-d72f` and treat the prior
+`cursor/autonomous-media-studio-3cfb` / `cursor/ai-media-operating-system-37cf`
+lineage as consolidated into this assigned branch unless new remote commits
+appear there.
+
 ## Branch consolidation note - 2026-05-08 21:30 UTC
 
 The assigned branch `cursor/autonomous-media-studio-3cfb` was intentionally
