@@ -2,6 +2,17 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-08 21:30 UTC
+
+The assigned branch `cursor/autonomous-media-studio-3cfb` was intentionally
+advanced from `origin/main` by merging the previously verified sibling branch
+`origin/cursor/ai-media-operating-system-37cf`. This brings the native macOS
+volume metadata bridge, real-shoot `write-render-tasks` CLI handoff, advisory
+CLI `next_actions`, hard-link fallback, documentation, and 176-test regression
+suite onto the active automation branch without changing the safety invariants
+below. Future agents should continue from this branch rather than reimplementing
+that sibling work.
+
 ## Current direction
 
 ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high-volume ingest, bulk color/story processing, and Instagram deliverables. The current implementation is a Python core that defines safety and planning contracts before native UI or renderer work begins.
