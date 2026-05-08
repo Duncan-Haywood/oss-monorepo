@@ -526,6 +526,41 @@ class AssemblyPlanningTests(unittest.TestCase):
             ],
         )
 
+    def test_write_render_tasks_manifest_reuses_matching_manifest_and_refuses_different_existing_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+            manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+            original_manifest = manifest_path.read_text(encoding="utf-8")
+            different_plan = AssemblyPlan(
+                shoot_slug="different-manifest",
+                render_tasks=(
+                    RenderTask(
+                        task_id="render_instagram_reel",
+                        sequence_name="reel",
+                        source_job_id="assemble_instagram_reel",
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        inputs=(
+                            "analysis/instagram_storylines.json",
+                            "graded/grade_asset_99999/OTHER.MOV",
+                        ),
+                        outputs=("deliverables/instagram_reel.mp4",),
+                        depends_on=("rank_instagram_storylines", "grade_asset_99999"),
+                        can_run_in_parallel=False,
+                    ),
+                ),
+            )
+
+            reused_manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+            with self.assertRaisesRegex(AssemblyPlanError, "existing render task manifest"):
+                write_render_tasks_manifest(different_plan, workspace)
+
+            after_manifest = manifest_path.read_text(encoding="utf-8")
+
+        self.assertEqual(reused_manifest_path, manifest_path)
+        self.assertEqual(after_manifest, original_manifest)
+
     def test_rejects_render_task_manifest_with_unknown_task_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -623,6 +658,16 @@ class AssemblyPlanningTests(unittest.TestCase):
             manifest_path.with_suffix(".json.tmp").symlink_to(outside / "render_tasks.json.tmp")
 
             with self.assertRaisesRegex(AssemblyPlanError, "temporary render task manifest"):
+                write_render_tasks_manifest(assembly_plan, workspace)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            assembly_plan = self._assembly_plan_for_manifest_tests(workspace)
+            manifest_path = workspace / RENDER_TASKS_MANIFEST_PATH
+            manifest_path.parent.mkdir(parents=True)
+            manifest_path.with_suffix(".json.tmp").write_text("stale temp", encoding="utf-8")
+
+            with self.assertRaisesRegex(AssemblyPlanError, "existing temporary render task manifest"):
                 write_render_tasks_manifest(assembly_plan, workspace)
 
     def test_rejects_render_task_manifest_inputs_outside_trusted_assembly_plan(self) -> None:

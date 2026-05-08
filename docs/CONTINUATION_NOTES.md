@@ -32,6 +32,21 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   exports, and continuation notes so the next agent can treat native metadata as
   the bridge between portable `/Volumes` scanning and a future SwiftUI/menu-bar
   approval shell.
+- Added a real-shoot persisted assembly CLI handoff:
+  - `python -m shootflow.cli write-render-tasks --ingest-manifest <path>` reloads
+    the verified ingest manifest, rebuilds the production plan, verifies trusted
+    `analysis/instagram_storylines.json` selections plus `graded/` artifacts
+    through `shootflow.assembly`, then creates or reuses
+    `deliverables/render_tasks.json`;
+  - `--photo-set-chunk-size` exposes the existing high-volume chunking contract;
+  - an existing different render-task manifest is rejected instead of overwritten;
+  - the command writes no deliverable outputs, renders no media, and deletes no
+    source files.
+- Added tests covering successful render-task handoff creation, refusal to
+  replace an existing different handoff, reuse of an existing matching handoff,
+  and friendly CLI reporting for invalid ingest-manifest JSON.
+- Updated README/product/business/design docs to place `write-render-tasks`
+  between trusted storyline/grading work and `init-render-status`.
 
 ## Previous iteration
 

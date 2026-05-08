@@ -111,6 +111,12 @@ The repo currently contains a Python core package because it is quick to test an
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
   Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
+  The `write-render-tasks` command closes the real shoot handoff into that
+  persisted renderer contract: it reloads `ingest_manifest.json`, rebuilds the
+  production plan, asks `shootflow.assembly` to verify trusted storyline and
+  graded artifact inputs, then creates or reuses `deliverables/render_tasks.json`
+  without replacing a different existing manifest or creating deliverable
+  outputs.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
@@ -136,7 +142,7 @@ The desired high-quality pipeline is:
 6. Generate non-destructive color decisions per scene/set, not isolated per asset.
 7. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
 8. Export graded intermediates for all selects.
-9. Plan assembly tasks from trusted graded selections before invoking any renderer.
+9. Plan and persist assembly tasks from trusted graded selections before invoking any renderer.
 10. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
 11. Plan renderer-neutral worker actions from the trusted task/status pair.
 12. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
@@ -154,8 +160,9 @@ The desired high-quality pipeline is:
 18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
-    begin from durable handoffs rather than an in-process Python object graph.
+19. Run `write-render-tasks`, persisted-manifest init, and scheduler commands
+    through a CLI/background-agent flow so native app work can begin from durable
+    handoffs rather than an in-process Python object graph.
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.

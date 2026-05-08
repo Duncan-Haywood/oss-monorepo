@@ -7,13 +7,21 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TextIO
 
-from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
+from shootflow.assembly import (
+    RENDER_TASKS_MANIFEST_PATH,
+    AssemblyPlan,
+    AssemblyPlanError,
+    build_assembly_plan,
+    load_render_tasks_manifest,
+    load_trusted_render_tasks_manifest,
+    write_render_tasks_manifest,
+)
 from shootflow.card_workflow import (
     CardDumpWorkflowError,
     CardDumpWorkflowReport,
     run_card_dump_workflow,
 )
-from shootflow.catalog import CatalogError
+from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -23,7 +31,7 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
-from shootflow.production import ProductionPlanError
+from shootflow.production import ProductionPlanError, build_production_plan
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
@@ -40,6 +48,7 @@ from shootflow.render_status import (
 )
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.story import StoryPlanError
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -84,6 +93,8 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "write-render-tasks":
+            _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
         else:
@@ -98,6 +109,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        StoryPlanError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -237,6 +249,42 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    if args.photo_set_chunk_size < 1:
+        raise ShootFlowCliError("--photo-set-chunk-size must be a positive integer")
+
+    ingest_manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(ingest_manifest_path)
+    production_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    workspace = ingest_manifest_path.parent
+    assembly_plan = build_assembly_plan(
+        production_plan,
+        workspace,
+        photo_set_chunk_size=args.photo_set_chunk_size,
+    )
+    manifest_path = workspace / RENDER_TASKS_MANIFEST_PATH
+    created = False
+
+    if manifest_path.exists() or manifest_path.is_symlink():
+        load_render_tasks_manifest(workspace, trusted_plan=assembly_plan)
+    else:
+        manifest_path = write_render_tasks_manifest(assembly_plan, workspace)
+        created = True
+
+    stdout.write(
+        _write_render_tasks_summary_json(
+            assembly_plan,
+            ingest_manifest_path=ingest_manifest_path,
+            workspace=workspace,
+            manifest_path=manifest_path,
+            created=created,
+        )
+    )
+
+
 def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
@@ -351,6 +399,22 @@ def _build_parser() -> argparse.ArgumentParser:
         "--ingest-manifest",
         required=True,
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
+    render_tasks = subparsers.add_parser(
+        "write-render-tasks",
+        help="Build and persist deliverables/render_tasks.json from trusted storyline and graded assets.",
+    )
+    render_tasks.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json whose workspace contains analysis and graded artifacts.",
+    )
+    render_tasks.add_argument(
+        "--photo-set-chunk-size",
+        type=int,
+        default=250,
+        help="Maximum number of photo-set inputs per parallel export task.",
     )
 
     card_dump = subparsers.add_parser(
@@ -655,6 +719,43 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
                 "read-only production plan",
                 "no analysis, grading, render, or deliverable files were written",
                 "ingest manifest remains the safety boundary before AI/editing work",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _write_render_tasks_summary_json(
+    plan: AssemblyPlan,
+    *,
+    ingest_manifest_path: Path,
+    workspace: Path,
+    manifest_path: Path,
+    created: bool,
+) -> str:
+    if not isinstance(plan, AssemblyPlan):
+        raise ShootFlowCliError("plan must be an AssemblyPlan")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "created": created,
+            "ingest_manifest_path": str(ingest_manifest_path),
+            "workspace": str(workspace),
+            "render_tasks_manifest_path": str(manifest_path),
+            "shoot_slug": plan.shoot_slug,
+            "task_count": len(plan.render_tasks),
+            "task_ids": [task.task_id for task in plan.render_tasks],
+            "output_paths": [
+                output_path
+                for task in plan.render_tasks
+                for output_path in task.outputs
+            ],
+            "notes": [
+                "writes render task manifest only",
+                "requires trusted storyline and graded artifacts in the shoot workspace",
+                "does not render media, delete sources, or create deliverable outputs",
             ],
         },
         ensure_ascii=True,
