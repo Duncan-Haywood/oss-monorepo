@@ -752,7 +752,7 @@ def _write_render_tasks_summary_json(
                 for task in plan.render_tasks
                 for output_path in task.outputs
             ],
-            "next_actions": _write_render_tasks_next_actions(workspace),
+            "next_actions": _write_render_tasks_next_actions(plan, workspace),
             "notes": [
                 "writes render task manifest only",
                 "requires trusted storyline and graded artifacts in the shoot workspace",
@@ -765,7 +765,15 @@ def _write_render_tasks_summary_json(
     ) + "\n"
 
 
-def _write_render_tasks_next_actions(workspace: Path) -> list[dict[str, object]]:
+def _write_render_tasks_next_actions(plan: AssemblyPlan, workspace: Path) -> list[dict[str, object]]:
+    scheduler_command = [
+        "dry-run-render-scheduler",
+        "--workspace",
+        str(workspace),
+    ]
+    for dependency_id in _non_render_dependency_ids(plan):
+        scheduler_command.extend(["--completed-dependency", dependency_id])
+
     return [
         {
             "name": "init_render_status",
@@ -778,13 +786,7 @@ def _write_render_tasks_next_actions(workspace: Path) -> list[dict[str, object]]
         },
         {
             "name": "run_dry_run_render_scheduler",
-            "command": [
-                "dry-run-render-scheduler",
-                "--workspace",
-                str(workspace),
-                "--completed-dependency",
-                "rank_instagram_storylines",
-            ],
+            "command": scheduler_command,
             "requires_runtime_args": [
                 "--renderer",
                 "--started-at",
@@ -794,6 +796,19 @@ def _write_render_tasks_next_actions(workspace: Path) -> list[dict[str, object]]
             "writes_files": True,
         },
     ]
+
+
+def _non_render_dependency_ids(plan: AssemblyPlan) -> list[str]:
+    render_task_ids = {task.task_id for task in plan.render_tasks}
+    dependency_ids: list[str] = []
+    seen: set[str] = set()
+    for task in plan.render_tasks:
+        for dependency_id in task.depends_on:
+            if dependency_id in render_task_ids or dependency_id in seen:
+                continue
+            seen.add(dependency_id)
+            dependency_ids.append(dependency_id)
+    return dependency_ids
 
 
 def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
