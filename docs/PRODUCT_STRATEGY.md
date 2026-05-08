@@ -50,8 +50,9 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Discover mounted-volume candidates from reviewed roots, rank detected storage, then recommend a
-   review-required source/destination route.
+1. Discover mounted-volume candidates from reviewed roots or native macOS
+   metadata, rank detected storage, then recommend a review-required
+   source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -103,15 +104,18 @@ The current core models a concrete promise for high-volume users:
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-21. Offer a unified `card-dump-workflow` command for native-shell demos and the
+21. Bridge native macOS volume metadata into the same route planner so a future
+    Swift/Disk Arbitration shell can distinguish system, network, internal,
+    removable, ejectable, and read-only volumes without gaining ingest authority.
+22. Offer a unified `card-dump-workflow` command for native-shell demos and the
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
+23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -131,10 +135,11 @@ to automate.
 ## Next product bets
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
-   import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
-   recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   import route. The current core now includes mounted-volume discovery, a
+   native macOS metadata adapter, capacity-gated route recommendation, safe
+   ingest commands, and a read-only `plan-production` report after ingest; the
+   next step is a SwiftUI/menu-bar approval screen around the
+   `card-dump-workflow` contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one

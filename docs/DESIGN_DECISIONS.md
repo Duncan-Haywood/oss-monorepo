@@ -21,6 +21,11 @@ ShootFlow is a personal tool and product concept for photographers and videograp
   symlinks and files rather than following them. A source/destination route can be recommended only as
   `ready_for_review`; the Mac app still has to show the user the source, destination, no-delete note, and
   checksum-manifest requirement before invoking ingest.
+- Treat native macOS volume metadata as a better detection signal, not as
+  approval. System volumes, network mounts, missing mounts, and symlinked mounts
+  are skipped before they can become `StorageCandidate` records; ejectable
+  external drives can improve ranking, but copy/delete authority still lives
+  only behind the reviewed ingest contract.
 
 ## Core architecture
 
@@ -39,6 +44,11 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+- `shootflow.macos_volume_metadata`: a pure adapter for richer Mac-native
+  detection layers. Future Swift/Disk Arbitration code can supply normalized
+  volume records with internal/system/network/ejectable/read-only flags; the
+  adapter filters unsafe records, converts usable mounts to `StorageCandidate`
+  values, and feeds the same review-required capacity-gated planner.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -151,14 +161,17 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Feed native macOS volume metadata into the same reviewed route planner so
+    the future Mac app can use Disk Arbitration quality signals without
+    reimplementing storage safety or gaining destructive authority.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

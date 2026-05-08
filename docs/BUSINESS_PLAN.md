@@ -44,6 +44,8 @@ Why this wedge wins:
 ## Phase 1: trusted automation core (current direction)
 
 - SD/SSD/local source discovery and route recommendation.
+- Native macOS volume-metadata normalization for safer system/network/internal
+  drive filtering before route recommendation.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -161,15 +163,13 @@ Run practical experiments tied to this ICP-first plan:
 
 ## 8) Execution priorities for next iteration
 
-1. Finish native Mac metadata and UI approval around the mounted-volume
-   discovery, safe route recommendation, and ingest assistant flow. The
-   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
-   commands now expose the full operator-review-then-copy path, and
-   `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+1. Bind the native Mac metadata and ingest contracts to a UI approval flow. The
+   core now has mounted-volume discovery, a pure macOS volume-metadata adapter,
+   safe route recommendation, `plan-import-route`, `preview-ingest`,
+   `execute-ingest --confirm`, `plan-production`, and the unified
+   `card-dump-workflow` command. The next step is a SwiftUI/menu-bar shell with
+   Disk Arbitration feeding the adapter, then an explicit approval screen before
+   any AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect
