@@ -12,7 +12,7 @@ from shootflow.macos_volume_metadata import (
 class MacOSVolumeMetadataTest(unittest.TestCase):
     def test_converts_native_records_to_existing_storage_candidates(self):
         with tempfile.TemporaryDirectory() as root:
-            workspace = Path(root)
+            workspace = Path(root).resolve()
             card = workspace / "EOS_DIGITAL"
             ssd = workspace / "Samsung_T7"
             (card / "DCIM" / "100CANON").mkdir(parents=True)
@@ -54,7 +54,7 @@ class MacOSVolumeMetadataTest(unittest.TestCase):
 
     def test_skips_unsafe_or_unusable_native_records(self):
         with tempfile.TemporaryDirectory() as root:
-            workspace = Path(root)
+            workspace = Path(root).resolve()
             usable_card = workspace / "EOS_DIGITAL"
             system_volume = workspace / "Macintosh HD"
             network_volume = workspace / "Shared NAS"
@@ -90,7 +90,7 @@ class MacOSVolumeMetadataTest(unittest.TestCase):
 
     def test_recommends_capacity_gated_import_route_from_native_records(self):
         with tempfile.TemporaryDirectory() as root:
-            workspace = Path(root)
+            workspace = Path(root).resolve()
             card = workspace / "EOS_DIGITAL"
             ssd = workspace / "Samsung_T7"
             (card / "DCIM" / "100CANON").mkdir(parents=True)
@@ -125,7 +125,7 @@ class MacOSVolumeMetadataTest(unittest.TestCase):
 
     def test_route_blocks_cleanly_when_all_native_records_are_skipped(self):
         with tempfile.TemporaryDirectory() as root:
-            system_volume = Path(root) / "Macintosh HD"
+            system_volume = Path(root).resolve() / "Macintosh HD"
             system_volume.mkdir()
 
             recommendation = recommend_import_route_from_macos_metadata(
@@ -143,7 +143,7 @@ class MacOSVolumeMetadataTest(unittest.TestCase):
 
     def test_validates_native_metadata_records_and_capacity_arguments(self):
         with tempfile.TemporaryDirectory() as root:
-            volume = Path(root) / "EOS_DIGITAL"
+            volume = Path(root).resolve() / "EOS_DIGITAL"
             volume.mkdir()
 
             with self.assertRaises(TypeError):
