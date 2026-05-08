@@ -247,7 +247,10 @@ Without `--confirm-ingest`, this command only discovers, estimates, and previews
 the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
-planning from that manifest.
+planning from that manifest. Confirmed card-dump reports also include
+machine-readable `next_actions` for preparing trusted storyline/graded artifacts
+and invoking `write-render-tasks`, so native shells do not need to infer the
+next safe handoff from nested paths.
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 
@@ -301,7 +304,11 @@ PYTHONPATH=src python3 -m shootflow.cli write-render-tasks \
 This rebuilds the manifest-backed production plan, verifies storyline selections
 against trusted graded outputs, writes `deliverables/render_tasks.json` only when
 missing, and refuses to replace an existing different render-task manifest. It
-does not render media, delete sources, or create deliverable outputs.
+does not render media, delete sources, or create deliverable outputs. Its JSON
+summary includes `next_actions` for `init-render-status` and the
+`dry-run-render-scheduler` command, with runtime-only arguments called out
+separately so app shells can ask for timestamps/render adapter settings at the
+right layer.
 
 ## Run tests
 

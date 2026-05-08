@@ -110,10 +110,13 @@ The current core models a concrete promise for high-volume users:
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
-    summary.
+    summary. Confirmed reports now include explicit `next_actions` for trusted
+    storyline/grading preparation and the subsequent render-task handoff.
 22. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
-    flow that demos already exercise.
+    flow that demos already exercise. Its summary now points native shells at
+    `init-render-status` and `dry-run-render-scheduler` while keeping runtime
+    scheduler parameters outside the static handoff.
 23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.

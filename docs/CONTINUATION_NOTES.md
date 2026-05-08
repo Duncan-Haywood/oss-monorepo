@@ -47,6 +47,15 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   and friendly CLI reporting for invalid ingest-manifest JSON.
 - Updated README/product/business/design docs to place `write-render-tasks`
   between trusted storyline/grading work and `init-render-status`.
+- Added machine-readable CLI `next_actions` fields:
+  - confirmed `card-dump-workflow` reports now point native shells at the trusted
+    storyline/graded-artifact preparation step and the exact
+    `write-render-tasks --ingest-manifest <path>` handoff;
+  - `write-render-tasks` summaries now point at `init-render-status` and
+    `dry-run-render-scheduler`, while listing scheduler runtime arguments that
+    still need to be supplied by the caller;
+  - these fields are advisory orchestration hints only and grant no new copy,
+    render, overwrite, delete, or source-media authority.
 
 ## Previous iteration
 

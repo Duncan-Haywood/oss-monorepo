@@ -116,10 +116,15 @@ The repo currently contains a Python core package because it is quick to test an
   production plan, asks `shootflow.assembly` to verify trusted storyline and
   graded artifact inputs, then creates or reuses `deliverables/render_tasks.json`
   without replacing a different existing manifest or creating deliverable
-  outputs.
+  outputs. Its JSON summary includes advisory `next_actions` for status
+  initialization and scheduler execution, keeping runtime timestamps and renderer
+  choices explicit instead of baking them into the manifest.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  Confirmed reports expose advisory `next_actions` for trusted storyline/graded
+  preparation and render-task writing so native shells can guide the user without
+  expanding file authority.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
