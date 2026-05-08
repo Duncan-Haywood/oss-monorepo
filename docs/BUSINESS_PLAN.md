@@ -54,6 +54,9 @@ Why this wedge wins:
   reporting together for Mac app shells and demos.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
+- A `write-render-tasks` CLI handoff that turns trusted storyline selections and
+  graded artifacts into `deliverables/render_tasks.json` from the manifest-backed
+  production plan, while refusing to overwrite a different existing handoff.
 - Safe render-status initialization plus dry-run worker scheduler/status
   reporting for resumable pipelines.
 
@@ -172,10 +175,11 @@ Run practical experiments tied to this ICP-first plan:
    those steps into one native-shell contract, so the next step is binding it to
    a SwiftUI/menu-bar approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in `shootflow.demo_workspace`, and `plan-production` proves
-   the safe ingest-to-production-plan handoff; next, connect
-   `card-dump-workflow` with the persisted render-task demo so one smoke path
-   runs from detected card to scheduler report.
+   half now exists in both `shootflow.demo_workspace` and the real
+   `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
+   trusted storyline/graded fixtures so one smoke path runs from detected card
+   to persisted render tasks, status initialization, scheduler report, and
+   reviewable outputs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.
