@@ -14,6 +14,11 @@ from shootflow.card_workflow import (
     run_card_dump_workflow,
 )
 from shootflow.catalog import CatalogError
+from shootflow.demo_workspace import (
+    CardDumpCliDemoWorkspace,
+    DemoWorkspaceError,
+    create_card_dump_cli_demo_workspace,
+)
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -86,6 +91,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "create-card-dump-demo-workspace":
+            _run_create_card_dump_demo_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +105,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        DemoWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +259,16 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_create_card_dump_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_card_dump_cli_demo_workspace(
+        args.workspace,
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+        destination_subfolder=args.destination_subfolder,
+    )
+    stdout.write(_card_dump_demo_workspace_json(demo))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -387,6 +405,31 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    card_dump_demo = subparsers.add_parser(
+        "create-card-dump-demo-workspace",
+        help="Create a safe synthetic card-dump workspace seeded for init/scheduler smoke demos.",
+    )
+    card_dump_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Directory where the synthetic Volumes/ card and SSD demo tree will be created.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-date",
+        default="2026-05-08",
+        help="ISO-8601 shoot date used by the synthetic ingest demo.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Slug for the synthetic shoot folder. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
+    card_dump_demo.add_argument(
+        "--destination-subfolder",
+        default="ShootFlow",
+        help="Relative library folder inside the synthetic destination volume.",
     )
 
     return parser
@@ -688,6 +731,47 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
             "ingest": _card_dump_ingest_json(report),
             "production_report": _card_dump_production_report_json(report),
             "notes": list(report.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _card_dump_demo_workspace_json(demo: CardDumpCliDemoWorkspace) -> str:
+    if not isinstance(demo, CardDumpCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a CardDumpCliDemoWorkspace")
+    production_report = demo.card_dump_report.production_report
+    if production_report is None:
+        raise ShootFlowCliError("demo must include a production report")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace_root": str(demo.workspace_root),
+            "volume_root": str(demo.volume_root),
+            "source_volume": str(demo.source_volume),
+            "destination_volume": str(demo.destination_volume),
+            "shoot_folder": str(demo.shoot_folder),
+            "render_tasks_manifest_path": str(demo.render_demo.render_tasks_manifest_path),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "card_dump": {
+                "status": demo.card_dump_report.status,
+                "ingest_executed": demo.card_dump_report.ingest_executed,
+                "manifest_path": (
+                    None
+                    if demo.card_dump_report.copy_report is None
+                    else str(demo.card_dump_report.copy_report.manifest_path)
+                ),
+                "asset_counts": {
+                    "photo": production_report.photo_asset_count,
+                    "video": production_report.video_asset_count,
+                    "total": production_report.photo_asset_count + production_report.video_asset_count,
+                },
+                "copied_manifest_item_count": production_report.copied_manifest_item_count,
+                "wrote_downstream_files_before_demo_seed": False,
+            },
+            "safety_notes": list(demo.safety_notes),
         },
         ensure_ascii=True,
         indent=2,

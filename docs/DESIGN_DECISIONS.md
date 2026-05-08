@@ -109,12 +109,15 @@ The repo currently contains a Python core package because it is quick to test an
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
-- `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
-  a tiny persisted render workspace by writing deterministic placeholder inputs
-  and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
+- `shootflow.demo_workspace`: demo/native-shell smoke-test helpers. The persisted
+  render workspace helper writes deterministic placeholder inputs and
+  `deliverables/render_tasks.json`, refuses symlinked roots and existing
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
-  contract as the product.
+  contract as the product. The card-dump demo helper creates a synthetic
+  mounted card/SSD tree, runs the confirmed `card-dump-workflow`, and seeds the
+  resulting shoot folder with the same persisted render-task demo, without
+  deleting source media or overwriting different synthetic source files.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -154,9 +157,10 @@ The desired high-quality pipeline is:
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
-    shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
-    flow without constructing trusted render tasks by hand.
+21. Keep small persisted-manifest and card-dump demo workspace helpers available
+    so Mac UI shells, launch-agent smoke tests, and GTM demos can exercise both
+    the init-to-report flow and the detected-card-to-report flow without
+    constructing trusted render tasks by hand.
 22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
 23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
@@ -415,3 +419,15 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   demos must still call `init-render-status` and `dry-run-render-scheduler` to
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
+
+### Decision: card-dump demos should bridge to the real scheduler path
+
+- **Status:** accepted
+- **Rationale:** native-shell demos and GTM proof should show the actual product
+  story from detected card through safe ingest to scheduler report, but without
+  introducing fake status shortcuts or unsafe media operations.
+- **Consequence:** `create-card-dump-demo-workspace` creates synthetic mounted
+  card/SSD media, runs the real confirmed card-dump workflow, and seeds trusted
+  render tasks in the ingested shoot folder. It still leaves render-status
+  initialization and scheduling to the normal CLI commands so existing progress,
+  no-overwrite behavior, and report validation stay on the production path.

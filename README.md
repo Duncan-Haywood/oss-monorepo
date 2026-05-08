@@ -71,11 +71,14 @@ This repo currently contains the first testable core utilities:
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
   as JSON for a Mac app or automation runner.
-- `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
+- `shootflow.demo_workspace` can create tiny persisted CLI smoke workspaces for
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
   different files, and leaves render-status/report creation to the normal CLI
-  commands so existing progress is not reset.
+  commands so existing progress is not reset. It can also seed a synthetic
+  mounted card/SSD tree, run the confirmed `card-dump-workflow`, and place the
+  persisted render-task demo inside the ingested shoot folder so one smoke path
+  covers detected card -> safe ingest -> scheduler report.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -172,7 +175,10 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+21. Use `python -m shootflow.cli create-card-dump-demo-workspace` to seed a
+    synthetic mounted card/SSD demo, execute the real confirmed card-dump flow,
+    and install the persisted render-task demo in the resulting shoot folder.
+22. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
@@ -232,6 +238,38 @@ the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
 planning from that manifest.
+
+The full synthetic demo path for native-shell smoke tests and GTM walkthroughs is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli create-card-dump-demo-workspace \
+  --workspace /tmp/shootflow-demo \
+  --shoot-date 2026-05-08 \
+  --shoot-slug demo-wedding
+
+# Then run the printed shoot_folder through the normal status/scheduler commands.
+PYTHONPATH=src python3 -m shootflow.cli init-render-status \
+  --workspace /tmp/shootflow-demo/Volumes/Samsung_T7/ShootFlow/2026-05-08_demo-wedding
+PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler \
+  --workspace /tmp/shootflow-demo/Volumes/Samsung_T7/ShootFlow/2026-05-08_demo-wedding \
+  --completed-dependency rank_instagram_storylines \
+  --completed-dependency grade_asset_00000 \
+  --completed-dependency grade_asset_00001 \
+  --completed-dependency grade_asset_00002 \
+  --completed-dependency grade_asset_00003 \
+  --renderer dry-run-local \
+  --started-at 2026-05-08T17:00:00Z \
+  --completed-at 2026-05-08T17:00:05Z \
+  --generated-at 2026-05-08T17:00:06Z \
+  --max-concurrency 3 \
+  --max-iterations 4 \
+  --print-report
+```
+
+The demo command refuses unexpected sibling volumes, unexpected extra source
+media, or different existing synthetic source files. It leaves source media
+intact, does not create render status, and still requires the normal
+init/scheduler commands for progress and report creation.
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 

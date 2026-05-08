@@ -111,7 +111,11 @@ The current core models a concrete promise for high-volume users:
 22. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+23. Seed a synthetic mounted card/SSD demo that runs the real confirmed
+    `card-dump-workflow`, then installs the persisted render-task demo inside
+    the ingested shoot folder so one native-shell smoke path spans detected card,
+    safe ingest, render-status initialization, and scheduler reporting.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -180,7 +184,11 @@ to automate.
    scheduler, write that report, and can print JSON summaries for a Mac app or
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
-   without bypassing the real init/status/scheduler path.
+   without bypassing the real init/status/scheduler path. A synthetic card-dump
+   demo command now ties the ingest proof point to that persisted render path by
+   creating a fake mounted card/SSD tree, running confirmed ingest, and placing
+   trusted render tasks inside the copied shoot folder for the normal scheduler
+   commands to advance.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

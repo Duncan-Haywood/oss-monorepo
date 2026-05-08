@@ -8,6 +8,28 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added a full synthetic card-dump-to-scheduler demo bridge:
+  - `shootflow.demo_workspace.create_card_dump_cli_demo_workspace(...)` creates a
+    fake mounted card/SSD tree, preflights synthetic source files, runs the real
+    confirmed `card-dump-workflow`, and then seeds the ingested shoot folder with
+    the existing persisted render-task demo;
+  - `python -m shootflow.cli create-card-dump-demo-workspace` prints a
+    schema-versioned JSON handoff with the shoot folder, render-task manifest,
+    required completed dependency IDs, expected outputs, card-dump status, and
+    safety notes;
+  - the helper refuses to overwrite existing different synthetic source files,
+    leaves source media intact, and deliberately does not initialize render
+    status or run the scheduler, so demos still exercise the normal
+    `init-render-status` and `dry-run-render-scheduler` path.
+- Added CLI tests covering the detected-card -> confirmed ingest -> render-task
+  seed -> init -> scheduler-report smoke path, plus no-side-effects refusals
+  when a synthetic source file already belongs to the user, an unexpected sibling
+  volume is present, or extra media appears under the synthetic source.
+- Updated README/product/business/design docs to mark this as the current native
+  shell and GTM demo proof point.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,
@@ -509,7 +531,8 @@ through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler
 render-status manifests from persisted render tasks without resetting progress, invoke that handoff from
 persisted-manifest CLI commands, and discover mounted-volume candidates for reviewed import routing. The next
 useful layer is either richer native macOS volume metadata, a real renderer temp-output contract, stronger
-distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
+distributed lease persistence, scheduler/report product metrics, or a native-shell review UI around the
+new card-dump demo path.
 
 Good test-first targets:
 
@@ -517,9 +540,9 @@ Good test-first targets:
   removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
-- Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe
-  `init-render-status` bootstrapping, and the printed `render_scheduler_report.json` output a future Mac UI should
-  consume.
+- Add product metrics at card-dump and scheduler/report boundaries so demos can report ingest-to-first-draft
+  duration, completed outputs, retry/review burden, and manual-intervention rate without parsing internal worker
+  state.
 - If cloud/distributed workers are introduced, add storage-native compare-and-swap or a lease service around
   the same manifest contract; the current advisory lock protects local workers sharing one filesystem.
 - Keep real ffmpeg/Core Image/DaVinci rendering out of scope until leases, temp output paths, and adapter
