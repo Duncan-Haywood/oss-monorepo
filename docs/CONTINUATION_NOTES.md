@@ -23,7 +23,8 @@ fixture:
   readiness booleans, rates, medians, or output counts disagree with workspace
   evidence. A second review pass tightened this further by recomputing
   workspace readiness from the default completion/intervention/output thresholds
-  and revalidating nested summary dataclasses before serialization.
+  and revalidating nested summary dataclasses, status, and headline consistency
+  before serialization.
 
 Good next test-first targets:
 
