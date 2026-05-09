@@ -18,6 +18,10 @@ fixture:
   authority.
 - Added regression coverage for partially ready cohorts, unavailable trusted
   metrics, and CLI no-write/no-command behavior.
+- Review follow-up tightened saved-report validation: the brief now rejects
+  forged or internally inconsistent cohort reports whose aggregate counts,
+  readiness booleans, rates, medians, or output counts disagree with workspace
+  evidence.
 
 Good next test-first targets:
 
