@@ -898,6 +898,7 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
             "schema_version": 1,
             "status": report.status,
             "ingest_executed": report.ingest_executed,
+            "agent_handoff": _card_dump_agent_handoff_json(report),
             "volume_roots": [str(root) for root in report.volume_roots],
             "route": {
                 "status": report.route.status,
@@ -965,6 +966,36 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _card_dump_agent_handoff_json(report: CardDumpWorkflowReport) -> dict[str, object]:
+    if not isinstance(report, CardDumpWorkflowReport):
+        raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
+    if report.status == "blocked":
+        return {
+            "next_step": "fix_route",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": False,
+            "requires_confirm_ingest": False,
+        }
+    if report.status == "ready_for_review":
+        return {
+            "next_step": "review_preview",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": True,
+            "requires_confirm_ingest": True,
+        }
+    if report.status == "ingest_complete":
+        return {
+            "next_step": "review_production_plan",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": False,
+            "requires_confirm_ingest": False,
+        }
+    raise ShootFlowCliError(f"Unsupported card workflow status: {report.status}")
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:

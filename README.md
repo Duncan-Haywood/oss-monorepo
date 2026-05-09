@@ -123,8 +123,11 @@ This repo currently contains the first testable core utilities:
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
-  shells and GTM demos.
-- `shootflow.cli` now also exposes `write-render-tasks`, a post-storyline
+  shells and GTM demos. Its CLI JSON includes an `agent_handoff` block so
+  native shells and launch agents can distinguish blocked routing,
+  review-required previews, and post-ingest production-plan review without
+  parsing prose notes.
+- `shootflow.cli` also exposes `write-render-tasks`, a post-storyline
   handoff that rebuilds the manifest-backed production plan, verifies trusted
   storyline selections and graded artifacts through `shootflow.assembly`, then
   creates or reuses `deliverables/render_tasks.json` without rendering media or
@@ -222,6 +225,8 @@ The intended first workflow is:
 23. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
+    The report includes machine-readable `agent_handoff` fields for the next
+    safe step and whether that step requires human review or may copy bytes.
 24. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
@@ -304,10 +309,13 @@ Without `--confirm-ingest`, this command only discovers, estimates, and previews
 the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
-planning from that manifest. Confirmed card-dump reports also include
+planning from that manifest. Confirmed card-dump reports include
 machine-readable `next_actions` for preparing trusted storyline/graded artifacts
 and invoking `write-render-tasks`, so native shells do not need to infer the
-next safe handoff from nested paths.
+next safe handoff from nested paths. The report also includes an `agent_handoff`
+block: the machine-readable launch-agent/UI contract (`fix_route` for blocked
+discovery, `review_preview` before any confirmed copy, `review_production_plan`
+after a verified ingest).
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 

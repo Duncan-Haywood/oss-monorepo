@@ -149,7 +149,9 @@ The repo currently contains a Python core package because it is quick to test an
   and copy + production summary only when the caller supplies `--confirm-ingest`.
   Confirmed reports expose advisory `next_actions` for trusted storyline/graded
   preparation and render-task writing so native shells can guide the user without
-  expanding file authority.
+  expanding file authority. The JSON also includes an `agent_handoff` block so
+  launch agents and native shells can branch on route repair, preview review, or
+  production-plan review without interpreting prose notes.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
@@ -210,6 +212,9 @@ The desired high-quality pipeline is:
 21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
+    Keep the next orchestration step machine-readable (`agent_handoff` block)
+    so background agents can remain conservative around human review and copy
+    authority.
 22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
@@ -495,3 +500,18 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   demos must still call `init-render-status` and `dry-run-render-scheduler` to
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
+
+### Decision: card-dump reports expose machine-readable agent handoff state
+
+- **Status:** accepted
+- **Rationale:** The future Mac app, menu-bar agent, and cron-style automations
+  should not infer copy authority or review state from human-readable notes.
+  The route -> preview -> confirmed ingest flow is especially sensitive because
+  a wrong branch can move large media payloads before the operator reviews the
+  destination.
+- **Consequence:** `card-dump-workflow` success JSON includes `agent_handoff`
+  with a stable `next_step`, `human_review_required`, `safe_to_rerun`,
+  `next_step_may_copy_bytes`, and `requires_confirm_ingest`. The values remain
+  conservative: blocked routes require review, preview completion points at
+  human review before a copy-capable confirmed run, and post-ingest reports
+  point at production-plan review rather than downstream AI writes.

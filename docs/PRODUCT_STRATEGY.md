@@ -115,7 +115,10 @@ The current core models a concrete promise for high-volume users:
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary. Confirmed reports include explicit `next_actions` for trusted
-    storyline/grading preparation and the subsequent render-task handoff.
+    storyline/grading preparation and the subsequent render-task handoff. The
+    schema-versioned report also carries an `agent_handoff` block that tells
+    launch agents whether the next safe step is route repair, preview review,
+    or production-plan review, and whether the next step may copy bytes.
 23. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
     flow that demos already exercise. Its summary points native shells at
