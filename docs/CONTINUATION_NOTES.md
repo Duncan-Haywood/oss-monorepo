@@ -249,6 +249,31 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   smoke flow, and conflict rejection without overwrite side effects.
 - Updated README/product/business/design docs and added a focused design note at
   `docs/superpowers/specs/2026-05-09-cli-demo-workspace-command-design.md`.
+- Branch reconciliation notes:
+  - merged `origin/cursor/ai-media-operating-system-9806` as the strongest
+    workspace-index/health line; it subsumes earlier workspace-health and native
+    macOS metadata adapter work;
+  - merged `origin/cursor/ai-media-operating-system-4bed` for the latest native
+    volume metadata override contract on portable discovery, `plan-import-route`,
+    and `card-dump-workflow`;
+  - merged `origin/cursor/autonomous-media-studio-4741` for the safer
+    render-workspace inspection line, including missing-output review detection;
+  - merged `origin/cursor/ai-media-operating-system-255f` for the public
+    `create-demo-workspace` command and unsafe manifest preflight;
+  - left the remaining macOS adapter/native-volume branches unmerged because
+    their useful capability is represented by the merged 9806/4bed combination;
+  - left older demo/inspection branches unmerged because they are superseded by
+    255f and 4741;
+  - left `origin/cursor/ai-media-operating-system-c1c0`,
+    `origin/cursor/ai-media-operating-system-d7a4`, and
+    `origin/cursor/autonomous-media-studio-aaae` for a future targeted pass if
+    the team wants a single card-dump-to-scheduler fixture, additional
+    card-workflow next-action shaping, or a simpler workspace-state facade beyond
+    the current health/index/inspection surfaces.
+- Review follow-up fixed the merged native metadata CLI boundary: partial
+  `--volume-metadata-json` capacity overrides that conflict with filesystem
+  totals now return the normal `shootflow: candidate free_bytes cannot exceed
+  total_bytes` error path instead of surfacing a raw traceback.
 
 ## Previous iteration
 
