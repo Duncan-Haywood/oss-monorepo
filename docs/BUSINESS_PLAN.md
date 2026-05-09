@@ -90,6 +90,10 @@ Why this wedge wins:
   validated scheduler product metrics to show activation, throughput, and manual
   intervention signals without parsing raw worker internals or granting copy,
   retry, cleanup, overwrite, materialization, or deletion authority.
+- A read-only pilot cohort report that aggregates saved dashboard JSON payloads
+  into pilot-ready workspace rate, median intervention rate, and first-draft
+  output count so pilot operations can measure activation quality without
+  spreadsheets or raw worker-log parsing.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and

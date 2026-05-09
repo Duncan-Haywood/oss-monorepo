@@ -2,6 +2,37 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 21:30 UTC
+
+This run advanced the pilot cohort measurement target from the previous handoff:
+
+- Added `shootflow.pilot_cohort_report`, a read-only aggregation layer over saved
+  schema v2 `pilot-dashboard` JSON payloads. It validates each dashboard payload
+  and derives cohort-level pilot-ready workspace rate, median intervention rate,
+  first-draft output count, metrics-available/unavailable counts, and
+  per-workspace readiness evidence.
+- Added `pilot-cohort-report --dashboard-json <path> ... --generated-at
+  <timestamp>` to the CLI. It writes nothing, consumes dashboard JSON files
+  instead of shoot workspaces or worker internals, and emits no workflow
+  commands.
+- Missing dashboard metrics stay unavailable and are excluded from rate/median
+  calculations rather than becoming false pilot successes or failures.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future agents treat cohort analytics as the next pilot measurement layer
+  above per-workspace dashboards.
+
+Good next test-first targets:
+
+- Bind schema v2 `pilot_acceptance` and cohort-report output into a minimal
+  native-shell/UI fixture that displays readiness as observational state while
+  still branching only on explicit next-action/review contracts.
+- Add a saved-dashboard fixture flow that writes one dashboard JSON per demo
+  workspace and then runs `pilot-cohort-report`, giving GTM demos a stable
+  multi-workspace cohort artifact without requiring real media.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-09 21:00 UTC
 
 This run advanced the pilot-dashboard measurement target from the previous

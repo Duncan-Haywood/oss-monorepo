@@ -49,6 +49,12 @@ from shootflow.pilot_dashboard import (
     build_pilot_dashboard_summary,
     pilot_dashboard_summary_to_dict,
 )
+from shootflow.pilot_cohort_report import (
+    PilotCohortReport,
+    PilotCohortReportError,
+    build_pilot_cohort_report_from_paths,
+    pilot_cohort_report_to_dict,
+)
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
     DryRunProductionSchedulerReport,
@@ -157,6 +163,8 @@ def main(
             _run_index_workspace_command(args, stdout=out)
         elif args.command == "pilot-dashboard":
             _run_pilot_dashboard_command(args, stdout=out)
+        elif args.command == "pilot-cohort-report":
+            _run_pilot_cohort_report_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
@@ -182,6 +190,7 @@ def main(
         WorkspaceHealthError,
         WorkspaceIndexError,
         PilotDashboardError,
+        PilotCohortReportError,
         RenderWorkspaceError,
         DemoWorkspaceError,
         StorageDiscoveryError,
@@ -471,6 +480,14 @@ def _run_pilot_dashboard_command(args: argparse.Namespace, *, stdout: TextIO) ->
         generated_at=args.generated_at,
     )
     stdout.write(_pilot_dashboard_summary_json(summary))
+
+
+def _run_pilot_cohort_report_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = build_pilot_cohort_report_from_paths(
+        args.dashboard_json,
+        generated_at=args.generated_at,
+    )
+    stdout.write(_pilot_cohort_report_json(report))
 
 
 def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -765,6 +782,22 @@ def _build_parser() -> argparse.ArgumentParser:
         "--generated-at",
         required=True,
         help="Caller-supplied timestamp for the read-only pilot dashboard.",
+    )
+
+    cohort_report = subparsers.add_parser(
+        "pilot-cohort-report",
+        help="Aggregate saved pilot-dashboard JSON payloads into read-only cohort metrics.",
+    )
+    cohort_report.add_argument(
+        "--dashboard-json",
+        action="append",
+        required=True,
+        help="Path to a saved pilot-dashboard JSON payload. Repeat for each workspace.",
+    )
+    cohort_report.add_argument(
+        "--generated-at",
+        required=True,
+        help="Caller-supplied timestamp for the read-only cohort report.",
     )
 
     inspect_workspace = subparsers.add_parser(
@@ -1484,6 +1517,20 @@ def _pilot_dashboard_summary_json(summary: PilotDashboardSummary) -> str:
     return (
         json.dumps(
             pilot_dashboard_summary_to_dict(summary),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
+def _pilot_cohort_report_json(report: PilotCohortReport) -> str:
+    if not isinstance(report, PilotCohortReport):
+        raise ShootFlowCliError("report must be a PilotCohortReport")
+    return (
+        json.dumps(
+            pilot_cohort_report_to_dict(report),
             ensure_ascii=True,
             indent=2,
             sort_keys=True,

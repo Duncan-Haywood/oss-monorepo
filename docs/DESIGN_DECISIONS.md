@@ -178,6 +178,13 @@ The repo currently contains a Python core package because it is quick to test an
   observational; it cannot schedule, retry, materialize, repair, overwrite,
   clean up, or delete files. It names the next safe action but omits executable
   commands for write-capable actions.
+- `shootflow.pilot_cohort_report`: a read-only aggregation contract above saved
+  schema v2 pilot-dashboard JSON payloads. It never opens shoot workspaces or
+  raw worker manifests; instead it validates each dashboard payload and derives
+  cohort-level pilot-ready workspace rate, median intervention rate, first-draft
+  output count, and per-workspace readiness evidence. Missing dashboard metrics
+  remain unavailable rather than becoming false successes or failures, and the
+  cohort report emits no workflow commands.
 - `shootflow.render_workspace`: a read-only state index over persisted render
   handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
   missing status manifest as `needs_status_initialization` without creating one,

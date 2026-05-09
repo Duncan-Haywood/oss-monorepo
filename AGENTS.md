@@ -31,6 +31,7 @@ PYTHONPATH=src python3 -m shootflow.cli plan-import-route --volume-root <dir> ..
 PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli pilot-dashboard --workspace <dir> --generated-at <timestamp>
+PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report --dashboard-json <path> ... --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli write-render-tasks --ingest-manifest <path>
 PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
 PYTHONPATH=src python3 -m shootflow.cli dry-run-production-scheduler --ingest-manifest <path> --generated-at <timestamp> ...
@@ -56,6 +57,9 @@ rate, manual intervention rate, and materialized outputs. It consumes workspace
 health rather than raw worker internals, omits executable commands for
 write-capable next actions, and grants no copy, retry, cleanup, overwrite,
 materialization, or deletion authority.
+`pilot-cohort-report` aggregates saved schema v2 dashboard JSON payloads into
+pilot-ready workspace rate, median intervention rate, and first-draft output
+count without reading raw worker internals or granting workflow authority.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`
 and `deliverables/render_status.json` manifests in the workspace directory.
 `write-render-tasks` can create the render-task manifest from an ingest manifest
