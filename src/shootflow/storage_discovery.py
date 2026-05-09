@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import os
 from pathlib import Path
 
@@ -11,7 +12,18 @@ from shootflow.storage import (
 )
 
 
-def discover_storage_candidates(volume_roots: list[Path]) -> list[StorageCandidate]:
+@dataclass(frozen=True)
+class VolumeDiscoveryHint:
+    display_name: str | None = None
+    is_removable: bool | None = None
+    is_read_only: bool | None = None
+
+
+def discover_storage_candidates(
+    volume_roots: list[Path],
+    *,
+    volume_hints: dict[Path, VolumeDiscoveryHint] | None = None,
+) -> list[StorageCandidate]:
     """Discover mounted-volume-like directories for conservative import routing.
 
     Native app layers can pass macOS roots such as /Volumes, test fixtures, or
@@ -21,6 +33,7 @@ def discover_storage_candidates(volume_roots: list[Path]) -> list[StorageCandida
     """
 
     _validate_volume_roots(volume_roots)
+    _validate_volume_hints(volume_hints)
 
     candidates: list[StorageCandidate] = []
     for root in volume_roots:
@@ -33,14 +46,19 @@ def discover_storage_candidates(volume_roots: list[Path]) -> list[StorageCandida
             if stats is None:
                 continue
             free_bytes, total_bytes = stats
+            hint = _hint_for_volume(child, volume_hints)
+            filesystem_is_read_only = not os.access(child, os.W_OK)
             candidates.append(
                 StorageCandidate(
-                    name=child.name,
+                    name=_candidate_name(child, hint),
                     path=child,
                     free_bytes=free_bytes,
                     total_bytes=total_bytes,
-                    is_removable=True,
-                    is_read_only=not os.access(child, os.W_OK),
+                    is_removable=_candidate_is_removable(hint),
+                    is_read_only=_candidate_is_read_only(
+                        hint,
+                        filesystem_is_read_only=filesystem_is_read_only,
+                    ),
                 )
             )
     return candidates
@@ -51,11 +69,12 @@ def discover_import_route(
     *,
     expected_import_bytes: int | None = None,
     headroom_bytes: int = 32 * 1024**3,
+    volume_hints: dict[Path, VolumeDiscoveryHint] | None = None,
 ) -> ImportRouteRecommendation:
     """Discover storage candidates and recommend a reviewed import route."""
 
     _validate_capacity_arguments(expected_import_bytes=expected_import_bytes, headroom_bytes=headroom_bytes)
-    candidates = discover_storage_candidates(volume_roots)
+    candidates = discover_storage_candidates(volume_roots, volume_hints=volume_hints)
     if not candidates:
         return _empty_discovery_recommendation(capacity_gate_active=expected_import_bytes is not None)
     if expected_import_bytes is None:
@@ -87,6 +106,63 @@ def _validate_capacity_arguments(*, expected_import_bytes: int | None, headroom_
             raise TypeError("headroom_bytes must be an integer")
         if headroom_bytes < 0:
             raise ValueError("headroom_bytes cannot be negative")
+
+
+def _validate_volume_hints(volume_hints: dict[Path, VolumeDiscoveryHint] | None) -> None:
+    if volume_hints is None:
+        return
+    if not isinstance(volume_hints, dict):
+        raise TypeError("volume_hints must be a dict mapping Path to VolumeDiscoveryHint")
+    for path, hint in volume_hints.items():
+        if not isinstance(path, Path):
+            raise TypeError("volume_hints keys must be Path objects")
+        if not isinstance(hint, VolumeDiscoveryHint):
+            raise TypeError("volume_hints values must be VolumeDiscoveryHint objects")
+        if hint.display_name is not None:
+            if not isinstance(hint.display_name, str):
+                raise TypeError("VolumeDiscoveryHint.display_name must be a string when provided")
+            if not hint.display_name.strip():
+                raise ValueError("VolumeDiscoveryHint.display_name cannot be blank")
+        if hint.is_removable is not None and not isinstance(hint.is_removable, bool):
+            raise TypeError("VolumeDiscoveryHint.is_removable must be a boolean when provided")
+        if hint.is_read_only is not None and not isinstance(hint.is_read_only, bool):
+            raise TypeError("VolumeDiscoveryHint.is_read_only must be a boolean when provided")
+
+
+def _hint_for_volume(
+    volume_path: Path,
+    volume_hints: dict[Path, VolumeDiscoveryHint] | None,
+) -> VolumeDiscoveryHint | None:
+    if volume_hints is None:
+        return None
+    hint = volume_hints.get(volume_path)
+    if hint is not None:
+        return hint
+    return volume_hints.get(volume_path.resolve(strict=False))
+
+
+def _candidate_name(volume_path: Path, hint: VolumeDiscoveryHint | None) -> str:
+    if hint is not None and hint.display_name is not None:
+        return hint.display_name.strip()
+    return volume_path.name
+
+
+def _candidate_is_removable(hint: VolumeDiscoveryHint | None) -> bool:
+    if hint is not None and hint.is_removable is not None:
+        return hint.is_removable
+    return True
+
+
+def _candidate_is_read_only(
+    hint: VolumeDiscoveryHint | None,
+    *,
+    filesystem_is_read_only: bool,
+) -> bool:
+    if filesystem_is_read_only:
+        return True
+    if hint is not None and hint.is_read_only is not None:
+        return hint.is_read_only
+    return filesystem_is_read_only
 
 
 def _empty_discovery_recommendation(*, capacity_gate_active: bool) -> ImportRouteRecommendation:
