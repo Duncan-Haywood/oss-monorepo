@@ -493,6 +493,80 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
             ["analyze_asset_00000", "analyze_asset_00001"],
         )
 
+    def test_next_production_wave_surfaces_retryable_status_jobs_for_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            clip = card / "DCIM" / "A001.MOV"
+            photo = card / "DCIM" / "IMG_0001.CR3"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            photo.write_bytes(b"photo-bytes")
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "retryable-status-wave",
+                    "--confirm",
+                ],
+                stdout=io.StringIO(),
+            )
+            shoot_folder = destination / "2026-05-09_retryable-status-wave"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            production_plan = self._production_plan(manifest_path)
+            write_production_status_manifest(
+                ProductionStatusManifest(
+                    shoot_slug=production_plan.shoot_slug,
+                    production_plan_fingerprint=production_plan_fingerprint(production_plan),
+                    job_statuses=tuple(
+                        ProductionJobStatus(
+                            job_id=job.job_id,
+                            state="retryable",
+                            worker_adapter="dry-run-production-local",
+                            attempts=1,
+                            error_message=(
+                                "production lease expired; no source, analysis, graded, render, "
+                                "or deliverable files were deleted or cleaned up."
+                            ),
+                            updated_at="2026-05-09T18:31:00Z",
+                        )
+                        if job.job_id == "proxy_asset_00000"
+                        else ProductionJobStatus(job_id=job.job_id, state="pending")
+                        for job in production_plan.jobs
+                    ),
+                ),
+                shoot_folder,
+                trusted_plan=production_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--use-production-status",
+                ],
+                stdout=stdout,
+            )
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["status_source"], "production_status")
+        self.assertEqual(payload["wave_index"], 0)
+        self.assertEqual(
+            [job["job_id"] for job in payload["jobs"]],
+            ["proxy_asset_00001"],
+        )
+        self.assertEqual(payload["review_required_job_ids"], ["proxy_asset_00000"])
+
     def test_next_production_wave_rejects_mixed_status_and_completed_job_modes(self) -> None:
         stdout = io.StringIO()
         stderr = io.StringIO()

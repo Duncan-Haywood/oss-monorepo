@@ -16,8 +16,12 @@ from shootflow.production_scheduler import (
     write_dry_run_production_scheduler_report,
 )
 from shootflow.production_status import (
+    ProductionJobStatus,
+    ProductionStatusManifest,
     initialize_production_status_manifest,
     load_production_status_manifest,
+    production_plan_fingerprint,
+    write_production_status_manifest,
 )
 from shootflow.render_scheduler import (
     run_dry_run_render_scheduler,
@@ -241,6 +245,55 @@ class WorkspaceHealthTests(unittest.TestCase):
         self.assertEqual(
             summary.next_action.requires_runtime_args,
             ("--worker", "--started-at", "--completed-at", "--generated-at"),
+        )
+        self.assertEqual(status_after, status_before)
+
+    def test_pending_production_sibling_can_run_while_retryable_job_needs_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = create_card_dump_cli_demo_workspace(root)
+            trusted_plan = self._production_plan_from_workspace(demo.shoot_folder)
+            retryable_status = ProductionJobStatus(
+                job_id="proxy_asset_00000",
+                state="retryable",
+                worker_adapter="dry-run-production-local",
+                attempts=1,
+                error_message="production lease expired; no files were deleted or cleaned up.",
+                updated_at="2026-05-09T18:31:00Z",
+            )
+            write_production_status_manifest(
+                ProductionStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+                    job_statuses=tuple(
+                        retryable_status
+                        if job.job_id == "proxy_asset_00000"
+                        else ProductionJobStatus(job_id=job.job_id, state="pending")
+                        for job in trusted_plan.jobs
+                    ),
+                ),
+                demo.shoot_folder,
+                trusted_plan=trusted_plan,
+            )
+            status_before = (demo.shoot_folder / "production_status.json").read_text(
+                encoding="utf-8"
+            )
+
+            summary = build_workspace_health_summary(demo.shoot_folder)
+            status_after = (demo.shoot_folder / "production_status.json").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(summary.production_status_counts.retryable, 1)
+        self.assertGreater(summary.production_status_counts.pending, 0)
+        self.assertEqual(summary.next_action.name, "run_dry_run_production_scheduler")
+        self.assertEqual(
+            summary.next_action.command,
+            (
+                "dry-run-production-scheduler",
+                "--ingest-manifest",
+                str(demo.shoot_folder / "ingest_manifest.json"),
+            ),
         )
         self.assertEqual(status_after, status_before)
 

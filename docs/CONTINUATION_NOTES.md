@@ -23,6 +23,18 @@ Then it tightened the UI/agent production handoff contract:
 - Added a regression test proving expired-lease style retryable jobs appear in
   `review_required_job_ids` and are not handed back as automatic work.
 
+After reviewer pass, this run also closed adjacent contract gaps:
+
+- `workspace-health` now recommends `run_dry_run_production_scheduler` when a
+  trusted production status has pending jobs plus retryable jobs, as long as no
+  job is currently running. The scheduler can skip the retryable job while
+  advancing pending siblings.
+- Added CLI-level coverage proving `next-production-wave --use-production-status`
+  omits retryable jobs from `jobs` and surfaces them in
+  `review_required_job_ids`.
+- Production scheduler reports now preserve stale-lease conflict reasons in
+  `failure_messages`, not just `conflicted_lease_job_ids`.
+
 Good next test-first targets:
 
 - Add product metric emission at production/render scheduler report boundaries
@@ -31,19 +43,18 @@ Good next test-first targets:
 - Start a real local proxy or metadata adapter behind the production-worker
   action contract, preserving declared-output-only authority and using the stale
   lease expiry path for interrupted jobs.
-- Add a CLI-level `next-production-wave --use-production-status` regression for
-  retryable jobs if a future Mac-shell contract needs full JSON output coverage
-  in addition to the core handoff test.
+- Add negative trust coverage for invalid production status/report artifacts in
+  `index-workspace`, complementing the health and scheduler report coverage.
 
 Branch reconciliation for this run:
 
 - `git fetch --prune origin` removed the historical remote cursor branches that
   had already been merged, superseded, or deleted remotely.
-- `origin/main` remains at `0f169fd`; the assigned branch is 10 commits ahead
+- `origin/main` remains at `0f169fd`; the assigned branch is 13 commits ahead
   and contains the prior production-health/lease-recovery work plus this handoff
-  contract fix.
+  contract fix and reviewer follow-ups.
 - `origin/cursor/repository-branch-consolidation-4c04` is fully represented by
-  the assigned branch; the assigned branch is one commit ahead of it.
+  the assigned branch; the assigned branch is four commits ahead of it.
 - The only remote branch still not merged into the assigned branch is
   `origin/cursor/branch-consolidation-strategy-d2e7`. Its tree was already
   superseded by the production lease recovery lineage; it is behind the assigned
@@ -56,7 +67,7 @@ Branch reconciliation for this run:
 - Final verification on the assigned branch:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
-  git diff --check && git status --short --branch` -> 295 tests OK,
+  git diff --check && git status --short --branch` -> 298 tests OK,
   compileall/diff-check exited 0, and the working tree was clean.
 
 ## Implementation continuation note - 2026-05-09 18:00 UTC
@@ -371,9 +382,11 @@ This run advanced the pre-render production orchestration layer:
 - Added `plan_next_production_wave_from_status(...)`, which reloads the verified
   ingest manifest, rebuilds the deterministic production plan, loads trusted
   `production_status.json`, derives completed job IDs from succeeded statuses,
-  and returns the next dependency-ready pending/retryable production jobs without
-  writing analysis, graded, render-task, status, scheduler-report, or deliverable
-  files.
+  and returns the next dependency-ready production jobs without writing analysis,
+  graded, render-task, status, scheduler-report, or deliverable files.
+  Superseded note: as of the 18:30 UTC handoff refinement, status-backed
+  handoffs return only pending jobs as ready work; retryable jobs are
+  review-required.
 - `ProductionWaveHandoff` now carries `status_source`, `active_job_ids`, and
   `review_required_job_ids` so UI/agent consumers can distinguish legacy
   caller-reported progress from durable production status and avoid rescheduling

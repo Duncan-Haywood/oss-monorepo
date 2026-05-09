@@ -67,10 +67,17 @@ class DryRunProductionSchedulerError(ValueError):
 
 
 @dataclass(frozen=True)
+class ProductionSchedulerJobMessage:
+    job_id: str
+    message: str
+
+
+@dataclass(frozen=True)
 class DryRunProductionSchedulerIteration:
     iteration_number: int
     expired_lease_job_ids: tuple[str, ...]
     conflicted_lease_job_ids: tuple[str, ...]
+    conflicted_lease_failure_messages: tuple[ProductionSchedulerJobMessage, ...]
     attempted_job_ids: tuple[str, ...]
     skipped_retryable_job_ids: tuple[str, ...]
     blocked_job_ids: tuple[str, ...]
@@ -87,12 +94,6 @@ class DryRunProductionSchedulerResult:
     retryable_job_ids: tuple[str, ...]
     failed_job_ids: tuple[str, ...]
     blocked_job_ids: tuple[str, ...]
-
-
-@dataclass(frozen=True)
-class ProductionSchedulerJobMessage:
-    job_id: str
-    message: str
 
 
 @dataclass(frozen=True)
@@ -216,6 +217,7 @@ def run_dry_run_production_scheduler(
             iteration_number=iteration_number,
             expired_lease_job_ids=_expired_lease_job_ids(lease_result),
             conflicted_lease_job_ids=_conflicted_lease_job_ids(lease_result),
+            conflicted_lease_failure_messages=_conflicted_lease_failure_messages(lease_result),
             attempted_job_ids=tuple(action.job_id for action in ready_actions),
             skipped_retryable_job_ids=skipped_retryable_job_ids,
             blocked_job_ids=tuple(blocked.job_id for blocked in action_plan.blocked_jobs),
@@ -436,6 +438,20 @@ def _conflicted_lease_job_ids(result: ProductionLeasePersistenceResult | None) -
     return tuple(lease.job_id for lease in result.conflicted_leases)
 
 
+def _conflicted_lease_failure_messages(
+    result: ProductionLeasePersistenceResult | None,
+) -> tuple[ProductionSchedulerJobMessage, ...]:
+    if result is None:
+        return ()
+    return tuple(
+        ProductionSchedulerJobMessage(
+            job_id=lease.job_id,
+            message=lease.error_message,
+        )
+        for lease in result.conflicted_leases
+    )
+
+
 def _stopped_reason(
     final_manifest: ProductionStatusManifest,
     *,
@@ -561,6 +577,7 @@ def _failure_messages(
 ) -> tuple[ProductionSchedulerJobMessage, ...]:
     messages: list[ProductionSchedulerJobMessage] = []
     for iteration in iterations:
+        messages.extend(iteration.conflicted_lease_failure_messages)
         if iteration.batch_result is None:
             continue
         for failure in iteration.batch_result.failures:
@@ -1110,8 +1127,21 @@ def _validate_iteration(iteration: DryRunProductionSchedulerIteration) -> None:
         for job_id in value:
             if not isinstance(job_id, str) or not job_id.strip():
                 raise DryRunProductionSchedulerError(f"{field_name} contains an invalid job id")
+    if not isinstance(iteration.conflicted_lease_failure_messages, tuple):
+        raise DryRunProductionSchedulerError("conflicted_lease_failure_messages must be a tuple")
+    for message in iteration.conflicted_lease_failure_messages:
+        _validate_job_message(message)
     if iteration.batch_result is not None and not isinstance(iteration.batch_result, DryRunProductionBatchResult):
         raise DryRunProductionSchedulerError("batch_result is invalid")
+
+
+def _validate_job_message(message: ProductionSchedulerJobMessage) -> None:
+    if not isinstance(message, ProductionSchedulerJobMessage):
+        raise DryRunProductionSchedulerError("job message is invalid")
+    if not isinstance(message.job_id, str) or not message.job_id.strip():
+        raise DryRunProductionSchedulerError("job message job_id is invalid")
+    if not isinstance(message.message, str) or not message.message.strip():
+        raise DryRunProductionSchedulerError("job message text is invalid")
 
 
 def _validate_result(result: DryRunProductionSchedulerResult) -> None:

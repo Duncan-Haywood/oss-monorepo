@@ -528,8 +528,6 @@ def _next_action(
             production_status_counts.succeeded != len(trusted_production_plan.jobs)
         ):
             return WorkspaceNextAction(name="review_production_scheduler_report")
-        if production_status_counts.failed or production_status_counts.retryable:
-            return WorkspaceNextAction(name="review_production_status")
         if production_status_counts.running:
             return WorkspaceNextAction(name="review_production_status")
         if production_status_counts.pending:
@@ -543,6 +541,8 @@ def _next_action(
                 requires_runtime_args=_PRODUCTION_SCHEDULER_RUNTIME_ARGS,
                 writes_files=True,
             )
+        if production_status_counts.failed or production_status_counts.retryable:
+            return WorkspaceNextAction(name="review_production_status")
     if render_tasks.exists and not render_tasks.valid:
         return WorkspaceNextAction(name="review_invalid_render_tasks")
     if trusted_plan is None:

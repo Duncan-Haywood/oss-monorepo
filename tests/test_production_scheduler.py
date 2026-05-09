@@ -271,6 +271,9 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.iterations[0].attempted_job_ids, ())
         self.assertEqual(loaded_report.conflicted_lease_job_ids, ("proxy_asset_00000",))
         self.assertIn("proxy_asset_00000", loaded_report.review_required_job_ids)
+        self.assertEqual(len(loaded_report.failure_messages), 1)
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "proxy_asset_00000")
+        self.assertIn("stale lease expiration", loaded_report.failure_messages[0].message)
 
     def test_scheduler_retries_existing_retryable_job_when_reviewed(self) -> None:
         trusted_plan = self._video_only_plan()
