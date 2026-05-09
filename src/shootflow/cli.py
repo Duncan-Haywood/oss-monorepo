@@ -25,6 +25,12 @@ from shootflow.ingest import (
 )
 from shootflow.production import ProductionPlanError
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.render_inspection import (
+    OutputInspection,
+    RenderInspectionError,
+    RenderWorkspaceInspectionReport,
+    inspect_render_workspace,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -86,6 +92,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "inspect-render-workspace":
+            _run_inspect_render_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +106,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        RenderInspectionError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +260,11 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = inspect_render_workspace(args.workspace)
+    stdout.write(_render_workspace_inspection_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -387,6 +401,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    inspection = subparsers.add_parser(
+        "inspect-render-workspace",
+        help="Verify declared succeeded render outputs without mutating the workspace.",
+    )
+    inspection.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing deliverables/render_tasks.json and render_status.json.",
     )
 
     return parser
@@ -693,6 +717,49 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _render_workspace_inspection_report_json(report: RenderWorkspaceInspectionReport) -> str:
+    if not isinstance(report, RenderWorkspaceInspectionReport):
+        raise ShootFlowCliError("report must be a RenderWorkspaceInspectionReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(report.workspace),
+            "shoot_slug": report.shoot_slug,
+            "render_plan_fingerprint": report.render_plan_fingerprint,
+            "status": report.status,
+            "task_count": report.task_count,
+            "pending_task_ids": list(report.pending_task_ids),
+            "running_task_ids": list(report.running_task_ids),
+            "succeeded_task_ids": list(report.succeeded_task_ids),
+            "failed_task_ids": list(report.failed_task_ids),
+            "retryable_task_ids": list(report.retryable_task_ids),
+            "verified_output_paths": list(report.verified_output_paths),
+            "output_inspections": [
+                _output_inspection_json(inspection)
+                for inspection in report.output_inspections
+            ],
+            "review_required_task_ids": list(report.review_required_task_ids),
+            "notes": list(report.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _output_inspection_json(inspection: OutputInspection) -> dict[str, object]:
+    if not isinstance(inspection, OutputInspection):
+        raise ShootFlowCliError("inspection must be an OutputInspection")
+    return {
+        "task_id": inspection.task_id,
+        "path": inspection.path,
+        "state": inspection.state,
+        "expected_sha256": inspection.expected_sha256,
+        "actual_sha256": inspection.actual_sha256,
+        "message": inspection.message,
+    }
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:

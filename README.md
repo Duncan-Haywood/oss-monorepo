@@ -63,14 +63,22 @@ This repo currently contains the first testable core utilities:
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
+- `shootflow.render_inspection` provides a read-only delivery truth check for
+  persisted render workspaces. It loads trusted render tasks and matching status,
+  verifies only declared succeeded `deliverables/` outputs by SHA-256, classifies
+  missing/mismatched/unsafe outputs, and marks running/retryable/failed/problem
+  tasks for review without retrying, writing, cleaning, or deleting files.
 - `shootflow.cli` exposes the first background-agent commands:
-  `python -m shootflow.cli init-render-status` and
-  `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
+  `python -m shootflow.cli init-render-status`,
+  `python -m shootflow.cli dry-run-render-scheduler`, and
+  `python -m shootflow.cli inspect-render-workspace`. The init command loads the
   strict persisted render-task manifest, creates the companion render-status
   manifest only when missing, and never resets existing matching progress. The
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
-  as JSON for a Mac app or automation runner.
+  as JSON for a Mac app or automation runner. The inspection command reloads the
+  same trusted handoff and prints a schema-versioned verification report without
+  creating status, scheduler, or deliverable files.
 - `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
@@ -176,6 +184,9 @@ The intended first workflow is:
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
+22. Run `python -m shootflow.cli inspect-render-workspace` after scheduler or
+    editor work to verify declared succeeded outputs and surface review-required
+    tasks without retrying, cleaning, overwriting, materializing, or deleting files.
 
 The current persisted-manifest CLI flow is:
 
@@ -187,11 +198,14 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
   --started-at 2026-05-07T16:00:00Z \
   --completed-at 2026-05-07T16:00:05Z \
   --generated-at 2026-05-07T16:00:06Z
+PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
-matches the trusted render-task plan.
+matches the trusted render-task plan. The inspection command is also read-only:
+it checks status and declared output checksums, but never schedules retries,
+repairs missing files, overwrites outputs, or cleans media.
 
 The import-route planning flow is:
 

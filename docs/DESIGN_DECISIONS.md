@@ -97,6 +97,13 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.render_inspection`: a read-only persisted-workspace verifier. It
+  loads the trusted render-task manifest and matching status manifest, checks
+  only declared succeeded `deliverables/` outputs against their status
+  checksums, and reports verified/problem output states plus review-required task
+  IDs. It does not initialize status, schedule work, retry failed tasks,
+  materialize missing outputs, overwrite user/editor files, clean temporary
+  files, or delete media.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -104,7 +111,9 @@ The repo currently contains a Python core package because it is quick to test an
   command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
   render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`, and
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
-  Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
+  The inspect command reloads the same trusted task/status pair and prints a
+  schema-versioned output verification report for native shells and automation.
+  These commands do not accept model-authored paths, delete files, or widen renderer authority beyond the persisted
   render-task/status contracts.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
@@ -157,8 +166,12 @@ The desired high-quality pipeline is:
 21. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+22. Inspect the persisted render workspace after scheduler or editor work so the
+    UI can verify succeeded outputs, show problem outputs, and route running,
+    retryable, or failed tasks for review without granting repair or deletion
+    authority.
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
