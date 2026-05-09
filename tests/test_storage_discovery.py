@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest import mock
 
 from shootflow.storage_discovery import (
+    VolumeDiscoveryHint,
     discover_import_route,
     discover_storage_candidates,
 )
@@ -61,6 +62,88 @@ class StorageDiscoveryTest(unittest.TestCase):
         self.assertFalse(recommendation.ready)
         self.assertIn("no discovered storage candidates found", recommendation.safety_notes)
 
+    def test_discovery_applies_native_volume_metadata_hints(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            card = volumes / "Untitled"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+
+            candidates = discover_storage_candidates(
+                [volumes],
+                volume_hints={
+                    card: VolumeDiscoveryHint(
+                        display_name="EOS_R5_CARD",
+                        is_removable=True,
+                        is_read_only=True,
+                    )
+                },
+            )
+
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0].name, "EOS_R5_CARD")
+        self.assertTrue(candidates[0].is_removable)
+        self.assertTrue(candidates[0].is_read_only)
+
+    def test_discover_import_route_uses_native_volume_metadata_hints(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            card = volumes / "Untitled"
+            internal = volumes / "Macintosh HD"
+            external_ssd = volumes / "Samsung_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            internal.mkdir(parents=True)
+            external_ssd.mkdir(parents=True)
+
+            with mock.patch(
+                "shootflow.storage_discovery._read_filesystem_stats",
+                return_value=(900 * 1024**3, 2 * 1024**4),
+            ):
+                recommendation = discover_import_route(
+                    [volumes],
+                    volume_hints={
+                        card: VolumeDiscoveryHint(
+                            display_name="EOS_R5_CARD",
+                            is_removable=True,
+                        ),
+                        internal: VolumeDiscoveryHint(is_removable=False),
+                        external_ssd: VolumeDiscoveryHint(is_removable=True),
+                    },
+                )
+
+        self.assertTrue(recommendation.ready)
+        self.assertEqual(recommendation.source.candidate.name, "EOS_R5_CARD")
+        self.assertEqual(recommendation.destination.candidate.name, "Samsung_T7")
+        self.assertIn("removable", recommendation.destination.reasons)
+
+    def test_read_write_hint_cannot_override_unwritable_filesystem(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir(parents=True)
+
+            with (
+                mock.patch(
+                    "shootflow.storage_discovery._read_filesystem_stats",
+                    return_value=(900 * 1024**3, 2 * 1024**4),
+                ),
+                mock.patch("shootflow.storage_discovery.os.access", return_value=False),
+            ):
+                candidates = discover_storage_candidates(
+                    [volumes],
+                    volume_hints={ssd: VolumeDiscoveryHint(is_read_only=False)},
+                )
+                recommendation = discover_import_route(
+                    [volumes],
+                    volume_hints={ssd: VolumeDiscoveryHint(is_read_only=False)},
+                )
+
+        hinted_ssd = next(candidate for candidate in candidates if candidate.name == "Samsung_T7")
+        self.assertTrue(hinted_ssd.is_read_only)
+        self.assertFalse(recommendation.ready)
+        self.assertIsNone(recommendation.destination)
+
     def test_discovery_validates_volume_roots(self):
         with tempfile.TemporaryDirectory() as root:
             with self.assertRaises(TypeError):
@@ -69,6 +152,18 @@ class StorageDiscoveryTest(unittest.TestCase):
                 discover_storage_candidates([str(root)])  # type: ignore[list-item]
             with self.assertRaises(ValueError):
                 discover_storage_candidates([])
+            with self.assertRaises(TypeError):
+                discover_storage_candidates([Path(root)], volume_hints=[])  # type: ignore[arg-type]
+            with self.assertRaises(TypeError):
+                discover_storage_candidates(
+                    [Path(root)],
+                    volume_hints={str(root): VolumeDiscoveryHint()},  # type: ignore[dict-item]
+                )
+            with self.assertRaises(TypeError):
+                discover_storage_candidates(
+                    [Path(root)],
+                    volume_hints={Path(root): "metadata"},  # type: ignore[dict-item]
+                )
 
     def test_discover_import_route_validates_capacity_arguments_before_scanning_results(self):
         with tempfile.TemporaryDirectory() as root:

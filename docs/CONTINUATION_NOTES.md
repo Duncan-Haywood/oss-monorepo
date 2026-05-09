@@ -8,6 +8,22 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added advisory native-volume metadata hints for storage discovery:
+  - `VolumeDiscoveryHint` lets native Mac/iPhone shell layers pass a display
+    name, removable/internal classification, and read-only state for discovered
+    volume paths;
+  - `discover_storage_candidates(...)` applies those hints while still scanning
+    only reviewed mount roots, skipping symlinks/files/inaccessible entries, and
+    reading filesystem capacity from the actual path;
+  - `discover_import_route(...)` accepts the same hints so route ranking can
+    prefer an external SSD over an internal disk and label camera-card sources
+    with native names without adding copy/delete authority;
+  - tests cover hinted discovery, hinted route selection, and invalid hint maps.
+- Updated README and product/business/design/legal docs to mark hints as the
+  bridge from Swift/Disk Arbitration metadata into the conservative Python core.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,
@@ -507,14 +523,16 @@ action through a deterministic dry-run adapter, execute trusted ready-action bat
 concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
 through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, initialize missing
 render-status manifests from persisted render tasks without resetting progress, invoke that handoff from
-persisted-manifest CLI commands, and discover mounted-volume candidates for reviewed import routing. The next
-useful layer is either richer native macOS volume metadata, a real renderer temp-output contract, stronger
-distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
+persisted-manifest CLI commands, discover mounted-volume candidates for reviewed import routing, and accept
+native volume metadata hints for better route ranking. The next useful layer is either a SwiftUI/menu-bar shell
+around the hinted card-dump workflow, a real renderer temp-output contract, stronger distributed lease
+persistence, or a small example/smoke fixture for the init-to-report CLI flow.
 
 Good test-first targets:
 
-- Add a native macOS metadata adapter (or a pure testable abstraction for it) that can mark internal disks,
-  removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
+- Add a SwiftUI/menu-bar or native macOS metadata adapter that feeds
+  `VolumeDiscoveryHint` records from Disk Arbitration into `card-dump-workflow`
+  route approval.
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
   outputs while keeping the same no-overwrite/no-delete status boundary.
 - Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe

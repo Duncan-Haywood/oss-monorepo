@@ -16,6 +16,10 @@ This is a working product/legal draft for review by counsel before any public la
 - If destructive actions are ever added, they must require explicit confirmation, visible manifest review, and a recoverable holding period where technically possible.
 - Drive detection and import suggestions should be treated as recommendations until the user reviews the source and destination. The legal terms should avoid promising that the product can identify every SD card, SSD, corrupt file, or unsafe path perfectly.
 - Mounted-volume discovery should be framed as advisory scanning of user/system-provided locations. Skipping symlinks, files, inaccessible paths, or unusual devices is a safety feature, not a guarantee that every connected device will be detected.
+- Native volume metadata such as display name, removable/internal status, and
+  read-only state should be framed as advisory ranking input. It can improve
+  route suggestions, but it does not replace user review, independent backups,
+  checksum verification, or the no-delete ingest boundary.
 - Generated manifests, render status files, and scheduler reports should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
 - Command-line ingest automation requires an explicit `--confirm` flag before any media is copied. Discovery and preview commands are advisory; they never copy files, never write a manifest, and never delete media. Even with `--confirm`, source media is not deleted, destination files are never overwritten with different bytes, and every copy is verified by SHA-256 before the manifest is written.
 - The unified card-dump workflow follows the same boundary: without

@@ -51,7 +51,10 @@ to trust and sell:
 The current core models a concrete promise for high-volume users:
 
 1. Discover mounted-volume candidates from reviewed roots, rank detected storage, then recommend a
-   review-required source/destination route.
+   review-required source/destination route. Native shell layers can enrich the
+   portable scanner with reviewed volume metadata hints so internal disks,
+   removable cards, read-only media, and external SSDs are ranked more like a
+   real Mac app without changing the no-delete route contract.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -133,8 +136,9 @@ to automate.
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
    recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   step is using the new `VolumeDiscoveryHint` bridge from native macOS metadata
+   (Disk Arbitration/Swift UI approval) plus an approval screen around the new
+   `card-dump-workflow` contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one

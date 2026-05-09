@@ -44,6 +44,8 @@ Why this wedge wins:
 ## Phase 1: trusted automation core (current direction)
 
 - SD/SSD/local source discovery and route recommendation.
+- Native-volume metadata hints for Mac/iPhone shells so route ranking can use
+  internal/removable/read-only/display-name signals without bypassing review.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -166,10 +168,10 @@ Run practical experiments tied to this ICP-first plan:
    `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
    commands now expose the full operator-review-then-copy path, and
    `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+   `VolumeDiscoveryHint` contract gives a SwiftUI/menu-bar shell a place to pass
+   native Disk Arbitration metadata into the Python core. The next step is
+   binding that hinted route planning plus `card-dump-workflow` to an approval
+   screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect

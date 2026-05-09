@@ -39,6 +39,10 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+  Callers that have richer native metadata can pass `VolumeDiscoveryHint`
+  records keyed by discovered volume path to override display name,
+  removable/internal classification, and read-only state while keeping discovery
+  advisory and non-destructive.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -151,14 +155,18 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Feed reviewed native volume metadata into the portable mount-root scanner as
+    advisory hints so Mac/iPhone shells can distinguish internal disks, external
+    SSDs, removable cards, and read-only volumes without bypassing the route
+    review or checksum-manifest boundaries.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -366,6 +374,22 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native volume metadata enters as advisory discovery hints
+
+- **Status:** accepted
+- **Rationale:** Swift/Disk Arbitration and iPhone import layers can know whether
+  a volume is internal, removable, read-only, or displayed under a camera/card
+  name more accurately than the portable filesystem scanner. That metadata is
+  useful for ranking, but it should not become a separate ingest authority.
+- **Consequence:** `VolumeDiscoveryHint` lets native callers enrich
+  `discover_storage_candidates(...)` and `discover_import_route(...)` with
+  display-name, removable, and read-only hints keyed by discovered volume path.
+  The scanner still skips symlinks/files/inaccessible paths, still reads capacity
+  from the filesystem, and still routes every copy through reviewed
+  no-delete/checksum workflows. A read-only hint can make the route more
+  conservative, but a read-write hint cannot override a failed filesystem
+  writability check.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 

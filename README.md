@@ -86,7 +86,10 @@ This repo currently contains the first testable core utilities:
   bridge: it scans reviewed mounted-volume roots such as macOS `/Volumes`,
   skips symlinks/files/inaccessible entries, turns immediate volume directories
   into `StorageCandidate` records, and can feed the same capacity-gated route
-  recommendation contract.
+  recommendation contract. Native macOS/iPhone shell layers can now pass
+  reviewed `VolumeDiscoveryHint` metadata for discovered volume paths so the
+  portable core can distinguish internal disks, removable cards, read-only
+  volumes, and external SSDs without broadening file authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -109,6 +112,8 @@ The intended first workflow is:
 1. Discover mounted-volume candidates from reviewed roots such as `/Volumes`,
    then rank attached cards, folders, and SSDs and present a reviewed
    source-to-destination import route with explicit no-delete/checksum notes.
+   Native volume metadata, when available, should be passed in as advisory
+   discovery hints rather than replacing the checksum ingest boundary.
 2. Plan and execute a safe import from the approved card, folder, or SSD.
 3. Keep the generated `ingest_manifest.json` as the boundary between file
    management and AI/editing work.
