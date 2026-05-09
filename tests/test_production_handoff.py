@@ -123,6 +123,43 @@ class ProductionHandoffTests(unittest.TestCase):
         self.assertEqual(handoff.active_job_ids, ("proxy_asset_00001",))
         self.assertEqual(handoff.review_required_job_ids, ())
 
+    def test_status_backed_wave_surfaces_failed_jobs_outside_ready_wave(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = self._ingest_fixture(Path(tmp), shoot_slug="failed-status")
+            production_plan = self._production_plan(manifest_path)
+            failed_status = ProductionJobStatus(
+                job_id="analyze_asset_00000",
+                state="failed",
+                worker_adapter="vlm-local",
+                attempts=1,
+                error_message="analysis output failed validation; no files were deleted",
+                updated_at="2026-05-09T15:08:00Z",
+            )
+            write_production_status_manifest(
+                ProductionStatusManifest(
+                    shoot_slug=production_plan.shoot_slug,
+                    production_plan_fingerprint=production_plan_fingerprint(production_plan),
+                    job_statuses=self._statuses_with(
+                        production_plan,
+                        {
+                            "proxy_asset_00000": self._succeeded_status(
+                                production_plan.job_by_id("proxy_asset_00000"),
+                            ),
+                            "analyze_asset_00000": failed_status,
+                        },
+                    ),
+                ),
+                manifest_path.parent,
+                trusted_plan=production_plan,
+            )
+
+            handoff = plan_next_production_wave_from_status(manifest_path)
+
+        self.assertEqual(handoff.status, "ready")
+        self.assertEqual(handoff.wave_index, 0)
+        self.assertEqual([job.job_id for job in handoff.jobs], ["proxy_asset_00001"])
+        self.assertEqual(handoff.review_required_job_ids, ("analyze_asset_00000",))
+
     def test_returns_complete_when_all_manifest_backed_jobs_are_complete(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             manifest_path = self._ingest_fixture(Path(tmp), shoot_slug="complete-shoot")

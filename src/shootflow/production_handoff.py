@@ -105,6 +105,8 @@ def _plan_next_production_wave_from_plan(
 ) -> ProductionWaveHandoff:
     completed_set = set(completed_job_ids)
     _validate_completed_dependencies(production_plan, completed_set)
+    active_job_ids = _job_ids_by_state(production_plan.jobs, job_states_by_id, "running")
+    review_required_job_ids = _job_ids_by_state(production_plan.jobs, job_states_by_id, "failed")
 
     for wave in production_plan.execution_waves:
         pending_wave_jobs = tuple(
@@ -133,8 +135,8 @@ def _plan_next_production_wave_from_plan(
                 production_plan=production_plan,
                 notes=_handoff_notes(status_source),
                 status_source=status_source,
-                active_job_ids=_active_job_ids(pending_wave_jobs, job_states_by_id),
-                review_required_job_ids=_review_required_job_ids(pending_wave_jobs, job_states_by_id),
+                active_job_ids=active_job_ids,
+                review_required_job_ids=review_required_job_ids,
             )
         return ProductionWaveHandoff(
             manifest_path=manifest_path,
@@ -148,8 +150,8 @@ def _plan_next_production_wave_from_plan(
             production_plan=production_plan,
             notes=_handoff_notes(status_source),
             status_source=status_source,
-            active_job_ids=_active_job_ids(pending_wave_jobs, job_states_by_id),
-            review_required_job_ids=_review_required_job_ids(pending_wave_jobs, job_states_by_id),
+            active_job_ids=active_job_ids,
+            review_required_job_ids=review_required_job_ids,
         )
 
     return ProductionWaveHandoff(
@@ -194,22 +196,14 @@ def _job_state(job: ProductionJob, job_states_by_id: dict[str, str] | None) -> s
     return job_states_by_id[job.job_id]
 
 
-def _active_job_ids(
+def _job_ids_by_state(
     jobs: tuple[ProductionJob, ...],
     job_states_by_id: dict[str, str] | None,
+    state: str,
 ) -> tuple[str, ...]:
     if job_states_by_id is None:
         return ()
-    return tuple(job.job_id for job in jobs if job_states_by_id[job.job_id] == "running")
-
-
-def _review_required_job_ids(
-    jobs: tuple[ProductionJob, ...],
-    job_states_by_id: dict[str, str] | None,
-) -> tuple[str, ...]:
-    if job_states_by_id is None:
-        return ()
-    return tuple(job.job_id for job in jobs if job_states_by_id[job.job_id] == "failed")
+    return tuple(job.job_id for job in jobs if job_states_by_id[job.job_id] == state)
 
 
 def _canonical_completed_job_ids(
