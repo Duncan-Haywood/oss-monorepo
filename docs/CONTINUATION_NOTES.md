@@ -8,6 +8,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added an explicit renderer-adapter dispatch boundary:
+  - `shootflow.render_adapter.supported_render_adapter_names()` now exposes the
+    registered local adapters, currently only `dry-run-local`;
+  - `shootflow.render_adapter.run_render_adapter_batch(...)` validates a trusted
+    `RenderWorkerActionPlan`, refuses unsupported adapter names before any worker
+    action is claimed, and then dispatches to the registered batch runner;
+  - `shootflow.render_scheduler.run_dry_run_render_scheduler(...)` now validates
+    adapter support before stale-lease expiration, status writes, or output
+    materialization, so syntactically valid future names such as `ffmpeg-local`
+    cannot accidentally run through the dry-run path.
+- Added focused tests for registered dry-run dispatch, unsupported adapter
+  rejection without status writes, and scheduler-level unsupported adapter
+  rejection. Verification: `PYTHONPATH=src python3 -m unittest discover -s tests`
+  -> 169 tests OK.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,
@@ -515,8 +532,10 @@ Good test-first targets:
 
 - Add a native macOS metadata adapter (or a pure testable abstraction for it) that can mark internal disks,
   removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
-- Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
-  outputs while keeping the same no-overwrite/no-delete status boundary.
+- Add a real `ffmpeg-local` or Core Image/Metal adapter behind
+  `run_render_adapter_batch(...)`, including temp-output contracts that replace
+  dry-run placeholder bytes while keeping the same no-overwrite/no-delete status
+  boundary.
 - Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe
   `init-render-status` bootstrapping, and the printed `render_scheduler_report.json` output a future Mac UI should
   consume.
