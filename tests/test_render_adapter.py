@@ -88,6 +88,67 @@ class DryRunRenderAdapterTests(unittest.TestCase):
 
         self.assertEqual(loaded_manifest, pending_manifest)
 
+    def test_dry_run_batch_rejects_non_dry_run_adapter_before_writing_status(self) -> None:
+        trusted_plan = self._trusted_plan()
+        pending_manifest = self._pending_manifest(trusted_plan)
+        action_plan = plan_render_worker_actions(
+            trusted_plan,
+            pending_manifest,
+            completed_dependency_ids={
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+            },
+            renderer_adapter="ffmpeg-local",
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(pending_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(DryRunRendererError, "dry-run-local"):
+                run_dry_run_render_batch(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action_plan=action_plan,
+                    started_at="2026-05-07T13:31:30Z",
+                    completed_at="2026-05-07T13:31:35Z",
+                    max_concurrency=1,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, pending_manifest)
+
+    def test_dry_run_action_rejects_non_dry_run_adapter_before_writing_status(self) -> None:
+        trusted_plan = self._trusted_plan()
+        pending_manifest = self._pending_manifest(trusted_plan)
+        action_plan = plan_render_worker_actions(
+            trusted_plan,
+            pending_manifest,
+            completed_dependency_ids={
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+            },
+            renderer_adapter="ffmpeg-local",
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(pending_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(DryRunRendererError, "dry-run-local"):
+                run_dry_run_render_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=action_plan.actions[0],
+                    started_at="2026-05-07T13:31:40Z",
+                    completed_at="2026-05-07T13:31:45Z",
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, pending_manifest)
+
     def test_batch_runs_ready_actions_and_reports_blocked_tasks(self) -> None:
         trusted_plan = self._batch_trusted_plan()
         initial_manifest = self._pending_manifest(trusted_plan)

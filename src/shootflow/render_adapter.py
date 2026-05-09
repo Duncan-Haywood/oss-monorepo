@@ -26,6 +26,8 @@ from shootflow.render_worker import (
     report_render_worker_success,
 )
 
+_DRY_RUN_RENDERER_ADAPTER = "dry-run-local"
+
 
 class DryRunRendererError(ValueError):
     """Raised when the dry-run renderer cannot safely materialize declared outputs."""
@@ -121,7 +123,7 @@ def run_dry_run_render_action(
     source/graded inputs, and refuses to overwrite an existing different output.
     """
 
-    _validate_action(action)
+    _validate_action(action, expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
@@ -195,7 +197,11 @@ def run_dry_run_render_batch(
     leaves blocked tasks untouched for the caller/UI to display.
     """
 
-    _validate_action_plan(action_plan, trusted_plan=trusted_plan)
+    _validate_action_plan(
+        action_plan,
+        trusted_plan=trusted_plan,
+        expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER,
+    )
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     _validate_max_concurrency(max_concurrency)
@@ -265,7 +271,7 @@ def materialize_dry_run_render_outputs(
 ) -> tuple[str, ...]:
     """Create deterministic placeholder deliverables for a trusted render action."""
 
-    _validate_action(action)
+    _validate_action(action, expected_renderer_adapter=_DRY_RUN_RENDERER_ADAPTER)
     root = _workspace_root(workspace_root)
     materialized: list[str] = []
     for output in action.outputs:
@@ -274,9 +280,23 @@ def materialize_dry_run_render_outputs(
     return tuple(materialized)
 
 
-def _validate_action(action: RenderWorkerAction) -> None:
+def _validate_action(
+    action: RenderWorkerAction,
+    *,
+    expected_renderer_adapter: str | None = None,
+) -> None:
     if not isinstance(action, RenderWorkerAction):
         raise DryRunRendererError("action must be a RenderWorkerAction")
+    if not isinstance(action.renderer_adapter, str) or not action.renderer_adapter.strip():
+        raise DryRunRendererError("dry-run render action renderer_adapter cannot be empty")
+    if (
+        expected_renderer_adapter is not None
+        and action.renderer_adapter != expected_renderer_adapter
+    ):
+        raise DryRunRendererError(
+            "dry-run render action renderer_adapter must be "
+            f"{expected_renderer_adapter}: {action.renderer_adapter}"
+        )
     if not isinstance(action.outputs, tuple) or not action.outputs:
         raise DryRunRendererError("dry-run render action must declare at least one output")
     seen_outputs: set[str] = set()
@@ -291,6 +311,7 @@ def _validate_action_plan(
     action_plan: RenderWorkerActionPlan,
     *,
     trusted_plan: AssemblyPlan,
+    expected_renderer_adapter: str | None = None,
 ) -> None:
     if not isinstance(trusted_plan, AssemblyPlan):
         raise DryRunRendererError("trusted_plan must be an AssemblyPlan")
@@ -302,6 +323,14 @@ def _validate_action_plan(
         raise DryRunRendererError("dry-run action plan shoot_slug does not match trusted plan")
     if not isinstance(action_plan.renderer_adapter, str) or not action_plan.renderer_adapter.strip():
         raise DryRunRendererError("dry-run action plan renderer_adapter cannot be empty")
+    if (
+        expected_renderer_adapter is not None
+        and action_plan.renderer_adapter != expected_renderer_adapter
+    ):
+        raise DryRunRendererError(
+            "dry-run action plan renderer_adapter must be "
+            f"{expected_renderer_adapter}: {action_plan.renderer_adapter}"
+        )
     if not isinstance(action_plan.actions, tuple):
         raise DryRunRendererError("dry-run action plan actions must be a tuple")
     if not isinstance(action_plan.blocked_tasks, tuple):
@@ -309,7 +338,7 @@ def _validate_action_plan(
     trusted_tasks = _trusted_tasks_by_id(trusted_plan)
     seen_task_ids: set[str] = set()
     for action in action_plan.actions:
-        _validate_action(action)
+        _validate_action(action, expected_renderer_adapter=expected_renderer_adapter)
         _validate_action_matches_trusted_tasks(action, trusted_tasks=trusted_tasks)
         if action.renderer_adapter != action_plan.renderer_adapter:
             raise DryRunRendererError("dry-run action renderer adapter does not match action plan")
@@ -582,7 +611,7 @@ def _batch_failure_message(exc: Exception) -> str:
 
 
 def _render_adapter_registry() -> dict[str, RenderBatchRunner]:
-    return {"dry-run-local": run_dry_run_render_batch}
+    return {_DRY_RUN_RENDERER_ADAPTER: run_dry_run_render_batch}
 
 
 def _render_batch_runner(renderer_adapter: str) -> RenderBatchRunner:
