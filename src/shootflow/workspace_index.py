@@ -657,7 +657,7 @@ def _workspace_root(workspace_root: Path | str) -> Path:
         raise WorkspaceIndexError(f"workspace_root does not exist: {root}")
     if root.exists() and not root.is_dir():
         raise WorkspaceIndexError(f"workspace_root must be a directory: {root}")
-    return root
+    return root.resolve()
 
 
 def _validate_timestamp(timestamp: str) -> None:

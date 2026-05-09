@@ -1,5 +1,6 @@
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -134,6 +135,27 @@ class WorkspaceIndexTests(unittest.TestCase):
 
             with self.assertRaisesRegex(WorkspaceIndexError, "workspace_root"):
                 load_workspace_index(second_workspace)
+
+    def test_workspace_index_written_from_relative_workspace_loads_from_absolute_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "shoot"
+            workspace.mkdir()
+            create_persisted_cli_demo_workspace(workspace)
+            previous_cwd = Path.cwd()
+            try:
+                os.chdir(workspace)
+                index = build_workspace_index(
+                    ".",
+                    generated_at="2026-05-09T00:02:40Z",
+                )
+                write_workspace_index(index, ".")
+            finally:
+                os.chdir(previous_cwd)
+
+            loaded = load_workspace_index(workspace)
+
+        self.assertEqual(loaded.workspace_root, workspace.resolve())
+        self.assertEqual(loaded.index_path, (workspace / WORKSPACE_INDEX_PATH).resolve())
 
     def test_workspace_index_reports_non_file_storyline_artifact_as_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

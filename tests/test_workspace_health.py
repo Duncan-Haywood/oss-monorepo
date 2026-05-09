@@ -151,6 +151,22 @@ class WorkspaceHealthTests(unittest.TestCase):
         self.assertEqual(summary["next_action"]["name"], "init_render_status")
         self.assertFalse(status_exists)
 
+    def test_workspace_health_cli_rejects_missing_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing_workspace = Path(tmp) / "missing"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                ["workspace-health", "--workspace", str(missing_workspace)],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("workspace_root", stderr.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -198,7 +198,7 @@ def ensure_render_tasks_manifest(
     _write_temporary_render_tasks_manifest(temp_path, manifest_json)
     try:
         os.link(temp_path, manifest_path)
-    except FileExistsError as exc:
+    except FileExistsError:
         try:
             load_render_tasks_manifest(root, trusted_plan=plan)
         except AssemblyPlanError as load_exc:
@@ -253,7 +253,7 @@ def _write_render_tasks_manifest_without_hardlink(
     try:
         with manifest_path.open("x", encoding="utf-8") as handle:
             handle.write(manifest_json)
-    except FileExistsError as exc:
+    except FileExistsError:
         try:
             load_render_tasks_manifest(root, trusted_plan=plan)
         except AssemblyPlanError as load_exc:

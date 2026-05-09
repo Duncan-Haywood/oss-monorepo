@@ -171,6 +171,10 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   as a derived `workspace_health` artifact. `index-workspace` now carries the
   same next safe action as `workspace-health` while remaining metadata-only and
   non-advancing.
+- Review follow-up canonicalized workspace roots for persisted indexes, rejects
+  missing `workspace-health --workspace` paths instead of emitting misleading
+  next actions, and removed new source lint regressions in render-task manifest
+  creation.
 
 ## Previous iteration
 
