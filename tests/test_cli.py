@@ -1424,9 +1424,11 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.completed_task_ids, ("render_instagram_reel",))
         self.assertEqual(printed_report["stopped_reason"], "complete")
-        self.assertEqual(printed_report["schema_version"], 1)
+        self.assertEqual(printed_report["schema_version"], 2)
         self.assertEqual(printed_report["completed_task_ids"], ["render_instagram_reel"])
         self.assertEqual(printed_report["outputs_materialized"], ["deliverables/instagram_reel.mp4"])
+        self.assertEqual(printed_report["product_metrics"]["completed_task_count"], 1)
+        self.assertEqual(printed_report["product_metrics"]["review_required_task_count"], 0)
 
     def test_dry_run_scheduler_command_rejects_untrusted_render_task_manifest(self) -> None:
         trusted_plan = self._single_task_plan()

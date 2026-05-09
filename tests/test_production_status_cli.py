@@ -158,7 +158,7 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
 
         payload = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(payload["schema_version"], 1)
+        self.assertEqual(payload["schema_version"], 2)
         self.assertEqual(payload["generated_at"], "2026-05-09T17:02:06Z")
         self.assertEqual(payload["shoot_slug"], "production-report")
         self.assertRegex(payload["production_plan_fingerprint"], r"^[0-9a-f]{64}$")
@@ -166,6 +166,8 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertEqual(payload["stopped_reason"], "complete")
         self.assertEqual(payload["review_required_job_ids"], [])
         self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
+        self.assertEqual(payload["product_metrics"]["completed_job_count"], len(production_plan.jobs))
+        self.assertEqual(payload["product_metrics"]["review_required_job_count"], 0)
 
     def test_dry_run_production_scheduler_command_expires_stale_running_job(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
