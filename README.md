@@ -118,6 +118,12 @@ This repo currently contains the first testable core utilities:
   storyline selections and graded artifacts through `shootflow.assembly`, then
   creates or reuses `deliverables/render_tasks.json` without rendering media or
   creating deliverable outputs.
+- `shootflow.workspace_index` builds a metadata-only
+  `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
+  continuation runs. It summarizes trusted ingest, render-task, render-status,
+  and scheduler-report artifacts through their existing validators, marks
+  model-authored storyline JSON as untrusted until rebound to a production plan,
+  and never creates analysis, graded, render, deliverable, or deletion files.
 
 The intended first workflow is:
 
@@ -185,19 +191,23 @@ The intended first workflow is:
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-20. Run the same handoff through
+20. Build or persist `shootflow_workspace_index.json` with
+    `index-workspace` so native shells and future agents can discover the
+    current shoot state from one strict metadata summary without trusting
+    arbitrary model JSON or widening file authority.
+21. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-21. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+22. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-22. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+23. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
-23. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+24. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -214,11 +224,17 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
   --started-at 2026-05-07T16:00:00Z \
   --completed-at 2026-05-07T16:00:05Z \
   --generated-at 2026-05-07T16:00:06Z
+PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> \
+  --generated-at 2026-05-07T16:00:07Z \
+  --write
 ```
 
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
+The index command writes only `shootflow_workspace_index.json`, summarizing
+validated artifacts and explicitly marking unvalidated storyline JSON as
+non-authoritative.
 
 The import-route planning flow is:
 

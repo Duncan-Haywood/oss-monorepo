@@ -53,6 +53,12 @@ from shootflow.workspace_health import (
     build_workspace_health_summary,
     workspace_health_summary_to_dict,
 )
+from shootflow.workspace_index import (
+    WorkspaceIndexError,
+    build_workspace_index,
+    workspace_index_to_dict,
+    write_workspace_index,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -103,6 +109,8 @@ def main(
             _run_card_dump_workflow_command(args, stdout=out)
         elif args.command == "workspace-health":
             _run_workspace_health_command(args, stdout=out)
+        elif args.command == "index-workspace":
+            _run_index_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -117,6 +125,7 @@ def main(
         CardDumpWorkflowError,
         StoryPlanError,
         WorkspaceHealthError,
+        WorkspaceIndexError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -304,6 +313,22 @@ def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -
     stdout.write(_workspace_health_summary_json(summary))
 
 
+def _run_index_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    workspace = Path(args.workspace)
+    index = build_workspace_index(workspace, generated_at=args.generated_at)
+    if args.write:
+        write_workspace_index(index, workspace)
+    stdout.write(
+        json.dumps(
+            workspace_index_to_dict(index),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -466,6 +491,26 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workspace",
         default=".",
         help="Workspace containing ShootFlow handoff manifests.",
+    )
+
+    index = subparsers.add_parser(
+        "index-workspace",
+        help="Summarize trusted workspace handoff artifacts for UI or background agents.",
+    )
+    index.add_argument(
+        "--workspace",
+        default=".",
+        help="Shoot workspace containing ingest/render handoff artifacts.",
+    )
+    index.add_argument(
+        "--generated-at",
+        required=True,
+        help="Caller-supplied timestamp for the metadata-only index.",
+    )
+    index.add_argument(
+        "--write",
+        action="store_true",
+        help="Persist shootflow_workspace_index.json in the workspace after building it.",
     )
 
     return parser

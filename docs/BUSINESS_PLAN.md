@@ -52,6 +52,9 @@ Why this wedge wins:
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
   reporting together for Mac app shells and demos.
+- A workspace index handoff that summarizes trusted artifacts and review state
+  for Mac app shells, background agents, and continuation runs without granting
+  new media-write or deletion authority.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -179,7 +182,8 @@ Run practical experiments tied to this ICP-first plan:
    `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
    trusted storyline/graded fixtures so one smoke path runs from detected card
    to persisted render tasks, status initialization, scheduler report, and
-   reviewable outputs.
+   reviewable outputs. `index-workspace` should be the UI/agent state probe for
+   that smoke path.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

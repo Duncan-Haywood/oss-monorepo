@@ -57,6 +57,12 @@ The repo currently contains a Python core package because it is quick to test an
   estimation, capacity-gated route recommendation, checksum ingest preview,
   optional confirmed copy, and read-only production reporting while preserving
   the same no-delete/no-overwrite boundaries as the lower-level commands.
+- `shootflow.workspace_index`: a metadata-only continuity layer for Mac apps,
+  launch agents, and future autonomous runs. It inspects a shoot workspace,
+  validates ingest/render/status/report artifacts through their existing trust
+  boundaries, marks standalone storyline JSON as untrusted until rebound to a
+  production plan, and can persist `shootflow_workspace_index.json` without
+  creating or deleting any media pipeline artifacts.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.
@@ -135,6 +141,9 @@ The repo currently contains a Python core package because it is quick to test an
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
   it never performs those writes itself.
+  The `index-workspace` command adds a single metadata handoff over the current
+  workspace state so native shells do not need to infer readiness by probing many
+  files directly.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -184,8 +193,11 @@ The desired high-quality pipeline is:
 21. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+22. Build a workspace index after ingest, scheduling, or retries so UI and
+    continuation agents can show one coherent shoot-state snapshot while keeping
+    every authoritative decision bound to the underlying trusted manifests.
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
