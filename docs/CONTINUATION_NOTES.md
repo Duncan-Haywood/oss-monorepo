@@ -37,7 +37,9 @@ Branch reconciliation for this run:
 
 - The assigned branch started equal to `origin/main` at `0f169fd`, and the
   current work is the only new branch delta:
-  `67e903b feat(workspace): surface production scheduler health`.
+  `67e903b feat(workspace): surface production scheduler health`,
+  `4a59a5e docs: record production health reconciliation`, and
+  `3d7590f test(workspace): cover invalid production status health`.
 - Historical remote branches remain visible, but previous reconciliation passes
   already merged the useful storage, demo, production, render, health, and index
   work into `origin/main`. This run did not identify a newer remote branch tip
@@ -49,8 +51,11 @@ Branch reconciliation for this run:
 - Final verification before push: `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src
   python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests
-  && git diff --check && git status --short --branch` -> 284 tests OK,
+  && git diff --check && git status --short --branch` -> 285 tests OK,
   compileall/diff-check exited 0, and the tree was clean.
+- Independent review found one stale design-doc paragraph and suggested adding an
+  explicit corrupt production-status regression. Both were addressed in
+  `3d7590f`.
 
 ## Implementation continuation note - 2026-05-09 17:00 UTC
 
