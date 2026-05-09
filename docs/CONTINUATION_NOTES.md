@@ -50,11 +50,11 @@ Branch reconciliation for this run:
 
 - `git fetch --prune origin` removed the historical remote cursor branches that
   had already been merged, superseded, or deleted remotely.
-- `origin/main` remains at `0f169fd`; the assigned branch is 13 commits ahead
-  and contains the prior production-health/lease-recovery work plus this handoff
-  contract fix and reviewer follow-ups.
+- `origin/main` remains at `0f169fd`; the assigned branch contains the prior
+  production-health/lease-recovery work plus this handoff contract fix and
+  reviewer follow-ups.
 - `origin/cursor/repository-branch-consolidation-4c04` is fully represented by
-  the assigned branch; the assigned branch is four commits ahead of it.
+  the assigned branch.
 - The only remote branch still not merged into the assigned branch is
   `origin/cursor/branch-consolidation-strategy-d2e7`. Its tree was already
   superseded by the production lease recovery lineage; it is behind the assigned
