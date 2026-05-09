@@ -2,6 +2,55 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 23:00 UTC
+
+This run closed the prior text-mode/native-shell cohort brief target:
+
+- Added `pilot_cohort_brief_to_text(...)`, a deterministic text renderer over the
+  validated saved cohort brief. It reports status, headline, trusted summary
+  counts, and per-workspace readiness cards for terminal demos and native-shell
+  readouts.
+- Added `pilot-cohort-brief --format text` while preserving JSON as the default
+  output for existing agents and integrations.
+- Hardened the text surface so it omits free-form cohort and threshold notes from
+  saved reports; JSON still carries the structured note fields, but the text demo
+  cannot echo injected `python -m ...` or `--confirm` style workflow handoffs.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  to treat the text-mode brief as the command-free presentation layer over saved
+  cohort reports.
+
+Review and branch reconciliation for this run:
+
+- Test-first red run failed on the missing renderer and missing `--format text`
+  CLI option; a follow-up hardening red run failed because free-form notes were
+  echoed into text output.
+- Verification before the first commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 333 tests OK; compileall and diff-check exited 0.
+- Commit pushed to the assigned branch:
+  `51cab65 feat(pilot): add text cohort brief output`.
+- `git fetch --prune origin` removed historical remote automation branches. The
+  only newly visible branch, `origin/cursor/branch-consolidation-strategy-adee`,
+  had no unique work beyond the previous `origin/main` tip.
+- Deleted merged stale local branch `cursor/setup-dev-env-3ad0`.
+- Fast-forwarded local `main` to `origin/main`, then fast-forwarded `main` to the
+  assigned branch tip and pushed `origin/main`. After reconciliation,
+  `origin/main...HEAD` compared `0 0` and no remote branches remained unmerged
+  into `origin/main`.
+
+Good next test-first targets:
+
+- Bind the command-free text cohort brief into a tiny native SwiftUI/menu-bar
+  screen or shell wrapper that displays readiness cards while invoking only
+  explicit, reviewed next-action contracts.
+- Add UI/agent contract tests proving text brief, JSON brief, cohort reports, and
+  dashboards never become permission to retry, materialize, overwrite, clean up,
+  or delete files.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-09 22:30 UTC
 
 This run advanced the native-shell/UI proof target above the saved cohort
