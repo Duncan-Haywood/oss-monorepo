@@ -991,6 +991,7 @@ def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
         _reject_duplicate_strings(value, f"report {field_name}")
     if not isinstance(report.failure_messages, tuple):
         raise DryRunRenderSchedulerError("report failure_messages must be a tuple")
+    seen_failure_messages: set[tuple[str, str]] = set()
     for message in report.failure_messages:
         if not isinstance(message, SchedulerTaskMessage):
             raise DryRunRenderSchedulerError("report failure_messages contains invalid messages")
@@ -998,6 +999,10 @@ def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
             raise DryRunRenderSchedulerError("report failure_messages contains invalid task_id")
         if not isinstance(message.message, str) or not message.message.strip():
             raise DryRunRenderSchedulerError("report failure_messages contains invalid message")
+        failure_message_key = (message.task_id, message.message)
+        if failure_message_key in seen_failure_messages:
+            raise DryRunRenderSchedulerError("report failure_messages contains duplicate messages")
+        seen_failure_messages.add(failure_message_key)
     _validate_product_metrics(report.product_metrics)
 
 
