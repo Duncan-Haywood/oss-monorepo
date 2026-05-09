@@ -45,6 +45,22 @@ Best-work reconciliation decisions:
   render inputs are archived" as an explicit API change instead of introducing a
   duplicate inspection command.
 
+Final verification after reconciliation:
+
+```bash
+git diff --check
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests
+PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests
+git branch -r --no-merged origin/main
+git status --short --branch
+```
+
+Result: 256 tests passed, compileall and diff-check exited 0, no remote feature
+branches remained unmerged into `origin/main`, and the working tree was clean.
+Optional `python3 -m ruff check src/ tests/` still reports the two known
+pre-existing unused imports in `tests/test_render_worker.py` and
+`tests/test_story.py`.
+
 ## Branch consolidation note - 2026-05-09 01:00 UTC
 
 The assigned branch `cursor/ai-media-operating-system-9806` started as an
