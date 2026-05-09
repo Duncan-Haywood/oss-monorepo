@@ -57,7 +57,10 @@ The repo currently contains a Python core package because it is quick to test an
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
   optional confirmed copy, and read-only production reporting while preserving
-  the same no-delete/no-overwrite boundaries as the lower-level commands.
+  the same no-delete/no-overwrite boundaries as the lower-level commands. Native
+  shells can pass the same `VolumeDiscoveryHint` map through this unified
+  workflow so route preview and the capacity-gated second pass use consistent
+  display names and storage classification.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.

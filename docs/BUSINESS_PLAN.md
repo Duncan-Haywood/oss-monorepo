@@ -48,9 +48,9 @@ Why this wedge wins:
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
-- A single card-dump workflow command that ties route discovery, capacity
-  gating, ingest preview, optional confirmed copy, and post-ingest production
-  reporting together for Mac app shells and demos.
+- A single card-dump workflow contract that ties route discovery, native volume
+  hints, capacity gating, ingest preview, optional confirmed copy, and
+  post-ingest production reporting together for Mac app shells and demos.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status
@@ -165,8 +165,9 @@ Run practical experiments tied to this ICP-first plan:
 1. Finish native Mac UI approval around the mounted-volume discovery, safe route
    recommendation, and ingest assistant flow. The core now accepts advisory
    native volume hints for display names, removable status, and read-only status;
-   the `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
-   commands expose the operator-review-then-copy path, and `plan-production`
+   the unified `card-dump-workflow` API now carries those hints through route
+   preview and capacity gating, the ingest CLI commands expose the
+   operator-review-then-copy path, and `plan-production`
    exposes the next read-only post-ingest summary. The `card-dump-workflow`
    command combines those steps into one native-shell contract, so the next step
    is binding it to a SwiftUI/menu-bar approval screen before AI/color work starts.

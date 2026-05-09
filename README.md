@@ -100,10 +100,10 @@ This repo currently contains the first testable core utilities:
   compact read-only production-wave report, giving a Mac app or launch agent the
   next safe screen after card offload without creating analysis, graded, or
   render files.
-- `shootflow.card_workflow` ties mounted-volume route discovery, source-size
-  estimation, checksum ingest preview, optional confirmed copy, and read-only
-  production reporting into one product-facing card-dump workflow for Mac app
-  shells and GTM demos.
+- `shootflow.card_workflow` ties mounted-volume route discovery, optional native
+  volume metadata hints, source-size estimation, checksum ingest preview,
+  optional confirmed copy, and read-only production reporting into one
+  product-facing card-dump workflow for Mac app shells and GTM demos.
 
 The intended first workflow is:
 

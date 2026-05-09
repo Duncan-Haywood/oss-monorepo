@@ -134,8 +134,9 @@ to automate.
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes a mounted-volume discovery bridge, advisory native metadata
    hints for Disk Arbitration/Swift shells, capacity-gated route recommendation, safe ingest commands, and
-   a read-only `plan-production` report after ingest; the next step is a native approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   a read-only `plan-production` report after ingest. Those hints now flow through the unified
+   `card-dump-workflow` API as well, so the next product step is a native approval screen around that
+   route -> preview -> optional ingest contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
