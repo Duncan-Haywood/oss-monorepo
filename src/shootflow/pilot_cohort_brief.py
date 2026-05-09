@@ -8,6 +8,9 @@ from pathlib import Path
 _PILOT_COHORT_BRIEF_SCHEMA_VERSION = 1
 _PILOT_COHORT_REPORT_SCHEMA_VERSION = 1
 _BASIS_POINTS = 10_000
+_DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS = 9_000
+_DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS = 2_000
+_DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT = 1
 
 
 class PilotCohortBriefError(ValueError):
@@ -277,6 +280,13 @@ def _workspace_consistency_metrics(
                 or materialized_output_count is None
             ):
                 raise PilotCohortBriefError("metrics-available workspace evidence must include all metrics")
+            expected_ready = _workspace_meets_default_thresholds(
+                completion_rate_basis_points=completion_rate,
+                intervention_rate_basis_points=intervention_rate,
+                materialized_output_count=materialized_output_count,
+            )
+            if ready_for_pilot_review != expected_ready:
+                raise PilotCohortBriefError("workspace readiness disagrees with default pilot thresholds")
             available_count += 1
             intervention_rates.append(intervention_rate)
             output_count += materialized_output_count
@@ -309,6 +319,19 @@ def _median_basis_points(values: tuple[int, ...]) -> int | None:
     if len(sorted_values) % 2:
         return sorted_values[middle]
     return (sorted_values[middle - 1] + sorted_values[middle]) // 2
+
+
+def _workspace_meets_default_thresholds(
+    *,
+    completion_rate_basis_points: int,
+    intervention_rate_basis_points: int,
+    materialized_output_count: int,
+) -> bool:
+    return (
+        completion_rate_basis_points >= _DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS
+        and intervention_rate_basis_points <= _DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS
+        and materialized_output_count >= _DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT
+    )
 
 
 def _workspace_card_from_payload(
@@ -490,6 +513,7 @@ def _validate_pilot_cohort_brief(brief: PilotCohortBrief) -> None:
         raise PilotCohortBriefError("brief status is invalid")
     if not isinstance(brief.summary, PilotCohortBriefSummary):
         raise PilotCohortBriefError("brief summary must be a PilotCohortBriefSummary")
+    _validate_brief_summary(brief.summary)
     if not isinstance(brief.workspace_cards, tuple) or not brief.workspace_cards:
         raise PilotCohortBriefError("brief workspace_cards must be a non-empty tuple")
     for card in brief.workspace_cards:
@@ -501,6 +525,36 @@ def _validate_pilot_cohort_brief(brief: PilotCohortBrief) -> None:
         for note in notes:
             if not isinstance(note, str) or not note.strip():
                 raise PilotCohortBriefError(f"brief {field_name} must contain non-empty strings")
+
+
+def _validate_brief_summary(summary: PilotCohortBriefSummary) -> None:
+    for field_name in (
+        "dashboard_count",
+        "metrics_available_dashboard_count",
+        "metrics_unavailable_dashboard_count",
+        "pilot_ready_workspace_count",
+        "first_draft_output_count",
+    ):
+        value = getattr(summary, field_name)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise PilotCohortBriefError(f"brief summary {field_name} must be a non-negative integer")
+    if (
+        summary.metrics_available_dashboard_count
+        + summary.metrics_unavailable_dashboard_count
+        != summary.dashboard_count
+    ):
+        raise PilotCohortBriefError("brief summary available and unavailable counts must match dashboard count")
+    if summary.pilot_ready_workspace_count > summary.metrics_available_dashboard_count:
+        raise PilotCohortBriefError("brief summary ready count cannot exceed metrics-available count")
+    for field_name in (
+        "pilot_ready_workspace_rate_label",
+        "median_intervention_rate_label",
+    ):
+        value = getattr(summary, field_name)
+        if not isinstance(value, str) or not value.strip():
+            raise PilotCohortBriefError(f"brief summary {field_name} must be a non-empty string")
+    if not isinstance(summary.ready_for_pilot_review, bool):
+        raise PilotCohortBriefError("brief summary ready_for_pilot_review must be a boolean")
 
 
 def _validate_workspace_card(card: PilotCohortWorkspaceBriefCard) -> None:

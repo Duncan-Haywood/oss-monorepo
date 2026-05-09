@@ -1,6 +1,7 @@
 import io
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 import tempfile
 import unittest
@@ -157,6 +158,45 @@ class PilotCohortBriefTests(unittest.TestCase):
 
             with self.assertRaises(PilotCohortBriefError):
                 build_pilot_cohort_brief_from_report_path(report_path)
+
+    def test_brief_rejects_ready_workspace_whose_metrics_miss_thresholds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=2,
+                ready_for_review=True,
+                unavailable_count=0,
+                ready_rate=10000,
+                intervention_rate=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["workspaces"][0]["completion_rate_basis_points"] = 0
+            payload["workspaces"][0]["intervention_rate_basis_points"] = 10000
+            payload["workspaces"][0]["materialized_output_count"] = 0
+            payload["cohort"]["median_intervention_rate_basis_points"] = 5000
+            payload["cohort"]["first_draft_output_count"] = 1
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaises(PilotCohortBriefError):
+                build_pilot_cohort_brief_from_report_path(report_path)
+
+    def test_to_dict_revalidates_nested_summary_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            brief = build_pilot_cohort_brief_from_report_path(report_path)
+            forged = replace(brief, summary=replace(brief.summary, dashboard_count=-1))
+
+            with self.assertRaises(PilotCohortBriefError):
+                pilot_cohort_brief_to_dict(forged)
 
     def _write_cohort_report(
         self,
