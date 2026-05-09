@@ -107,7 +107,9 @@ The current core models a concrete promise for high-volume users:
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
-    summary.
+    summary. Its schema-versioned report also carries an `agent_handoff` block
+    that tells launch agents whether the next safe step is route repair, preview
+    review, or production-plan review, and whether the next step may copy bytes.
 22. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.

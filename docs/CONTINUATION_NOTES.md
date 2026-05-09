@@ -8,6 +8,25 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added machine-readable agent handoff state to `card-dump-workflow` success
+  JSON:
+  - each blocked, preview-ready, and ingest-complete response now includes an
+    `agent_handoff` object with `next_step`, `human_review_required`,
+    `safe_to_rerun`, `next_step_may_copy_bytes`, and
+    `requires_confirm_ingest`;
+  - blocked discovery reports `fix_route`, preview-only reports
+    `review_preview` and marks the next confirmed step as copy-capable, and
+    completed ingest reports `review_production_plan`;
+  - this keeps Mac shells, launch agents, and continuation automations from
+    parsing prose safety notes to decide whether a human must review or whether
+    a next step can move bytes.
+- Extended card-dump CLI tests to pin the handoff contract across blocked,
+  preview-only, and confirmed-ingest states.
+- Updated README/product/design docs to describe `agent_handoff` as the
+  conservative branch point for local media operations.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

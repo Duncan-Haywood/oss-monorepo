@@ -880,7 +880,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "next_step": "review_preview",
                     "human_review_required": True,
                     "safe_to_rerun": True,
-                    "may_copy_bytes": False,
+                    "next_step_may_copy_bytes": True,
                     "requires_confirm_ingest": True,
                 },
             )
@@ -945,7 +945,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     "next_step": "review_production_plan",
                     "human_review_required": True,
                     "safe_to_rerun": True,
-                    "may_copy_bytes": False,
+                    "next_step_may_copy_bytes": False,
                     "requires_confirm_ingest": False,
                 },
             )
@@ -989,7 +989,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                 "next_step": "fix_route",
                 "human_review_required": True,
                 "safe_to_rerun": True,
-                "may_copy_bytes": False,
+                "next_step_may_copy_bytes": False,
                 "requires_confirm_ingest": False,
             },
         )

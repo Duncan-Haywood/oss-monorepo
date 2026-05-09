@@ -102,7 +102,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
-  shells and GTM demos.
+  shells and GTM demos. Its CLI JSON includes an `agent_handoff` block so native
+  shells and launch agents can distinguish blocked routing, review-required
+  previews, and post-ingest production-plan review without parsing prose notes.
 
 The intended first workflow is:
 
@@ -172,6 +174,8 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
+    The report includes machine-readable `agent_handoff` fields for the next
+    safe step and whether that step requires human review or may copy bytes.
 21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
@@ -231,7 +235,10 @@ Without `--confirm-ingest`, this command only discovers, estimates, and previews
 the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
-planning from that manifest.
+planning from that manifest. The printed report's `agent_handoff` block is the
+machine-readable launch-agent/UI contract: `fix_route` for blocked discovery,
+`review_preview` before any confirmed copy, and `review_production_plan` after a
+verified ingest.
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 
