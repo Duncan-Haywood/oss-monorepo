@@ -14,6 +14,11 @@ from shootflow.card_workflow import (
     run_card_dump_workflow,
 )
 from shootflow.catalog import CatalogError
+from shootflow.demo_workspace import (
+    DemoWorkspaceError,
+    PersistedCliDemoWorkspace,
+    create_persisted_cli_demo_workspace,
+)
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -86,6 +91,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "create-demo-workspace":
+            _run_create_demo_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +105,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        DemoWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +259,14 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_persisted_cli_demo_workspace(
+        Path(args.workspace),
+        shoot_slug=args.shoot_slug,
+    )
+    stdout.write(_demo_workspace_json(demo))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -387,6 +403,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    demo_workspace = subparsers.add_parser(
+        "create-demo-workspace",
+        help="Create a safe persisted render-task demo workspace for CLI/UI smoke runs.",
+    )
+    demo_workspace.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace directory where demo inputs and deliverables/render_tasks.json will be written.",
+    )
+    demo_workspace.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Shoot slug for the demo render-task manifest.",
     )
 
     return parser
@@ -770,6 +801,31 @@ def _card_dump_production_report_json(report: CardDumpWorkflowReport) -> dict[st
         ],
         "wrote_downstream_files": False,
     }
+
+
+def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
+    if not isinstance(demo, PersistedCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a PersistedCliDemoWorkspace")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(demo.workspace_root),
+            "shoot_slug": demo.trusted_plan.shoot_slug,
+            "render_tasks_manifest_path": str(demo.render_tasks_manifest_path),
+            "render_task_count": len(demo.trusted_plan.render_tasks),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "safety_notes": list(demo.safety_notes),
+            "notes": [
+                "demo inputs and render_tasks.json were created or verified",
+                "render status was not initialized or reset",
+                "run init-render-status before dry-run-render-scheduler",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _validate_main_args(

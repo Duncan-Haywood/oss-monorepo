@@ -97,8 +97,10 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
-- `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
-  `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
+- `shootflow.cli`: the first background-agent command surface. The demo command creates a persisted
+  `deliverables/render_tasks.json` smoke workspace from trusted placeholder inputs without initializing or
+  resetting render status. The init command loads the persisted
+  render-task handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
   launch agent. It never deletes media and never resets existing matching status progress. The dry-run scheduler
   command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
@@ -154,9 +156,9 @@ The desired high-quality pipeline is:
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
-    shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
-    flow without constructing trusted render tasks by hand.
+21. Keep a small `create-demo-workspace` CLI handoff available so Mac UI shells,
+    launch-agent smoke tests, and GTM demos can exercise the init-to-report flow
+    without constructing trusted render tasks by hand or importing Python helpers.
 22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
 23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
@@ -411,7 +413,8 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   a bespoke demo shortcut would hide the safety contracts that differentiate the
   product.
 - **Consequence:** `shootflow.demo_workspace.create_persisted_cli_demo_workspace`
-  writes only placeholder trusted inputs and `deliverables/render_tasks.json`;
-  demos must still call `init-render-status` and `dry-run-render-scheduler` to
-  create progress and reports through the same strict persisted-manifest path as
-  production workflows.
+  and `python -m shootflow.cli create-demo-workspace` write only placeholder
+  trusted inputs and `deliverables/render_tasks.json`; demos must still call
+  `init-render-status` and `dry-run-render-scheduler` to create progress and
+  reports through the same strict persisted-manifest path as production
+  workflows.

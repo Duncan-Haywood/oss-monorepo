@@ -108,9 +108,10 @@ The current core models a concrete promise for high-volume users:
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
-    helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
-    handoff as real shoots.
+22. Create repeatable persisted-manifest smoke/demo workspaces through the
+    `create-demo-workspace` CLI command so Mac UI shells and GTM demos exercise
+    the same init/status/scheduler handoff as real shoots without importing
+    Python internals.
 23. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -178,9 +179,10 @@ to automate.
    safely initialize the matching render-status manifest when it is missing,
    preserve existing progress on repeated launches, run the trusted dry-run
    scheduler, write that report, and can print JSON summaries for a Mac app or
-   background automation process. The demo workspace helper now creates a tiny
-   trusted persisted render-task workspace for smoke tests and product demos
-   without bypassing the real init/status/scheduler path.
+   background automation process. The `create-demo-workspace` command now
+   creates a tiny trusted persisted render-task workspace for smoke tests and
+   product demos without bypassing the real init/status/scheduler path or
+   resetting existing progress.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

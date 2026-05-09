@@ -21,6 +21,53 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_create_demo_workspace_command_writes_trusted_render_task_handoff(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "launch-demo",
+                ],
+                stdout=stdout,
+            )
+
+            render_tasks_path = workspace / "deliverables" / "render_tasks.json"
+            render_tasks_exists = render_tasks_path.exists()
+            render_status_exists = (workspace / "deliverables" / "render_status.json").exists()
+            scheduler_report_exists = (
+                workspace / "deliverables" / "render_scheduler_report.json"
+            ).exists()
+
+        self.assertNotEqual(stdout.getvalue(), "")
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["schema_version"], 1)
+        self.assertEqual(printed_summary["workspace"], str(workspace))
+        self.assertEqual(printed_summary["shoot_slug"], "launch-demo")
+        self.assertEqual(printed_summary["render_tasks_manifest_path"], str(render_tasks_path))
+        self.assertEqual(printed_summary["render_task_count"], 4)
+        self.assertEqual(
+            printed_summary["required_completed_dependency_ids"],
+            [
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+                "grade_asset_00002",
+                "grade_asset_00003",
+            ],
+        )
+        self.assertIn("deliverables/instagram_reel.mp4", printed_summary["expected_output_paths"])
+        self.assertIn("demo helper never deletes source media", printed_summary["safety_notes"])
+        self.assertTrue(render_tasks_exists)
+        self.assertFalse(render_status_exists)
+        self.assertFalse(scheduler_report_exists)
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

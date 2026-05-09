@@ -64,8 +64,11 @@ This repo currently contains the first testable core utilities:
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
 - `shootflow.cli` exposes the first background-agent commands:
-  `python -m shootflow.cli init-render-status` and
-  `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
+  `python -m shootflow.cli create-demo-workspace`,
+  `python -m shootflow.cli init-render-status`, and
+  `python -m shootflow.cli dry-run-render-scheduler`. The demo command creates a
+  deterministic persisted render-task workspace without initializing or resetting
+  status. The init command loads the
   strict persisted render-task manifest, creates the companion render-status
   manifest only when missing, and never resets existing matching progress. The
   scheduler command then runs the dry-run scheduler against the matching
@@ -172,14 +175,15 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
-    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
-    GTM demos, and continuation agents without touching source media or resetting
-    render progress.
+21. Use `python -m shootflow.cli create-demo-workspace` to build a safe,
+    repeatable persisted-manifest smoke workspace for Mac UI shells, GTM demos,
+    and continuation agents without touching source media or resetting render
+    progress.
 
 The current persisted-manifest CLI flow is:
 
 ```bash
+PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \
