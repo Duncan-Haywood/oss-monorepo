@@ -166,16 +166,20 @@ Run practical experiments tied to this ICP-first plan:
    `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
    commands now expose the full operator-review-then-copy path, and
    `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+   `init-production-status` command creates the resumable production-worker
+   status handoff from the verified ingest manifest without writing AI/color
+   artifacts. The `card-dump-workflow` command combines route, preview, optional
+   copy, and production summary into one native-shell contract, so the next step
+   is binding these to a SwiftUI/menu-bar shell with native Disk Arbitration
+   metadata and an approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect
    `card-dump-workflow` with the persisted render-task demo so one smoke path
    runs from detected card to scheduler report.
-3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
-4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-5. Instrument key product metrics at scheduler/report boundaries.
-6. Start proof-based GTM content showing real workflows and outcomes.
+3. Add a dry-run production worker/scheduler that consumes `production_status.json`
+   before real VLM, Core Image/Metal, ffmpeg, Resolve, or cloud adapters.
+4. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+5. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
+6. Instrument key product metrics at scheduler/report boundaries.
+7. Start proof-based GTM content showing real workflows and outcomes.

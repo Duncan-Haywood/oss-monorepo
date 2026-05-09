@@ -8,6 +8,32 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first production-worker status handoff:
+  - `shootflow.production_status` writes a strict `production_status.json` file
+    beside the verified `ingest_manifest.json`;
+  - the manifest is keyed by a canonical production-plan fingerprint, contains
+    one status per trusted `ProductionJob`, preserves existing matching progress,
+    and rejects stale/fingerprint-mismatched/malformed status instead of resetting
+    work;
+  - non-pending jobs require all declared dependencies to be succeeded, and
+    succeeded jobs may report checksums only for outputs declared by the trusted
+    production plan;
+  - manifest writes use local advisory locking plus no-follow temporary files,
+    and the status contract does not create analysis, graded, render-task,
+    render-status, scheduler, cleanup, deletion, or overwrite artifacts.
+- Added `python -m shootflow.cli init-production-status --ingest-manifest <path>`
+  so Mac app shells and background agents can bootstrap production progress from
+  a verified ingest manifest after the read-only `plan-production` review screen.
+- Added tests for round-trip status persistence, idempotent initialization,
+  stale fingerprint rejection, dependency validation, unsafe checksum path
+  rejection, unknown/delete-like fields, concurrent initialization, and CLI
+  behavior including deleted-source manifest rejection.
+- Updated README, AGENTS, product strategy, business, design, legal, and
+  continuation docs to position production status as the bridge between
+  post-ingest planning and future proxy/VLM/color/story/package workers.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

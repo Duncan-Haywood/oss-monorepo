@@ -47,6 +47,12 @@ The repo currently contains a Python core package because it is quick to test an
   parallel/serial wave shape, and planned Instagram deliverables without writing analysis, graded, render,
   status, or deliverable files. This gives the future Mac UI a safe "what happens next" screen between
   card offload and AI/color execution.
+- `shootflow.production_status`: a resumable production-worker progress contract. It writes
+  `production_status.json` beside the verified ingest manifest, keys the file to a canonical
+  production-plan fingerprint, preserves existing matching progress, rejects stale or malformed status
+  files, validates dependency order for non-pending jobs, and records checksums only for outputs declared
+  by trusted `ProductionJob` records. It deliberately does not create analysis, graded, render-task,
+  render-status, scheduler, cleanup, or deletion artifacts.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -125,40 +131,42 @@ The desired high-quality pipeline is:
 1. Ingest originals to a dated shoot folder.
 2. Produce a read-only production-plan report from the verified ingest manifest so the operator can see
    asset counts, parallel wave shape, and planned IG deliverables before automation creates new artifacts.
-3. Generate proxies and technical metadata in parallel.
-4. Run content understanding: scene grouping, face/object/context tags, sharpness, exposure, motion, audio energy, and duplicate detection.
-5. Build look references from user presets, past shoots, brand mood boards, or a hero frame.
-6. Generate non-destructive color decisions per scene/set, not isolated per asset.
-7. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
-8. Export graded intermediates for all selects.
-9. Plan assembly tasks from trusted graded selections before invoking any renderer.
-10. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
-11. Plan renderer-neutral worker actions from the trusted task/status pair.
-12. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
+3. Initialize `production_status.json` beside that manifest so proxy, VLM, look, grading, storyline, and
+   package workers have a durable progress record before writing media artifacts.
+4. Generate proxies and technical metadata in parallel.
+5. Run content understanding: scene grouping, face/object/context tags, sharpness, exposure, motion, audio energy, and duplicate detection.
+6. Build look references from user presets, past shoots, brand mood boards, or a hero frame.
+7. Generate non-destructive color decisions per scene/set, not isolated per asset.
+8. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
+9. Export graded intermediates for all selects.
+10. Plan assembly tasks from trusted graded selections before invoking any renderer.
+11. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
+12. Plan renderer-neutral worker actions from the trusted task/status pair.
+13. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
     declared deliverable outputs only.
-13. Persist each worker transition through a single-task compare/write helper so stale workers cannot
+14. Persist each worker transition through a single-task compare/write helper so stale workers cannot
     overwrite newer claims or results.
-14. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
+15. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
     transition through the same single-task compare/write boundary.
-15. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
+16. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
     rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
-16. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
+17. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
     progress while serial reels and blocked tasks stay deterministic and inspectable.
-17. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
+18. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
     expiration, ready-action planning, bounded batch execution, and explicit stop summaries for UI/retry decisions.
-18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
+19. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
+20. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -194,6 +202,11 @@ High quality depends on scene-level consistency and reversible edits. The system
   emits `AssetAnalysis` records that point at graded artifacts rather than originals.
 - Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
   originals, which keeps social assembly downstream of the color pipeline.
+- `production_status.json` is the production-worker handoff after read-only planning. It is keyed by the
+  deterministic production-plan fingerprint, preserves matching progress during repeated launches, rejects
+  stale fingerprints instead of resetting, and only accepts succeeded output checksums for the outputs declared
+  by each trusted production job. Non-pending jobs require their declared dependencies to be succeeded, keeping
+  proxy/VLM/color/story/package progress aligned with the plan.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
