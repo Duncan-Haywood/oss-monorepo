@@ -824,6 +824,115 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             self.assertFalse((shoot_folder / "graded").exists())
             self.assertFalse((shoot_folder / "deliverables").exists())
 
+    def test_next_production_wave_command_reports_ready_wave_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            clip = card / "PRIVATE" / "A001.MOV"
+            raw.parent.mkdir(parents=True)
+            clip.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            clip.write_bytes(b"video-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "next-wave",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_next-wave"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "proxy_asset_00001",
+                    "--completed-job",
+                    "proxy_asset_00000",
+                ],
+                stdout=stdout,
+            )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "ready")
+            self.assertEqual(report["wave_index"], 1)
+            self.assertEqual(report["manifest_path"], str(manifest_path))
+            self.assertEqual(report["workspace"], str(shoot_folder))
+            self.assertEqual(report["completed_job_ids"], ["proxy_asset_00000", "proxy_asset_00001"])
+            self.assertEqual(
+                [job["job_id"] for job in report["jobs"]],
+                ["analyze_asset_00000", "analyze_asset_00001"],
+            )
+            self.assertIn("read-only production wave handoff", report["notes"])
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
+    def test_next_production_wave_command_rejects_unknown_completed_job_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            photo = card / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "unknown-completed",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_unknown-completed"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "missing-job",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unknown production job", stderr.getvalue())
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
 
 class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
     def test_card_dump_workflow_previews_route_without_copying(self) -> None:

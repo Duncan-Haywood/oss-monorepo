@@ -8,6 +8,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first read-only production execution handoff:
+  - `shootflow.production_handoff.plan_next_production_wave(...)` reloads a
+    verified `ingest_manifest.json`, rebuilds the deterministic production plan,
+    validates caller-reported completed production job IDs, and returns the next
+    ready production wave;
+  - completed job IDs are canonicalized into production-plan order for stable
+    JSON and rejected when they are unknown, duplicated, or skip required
+    dependencies;
+  - `python -m shootflow.cli next-production-wave --ingest-manifest <path>
+    [--completed-job <id> ...]` prints a schema-versioned JSON handoff for Mac
+    UI shells, launch agents, and future proxy/VLM/color workers;
+  - the handoff writes no `analysis/`, `graded/`, `deliverables/`, render-task,
+    render-status, or scheduler-report files.
+- Updated README/product/design docs to position `next-production-wave` as the
+  safe seam after `plan-production` and before real production workers.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,
@@ -501,18 +519,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## Suggested next iteration
 
-The worker can now plan ready actions, produce safe per-task status transitions, persist one transition
-through a manifest-level compare/write update, identify stale running leases for retry, execute one trusted
-action through a deterministic dry-run adapter, execute trusted ready-action batches with bounded local
-concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
-through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, initialize missing
-render-status manifests from persisted render tasks without resetting progress, invoke that handoff from
-persisted-manifest CLI commands, and discover mounted-volume candidates for reviewed import routing. The next
-useful layer is either richer native macOS volume metadata, a real renderer temp-output contract, stronger
-distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
+The core can now discover mounted-volume candidates, preview/execute safe ingest,
+report the manifest-backed production plan, and produce a read-only next
+production wave from caller-reported completed production jobs. The render side
+can plan ready actions, produce safe per-task status transitions, persist one
+transition through a manifest-level compare/write update, identify stale running
+leases for retry, execute one trusted action through a deterministic dry-run
+adapter, execute trusted ready-action batches with bounded local concurrency,
+persist planned stale lease expirations with heartbeat-conflict reporting, drive
+those pieces through an iterative dry-run scheduler loop, persist a strict
+UI/agent scheduler report, initialize missing render-status manifests from
+persisted render tasks without resetting progress, invoke that handoff from
+persisted-manifest CLI commands, and discover mounted-volume candidates for
+reviewed import routing. The next useful layer is either a persisted production
+status manifest with output checksums/leases, richer native macOS volume
+metadata, a real renderer temp-output contract, stronger distributed lease
+persistence, or a full card-dump-to-production-wave smoke fixture.
 
 Good test-first targets:
 
+- Add a strict `production_status.json` manifest for proxy/VLM/color/story jobs
+  so `next-production-wave` no longer trusts caller-reported completions.
 - Add a native macOS metadata adapter (or a pure testable abstraction for it) that can mark internal disks,
   removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
 - Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal

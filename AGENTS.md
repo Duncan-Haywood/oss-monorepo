@@ -19,8 +19,8 @@ Requires Python 3.10+. The VM ships with Python 3.12.3, which works.
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-All 166 tests use `unittest` (stdlib). No pytest, no test dependencies. The
-`PYTHONPATH=src` prefix is required so `import shootflow` resolves.
+All committed tests use `unittest` (stdlib). No pytest, no test dependencies.
+The `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
 
 ### Running the CLI
 
@@ -28,6 +28,7 @@ All 166 tests use `unittest` (stdlib). No pytest, no test dependencies. The
 PYTHONPATH=src python3 -m shootflow.cli --help
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route --volume-root <dir> ...
+PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
 ```
 
