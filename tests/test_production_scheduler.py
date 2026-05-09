@@ -133,6 +133,51 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.iterations[0].skipped_retryable_job_ids, ("proxy_asset_00000",))
         self.assertEqual(loaded_manifest, retryable_manifest)
 
+    def test_scheduler_expires_stale_running_production_lease_before_planning_work(self) -> None:
+        trusted_plan = self._video_only_plan()
+        running_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id="proxy_asset_00000",
+                    state="running",
+                    worker_adapter="dry-run-production-local",
+                    attempts=1,
+                    updated_at="2026-05-09T16:20:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[1:]
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T16:40:00Z",
+                completed_at="2026-05-09T16:40:05Z",
+                max_concurrency=1,
+                max_iterations=5,
+                stale_before="2026-05-09T16:30:00Z",
+                lease_updated_at="2026-05-09T16:39:00Z",
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.iterations[0].expired_lease_job_ids, ("proxy_asset_00000",))
+        self.assertEqual(result.iterations[0].conflicted_lease_job_ids, ())
+        self.assertEqual(result.iterations[0].attempted_job_ids, ())
+        self.assertEqual(result.iterations[0].skipped_retryable_job_ids, ("proxy_asset_00000",))
+        self.assertEqual(loaded_manifest.job_statuses[0].state, "retryable")
+        self.assertIn("lease expired", loaded_manifest.job_statuses[0].error_message or "")
+
     def test_scheduler_retries_existing_retryable_job_when_reviewed(self) -> None:
         trusted_plan = self._video_only_plan()
         retryable_manifest = ProductionStatusManifest(
@@ -240,6 +285,8 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.total_job_count, len(trusted_plan.jobs))
         self.assertEqual(loaded_report.review_required_job_ids, ())
+        self.assertEqual(loaded_report.expired_lease_job_ids, ())
+        self.assertEqual(loaded_report.conflicted_lease_job_ids, ())
         self.assertEqual(loaded_report.completed_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
         self.assertGreater(len(loaded_report.outputs_materialized), 0)
 

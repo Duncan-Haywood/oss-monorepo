@@ -167,6 +167,90 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertEqual(payload["review_required_job_ids"], [])
         self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
 
+    def test_dry_run_production_scheduler_command_expires_stale_running_job(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            clip = card / "DCIM" / "A001.MOV"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "production-lease",
+                    "--confirm",
+                ],
+                stdout=io.StringIO(),
+            )
+            shoot_folder = destination / "2026-05-09_production-lease"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            production_plan = self._production_plan(manifest_path)
+            write_production_status_manifest(
+                ProductionStatusManifest(
+                    shoot_slug=production_plan.shoot_slug,
+                    production_plan_fingerprint=production_plan_fingerprint(production_plan),
+                    job_statuses=(
+                        ProductionJobStatus(
+                            job_id="proxy_asset_00000",
+                            state="running",
+                            worker_adapter="dry-run-production-local",
+                            attempts=1,
+                            updated_at="2026-05-09T17:10:00Z",
+                        ),
+                    )
+                    + tuple(
+                        ProductionJobStatus(job_id=job.job_id, state="pending")
+                        for job in production_plan.jobs[1:]
+                    ),
+                ),
+                shoot_folder,
+                trusted_plan=production_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "dry-run-production-local",
+                    "--started-at",
+                    "2026-05-09T17:30:00Z",
+                    "--completed-at",
+                    "2026-05-09T17:30:05Z",
+                    "--generated-at",
+                    "2026-05-09T17:30:06Z",
+                    "--max-concurrency",
+                    "1",
+                    "--max-iterations",
+                    "5",
+                    "--stale-before",
+                    "2026-05-09T17:20:00Z",
+                    "--lease-updated-at",
+                    "2026-05-09T17:29:00Z",
+                ],
+                stdout=stdout,
+            )
+            status_manifest = load_production_status_manifest(shoot_folder, trusted_plan=production_plan)
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["stopped_reason"], "retryable")
+        self.assertEqual(payload["expired_lease_job_ids"], ["proxy_asset_00000"])
+        self.assertEqual(payload["conflicted_lease_job_ids"], [])
+        self.assertEqual(payload["skipped_retryable_job_ids"], ["proxy_asset_00000"])
+        self.assertEqual(status_manifest.job_statuses[0].state, "retryable")
+        self.assertIn("lease expired", status_manifest.job_statuses[0].error_message or "")
+
     def test_init_production_status_command_creates_manifest_without_downstream_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

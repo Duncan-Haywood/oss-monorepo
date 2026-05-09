@@ -24,8 +24,11 @@ from shootflow.production_status import (
     validate_production_status_manifest,
 )
 from shootflow.production_worker import (
+    ProductionLeasePersistenceResult,
     ProductionWorkerActionPlan,
+    persist_stale_production_leases,
     plan_production_worker_actions,
+    plan_stale_production_leases,
 )
 
 _WORKER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
@@ -48,6 +51,8 @@ _REPORT_KEYS = frozenset(
         "blocked_job_ids",
         "attempted_job_ids",
         "skipped_retryable_job_ids",
+        "expired_lease_job_ids",
+        "conflicted_lease_job_ids",
         "review_required_job_ids",
         "outputs_materialized",
         "failure_messages",
@@ -63,6 +68,8 @@ class DryRunProductionSchedulerError(ValueError):
 @dataclass(frozen=True)
 class DryRunProductionSchedulerIteration:
     iteration_number: int
+    expired_lease_job_ids: tuple[str, ...]
+    conflicted_lease_job_ids: tuple[str, ...]
     attempted_job_ids: tuple[str, ...]
     skipped_retryable_job_ids: tuple[str, ...]
     blocked_job_ids: tuple[str, ...]
@@ -103,6 +110,8 @@ class DryRunProductionSchedulerReport:
     blocked_job_ids: tuple[str, ...]
     attempted_job_ids: tuple[str, ...]
     skipped_retryable_job_ids: tuple[str, ...]
+    expired_lease_job_ids: tuple[str, ...]
+    conflicted_lease_job_ids: tuple[str, ...]
     review_required_job_ids: tuple[str, ...]
     outputs_materialized: tuple[str, ...]
     failure_messages: tuple[ProductionSchedulerJobMessage, ...]
@@ -118,6 +127,8 @@ def run_dry_run_production_scheduler(
     max_concurrency: int,
     max_iterations: int,
     reviewed_retryable_job_ids: Iterable[str] = (),
+    stale_before: str | None = None,
+    lease_updated_at: str | None = None,
 ) -> DryRunProductionSchedulerResult:
     """Run dry-run production batches until trusted status has no runnable work."""
 
@@ -128,6 +139,8 @@ def run_dry_run_production_scheduler(
         completed_at=completed_at,
         max_concurrency=max_concurrency,
         max_iterations=max_iterations,
+        stale_before=stale_before,
+        lease_updated_at=lease_updated_at,
     )
 
     reviewed_retryable_jobs = _reviewed_retryable_tuple(
@@ -139,6 +152,16 @@ def run_dry_run_production_scheduler(
 
     for iteration_number in range(1, max_iterations + 1):
         status_manifest = load_production_status_manifest(workspace_root, trusted_plan=trusted_plan)
+        lease_result = _expire_stale_leases(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            status_manifest=status_manifest,
+            stale_before=stale_before,
+            lease_updated_at=lease_updated_at,
+        )
+        if lease_result is not None:
+            status_manifest = load_production_status_manifest(workspace_root, trusted_plan=trusted_plan)
+
         statuses_by_id = {status.job_id: status for status in status_manifest.job_statuses}
         action_plan = plan_production_worker_actions(
             trusted_plan,
@@ -186,6 +209,8 @@ def run_dry_run_production_scheduler(
 
         iteration = DryRunProductionSchedulerIteration(
             iteration_number=iteration_number,
+            expired_lease_job_ids=_expired_lease_job_ids(lease_result),
+            conflicted_lease_job_ids=_conflicted_lease_job_ids(lease_result),
             attempted_job_ids=tuple(action.job_id for action in ready_actions),
             skipped_retryable_job_ids=skipped_retryable_job_ids,
             blocked_job_ids=tuple(blocked.job_id for blocked in action_plan.blocked_jobs),
@@ -296,6 +321,8 @@ def _validate_scheduler_inputs(
     completed_at: str,
     max_concurrency: int,
     max_iterations: int,
+    stale_before: str | None,
+    lease_updated_at: str | None,
 ) -> None:
     if not isinstance(trusted_plan, ProductionPlan):
         raise DryRunProductionSchedulerError("trusted_plan must be a ProductionPlan")
@@ -321,6 +348,13 @@ def _validate_scheduler_inputs(
         or max_iterations < 1
     ):
         raise DryRunProductionSchedulerError("max_iterations must be a positive integer")
+    if stale_before is None and lease_updated_at is not None:
+        raise DryRunProductionSchedulerError("lease_updated_at requires stale_before")
+    if stale_before is not None:
+        _validate_timestamp(stale_before, "stale_before")
+        if lease_updated_at is None:
+            raise DryRunProductionSchedulerError("lease_updated_at is required when stale_before is provided")
+        _validate_timestamp(lease_updated_at, "lease_updated_at")
 
 
 def _validate_timestamp(timestamp: str, label: str) -> None:
@@ -354,6 +388,45 @@ def _reviewed_retryable_tuple(
         seen.add(job_id)
         reviewed.append(job_id)
     return tuple(reviewed)
+
+
+def _expire_stale_leases(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    status_manifest: ProductionStatusManifest,
+    stale_before: str | None,
+    lease_updated_at: str | None,
+) -> ProductionLeasePersistenceResult | None:
+    if stale_before is None:
+        return None
+    if lease_updated_at is None:
+        raise DryRunProductionSchedulerError("lease_updated_at is required when stale_before is provided")
+    expiration_plan = plan_stale_production_leases(
+        trusted_plan,
+        status_manifest,
+        stale_before=stale_before,
+        updated_at=lease_updated_at,
+    )
+    if not expiration_plan.expired_leases:
+        return None
+    return persist_stale_production_leases(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        expiration_plan=expiration_plan,
+    )
+
+
+def _expired_lease_job_ids(result: ProductionLeasePersistenceResult | None) -> tuple[str, ...]:
+    if result is None:
+        return ()
+    return tuple(lease.job_id for lease in result.persisted_leases)
+
+
+def _conflicted_lease_job_ids(result: ProductionLeasePersistenceResult | None) -> tuple[str, ...]:
+    if result is None:
+        return ()
+    return tuple(lease.job_id for lease in result.conflicted_leases)
 
 
 def _stopped_reason(
@@ -425,6 +498,11 @@ def _scheduler_report(
         skipped_retryable_job_ids=_unique_iteration_job_ids(
             result.iterations,
             "skipped_retryable_job_ids",
+        ),
+        expired_lease_job_ids=_unique_iteration_job_ids(result.iterations, "expired_lease_job_ids"),
+        conflicted_lease_job_ids=_unique_iteration_job_ids(
+            result.iterations,
+            "conflicted_lease_job_ids",
         ),
         review_required_job_ids=_review_required_job_ids(result),
         outputs_materialized=_outputs_materialized(result.iterations),
@@ -534,6 +612,8 @@ def _report_to_json(report: DryRunProductionSchedulerReport) -> dict[str, object
         "blocked_job_ids": list(report.blocked_job_ids),
         "attempted_job_ids": list(report.attempted_job_ids),
         "skipped_retryable_job_ids": list(report.skipped_retryable_job_ids),
+        "expired_lease_job_ids": list(report.expired_lease_job_ids),
+        "conflicted_lease_job_ids": list(report.conflicted_lease_job_ids),
         "review_required_job_ids": list(report.review_required_job_ids),
         "outputs_materialized": list(report.outputs_materialized),
         "failure_messages": [
@@ -580,6 +660,11 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
         skipped_retryable_job_ids=_json_string_tuple(
             raw_report["skipped_retryable_job_ids"],
             "skipped_retryable_job_ids",
+        ),
+        expired_lease_job_ids=_json_string_tuple(raw_report["expired_lease_job_ids"], "expired_lease_job_ids"),
+        conflicted_lease_job_ids=_json_string_tuple(
+            raw_report["conflicted_lease_job_ids"],
+            "conflicted_lease_job_ids",
         ),
         review_required_job_ids=_json_string_tuple(
             raw_report["review_required_job_ids"],
@@ -687,6 +772,8 @@ def _validate_report(
         "blocked_job_ids",
         "attempted_job_ids",
         "skipped_retryable_job_ids",
+        "expired_lease_job_ids",
+        "conflicted_lease_job_ids",
         "review_required_job_ids",
     ):
         job_ids = getattr(report, field_name)
@@ -860,6 +947,8 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
         "blocked_job_ids",
         "attempted_job_ids",
         "skipped_retryable_job_ids",
+        "expired_lease_job_ids",
+        "conflicted_lease_job_ids",
         "review_required_job_ids",
         "outputs_materialized",
     ):
@@ -993,6 +1082,8 @@ def _validate_iteration(iteration: DryRunProductionSchedulerIteration) -> None:
     if not isinstance(iteration.iteration_number, int) or iteration.iteration_number < 1:
         raise DryRunProductionSchedulerError("iteration_number must be positive")
     for field_name in (
+        "expired_lease_job_ids",
+        "conflicted_lease_job_ids",
         "attempted_job_ids",
         "skipped_retryable_job_ids",
         "blocked_job_ids",

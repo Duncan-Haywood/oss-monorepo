@@ -347,6 +347,8 @@ def _run_dry_run_production_scheduler_command(args: argparse.Namespace, *, stdou
         max_concurrency=args.max_concurrency,
         max_iterations=args.max_iterations,
         reviewed_retryable_job_ids=tuple(args.retryable_job),
+        stale_before=args.stale_before,
+        lease_updated_at=args.lease_updated_at,
     )
     final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
     report_path = write_dry_run_production_scheduler_report(
@@ -613,6 +615,8 @@ def _build_parser() -> argparse.ArgumentParser:
     production_scheduler.add_argument("--generated-at", required=True, help="ISO-like timestamp for the scheduler report.")
     production_scheduler.add_argument("--max-concurrency", type=int, default=1)
     production_scheduler.add_argument("--max-iterations", type=int, default=1)
+    production_scheduler.add_argument("--stale-before")
+    production_scheduler.add_argument("--lease-updated-at")
     production_scheduler.add_argument(
         "--retryable-job",
         action="append",
@@ -896,6 +900,10 @@ def _dry_run_production_scheduler_summary_json(
         "skipped_retryable_job_ids": list(
             _production_iteration_job_ids(result, "skipped_retryable_job_ids")
         ),
+        "expired_lease_job_ids": list(_production_iteration_job_ids(result, "expired_lease_job_ids")),
+        "conflicted_lease_job_ids": list(
+            _production_iteration_job_ids(result, "conflicted_lease_job_ids")
+        ),
         "review_required_job_ids": list(review_required_job_ids),
         "outputs_materialized": list(_production_outputs_materialized(result)),
         "failure_messages": [
@@ -982,6 +990,8 @@ def _production_scheduler_report_json(report: DryRunProductionSchedulerReport) -
             "blocked_job_ids": list(report.blocked_job_ids),
             "attempted_job_ids": list(report.attempted_job_ids),
             "skipped_retryable_job_ids": list(report.skipped_retryable_job_ids),
+            "expired_lease_job_ids": list(report.expired_lease_job_ids),
+            "conflicted_lease_job_ids": list(report.conflicted_lease_job_ids),
             "review_required_job_ids": list(report.review_required_job_ids),
             "outputs_materialized": list(report.outputs_materialized),
             "failure_messages": [
