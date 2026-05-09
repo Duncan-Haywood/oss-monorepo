@@ -77,6 +77,138 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(tuple(printed_report["outputs_materialized"]), demo.expected_output_paths)
         self.assertEqual(loaded_report.review_required_task_ids, ())
 
+    def test_inspect_render_workspace_reports_missing_status_without_writes(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+            self.assertFalse((workspace / "deliverables" / "render_status.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_scheduler_report.json").exists())
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["status"], "needs_status_initialization")
+        self.assertFalse(report["status_manifest_present"])
+        self.assertFalse(report["scheduler_report_present"])
+        self.assertEqual(report["task_counts_by_state"]["pending"], 1)
+        self.assertEqual(report["expected_outputs"], ["deliverables/instagram_reel.mp4"])
+        self.assertEqual(report["materialized_outputs"], [])
+        self.assertEqual(report["review_required_task_ids"], [])
+        self.assertEqual(report["safe_next_actions"], ["initialize_render_status"])
+
+    def test_inspect_render_workspace_reports_completed_demo_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            demo = create_persisted_cli_demo_workspace(workspace)
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+            inspect_stdout = io.StringIO()
+
+            main(["init-render-status", "--workspace", str(workspace)], stdout=init_stdout)
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(workspace),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-08T15:10:00Z",
+                "--completed-at",
+                "2026-05-08T15:10:05Z",
+                "--generated-at",
+                "2026-05-08T15:10:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+            ]
+            for dependency_id in demo.required_completed_dependency_ids:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+            main(scheduler_args, stdout=scheduler_stdout)
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=inspect_stdout,
+            )
+
+        report = json.loads(inspect_stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "complete")
+        self.assertTrue(report["status_manifest_present"])
+        self.assertTrue(report["scheduler_report_present"])
+        self.assertEqual(report["task_counts_by_state"]["succeeded"], 4)
+        self.assertEqual(report["materialized_outputs"], list(demo.expected_output_paths))
+        self.assertEqual(report["safe_next_actions"], ["review_deliverables"])
+        self.assertEqual(report["review_required_task_ids"], [])
+
+    def test_inspect_render_workspace_rejects_stale_scheduler_report(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            main(["init-render-status", "--workspace", str(workspace)], stdout=io.StringIO())
+            main(
+                [
+                    "dry-run-render-scheduler",
+                    "--workspace",
+                    str(workspace),
+                    "--completed-dependency",
+                    "rank_instagram_storylines",
+                    "--completed-dependency",
+                    "grade_asset_00000",
+                    "--renderer",
+                    "dry-run-local",
+                    "--started-at",
+                    "2026-05-08T15:10:00Z",
+                    "--completed-at",
+                    "2026-05-08T15:10:05Z",
+                    "--generated-at",
+                    "2026-05-08T15:10:06Z",
+                ],
+                stdout=io.StringIO(),
+            )
+            write_render_status_manifest(
+                self._pending_manifest(trusted_plan),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("scheduler report", stderr.getvalue())
+
     def test_persisted_cli_demo_workspace_refuses_to_overwrite_existing_input(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

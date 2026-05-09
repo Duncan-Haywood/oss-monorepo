@@ -97,6 +97,13 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.render_workspace`: a read-only state index over persisted render
+  handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
+  missing status manifest as `needs_status_initialization` without creating one,
+  validates any existing `deliverables/render_status.json` and
+  `deliverables/render_scheduler_report.json`, rejects stale reports instead of
+  using them as UI truth, and returns task counts, expected/materialized outputs,
+  review-required task IDs, and safe next-action recommendations.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -104,8 +111,9 @@ The repo currently contains a Python core package because it is quick to test an
   command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
   render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`, and
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
-  Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
-  render-task/status contracts.
+  The inspection command reads those same handoffs and emits the current product state without initializing,
+  scheduling, retrying, deleting, or materializing outputs. None of these commands accept model-authored paths,
+  delete files, or widen renderer authority beyond the persisted render-task/status contracts.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
@@ -151,14 +159,17 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Inspect the persisted render workspace before and after scheduler runs so
+    native app shells and background agents can show a safe next action without
+    mutating status or trusting stale scheduler reports.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
