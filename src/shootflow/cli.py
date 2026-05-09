@@ -35,6 +35,11 @@ from shootflow.ingest import (
     plan_import,
 )
 from shootflow.production import ProductionPlanError, build_production_plan
+from shootflow.production_handoff import (
+    ProductionHandoffError,
+    ProductionWaveHandoff,
+    plan_next_production_wave,
+)
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
@@ -52,8 +57,8 @@ from shootflow.render_status import (
 from shootflow.render_workspace import RenderWorkspaceError, RenderWorkspaceReport, inspect_render_workspace
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import (
-    DiscoveredVolumeMetadata,
     StorageDiscoveryError,
+    VolumeDiscoveryHint,
     discover_import_route,
     discover_storage_candidates,
 )
@@ -116,6 +121,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "write-render-tasks":
             _run_write_render_tasks_command(args, stdout=out)
+        elif args.command == "next-production-wave":
+            _run_next_production_wave_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
         elif args.command == "workspace-health":
@@ -137,6 +144,7 @@ def main(
         IngestError,
         FileNotFoundError,
         ProductionPlanError,
+        ProductionHandoffError,
         CardDumpWorkflowError,
         StoryPlanError,
         WorkspaceHealthError,
@@ -165,12 +173,12 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
     volume_roots = _parse_volume_roots(args.volume_root)
-    metadata_by_path = _load_volume_metadata_json(args.volume_metadata_json)
+    volume_hints = _load_volume_metadata_json(args.volume_metadata_json)
     expected_import_bytes = args.expected_import_bytes
     source_estimate: ImportSourceEstimate | None = None
 
     if args.estimate_source_bytes:
-        initial_recommendation = discover_import_route(volume_roots, metadata_by_path=metadata_by_path)
+        initial_recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
         if initial_recommendation.source is not None:
             source_estimate = estimate_import_source(initial_recommendation.source.candidate.path)
             expected_import_bytes = source_estimate.estimated_bytes
@@ -178,7 +186,7 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
                 volume_roots,
                 expected_import_bytes=expected_import_bytes,
                 headroom_bytes=args.headroom_bytes,
-                metadata_by_path=metadata_by_path,
+                volume_hints=volume_hints,
             )
         else:
             recommendation = initial_recommendation
@@ -187,14 +195,14 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
             volume_roots,
             expected_import_bytes=expected_import_bytes,
             headroom_bytes=args.headroom_bytes,
-            metadata_by_path=metadata_by_path,
+            volume_hints=volume_hints,
         )
     else:
-        recommendation = discover_import_route(volume_roots, metadata_by_path=metadata_by_path)
+        recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
 
     discovered_candidates: list[StorageCandidate] = []
     if args.print_candidates:
-        discovered_candidates = discover_storage_candidates(volume_roots, metadata_by_path=metadata_by_path)
+        discovered_candidates = discover_storage_candidates(volume_roots, volume_hints=volume_hints)
 
     stdout.write(
         _import_route_json(
@@ -315,6 +323,14 @@ def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO)
     )
 
 
+def _run_next_production_wave_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    handoff = plan_next_production_wave(
+        args.ingest_manifest,
+        completed_job_ids=tuple(args.completed_job),
+    )
+    stdout.write(_production_wave_handoff_json(handoff))
+
+
 def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
@@ -325,7 +341,7 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         destination_subfolder=args.destination_subfolder,
         headroom_bytes=args.headroom_bytes,
         confirm_ingest=args.confirm_ingest,
-        metadata_by_path=_load_volume_metadata_json(args.volume_metadata_json),
+        volume_hints=_load_volume_metadata_json(args.volume_metadata_json),
     )
     stdout.write(_card_dump_workflow_report_json(report))
 
@@ -484,6 +500,22 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=250,
         help="Maximum number of photo-set inputs per parallel export task.",
+    )
+
+    next_wave = subparsers.add_parser(
+        "next-production-wave",
+        help="Return the next ready manifest-backed production wave without writing artifacts.",
+    )
+    next_wave.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+    next_wave.add_argument(
+        "--completed-job",
+        action="append",
+        default=[],
+        help="Production job ID the caller has completed. Repeat for each completed job.",
     )
 
     card_dump = subparsers.add_parser(
@@ -712,7 +744,7 @@ def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
     return roots
 
 
-def _load_volume_metadata_json(raw_path: str | None) -> dict[Path, DiscoveredVolumeMetadata] | None:
+def _load_volume_metadata_json(raw_path: str | None) -> dict[Path, VolumeDiscoveryHint] | None:
     if raw_path is None:
         return None
     if not isinstance(raw_path, str) or not raw_path.strip():
@@ -732,20 +764,20 @@ def _load_volume_metadata_json(raw_path: str | None) -> dict[Path, DiscoveredVol
     if not isinstance(raw_volumes, list):
         raise ShootFlowCliError("Volume metadata JSON must contain a volumes list")
 
-    metadata_by_path: dict[Path, DiscoveredVolumeMetadata] = {}
+    volume_hints: dict[Path, VolumeDiscoveryHint] = {}
     for index, raw_volume in enumerate(raw_volumes):
-        volume_path, metadata = _volume_metadata_from_json_entry(raw_volume, index=index)
-        if volume_path in metadata_by_path:
+        volume_path, hint = _volume_hint_from_json_entry(raw_volume, index=index)
+        if volume_path in volume_hints:
             raise ShootFlowCliError(f"Duplicate volume metadata path: {volume_path}")
-        metadata_by_path[volume_path] = metadata
-    return metadata_by_path
+        volume_hints[volume_path] = hint
+    return volume_hints
 
 
-def _volume_metadata_from_json_entry(
+def _volume_hint_from_json_entry(
     raw_volume: object,
     *,
     index: int,
-) -> tuple[Path, DiscoveredVolumeMetadata]:
+) -> tuple[Path, VolumeDiscoveryHint]:
     if not isinstance(raw_volume, dict):
         raise ShootFlowCliError(f"Volume metadata entry must be an object: {index}")
     allowed_fields = {
@@ -766,8 +798,8 @@ def _volume_metadata_from_json_entry(
     total_bytes = _optional_metadata_int(raw_volume, "total_bytes")
     if free_bytes is not None and total_bytes is not None and free_bytes > total_bytes:
         raise ShootFlowCliError("free_bytes cannot exceed total_bytes")
-    return Path(raw_path), DiscoveredVolumeMetadata(
-        name=_optional_metadata_string(raw_volume, "name"),
+    return Path(raw_path), VolumeDiscoveryHint(
+        display_name=_optional_metadata_string(raw_volume, "name"),
         free_bytes=free_bytes,
         total_bytes=total_bytes,
         is_removable=_optional_metadata_bool(raw_volume, "is_removable"),
@@ -947,6 +979,42 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
     ) + "\n"
 
 
+def _production_wave_handoff_json(handoff: ProductionWaveHandoff) -> str:
+    if not isinstance(handoff, ProductionWaveHandoff):
+        raise ShootFlowCliError("handoff must be a ProductionWaveHandoff")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "manifest_path": str(handoff.manifest_path),
+            "workspace": str(handoff.workspace),
+            "shoot_slug": handoff.shoot_slug,
+            "status": handoff.status,
+            "wave_index": handoff.wave_index,
+            "completed_job_ids": list(handoff.completed_job_ids),
+            "blocked_dependency_ids": list(handoff.blocked_dependency_ids),
+            "production_plan": {
+                "job_count": len(handoff.production_plan.jobs),
+                "wave_count": len(handoff.production_plan.execution_waves),
+            },
+            "jobs": [
+                {
+                    "job_id": job.job_id,
+                    "output_kind": job.output_kind,
+                    "inputs": list(job.inputs),
+                    "outputs": list(job.outputs),
+                    "depends_on": list(job.depends_on),
+                    "can_run_in_parallel": job.can_run_in_parallel,
+                }
+                for job in handoff.jobs
+            ],
+            "notes": list(handoff.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
 def _write_render_tasks_summary_json(
     plan: AssemblyPlan,
     *,
@@ -1031,6 +1099,7 @@ def _non_render_dependency_ids(plan: AssemblyPlan) -> list[str]:
     return dependency_ids
 
 
+
 def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
     if not isinstance(report, CardDumpWorkflowReport):
         raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
@@ -1039,6 +1108,7 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
             "schema_version": 1,
             "status": report.status,
             "ingest_executed": report.ingest_executed,
+            "agent_handoff": _card_dump_agent_handoff_json(report),
             "volume_roots": [str(root) for root in report.volume_roots],
             "route": {
                 "status": report.route.status,
@@ -1093,6 +1163,7 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
             "task_counts_by_state": report.task_counts_by_state,
             "expected_outputs": list(report.expected_outputs),
             "materialized_outputs": list(report.materialized_outputs),
+            "checksum_mismatch_task_ids": list(report.checksum_mismatch_task_ids),
             "review_required_task_ids": list(report.review_required_task_ids),
             "safe_next_actions": list(report.safe_next_actions),
             "notes": [
@@ -1129,6 +1200,36 @@ def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _card_dump_agent_handoff_json(report: CardDumpWorkflowReport) -> dict[str, object]:
+    if not isinstance(report, CardDumpWorkflowReport):
+        raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
+    if report.status == "blocked":
+        return {
+            "next_step": "fix_route",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": False,
+            "requires_confirm_ingest": False,
+        }
+    if report.status == "ready_for_review":
+        return {
+            "next_step": "review_preview",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": True,
+            "requires_confirm_ingest": True,
+        }
+    if report.status == "ingest_complete":
+        return {
+            "next_step": "review_production_plan",
+            "human_review_required": True,
+            "safe_to_rerun": True,
+            "next_step_may_copy_bytes": False,
+            "requires_confirm_ingest": False,
+        }
+    raise ShootFlowCliError(f"Unsupported card workflow status: {report.status}")
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:

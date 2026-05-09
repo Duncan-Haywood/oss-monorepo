@@ -44,10 +44,8 @@ Why this wedge wins:
 ## Phase 1: trusted automation core (current direction)
 
 - SD/SSD/local source discovery and route recommendation.
-- Optional native Mac volume metadata handoff so route recommendations can use
-  real removable/read-only/capacity facts while remaining advisory, plus typed
-  macOS metadata filtering for ejectable, network, and system-volume cases before
-  route review.
+- Typed native macOS volume metadata handoff for more accurate ejectable,
+  removable, read-only, network, and system-volume filtering before route review.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -57,9 +55,6 @@ Why this wedge wins:
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.
-- A public demo-workspace CLI command that creates a tiny trusted render-task
-  handoff for Mac UI shells, launch-agent smoke tests, GTM demos, and
-  continuation agents.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -177,24 +172,22 @@ Run practical experiments tied to this ICP-first plan:
 
 ## 8) Execution priorities for next iteration
 
-1. Build the SwiftUI/menu-bar approval layer around the mounted-volume
-   discovery, native metadata handoff, safe route recommendation, and ingest
-   assistant flow. The
-   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
-   commands now expose the full operator-review-then-copy path, and
-   `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract and accepts native volume metadata JSON, so the next step is binding
-   it to an approval screen before AI/color work starts.
+1. Bind native Mac metadata and UI approval around the safe route recommendation
+   and ingest assistant flow. The core now has both portable mounted-volume
+   discovery and a typed macOS metadata adapter; the `plan-import-route` +
+   `preview-ingest` + `execute-ingest --confirm` CLI commands expose the full
+   operator-review-then-copy path, and `plan-production` exposes the next
+   read-only post-ingest summary. The `card-dump-workflow` command combines
+   those steps into one native-shell contract, so the next step is binding it to
+   a SwiftUI/menu-bar approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in both `shootflow.demo_workspace`, the public
-   `create-demo-workspace` CLI command, and the real `write-render-tasks` CLI
-   handoff; next, connect `card-dump-workflow` with trusted storyline/graded
-   fixtures so one smoke path runs from detected card to persisted render tasks,
-   status initialization, scheduler report, and reviewable outputs.
-   `inspect-render-workspace` should be the read-only render state probe for
-   that path, while `index-workspace` remains the broader UI/agent shoot-state
-   snapshot.
+   half now exists in both `shootflow.demo_workspace` and the real
+   `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
+   trusted storyline/graded fixtures so one smoke path runs from detected card
+   to persisted render tasks, status initialization, scheduler report, and
+   reviewable outputs. `index-workspace` provides the UI/agent state snapshot
+   and `inspect-render-workspace` provides the safe read-only state probe
+   before initialization and after scheduler runs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

@@ -50,9 +50,9 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Discover mounted-volume candidates from reviewed roots, optionally enrich
-   them with native Mac volume metadata, rank detected storage, then recommend a
-   review-required source/destination route.
+1. Discover mounted-volume candidates from reviewed roots or typed native macOS
+   metadata, rank detected storage, then recommend a review-required
+   source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -99,45 +99,43 @@ The current core models a concrete promise for high-volume users:
     commands so a Mac launch agent, menu-bar app, or automation runner can
     bootstrap and advance work without reconstructing the production planner in
     memory.
-20. Resume safely with `workspace-health`: a read-only command that validates
-    whichever handoff files exist, reports invalid manifests for review, shows
-    render status counts, and prints the next safe command without writing or
-    resetting anything.
-21. Inspect persisted render state through a read-only CLI surface so product
-    shells and continuation agents can show whether the next safe action is
-    status initialization, scheduling, blocked/retry review, or deliverable
-    review without mutating workspace files.
-22. Drive safe ingest itself through the same CLI surface: `preview-ingest`
+20. Resume safely with `workspace-health` and `inspect-render-workspace`:
+    read-only commands that validate whichever handoff files exist, report
+    invalid manifests for review, show render status counts, and print the next
+    safe command without writing or resetting anything.
+21. Drive safe ingest itself through the same CLI surface: `preview-ingest`
     plans a checksum-verified copy and prints planned items as JSON without
     moving bytes; `execute-ingest --confirm` runs the existing safe copy +
     manifest contract (no source deletion, no overwriting different bytes,
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-23. Offer a unified `card-dump-workflow` command for native-shell demos and the
+22. Offer a unified `card-dump-workflow` command for native-shell demos and the
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
-    summary. Confirmed reports now include explicit `next_actions` for trusted
-    storyline/grading preparation and the subsequent render-task handoff.
-24. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
+    summary. Confirmed reports include explicit `next_actions` for trusted
+    storyline/grading preparation and the subsequent render-task handoff. The
+    schema-versioned report also carries an `agent_handoff` block that tells
+    launch agents whether the next safe step is route repair, preview review,
+    or production-plan review, and whether the next step may copy bytes.
+23. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
-    flow that demos already exercise. Its summary now points native shells at
-    `init-render-status` and `dry-run-render-scheduler` with the trusted
-    completed dependency IDs included, while keeping runtime scheduler
-    parameters outside the static handoff.
-25. Create repeatable persisted-manifest smoke/demo workspaces through
-    `python -m shootflow.cli create-demo-workspace` or the core helper so Mac UI
-    shells, GTM demos, and continuation agents exercise the same
-    init/status/scheduler handoff as real shoots.
-26. Summarize the current shoot workspace through `index-workspace`, a
+    flow that demos already exercise. Its summary points native shells at
+    `init-render-status` and `dry-run-render-scheduler` with trusted completed
+    dependency IDs included, while keeping runtime scheduler parameters outside
+    the static handoff.
+24. Create repeatable persisted-manifest smoke/demo workspaces through the core
+    helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
+    handoff as real shoots.
+25. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
     UI/agent layers one coherent handoff plus the health-derived next safe
     action without treating raw model JSON as authority. Workspace health and
-    the derived index now include a current render-input fingerprint over trusted
+    the derived index include a current render-input fingerprint over trusted
     storyline/graded inputs, so future agents can detect in-place input drift
     between snapshots before relying on older render progress.
-27. Assemble reels, carousels, and photo sets from graded masters.
+26. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -158,8 +156,8 @@ to automate.
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes portable mounted-volume discovery, a typed native macOS
-   metadata adapter plus metadata override JSON for Disk Arbitration/Swift handoff, capacity-gated route
-   recommendation, safe ingest commands, a read-only `plan-production` report after ingest, and a
+   metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
+   commands, a read-only `plan-production` report after ingest, and a
    `write-render-tasks` handoff once trusted storyline/graded artifacts exist;
    the next step is a SwiftUI/menu-bar approval screen around the
    `card-dump-workflow` contract before proxy/analysis/grading work begins.
@@ -209,16 +207,15 @@ to automate.
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
    without bypassing the real init/status/scheduler path. The workspace index
-   now gives those shells a single metadata snapshot across ingest, storyline,
+   gives those shells a single metadata snapshot across ingest, storyline,
    render-task, render-status, and scheduler-report artifacts, while preserving
-   each artifact's original trust boundary. The health/index layer now also
-   includes a metadata-only render-input fingerprint, giving continuation agents
-   a simple drift signal when trusted storyline or graded files change in place. Render workspace
-   inspection now adds the missing read-only state surface around those handoffs:
-   it reports whether status is missing, work is ready, blocked, running, review
-   required, or complete, while rejecting stale scheduler reports instead of
-   treating them as product truth. The `create-demo-workspace` CLI command exposes
-   the trusted demo handoff directly for native shells and continuation agents.
+   each artifact's original trust boundary. The health/index layer includes a
+   metadata-only render-input fingerprint, giving continuation agents a simple
+   drift signal when trusted storyline or graded files change in place. Render
+   workspace inspection adds the missing read-only state surface around those
+   handoffs: it reports whether status is missing, work is ready, blocked,
+   running, review required, or complete, while rejecting stale scheduler
+   reports instead of treating them as product truth.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 
@@ -289,8 +286,6 @@ To keep the product useful for professionals, ingest must stay conservative:
 
 1. **Detection is advisory:** drive/card detection proposes a route for review; it
    is never permission to start destructive actions.
-   Native volume metadata can improve removable/read-only/capacity classification
-   but remains advisory and cannot bypass user review.
 2. **Offload before edit:** users should route source card -> working destination
    first, then run grading/assembly from the ingest manifest boundary.
 3. **Capacity gate by default:** destination selection should require estimated

@@ -50,10 +50,13 @@ This repo currently contains the first testable core utilities:
   deterministic dry-run adapter that claims one trusted worker action, writes
   only its declared `deliverables/` outputs through non-overwriting placeholder
   files, reports checksums, and persists both claim and result through the
-  single-task compare/write status path. It can also execute a trusted dry-run
-  action plan in batches, running parallel-safe ready actions up to a caller
-  supplied concurrency limit while preserving serial-only actions and leaving
-  blocked tasks untouched for UI/scheduler visibility.
+  single-task compare/write status path. It exposes an explicit registered
+  adapter dispatch path for `dry-run-local`, so future ffmpeg/Core Image/Metal
+  backends can plug into the same worker-action contract without forking status
+  orchestration. It can also execute a trusted dry-run action plan in batches,
+  running parallel-safe ready actions up to a caller supplied concurrency limit
+  while preserving serial-only actions and leaving blocked tasks untouched for
+  UI/scheduler visibility.
 - `shootflow.render_scheduler` ties the dry-run render pieces into an iterative
   local orchestration loop: it reloads trusted status each pass, optionally
   persists stale lease expirations, plans dependency-ready actions, runs bounded
@@ -83,10 +86,7 @@ This repo currently contains the first testable core utilities:
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
   different files, and leaves render-status/report creation to the normal CLI
-  commands so existing progress is not reset. `shootflow.cli` exposes this as
-  `python -m shootflow.cli create-demo-workspace` so Mac UI shells, GTM demos,
-  and continuation agents can create the handoff without importing Python
-  internals.
+  commands so existing progress is not reset.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -96,9 +96,8 @@ This repo currently contains the first testable core utilities:
 - `shootflow.storage_discovery` is the first native-app-facing discovery
   bridge: it scans reviewed mounted-volume roots such as macOS `/Volumes`,
   skips symlinks/files/inaccessible entries, turns immediate volume directories
-  into `StorageCandidate` records, accepts optional native volume metadata
-  overrides from a Mac shell (display name, removable/read-only state, and
-  capacity), and can feed the same capacity-gated route recommendation contract.
+  into `StorageCandidate` records, and can feed the same capacity-gated route
+  recommendation contract.
 - `shootflow.macos_volume_metadata` is the richer native metadata bridge for a
   future Swift/Disk Arbitration shell. It accepts typed macOS volume facts,
   skips system, network, missing, file-backed, and symlinked mounts, maps
@@ -124,8 +123,11 @@ This repo currently contains the first testable core utilities:
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
-  shells and GTM demos.
-- `shootflow.cli` now also exposes `write-render-tasks`, a post-storyline
+  shells and GTM demos. Its CLI JSON includes an `agent_handoff` block so
+  native shells and launch agents can distinguish blocked routing,
+  review-required previews, and post-ingest production-plan review without
+  parsing prose notes.
+- `shootflow.cli` also exposes `write-render-tasks`, a post-storyline
   handoff that rebuilds the manifest-backed production plan, verifies trusted
   storyline selections and graded artifacts through `shootflow.assembly`, then
   creates or reuses `deliverables/render_tasks.json` without rendering media or
@@ -188,9 +190,10 @@ The intended first workflow is:
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`, reporting
     same-attempt heartbeat refreshes as conflicts instead of clobbering them.
-16. Exercise adapter orchestration with the dry-run renderer before introducing
-    ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
-    adapter consumes only worker actions, refuses symlinked or different
+16. Exercise adapter orchestration with the registered dry-run renderer before
+    introducing ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends.
+    The adapter dispatch path refuses unsupported renderer names before any task
+    claim; the adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
 17. Use the dry-run batch scheduler to execute dependency-ready actions at a
     bounded local concurrency level, record stale-action failures without
@@ -213,19 +216,22 @@ The intended first workflow is:
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-22. Use `python -m shootflow.cli card-dump-workflow` as the first complete
-    native-shell handoff from detected volumes to previewed ingest, and only
-    with `--confirm-ingest`, verified copy plus a read-only production summary.
-23. Use `python -m shootflow.cli create-demo-workspace` or
-    `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to build
-    a safe, repeatable persisted-manifest smoke workspace for Mac UI shells, GTM
-    demos, and continuation agents without touching source media or resetting
-    render progress.
-24. Inspect persisted render workspace state with
+22. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
-    blocked/retryable work, or review finished deliverables without writing files.
-25. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+    blocked/retryable work, or review finished deliverables without writing
+    files. Succeeded render outputs must still be present and match their
+    recorded SHA-256 checksums before inspection reports the workspace complete.
+23. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+    native-shell handoff from detected volumes to previewed ingest, and only
+    with `--confirm-ingest`, verified copy plus a read-only production summary.
+    The report includes machine-readable `agent_handoff` fields for the next
+    safe step and whether that step requires human review or may copy bytes.
+24. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
+    GTM demos, and continuation agents without touching source media or resetting
+    render progress.
+24. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -250,10 +256,7 @@ PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <di
 
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
-matches the trusted render-task plan. The inspection command writes nothing; it
-fails closed if an existing status or scheduler report no longer matches the
-trusted render-task plan, and it marks succeeded tasks for review if their
-declared deliverable files are no longer present.
+matches the trusted render-task plan.
 The index command writes only `shootflow_workspace_index.json`, summarizing
 validated artifacts and explicitly marking unvalidated storyline JSON as
 non-authoritative. It also embeds the same read-only next safe action exposed by
@@ -263,46 +266,16 @@ trusted render-task handoff exists, both workspace health and the index include 
 metadata-only `render_inputs_fingerprint` plus `render_input_count` over the
 current storyline/graded inputs, giving future agents a cheap way to detect
 in-place input changes between snapshots without changing renderer authority.
-
-The CLI demo workspace flow is:
-
-```bash
-PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace \
-  --workspace /tmp/shootflow-demo \
-  --shoot-slug cli-demo-shoot
-
-PYTHONPATH=src python3 -m shootflow.cli init-render-status \
-  --workspace /tmp/shootflow-demo
-
-PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler \
-  --workspace /tmp/shootflow-demo \
-  --completed-dependency rank_instagram_storylines \
-  --completed-dependency grade_asset_00000 \
-  --completed-dependency grade_asset_00001 \
-  --completed-dependency grade_asset_00002 \
-  --completed-dependency grade_asset_00003 \
-  --renderer dry-run-local \
-  --started-at 2026-05-09T05:30:00Z \
-  --completed-at 2026-05-09T05:30:05Z \
-  --generated-at 2026-05-09T05:30:06Z \
-  --max-concurrency 3 \
-  --max-iterations 4 \
-  --print-report
-```
-
-The demo command prints schema-versioned JSON with the render-task manifest
-path, required completed dependency IDs, expected deliverable output paths,
-safety notes, and next-step hints. It creates only placeholder analysis/graded
-inputs plus `deliverables/render_tasks.json`; status, scheduler reports,
-deliverable outputs, source media, and ingest manifests are still created only
-by their normal commands.
+The inspection command writes nothing; it fails closed if an existing status or
+scheduler report no longer matches the trusted render-task plan, and it marks
+succeeded tasks for review if their declared deliverable files are missing,
+symlinked, or checksum-mismatched.
 
 The import-route planning flow is:
 
 ```bash
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route \
   --volume-root /Volumes \
-  --volume-metadata-json /tmp/shootflow-volume-metadata.json \
   --estimate-source-bytes \
   --headroom-bytes 34359738368 \
   --print-candidates
@@ -311,9 +284,6 @@ PYTHONPATH=src python3 -m shootflow.cli plan-import-route \
 This command performs mounted-volume discovery and emits a review-required JSON
 recommendation for source/destination routing. It can estimate media bytes from
 the discovered source and apply a destination capacity gate before ingest.
-`--volume-metadata-json` is optional; future native Mac shells can use it to pass
-Disk Arbitration-style facts into the same conservative routing contract instead
-of relying only on portable filesystem scans.
 It does not copy files, delete source media, or grant destructive authority.
 
 The unified card-dump workflow for a Mac app shell or demo is:
@@ -322,7 +292,6 @@ The unified card-dump workflow for a Mac app shell or demo is:
 # Preview detected route + checksum copy plan. No bytes are copied.
 PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
   --volume-root /Volumes \
-  --volume-metadata-json /tmp/shootflow-volume-metadata.json \
   --shoot-date 2026-05-08 \
   --shoot-slug desert-editorial \
   --destination-subfolder ShootFlow
@@ -330,7 +299,6 @@ PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
 # Execute the same reviewed route and then print the read-only production summary.
 PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
   --volume-root /Volumes \
-  --volume-metadata-json /tmp/shootflow-volume-metadata.json \
   --shoot-date 2026-05-08 \
   --shoot-slug desert-editorial \
   --destination-subfolder ShootFlow \
@@ -341,10 +309,13 @@ Without `--confirm-ingest`, this command only discovers, estimates, and previews
 the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
-planning from that manifest. Confirmed card-dump reports also include
+planning from that manifest. Confirmed card-dump reports include
 machine-readable `next_actions` for preparing trusted storyline/graded artifacts
 and invoking `write-render-tasks`, so native shells do not need to infer the
-next safe handoff from nested paths.
+next safe handoff from nested paths. The report also includes an `agent_handoff`
+block: the machine-readable launch-agent/UI contract (`fix_route` for blocked
+discovery, `review_preview` before any confirmed copy, `review_production_plan`
+after a verified ingest).
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 

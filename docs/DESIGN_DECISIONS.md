@@ -37,8 +37,7 @@ The repo currently contains a Python core package because it is quick to test an
   go through the checksum manifest importer.
 - `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
-  can apply native Mac volume metadata overrides for display name, removable/read-only state, and capacity.
-  It still produces conservative `StorageCandidate` records before handing off to the existing reviewed route
+  produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
 - `shootflow.macos_volume_metadata`: native metadata handoff for a future Swift/Disk Arbitration shell. It
   accepts typed volume facts, validates capacity and boolean flags, skips system/network/missing/file-backed
@@ -95,11 +94,14 @@ The repo currently contains a Python core package because it is quick to test an
   consumes a single trusted `RenderWorkerAction`, persists a claim through `compare_and_write_render_task_status(...)`,
   materializes only the action's declared `deliverables/` outputs as non-overwriting placeholder files, reports
   success checksums or retryable errors, and persists the final status through the same compare/write boundary.
-  It also includes a dry-run batch scheduler for a trusted `RenderWorkerActionPlan`: serial-only actions run
-  alone, parallel-safe actions run in ordered groups up to a caller-provided concurrency limit, blocked tasks
-  remain visible and untouched, action fields are rebound to the trusted `AssemblyPlan` before any output is
-  materialized, and stale scheduler-level action failures are reported without materializing outputs. It
-  intentionally does not open source or graded inputs, delete files, or implement real media rendering.
+  The public dispatch path runs only registered adapters (`dry-run-local` today), so a future ffmpeg/Core
+  Image/Metal/DaVinci/cloud backend must be added deliberately behind the same action-plan interface before
+  the scheduler can claim work for it. It also includes a dry-run batch scheduler for a trusted
+  `RenderWorkerActionPlan`: serial-only actions run alone, parallel-safe actions run in ordered groups up to a
+  caller-provided concurrency limit, blocked tasks remain visible and untouched, action fields are rebound to
+  the trusted `AssemblyPlan` before any output is materialized, and stale scheduler-level action failures are
+  reported without materializing outputs. It intentionally does not open source or graded inputs, delete files,
+  or implement real media rendering.
 - `shootflow.render_scheduler`: a local dry-run orchestration loop above the adapter boundary. It reloads the
   trusted status manifest on every pass, optionally plans and persists stale-running lease expirations through the
   guarded lease helper, plans dependency-ready actions, runs bounded dry-run batches, and stops with explicit
@@ -141,17 +143,15 @@ The repo currently contains a Python core package because it is quick to test an
   IDs while keeping runtime timestamps and renderer choices explicit instead of
   baking them into the manifest.
   The inspection command reads those same handoffs and emits the current product state without initializing,
-  scheduling, retrying, deleting, or materializing outputs. None of these commands accept model-authored paths,
-  delete files, or widen renderer authority beyond the persisted render-task/status contracts.
+  scheduling, retrying, deleting, or materializing outputs.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
   Confirmed reports expose advisory `next_actions` for trusted storyline/graded
   preparation and render-task writing so native shells can guide the user without
-  expanding file authority.
-  Both the route-planning and card-dump commands can consume strict native volume
-  metadata JSON so a Swift/Menu Bar shell can pass Disk Arbitration facts without
-  widening copy, delete, or render authority.
+  expanding file authority. The JSON also includes an `agent_handoff` block so
+  launch agents and native shells can branch on route repair, preview review, or
+  production-plan review without interpreting prose notes.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
@@ -168,10 +168,7 @@ The repo currently contains a Python core package because it is quick to test an
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
-  contract as the product. The `create-demo-workspace` CLI command exposes this
-  helper as schema-versioned JSON for Mac UI shells, launch-agent smoke tests,
-  GTM demos, and continuation agents without granting new renderer or deletion
-  authority.
+  contract as the product.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -197,8 +194,8 @@ The desired high-quality pipeline is:
     overwrite newer claims or results.
 14. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
     transition through the same single-task compare/write boundary.
-15. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
-    rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
+15. Run adapter orchestration against a registered dry-run renderer that proves claim/result persistence and
+    output-safety rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
 16. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
     progress while serial reels and blocked tasks stay deterministic and inspectable.
 17. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
@@ -215,18 +212,20 @@ The desired high-quality pipeline is:
 21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-22. Keep a small persisted-manifest demo workspace helper and
-    `create-demo-workspace` CLI command available so Mac UI shells, launch-agent
-    smoke tests, GTM demos, and continuation agents can exercise the
-    init-to-report flow without constructing trusted render tasks by hand.
-23. Build a workspace index after ingest, scheduling, or retries so UI and
+    Keep the next orchestration step machine-readable (`agent_handoff` block)
+    so background agents can remain conservative around human review and copy
+    authority.
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
+    shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
+    flow without constructing trusted render tasks by hand.
+22. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-24. Compare metadata-only render input fingerprints across health/index snapshots
+23. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.
-25. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-26. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+24. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+25. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -262,6 +261,15 @@ High quality depends on scene-level consistency and reversible edits. The system
   emits `AssetAnalysis` records that point at graded artifacts rather than originals.
 - Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
   originals, which keeps social assembly downstream of the color pipeline.
+- `shootflow.production_handoff` is the read-only bridge between plan review and
+  actual proxy/VLM/color/story workers. It reloads the verified ingest manifest,
+  rebuilds the deterministic production plan, canonicalizes caller-reported
+  completed job IDs into plan order, rejects unknown IDs, duplicates, and
+  completed jobs whose dependencies are not also complete, then returns the next
+  ready wave. It deliberately writes no analysis, graded, render-task, status,
+  scheduler-report, or deliverable files; a future production-status manifest
+  should replace caller-reported completions before real worker retries become
+  automatic.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -350,6 +358,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
   state, not a renderer authority: renderers still consume trusted render tasks and status manifests.
+- `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
+  now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
+  routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
+  It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -497,3 +509,18 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   demos must still call `init-render-status` and `dry-run-render-scheduler` to
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
+
+### Decision: card-dump reports expose machine-readable agent handoff state
+
+- **Status:** accepted
+- **Rationale:** The future Mac app, menu-bar agent, and cron-style automations
+  should not infer copy authority or review state from human-readable notes.
+  The route -> preview -> confirmed ingest flow is especially sensitive because
+  a wrong branch can move large media payloads before the operator reviews the
+  destination.
+- **Consequence:** `card-dump-workflow` success JSON includes `agent_handoff`
+  with a stable `next_step`, `human_review_required`, `safe_to_rerun`,
+  `next_step_may_copy_bytes`, and `requires_confirm_ingest`. The values remain
+  conservative: blocked routes require review, preview completion points at
+  human review before a copy-capable confirmed run, and post-ingest reports
+  point at production-plan review rather than downstream AI writes.

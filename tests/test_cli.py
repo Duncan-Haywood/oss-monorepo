@@ -1,3 +1,4 @@
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -397,6 +398,186 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(report["materialized_outputs"], [])
         self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
         self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
+
+    def test_inspect_render_workspace_requires_succeeded_outputs_to_match_checksums(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(b"mutated-render-output")
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256="0" * 64,
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "needs_review")
+        self.assertEqual(report["materialized_outputs"], ["deliverables/instagram_reel.mp4"])
+        self.assertEqual(report["checksum_mismatch_task_ids"], ["render_instagram_reel"])
+        self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
+        self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
+
+    def test_inspect_render_workspace_rejects_symlinked_output_parent(self) -> None:
+        trusted_plan = AssemblyPlan(
+            shoot_slug="cli-scheduler",
+            render_tasks=(
+                RenderTask(
+                    task_id="render_instagram_reel_variant_hero",
+                    sequence_name="reel",
+                    source_job_id="assemble_instagram_reel",
+                    output_kind="instagram_reel",
+                    aspect_ratio="9:16",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00000/A001.MOV",
+                    ),
+                    outputs=("deliverables/instagram_reels/hero.mp4",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00000"),
+                    can_run_in_parallel=False,
+                ),
+            ),
+        )
+        output_bytes = b"outside-render-output"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside"
+            outside_output_dir = outside / "instagram_reels"
+            outside_output_path = outside_output_dir / "hero.mp4"
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            outside_output_dir.mkdir(parents=True)
+            outside_output_path.write_bytes(output_bytes)
+            (workspace / "deliverables" / "instagram_reels").symlink_to(
+                outside_output_dir,
+                target_is_directory=True,
+            )
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel_variant_hero",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reels/hero.mp4",
+                                    sha256=hashlib.sha256(output_bytes).hexdigest(),
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("symlink", stderr.getvalue())
+
+    def test_inspect_render_workspace_rejects_symlinked_output_file(self) -> None:
+        trusted_plan = self._single_task_plan()
+        output_bytes = b"outside-render-output"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside"
+            outside_output_path = outside / "instagram_reel.mp4"
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            outside.mkdir()
+            outside_output_path.write_bytes(output_bytes)
+            (workspace / "deliverables" / "instagram_reel.mp4").symlink_to(outside_output_path)
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256=hashlib.sha256(output_bytes).hexdigest(),
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("symlink", stderr.getvalue())
 
     def test_inspect_render_workspace_flags_completed_report_after_output_removal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1360,6 +1541,115 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             self.assertFalse((shoot_folder / "graded").exists())
             self.assertFalse((shoot_folder / "deliverables").exists())
 
+    def test_next_production_wave_command_reports_ready_wave_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+            clip = card / "PRIVATE" / "A001.MOV"
+            raw.parent.mkdir(parents=True)
+            clip.parent.mkdir(parents=True)
+            raw.write_bytes(b"raw-bytes")
+            clip.write_bytes(b"video-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "next-wave",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_next-wave"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "proxy_asset_00001",
+                    "--completed-job",
+                    "proxy_asset_00000",
+                ],
+                stdout=stdout,
+            )
+
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "ready")
+            self.assertEqual(report["wave_index"], 1)
+            self.assertEqual(report["manifest_path"], str(manifest_path))
+            self.assertEqual(report["workspace"], str(shoot_folder))
+            self.assertEqual(report["completed_job_ids"], ["proxy_asset_00000", "proxy_asset_00001"])
+            self.assertEqual(
+                [job["job_id"] for job in report["jobs"]],
+                ["analyze_asset_00000", "analyze_asset_00001"],
+            )
+            self.assertIn("read-only production wave handoff", report["notes"])
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
+    def test_next_production_wave_command_rejects_unknown_completed_job_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            photo = card / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "unknown-completed",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_unknown-completed"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "missing-job",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unknown production job", stderr.getvalue())
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
 
 class ShootFlowRenderTaskCliTests(unittest.TestCase):
     def test_write_render_tasks_command_persists_trusted_assembly_handoff(self) -> None:
@@ -1893,6 +2183,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     }
                 ],
             )
+            self.assertEqual(
+                report["agent_handoff"],
+                {
+                    "next_step": "review_preview",
+                    "human_review_required": True,
+                    "safe_to_rerun": True,
+                    "next_step_may_copy_bytes": True,
+                    "requires_confirm_ingest": True,
+                },
+            )
             self.assertFalse(shoot_folder.exists())
             self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
             self.assertFalse((shoot_folder / "originals").exists())
@@ -1974,6 +2274,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     },
                 ],
             )
+            self.assertEqual(
+                report["agent_handoff"],
+                {
+                    "next_step": "review_production_plan",
+                    "human_review_required": True,
+                    "safe_to_rerun": True,
+                    "next_step_may_copy_bytes": False,
+                    "requires_confirm_ingest": False,
+                },
+            )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
@@ -2008,6 +2318,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
         self.assertIsNone(report["route"]["destination"])
         self.assertIsNone(report["preview"])
         self.assertIsNone(report["production_report"])
+        self.assertEqual(
+            report["agent_handoff"],
+            {
+                "next_step": "fix_route",
+                "human_review_required": True,
+                "safe_to_rerun": True,
+                "next_step_may_copy_bytes": False,
+                "requires_confirm_ingest": False,
+            },
+        )
         self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
         self.assertEqual(report["next_actions"], [])
 

@@ -118,6 +118,22 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added advisory native volume metadata hints for Swift/native shell integration:
+  - `shootflow.storage_discovery.VolumeDiscoveryHint` lets a future Swift/Disk
+    Arbitration or iPhone shell pass display names, removable status, and
+    read-only status keyed by discovered volume path;
+  - `discover_storage_candidates(..., volume_hints=...)` applies those hints only
+    after a path is discovered under a reviewed volume root and still skips
+    symlinks, files, inaccessible entries, and paths without filesystem stats;
+  - read-only hints are conservative: `is_read_only=True` can prevent automatic
+    destination selection, but `is_read_only=False` cannot override a failed
+    filesystem writability check;
+  - `discover_import_route(..., volume_hints=...)` carries the same metadata
+    into source/destination ranking and capacity-gated route recommendation;
+  - `run_card_dump_workflow(..., volume_hints=...)` carries the hint map through
+    both the initial route pass and the source-size capacity-gated second pass,
+    giving native shells one API for detected-volume metadata through the
+    full card-dump workflow.
 - Added a native macOS metadata adapter for future Swift/Disk Arbitration
   integration:
   - `shootflow.macos_volume_metadata.MacOSVolumeMetadata` captures typed native
@@ -200,19 +216,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   missing `workspace-health --workspace` paths instead of emitting misleading
   next actions, and removed new source lint regressions in render-task manifest
   creation.
-- Added native-volume metadata overrides for Mac-shell route discovery:
-  - `shootflow.storage_discovery.DiscoveredVolumeMetadata` lets native callers
-    pass display name, removable/read-only state, and capacity facts for scanned
-    volume paths;
-  - `discover_storage_candidates(...)` and `discover_import_route(...)` apply
-    those overrides before ranking, while preserving symlink skipping, reviewed
-    mount-root scanning, and capacity-gated no-delete route semantics;
-  - `python -m shootflow.cli plan-import-route` and `card-dump-workflow` now
-    accept `--volume-metadata-json`, a strict `{"volumes": [...]}` handoff for a
-    future Swift/Menu Bar shell using Disk Arbitration;
-  - invalid metadata is rejected before route output, and metadata only improves
-    advisory classification. It does not grant copy/delete/format/render
-    authority.
+- Added an explicit renderer-adapter dispatch boundary:
+  - `shootflow.render_adapter.supported_render_adapter_names()` now exposes the
+    registered local adapters, currently only `dry-run-local`;
+  - `shootflow.render_adapter.run_render_adapter_batch(...)` validates a trusted
+    `RenderWorkerActionPlan`, refuses unsupported adapter names before any worker
+    action is claimed, and then dispatches to the registered batch runner;
+  - `shootflow.render_scheduler.run_dry_run_render_scheduler(...)` now validates
+    adapter support before stale-lease expiration, status writes, or output
+    materialization, so syntactically valid future names such as `ffmpeg-local`
+    cannot accidentally run through the dry-run path;
+  - the lower-level public dry-run entry points
+    `run_dry_run_render_batch(...)`, `run_dry_run_render_action(...)`, and
+    `materialize_dry_run_render_outputs(...)` now require `dry-run-local`
+    actions/plans, closing the direct-call bypass found during code review.
+- Added focused tests for registered dry-run dispatch, unsupported adapter
+  rejection without status writes, scheduler-level unsupported adapter rejection,
+  and direct dry-run entrypoint guards.
 - Added a read-only render workspace inspection handoff:
   - `shootflow.render_workspace.inspect_render_workspace(...)` starts from the
     strict persisted `deliverables/render_tasks.json` manifest, treats a missing
@@ -224,56 +244,47 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     Mac UI, launch agent, or continuation agent;
   - stale or conflicting scheduler reports fail closed instead of becoming UI
     truth; symlinked output paths are refused, and succeeded tasks whose
-    declared deliverables are missing are surfaced for render-output review.
+    declared deliverables are missing or whose bytes no longer match their
+    recorded SHA-256 checksums are surfaced for render-output review.
 - Added CLI tests covering missing-status inspection with no side effects,
   completed demo-workspace inspection after scheduler execution, stale
-  scheduler-report rejection, and missing succeeded-output review states.
-- Updated README and strategy/design/business docs to place inspection between
-  persisted render-task creation, status initialization, scheduling, retry
-  review, and deliverable review.
-- Added the public persisted-render demo CLI handoff:
-  - `python -m shootflow.cli create-demo-workspace --workspace <dir>` wraps
-    `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)`;
-  - the command prints schema-versioned JSON with the workspace path,
-    `deliverables/render_tasks.json` path, shoot slug, render task count,
-    required completed dependency IDs, expected output paths, safety notes, and
-    next-step hints;
-  - the command creates only deterministic placeholder analysis/graded inputs
-    plus the trusted render-task manifest, leaving render status, scheduler
-    reports, deliverable outputs, source media, and ingest manifests to their
-    normal commands;
-  - conflict failures use the existing `shootflow: <message>` stderr pattern and
-    preserve user-owned files without creating `render_tasks.json`.
-- Added CLI tests covering the public JSON handoff, a CLI-only
-  `create-demo-workspace -> init-render-status -> dry-run-render-scheduler`
-  smoke flow, and conflict rejection without overwrite side effects.
-- Updated README/product/business/design docs and added a focused design note at
-  `docs/superpowers/specs/2026-05-09-cli-demo-workspace-command-design.md`.
-- Branch reconciliation notes:
-  - merged `origin/cursor/ai-media-operating-system-9806` as the strongest
-    workspace-index/health line; it subsumes earlier workspace-health and native
-    macOS metadata adapter work;
-  - merged `origin/cursor/ai-media-operating-system-4bed` for the latest native
-    volume metadata override contract on portable discovery, `plan-import-route`,
-    and `card-dump-workflow`;
-  - merged `origin/cursor/autonomous-media-studio-4741` for the safer
-    render-workspace inspection line, including missing-output review detection;
-  - merged `origin/cursor/ai-media-operating-system-255f` for the public
-    `create-demo-workspace` command and unsafe manifest preflight;
-  - left the remaining macOS adapter/native-volume branches unmerged because
-    their useful capability is represented by the merged 9806/4bed combination;
-  - left older demo/inspection branches unmerged because they are superseded by
-    255f and 4741;
-  - left `origin/cursor/ai-media-operating-system-c1c0`,
-    `origin/cursor/ai-media-operating-system-d7a4`, and
-    `origin/cursor/autonomous-media-studio-aaae` for a future targeted pass if
-    the team wants a single card-dump-to-scheduler fixture, additional
-    card-workflow next-action shaping, or a simpler workspace-state facade beyond
-    the current health/index/inspection surfaces.
-- Review follow-up fixed the merged native metadata CLI boundary: partial
-  `--volume-metadata-json` capacity overrides that conflict with filesystem
-  totals now return the normal `shootflow: candidate free_bytes cannot exceed
-  total_bytes` error path instead of surfacing a raw traceback.
+  scheduler-report rejection, missing succeeded-output review states, and
+  checksum-mismatched output review states.
+- Added machine-readable agent handoff state to `card-dump-workflow` success
+  JSON:
+  - each blocked, preview-ready, and ingest-complete response now includes an
+    `agent_handoff` object with `next_step`, `human_review_required`,
+    `safe_to_rerun`, `next_step_may_copy_bytes`, and `requires_confirm_ingest`;
+  - blocked discovery reports `fix_route`, preview-only reports `review_preview`
+    and marks the next confirmed step as copy-capable, and completed ingest
+    reports `review_production_plan`;
+  - this keeps Mac shells, launch agents, and continuation automations from
+    parsing prose safety notes to decide whether a human must review or whether
+    a next step can move bytes.
+- Extended card-dump CLI tests to pin the handoff contract across blocked,
+  preview-only, and confirmed-ingest states.
+- Branch reconciliation notes for this cron run:
+  - remote `main` advanced during the session and already integrated the
+    workspace health/index line, adapter-dispatch registry, render-workspace
+    inspection, card-dump agent handoff, native `VolumeDiscoveryHint` routing,
+    and next-production-wave handoff;
+  - the active branch was rebased by merge onto that advanced `origin/main`
+    rather than pushing over it;
+  - retained the public `create-demo-workspace` CLI handoff from
+    `origin/cursor/ai-media-operating-system-255f` because `main` still lacked a
+    direct native-shell command for creating the trusted persisted demo workspace;
+  - retained strict `--volume-metadata-json` parsing on `plan-import-route` and
+    `card-dump-workflow`, mapped onto the current `VolumeDiscoveryHint` contract,
+    because it gives Swift/Menu Bar shells one file-based handoff for display
+    name, capacity, removable, and read-only facts without granting copy/delete
+    authority;
+  - added `StorageDiscoveryError` so inconsistent native capacity overrides,
+    including partial `free_bytes` overrides that exceed the filesystem total,
+    return the normal `shootflow: ...` CLI error path instead of surfacing a raw
+    traceback;
+  - left older duplicate macOS/metadata/demo/workspace-state branches unmerged
+    unless their exact capability is not represented by advanced `main` plus this
+    branch's demo and metadata-JSON additions.
 
 ## Previous iteration
 
@@ -776,18 +787,18 @@ action through a deterministic dry-run adapter, execute trusted ready-action bat
 concurrency, persist planned stale lease expirations with heartbeat-conflict reporting, drive those pieces
 through an iterative dry-run scheduler loop, persist a strict UI/agent scheduler report, initialize missing
 render-status manifests from persisted render tasks without resetting progress, invoke that handoff from
-persisted-manifest CLI commands, discover mounted-volume candidates for reviewed import routing, and enrich
-those candidates with strict native volume metadata. The next useful layer is either a Swift/Menu Bar approval
-shell around `card-dump-workflow`, a real renderer temp-output contract, stronger distributed lease
-persistence, or a small example/smoke fixture for the init-to-report CLI flow.
+persisted-manifest CLI commands, and discover mounted-volume candidates for reviewed import routing. The next
+useful layer is either richer native macOS volume metadata, a real renderer temp-output contract, stronger
+distributed lease persistence, or a small example/smoke fixture for the init-to-report CLI flow.
 
 Good test-first targets:
 
-- Bind the native-volume metadata JSON contract to a Swift/Menu Bar approval shell
-  that shows source, destination, capacity gate, no-delete notes, and previewed
-  checksums before `--confirm-ingest`.
-- Add real renderer temp-output contracts that replace dry-run placeholder bytes with ffmpeg/Core Image/Metal
-  outputs while keeping the same no-overwrite/no-delete status boundary.
+- Add a native macOS metadata adapter (or a pure testable abstraction for it) that can mark internal disks,
+  removable cards, read-only volumes, and external SSDs more accurately than the portable mount-root scanner.
+- Add a real `ffmpeg-local` or Core Image/Metal adapter behind
+  `run_render_adapter_batch(...)`, including temp-output contracts that replace
+  dry-run placeholder bytes while keeping the same no-overwrite/no-delete status
+  boundary.
 - Add a CLI smoke fixture or example workspace that demonstrates persisted render-task input files, safe
   `init-render-status` bootstrapping, and the printed `render_scheduler_report.json` output a future Mac UI should
   consume.
