@@ -408,6 +408,8 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             },
         )
         self.assertEqual(loaded_report.product_metrics["completed_job_count"], len(trusted_plan.jobs))
+        with self.assertRaises(TypeError):
+            loaded_report.product_metrics["completed_job_count"] = 0
 
     def test_scheduler_report_rejects_forged_product_metrics(self) -> None:
         trusted_plan = self._video_only_plan()
@@ -443,6 +445,79 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                     trusted_plan=trusted_plan,
                     final_manifest=final_manifest,
                 )
+
+    def test_scheduler_report_rejects_duplicate_metric_source_ids(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:40Z",
+                completed_at="2026-05-09T17:00:45Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:46Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["completed_job_ids"].append("proxy_asset_00000")
+            raw_report["product_metrics"]["completed_job_count"] = len(trusted_plan.jobs) + 1
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunProductionSchedulerError, "duplicate"):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
+    def test_schema_v1_scheduler_report_loads_with_derived_metrics(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:50Z",
+                completed_at="2026-05-09T17:00:55Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:56Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["schema_version"] = 1
+            del raw_report["product_metrics"]
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], len(trusted_plan.jobs))
 
     def test_scheduler_report_rejects_final_status_drift(self) -> None:
         trusted_plan = self._video_only_plan()
