@@ -7,6 +7,7 @@ import unittest
 
 from shootflow.cli import main
 from shootflow.pilot_cohort_brief import (
+    PilotCohortBriefError,
     build_pilot_cohort_brief_from_report_path,
     pilot_cohort_brief_to_dict,
 )
@@ -103,6 +104,60 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["headline"], "All 2 metrics-available workspaces are pilot-ready")
         self.assertNotIn("command", json.dumps(payload, sort_keys=True))
 
+    def test_brief_rejects_forged_ready_report_with_no_metrics_available(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=0,
+                ready_for_review=False,
+                unavailable_count=2,
+                ready_rate=None,
+                intervention_rate=None,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["cohort"]["ready_for_pilot_review"] = True
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaises(PilotCohortBriefError):
+                build_pilot_cohort_brief_from_report_path(report_path)
+
+    def test_brief_rejects_inconsistent_aggregate_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["cohort"]["dashboard_count"] = 99
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaises(PilotCohortBriefError):
+                build_pilot_cohort_brief_from_report_path(report_path)
+
+    def test_brief_rejects_aggregate_counts_that_disagree_with_workspace_cards(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["workspaces"][0]["metrics_available"] = False
+            payload["workspaces"][0]["ready_for_pilot_review"] = False
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaises(PilotCohortBriefError):
+                build_pilot_cohort_brief_from_report_path(report_path)
+
     def _write_cohort_report(
         self,
         root: Path,
@@ -133,10 +188,26 @@ class PilotCohortBriefTests(unittest.TestCase):
                 "shoot_slug": "review-shoot",
                 "metrics_available": unavailable_count == 0,
                 "ready_for_pilot_review": ready_count > 1,
-                "completion_rate_basis_points": 7500 if unavailable_count == 0 else None,
-                "intervention_rate_basis_points": 2500 if unavailable_count == 0 else None,
+                "completion_rate_basis_points": (
+                    10000
+                    if ready_count > 1 and unavailable_count == 0
+                    else 7500
+                    if unavailable_count == 0
+                    else None
+                ),
+                "intervention_rate_basis_points": (
+                    0
+                    if ready_count > 1 and unavailable_count == 0
+                    else 2500
+                    if unavailable_count == 0
+                    else None
+                ),
                 "materialized_output_count": 1 if unavailable_count == 0 else None,
-                "threshold_notes": ["completion rate is below the pilot acceptance threshold"],
+                "threshold_notes": (
+                    ["trusted dashboard metrics meet the default pilot acceptance thresholds"]
+                    if ready_count > 1 and unavailable_count == 0
+                    else ["completion rate is below the pilot acceptance threshold"]
+                ),
             },
         ]
         payload = {

@@ -57,8 +57,14 @@ def build_pilot_cohort_brief_from_report_path(cohort_report_path: Path | str) ->
     payload = _load_report_payload(path)
     cohort = _required_mapping(payload, "cohort", path)
     workspaces = _required_sequence(payload, "workspaces", path)
-    source_generated_at = _required_string(payload, "generated_at", path)
+    source_generated_at = _required_timestamp(payload, "generated_at", path)
     summary = _brief_summary_from_cohort(cohort, path=path)
+    _validate_saved_report_consistency(
+        cohort=cohort,
+        workspaces=workspaces,
+        summary=summary,
+        path=path,
+    )
     workspace_cards = tuple(
         _workspace_card_from_payload(workspace, path=path) for workspace in workspaces
     )
@@ -186,6 +192,125 @@ def _brief_summary_from_cohort(
     )
 
 
+def _validate_saved_report_consistency(
+    *,
+    cohort: Mapping[str, object],
+    workspaces: Sequence[object],
+    summary: PilotCohortBriefSummary,
+    path: Path,
+) -> None:
+    if summary.dashboard_count != len(workspaces):
+        raise PilotCohortBriefError("cohort dashboard_count must match workspace count")
+    if (
+        summary.metrics_available_dashboard_count
+        + summary.metrics_unavailable_dashboard_count
+        != summary.dashboard_count
+    ):
+        raise PilotCohortBriefError("cohort available and unavailable counts must match dashboard count")
+    if summary.pilot_ready_workspace_count > summary.metrics_available_dashboard_count:
+        raise PilotCohortBriefError("cohort ready count cannot exceed metrics-available count")
+    workspace_metrics = _workspace_consistency_metrics(workspaces, path=path)
+    if workspace_metrics["metrics_available_count"] != summary.metrics_available_dashboard_count:
+        raise PilotCohortBriefError("cohort metrics-available count disagrees with workspace evidence")
+    if workspace_metrics["metrics_unavailable_count"] != summary.metrics_unavailable_dashboard_count:
+        raise PilotCohortBriefError("cohort metrics-unavailable count disagrees with workspace evidence")
+    if workspace_metrics["ready_count"] != summary.pilot_ready_workspace_count:
+        raise PilotCohortBriefError("cohort ready count disagrees with workspace evidence")
+    if workspace_metrics["output_count"] != summary.first_draft_output_count:
+        raise PilotCohortBriefError("cohort output count disagrees with workspace evidence")
+    expected_ready_rate = _ready_rate_basis_points(
+        ready_count=summary.pilot_ready_workspace_count,
+        metrics_available_count=summary.metrics_available_dashboard_count,
+    )
+    declared_ready_rate = _optional_basis_points(
+        cohort,
+        "pilot_ready_workspace_rate_basis_points",
+        path,
+    )
+    if declared_ready_rate != expected_ready_rate:
+        raise PilotCohortBriefError("cohort ready rate disagrees with workspace evidence")
+    expected_intervention_median = _median_basis_points(
+        workspace_metrics["intervention_rates"]
+    )
+    declared_intervention_median = _optional_basis_points(
+        cohort,
+        "median_intervention_rate_basis_points",
+        path,
+    )
+    if declared_intervention_median != expected_intervention_median:
+        raise PilotCohortBriefError("cohort intervention median disagrees with workspace evidence")
+    expected_cohort_ready = (
+        summary.metrics_available_dashboard_count > 0
+        and summary.metrics_unavailable_dashboard_count == 0
+        and summary.pilot_ready_workspace_count == summary.metrics_available_dashboard_count
+    )
+    if summary.ready_for_pilot_review != expected_cohort_ready:
+        raise PilotCohortBriefError("cohort ready_for_pilot_review disagrees with workspace evidence")
+
+
+def _workspace_consistency_metrics(
+    workspaces: Sequence[object],
+    *,
+    path: Path,
+) -> dict[str, object]:
+    available_count = 0
+    unavailable_count = 0
+    ready_count = 0
+    output_count = 0
+    intervention_rates: list[int] = []
+    for workspace in workspaces:
+        if not isinstance(workspace, Mapping):
+            raise PilotCohortBriefError(f"cohort report workspace entries must be objects: {path}")
+        metrics_available = _required_bool(workspace, "metrics_available", path)
+        ready_for_pilot_review = _required_bool(workspace, "ready_for_pilot_review", path)
+        completion_rate = _optional_basis_points(workspace, "completion_rate_basis_points", path)
+        intervention_rate = _optional_basis_points(workspace, "intervention_rate_basis_points", path)
+        materialized_output_count = _optional_non_negative_int(
+            workspace,
+            "materialized_output_count",
+            path,
+        )
+        if metrics_available:
+            if (
+                completion_rate is None
+                or intervention_rate is None
+                or materialized_output_count is None
+            ):
+                raise PilotCohortBriefError("metrics-available workspace evidence must include all metrics")
+            available_count += 1
+            intervention_rates.append(intervention_rate)
+            output_count += materialized_output_count
+            if ready_for_pilot_review:
+                ready_count += 1
+        else:
+            if ready_for_pilot_review:
+                raise PilotCohortBriefError("metrics-unavailable workspaces cannot be pilot-ready")
+            unavailable_count += 1
+    return {
+        "metrics_available_count": available_count,
+        "metrics_unavailable_count": unavailable_count,
+        "ready_count": ready_count,
+        "output_count": output_count,
+        "intervention_rates": tuple(intervention_rates),
+    }
+
+
+def _ready_rate_basis_points(*, ready_count: int, metrics_available_count: int) -> int | None:
+    if metrics_available_count == 0:
+        return None
+    return (ready_count * _BASIS_POINTS) // metrics_available_count
+
+
+def _median_basis_points(values: tuple[int, ...]) -> int | None:
+    if not values:
+        return None
+    sorted_values = sorted(values)
+    middle = len(sorted_values) // 2
+    if len(sorted_values) % 2:
+        return sorted_values[middle]
+    return (sorted_values[middle - 1] + sorted_values[middle]) // 2
+
+
 def _workspace_card_from_payload(
     payload: object,
     *,
@@ -287,6 +412,13 @@ def _required_string(payload: Mapping[str, object], field_name: str, path: Path)
     value = payload.get(field_name)
     if not isinstance(value, str) or not value.strip():
         raise PilotCohortBriefError(f"cohort report {field_name} must be a non-empty string: {path}")
+    return value
+
+
+def _required_timestamp(payload: Mapping[str, object], field_name: str, path: Path) -> str:
+    value = _required_string(payload, field_name, path)
+    if len(value) > 80 or "\x00" in value or "\n" in value or "\r" in value:
+        raise PilotCohortBriefError(f"cohort report {field_name} is invalid: {path}")
     return value
 
 
