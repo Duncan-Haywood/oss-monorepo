@@ -11,6 +11,7 @@ __all__ = [
     "ingest",
     "macos_volume_metadata",
     "production",
+    "production_adapter",
     "production_report",
     "production_status",
     "production_worker",

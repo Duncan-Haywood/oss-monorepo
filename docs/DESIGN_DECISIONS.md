@@ -66,6 +66,15 @@ The repo currently contains a Python core package because it is quick to test an
   dependencies, claims one action as running, verifies declared output files
   before success, and reports retry/failure statuses without deleting source,
   graded, render, or deliverable files.
+- `shootflow.production_adapter`: the first pre-render adapter proof. Its
+  deterministic dry-run adapter consumes a trusted `ProductionWorkerAction`,
+  persists the claim through the single-job production-status compare/write
+  helper, writes only the action's declared file artifacts as non-overwriting
+  placeholder files, then persists success checksums or retryable errors through
+  the same status boundary. Directory-style package outputs become retryable
+  review states instead of files that would block later render directories. It
+  does not open arbitrary media, delete files, clean up user outputs, or grant
+  workers authority beyond the trusted production job.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads
@@ -250,14 +259,18 @@ The desired high-quality pipeline is:
     jobs from trusted status, checksum declared outputs before success, and
     report retry/failure without giving workers file cleanup or deletion
     authority.
-25. Build a workspace index after ingest, scheduling, or retries so UI and
+25. Exercise those helpers through the dry-run production adapter, which
+    materializes only declared placeholder file artifacts and persists success
+    or retryable state through `production_status.json` before real proxy, VLM,
+    color, or storyline runners are trusted.
+26. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-26. Compare metadata-only render input fingerprints across health/index snapshots
+27. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.
-27. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-28. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+28. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+29. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -312,6 +325,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   `compare_and_write_production_job_status(...)`, which checks expected state,
   attempt, and optional `updated_at` lease token while holding the local status
   lock.
+- `shootflow.production_adapter` now proves that persistence path without real
+  media or model execution. The dry-run adapter rebinds each action to the
+  trusted production job before any status mutation, persists a running claim
+  with the observed prior state/attempt/timestamp, writes deterministic
+  placeholder bytes only to declared file output paths, refuses symlinked,
+  directory-style, or existing different outputs, and records retryable errors
+  that explicitly preserve the no-delete/no-cleanup boundary.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

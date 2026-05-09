@@ -62,6 +62,11 @@ Why this wedge wins:
 - Production-worker action/status helpers that plan dependency-ready jobs from
   trusted status, claim a matching attempt, verify declared outputs before
   success, and report retry/failure without cleanup or deletion authority.
+- A deterministic dry-run production adapter that persists claim and result
+  transitions through `production_status.json`, writes only declared placeholder
+  file outputs, and preserves directory-style package outputs or output
+  conflicts as retryable review states before real proxy/VLM/color/story workers
+  are introduced.
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.
@@ -197,9 +202,9 @@ Run practical experiments tied to this ICP-first plan:
    initialization, scheduler report, and reviewable outputs. `index-workspace`
    provides the UI/agent state snapshot and `inspect-render-workspace` provides
    the safe read-only state probe before initialization and after scheduler runs.
-3. Add production-worker transition helpers around `production_status.json` so
-   proxy/VLM/grading/story jobs can claim, succeed, retry, or fail through the
-   same stale-safe pattern already proven on render status.
+3. Add a small production scheduler/batch wrapper over the dry-run production
+   adapter so Mac shells can advance durable pre-render status without
+   reconstructing worker loops in UI code.
 4. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 5. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 6. Instrument key product metrics at scheduler/report boundaries.

@@ -136,7 +136,11 @@ The current core models a concrete promise for high-volume users:
     completion IDs. Production-worker helpers now turn that trusted status into
     claimable job actions, report success only after declared outputs exist and
     checksum, and record retry/failure statuses without granting cleanup,
-    deletion, or arbitrary path authority.
+    deletion, or arbitrary path authority. The dry-run production adapter now
+    exercises that status contract by persisting claims and final success or
+    retryable states through the guarded compare/write path, writing only
+    declared placeholder file outputs, and refusing directory-style package
+    outputs or existing different files without cleanup authority.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -227,8 +231,12 @@ to automate.
    work the same resumable, fingerprint-bound progress boundary as rendering:
    workers can plan dependency-ready jobs, claim a matching attempt, verify
    declared outputs before success, and report retry/failure without deleting or
-   inventing paths. The next-production-wave handoff can derive its completed
-   dependency set directly from that manifest. The workspace index
+   inventing paths. The dry-run production adapter now proves the same
+   claim/materialize/report loop for declared file artifacts such as proxy,
+   analysis, look, graded, and storyline outputs before real local or
+   model-backed workers are wired in.
+   The next-production-wave handoff can derive its completed dependency set
+   directly from that manifest. The workspace index
    gives those shells a single metadata snapshot across ingest, storyline,
    render-task, render-status, and scheduler-report artifacts, while preserving
    each artifact's original trust boundary. The health/index layer includes a

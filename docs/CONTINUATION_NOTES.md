@@ -2,6 +2,38 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 16:00 UTC
+
+This run advanced the pre-render production execution proof point that the
+previous run identified:
+
+- Added `shootflow.production_adapter` with a deterministic
+  `dry-run-production-local` adapter.
+- `run_dry_run_production_action(...)` now consumes only a trusted
+  `ProductionWorkerAction`, rebinds it to the trusted `ProductionPlan`, reloads
+  `production_status.json`, persists a running claim with
+  `compare_and_write_production_job_status(...)`, materializes deterministic
+  placeholder bytes only to the action's declared file output paths, and persists
+  either success checksums or a retryable no-delete error through the same
+  guarded compare/write boundary.
+- The adapter refuses stale claims before output materialization and preserves
+  directory-style package outputs or existing different output files by reporting
+  retryable status rather than overwriting or cleaning up media.
+- Updated README, product strategy, business plan, and design decisions so future
+  sessions treat the dry-run production adapter as implemented infrastructure.
+
+Good next test-first targets:
+
+- Add a bounded production batch/scheduler wrapper that reloads trusted
+  `production_status.json`, plans dependency-ready actions with
+  `plan_production_worker_actions(...)`, executes `dry-run-production-local`, and
+  stops with explicit complete/blocked/retryable/failed/waiting state.
+- Add stale-running production lease planning/persistence, mirroring the render
+  lease contract before allowing concurrent local production workers.
+- Add a CLI command or workspace-health/index extension that surfaces durable
+  production-status progress and dry-run production scheduler outcomes to a Mac
+  shell without mutating render handoffs.
+
 ## Implementation continuation note - 2026-05-09 15:30 UTC
 
 This run advanced the pre-render production execution boundary that the previous
