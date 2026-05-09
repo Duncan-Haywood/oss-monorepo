@@ -18,10 +18,14 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     adapter support before stale-lease expiration, status writes, or output
     materialization, so syntactically valid future names such as `ffmpeg-local`
     cannot accidentally run through the dry-run path.
+  - the lower-level public dry-run entry points
+    `run_dry_run_render_batch(...)`, `run_dry_run_render_action(...)`, and
+    `materialize_dry_run_render_outputs(...)` now require `dry-run-local`
+    actions/plans, closing the direct-call bypass found during code review.
 - Added focused tests for registered dry-run dispatch, unsupported adapter
-  rejection without status writes, and scheduler-level unsupported adapter
-  rejection. Verification: `PYTHONPATH=src python3 -m unittest discover -s tests`
-  -> 169 tests OK.
+  rejection without status writes, scheduler-level unsupported adapter rejection,
+  and direct dry-run entrypoint guards. Verification:
+  `PYTHONPATH=src python3 -m unittest discover -s tests` -> 171 tests OK.
 
 ## Previous iteration
 
