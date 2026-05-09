@@ -92,7 +92,7 @@ from shootflow.workspace_index import (
     write_workspace_index,
 )
 
-_SCHEDULER_REPORT_SCHEMA_VERSION = 1
+_SCHEDULER_REPORT_SCHEMA_VERSION = 2
 
 
 class ShootFlowCliError(ValueError):
@@ -898,6 +898,7 @@ def _dry_run_production_scheduler_summary_json(
         "conflicted_lease_job_ids": list(report.conflicted_lease_job_ids),
         "review_required_job_ids": list(report.review_required_job_ids),
         "outputs_materialized": list(report.outputs_materialized),
+        "product_metrics": dict(report.product_metrics),
         "failure_messages": [
             {"job_id": message.job_id, "message": message.message}
             for message in report.failure_messages
@@ -947,6 +948,7 @@ def _production_scheduler_report_json(report: DryRunProductionSchedulerReport) -
             "conflicted_lease_job_ids": list(report.conflicted_lease_job_ids),
             "review_required_job_ids": list(report.review_required_job_ids),
             "outputs_materialized": list(report.outputs_materialized),
+            "product_metrics": dict(report.product_metrics),
             "failure_messages": [
                 {"job_id": message.job_id, "message": message.message}
                 for message in report.failure_messages
@@ -981,6 +983,7 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
             "conflicted_lease_task_ids": list(report.conflicted_lease_task_ids),
             "review_required_task_ids": list(report.review_required_task_ids),
             "outputs_materialized": list(report.outputs_materialized),
+            "product_metrics": dict(report.product_metrics),
             "failure_messages": [
                 {"task_id": message.task_id, "message": message.message}
                 for message in report.failure_messages

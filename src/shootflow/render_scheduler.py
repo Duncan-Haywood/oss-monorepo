@@ -31,7 +31,8 @@ from shootflow.render_worker import (
 
 _RENDERER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 RENDER_SCHEDULER_REPORT_PATH = "deliverables/render_scheduler_report.json"
-_REPORT_SCHEMA_VERSION = 1
+_REPORT_SCHEMA_VERSION = 2
+_SUPPORTED_REPORT_SCHEMA_VERSIONS = frozenset({1, 2})
 _REPORT_KEYS = frozenset(
     {
         "schema_version",
@@ -53,9 +54,27 @@ _REPORT_KEYS = frozenset(
         "review_required_task_ids",
         "outputs_materialized",
         "failure_messages",
+        "product_metrics",
     }
 )
 _MESSAGE_KEYS = frozenset({"task_id", "message"})
+_PRODUCT_METRIC_NAMES = frozenset(
+    {
+        "total_task_count",
+        "completed_task_count",
+        "retryable_task_count",
+        "failed_task_count",
+        "blocked_task_count",
+        "review_required_task_count",
+        "attempted_task_count",
+        "skipped_retryable_task_count",
+        "expired_lease_task_count",
+        "conflicted_lease_task_count",
+        "materialized_output_count",
+        "failure_message_count",
+        "iteration_count",
+    }
+)
 
 
 class DryRunRenderSchedulerError(ValueError):
@@ -111,6 +130,7 @@ class DryRunRenderSchedulerReport:
     review_required_task_ids: tuple[str, ...]
     outputs_materialized: tuple[str, ...]
     failure_messages: tuple[SchedulerTaskMessage, ...]
+    product_metrics: dict[str, int]
 
 
 def run_dry_run_render_scheduler(
@@ -456,6 +476,19 @@ def _scheduler_report(
     _validate_result(result)
     if result.shoot_slug != trusted_plan.shoot_slug:
         raise DryRunRenderSchedulerError("scheduler result shoot_slug does not match trusted plan")
+    attempted_task_ids = _unique_iteration_task_ids(result.iterations, "attempted_task_ids")
+    skipped_retryable_task_ids = _unique_iteration_task_ids(
+        result.iterations,
+        "skipped_retryable_task_ids",
+    )
+    expired_lease_task_ids = _unique_iteration_task_ids(result.iterations, "expired_lease_task_ids")
+    conflicted_lease_task_ids = _unique_iteration_task_ids(
+        result.iterations,
+        "conflicted_lease_task_ids",
+    )
+    review_required_task_ids = _review_required_task_ids(result)
+    outputs_materialized = _outputs_materialized(result.iterations)
+    failure_messages = _failure_messages(result.iterations, final_manifest)
     report = DryRunRenderSchedulerReport(
         generated_at=generated_at,
         shoot_slug=trusted_plan.shoot_slug,
@@ -468,19 +501,28 @@ def _scheduler_report(
         retryable_task_ids=result.retryable_task_ids,
         failed_task_ids=result.failed_task_ids,
         blocked_task_ids=result.blocked_task_ids,
-        attempted_task_ids=_unique_iteration_task_ids(result.iterations, "attempted_task_ids"),
-        skipped_retryable_task_ids=_unique_iteration_task_ids(
-            result.iterations,
-            "skipped_retryable_task_ids",
+        attempted_task_ids=attempted_task_ids,
+        skipped_retryable_task_ids=skipped_retryable_task_ids,
+        expired_lease_task_ids=expired_lease_task_ids,
+        conflicted_lease_task_ids=conflicted_lease_task_ids,
+        review_required_task_ids=review_required_task_ids,
+        outputs_materialized=outputs_materialized,
+        failure_messages=failure_messages,
+        product_metrics=_product_metrics(
+            iteration_count=len(result.iterations),
+            total_task_count=len(final_manifest.task_statuses),
+            completed_task_ids=result.completed_task_ids,
+            retryable_task_ids=result.retryable_task_ids,
+            failed_task_ids=result.failed_task_ids,
+            blocked_task_ids=result.blocked_task_ids,
+            review_required_task_ids=review_required_task_ids,
+            attempted_task_ids=attempted_task_ids,
+            skipped_retryable_task_ids=skipped_retryable_task_ids,
+            expired_lease_task_ids=expired_lease_task_ids,
+            conflicted_lease_task_ids=conflicted_lease_task_ids,
+            outputs_materialized=outputs_materialized,
+            failure_messages=failure_messages,
         ),
-        expired_lease_task_ids=_unique_iteration_task_ids(result.iterations, "expired_lease_task_ids"),
-        conflicted_lease_task_ids=_unique_iteration_task_ids(
-            result.iterations,
-            "conflicted_lease_task_ids",
-        ),
-        review_required_task_ids=_review_required_task_ids(result),
-        outputs_materialized=_outputs_materialized(result.iterations),
-        failure_messages=_failure_messages(result.iterations, final_manifest),
     )
     _validate_report(report, trusted_plan=trusted_plan, final_manifest=final_manifest)
     return report
@@ -593,12 +635,19 @@ def _report_to_json(report: DryRunRenderSchedulerReport) -> dict[str, object]:
             {"task_id": message.task_id, "message": message.message}
             for message in report.failure_messages
         ],
+        "product_metrics": dict(report.product_metrics),
     }
 
 
 def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerReport:
     unknown_keys = set(raw_report) - _REPORT_KEYS
-    missing_keys = _REPORT_KEYS - set(raw_report)
+    raw_schema_version = raw_report.get("schema_version")
+    if raw_schema_version not in _SUPPORTED_REPORT_SCHEMA_VERSIONS:
+        raise DryRunRenderSchedulerError("Render scheduler report schema_version is unsupported")
+    required_keys = _REPORT_KEYS
+    if raw_schema_version == 1:
+        required_keys = _REPORT_KEYS - {"product_metrics"}
+    missing_keys = required_keys - set(raw_report)
     if unknown_keys:
         raise DryRunRenderSchedulerError(
             f"Render scheduler report contains unknown fields: {sorted(unknown_keys)}"
@@ -607,9 +656,53 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
         raise DryRunRenderSchedulerError(
             f"Render scheduler report is missing fields: {sorted(missing_keys)}"
         )
-    if raw_report["schema_version"] != _REPORT_SCHEMA_VERSION:
-        raise DryRunRenderSchedulerError("Render scheduler report schema_version is unsupported")
-
+    iteration_count = _json_non_negative_int(raw_report["iteration_count"], "iteration_count")
+    total_task_count = _json_non_negative_int(raw_report["total_task_count"], "total_task_count")
+    completed_task_ids = _json_string_tuple(raw_report["completed_task_ids"], "completed_task_ids")
+    retryable_task_ids = _json_string_tuple(raw_report["retryable_task_ids"], "retryable_task_ids")
+    failed_task_ids = _json_string_tuple(raw_report["failed_task_ids"], "failed_task_ids")
+    blocked_task_ids = _json_string_tuple(raw_report["blocked_task_ids"], "blocked_task_ids")
+    attempted_task_ids = _json_string_tuple(raw_report["attempted_task_ids"], "attempted_task_ids")
+    skipped_retryable_task_ids = _json_string_tuple(
+        raw_report["skipped_retryable_task_ids"],
+        "skipped_retryable_task_ids",
+    )
+    expired_lease_task_ids = _json_string_tuple(
+        raw_report["expired_lease_task_ids"],
+        "expired_lease_task_ids",
+    )
+    conflicted_lease_task_ids = _json_string_tuple(
+        raw_report["conflicted_lease_task_ids"],
+        "conflicted_lease_task_ids",
+    )
+    review_required_task_ids = _json_string_tuple(
+        raw_report["review_required_task_ids"],
+        "review_required_task_ids",
+    )
+    outputs_materialized = _json_string_tuple(
+        raw_report["outputs_materialized"],
+        "outputs_materialized",
+    )
+    failure_messages = _json_task_messages(raw_report["failure_messages"])
+    product_metrics = (
+        _json_product_metrics(raw_report["product_metrics"])
+        if "product_metrics" in raw_report
+        else _product_metrics(
+            iteration_count=iteration_count,
+            total_task_count=total_task_count,
+            completed_task_ids=completed_task_ids,
+            retryable_task_ids=retryable_task_ids,
+            failed_task_ids=failed_task_ids,
+            blocked_task_ids=blocked_task_ids,
+            review_required_task_ids=review_required_task_ids,
+            attempted_task_ids=attempted_task_ids,
+            skipped_retryable_task_ids=skipped_retryable_task_ids,
+            expired_lease_task_ids=expired_lease_task_ids,
+            conflicted_lease_task_ids=conflicted_lease_task_ids,
+            outputs_materialized=outputs_materialized,
+            failure_messages=failure_messages,
+        )
+    )
     return DryRunRenderSchedulerReport(
         generated_at=_json_string(raw_report["generated_at"], "generated_at"),
         shoot_slug=_json_string(raw_report["shoot_slug"], "shoot_slug"),
@@ -619,34 +712,20 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
         ),
         renderer_adapter=_json_string(raw_report["renderer_adapter"], "renderer_adapter"),
         stopped_reason=_json_string(raw_report["stopped_reason"], "stopped_reason"),
-        iteration_count=_json_non_negative_int(raw_report["iteration_count"], "iteration_count"),
-        total_task_count=_json_non_negative_int(raw_report["total_task_count"], "total_task_count"),
-        completed_task_ids=_json_string_tuple(raw_report["completed_task_ids"], "completed_task_ids"),
-        retryable_task_ids=_json_string_tuple(raw_report["retryable_task_ids"], "retryable_task_ids"),
-        failed_task_ids=_json_string_tuple(raw_report["failed_task_ids"], "failed_task_ids"),
-        blocked_task_ids=_json_string_tuple(raw_report["blocked_task_ids"], "blocked_task_ids"),
-        attempted_task_ids=_json_string_tuple(raw_report["attempted_task_ids"], "attempted_task_ids"),
-        skipped_retryable_task_ids=_json_string_tuple(
-            raw_report["skipped_retryable_task_ids"],
-            "skipped_retryable_task_ids",
-        ),
-        expired_lease_task_ids=_json_string_tuple(
-            raw_report["expired_lease_task_ids"],
-            "expired_lease_task_ids",
-        ),
-        conflicted_lease_task_ids=_json_string_tuple(
-            raw_report["conflicted_lease_task_ids"],
-            "conflicted_lease_task_ids",
-        ),
-        review_required_task_ids=_json_string_tuple(
-            raw_report["review_required_task_ids"],
-            "review_required_task_ids",
-        ),
-        outputs_materialized=_json_string_tuple(
-            raw_report["outputs_materialized"],
-            "outputs_materialized",
-        ),
-        failure_messages=_json_task_messages(raw_report["failure_messages"]),
+        iteration_count=iteration_count,
+        total_task_count=total_task_count,
+        completed_task_ids=completed_task_ids,
+        retryable_task_ids=retryable_task_ids,
+        failed_task_ids=failed_task_ids,
+        blocked_task_ids=blocked_task_ids,
+        attempted_task_ids=attempted_task_ids,
+        skipped_retryable_task_ids=skipped_retryable_task_ids,
+        expired_lease_task_ids=expired_lease_task_ids,
+        conflicted_lease_task_ids=conflicted_lease_task_ids,
+        review_required_task_ids=review_required_task_ids,
+        outputs_materialized=outputs_materialized,
+        failure_messages=failure_messages,
+        product_metrics=product_metrics,
     )
 
 
@@ -697,6 +776,28 @@ def _json_string_tuple(value: object, field_name: str) -> tuple[str, ...]:
             raise DryRunRenderSchedulerError(f"{field_name} must contain non-empty strings")
         result.append(item)
     return tuple(result)
+
+
+def _json_product_metrics(raw_metrics: object) -> dict[str, int]:
+    if not isinstance(raw_metrics, dict):
+        raise DryRunRenderSchedulerError("product_metrics must be an object")
+    unknown_keys = set(raw_metrics) - _PRODUCT_METRIC_NAMES
+    missing_keys = _PRODUCT_METRIC_NAMES - set(raw_metrics)
+    if unknown_keys:
+        raise DryRunRenderSchedulerError(
+            f"product_metrics contains unknown metrics: {sorted(unknown_keys)}"
+        )
+    if missing_keys:
+        raise DryRunRenderSchedulerError(
+            f"product_metrics is missing metrics: {sorted(missing_keys)}"
+        )
+    metrics: dict[str, int] = {}
+    for name in sorted(_PRODUCT_METRIC_NAMES):
+        value = raw_metrics[name]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise DryRunRenderSchedulerError(f"product_metrics {name} must be a non-negative integer")
+        metrics[name] = value
+    return metrics
 
 
 def _validate_report(
@@ -772,6 +873,8 @@ def _validate_report(
             raise DryRunRenderSchedulerError(
                 "Render scheduler report failure_messages cannot describe succeeded tasks"
             )
+    if report.product_metrics != _product_metrics_from_report(report):
+        raise DryRunRenderSchedulerError("Render scheduler report product_metrics are inconsistent")
 
 
 def _validate_report_blocked_tasks(
@@ -893,6 +996,78 @@ def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
             raise DryRunRenderSchedulerError("report failure_messages contains invalid task_id")
         if not isinstance(message.message, str) or not message.message.strip():
             raise DryRunRenderSchedulerError("report failure_messages contains invalid message")
+    _validate_product_metrics(report.product_metrics)
+
+
+def _validate_product_metrics(metrics: dict[str, int]) -> None:
+    if not isinstance(metrics, dict):
+        raise DryRunRenderSchedulerError("report product_metrics must be a dict")
+    unknown_keys = set(metrics) - _PRODUCT_METRIC_NAMES
+    missing_keys = _PRODUCT_METRIC_NAMES - set(metrics)
+    if unknown_keys:
+        raise DryRunRenderSchedulerError(
+            f"report product_metrics contains unknown metrics: {sorted(unknown_keys)}"
+        )
+    if missing_keys:
+        raise DryRunRenderSchedulerError(
+            f"report product_metrics is missing metrics: {sorted(missing_keys)}"
+        )
+    for name, value in metrics.items():
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise DryRunRenderSchedulerError(
+                f"report product_metrics {name} must be a non-negative integer"
+            )
+
+
+def _product_metrics_from_report(report: DryRunRenderSchedulerReport) -> dict[str, int]:
+    return _product_metrics(
+        iteration_count=report.iteration_count,
+        total_task_count=report.total_task_count,
+        completed_task_ids=report.completed_task_ids,
+        retryable_task_ids=report.retryable_task_ids,
+        failed_task_ids=report.failed_task_ids,
+        blocked_task_ids=report.blocked_task_ids,
+        review_required_task_ids=report.review_required_task_ids,
+        attempted_task_ids=report.attempted_task_ids,
+        skipped_retryable_task_ids=report.skipped_retryable_task_ids,
+        expired_lease_task_ids=report.expired_lease_task_ids,
+        conflicted_lease_task_ids=report.conflicted_lease_task_ids,
+        outputs_materialized=report.outputs_materialized,
+        failure_messages=report.failure_messages,
+    )
+
+
+def _product_metrics(
+    *,
+    iteration_count: int,
+    total_task_count: int,
+    completed_task_ids: tuple[str, ...],
+    retryable_task_ids: tuple[str, ...],
+    failed_task_ids: tuple[str, ...],
+    blocked_task_ids: tuple[str, ...],
+    review_required_task_ids: tuple[str, ...],
+    attempted_task_ids: tuple[str, ...],
+    skipped_retryable_task_ids: tuple[str, ...],
+    expired_lease_task_ids: tuple[str, ...],
+    conflicted_lease_task_ids: tuple[str, ...],
+    outputs_materialized: tuple[str, ...],
+    failure_messages: tuple[SchedulerTaskMessage, ...],
+) -> dict[str, int]:
+    return {
+        "attempted_task_count": len(attempted_task_ids),
+        "blocked_task_count": len(blocked_task_ids),
+        "completed_task_count": len(completed_task_ids),
+        "conflicted_lease_task_count": len(conflicted_lease_task_ids),
+        "expired_lease_task_count": len(expired_lease_task_ids),
+        "failed_task_count": len(failed_task_ids),
+        "failure_message_count": len(failure_messages),
+        "iteration_count": iteration_count,
+        "materialized_output_count": len(outputs_materialized),
+        "retryable_task_count": len(retryable_task_ids),
+        "review_required_task_count": len(review_required_task_ids),
+        "skipped_retryable_task_count": len(skipped_retryable_task_ids),
+        "total_task_count": total_task_count,
+    }
 
 
 def _render_scheduler_report_path(workspace_root: Path | str) -> Path:
