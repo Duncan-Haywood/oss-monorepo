@@ -21,7 +21,9 @@ fixture:
 - Review follow-up tightened saved-report validation: the brief now rejects
   forged or internally inconsistent cohort reports whose aggregate counts,
   readiness booleans, rates, medians, or output counts disagree with workspace
-  evidence.
+  evidence. A second review pass tightened this further by recomputing
+  workspace readiness from the default completion/intervention/output thresholds
+  and revalidating nested summary dataclasses before serialization.
 
 Good next test-first targets:
 
