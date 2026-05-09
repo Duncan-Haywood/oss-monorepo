@@ -180,7 +180,9 @@ The intended first workflow is:
 20. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
-    blocked/retryable work, or review finished deliverables without writing files.
+    blocked/retryable work, or review finished deliverables without writing
+    files. Succeeded render outputs must still be present and match their
+    recorded SHA-256 checksums before inspection reports the workspace complete.
 21. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.

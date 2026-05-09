@@ -729,6 +729,7 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
             "task_counts_by_state": report.task_counts_by_state,
             "expected_outputs": list(report.expected_outputs),
             "materialized_outputs": list(report.materialized_outputs),
+            "checksum_mismatch_task_ids": list(report.checksum_mismatch_task_ids),
             "review_required_task_ids": list(report.review_required_task_ids),
             "safe_next_actions": list(report.safe_next_actions),
             "notes": [

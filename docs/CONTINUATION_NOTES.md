@@ -19,10 +19,12 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     Mac UI, launch agent, or continuation agent;
   - stale or conflicting scheduler reports fail closed instead of becoming UI
     truth; symlinked output paths are refused, and succeeded tasks whose
-    declared deliverables are missing are surfaced for render-output review.
+    declared deliverables are missing or whose bytes no longer match their
+    recorded SHA-256 checksums are surfaced for render-output review.
 - Added CLI tests covering missing-status inspection with no side effects,
   completed demo-workspace inspection after scheduler execution, stale
-  scheduler-report rejection, and missing succeeded-output review states.
+  scheduler-report rejection, missing succeeded-output review states, and
+  checksum-mismatched output review states.
 - Updated README and strategy/design/business docs to place inspection between
   persisted render-task creation, status initialization, scheduling, retry
   review, and deliverable review.

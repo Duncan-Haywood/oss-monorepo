@@ -294,6 +294,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
   state, not a renderer authority: renderers still consume trusted render tasks and status manifests.
+- `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
+  now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
+  routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
+  It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

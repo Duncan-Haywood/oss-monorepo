@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +36,7 @@ class RenderWorkspaceReport:
     task_counts_by_state: dict[str, int]
     expected_outputs: tuple[str, ...]
     materialized_outputs: tuple[str, ...]
+    checksum_mismatch_task_ids: tuple[str, ...]
     review_required_task_ids: tuple[str, ...]
     safe_next_actions: tuple[str, ...]
 
@@ -105,10 +107,12 @@ def _workspace_report(
         status_manifest,
         materialized_outputs=materialized_outputs,
     )
+    checksum_mismatch_task_ids = _checksum_mismatch_task_ids(root, status_manifest)
     workspace_status = status or _workspace_status(
         status_manifest,
         scheduler_report=scheduler_report,
         missing_output_task_ids=missing_output_task_ids,
+        checksum_mismatch_task_ids=checksum_mismatch_task_ids,
     )
     report = RenderWorkspaceReport(
         workspace_root=root,
@@ -120,15 +124,18 @@ def _workspace_report(
         task_counts_by_state=_task_counts_by_state(status_manifest),
         expected_outputs=_expected_outputs(trusted_plan),
         materialized_outputs=materialized_outputs,
+        checksum_mismatch_task_ids=checksum_mismatch_task_ids,
         review_required_task_ids=_review_required_task_ids(
             status_manifest,
             scheduler_report,
             missing_output_task_ids=missing_output_task_ids,
+            checksum_mismatch_task_ids=checksum_mismatch_task_ids,
         ),
         safe_next_actions=_safe_next_actions(
             workspace_status,
             scheduler_report=scheduler_report,
             missing_output_task_ids=missing_output_task_ids,
+            checksum_mismatch_task_ids=checksum_mismatch_task_ids,
         ),
     )
     _validate_report(report, trusted_plan=trusted_plan)
@@ -180,10 +187,16 @@ def _review_required_task_ids(
     scheduler_report: DryRunRenderSchedulerReport | None,
     *,
     missing_output_task_ids: tuple[str, ...],
+    checksum_mismatch_task_ids: tuple[str, ...],
 ) -> tuple[str, ...]:
     seen: set[str] = set()
     task_ids: list[str] = []
     for task_id in missing_output_task_ids:
+        seen.add(task_id)
+        task_ids.append(task_id)
+    for task_id in checksum_mismatch_task_ids:
+        if task_id in seen:
+            continue
         seen.add(task_id)
         task_ids.append(task_id)
     for status in status_manifest.task_statuses:
@@ -205,9 +218,10 @@ def _workspace_status(
     *,
     scheduler_report: DryRunRenderSchedulerReport | None,
     missing_output_task_ids: tuple[str, ...],
+    checksum_mismatch_task_ids: tuple[str, ...],
 ) -> str:
     counts = _task_counts_by_state(status_manifest)
-    if missing_output_task_ids or counts["failed"] or counts["retryable"]:
+    if missing_output_task_ids or checksum_mismatch_task_ids or counts["failed"] or counts["retryable"]:
         return "needs_review"
     if counts["running"]:
         return "running"
@@ -223,13 +237,14 @@ def _safe_next_actions(
     *,
     scheduler_report: DryRunRenderSchedulerReport | None,
     missing_output_task_ids: tuple[str, ...],
+    checksum_mismatch_task_ids: tuple[str, ...],
 ) -> tuple[str, ...]:
     if status == "needs_status_initialization":
         return ("initialize_render_status",)
     if status == "complete":
         return ("review_deliverables",)
     if status == "needs_review":
-        if missing_output_task_ids:
+        if missing_output_task_ids or checksum_mismatch_task_ids:
             return ("review_render_outputs",)
         return ("review_render_failures",)
     if status == "blocked":
@@ -259,6 +274,39 @@ def _missing_output_task_ids(
         if any(output not in materialized for output in task.outputs):
             missing_task_ids.append(status.task_id)
     return tuple(missing_task_ids)
+
+
+def _checksum_mismatch_task_ids(
+    root: Path,
+    status_manifest: RenderStatusManifest,
+) -> tuple[str, ...]:
+    mismatch_task_ids: list[str] = []
+    for status in status_manifest.task_statuses:
+        if status.state != "succeeded":
+            continue
+        for checksum in status.output_checksums:
+            output_path = root / checksum.path
+            if not output_path.exists():
+                continue
+            if output_path.is_symlink():
+                raise RenderWorkspaceError(f"Refusing symlinked render output: {checksum.path}")
+            if not output_path.is_file():
+                continue
+            if _sha256(output_path) != checksum.sha256:
+                mismatch_task_ids.append(status.task_id)
+                break
+    return tuple(mismatch_task_ids)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise RenderWorkspaceError(f"Unable to checksum render output: {path}") from exc
+    return digest.hexdigest()
 
 
 def _validate_report(report: RenderWorkspaceReport, *, trusted_plan: AssemblyPlan) -> None:

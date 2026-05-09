@@ -258,6 +258,58 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
         self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
 
+    def test_inspect_render_workspace_requires_succeeded_outputs_to_match_checksums(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(b"mutated-render-output")
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256="0" * 64,
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "needs_review")
+        self.assertEqual(report["materialized_outputs"], ["deliverables/instagram_reel.mp4"])
+        self.assertEqual(report["checksum_mismatch_task_ids"], ["render_instagram_reel"])
+        self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
+        self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
+
     def test_inspect_render_workspace_flags_completed_report_after_output_removal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
