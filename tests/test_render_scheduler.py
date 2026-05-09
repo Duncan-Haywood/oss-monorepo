@@ -343,6 +343,7 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
                 final_manifest=final_manifest,
                 generated_at="2026-05-07T15:04:06Z",
             )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
             loaded_report = load_dry_run_render_scheduler_report(
                 workspace,
                 trusted_plan=trusted_plan,
@@ -350,6 +351,7 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(report_path, Path(tmpdir) / "deliverables" / "render_scheduler_report.json")
+        self.assertEqual(raw_report["schema_version"], 2)
         self.assertIsInstance(loaded_report, DryRunRenderSchedulerReport)
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.total_task_count, 2)
@@ -363,6 +365,25 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
         )
         self.assertEqual(loaded_report.review_required_task_ids, ())
         self.assertEqual(loaded_report.failure_messages, ())
+        self.assertEqual(
+            raw_report["product_metrics"],
+            {
+                "attempted_task_count": 2,
+                "blocked_task_count": 0,
+                "completed_task_count": 2,
+                "conflicted_lease_task_count": 0,
+                "expired_lease_task_count": 0,
+                "failed_task_count": 0,
+                "failure_message_count": 0,
+                "iteration_count": 2,
+                "materialized_output_count": 2,
+                "retryable_task_count": 0,
+                "review_required_task_count": 0,
+                "skipped_retryable_task_count": 0,
+                "total_task_count": 2,
+            },
+        )
+        self.assertEqual(loaded_report.product_metrics["completed_task_count"], 2)
 
     def test_scheduler_report_marks_retryable_tasks_for_review_without_overwriting_outputs(self) -> None:
         trusted_plan = self._single_task_plan()
@@ -476,6 +497,43 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             report_path.write_text(json.dumps(raw_report), encoding="utf-8")
 
             with self.assertRaisesRegex(DryRunRenderSchedulerError, "blocked"):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
+    def test_scheduler_report_rejects_forged_product_metrics(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:30Z",
+                completed_at="2026-05-07T15:07:35Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:36Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["product_metrics"]["completed_task_count"] = 0
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "product_metrics"):
                 load_dry_run_render_scheduler_report(
                     workspace,
                     trusted_plan=trusted_plan,

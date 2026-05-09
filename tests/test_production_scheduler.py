@@ -2,6 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest import mock
+import json
 
 from shootflow.deliverables import MediaAsset
 from shootflow.production import build_production_plan
@@ -365,6 +366,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                 final_manifest=final_manifest,
                 generated_at="2026-05-09T17:00:06Z",
             )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
             loaded_report = load_dry_run_production_scheduler_report(
                 workspace,
                 trusted_plan=trusted_plan,
@@ -372,6 +374,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(report_path.name, PRODUCTION_SCHEDULER_REPORT_PATH)
+        self.assertEqual(raw_report["schema_version"], 2)
         self.assertIsInstance(loaded_report, DryRunProductionSchedulerReport)
         self.assertEqual(loaded_report.generated_at, "2026-05-09T17:00:06Z")
         self.assertEqual(loaded_report.shoot_slug, trusted_plan.shoot_slug)
@@ -386,6 +389,60 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.conflicted_lease_job_ids, ())
         self.assertEqual(loaded_report.completed_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
         self.assertGreater(len(loaded_report.outputs_materialized), 0)
+        self.assertEqual(
+            raw_report["product_metrics"],
+            {
+                "attempted_job_count": len(trusted_plan.jobs),
+                "blocked_job_count": 0,
+                "completed_job_count": len(trusted_plan.jobs),
+                "conflicted_lease_job_count": 0,
+                "expired_lease_job_count": 0,
+                "failed_job_count": 0,
+                "failure_message_count": 0,
+                "iteration_count": 8,
+                "materialized_output_count": len(loaded_report.outputs_materialized),
+                "retryable_job_count": 0,
+                "review_required_job_count": 0,
+                "skipped_retryable_job_count": 0,
+                "total_job_count": len(trusted_plan.jobs),
+            },
+        )
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], len(trusted_plan.jobs))
+
+    def test_scheduler_report_rejects_forged_product_metrics(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:30Z",
+                completed_at="2026-05-09T17:00:35Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:36Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["product_metrics"]["completed_job_count"] = 0
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunProductionSchedulerError, "product_metrics"):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
 
     def test_scheduler_report_rejects_final_status_drift(self) -> None:
         trusted_plan = self._video_only_plan()
