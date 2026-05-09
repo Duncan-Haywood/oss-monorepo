@@ -13,6 +13,11 @@ class ProductionHandoffTests(unittest.TestCase):
             shoot_folder = manifest_path.parent
 
             handoff = plan_next_production_wave(manifest_path, completed_job_ids=())
+            downstream_dirs_exist = (
+                (shoot_folder / "analysis").exists(),
+                (shoot_folder / "graded").exists(),
+                (shoot_folder / "deliverables").exists(),
+            )
 
         self.assertEqual(handoff.status, "ready")
         self.assertEqual(handoff.wave_index, 0)
@@ -21,9 +26,7 @@ class ProductionHandoffTests(unittest.TestCase):
         self.assertEqual([job.output_kind for job in handoff.jobs], ["proxy_media", "proxy_media"])
         self.assertTrue(all(job.can_run_in_parallel for job in handoff.jobs))
         self.assertIn("read-only production wave handoff", handoff.notes)
-        self.assertFalse((shoot_folder / "analysis").exists())
-        self.assertFalse((shoot_folder / "graded").exists())
-        self.assertFalse((shoot_folder / "deliverables").exists())
+        self.assertEqual(downstream_dirs_exist, (False, False, False))
 
     def test_advances_to_analysis_wave_after_proxy_jobs_complete(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
