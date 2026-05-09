@@ -84,7 +84,6 @@ def inspect_render_workspace(workspace_root: Path | str) -> RenderWorkspaceRepor
         trusted_plan=trusted_plan,
         status_manifest=status_manifest,
         scheduler_report=scheduler_report,
-        status=_workspace_status(status_manifest, scheduler_report=scheduler_report),
         status_manifest_present=True,
         scheduler_report_present=scheduler_report_present,
     )
@@ -96,22 +95,41 @@ def _workspace_report(
     trusted_plan: AssemblyPlan,
     status_manifest: RenderStatusManifest,
     scheduler_report: DryRunRenderSchedulerReport | None,
-    status: str,
     status_manifest_present: bool,
     scheduler_report_present: bool,
+    status: str | None = None,
 ) -> RenderWorkspaceReport:
+    materialized_outputs = _materialized_outputs(root, trusted_plan)
+    missing_output_task_ids = _missing_output_task_ids(
+        trusted_plan,
+        status_manifest,
+        materialized_outputs=materialized_outputs,
+    )
+    workspace_status = status or _workspace_status(
+        status_manifest,
+        scheduler_report=scheduler_report,
+        missing_output_task_ids=missing_output_task_ids,
+    )
     report = RenderWorkspaceReport(
         workspace_root=root,
         shoot_slug=trusted_plan.shoot_slug,
         render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
-        status=status,
+        status=workspace_status,
         status_manifest_present=status_manifest_present,
         scheduler_report_present=scheduler_report_present,
         task_counts_by_state=_task_counts_by_state(status_manifest),
         expected_outputs=_expected_outputs(trusted_plan),
-        materialized_outputs=_materialized_outputs(root, trusted_plan),
-        review_required_task_ids=_review_required_task_ids(status_manifest, scheduler_report),
-        safe_next_actions=_safe_next_actions(status, scheduler_report=scheduler_report),
+        materialized_outputs=materialized_outputs,
+        review_required_task_ids=_review_required_task_ids(
+            status_manifest,
+            scheduler_report,
+            missing_output_task_ids=missing_output_task_ids,
+        ),
+        safe_next_actions=_safe_next_actions(
+            workspace_status,
+            scheduler_report=scheduler_report,
+            missing_output_task_ids=missing_output_task_ids,
+        ),
     )
     _validate_report(report, trusted_plan=trusted_plan)
     return report
@@ -160,11 +178,16 @@ def _materialized_outputs(root: Path, trusted_plan: AssemblyPlan) -> tuple[str, 
 def _review_required_task_ids(
     status_manifest: RenderStatusManifest,
     scheduler_report: DryRunRenderSchedulerReport | None,
+    *,
+    missing_output_task_ids: tuple[str, ...],
 ) -> tuple[str, ...]:
     seen: set[str] = set()
     task_ids: list[str] = []
+    for task_id in missing_output_task_ids:
+        seen.add(task_id)
+        task_ids.append(task_id)
     for status in status_manifest.task_statuses:
-        if status.state in {"failed", "retryable"}:
+        if status.state in {"failed", "retryable"} and status.task_id not in seen:
             seen.add(status.task_id)
             task_ids.append(status.task_id)
     if scheduler_report is None:
@@ -181,9 +204,10 @@ def _workspace_status(
     status_manifest: RenderStatusManifest,
     *,
     scheduler_report: DryRunRenderSchedulerReport | None,
+    missing_output_task_ids: tuple[str, ...],
 ) -> str:
     counts = _task_counts_by_state(status_manifest)
-    if counts["failed"] or counts["retryable"]:
+    if missing_output_task_ids or counts["failed"] or counts["retryable"]:
         return "needs_review"
     if counts["running"]:
         return "running"
@@ -198,12 +222,15 @@ def _safe_next_actions(
     status: str,
     *,
     scheduler_report: DryRunRenderSchedulerReport | None,
+    missing_output_task_ids: tuple[str, ...],
 ) -> tuple[str, ...]:
     if status == "needs_status_initialization":
         return ("initialize_render_status",)
     if status == "complete":
         return ("review_deliverables",)
     if status == "needs_review":
+        if missing_output_task_ids:
+            return ("review_render_outputs",)
         return ("review_render_failures",)
     if status == "blocked":
         return ("review_missing_dependencies",)
@@ -214,6 +241,24 @@ def _safe_next_actions(
             return ("review_pending_dependencies",)
         return ("run_render_scheduler",)
     raise RenderWorkspaceError(f"Unknown render workspace status: {status}")
+
+
+def _missing_output_task_ids(
+    trusted_plan: AssemblyPlan,
+    status_manifest: RenderStatusManifest,
+    *,
+    materialized_outputs: tuple[str, ...],
+) -> tuple[str, ...]:
+    materialized = frozenset(materialized_outputs)
+    tasks_by_id = {task.task_id: task for task in trusted_plan.render_tasks}
+    missing_task_ids: list[str] = []
+    for status in status_manifest.task_statuses:
+        if status.state != "succeeded":
+            continue
+        task = tasks_by_id[status.task_id]
+        if any(output not in materialized for output in task.outputs):
+            missing_task_ids.append(status.task_id)
+    return tuple(missing_task_ids)
 
 
 def _validate_report(report: RenderWorkspaceReport, *, trusted_plan: AssemblyPlan) -> None:

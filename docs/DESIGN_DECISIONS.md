@@ -102,7 +102,8 @@ The repo currently contains a Python core package because it is quick to test an
   missing status manifest as `needs_status_initialization` without creating one,
   validates any existing `deliverables/render_status.json` and
   `deliverables/render_scheduler_report.json`, rejects stale reports instead of
-  using them as UI truth, and returns task counts, expected/materialized outputs,
+  using them as UI truth, treats succeeded tasks with missing deliverable files
+  as review-required, and returns task counts, expected/materialized outputs,
   review-required task IDs, and safe next-action recommendations.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the

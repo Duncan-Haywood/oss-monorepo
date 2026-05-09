@@ -12,6 +12,7 @@ from shootflow.demo_workspace import (
 )
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
+    OutputChecksum,
     RenderStatusManifest,
     RenderTaskStatus,
     load_render_status_manifest,
@@ -208,6 +209,98 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("scheduler report", stderr.getvalue())
+
+    def test_inspect_render_workspace_requires_succeeded_outputs_to_exist(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256="0" * 64,
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "needs_review")
+        self.assertEqual(report["materialized_outputs"], [])
+        self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
+        self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
+
+    def test_inspect_render_workspace_flags_completed_report_after_output_removal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            demo = create_persisted_cli_demo_workspace(workspace)
+            main(["init-render-status", "--workspace", str(workspace)], stdout=io.StringIO())
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(workspace),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-08T15:10:00Z",
+                "--completed-at",
+                "2026-05-08T15:10:05Z",
+                "--generated-at",
+                "2026-05-08T15:10:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+            ]
+            for dependency_id in demo.required_completed_dependency_ids:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+            main(scheduler_args, stdout=io.StringIO())
+            (workspace / demo.expected_output_paths[0]).unlink()
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "needs_review")
+        self.assertNotIn(demo.expected_output_paths[0], report["materialized_outputs"])
+        self.assertIn("render_instagram_reel", report["review_required_task_ids"])
+        self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
 
     def test_persisted_cli_demo_workspace_refuses_to_overwrite_existing_input(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
