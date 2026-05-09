@@ -94,6 +94,10 @@ Why this wedge wins:
   into pilot-ready workspace rate, median intervention rate, and first-draft
   output count so pilot operations can measure activation quality without
   spreadsheets or raw worker-log parsing.
+- A pilot cohort demo fixture that creates multiple trusted no-real-media demo
+  workspaces, saves one pilot-dashboard JSON payload per workspace, and writes a
+  saved `pilot_cohort_report.json` so GTM demos can show cohort readiness without
+  spreadsheets, real customer media, or raw worker-log parsing.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -237,4 +241,7 @@ Run practical experiments tied to this ICP-first plan:
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,
    review-required rates, and schema v2 pilot-readiness thresholds become visible
    from trusted handoff metrics.
-6. Start proof-based GTM content showing real workflows and outcomes.
+6. Use the saved pilot cohort demo fixture for proof-based GTM content while
+   real pilot workspaces are still scarce; the demo should show readiness
+   thresholds and safety boundaries, not imply automatic publishing or cleanup.
+7. Start proof-based GTM content showing real workflows and outcomes.

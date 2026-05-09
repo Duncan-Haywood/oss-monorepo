@@ -329,7 +329,12 @@ The intended first workflow is:
     render progress. Use `create_card_dump_cli_demo_workspace(...)` or
     `python -m shootflow.cli create-card-dump-demo-workspace` when a demo should
     also prove the detected-card -> checksum-ingest -> production-summary path.
-32. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+32. Use `python -m shootflow.cli create-pilot-cohort-demo` when a GTM or pilot
+    demo needs multiple saved dashboard JSON payloads plus a cohort report
+    without real media. The fixture still runs the normal demo render init and
+    scheduler handoff for each workspace, then writes saved dashboard/cohort JSON
+    as observational proof rather than workflow authority.
+33. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -370,6 +375,11 @@ PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report \
   --dashboard-json <dashboard-a.json> \
   --dashboard-json <dashboard-b.json> \
   --generated-at 2026-05-07T16:00:09Z
+PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
+  --workspace <demo-dir> \
+  --workspace-count 2 \
+  --dashboard-generated-at 2026-05-07T16:00:10Z \
+  --generated-at 2026-05-07T16:00:11Z
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
@@ -422,6 +432,13 @@ workspace rate, median intervention rate, and first-draft output count from the
 trusted dashboard acceptance fields. Dashboards without trusted metrics are
 counted as unavailable instead of being treated as failures or successes, and
 the cohort report does not emit workflow commands.
+The pilot cohort demo command writes a controlled fixture for demos: multiple
+trusted persisted render demo workspaces under `workspaces/`, saved schema v2
+dashboard JSON under `pilot_dashboards/`, and one saved
+`pilot_cohort_report.json`. It preflights those saved report paths before
+creating shoot workspaces, refuses existing different dashboard/report files, and
+does not add copy, retry, cleanup, overwrite, materialization, or deletion
+authority beyond the existing demo scheduler path.
 The inspection command writes nothing; it fails closed if an existing status or
 scheduler report no longer matches the trusted render-task plan, and it marks
 succeeded tasks for review if their declared deliverable files are missing,

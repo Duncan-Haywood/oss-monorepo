@@ -186,7 +186,10 @@ The current core models a concrete promise for high-volume users:
     counted as ready for pilot review. The follow-on `pilot-cohort-report`
     contract aggregates saved dashboard JSON across workspaces into pilot-ready
     workspace rate, median intervention rate, and first-draft output count
-    without reading worker internals or granting workflow authority.
+    without reading worker internals or granting workflow authority. The
+    `create-pilot-cohort-demo` fixture now composes trusted demo render
+    workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
+    demos can show the measurement loop without real media or spreadsheets.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

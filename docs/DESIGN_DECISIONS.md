@@ -185,6 +185,12 @@ The repo currently contains a Python core package because it is quick to test an
   output count, and per-workspace readiness evidence. Missing dashboard metrics
   remain unavailable rather than becoming false successes or failures, and the
   cohort report emits no workflow commands.
+- `shootflow.demo_workspace.create_pilot_cohort_cli_demo_workspace`: a controlled
+  no-real-media fixture for pilot/GTM demos. It creates trusted persisted render
+  demo workspaces, runs the same render init/scheduler path those demos already
+  use, saves schema v2 dashboard JSON files, and writes one saved cohort report.
+  It preflights saved dashboard/report paths before creating shoot workspaces and
+  refuses existing different report files instead of overwriting them.
 - `shootflow.render_workspace`: a read-only state index over persisted render
   handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
   missing status manifest as `needs_status_initialization` without creating one,

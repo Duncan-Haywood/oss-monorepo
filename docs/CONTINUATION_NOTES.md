@@ -2,6 +2,35 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 22:00 UTC
+
+This run advanced the saved-dashboard cohort fixture target from the previous
+handoff:
+
+- Added `create-pilot-cohort-demo --workspace <dir> --workspace-count <n>
+  --dashboard-generated-at <timestamp> --generated-at <timestamp>`.
+- The command creates trusted persisted render demo workspaces under
+  `workspaces/`, runs the normal render init and dry-run scheduler path for each
+  workspace, saves one schema v2 pilot-dashboard JSON payload per workspace under
+  `pilot_dashboards/`, and writes a saved `pilot_cohort_report.json`.
+- The fixture preflights saved dashboard/report paths before creating shoot
+  workspaces, refuses existing different report files, and keeps saved dashboards
+  plus cohort reports observational rather than workflow authority.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future agents can treat the saved cohort fixture as the no-real-media GTM
+  demo path above `pilot-dashboard` and `pilot-cohort-report`.
+
+Good next test-first targets:
+
+- Bind the saved cohort fixture into a minimal native-shell/UI proof that
+  displays readiness, intervention, and throughput as observational state while
+  still branching only on explicit reviewed next-action contracts.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Add UI/agent contract tests proving cohort dashboards never become permission
+  to retry, materialize, overwrite, clean up, or delete files.
+
 ## Implementation continuation note - 2026-05-09 21:30 UTC
 
 This run advanced the pilot cohort measurement target from the previous handoff:

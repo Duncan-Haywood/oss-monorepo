@@ -24,8 +24,10 @@ from shootflow.demo_workspace import (
     CardDumpCliDemoWorkspace,
     DemoWorkspaceError,
     PersistedCliDemoWorkspace,
+    PilotCohortCliDemoWorkspace,
     create_card_dump_cli_demo_workspace,
     create_persisted_cli_demo_workspace,
+    create_pilot_cohort_cli_demo_workspace,
 )
 from shootflow.ingest import (
     CopyPlan,
@@ -171,6 +173,8 @@ def main(
             _run_create_demo_workspace_command(args, stdout=out)
         elif args.command == "create-card-dump-demo-workspace":
             _run_create_card_dump_demo_workspace_command(args, stdout=out)
+        elif args.command == "create-pilot-cohort-demo":
+            _run_create_pilot_cohort_demo_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -513,6 +517,16 @@ def _run_create_card_dump_demo_workspace_command(args: argparse.Namespace, *, st
     stdout.write(_card_dump_demo_workspace_json(demo))
 
 
+def _run_create_pilot_cohort_demo_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_pilot_cohort_cli_demo_workspace(
+        args.workspace,
+        workspace_count=args.workspace_count,
+        dashboard_generated_at=args.dashboard_generated_at,
+        generated_at=args.generated_at,
+    )
+    stdout.write(_pilot_cohort_demo_workspace_json(demo))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -848,6 +862,32 @@ def _build_parser() -> argparse.ArgumentParser:
         "--destination-subfolder",
         default="ShootFlow",
         help="Relative library folder inside the synthetic destination volume.",
+    )
+
+    pilot_cohort_demo = subparsers.add_parser(
+        "create-pilot-cohort-demo",
+        help="Create saved pilot dashboards and a cohort report from trusted demo workspaces.",
+    )
+    pilot_cohort_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Directory where the pilot cohort demo fixture will be created.",
+    )
+    pilot_cohort_demo.add_argument(
+        "--workspace-count",
+        type=int,
+        default=2,
+        help="Number of trusted demo shoot workspaces to create and aggregate.",
+    )
+    pilot_cohort_demo.add_argument(
+        "--dashboard-generated-at",
+        required=True,
+        help="Caller-supplied timestamp for each saved pilot dashboard JSON payload.",
+    )
+    pilot_cohort_demo.add_argument(
+        "--generated-at",
+        required=True,
+        help="Caller-supplied timestamp for the saved pilot cohort report.",
     )
 
     return parser
@@ -1630,6 +1670,32 @@ def _card_dump_demo_workspace_json(demo: CardDumpCliDemoWorkspace) -> str:
             "next_steps": [
                 "run init-render-status against shoot_folder before scheduling",
                 "run dry-run-render-scheduler with each required_completed_dependency_id",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _pilot_cohort_demo_workspace_json(demo: PilotCohortCliDemoWorkspace) -> str:
+    if not isinstance(demo, PilotCohortCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a PilotCohortCliDemoWorkspace")
+    cohort_payload = pilot_cohort_report_to_dict(demo.cohort_report)
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(demo.workspace_root),
+            "workspace_count": len(demo.shoot_workspaces),
+            "shoot_workspaces": [str(path) for path in demo.shoot_workspaces],
+            "dashboard_json_paths": [str(path) for path in demo.dashboard_json_paths],
+            "cohort_report_path": str(demo.cohort_report_path),
+            "cohort": cohort_payload["cohort"],
+            "workspaces": cohort_payload["workspaces"],
+            "safety_notes": list(demo.safety_notes),
+            "next_steps": [
+                "open the saved pilot dashboard JSON files for per-workspace readiness proof",
+                "open the saved pilot cohort report for aggregate pilot readiness proof",
             ],
         },
         ensure_ascii=True,

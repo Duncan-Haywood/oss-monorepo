@@ -241,6 +241,93 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(printed_scheduler_report["outputs_materialized"], create_report["expected_output_paths"])
         self.assertEqual(printed_scheduler_report["review_required_task_ids"], [])
 
+    def test_create_pilot_cohort_demo_command_writes_dashboards_and_cohort_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-pilot-cohort-demo",
+                    "--workspace",
+                    str(workspace),
+                    "--workspace-count",
+                    "2",
+                    "--dashboard-generated-at",
+                    "2026-05-09T22:05:00Z",
+                    "--generated-at",
+                    "2026-05-09T22:06:00Z",
+                ],
+                stdout=stdout,
+            )
+            summary = json.loads(stdout.getvalue())
+            dashboard_paths = [Path(path) for path in summary["dashboard_json_paths"]]
+            dashboard_payloads = [
+                json.loads(path.read_text(encoding="utf-8"))
+                for path in dashboard_paths
+            ]
+            cohort_report_path = Path(summary["cohort_report_path"])
+            cohort_payload = json.loads(cohort_report_path.read_text(encoding="utf-8"))
+            dashboard_paths_exist = all(path.exists() for path in dashboard_paths)
+            cohort_report_exists = cohort_report_path.exists()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(summary["schema_version"], 1)
+        self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(summary["workspace_count"], 2)
+        self.assertEqual(len(summary["shoot_workspaces"]), 2)
+        self.assertEqual(len(dashboard_paths), 2)
+        self.assertTrue(dashboard_paths_exist)
+        self.assertTrue(cohort_report_exists)
+        self.assertEqual([payload["schema_version"] for payload in dashboard_payloads], [2, 2])
+        self.assertEqual(
+            [payload["pilot_acceptance"]["ready_for_pilot_review"] for payload in dashboard_payloads],
+            [True, True],
+        )
+        self.assertEqual(cohort_payload["schema_version"], 1)
+        self.assertEqual(cohort_payload["generated_at"], "2026-05-09T22:06:00Z")
+        self.assertEqual(cohort_payload["cohort"]["dashboard_count"], 2)
+        self.assertEqual(cohort_payload["cohort"]["pilot_ready_workspace_count"], 2)
+        self.assertTrue(cohort_payload["cohort"]["ready_for_pilot_review"])
+        self.assertEqual(cohort_payload["cohort"]["first_draft_output_count"], 12)
+        self.assertEqual(summary["cohort"]["dashboard_count"], 2)
+        self.assertEqual(summary["cohort"]["first_draft_output_count"], 12)
+        self.assertNotIn("command", json.dumps(summary, sort_keys=True))
+        self.assertIn("saved pilot dashboard", " ".join(summary["safety_notes"]))
+
+    def test_create_pilot_cohort_demo_command_rejects_existing_different_dashboard_before_side_effects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            dashboard_dir = workspace / "pilot_dashboards"
+            dashboard_dir.mkdir()
+            existing_dashboard = dashboard_dir / "pilot-demo-001.json"
+            existing_dashboard.write_text("user-owned dashboard", encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-pilot-cohort-demo",
+                    "--workspace",
+                    str(workspace),
+                    "--workspace-count",
+                    "1",
+                    "--dashboard-generated-at",
+                    "2026-05-09T22:05:00Z",
+                    "--generated-at",
+                    "2026-05-09T22:06:00Z",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing to overwrite existing different pilot dashboard", stderr.getvalue())
+            self.assertEqual(existing_dashboard.read_text(encoding="utf-8"), "user-owned dashboard")
+            self.assertFalse((workspace / "workspaces").exists())
+            self.assertFalse((workspace / "pilot_cohort_report.json").exists())
+
     def test_card_dump_demo_workspace_refuses_to_overwrite_existing_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

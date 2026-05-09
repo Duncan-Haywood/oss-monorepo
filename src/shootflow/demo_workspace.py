@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from datetime import date
@@ -15,6 +16,14 @@ from shootflow.assembly import (
 )
 from shootflow.card_workflow import CardDumpWorkflowReport, run_card_dump_workflow
 from shootflow.ingest import MEDIA_EXTENSIONS
+from shootflow.pilot_cohort_report import (
+    PilotCohortReport,
+    build_pilot_cohort_report_from_paths,
+    pilot_cohort_report_to_dict,
+)
+from shootflow.pilot_dashboard import build_pilot_dashboard_summary, pilot_dashboard_summary_to_dict
+from shootflow.render_scheduler import run_dry_run_render_scheduler, write_dry_run_render_scheduler_report
+from shootflow.render_status import initialize_render_status_manifest, load_render_status_manifest
 from shootflow.storage_discovery import VolumeDiscoveryHint
 
 _SHOOT_SLUG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$")
@@ -25,6 +34,12 @@ _DEMO_VOLUME_ROOT = "Volumes"
 _DEMO_SOURCE_VOLUME = "EOS_DIGITAL"
 _DEMO_DESTINATION_VOLUME = "Samsung_T7"
 _STORYLINE_PATH = "analysis/instagram_storylines.json"
+_PILOT_DEMO_WORKSPACES_DIR = "workspaces"
+_PILOT_DEMO_DASHBOARDS_DIR = "pilot_dashboards"
+_PILOT_COHORT_REPORT_PATH = "pilot_cohort_report.json"
+_PILOT_DEMO_SHOOT_SLUG_PREFIX = "pilot-demo"
+_DEFAULT_PILOT_DEMO_WORKSPACE_COUNT = 2
+_MAX_PILOT_DEMO_WORKSPACE_COUNT = 20
 _CARD_DUMP_DEMO_SOURCE_MEDIA: tuple[tuple[str, bytes], ...] = (
     ("DCIM/100EOS5D/IMG_0001.CR3", b"raw-bytes"),
     ("DCIM/100EOS5D/IMG_0001.JPG", b"photo-bytes"),
@@ -76,6 +91,105 @@ class CardDumpCliDemoWorkspace:
     required_completed_dependency_ids: tuple[str, ...]
     expected_output_paths: tuple[str, ...]
     safety_notes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PilotCohortCliDemoWorkspace:
+    workspace_root: Path
+    shoot_workspaces: tuple[Path, ...]
+    dashboard_json_paths: tuple[Path, ...]
+    cohort_report_path: Path
+    cohort_report: PilotCohortReport
+    safety_notes: tuple[str, ...]
+
+
+def create_pilot_cohort_cli_demo_workspace(
+    workspace_root: Path | str,
+    *,
+    workspace_count: int = _DEFAULT_PILOT_DEMO_WORKSPACE_COUNT,
+    dashboard_generated_at: str,
+    generated_at: str,
+) -> PilotCohortCliDemoWorkspace:
+    """Create saved pilot dashboards plus a cohort report for GTM demos.
+
+    The helper composes the trusted persisted render demo, render status
+    initialization, dry-run scheduler report, pilot dashboard, and cohort report
+    contracts. It writes only deterministic demo artifacts under
+    ``workspace_root`` and preflights saved dashboard/report paths before any
+    shoot workspace is created.
+    """
+
+    root = _workspace_root(workspace_root)
+    _validate_pilot_cohort_demo_args(
+        workspace_count=workspace_count,
+        dashboard_generated_at=dashboard_generated_at,
+        generated_at=generated_at,
+    )
+    shoot_workspaces = _pilot_demo_shoot_workspaces(root, workspace_count)
+    dashboard_paths = _pilot_demo_dashboard_paths(root, workspace_count)
+    cohort_report_path = root / _PILOT_COHORT_REPORT_PATH
+    _preflight_pilot_demo_outputs(root, dashboard_paths, cohort_report_path)
+
+    for index, shoot_workspace in enumerate(shoot_workspaces, start=1):
+        shoot_slug = _pilot_demo_shoot_slug(index)
+        demo = create_persisted_cli_demo_workspace(shoot_workspace, shoot_slug=shoot_slug)
+        initialize_render_status_manifest(shoot_workspace, trusted_plan=demo.trusted_plan)
+        scheduler_result = run_dry_run_render_scheduler(
+            shoot_workspace,
+            trusted_plan=demo.trusted_plan,
+            completed_dependency_ids=demo.required_completed_dependency_ids,
+            renderer_adapter="dry-run-local",
+            started_at=dashboard_generated_at,
+            completed_at=dashboard_generated_at,
+            max_concurrency=3,
+            max_iterations=4,
+        )
+        final_manifest = load_render_status_manifest(
+            shoot_workspace,
+            trusted_plan=demo.trusted_plan,
+        )
+        write_dry_run_render_scheduler_report(
+            scheduler_result,
+            shoot_workspace,
+            trusted_plan=demo.trusted_plan,
+            final_manifest=final_manifest,
+            generated_at=dashboard_generated_at,
+        )
+        dashboard = build_pilot_dashboard_summary(
+            shoot_workspace,
+            generated_at=dashboard_generated_at,
+        )
+        _write_pilot_demo_json_file(
+            dashboard_paths[index - 1],
+            root=root,
+            content=_json_payload(pilot_dashboard_summary_to_dict(dashboard)),
+            label="pilot dashboard",
+        )
+
+    cohort_report = build_pilot_cohort_report_from_paths(
+        dashboard_paths,
+        generated_at=generated_at,
+    )
+    _write_pilot_demo_json_file(
+        cohort_report_path,
+        root=root,
+        content=_json_payload(pilot_cohort_report_to_dict(cohort_report)),
+        label="pilot cohort report",
+    )
+    demo = PilotCohortCliDemoWorkspace(
+        workspace_root=root,
+        shoot_workspaces=shoot_workspaces,
+        dashboard_json_paths=dashboard_paths,
+        cohort_report_path=cohort_report_path,
+        cohort_report=cohort_report,
+        safety_notes=(
+            "saved pilot dashboard JSON is generated from trusted demo workspace health",
+            "pilot cohort demo reports are observational and do not authorize workflow actions",
+            "pilot cohort demo reports do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority",
+        ),
+    )
+    _validate_pilot_cohort_cli_demo_workspace(demo)
+    return demo
 
 
 def create_card_dump_cli_demo_workspace(
@@ -188,6 +302,98 @@ def create_persisted_cli_demo_workspace(
     )
     _validate_demo_workspace(demo)
     return demo
+
+
+def _validate_pilot_cohort_demo_args(
+    *,
+    workspace_count: int,
+    dashboard_generated_at: str,
+    generated_at: str,
+) -> None:
+    if isinstance(workspace_count, bool) or not isinstance(workspace_count, int):
+        raise DemoWorkspaceError("workspace_count must be an integer")
+    if workspace_count < 1 or workspace_count > _MAX_PILOT_DEMO_WORKSPACE_COUNT:
+        raise DemoWorkspaceError(
+            f"workspace_count must be between 1 and {_MAX_PILOT_DEMO_WORKSPACE_COUNT}"
+        )
+    _validate_demo_timestamp(dashboard_generated_at, field_name="dashboard_generated_at")
+    _validate_demo_timestamp(generated_at, field_name="generated_at")
+
+
+def _validate_demo_timestamp(timestamp: str, *, field_name: str) -> None:
+    if not isinstance(timestamp, str) or not timestamp.strip():
+        raise DemoWorkspaceError(f"{field_name} must be a non-empty string")
+    if len(timestamp) > 80 or "\x00" in timestamp or "\n" in timestamp or "\r" in timestamp:
+        raise DemoWorkspaceError(f"{field_name} is invalid")
+
+
+def _pilot_demo_shoot_slug(index: int) -> str:
+    return f"{_PILOT_DEMO_SHOOT_SLUG_PREFIX}-{index:03d}"
+
+
+def _pilot_demo_shoot_workspaces(root: Path, workspace_count: int) -> tuple[Path, ...]:
+    return tuple(
+        root / _PILOT_DEMO_WORKSPACES_DIR / _pilot_demo_shoot_slug(index)
+        for index in range(1, workspace_count + 1)
+    )
+
+
+def _pilot_demo_dashboard_paths(root: Path, workspace_count: int) -> tuple[Path, ...]:
+    return tuple(
+        root / _PILOT_DEMO_DASHBOARDS_DIR / f"{_pilot_demo_shoot_slug(index)}.json"
+        for index in range(1, workspace_count + 1)
+    )
+
+
+def _preflight_pilot_demo_outputs(
+    root: Path,
+    dashboard_paths: tuple[Path, ...],
+    cohort_report_path: Path,
+) -> None:
+    for path in dashboard_paths:
+        _preflight_pilot_demo_output_path(
+            path,
+            root=root,
+            label="pilot dashboard",
+        )
+    _preflight_pilot_demo_output_path(
+        cohort_report_path,
+        root=root,
+        label="pilot cohort report",
+    )
+
+
+def _preflight_pilot_demo_output_path(path: Path, *, root: Path, label: str) -> None:
+    _reject_symlink_ancestors(path.parent, root=root)
+    if path.parent.exists() and not path.parent.is_dir():
+        raise DemoWorkspaceError(f"{label} directory must be a directory: {path.parent}")
+    if path.exists() or path.is_symlink():
+        raise DemoWorkspaceError(f"Refusing to overwrite existing different {label}: {path}")
+
+
+def _write_pilot_demo_json_file(path: Path, *, root: Path, content: str, label: str) -> None:
+    _reject_symlink_ancestors(path.parent, root=root)
+    if path.exists():
+        if path.is_symlink() or not path.is_file():
+            raise DemoWorkspaceError(f"Refusing unsafe existing {label}: {path}")
+        if path.read_text(encoding="utf-8") != content:
+            raise DemoWorkspaceError(f"Refusing to overwrite existing different {label}: {path}")
+        return
+    if path.is_symlink():
+        raise DemoWorkspaceError(f"Refusing unsafe existing {label}: {path}")
+    if path.parent.exists() and not path.parent.is_dir():
+        raise DemoWorkspaceError(f"{label} directory must be a directory: {path.parent}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _reject_symlink_ancestors(path.parent, root=root)
+    try:
+        with path.open("x", encoding="utf-8") as handle:
+            handle.write(content)
+    except FileExistsError as exc:
+        raise DemoWorkspaceError(f"Refusing raced existing {label}: {path}") from exc
+
+
+def _json_payload(payload: dict[str, object]) -> str:
+    return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
 
 
 def _workspace_root(workspace_root: Path | str) -> Path:
@@ -547,3 +753,27 @@ def _validate_card_dump_cli_demo_workspace(demo: CardDumpCliDemoWorkspace) -> No
         path = demo.source_volume / relative_path
         if not path.is_file() or path.read_bytes() != content:
             raise DemoWorkspaceError(f"Card-dump demo source file is missing or changed: {path}")
+
+
+def _validate_pilot_cohort_cli_demo_workspace(demo: PilotCohortCliDemoWorkspace) -> None:
+    if not isinstance(demo, PilotCohortCliDemoWorkspace):
+        raise DemoWorkspaceError("demo must be a PilotCohortCliDemoWorkspace")
+    if not demo.shoot_workspaces:
+        raise DemoWorkspaceError("Pilot cohort demo must contain at least one shoot workspace")
+    if len(demo.shoot_workspaces) != len(demo.dashboard_json_paths):
+        raise DemoWorkspaceError("Pilot cohort demo dashboards must match shoot workspaces")
+    for shoot_workspace in demo.shoot_workspaces:
+        if not isinstance(shoot_workspace, Path) or not shoot_workspace.is_dir():
+            raise DemoWorkspaceError(f"Pilot cohort demo shoot workspace is missing: {shoot_workspace}")
+    for dashboard_path in demo.dashboard_json_paths:
+        if not isinstance(dashboard_path, Path) or not dashboard_path.is_file():
+            raise DemoWorkspaceError(f"Pilot cohort demo dashboard is missing: {dashboard_path}")
+    if not isinstance(demo.cohort_report_path, Path) or not demo.cohort_report_path.is_file():
+        raise DemoWorkspaceError("Pilot cohort demo report is missing")
+    if not isinstance(demo.cohort_report, PilotCohortReport):
+        raise DemoWorkspaceError("Pilot cohort demo report must be a PilotCohortReport")
+    if not isinstance(demo.safety_notes, tuple):
+        raise DemoWorkspaceError("Pilot cohort demo safety_notes must be a tuple")
+    for note in demo.safety_notes:
+        if not isinstance(note, str) or not note.strip():
+            raise DemoWorkspaceError("Pilot cohort demo safety_notes must contain non-empty strings")
