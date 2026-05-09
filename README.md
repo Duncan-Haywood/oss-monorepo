@@ -216,9 +216,11 @@ The intended first workflow is:
     grading, storyline, and packaging jobs before render tasks exist.
 11. Ask for the next production wave from that durable status with
     `next-production-wave --use-production-status`, so background agents and Mac
-    shells schedule only pending/retryable work whose dependencies are recorded
-    as succeeded in `production_status.json` instead of rebuilding progress from
-    caller-reported command-line IDs.
+    shells schedule only pending work whose dependencies are recorded as
+    succeeded in `production_status.json` instead of rebuilding progress from
+    caller-reported command-line IDs. Retryable jobs remain visible as
+    review-required IDs and are retried through the scheduler only after the
+    caller explicitly allow-lists them.
 12. Use production-worker transition helpers to plan dependency-ready
     proxy/VLM/color/story jobs from trusted status, claim one matching attempt as
     running, verify every declared output before success, and report retry/failure

@@ -131,8 +131,8 @@ The current core models a concrete promise for high-volume users:
     file stays bound to the deterministic production-plan fingerprint and does
     not create downstream media artifacts. `next-production-wave
     --use-production-status` now reads succeeded jobs from that trusted status
-    file, schedules only dependency-ready pending/retryable jobs, and surfaces
-    running or failed work separately instead of relying on caller-reported
+    file, schedules only dependency-ready pending jobs, and surfaces running,
+    retryable, or failed work separately instead of relying on caller-reported
     completion IDs. Production-worker helpers now turn that trusted status into
     claimable job actions, report success only after declared outputs exist and
     checksum, and record retry/failure statuses without granting cleanup,

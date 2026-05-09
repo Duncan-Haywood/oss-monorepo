@@ -94,9 +94,9 @@ The repo currently contains a Python core package because it is quick to test an
   caller-reported completed IDs for simple demos, but the product path now reads
   trusted `production_status.json` via
   `plan_next_production_wave_from_status(...)`, treating succeeded jobs as
-  completed, pending/retryable jobs as schedulable when dependencies are
-  satisfied, and running/failed jobs as non-schedulable state that remains
-  visible for UI or agent review.
+  completed, pending jobs as schedulable when dependencies are satisfied, and
+  running/retryable/failed jobs as non-schedulable state that remains visible
+  for UI or agent review.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -341,8 +341,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   dependencies are not also complete, then returns the next ready wave. The
   legacy path accepts caller-reported completed IDs for simple demos; the product
   path loads the matching trusted `production_status.json` and derives completed
-  IDs from succeeded statuses. It deliberately writes no analysis, graded,
-  render-task, status, scheduler-report, or deliverable files.
+  IDs from succeeded statuses while keeping retryable jobs in the review-required
+  set instead of handing them back as automatic work. It deliberately writes no
+  analysis, graded, render-task, status, scheduler-report, or deliverable files.
 - `shootflow.production_worker` is the mutation boundary after the read-only
   production handoff. It accepts only a trusted production plan plus matching
   status manifest, schedules pending/retryable jobs whose dependencies have

@@ -2,6 +2,39 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 18:30 UTC
+
+This run first reconciled the previous completed branch work:
+
+- Fast-forwarded the assigned branch `cursor/repository-branch-consolidation-4b72`
+  to `origin/cursor/repository-branch-consolidation-4c04`, bringing in
+  production scheduler health/index visibility and stale-running production
+  lease recovery.
+- Pushed the fast-forwarded assigned branch before continuing with new changes.
+
+Then it tightened the UI/agent production handoff contract:
+
+- `plan_next_production_wave_from_status(...)` now treats status-backed
+  retryable production jobs as review-required instead of returning them as
+  ready work.
+- Pending jobs in the same dependency-ready wave can still proceed, but retryable
+  jobs must be retried through the scheduler path after explicit operator review
+  via `--retryable-job`.
+- Added a regression test proving expired-lease style retryable jobs appear in
+  `review_required_job_ids` and are not handed back as automatic work.
+
+Good next test-first targets:
+
+- Add product metric emission at production/render scheduler report boundaries
+  now that both progress surfaces include status counts, retry/review states,
+  and lease events.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and using the stale
+  lease expiry path for interrupted jobs.
+- Add a CLI-level `next-production-wave --use-production-status` regression for
+  retryable jobs if a future Mac-shell contract needs full JSON output coverage
+  in addition to the core handoff test.
+
 ## Implementation continuation note - 2026-05-09 18:00 UTC
 
 This run first reconciled the only active remote branch not reachable from

@@ -106,7 +106,7 @@ def _plan_next_production_wave_from_plan(
     completed_set = set(completed_job_ids)
     _validate_completed_dependencies(production_plan, completed_set)
     active_job_ids = _job_ids_by_state(production_plan.jobs, job_states_by_id, "running")
-    review_required_job_ids = _job_ids_by_state(production_plan.jobs, job_states_by_id, "failed")
+    review_required_job_ids = _review_required_job_ids(production_plan.jobs, job_states_by_id)
 
     for wave in production_plan.execution_waves:
         pending_wave_jobs = tuple(
@@ -187,7 +187,7 @@ def _job_is_schedulable(
 ) -> bool:
     if job_states_by_id is None:
         return True
-    return _job_state(job, job_states_by_id) in {"pending", "retryable"}
+    return _job_state(job, job_states_by_id) == "pending"
 
 
 def _job_state(job: ProductionJob, job_states_by_id: dict[str, str] | None) -> str:
@@ -204,6 +204,19 @@ def _job_ids_by_state(
     if job_states_by_id is None:
         return ()
     return tuple(job.job_id for job in jobs if job_states_by_id[job.job_id] == state)
+
+
+def _review_required_job_ids(
+    jobs: tuple[ProductionJob, ...],
+    job_states_by_id: dict[str, str] | None,
+) -> tuple[str, ...]:
+    if job_states_by_id is None:
+        return ()
+    return tuple(
+        job.job_id
+        for job in jobs
+        if job_states_by_id[job.job_id] in {"failed", "retryable"}
+    )
 
 
 def _canonical_completed_job_ids(
