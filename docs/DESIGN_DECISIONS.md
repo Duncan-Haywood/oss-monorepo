@@ -52,6 +52,11 @@ The repo currently contains a Python core package because it is quick to test an
   parallel/serial wave shape, and planned Instagram deliverables without writing analysis, graded, render,
   status, or deliverable files. This gives the future Mac UI a safe "what happens next" screen between
   card offload and AI/color execution.
+- `shootflow.production_status`: durable pre-render production progress. It
+  initializes and validates `production_status.json` against the deterministic
+  production-plan fingerprint, preserving pending/running/succeeded/failed/
+  retryable job state for proxy, analysis, grading, storyline, and packaging
+  workers without granting cleanup or media-write authority.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -168,7 +173,9 @@ The repo currently contains a Python core package because it is quick to test an
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
-  contract as the product.
+  contract as the product. Its card-dump demo variant first builds synthetic
+  card/SSD volumes, runs the real confirmed checksum ingest workflow, then seeds
+  the ingested shoot folder with the same render-task demo handoff.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -217,8 +224,12 @@ The desired high-quality pipeline is:
     authority.
 22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
-    flow without constructing trusted render tasks by hand.
-22. Build a workspace index after ingest, scheduling, or retries so UI and
+    flow without constructing trusted render tasks by hand; use the card-dump
+    demo variant when the demo must also cover route discovery and checksum ingest.
+23. Initialize production-status manifests from verified ingest manifests so
+    pre-render workers can resume production waves without confusing
+    caller-reported completed IDs with durable job progress.
+24. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
 23. Compare metadata-only render input fingerprints across health/index snapshots

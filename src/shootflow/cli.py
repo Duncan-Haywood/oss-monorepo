@@ -21,8 +21,10 @@ from shootflow.card_workflow import (
 )
 from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
 from shootflow.demo_workspace import (
+    CardDumpCliDemoWorkspace,
     DemoWorkspaceError,
     PersistedCliDemoWorkspace,
+    create_card_dump_cli_demo_workspace,
     create_persisted_cli_demo_workspace,
 )
 from shootflow.ingest import (
@@ -41,6 +43,11 @@ from shootflow.production_handoff import (
     plan_next_production_wave,
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.production_status import (
+    ProductionStatusError,
+    ProductionStatusInitializationResult,
+    initialize_production_status_manifest,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -119,6 +126,8 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "init-production-status":
+            _run_init_production_status_command(args, stdout=out)
         elif args.command == "write-render-tasks":
             _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "next-production-wave":
@@ -133,6 +142,8 @@ def main(
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
             _run_create_demo_workspace_command(args, stdout=out)
+        elif args.command == "create-card-dump-demo-workspace":
+            _run_create_card_dump_demo_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -145,6 +156,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         ProductionHandoffError,
+        ProductionStatusError,
         CardDumpWorkflowError,
         StoryPlanError,
         WorkspaceHealthError,
@@ -294,6 +306,17 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_init_production_status_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(manifest_path)
+    trusted_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    result = initialize_production_status_manifest(manifest_path.parent, trusted_plan=trusted_plan)
+    stdout.write(_production_status_initialization_json(result) + "\n")
+
+
 def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.photo_set_chunk_size < 1:
         raise ShootFlowCliError("--photo-set-chunk-size must be a positive integer")
@@ -378,6 +401,16 @@ def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: Text
         shoot_slug=args.shoot_slug,
     )
     stdout.write(_demo_workspace_json(demo))
+
+
+def _run_create_card_dump_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_card_dump_cli_demo_workspace(
+        args.workspace,
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+        destination_subfolder=args.destination_subfolder,
+    )
+    stdout.write(_card_dump_demo_workspace_json(demo))
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -481,6 +514,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Summarize manifest-backed production waves after safe ingest.",
     )
     production.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
+    production_status = subparsers.add_parser(
+        "init-production-status",
+        help="Create production_status.json from a trusted ingest manifest if missing.",
+    )
+    production_status.add_argument(
         "--ingest-manifest",
         required=True,
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
@@ -613,6 +656,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Shoot slug to embed in the demo render-task manifest.",
     )
 
+    card_dump_demo = subparsers.add_parser(
+        "create-card-dump-demo-workspace",
+        help="Create a safe synthetic card-dump workspace seeded for init/scheduler smoke demos.",
+    )
+    card_dump_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Directory where the synthetic Volumes/ card and SSD demo tree will be created.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-date",
+        default="2026-05-08",
+        help="ISO-8601 shoot date used by the synthetic ingest demo.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Slug for the synthetic shoot folder. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
+    card_dump_demo.add_argument(
+        "--destination-subfolder",
+        default="ShootFlow",
+        help="Relative library folder inside the synthetic destination volume.",
+    )
+
     return parser
 
 
@@ -664,6 +732,38 @@ def _render_status_count(result: object, state: str) -> int:
     if not isinstance(result, RenderStatusInitializationResult):
         raise ShootFlowCliError("result must be a RenderStatusInitializationResult")
     return sum(1 for status in result.manifest.task_statuses if status.state == state)
+
+
+def _production_status_initialization_json(result: object) -> str:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return json.dumps(
+        {
+            "created": result.created,
+            "status_path": str(result.manifest_path),
+            "shoot_slug": result.manifest.shoot_slug,
+            "production_plan_fingerprint": result.manifest.production_plan_fingerprint,
+            "job_count": len(result.manifest.job_statuses),
+            "pending_job_count": _production_status_count(result, "pending"),
+            "running_job_count": _production_status_count(result, "running"),
+            "succeeded_job_count": _production_status_count(result, "succeeded"),
+            "failed_job_count": _production_status_count(result, "failed"),
+            "retryable_job_count": _production_status_count(result, "retryable"),
+            "notes": [
+                "production status is bound to the verified ingest manifest and deterministic production plan",
+                "initialization never resets an existing matching production_status.json",
+                "no analysis, grading, render, deliverable, deletion, or cleanup files were written",
+            ],
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+
+
+def _production_status_count(result: object, state: str) -> int:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return sum(1 for status in result.manifest.job_statuses if status.state == state)
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
@@ -1193,6 +1293,51 @@ def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
             "safety_notes": list(demo.safety_notes),
             "next_steps": [
                 "run init-render-status for this workspace before scheduling",
+                "run dry-run-render-scheduler with each required_completed_dependency_id",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _card_dump_demo_workspace_json(demo: CardDumpCliDemoWorkspace) -> str:
+    if not isinstance(demo, CardDumpCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a CardDumpCliDemoWorkspace")
+    production_report = demo.card_dump_report.production_report
+    if production_report is None:
+        raise ShootFlowCliError("demo must include a production report")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace_root": str(demo.workspace_root),
+            "volume_root": str(demo.volume_root),
+            "source_volume": str(demo.source_volume),
+            "destination_volume": str(demo.destination_volume),
+            "shoot_folder": str(demo.shoot_folder),
+            "render_tasks_manifest_path": str(demo.render_demo.render_tasks_manifest_path),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "card_dump": {
+                "status": demo.card_dump_report.status,
+                "ingest_executed": demo.card_dump_report.ingest_executed,
+                "manifest_path": (
+                    None
+                    if demo.card_dump_report.copy_report is None
+                    else str(demo.card_dump_report.copy_report.manifest_path)
+                ),
+                "asset_counts": {
+                    "photo": production_report.photo_asset_count,
+                    "video": production_report.video_asset_count,
+                    "total": production_report.photo_asset_count + production_report.video_asset_count,
+                },
+                "copied_manifest_item_count": production_report.copied_manifest_item_count,
+                "wrote_downstream_files_before_demo_seed": False,
+            },
+            "safety_notes": list(demo.safety_notes),
+            "next_steps": [
+                "run init-render-status against shoot_folder before scheduling",
                 "run dry-run-render-scheduler with each required_completed_dependency_id",
             ],
         },

@@ -2,6 +2,44 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-09 15:00 UTC
+
+This run refreshed remote branch state before implementation. The fetch pruned
+older deleted `media-content-automation-*` branches and surfaced 24 remote
+feature tips still not reachable from `origin/main`. Blindly merging those tips
+would have downgraded the current consolidated core, because most were based on
+the older `f30c6ec` lineage and lacked newer `workspace_health`,
+`workspace_index`, `render_workspace`, demo-workspace hardening, and CLI
+contracts.
+
+Best-work reconciliation decisions:
+
+- Integrated the missing synthetic card-dump-to-render demo workspace from the
+  `ai-media-operating-system-c1c0` line onto the current core:
+  `create-card-dump-demo-workspace` now builds fake card/SSD volumes, runs the
+  real confirmed checksum ingest workflow, writes the resulting
+  `ingest_manifest.json`, seeds deterministic trusted render-task demo inputs,
+  and leaves render-status/scheduler report creation to the normal commands.
+- Added the storage-discovery regression from the native-volume-hints branches:
+  hints for paths outside reviewed volume roots are ignored and cannot create a
+  source/destination route.
+- Integrated the new resumable `production_status.json` manifest from the
+  production-status branches. It binds pre-render production job progress to the
+  deterministic manifest-backed production-plan fingerprint and exposes
+  `init-production-status --ingest-manifest <path>` without creating analysis,
+  graded, render, or deliverable files.
+- Kept current `macos_volume_metadata`, `storage_discovery`, `card_workflow`,
+  `production_handoff`, `render_workspace`, `workspace_health`, and
+  `workspace_index` implementations instead of replacing them with older branch
+  variants. Those current modules have stricter validation, richer read-only
+  summaries, render-input fingerprinting, and stronger safety tests.
+- Did not add the older standalone `workspace_state` or parallel
+  `render_inspection` modules because their useful read-only state behavior is
+  already covered by the current `workspace_health`, `workspace_index`, and
+  `render_workspace` surfaces. Future work can revisit "inspect outputs after
+  render inputs are archived" as an explicit API change instead of introducing a
+  duplicate inspection command.
+
 ## Branch consolidation note - 2026-05-09 01:00 UTC
 
 The assigned branch `cursor/ai-media-operating-system-9806` started as an

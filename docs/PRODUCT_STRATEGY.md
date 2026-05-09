@@ -125,17 +125,24 @@ The current core models a concrete promise for high-volume users:
     `init-render-status` and `dry-run-render-scheduler` with trusted completed
     dependency IDs included, while keeping runtime scheduler parameters outside
     the static handoff.
-24. Create repeatable persisted-manifest smoke/demo workspaces through the core
+24. Initialize `production_status.json` from the verified ingest manifest when a
+    Mac shell or production worker needs durable progress for proxy, analysis,
+    grading, storyline, and packaging work before render tasks exist. The status
+    file stays bound to the deterministic production-plan fingerprint and does
+    not create downstream media artifacts.
+25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
-    handoff as real shoots.
-25. Summarize the current shoot workspace through `index-workspace`, a
+    handoff as real shoots. The card-dump demo helper now adds a synthetic
+    detected-card -> checksum-ingest -> production-summary path while preserving
+    the no-delete/no-overwrite boundaries.
+26. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
     UI/agent layers one coherent handoff plus the health-derived next safe
     action without treating raw model JSON as authority. Workspace health and
     the derived index include a current render-input fingerprint over trusted
     storyline/graded inputs, so future agents can detect in-place input drift
     between snapshots before relying on older render progress.
-26. Assemble reels, carousels, and photo sets from graded masters.
+27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -206,7 +213,11 @@ to automate.
    scheduler, write that report, and can print JSON summaries for a Mac app or
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
-   without bypassing the real init/status/scheduler path. The workspace index
+   without bypassing the real init/status/scheduler path, plus a synthetic
+   card-dump-to-render smoke workspace that exercises real checksum ingest before
+   the render handoff. A new production-status manifest gives pre-render
+   proxy/analysis/grading/storyline work the same resumable, fingerprint-bound
+   progress boundary. The workspace index
    gives those shells a single metadata snapshot across ingest, storyline,
    render-task, render-status, and scheduler-report artifacts, while preserving
    each artifact's original trust boundary. The health/index layer includes a
