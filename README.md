@@ -50,10 +50,13 @@ This repo currently contains the first testable core utilities:
   deterministic dry-run adapter that claims one trusted worker action, writes
   only its declared `deliverables/` outputs through non-overwriting placeholder
   files, reports checksums, and persists both claim and result through the
-  single-task compare/write status path. It can also execute a trusted dry-run
-  action plan in batches, running parallel-safe ready actions up to a caller
-  supplied concurrency limit while preserving serial-only actions and leaving
-  blocked tasks untouched for UI/scheduler visibility.
+  single-task compare/write status path. It exposes an explicit registered
+  adapter dispatch path for `dry-run-local`, so future ffmpeg/Core Image/Metal
+  backends can plug into the same worker-action contract without forking status
+  orchestration. It can also execute a trusted dry-run action plan in batches,
+  running parallel-safe ready actions up to a caller supplied concurrency limit
+  while preserving serial-only actions and leaving blocked tasks untouched for
+  UI/scheduler visibility.
 - `shootflow.render_scheduler` ties the dry-run render pieces into an iterative
   local orchestration loop: it reloads trusted status each pass, optionally
   persists stale lease expirations, plans dependency-ready actions, runs bounded
@@ -176,9 +179,10 @@ The intended first workflow is:
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`, reporting
     same-attempt heartbeat refreshes as conflicts instead of clobbering them.
-16. Exercise adapter orchestration with the dry-run renderer before introducing
-    ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends. The
-    adapter consumes only worker actions, refuses symlinked or different
+16. Exercise adapter orchestration with the registered dry-run renderer before
+    introducing ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends.
+    The adapter dispatch path refuses unsupported renderer names before any task
+    claim; the adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
 17. Use the dry-run batch scheduler to execute dependency-ready actions at a
     bounded local concurrency level, record stale-action failures without

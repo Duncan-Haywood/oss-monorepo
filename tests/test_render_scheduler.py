@@ -235,6 +235,29 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
 
         self.assertEqual(loaded_manifest, stale_running_manifest)
 
+    def test_scheduler_rejects_unsupported_adapter_before_writing_status(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "Unsupported renderer adapter"):
+                run_dry_run_render_scheduler(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                    renderer_adapter="ffmpeg-local",
+                    started_at="2026-05-07T15:02:52Z",
+                    completed_at="2026-05-07T15:02:57Z",
+                    max_concurrency=1,
+                    max_iterations=3,
+                )
+            loaded_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, initial_manifest)
+
     def test_scheduler_rejects_string_completed_dependency_ids(self) -> None:
         trusted_plan = self._single_task_plan()
 

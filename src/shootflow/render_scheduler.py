@@ -11,7 +11,9 @@ from pathlib import Path
 from shootflow.assembly import AssemblyPlan
 from shootflow.render_adapter import (
     DryRunRenderBatchResult,
-    run_dry_run_render_batch,
+    DryRunRendererError,
+    run_render_adapter_batch,
+    supported_render_adapter_names,
 )
 from shootflow.render_status import (
     RenderStatusManifest,
@@ -176,19 +178,22 @@ def run_dry_run_render_scheduler(
 
         if ready_actions:
             attempted_task_ids.update(action.task_id for action in ready_actions)
-            batch_result = run_dry_run_render_batch(
-                workspace_root,
-                trusted_plan=trusted_plan,
-                action_plan=RenderWorkerActionPlan(
-                    shoot_slug=action_plan.shoot_slug,
-                    renderer_adapter=action_plan.renderer_adapter,
-                    actions=ready_actions,
-                    blocked_tasks=action_plan.blocked_tasks,
-                ),
-                started_at=started_at,
-                completed_at=completed_at,
-                max_concurrency=max_concurrency,
-            )
+            try:
+                batch_result = run_render_adapter_batch(
+                    workspace_root,
+                    trusted_plan=trusted_plan,
+                    action_plan=RenderWorkerActionPlan(
+                        shoot_slug=action_plan.shoot_slug,
+                        renderer_adapter=action_plan.renderer_adapter,
+                        actions=ready_actions,
+                        blocked_tasks=action_plan.blocked_tasks,
+                    ),
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    max_concurrency=max_concurrency,
+                )
+            except DryRunRendererError as exc:
+                raise DryRunRenderSchedulerError(str(exc)) from exc
 
         iteration = DryRunRenderSchedulerIteration(
             iteration_number=iteration_number,
@@ -308,6 +313,12 @@ def _validate_scheduler_inputs(
         raise DryRunRenderSchedulerError("trusted_plan must be an AssemblyPlan")
     if not isinstance(renderer_adapter, str) or not _RENDERER_PATTERN.fullmatch(renderer_adapter):
         raise DryRunRenderSchedulerError("renderer_adapter is invalid")
+    if renderer_adapter not in supported_render_adapter_names():
+        supported_adapters = ", ".join(supported_render_adapter_names()) or "none"
+        raise DryRunRenderSchedulerError(
+            f"Unsupported renderer adapter: {renderer_adapter}. "
+            f"Supported adapters: {supported_adapters}"
+        )
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     if (

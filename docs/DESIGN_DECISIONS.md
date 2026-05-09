@@ -94,11 +94,14 @@ The repo currently contains a Python core package because it is quick to test an
   consumes a single trusted `RenderWorkerAction`, persists a claim through `compare_and_write_render_task_status(...)`,
   materializes only the action's declared `deliverables/` outputs as non-overwriting placeholder files, reports
   success checksums or retryable errors, and persists the final status through the same compare/write boundary.
-  It also includes a dry-run batch scheduler for a trusted `RenderWorkerActionPlan`: serial-only actions run
-  alone, parallel-safe actions run in ordered groups up to a caller-provided concurrency limit, blocked tasks
-  remain visible and untouched, action fields are rebound to the trusted `AssemblyPlan` before any output is
-  materialized, and stale scheduler-level action failures are reported without materializing outputs. It
-  intentionally does not open source or graded inputs, delete files, or implement real media rendering.
+  The public dispatch path runs only registered adapters (`dry-run-local` today), so a future ffmpeg/Core
+  Image/Metal/DaVinci/cloud backend must be added deliberately behind the same action-plan interface before
+  the scheduler can claim work for it. It also includes a dry-run batch scheduler for a trusted
+  `RenderWorkerActionPlan`: serial-only actions run alone, parallel-safe actions run in ordered groups up to a
+  caller-provided concurrency limit, blocked tasks remain visible and untouched, action fields are rebound to
+  the trusted `AssemblyPlan` before any output is materialized, and stale scheduler-level action failures are
+  reported without materializing outputs. It intentionally does not open source or graded inputs, delete files,
+  or implement real media rendering.
 - `shootflow.render_scheduler`: a local dry-run orchestration loop above the adapter boundary. It reloads the
   trusted status manifest on every pass, optionally plans and persists stale-running lease expirations through the
   guarded lease helper, plans dependency-ready actions, runs bounded dry-run batches, and stops with explicit
@@ -179,8 +182,8 @@ The desired high-quality pipeline is:
     overwrite newer claims or results.
 14. Plan stale running leases from trusted status plus an explicit cutoff, then persist each retryable
     transition through the same single-task compare/write boundary.
-15. Run adapter orchestration against a dry-run renderer that proves claim/result persistence and output-safety
-    rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
+15. Run adapter orchestration against a registered dry-run renderer that proves claim/result persistence and
+    output-safety rules before wiring in real ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU rendering.
 16. Run trusted ready-action batches with bounded local concurrency so high-volume photo-set chunks can make
     progress while serial reels and blocked tasks stay deterministic and inspectable.
 17. Drive the dry-run renderer with an iterative scheduler loop that alternates trusted status reloads, stale lease
