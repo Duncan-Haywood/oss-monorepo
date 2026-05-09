@@ -126,9 +126,10 @@ The current core models a concrete promise for high-volume users:
     `init-render-status` and `dry-run-render-scheduler` with the trusted
     completed dependency IDs included, while keeping runtime scheduler
     parameters outside the static handoff.
-25. Create repeatable persisted-manifest smoke/demo workspaces through the core
-    helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
-    handoff as real shoots.
+25. Create repeatable persisted-manifest smoke/demo workspaces through
+    `python -m shootflow.cli create-demo-workspace` or the core helper so Mac UI
+    shells, GTM demos, and continuation agents exercise the same
+    init/status/scheduler handoff as real shoots.
 26. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
     UI/agent layers one coherent handoff plus the health-derived next safe
@@ -216,7 +217,8 @@ to automate.
    inspection now adds the missing read-only state surface around those handoffs:
    it reports whether status is missing, work is ready, blocked, running, review
    required, or complete, while rejecting stale scheduler reports instead of
-   treating them as product truth.
+   treating them as product truth. The `create-demo-workspace` CLI command exposes
+   the trusted demo handoff directly for native shells and continuation agents.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

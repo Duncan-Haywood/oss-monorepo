@@ -208,6 +208,15 @@ def _preflight_demo_inputs(root: Path) -> None:
 
 def _preflight_existing_render_tasks_manifest(root: Path, plan: AssemblyPlan) -> None:
     manifest_path = root / RENDER_TASKS_MANIFEST_PATH
+    if manifest_path.parent.is_symlink():
+        raise DemoWorkspaceError(
+            f"Refusing symlinked render task manifest directory: {manifest_path.parent}"
+        )
+    _reject_symlink_ancestors(manifest_path.parent, root=root)
+    if manifest_path.parent.exists() and not manifest_path.parent.is_dir():
+        raise DemoWorkspaceError(
+            f"Render task manifest directory must be a directory: {manifest_path.parent}"
+        )
     if not manifest_path.exists() and not manifest_path.is_symlink():
         return
     if not _demo_inputs_are_exact(root):

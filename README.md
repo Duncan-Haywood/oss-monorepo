@@ -83,7 +83,10 @@ This repo currently contains the first testable core utilities:
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
   different files, and leaves render-status/report creation to the normal CLI
-  commands so existing progress is not reset.
+  commands so existing progress is not reset. `shootflow.cli` exposes this as
+  `python -m shootflow.cli create-demo-workspace` so Mac UI shells, GTM demos,
+  and continuation agents can create the handoff without importing Python
+  internals.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -213,14 +216,15 @@ The intended first workflow is:
 22. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-23. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+23. Use `python -m shootflow.cli create-demo-workspace` or
+    `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to build
+    a safe, repeatable persisted-manifest smoke workspace for Mac UI shells, GTM
+    demos, and continuation agents without touching source media or resetting
+    render progress.
 24. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
     blocked/retryable work, or review finished deliverables without writing files.
-    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
-    GTM demos, and continuation agents without touching source media or resetting
-    render progress.
 25. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
@@ -259,6 +263,39 @@ trusted render-task handoff exists, both workspace health and the index include 
 metadata-only `render_inputs_fingerprint` plus `render_input_count` over the
 current storyline/graded inputs, giving future agents a cheap way to detect
 in-place input changes between snapshots without changing renderer authority.
+
+The CLI demo workspace flow is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace \
+  --workspace /tmp/shootflow-demo \
+  --shoot-slug cli-demo-shoot
+
+PYTHONPATH=src python3 -m shootflow.cli init-render-status \
+  --workspace /tmp/shootflow-demo
+
+PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler \
+  --workspace /tmp/shootflow-demo \
+  --completed-dependency rank_instagram_storylines \
+  --completed-dependency grade_asset_00000 \
+  --completed-dependency grade_asset_00001 \
+  --completed-dependency grade_asset_00002 \
+  --completed-dependency grade_asset_00003 \
+  --renderer dry-run-local \
+  --started-at 2026-05-09T05:30:00Z \
+  --completed-at 2026-05-09T05:30:05Z \
+  --generated-at 2026-05-09T05:30:06Z \
+  --max-concurrency 3 \
+  --max-iterations 4 \
+  --print-report
+```
+
+The demo command prints schema-versioned JSON with the render-task manifest
+path, required completed dependency IDs, expected deliverable output paths,
+safety notes, and next-step hints. It creates only placeholder analysis/graded
+inputs plus `deliverables/render_tasks.json`; status, scheduler reports,
+deliverable outputs, source media, and ingest manifests are still created only
+by their normal commands.
 
 The import-route planning flow is:
 

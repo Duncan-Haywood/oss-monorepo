@@ -20,6 +20,11 @@ from shootflow.card_workflow import (
     run_card_dump_workflow,
 )
 from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
+from shootflow.demo_workspace import (
+    DemoWorkspaceError,
+    PersistedCliDemoWorkspace,
+    create_persisted_cli_demo_workspace,
+)
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -118,6 +123,8 @@ def main(
             _run_index_workspace_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
+        elif args.command == "create-demo-workspace":
+            _run_create_demo_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -134,6 +141,7 @@ def main(
         WorkspaceHealthError,
         WorkspaceIndexError,
         RenderWorkspaceError,
+        DemoWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -346,6 +354,14 @@ def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: T
     stdout.write(_render_workspace_report_json(report))
 
 
+def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_persisted_cli_demo_workspace(
+        args.workspace,
+        shoot_slug=args.shoot_slug,
+    )
+    stdout.write(_demo_workspace_json(demo))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -546,6 +562,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workspace",
         default=".",
         help="Workspace containing deliverables/render_tasks.json.",
+    )
+
+    create_demo = subparsers.add_parser(
+        "create-demo-workspace",
+        help="Create a tiny persisted render-task workspace for CLI and native-shell demos.",
+    )
+    create_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace where placeholder inputs and deliverables/render_tasks.json will be created.",
+    )
+    create_demo.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Shoot slug to embed in the demo render-task manifest.",
     )
 
     return parser
@@ -1066,6 +1097,30 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
                 "read-only render workspace inspection",
                 "no render status, scheduler report, or deliverable files were written",
                 "safe_next_actions are recommendations, not permission to delete or overwrite media",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
+    if not isinstance(demo, PersistedCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a PersistedCliDemoWorkspace")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(demo.workspace_root),
+            "render_tasks_manifest_path": str(demo.render_tasks_manifest_path),
+            "shoot_slug": demo.trusted_plan.shoot_slug,
+            "render_task_count": len(demo.trusted_plan.render_tasks),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "safety_notes": list(demo.safety_notes),
+            "next_steps": [
+                "run init-render-status for this workspace before scheduling",
+                "run dry-run-render-scheduler with each required_completed_dependency_id",
             ],
         },
         ensure_ascii=True,
