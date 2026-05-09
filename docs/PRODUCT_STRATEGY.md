@@ -129,7 +129,11 @@ The current core models a concrete promise for high-volume users:
     Mac shell or production worker needs durable progress for proxy, analysis,
     grading, storyline, and packaging work before render tasks exist. The status
     file stays bound to the deterministic production-plan fingerprint and does
-    not create downstream media artifacts.
+    not create downstream media artifacts. `next-production-wave
+    --use-production-status` now reads succeeded jobs from that trusted status
+    file, schedules only dependency-ready pending/retryable jobs, and surfaces
+    running or failed work separately instead of relying on caller-reported
+    completion IDs.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -217,7 +221,8 @@ to automate.
    card-dump-to-render smoke workspace that exercises real checksum ingest before
    the render handoff. A new production-status manifest gives pre-render
    proxy/analysis/grading/storyline work the same resumable, fingerprint-bound
-   progress boundary. The workspace index
+   progress boundary, and the next-production-wave handoff can now derive its
+   completed dependency set directly from that manifest. The workspace index
    gives those shells a single metadata snapshot across ingest, storyline,
    render-task, render-status, and scheduler-report artifacts, while preserving
    each artifact's original trust boundary. The health/index layer includes a

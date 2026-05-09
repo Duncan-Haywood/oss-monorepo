@@ -57,6 +57,14 @@ The repo currently contains a Python core package because it is quick to test an
   production-plan fingerprint, preserving pending/running/succeeded/failed/
   retryable job state for proxy, analysis, grading, storyline, and packaging
   workers without granting cleanup or media-write authority.
+- `shootflow.production_handoff`: the read-only bridge between plan review and
+  actual proxy/VLM/color/story workers. It can still derive a next wave from
+  caller-reported completed IDs for simple demos, but the product path now reads
+  trusted `production_status.json` via
+  `plan_next_production_wave_from_status(...)`, treating succeeded jobs as
+  completed, pending/retryable jobs as schedulable when dependencies are
+  satisfied, and running/failed jobs as non-schedulable state that remains
+  visible for UI or agent review.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -274,13 +282,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   originals, which keeps social assembly downstream of the color pipeline.
 - `shootflow.production_handoff` is the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It reloads the verified ingest manifest,
-  rebuilds the deterministic production plan, canonicalizes caller-reported
-  completed job IDs into plan order, rejects unknown IDs, duplicates, and
-  completed jobs whose dependencies are not also complete, then returns the next
-  ready wave. It deliberately writes no analysis, graded, render-task, status,
-  scheduler-report, or deliverable files; a future production-status manifest
-  should replace caller-reported completions before real worker retries become
-  automatic.
+  rebuilds the deterministic production plan, canonicalizes completed job IDs
+  into plan order, rejects unknown IDs, duplicates, and completed jobs whose
+  dependencies are not also complete, then returns the next ready wave. The
+  legacy path accepts caller-reported completed IDs for simple demos; the product
+  path loads the matching trusted `production_status.json` and derives completed
+  IDs from succeeded statuses. It deliberately writes no analysis, graded,
+  render-task, status, scheduler-report, or deliverable files.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

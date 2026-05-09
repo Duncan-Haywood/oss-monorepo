@@ -41,6 +41,7 @@ from shootflow.production_handoff import (
     ProductionHandoffError,
     ProductionWaveHandoff,
     plan_next_production_wave,
+    plan_next_production_wave_from_status,
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_status import (
@@ -347,10 +348,17 @@ def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO)
 
 
 def _run_next_production_wave_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
-    handoff = plan_next_production_wave(
-        args.ingest_manifest,
-        completed_job_ids=tuple(args.completed_job),
-    )
+    if args.use_production_status:
+        if args.completed_job:
+            raise ShootFlowCliError(
+                "--completed-job cannot be combined with --use-production-status"
+            )
+        handoff = plan_next_production_wave_from_status(args.ingest_manifest)
+    else:
+        handoff = plan_next_production_wave(
+            args.ingest_manifest,
+            completed_job_ids=tuple(args.completed_job),
+        )
     stdout.write(_production_wave_handoff_json(handoff))
 
 
@@ -559,6 +567,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         help="Production job ID the caller has completed. Repeat for each completed job.",
+    )
+    next_wave.add_argument(
+        "--use-production-status",
+        action="store_true",
+        help="Read completed production jobs from production_status.json next to the ingest manifest.",
     )
 
     card_dump = subparsers.add_parser(
@@ -1089,9 +1102,12 @@ def _production_wave_handoff_json(handoff: ProductionWaveHandoff) -> str:
             "workspace": str(handoff.workspace),
             "shoot_slug": handoff.shoot_slug,
             "status": handoff.status,
+            "status_source": handoff.status_source,
             "wave_index": handoff.wave_index,
             "completed_job_ids": list(handoff.completed_job_ids),
             "blocked_dependency_ids": list(handoff.blocked_dependency_ids),
+            "active_job_ids": list(handoff.active_job_ids),
+            "review_required_job_ids": list(handoff.review_required_job_ids),
             "production_plan": {
                 "job_count": len(handoff.production_plan.jobs),
                 "wave_count": len(handoff.production_plan.execution_waves),

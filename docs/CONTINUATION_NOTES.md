@@ -2,6 +2,37 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 15:00 UTC
+
+Branch reconciliation found the active branch already aligned with
+`origin/main`; after `git fetch origin main`, `git branch -r --no-merged
+origin/main` returned no remote feature branches with work stranded outside main.
+The remaining local `main` ref is still stale/behind, so compare future
+reconciliation against `origin/main` unless it is explicitly fast-forwarded.
+
+This run advanced the pre-render production orchestration layer:
+
+- Added `plan_next_production_wave_from_status(...)`, which reloads the verified
+  ingest manifest, rebuilds the deterministic production plan, loads trusted
+  `production_status.json`, derives completed job IDs from succeeded statuses,
+  and returns the next dependency-ready pending/retryable production jobs without
+  writing analysis, graded, render-task, status, scheduler-report, or deliverable
+  files.
+- `ProductionWaveHandoff` now carries `status_source`, `active_job_ids`, and
+  `review_required_job_ids` so UI/agent consumers can distinguish legacy
+  caller-reported progress from durable production status and avoid rescheduling
+  running or failed jobs.
+- `next-production-wave --use-production-status` exposes the durable status path
+  on the CLI and rejects mixing that mode with `--completed-job` arguments.
+- Documentation now treats status-backed next-wave planning as the product path
+  before future production-worker claim/succeed/retry/fail helpers.
+
+Good next test-first target: add production-worker transition helpers analogous
+to the render-worker/status path, so proxy/VLM/grading/story jobs can claim a
+pending/retryable production job, persist guarded status updates, verify declared
+outputs, and report retry/failure without widening file authority or deleting
+source/graded/deliverable media.
+
 ## Branch reconciliation note - 2026-05-09 15:00 UTC
 
 This run refreshed remote branch state before implementation. The fetch pruned

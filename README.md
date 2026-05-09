@@ -181,72 +181,77 @@ The intended first workflow is:
 10. Initialize `production_status.json` from the verified ingest manifest when
     a production worker or UI needs durable progress for proxy, analysis,
     grading, storyline, and packaging jobs before render tasks exist.
-11. Use `python -m shootflow.cli write-render-tasks` once the trusted storyline
+11. Ask for the next production wave from that durable status with
+    `next-production-wave --use-production-status`, so background agents and Mac
+    shells schedule only pending/retryable work whose dependencies are recorded
+    as succeeded in `production_status.json` instead of rebuilding progress from
+    caller-reported command-line IDs.
+12. Use `python -m shootflow.cli write-render-tasks` once the trusted storyline
     artifact and graded masters exist, so background agents and Mac shells can
     persist the assembly handoff from an `ingest_manifest.json` without
     reconstructing in-memory state or overwriting a different existing render
     task manifest.
-12. Persist and reload `deliverables/render_tasks.json` against the trusted
+13. Persist and reload `deliverables/render_tasks.json` against the trusted
    assembly plan so parallel render workers cannot consume model-authored or
    stale task JSON.
-13. Initialize, persist, and reload `deliverables/render_status.json` against the
+14. Initialize, persist, and reload `deliverables/render_status.json` against the
    same trusted render tasks so a Mac app, local renderer, or cloud worker can
    show pending, running, succeeded, failed, and retryable work safely without
    resetting prior progress.
-14. Derive renderer-neutral worker actions from the trusted task/status pair
+15. Derive renderer-neutral worker actions from the trusted task/status pair
     before any ffmpeg/Core Image/DaVinci/cloud adapter opens media files.
-15. Use worker status-transition helpers to claim ready work, reject stale
+16. Use worker status-transition helpers to claim ready work, reject stale
     attempts, and report completed outputs by checksum before persisting updated
     render status manifests through a single-task compare/write update.
-16. Let the scheduler plan stale running leases from the trusted status
+17. Let the scheduler plan stale running leases from the trusted status
     manifest when a caller supplies an explicit cutoff, then persist each
     retryable transition through the same compare/write boundary with the
     observed `running_since` value as `expected_updated_at`, reporting
     same-attempt heartbeat refreshes as conflicts instead of clobbering them.
-17. Exercise adapter orchestration with the registered dry-run renderer before
+18. Exercise adapter orchestration with the registered dry-run renderer before
     introducing ffmpeg, Core Image/Metal, DaVinci Resolve, or cloud GPU backends.
     The adapter dispatch path refuses unsupported renderer names before any task
     claim; the adapter consumes only worker actions, refuses symlinked or different
     existing outputs, and never deletes source, graded, or deliverable files.
-18. Use the dry-run batch scheduler to execute dependency-ready actions at a
+19. Use the dry-run batch scheduler to execute dependency-ready actions at a
     bounded local concurrency level, record stale-action failures without
     materializing outputs, and keep blocked/running/failed work visible for
     later retries or review.
-19. Use the iterative dry-run scheduler to alternate trusted status reloads,
+20. Use the iterative dry-run scheduler to alternate trusted status reloads,
     guarded stale-lease expiration, ready-action planning, and bounded batch
     execution until the current render plan is complete, blocked, failed,
     waiting, or has retryable work that should not be hammered again without review.
-20. Persist `deliverables/render_scheduler_report.json` against the trusted
+21. Persist `deliverables/render_scheduler_report.json` against the trusted
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-21. Build or persist `shootflow_workspace_index.json` with
+22. Build or persist `shootflow_workspace_index.json` with
     `index-workspace` so native shells and future agents can discover the
     current shoot state from one strict metadata summary without trusting
     arbitrary model JSON or widening file authority.
-22. Run the same handoff through
+23. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-23. Inspect persisted render workspace state with
+24. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
     blocked/retryable work, or review finished deliverables without writing
     files. Succeeded render outputs must still be present and match their
     recorded SHA-256 checksums before inspection reports the workspace complete.
-24. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+25. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
     The report includes machine-readable `agent_handoff` fields for the next
     safe step and whether that step requires human review or may copy bytes.
-25. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+26. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress. Use `create_card_dump_cli_demo_workspace(...)` or
     `python -m shootflow.cli create-card-dump-demo-workspace` when a demo should
     also prove the detected-card -> checksum-ingest -> production-summary path.
-26. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+27. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -258,6 +263,9 @@ The current persisted-manifest CLI flow is:
 PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli init-production-status \
   --ingest-manifest <dir>/ingest_manifest.json
+PYTHONPATH=src python3 -m shootflow.cli next-production-wave \
+  --ingest-manifest <dir>/ingest_manifest.json \
+  --use-production-status
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \
