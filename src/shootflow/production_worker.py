@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from shootflow.production import ProductionJob, ProductionPlan
@@ -11,6 +12,8 @@ from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
     ProductionStatusManifest,
+    ProductionStatusPreconditionError,
+    compare_and_write_production_job_status,
     validate_production_status_manifest,
 )
 
@@ -46,6 +49,43 @@ class ProductionWorkerActionPlan:
     worker_adapter: str
     actions: tuple[ProductionWorkerAction, ...]
     blocked_jobs: tuple[BlockedProductionJob, ...]
+
+
+@dataclass(frozen=True)
+class ExpiredProductionLease:
+    job_id: str
+    worker_adapter: str
+    attempt_number: int
+    running_since: str
+    retryable_status: ProductionJobStatus
+
+
+@dataclass(frozen=True)
+class ProductionLeaseExpirationPlan:
+    shoot_slug: str
+    stale_before: str
+    updated_at: str
+    expired_leases: tuple[ExpiredProductionLease, ...]
+
+
+@dataclass(frozen=True)
+class PersistedProductionLease:
+    job_id: str
+    retryable_status: ProductionJobStatus
+    manifest: ProductionStatusManifest
+
+
+@dataclass(frozen=True)
+class ConflictedProductionLease:
+    job_id: str
+    error_message: str
+
+
+@dataclass(frozen=True)
+class ProductionLeasePersistenceResult:
+    shoot_slug: str
+    persisted_leases: tuple[PersistedProductionLease, ...]
+    conflicted_leases: tuple[ConflictedProductionLease, ...]
 
 
 def plan_production_worker_actions(
@@ -96,6 +136,108 @@ def plan_production_worker_actions(
     )
     _validate_action_plan(action_plan)
     return action_plan
+
+
+def plan_stale_production_leases(
+    trusted_plan: ProductionPlan,
+    status_manifest: ProductionStatusManifest,
+    *,
+    stale_before: str,
+    updated_at: str,
+) -> ProductionLeaseExpirationPlan:
+    stale_before_time = _parse_lease_timestamp(stale_before, "stale_before")
+    updated_at_time = _parse_lease_timestamp(updated_at, "updated_at")
+    if updated_at_time < stale_before_time:
+        raise ProductionWorkerError("lease expiration updated_at timestamp cannot be before stale_before")
+    try:
+        validate_production_status_manifest(status_manifest, trusted_plan=trusted_plan)
+    except (ProductionStatusError, TypeError) as exc:
+        raise ProductionWorkerError("Cannot plan stale production leases from an untrusted status manifest") from exc
+
+    expired_leases: list[ExpiredProductionLease] = []
+    for status in status_manifest.job_statuses:
+        if status.state != "running":
+            continue
+        if status.updated_at is None or status.worker_adapter is None:
+            raise ProductionWorkerError("running production status is missing lease metadata")
+        running_since_time = _parse_lease_timestamp(status.updated_at, "running status updated_at")
+        if running_since_time >= stale_before_time:
+            continue
+        retryable_status = ProductionJobStatus(
+            job_id=status.job_id,
+            state="retryable",
+            worker_adapter=status.worker_adapter,
+            attempts=status.attempts,
+            error_message=_lease_expiration_error_message(status.updated_at),
+            updated_at=updated_at,
+        )
+        _validate_return_status(retryable_status, expected_state="retryable")
+        expired_leases.append(
+            ExpiredProductionLease(
+                job_id=status.job_id,
+                worker_adapter=status.worker_adapter,
+                attempt_number=status.attempts,
+                running_since=status.updated_at,
+                retryable_status=retryable_status,
+            )
+        )
+
+    expiration_plan = ProductionLeaseExpirationPlan(
+        shoot_slug=status_manifest.shoot_slug,
+        stale_before=stale_before,
+        updated_at=updated_at,
+        expired_leases=tuple(expired_leases),
+    )
+    _validate_lease_expiration_plan(expiration_plan)
+    return expiration_plan
+
+
+def persist_stale_production_leases(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    expiration_plan: ProductionLeaseExpirationPlan,
+) -> ProductionLeasePersistenceResult:
+    """Persist planned stale production leases without clobbering refreshed workers."""
+
+    _validate_lease_expiration_plan_for_trusted_plan(expiration_plan, trusted_plan=trusted_plan)
+    persisted_leases: list[PersistedProductionLease] = []
+    conflicted_leases: list[ConflictedProductionLease] = []
+    for expired_lease in expiration_plan.expired_leases:
+        try:
+            updated_manifest = compare_and_write_production_job_status(
+                workspace_root,
+                trusted_plan=trusted_plan,
+                updated_status=expired_lease.retryable_status,
+                expected_state="running",
+                expected_attempts=expired_lease.attempt_number,
+                expected_updated_at=expired_lease.running_since,
+            )
+        except ProductionStatusPreconditionError as exc:
+            conflicted_leases.append(
+                ConflictedProductionLease(
+                    job_id=expired_lease.job_id,
+                    error_message=_lease_conflict_message(expired_lease, exc),
+                )
+            )
+            continue
+        except ProductionStatusError as exc:
+            raise ProductionWorkerError("Cannot persist stale production lease from untrusted status state") from exc
+        persisted_leases.append(
+            PersistedProductionLease(
+                job_id=expired_lease.job_id,
+                retryable_status=expired_lease.retryable_status,
+                manifest=updated_manifest,
+            )
+        )
+
+    result = ProductionLeasePersistenceResult(
+        shoot_slug=expiration_plan.shoot_slug,
+        persisted_leases=tuple(persisted_leases),
+        conflicted_leases=tuple(conflicted_leases),
+    )
+    _validate_lease_persistence_result(result)
+    return result
 
 
 def claim_production_worker_action(
@@ -228,6 +370,124 @@ def _validate_action_plan(action_plan: ProductionWorkerActionPlan) -> None:
         _validate_blocked_job(blocked_job)
 
 
+def _validate_lease_expiration_plan(expiration_plan: ProductionLeaseExpirationPlan) -> None:
+    if not isinstance(expiration_plan, ProductionLeaseExpirationPlan):
+        raise ProductionWorkerError("production lease expiration plan has an invalid return type")
+    _validate_non_empty_string(expiration_plan.shoot_slug, "lease expiration shoot_slug")
+    stale_before_time = _parse_lease_timestamp(expiration_plan.stale_before, "stale_before")
+    updated_at_time = _parse_lease_timestamp(expiration_plan.updated_at, "updated_at")
+    if updated_at_time < stale_before_time:
+        raise ProductionWorkerError("lease expiration updated_at timestamp cannot be before stale_before")
+    if not isinstance(expiration_plan.expired_leases, tuple):
+        raise ProductionWorkerError("expired production leases must be a tuple")
+    seen_job_ids: set[str] = set()
+    for expired_lease in expiration_plan.expired_leases:
+        _validate_expired_lease(expired_lease)
+        running_since_time = _parse_lease_timestamp(expired_lease.running_since, "expired lease running_since")
+        if running_since_time >= stale_before_time:
+            raise ProductionWorkerError("expired production lease running_since must be before stale_before")
+        if expired_lease.retryable_status.updated_at != expiration_plan.updated_at:
+            raise ProductionWorkerError("expired production lease retryable status updated_at does not match plan")
+        expected_error_message = _lease_expiration_error_message(expired_lease.running_since)
+        if expired_lease.retryable_status.error_message != expected_error_message:
+            raise ProductionWorkerError("expired production lease retryable status error message is not trusted")
+        if expired_lease.job_id in seen_job_ids:
+            raise ProductionWorkerError(f"duplicate expired production lease job: {expired_lease.job_id}")
+        seen_job_ids.add(expired_lease.job_id)
+
+
+def _validate_lease_expiration_plan_for_trusted_plan(
+    expiration_plan: ProductionLeaseExpirationPlan,
+    *,
+    trusted_plan: ProductionPlan,
+) -> None:
+    _validate_lease_expiration_plan(expiration_plan)
+    if not isinstance(trusted_plan, ProductionPlan):
+        raise ProductionWorkerError("trusted_plan must be a ProductionPlan")
+    if expiration_plan.shoot_slug != trusted_plan.shoot_slug:
+        raise ProductionWorkerError("production lease expiration plan shoot_slug does not match trusted plan")
+    job_ids = frozenset(job.job_id for job in trusted_plan.jobs)
+    for expired_lease in expiration_plan.expired_leases:
+        if expired_lease.job_id not in job_ids:
+            raise ProductionWorkerError(f"expired production lease job is not in trusted plan: {expired_lease.job_id}")
+
+
+def _validate_expired_lease(expired_lease: ExpiredProductionLease) -> None:
+    if not isinstance(expired_lease, ExpiredProductionLease):
+        raise ProductionWorkerError("expired production lease has an invalid return type")
+    _validate_non_empty_string(expired_lease.job_id, "expired lease job_id")
+    _validate_worker_adapter(expired_lease.worker_adapter)
+    if (
+        isinstance(expired_lease.attempt_number, bool)
+        or not isinstance(expired_lease.attempt_number, int)
+        or expired_lease.attempt_number < 1
+    ):
+        raise ProductionWorkerError("expired production lease attempt_number must be positive")
+    _parse_lease_timestamp(expired_lease.running_since, "expired lease running_since")
+    _validate_current_status(expired_lease.retryable_status)
+    if expired_lease.retryable_status.job_id != expired_lease.job_id:
+        raise ProductionWorkerError("expired production lease status job does not match")
+    if expired_lease.retryable_status.state != "retryable":
+        raise ProductionWorkerError("expired production lease status must be retryable")
+    if expired_lease.retryable_status.worker_adapter != expired_lease.worker_adapter:
+        raise ProductionWorkerError("expired production lease worker adapter does not match")
+    if expired_lease.retryable_status.attempts != expired_lease.attempt_number:
+        raise ProductionWorkerError("expired production lease attempts do not match")
+    if expired_lease.retryable_status.error_message is None:
+        raise ProductionWorkerError("expired production lease must include an error message")
+    if expired_lease.retryable_status.output_checksums:
+        raise ProductionWorkerError("expired production lease cannot include output checksums")
+
+
+def _lease_conflict_message(expired_lease: ExpiredProductionLease, exc: ProductionStatusError) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = f"{detail[:1500]}..."
+    return (
+        f"another worker already changed this job before stale lease expiration could be persisted "
+        f"for {expired_lease.job_id}: {detail}; "
+        "no source, analysis, graded, render, or deliverable files were deleted or cleaned up."
+    )
+
+
+def _lease_expiration_error_message(running_since: str) -> str:
+    return (
+        f"Production worker lease expired after running since {running_since}; "
+        "no source, analysis, graded, render, or deliverable files were deleted or cleaned up."
+    )
+
+
+def _validate_lease_persistence_result(result: ProductionLeasePersistenceResult) -> None:
+    if not isinstance(result, ProductionLeasePersistenceResult):
+        raise ProductionWorkerError("production lease persistence result has an invalid return type")
+    _validate_non_empty_string(result.shoot_slug, "lease persistence shoot_slug")
+    if not isinstance(result.persisted_leases, tuple):
+        raise ProductionWorkerError("persisted production leases must be a tuple")
+    if not isinstance(result.conflicted_leases, tuple):
+        raise ProductionWorkerError("conflicted production leases must be a tuple")
+    seen_job_ids: set[str] = set()
+    for persisted_lease in result.persisted_leases:
+        if not isinstance(persisted_lease, PersistedProductionLease):
+            raise ProductionWorkerError("persisted production lease has an invalid return type")
+        _validate_non_empty_string(persisted_lease.job_id, "persisted lease job_id")
+        _validate_current_status(persisted_lease.retryable_status)
+        if persisted_lease.retryable_status.state != "retryable":
+            raise ProductionWorkerError("persisted production lease status must be retryable")
+        if persisted_lease.retryable_status.job_id != persisted_lease.job_id:
+            raise ProductionWorkerError("persisted production lease status job does not match")
+        if not isinstance(persisted_lease.manifest, ProductionStatusManifest):
+            raise ProductionWorkerError("persisted production lease manifest has an invalid return type")
+        seen_job_ids.add(persisted_lease.job_id)
+    for conflicted_lease in result.conflicted_leases:
+        if not isinstance(conflicted_lease, ConflictedProductionLease):
+            raise ProductionWorkerError("conflicted production lease has an invalid return type")
+        _validate_non_empty_string(conflicted_lease.job_id, "conflicted lease job_id")
+        _validate_error_message(conflicted_lease.error_message)
+        if conflicted_lease.job_id in seen_job_ids:
+            raise ProductionWorkerError(f"production lease cannot be both persisted and conflicted: {conflicted_lease.job_id}")
+        seen_job_ids.add(conflicted_lease.job_id)
+
+
 def _validate_action(action: ProductionWorkerAction) -> None:
     if not isinstance(action, ProductionWorkerAction):
         raise ProductionWorkerError("production worker action has an invalid return type")
@@ -284,6 +544,23 @@ def _validate_timestamp(timestamp: str) -> None:
         raise ProductionWorkerError("production worker updated_at must be a non-empty string")
     if len(timestamp) > 80 or "\x00" in timestamp or "\n" in timestamp or "\r" in timestamp:
         raise ProductionWorkerError("production worker updated_at is invalid")
+
+
+def _parse_lease_timestamp(timestamp: str, label: str) -> datetime:
+    try:
+        _validate_timestamp(timestamp)
+    except ProductionWorkerError as exc:
+        raise ProductionWorkerError(f"lease expiration {label} timestamp is invalid") from exc
+    if "T" not in timestamp:
+        raise ProductionWorkerError(f"lease expiration {label} timestamp must be ISO 8601")
+    normalized_timestamp = timestamp[:-1] + "+00:00" if timestamp.endswith("Z") else timestamp
+    try:
+        parsed = datetime.fromisoformat(normalized_timestamp)
+    except ValueError as exc:
+        raise ProductionWorkerError(f"lease expiration {label} timestamp must be ISO 8601") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ProductionWorkerError(f"lease expiration {label} timestamp must include a timezone")
+    return parsed.astimezone(timezone.utc)
 
 
 def _validate_error_message(message: str) -> None:

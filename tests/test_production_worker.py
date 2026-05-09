@@ -1,3 +1,4 @@
+from dataclasses import replace
 import hashlib
 from pathlib import Path
 import tempfile
@@ -9,12 +10,18 @@ from shootflow.production_status import (
     OutputChecksum,
     ProductionJobStatus,
     ProductionStatusManifest,
+    load_production_status_manifest,
     production_plan_fingerprint,
+    write_production_status_manifest,
 )
 from shootflow.production_worker import (
+    ExpiredProductionLease,
+    ProductionLeaseExpirationPlan,
     ProductionWorkerError,
     claim_production_worker_action,
     plan_production_worker_actions,
+    plan_stale_production_leases,
+    persist_stale_production_leases,
     report_production_worker_failure,
     report_production_worker_retryable,
     report_production_worker_success,
@@ -73,6 +80,252 @@ class ProductionWorkerTests(unittest.TestCase):
                 ("export_instagram_photo_set", ("rank_instagram_storylines", "grade_asset_00001")),
             ],
         )
+
+    def test_plans_expired_running_production_leases_as_retryable_transitions(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": ProductionJobStatus(
+                        job_id="proxy_asset_00000",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=1,
+                        updated_at="2026-05-09T15:30:00Z",
+                    ),
+                    "proxy_asset_00001": ProductionJobStatus(
+                        job_id="proxy_asset_00001",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=2,
+                        updated_at="2026-05-09T15:45:00Z",
+                    ),
+                },
+            ),
+        )
+
+        expiration_plan = plan_stale_production_leases(
+            trusted_plan,
+            manifest,
+            stale_before="2026-05-09T15:40:00Z",
+            updated_at="2026-05-09T16:00:00Z",
+        )
+
+        expected_retryable_status = ProductionJobStatus(
+            job_id="proxy_asset_00000",
+            state="retryable",
+            worker_adapter="proxy-local",
+            attempts=1,
+            error_message=(
+                "Production worker lease expired after running since 2026-05-09T15:30:00Z; "
+                "no source, analysis, graded, render, or deliverable files were deleted or cleaned up."
+            ),
+            updated_at="2026-05-09T16:00:00Z",
+        )
+        self.assertEqual(
+            expiration_plan,
+            ProductionLeaseExpirationPlan(
+                shoot_slug="production-worker",
+                stale_before="2026-05-09T15:40:00Z",
+                updated_at="2026-05-09T16:00:00Z",
+                expired_leases=(
+                    ExpiredProductionLease(
+                        job_id="proxy_asset_00000",
+                        worker_adapter="proxy-local",
+                        attempt_number=1,
+                        running_since="2026-05-09T15:30:00Z",
+                        retryable_status=expected_retryable_status,
+                    ),
+                ),
+            ),
+        )
+
+    def test_rejects_invalid_production_lease_cutoff_timestamps(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+
+        with self.assertRaisesRegex(ProductionWorkerError, "timestamp"):
+            plan_stale_production_leases(
+                trusted_plan,
+                manifest,
+                stale_before="2026-05-09 15:40",
+                updated_at="2026-05-09T16:00:00Z",
+            )
+
+    def test_persists_stale_production_leases_with_lease_preconditions(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": ProductionJobStatus(
+                        job_id="proxy_asset_00000",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=1,
+                        updated_at="2026-05-09T15:30:00Z",
+                    ),
+                    "proxy_asset_00001": ProductionJobStatus(
+                        job_id="proxy_asset_00001",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=2,
+                        updated_at="2026-05-09T15:35:00Z",
+                    ),
+                },
+            ),
+        )
+        expiration_plan = plan_stale_production_leases(
+            trusted_plan,
+            running_manifest,
+            stale_before="2026-05-09T15:40:00Z",
+            updated_at="2026-05-09T16:00:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            persistence_result = persist_stale_production_leases(
+                workspace,
+                trusted_plan=trusted_plan,
+                expiration_plan=expiration_plan,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(
+            [persisted.job_id for persisted in persistence_result.persisted_leases],
+            ["proxy_asset_00000", "proxy_asset_00001"],
+        )
+        self.assertEqual(persistence_result.conflicted_leases, ())
+        self.assertEqual(loaded_manifest.job_statuses[0].state, "retryable")
+        self.assertEqual(loaded_manifest.job_statuses[1].state, "retryable")
+        for status in loaded_manifest.job_statuses[:2]:
+            self.assertIn("no source, analysis, graded, render, or deliverable files were deleted", status.error_message or "")
+            self.assertEqual(status.updated_at, "2026-05-09T16:00:00Z")
+
+    def test_reports_stale_production_lease_persistence_conflicts_without_clobbering(self) -> None:
+        trusted_plan = self._trusted_plan()
+        planned_manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": ProductionJobStatus(
+                        job_id="proxy_asset_00000",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=1,
+                        updated_at="2026-05-09T15:30:00Z",
+                    ),
+                },
+            ),
+        )
+        expiration_plan = plan_stale_production_leases(
+            trusted_plan,
+            planned_manifest,
+            stale_before="2026-05-09T15:40:00Z",
+            updated_at="2026-05-09T16:00:00Z",
+        )
+        refreshed_manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": ProductionJobStatus(
+                        job_id="proxy_asset_00000",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=1,
+                        updated_at="2026-05-09T15:50:00Z",
+                    ),
+                },
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(refreshed_manifest, workspace, trusted_plan=trusted_plan)
+
+            persistence_result = persist_stale_production_leases(
+                workspace,
+                trusted_plan=trusted_plan,
+                expiration_plan=expiration_plan,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(persistence_result.persisted_leases, ())
+        self.assertEqual(len(persistence_result.conflicted_leases), 1)
+        conflict = persistence_result.conflicted_leases[0]
+        self.assertEqual(conflict.job_id, "proxy_asset_00000")
+        self.assertIn("another worker already changed this job", conflict.error_message)
+        self.assertIn("no source, analysis, graded, render, or deliverable files were deleted", conflict.error_message)
+        self.assertEqual(loaded_manifest, refreshed_manifest)
+
+    def test_rejects_expiration_plan_with_forged_retryable_status_content(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": ProductionJobStatus(
+                        job_id="proxy_asset_00000",
+                        state="running",
+                        worker_adapter="proxy-local",
+                        attempts=1,
+                        updated_at="2026-05-09T15:30:00Z",
+                    ),
+                },
+            ),
+        )
+        expiration_plan = plan_stale_production_leases(
+            trusted_plan,
+            running_manifest,
+            stale_before="2026-05-09T15:40:00Z",
+            updated_at="2026-05-09T16:00:00Z",
+        )
+        forged_plan = replace(
+            expiration_plan,
+            expired_leases=(
+                replace(
+                    expiration_plan.expired_leases[0],
+                    retryable_status=replace(
+                        expiration_plan.expired_leases[0].retryable_status,
+                        error_message="delete partial production outputs before retrying",
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionWorkerError, "retryable status"):
+                persist_stale_production_leases(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    expiration_plan=forged_plan,
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, running_manifest)
 
     def test_claim_and_report_success_from_declared_outputs_only(self) -> None:
         trusted_plan = self._trusted_plan()
