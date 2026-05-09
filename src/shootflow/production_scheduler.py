@@ -59,6 +59,7 @@ _REPORT_KEYS = frozenset(
     }
 )
 _MESSAGE_KEYS = frozenset({"job_id", "message"})
+_OPTIONAL_REPORT_KEYS = frozenset({"expired_lease_job_ids", "conflicted_lease_job_ids"})
 
 
 class DryRunProductionSchedulerError(ValueError):
@@ -148,6 +149,7 @@ def run_dry_run_production_scheduler(
         trusted_plan=trusted_plan,
     )
     attempted_job_ids: set[str] = set()
+    expired_this_run_job_ids: set[str] = set()
     iterations: list[DryRunProductionSchedulerIteration] = []
 
     for iteration_number in range(1, max_iterations + 1):
@@ -160,6 +162,7 @@ def run_dry_run_production_scheduler(
             lease_updated_at=lease_updated_at,
         )
         if lease_result is not None:
+            expired_this_run_job_ids.update(_expired_lease_job_ids(lease_result))
             status_manifest = load_production_status_manifest(workspace_root, trusted_plan=trusted_plan)
 
         statuses_by_id = {status.job_id: status for status in status_manifest.job_statuses}
@@ -172,6 +175,7 @@ def run_dry_run_production_scheduler(
             action
             for action in action_plan.actions
             if action.job_id not in attempted_job_ids
+            and action.job_id not in expired_this_run_job_ids
             and (
                 statuses_by_id[action.job_id].state != "retryable"
                 or action.job_id in reviewed_retryable_jobs
@@ -181,6 +185,7 @@ def run_dry_run_production_scheduler(
             action.job_id
             for action in action_plan.actions
             if action.job_id in attempted_job_ids
+            or action.job_id in expired_this_run_job_ids
             or (
                 statuses_by_id[action.job_id].state == "retryable"
                 and action.job_id not in reviewed_retryable_jobs
@@ -244,6 +249,7 @@ def run_dry_run_production_scheduler(
         action
         for action in final_action_plan.actions
         if action.job_id not in attempted_job_ids
+        and action.job_id not in expired_this_run_job_ids
         and (
             final_statuses_by_id[action.job_id].state != "retryable"
             or action.job_id in reviewed_retryable_jobs
@@ -253,6 +259,7 @@ def run_dry_run_production_scheduler(
         action.job_id
         for action in final_action_plan.actions
         if action.job_id in attempted_job_ids
+        or action.job_id in expired_this_run_job_ids
         or (
             final_statuses_by_id[action.job_id].state == "retryable"
             and action.job_id not in reviewed_retryable_jobs
@@ -529,7 +536,10 @@ def _unique_iteration_job_ids(
 
 def _review_required_job_ids(result: DryRunProductionSchedulerResult) -> tuple[str, ...]:
     return _ordered_unique(
-        result.retryable_job_ids + result.failed_job_ids + result.blocked_job_ids
+        result.retryable_job_ids
+        + result.failed_job_ids
+        + result.blocked_job_ids
+        + _unique_iteration_job_ids(result.iterations, "conflicted_lease_job_ids")
     )
 
 
@@ -625,7 +635,7 @@ def _report_to_json(report: DryRunProductionSchedulerReport) -> dict[str, object
 
 def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedulerReport:
     unknown_keys = set(raw_report) - _REPORT_KEYS
-    missing_keys = _REPORT_KEYS - set(raw_report)
+    missing_keys = (_REPORT_KEYS - _OPTIONAL_REPORT_KEYS) - set(raw_report)
     if unknown_keys:
         raise DryRunProductionSchedulerError(
             f"Production scheduler report contains unknown fields: {sorted(unknown_keys)}"
@@ -661,9 +671,12 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
             raw_report["skipped_retryable_job_ids"],
             "skipped_retryable_job_ids",
         ),
-        expired_lease_job_ids=_json_string_tuple(raw_report["expired_lease_job_ids"], "expired_lease_job_ids"),
+        expired_lease_job_ids=_json_string_tuple(
+            raw_report.get("expired_lease_job_ids", []),
+            "expired_lease_job_ids",
+        ),
         conflicted_lease_job_ids=_json_string_tuple(
-            raw_report["conflicted_lease_job_ids"],
+            raw_report.get("conflicted_lease_job_ids", []),
             "conflicted_lease_job_ids",
         ),
         review_required_job_ids=_json_string_tuple(
@@ -785,7 +798,10 @@ def _validate_report(
     _validate_report_blocked_jobs(report, manifest_statuses)
     _validate_report_stopped_reason(report, final_manifest)
     expected_review_required = _ordered_unique(
-        report.retryable_job_ids + report.failed_job_ids + report.blocked_job_ids
+        report.retryable_job_ids
+        + report.failed_job_ids
+        + report.blocked_job_ids
+        + report.conflicted_lease_job_ids
     )
     if report.review_required_job_ids != expected_review_required:
         raise DryRunProductionSchedulerError(

@@ -47,7 +47,6 @@ from shootflow.production_report import ProductionPlanReport, build_production_p
 from shootflow.production_scheduler import (
     DryRunProductionSchedulerReport,
     DryRunProductionSchedulerError,
-    DryRunProductionSchedulerResult,
     load_dry_run_production_scheduler_report,
     run_dry_run_production_scheduler,
     write_dry_run_production_scheduler_report,
@@ -369,7 +368,7 @@ def _run_dry_run_production_scheduler_command(args: argparse.Namespace, *, stdou
 
     stdout.write(
         _dry_run_production_scheduler_summary_json(
-            result,
+            report,
             ingest_manifest_path=manifest_path,
             workspace=workspace,
             report_path=report_path,
@@ -872,43 +871,36 @@ def _production_status_count(result: object, state: str) -> int:
 
 
 def _dry_run_production_scheduler_summary_json(
-    result: DryRunProductionSchedulerResult,
+    report: DryRunProductionSchedulerReport,
     *,
     ingest_manifest_path: Path,
     workspace: Path,
     report_path: Path,
 ) -> str:
-    if not isinstance(result, DryRunProductionSchedulerResult):
-        raise ShootFlowCliError("result must be a DryRunProductionSchedulerResult")
-    review_required_job_ids = _ordered_unique_strings(
-        result.retryable_job_ids + result.failed_job_ids + result.blocked_job_ids
-    )
+    if not isinstance(report, DryRunProductionSchedulerReport):
+        raise ShootFlowCliError("report must be a DryRunProductionSchedulerReport")
     payload = {
         "schema_version": 1,
         "workspace": str(workspace),
         "ingest_manifest_path": str(ingest_manifest_path),
         "report_path": str(report_path),
-        "shoot_slug": result.shoot_slug,
-        "worker_adapter": result.worker_adapter,
-        "stopped_reason": result.stopped_reason,
-        "iteration_count": len(result.iterations),
-        "completed_job_ids": list(result.completed_job_ids),
-        "retryable_job_ids": list(result.retryable_job_ids),
-        "failed_job_ids": list(result.failed_job_ids),
-        "blocked_job_ids": list(result.blocked_job_ids),
-        "attempted_job_ids": list(_production_iteration_job_ids(result, "attempted_job_ids")),
-        "skipped_retryable_job_ids": list(
-            _production_iteration_job_ids(result, "skipped_retryable_job_ids")
-        ),
-        "expired_lease_job_ids": list(_production_iteration_job_ids(result, "expired_lease_job_ids")),
-        "conflicted_lease_job_ids": list(
-            _production_iteration_job_ids(result, "conflicted_lease_job_ids")
-        ),
-        "review_required_job_ids": list(review_required_job_ids),
-        "outputs_materialized": list(_production_outputs_materialized(result)),
+        "shoot_slug": report.shoot_slug,
+        "worker_adapter": report.worker_adapter,
+        "stopped_reason": report.stopped_reason,
+        "iteration_count": report.iteration_count,
+        "completed_job_ids": list(report.completed_job_ids),
+        "retryable_job_ids": list(report.retryable_job_ids),
+        "failed_job_ids": list(report.failed_job_ids),
+        "blocked_job_ids": list(report.blocked_job_ids),
+        "attempted_job_ids": list(report.attempted_job_ids),
+        "skipped_retryable_job_ids": list(report.skipped_retryable_job_ids),
+        "expired_lease_job_ids": list(report.expired_lease_job_ids),
+        "conflicted_lease_job_ids": list(report.conflicted_lease_job_ids),
+        "review_required_job_ids": list(report.review_required_job_ids),
+        "outputs_materialized": list(report.outputs_materialized),
         "failure_messages": [
-            {"job_id": job_id, "message": message}
-            for job_id, message in _production_failure_messages(result)
+            {"job_id": message.job_id, "message": message.message}
+            for message in report.failure_messages
         ],
         "notes": [
             "dry-run production scheduler consumes only trusted production_status.json and the verified ingest manifest",
@@ -918,45 +910,6 @@ def _dry_run_production_scheduler_summary_json(
         ],
     }
     return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
-
-
-def _production_iteration_job_ids(
-    result: DryRunProductionSchedulerResult,
-    field_name: str,
-) -> tuple[str, ...]:
-    seen: set[str] = set()
-    ordered: list[str] = []
-    for iteration in result.iterations:
-        for job_id in getattr(iteration, field_name):
-            if job_id in seen:
-                continue
-            seen.add(job_id)
-            ordered.append(job_id)
-    return tuple(ordered)
-
-
-def _production_outputs_materialized(result: DryRunProductionSchedulerResult) -> tuple[str, ...]:
-    outputs: list[str] = []
-    for iteration in result.iterations:
-        if iteration.batch_result is None:
-            continue
-        for action_result in iteration.batch_result.results:
-            outputs.extend(action_result.outputs_materialized)
-    return tuple(outputs)
-
-
-def _production_failure_messages(result: DryRunProductionSchedulerResult) -> tuple[tuple[str, str], ...]:
-    messages: list[tuple[str, str]] = []
-    for iteration in result.iterations:
-        if iteration.batch_result is None:
-            continue
-        for failure in iteration.batch_result.failures:
-            messages.append((failure.job_id, failure.error_message))
-        for action_result in iteration.batch_result.results:
-            final_status = action_result.final_status
-            if final_status.state in {"retryable", "failed"} and final_status.error_message is not None:
-                messages.append((final_status.job_id, final_status.error_message))
-    return tuple(messages)
 
 
 def _ordered_unique_strings(values: tuple[str, ...]) -> tuple[str, ...]:

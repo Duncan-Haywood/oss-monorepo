@@ -247,9 +247,83 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertEqual(payload["stopped_reason"], "retryable")
         self.assertEqual(payload["expired_lease_job_ids"], ["proxy_asset_00000"])
         self.assertEqual(payload["conflicted_lease_job_ids"], [])
+        self.assertIn("proxy_asset_00000", payload["review_required_job_ids"])
         self.assertEqual(payload["skipped_retryable_job_ids"], ["proxy_asset_00000"])
+        self.assertIn("lease expired", payload["failure_messages"][0]["message"])
         self.assertEqual(status_manifest.job_statuses[0].state, "retryable")
         self.assertIn("lease expired", status_manifest.job_statuses[0].error_message or "")
+
+    def test_dry_run_production_scheduler_requires_complete_stale_lease_arguments(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            clip = card / "DCIM" / "A001.MOV"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "production-lease-args",
+                    "--confirm",
+                ],
+                stdout=io.StringIO(),
+            )
+            shoot_folder = destination / "2026-05-09_production-lease-args"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            production_plan = self._production_plan(manifest_path)
+            initial_manifest = ProductionStatusManifest(
+                shoot_slug=production_plan.shoot_slug,
+                production_plan_fingerprint=production_plan_fingerprint(production_plan),
+                job_statuses=tuple(
+                    ProductionJobStatus(job_id=job.job_id, state="pending")
+                    for job in production_plan.jobs
+                ),
+            )
+
+            for extra_args, expected_error in (
+                (("--stale-before", "2026-05-09T17:20:00Z"), "lease_updated_at"),
+                (("--lease-updated-at", "2026-05-09T17:29:00Z"), "requires stale_before"),
+            ):
+                write_production_status_manifest(initial_manifest, shoot_folder, trusted_plan=production_plan)
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+
+                exit_code = main(
+                    [
+                        "dry-run-production-scheduler",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                        "--worker",
+                        "dry-run-production-local",
+                        "--started-at",
+                        "2026-05-09T17:30:00Z",
+                        "--completed-at",
+                        "2026-05-09T17:30:05Z",
+                        "--generated-at",
+                        "2026-05-09T17:30:06Z",
+                        "--max-concurrency",
+                        "1",
+                        "--max-iterations",
+                        "5",
+                        *extra_args,
+                    ],
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+                loaded_manifest = load_production_status_manifest(shoot_folder, trusted_plan=production_plan)
+
+                self.assertEqual(exit_code, 1)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertIn(expected_error, stderr.getvalue())
+                self.assertEqual(loaded_manifest, initial_manifest)
 
     def test_init_production_status_command_creates_manifest_without_downstream_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

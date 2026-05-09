@@ -1,6 +1,7 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from shootflow.deliverables import MediaAsset
 from shootflow.production import build_production_plan
@@ -19,6 +20,10 @@ from shootflow.production_status import (
     load_production_status_manifest,
     production_plan_fingerprint,
     write_production_status_manifest,
+)
+from shootflow.production_worker import (
+    ConflictedProductionLease,
+    ProductionLeasePersistenceResult,
 )
 
 
@@ -167,8 +172,21 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                 max_iterations=5,
                 stale_before="2026-05-09T16:30:00Z",
                 lease_updated_at="2026-05-09T16:39:00Z",
+                reviewed_retryable_job_ids=("proxy_asset_00000",),
             )
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=loaded_manifest,
+                generated_at="2026-05-09T16:40:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=loaded_manifest,
+            )
 
         self.assertEqual(result.stopped_reason, "retryable")
         self.assertEqual(result.iterations[0].expired_lease_job_ids, ("proxy_asset_00000",))
@@ -177,6 +195,82 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.iterations[0].skipped_retryable_job_ids, ("proxy_asset_00000",))
         self.assertEqual(loaded_manifest.job_statuses[0].state, "retryable")
         self.assertIn("lease expired", loaded_manifest.job_statuses[0].error_message or "")
+        self.assertEqual(report_path.name, PRODUCTION_SCHEDULER_REPORT_PATH)
+        self.assertEqual(loaded_report.expired_lease_job_ids, ("proxy_asset_00000",))
+        self.assertIn("proxy_asset_00000", loaded_report.review_required_job_ids)
+        self.assertEqual(loaded_report.attempted_job_ids, ())
+        self.assertIn("lease expired", loaded_report.failure_messages[0].message)
+
+    def test_scheduler_reports_stale_lease_conflicts_as_review_required(self) -> None:
+        trusted_plan = self._video_only_plan()
+        running_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id="proxy_asset_00000",
+                    state="running",
+                    worker_adapter="dry-run-production-local",
+                    attempts=1,
+                    updated_at="2026-05-09T16:20:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[1:]
+            ),
+        )
+        conflict_result = ProductionLeasePersistenceResult(
+            shoot_slug=trusted_plan.shoot_slug,
+            persisted_leases=(),
+            conflicted_leases=(
+                ConflictedProductionLease(
+                    job_id="proxy_asset_00000",
+                    error_message=(
+                        "another worker already changed this job before stale lease expiration "
+                        "could be persisted for proxy_asset_00000; no source, analysis, graded, "
+                        "render, or deliverable files were deleted or cleaned up."
+                    ),
+                ),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
+            with mock.patch(
+                "shootflow.production_scheduler.persist_stale_production_leases",
+                return_value=conflict_result,
+            ):
+                result = run_dry_run_production_scheduler(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    worker_adapter="dry-run-production-local",
+                    started_at="2026-05-09T16:40:00Z",
+                    completed_at="2026-05-09T16:40:05Z",
+                    max_concurrency=1,
+                    max_iterations=1,
+                    stale_before="2026-05-09T16:30:00Z",
+                    lease_updated_at="2026-05-09T16:39:00Z",
+                )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T16:40:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(result.iterations[0].conflicted_lease_job_ids, ("proxy_asset_00000",))
+        self.assertEqual(result.iterations[0].attempted_job_ids, ())
+        self.assertEqual(loaded_report.conflicted_lease_job_ids, ("proxy_asset_00000",))
+        self.assertIn("proxy_asset_00000", loaded_report.review_required_job_ids)
 
     def test_scheduler_retries_existing_retryable_job_when_reviewed(self) -> None:
         trusted_plan = self._video_only_plan()
