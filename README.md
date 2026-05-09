@@ -187,6 +187,10 @@ PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \
+  --completed-dependency grade_asset_00000 \
+  --completed-dependency grade_asset_00001 \
+  --completed-dependency grade_asset_00002 \
+  --completed-dependency grade_asset_00003 \
   --renderer dry-run-local \
   --started-at 2026-05-07T16:00:00Z \
   --completed-at 2026-05-07T16:00:05Z \
