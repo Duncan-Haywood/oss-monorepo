@@ -45,7 +45,11 @@ from shootflow.render_status import (
     load_render_status_manifest,
 )
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
-from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.storage_discovery import (
+    DiscoveredVolumeMetadata,
+    discover_import_route,
+    discover_storage_candidates,
+)
 from shootflow.story import StoryPlanError
 from shootflow.workspace_health import (
     WorkspaceHealthError,
@@ -147,11 +151,12 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
     volume_roots = _parse_volume_roots(args.volume_root)
+    metadata_by_path = _load_volume_metadata_json(args.volume_metadata_json)
     expected_import_bytes = args.expected_import_bytes
     source_estimate: ImportSourceEstimate | None = None
 
     if args.estimate_source_bytes:
-        initial_recommendation = discover_import_route(volume_roots)
+        initial_recommendation = discover_import_route(volume_roots, metadata_by_path=metadata_by_path)
         if initial_recommendation.source is not None:
             source_estimate = estimate_import_source(initial_recommendation.source.candidate.path)
             expected_import_bytes = source_estimate.estimated_bytes
@@ -159,6 +164,7 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
                 volume_roots,
                 expected_import_bytes=expected_import_bytes,
                 headroom_bytes=args.headroom_bytes,
+                metadata_by_path=metadata_by_path,
             )
         else:
             recommendation = initial_recommendation
@@ -167,13 +173,14 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
             volume_roots,
             expected_import_bytes=expected_import_bytes,
             headroom_bytes=args.headroom_bytes,
+            metadata_by_path=metadata_by_path,
         )
     else:
-        recommendation = discover_import_route(volume_roots)
+        recommendation = discover_import_route(volume_roots, metadata_by_path=metadata_by_path)
 
     discovered_candidates: list[StorageCandidate] = []
     if args.print_candidates:
-        discovered_candidates = discover_storage_candidates(volume_roots)
+        discovered_candidates = discover_storage_candidates(volume_roots, metadata_by_path=metadata_by_path)
 
     stdout.write(
         _import_route_json(
@@ -304,6 +311,7 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         destination_subfolder=args.destination_subfolder,
         headroom_bytes=args.headroom_bytes,
         confirm_ingest=args.confirm_ingest,
+        metadata_by_path=_load_volume_metadata_json(args.volume_metadata_json),
     )
     stdout.write(_card_dump_workflow_report_json(report))
 
@@ -373,6 +381,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--print-candidates",
         action="store_true",
         help="Include discovered storage candidates in command output.",
+    )
+    plan_import_route.add_argument(
+        "--volume-metadata-json",
+        help="Optional strict JSON file from native volume discovery with per-volume metadata overrides.",
     )
 
     scheduler = subparsers.add_parser(
@@ -481,6 +493,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+    card_dump.add_argument(
+        "--volume-metadata-json",
+        help="Optional strict JSON file from native volume discovery with per-volume metadata overrides.",
     )
 
     workspace_health = subparsers.add_parser(
@@ -642,6 +658,98 @@ def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
             raise ShootFlowCliError("volume roots must be non-empty strings")
         roots.append(Path(raw_root))
     return roots
+
+
+def _load_volume_metadata_json(raw_path: str | None) -> dict[Path, DiscoveredVolumeMetadata] | None:
+    if raw_path is None:
+        return None
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError("volume metadata path must be a non-empty string")
+    path = Path(raw_path)
+    if path.is_symlink():
+        raise ShootFlowCliError(f"Refusing volume metadata symlink: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    try:
+        raw_data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ShootFlowCliError(f"Invalid volume metadata JSON: {path}") from exc
+    if not isinstance(raw_data, dict):
+        raise ShootFlowCliError("Volume metadata JSON root must be an object")
+    raw_volumes = raw_data.get("volumes")
+    if not isinstance(raw_volumes, list):
+        raise ShootFlowCliError("Volume metadata JSON must contain a volumes list")
+
+    metadata_by_path: dict[Path, DiscoveredVolumeMetadata] = {}
+    for index, raw_volume in enumerate(raw_volumes):
+        volume_path, metadata = _volume_metadata_from_json_entry(raw_volume, index=index)
+        if volume_path in metadata_by_path:
+            raise ShootFlowCliError(f"Duplicate volume metadata path: {volume_path}")
+        metadata_by_path[volume_path] = metadata
+    return metadata_by_path
+
+
+def _volume_metadata_from_json_entry(
+    raw_volume: object,
+    *,
+    index: int,
+) -> tuple[Path, DiscoveredVolumeMetadata]:
+    if not isinstance(raw_volume, dict):
+        raise ShootFlowCliError(f"Volume metadata entry must be an object: {index}")
+    allowed_fields = {
+        "path",
+        "name",
+        "free_bytes",
+        "total_bytes",
+        "is_removable",
+        "is_read_only",
+    }
+    unexpected_fields = tuple(sorted(str(key) for key in raw_volume if key not in allowed_fields))
+    if unexpected_fields:
+        raise ShootFlowCliError(f"Unexpected volume metadata field: {unexpected_fields[0]}")
+    raw_path = raw_volume.get("path")
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError(f"Volume metadata path must be a non-empty string: {index}")
+    free_bytes = _optional_metadata_int(raw_volume, "free_bytes")
+    total_bytes = _optional_metadata_int(raw_volume, "total_bytes")
+    if free_bytes is not None and total_bytes is not None and free_bytes > total_bytes:
+        raise ShootFlowCliError("free_bytes cannot exceed total_bytes")
+    return Path(raw_path), DiscoveredVolumeMetadata(
+        name=_optional_metadata_string(raw_volume, "name"),
+        free_bytes=free_bytes,
+        total_bytes=total_bytes,
+        is_removable=_optional_metadata_bool(raw_volume, "is_removable"),
+        is_read_only=_optional_metadata_bool(raw_volume, "is_read_only"),
+    )
+
+
+def _optional_metadata_string(raw_volume: dict[object, object], key: str) -> str | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise ShootFlowCliError(f"{key} must be a non-empty string")
+    return value
+
+
+def _optional_metadata_int(raw_volume: dict[object, object], key: str) -> int | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if type(value) is not int:
+        raise ShootFlowCliError(f"{key} must be an integer")
+    if value < 0:
+        raise ShootFlowCliError(f"{key} cannot be negative")
+    return value
+
+
+def _optional_metadata_bool(raw_volume: dict[object, object], key: str) -> bool | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        raise ShootFlowCliError(f"{key} must be a boolean")
+    return value
 
 
 def _ranked_storage_candidate_json(candidate: RankedStorageCandidate | None) -> dict[str, object] | None:

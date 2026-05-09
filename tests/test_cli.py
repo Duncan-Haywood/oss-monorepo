@@ -282,6 +282,138 @@ class ShootFlowCliTests(unittest.TestCase):
             ["EOS_DIGITAL", "Samsung_T7"],
         )
 
+    def test_plan_import_route_command_uses_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "Untitled"
+            ssd = volumes / "StudioRaid"
+            metadata_path = workspace / "volume_metadata.json"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(card),
+                                "name": "EOS_DIGITAL",
+                                "free_bytes": 4 * 1024**3,
+                                "total_bytes": 128 * 1024**3,
+                                "is_removable": True,
+                                "is_read_only": True,
+                            },
+                            {
+                                "path": str(ssd),
+                                "free_bytes": 900 * 1024**3,
+                                "total_bytes": 2 * 1024**4,
+                                "is_removable": False,
+                                "is_read_only": False,
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--expected-import-bytes",
+                    str(100 * 1024**3),
+                    "--headroom-bytes",
+                    "0",
+                    "--print-candidates",
+                ],
+                stdout=stdout,
+            )
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["status"], "ready_for_review")
+        self.assertEqual(printed_summary["source"]["name"], "EOS_DIGITAL")
+        self.assertEqual(printed_summary["destination"]["name"], "StudioRaid")
+        self.assertEqual(printed_summary["destination"]["free_bytes"], 900 * 1024**3)
+        self.assertFalse(printed_summary["destination"]["is_removable"])
+        self.assertEqual(
+            sorted(candidate["name"] for candidate in printed_summary["discovered_candidates"]),
+            ["EOS_DIGITAL", "StudioRaid"],
+        )
+
+    def test_plan_import_route_command_rejects_invalid_native_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volumes.mkdir()
+            metadata_path = workspace / "volume_metadata.json"
+            metadata_path.write_text(
+                json.dumps({"volumes": [{"path": str(volumes), "free_bytes": -1}]}),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot be negative", stderr.getvalue())
+
+    def test_plan_import_route_command_rejects_inconsistent_native_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
+
     def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             volumes = Path(tmp) / "Volumes"
@@ -1194,6 +1326,113 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
 
 
 class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
+    def test_card_dump_workflow_rejects_inconsistent_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "metadata-error",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
+
+    def test_card_dump_workflow_uses_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "Untitled"
+            ssd = volumes / "StudioRaid"
+            metadata_path = workspace / "volume_metadata.json"
+            photo = card / "DCIM" / "100CANON" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(card),
+                                "name": "EOS_DIGITAL",
+                                "free_bytes": 4 * 1024**3,
+                                "total_bytes": 128 * 1024**3,
+                                "is_removable": True,
+                                "is_read_only": True,
+                            },
+                            {
+                                "path": str(ssd),
+                                "free_bytes": 900 * 1024**3,
+                                "total_bytes": 2 * 1024**4,
+                                "is_removable": False,
+                                "is_read_only": False,
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "metadata-preview",
+                    "--headroom-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "ready_for_review")
+        self.assertEqual(report["route"]["source"]["name"], "EOS_DIGITAL")
+        self.assertEqual(report["route"]["destination"]["name"], "StudioRaid")
+        self.assertEqual(report["route"]["destination"]["free_bytes"], 900 * 1024**3)
+        self.assertFalse(report["route"]["destination"]["is_removable"])
+        self.assertEqual(report["preview"]["item_count"], 1)
+
     def test_card_dump_workflow_previews_route_without_copying(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

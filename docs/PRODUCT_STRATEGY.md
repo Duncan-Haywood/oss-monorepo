@@ -50,9 +50,9 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Discover mounted-volume candidates from reviewed roots or typed native macOS
-   metadata, rank detected storage, then recommend a review-required
-   source/destination route.
+1. Discover mounted-volume candidates from reviewed roots, optionally enrich
+   them with native Mac volume metadata, rank detected storage, then recommend a
+   review-required source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -153,8 +153,8 @@ to automate.
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes portable mounted-volume discovery, a typed native macOS
-   metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
-   commands, a read-only `plan-production` report after ingest, and a
+   metadata adapter plus metadata override JSON for Disk Arbitration/Swift handoff, capacity-gated route
+   recommendation, safe ingest commands, a read-only `plan-production` report after ingest, and a
    `write-render-tasks` handoff once trusted storyline/graded artifacts exist;
    the next step is a SwiftUI/menu-bar approval screen around the
    `card-dump-workflow` contract before proxy/analysis/grading work begins.
@@ -279,6 +279,8 @@ To keep the product useful for professionals, ingest must stay conservative:
 
 1. **Detection is advisory:** drive/card detection proposes a route for review; it
    is never permission to start destructive actions.
+   Native volume metadata can improve removable/read-only/capacity classification
+   but remains advisory and cannot bypass user review.
 2. **Offload before edit:** users should route source card -> working destination
    first, then run grading/assembly from the ingest manifest boundary.
 3. **Capacity gate by default:** destination selection should require estimated

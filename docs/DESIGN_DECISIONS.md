@@ -37,7 +37,8 @@ The repo currently contains a Python core package because it is quick to test an
   go through the checksum manifest importer.
 - `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
-  produces conservative `StorageCandidate` records before handing off to the existing reviewed route
+  can apply native Mac volume metadata overrides for display name, removable/read-only state, and capacity.
+  It still produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
 - `shootflow.macos_volume_metadata`: native metadata handoff for a future Swift/Disk Arbitration shell. It
   accepts typed volume facts, validates capacity and boolean flags, skips system/network/missing/file-backed
@@ -137,6 +138,9 @@ The repo currently contains a Python core package because it is quick to test an
   Confirmed reports expose advisory `next_actions` for trusted storyline/graded
   preparation and render-task writing so native shells can guide the user without
   expanding file authority.
+  Both the route-planning and card-dump commands can consume strict native volume
+  metadata JSON so a Swift/Menu Bar shell can pass Disk Arbitration facts without
+  widening copy, delete, or render authority.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but

@@ -44,8 +44,10 @@ Why this wedge wins:
 ## Phase 1: trusted automation core (current direction)
 
 - SD/SSD/local source discovery and route recommendation.
-- Typed native macOS volume metadata handoff for more accurate ejectable,
-  removable, read-only, network, and system-volume filtering before route review.
+- Optional native Mac volume metadata handoff so route recommendations can use
+  real removable/read-only/capacity facts while remaining advisory, plus typed
+  macOS metadata filtering for ejectable, network, and system-volume cases before
+  route review.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -169,14 +171,15 @@ Run practical experiments tied to this ICP-first plan:
 
 ## 8) Execution priorities for next iteration
 
-1. Bind native Mac metadata and UI approval around the safe route recommendation
-   and ingest assistant flow. The core now has both portable mounted-volume
-   discovery and a typed macOS metadata adapter; the `plan-import-route` +
-   `preview-ingest` + `execute-ingest --confirm` CLI commands expose the full
-   operator-review-then-copy path, and `plan-production` exposes the next
-   read-only post-ingest summary. The `card-dump-workflow` command combines
-   those steps into one native-shell contract, so the next step is binding it to
-   a SwiftUI/menu-bar approval screen before AI/color work starts.
+1. Build the SwiftUI/menu-bar approval layer around the mounted-volume
+   discovery, native metadata handoff, safe route recommendation, and ingest
+   assistant flow. The
+   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
+   commands now expose the full operator-review-then-copy path, and
+   `plan-production` exposes the next read-only post-ingest summary. The new
+   `card-dump-workflow` command combines those steps into one native-shell
+   contract and accepts native volume metadata JSON, so the next step is binding
+   it to an approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in both `shootflow.demo_workspace` and the real
    `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
