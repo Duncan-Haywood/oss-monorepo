@@ -1098,7 +1098,7 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
         _reject_duplicate_strings(value, f"report {field_name}")
     if not isinstance(report.failure_messages, tuple):
         raise DryRunProductionSchedulerError("report failure_messages must be a tuple")
-    seen_failure_messages: set[tuple[str, str]] = set()
+    seen_failure_message_job_ids: set[str] = set()
     for message in report.failure_messages:
         if not isinstance(message, ProductionSchedulerJobMessage):
             raise DryRunProductionSchedulerError("report failure_messages contains invalid message")
@@ -1106,10 +1106,9 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
             raise DryRunProductionSchedulerError("report failure_messages contains invalid job id")
         if not isinstance(message.message, str) or not message.message.strip():
             raise DryRunProductionSchedulerError("report failure_messages contains invalid message")
-        failure_message_key = (message.job_id, message.message)
-        if failure_message_key in seen_failure_messages:
+        if message.job_id in seen_failure_message_job_ids:
             raise DryRunProductionSchedulerError("report failure_messages contains duplicate messages")
-        seen_failure_messages.add(failure_message_key)
+        seen_failure_message_job_ids.add(message.job_id)
     _validate_product_metrics(report.product_metrics)
 
 
