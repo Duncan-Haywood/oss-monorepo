@@ -20,6 +20,32 @@ handoff:
   so future agents can treat the saved cohort fixture as the no-real-media GTM
   demo path above `pilot-dashboard` and `pilot-cohort-report`.
 
+Review and branch reconciliation for this run:
+
+- Independent code review found that a reused
+  `workspaces/pilot-demo-001/deliverables/render_scheduler_report.json` could be
+  overwritten by the scheduler report writer. Fixed by preflighting and refusing
+  any existing per-shoot pilot demo workspace before scheduling, with regression
+  coverage proving no saved dashboard/cohort files are written and the existing
+  report is preserved.
+- Fetched and pruned remotes. The historical automation branches were deleted
+  upstream; the newly visible `origin/cursor/branch-consolidation-strategy-253b`
+  compared `0 0` with `origin/main` and contained no unique work.
+- The only branch ahead of `origin/main` was the assigned branch
+  `cursor/branch-reconciliation-and-merge-4b9f` with this run's two commits.
+  Local `main` was fast-forwarded to the verified branch tip and pushed to
+  `origin/main`.
+- Deleted merged stale local branch `cursor/setup-dev-env-3ad0`.
+- Final compare after push: `origin/main...HEAD` and
+  `origin/cursor/branch-reconciliation-and-merge-4b9f...HEAD` both returned
+  `0 0`; no remote branches remain unmerged into HEAD or `origin/main`.
+- Final verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check && git status --short --branch` -> 321 tests OK;
+  compileall/diff-check exited 0 and the working tree was clean before this
+  documentation note.
+
 Good next test-first targets:
 
 - Bind the saved cohort fixture into a minimal native-shell/UI proof that
