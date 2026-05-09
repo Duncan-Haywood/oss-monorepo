@@ -198,6 +198,31 @@ class PilotCohortBriefTests(unittest.TestCase):
             with self.assertRaises(PilotCohortBriefError):
                 pilot_cohort_brief_to_dict(forged)
 
+    def test_to_dict_rejects_forged_summary_readiness_and_labels(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=0,
+                ready_for_review=False,
+                unavailable_count=2,
+                ready_rate=None,
+                intervention_rate=None,
+            )
+            brief = build_pilot_cohort_brief_from_report_path(report_path)
+            forged_summary = replace(brief.summary, ready_for_pilot_review=True)
+            forged_summary_brief = replace(brief, summary=forged_summary)
+            forged_status_brief = replace(brief, status="ready_for_pilot_review")
+            forged_headline_brief = replace(brief, headline="All workspaces are pilot-ready")
+
+            with self.assertRaises(PilotCohortBriefError):
+                pilot_cohort_brief_to_dict(forged_summary_brief)
+            with self.assertRaises(PilotCohortBriefError):
+                pilot_cohort_brief_to_dict(forged_status_brief)
+            with self.assertRaises(PilotCohortBriefError):
+                pilot_cohort_brief_to_dict(forged_headline_brief)
+
     def _write_cohort_report(
         self,
         root: Path,

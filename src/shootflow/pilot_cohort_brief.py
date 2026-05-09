@@ -514,6 +514,10 @@ def _validate_pilot_cohort_brief(brief: PilotCohortBrief) -> None:
     if not isinstance(brief.summary, PilotCohortBriefSummary):
         raise PilotCohortBriefError("brief summary must be a PilotCohortBriefSummary")
     _validate_brief_summary(brief.summary)
+    if brief.status != _brief_status(brief.summary):
+        raise PilotCohortBriefError("brief status disagrees with summary")
+    if brief.headline != _brief_headline(brief.summary):
+        raise PilotCohortBriefError("brief headline disagrees with summary")
     if not isinstance(brief.workspace_cards, tuple) or not brief.workspace_cards:
         raise PilotCohortBriefError("brief workspace_cards must be a non-empty tuple")
     for card in brief.workspace_cards:
@@ -546,6 +550,13 @@ def _validate_brief_summary(summary: PilotCohortBriefSummary) -> None:
         raise PilotCohortBriefError("brief summary available and unavailable counts must match dashboard count")
     if summary.pilot_ready_workspace_count > summary.metrics_available_dashboard_count:
         raise PilotCohortBriefError("brief summary ready count cannot exceed metrics-available count")
+    expected_ready = (
+        summary.metrics_available_dashboard_count > 0
+        and summary.metrics_unavailable_dashboard_count == 0
+        and summary.pilot_ready_workspace_count == summary.metrics_available_dashboard_count
+    )
+    if summary.ready_for_pilot_review != expected_ready:
+        raise PilotCohortBriefError("brief summary ready_for_pilot_review disagrees with counts")
     for field_name in (
         "pilot_ready_workspace_rate_label",
         "median_intervention_rate_label",
