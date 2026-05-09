@@ -43,6 +43,26 @@ Good next test-first targets:
   and production lease conflicts as review states, not cleanup, overwrite, or
   automatic retry authority.
 
+Branch reconciliation for this run:
+
+- `origin/cursor/repository-branch-consolidation-4b72` is fully represented by
+  the assigned branch after the fast-forward and this run's follow-up commit.
+- `origin/cursor/repository-branch-consolidation-4c04` is an ancestor of the
+  assigned branch.
+- `origin/cursor/branch-consolidation-strategy-d2e7` remains unmerged because it
+  is a superseded consolidation tip. Comparing it against the assigned branch
+  shows it would remove the newer production lease recovery, retryable handoff
+  review gates, production scheduler report conflict messages, workspace index
+  production-state coverage, and this run's negative trust tests.
+- Final verification on the assigned branch:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check && git status --short --branch &&
+  git branch -r --no-merged HEAD --sort=-committerdate` -> 299 tests OK,
+  compileall/diff-check exited 0, the working tree was clean, and the only
+  remote branch still not merged into the assigned branch was the superseded
+  `origin/cursor/branch-consolidation-strategy-d2e7`.
+
 ## Implementation continuation note - 2026-05-09 18:30 UTC
 
 This run first reconciled the previous completed branch work:
