@@ -190,6 +190,9 @@ The current core models a concrete promise for high-volume users:
     `create-pilot-cohort-demo` fixture now composes trusted demo render
     workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
     demos can show the measurement loop without real media or spreadsheets.
+    `pilot-cohort-brief` turns that saved report into native-shell presentation
+    state--status, headline, summary labels, and per-workspace cards--without
+    emitting workflow commands or widening authority.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

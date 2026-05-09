@@ -127,6 +127,10 @@ This repo currently contains the first testable core utilities:
   reports pilot-ready workspace rate, median intervention rate, first-draft
   output count, and per-workspace readiness evidence without reading raw worker
   internals or granting workflow authority.
+- `shootflow.pilot_cohort_brief` reads one saved cohort report and converts it
+  into presentation-ready observe-only labels for native shells and GTM demos:
+  status, headline, summary percentages, and per-workspace readiness cards. It
+  does not emit commands or grant workflow authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -307,34 +311,38 @@ The intended first workflow is:
     first-draft output count. The report consumes only dashboard payloads, never
     raw workspace manifests, and cannot copy, retry, materialize, clean up,
     overwrite, or delete files.
-28. Run the same handoff through
+28. Convert a saved cohort report into native-shell display state with
+    `pilot-cohort-brief` when a Mac shell, GTM demo, or continuation agent needs
+    human-readable readiness labels and workspace cards without parsing raw
+    report metrics or receiving executable commands.
+29. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-29. Inspect persisted render workspace state with
+30. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
     blocked/retryable work, or review finished deliverables without writing
     files. Succeeded render outputs must still be present and match their
     recorded SHA-256 checksums before inspection reports the workspace complete.
-30. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+31. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
     The report includes machine-readable `agent_handoff` fields for the next
     safe step and whether that step requires human review or may copy bytes.
-31. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+32. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress. Use `create_card_dump_cli_demo_workspace(...)` or
     `python -m shootflow.cli create-card-dump-demo-workspace` when a demo should
     also prove the detected-card -> checksum-ingest -> production-summary path.
-32. Use `python -m shootflow.cli create-pilot-cohort-demo` when a GTM or pilot
+33. Use `python -m shootflow.cli create-pilot-cohort-demo` when a GTM or pilot
     demo needs multiple saved dashboard JSON payloads plus a cohort report
     without real media. The fixture still runs the normal demo render init and
     scheduler handoff for each workspace, then writes saved dashboard/cohort JSON
     as observational proof rather than workflow authority.
-33. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+34. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -375,6 +383,8 @@ PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report \
   --dashboard-json <dashboard-a.json> \
   --dashboard-json <dashboard-b.json> \
   --generated-at 2026-05-07T16:00:09Z
+PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
+  --cohort-report <pilot_cohort_report.json>
 PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
   --workspace <demo-dir> \
   --workspace-count 2 \
@@ -432,6 +442,12 @@ workspace rate, median intervention rate, and first-draft output count from the
 trusted dashboard acceptance fields. Dashboards without trusted metrics are
 counted as unavailable instead of being treated as failures or successes, and
 the cohort report does not emit workflow commands.
+The pilot cohort brief command reads one saved cohort report and writes nothing.
+It turns the trusted cohort metrics into a native-shell-friendly status,
+headline, summary labels, and per-workspace readiness cards so demos can show
+readiness, intervention, and first-draft output evidence without parsing raw
+worker internals. It remains observe-only and does not emit executable workflow
+commands.
 The pilot cohort demo command writes a controlled fixture for demos: multiple
 trusted persisted render demo workspaces under `workspaces/`, saved schema v2
 dashboard JSON under `pilot_dashboards/`, and one saved

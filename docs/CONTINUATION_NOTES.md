@@ -2,6 +2,35 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 22:30 UTC
+
+This run advanced the native-shell/UI proof target above the saved cohort
+fixture:
+
+- Added `shootflow.pilot_cohort_brief`, a read-only presentation contract over
+  one saved schema v1 `pilot_cohort_report.json`.
+- Added `pilot-cohort-brief --cohort-report <path>` to emit status, headline,
+  summary labels, and per-workspace readiness cards for Mac shells, GTM demos,
+  and continuation agents.
+- The brief preserves the analytics trust boundary: it reads only the saved
+  cohort report, writes nothing, emits no executable workflow commands, and does
+  not grant copy, retry, cleanup, overwrite, materialization, or deletion
+  authority.
+- Added regression coverage for partially ready cohorts, unavailable trusted
+  metrics, and CLI no-write/no-command behavior.
+
+Good next test-first targets:
+
+- Bind the cohort brief into a small native SwiftUI/menu-bar screen or text-mode
+  demo harness that displays readiness cards while invoking only explicit,
+  reviewed next-action contracts.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Add UI/agent contract tests proving cohort dashboards, cohort reports, and
+  cohort briefs never become permission to retry, materialize, overwrite, clean
+  up, or delete files.
+
 ## Implementation continuation note - 2026-05-09 22:00 UTC
 
 This run advanced the saved-dashboard cohort fixture target from the previous

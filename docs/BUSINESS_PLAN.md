@@ -98,6 +98,9 @@ Why this wedge wins:
   workspaces, saves one pilot-dashboard JSON payload per workspace, and writes a
   saved `pilot_cohort_report.json` so GTM demos can show cohort readiness without
   spreadsheets, real customer media, or raw worker-log parsing.
+- A pilot cohort brief contract that reads the saved cohort report and emits
+  presentation-ready readiness/intervention/throughput labels for native shells
+  and GTM demos without exposing workflow commands.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and

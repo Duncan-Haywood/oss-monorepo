@@ -32,6 +32,7 @@ PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli pilot-dashboard --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report --dashboard-json <path> ... --generated-at <timestamp>
+PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief --cohort-report <path>
 PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo --workspace <dir> --workspace-count <n> --dashboard-generated-at <timestamp> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli write-render-tasks --ingest-manifest <path>
 PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
@@ -61,6 +62,9 @@ materialization, or deletion authority.
 `pilot-cohort-report` aggregates saved schema v2 dashboard JSON payloads into
 pilot-ready workspace rate, median intervention rate, and first-draft output
 count without reading raw worker internals or granting workflow authority.
+`pilot-cohort-brief` reads one saved cohort report and emits presentation-ready
+status/headline/card labels for native shells and GTM demos while remaining
+observe-only and command-free.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before
