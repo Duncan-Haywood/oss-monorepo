@@ -43,6 +43,10 @@ class ProductionStatusError(ValueError):
     """Raised when production-worker status cannot be trusted."""
 
 
+class ProductionStatusPreconditionError(ProductionStatusError):
+    """Raised when a single-job status update loses its compare/write precondition."""
+
+
 @dataclass(frozen=True)
 class OutputChecksum:
     path: str
@@ -193,6 +197,29 @@ def initialize_production_status_manifest(
         )
 
 
+def compare_and_write_production_job_status(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    updated_status: ProductionJobStatus,
+    expected_state: ProductionJobState,
+    expected_attempts: int,
+    expected_updated_at: str | None = None,
+) -> ProductionStatusManifest:
+    with _production_status_manifest_lock(workspace_root):
+        current_manifest = load_production_status_manifest(workspace_root, trusted_plan=trusted_plan)
+        updated_manifest = _replace_production_job_status(
+            current_manifest,
+            updated_status=updated_status,
+            expected_state=expected_state,
+            expected_attempts=expected_attempts,
+            expected_updated_at=expected_updated_at,
+            trusted_plan=trusted_plan,
+        )
+        write_production_status_manifest(updated_manifest, workspace_root, trusted_plan=trusted_plan)
+        return updated_manifest
+
+
 @contextmanager
 def _production_status_manifest_lock(workspace_root: Path | str) -> Iterator[None]:
     root = Path(workspace_root)
@@ -273,6 +300,58 @@ def _validate_manifest(manifest: ProductionStatusManifest, *, trusted_plan: Prod
     for status in manifest.job_statuses:
         _validate_status(status, trusted_job=jobs_by_id[status.job_id])
     _validate_dependency_states(manifest, jobs_by_id=jobs_by_id)
+
+
+def _replace_production_job_status(
+    manifest: ProductionStatusManifest,
+    *,
+    updated_status: ProductionJobStatus,
+    expected_state: ProductionJobState,
+    expected_attempts: int,
+    expected_updated_at: str | None,
+    trusted_plan: ProductionPlan,
+) -> ProductionStatusManifest:
+    _validate_manifest(manifest, trusted_plan=trusted_plan)
+    if not isinstance(updated_status, ProductionJobStatus):
+        raise ProductionStatusError("updated_status must be a ProductionJobStatus")
+    if updated_status.state not in _STATES:
+        raise ProductionStatusError(f"Unsupported production status state: {updated_status.state}")
+    if expected_state not in _STATES:
+        raise ProductionStatusError(f"Unsupported expected production status state: {expected_state}")
+    if isinstance(expected_attempts, bool) or not isinstance(expected_attempts, int) or expected_attempts < 0:
+        raise ProductionStatusError("expected_attempts must be a non-negative integer")
+    if expected_updated_at is not None:
+        _validate_timestamp(expected_updated_at, job_id=updated_status.job_id)
+
+    job_index = _status_index_for_job(manifest, updated_status.job_id)
+    if job_index is None:
+        raise ProductionStatusError(f"Cannot update unknown production job status: {updated_status.job_id}")
+    current_status = manifest.job_statuses[job_index]
+    if current_status.state != expected_state or current_status.attempts != expected_attempts:
+        raise ProductionStatusPreconditionError(
+            f"Production status precondition failed for job: {updated_status.job_id}"
+        )
+    if expected_updated_at is not None and current_status.updated_at != expected_updated_at:
+        raise ProductionStatusPreconditionError(
+            f"Production status precondition failed for job: {updated_status.job_id}"
+        )
+
+    updated_statuses = list(manifest.job_statuses)
+    updated_statuses[job_index] = updated_status
+    updated_manifest = ProductionStatusManifest(
+        shoot_slug=manifest.shoot_slug,
+        production_plan_fingerprint=manifest.production_plan_fingerprint,
+        job_statuses=tuple(updated_statuses),
+    )
+    _validate_manifest(updated_manifest, trusted_plan=trusted_plan)
+    return updated_manifest
+
+
+def _status_index_for_job(manifest: ProductionStatusManifest, job_id: str) -> int | None:
+    for index, status in enumerate(manifest.job_statuses):
+        if status.job_id == job_id:
+            return index
+    return None
 
 
 def _validate_trusted_plan(plan: ProductionPlan) -> None:

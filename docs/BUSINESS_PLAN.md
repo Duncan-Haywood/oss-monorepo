@@ -59,6 +59,9 @@ Why this wedge wins:
   manifest-backed production plan, plus a status-backed next-wave handoff so
   workers can resume from durable succeeded/running/failed/retryable state
   instead of trusting caller-reported completion lists.
+- Production-worker action/status helpers that plan dependency-ready jobs from
+  trusted status, claim a matching attempt, verify declared outputs before
+  success, and report retry/failure without cleanup or deletion authority.
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.

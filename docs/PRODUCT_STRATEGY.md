@@ -133,7 +133,10 @@ The current core models a concrete promise for high-volume users:
     --use-production-status` now reads succeeded jobs from that trusted status
     file, schedules only dependency-ready pending/retryable jobs, and surfaces
     running or failed work separately instead of relying on caller-reported
-    completion IDs.
+    completion IDs. Production-worker helpers now turn that trusted status into
+    claimable job actions, report success only after declared outputs exist and
+    checksum, and record retry/failure statuses without granting cleanup,
+    deletion, or arbitrary path authority.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -219,10 +222,13 @@ to automate.
    trusted persisted render-task workspace for smoke tests and product demos
    without bypassing the real init/status/scheduler path, plus a synthetic
    card-dump-to-render smoke workspace that exercises real checksum ingest before
-   the render handoff. A new production-status manifest gives pre-render
-   proxy/analysis/grading/storyline work the same resumable, fingerprint-bound
-   progress boundary, and the next-production-wave handoff can now derive its
-   completed dependency set directly from that manifest. The workspace index
+   the render handoff. A production-status manifest plus production-worker
+   action/status helpers now give pre-render proxy/analysis/grading/storyline
+   work the same resumable, fingerprint-bound progress boundary as rendering:
+   workers can plan dependency-ready jobs, claim a matching attempt, verify
+   declared outputs before success, and report retry/failure without deleting or
+   inventing paths. The next-production-wave handoff can derive its completed
+   dependency set directly from that manifest. The workspace index
    gives those shells a single metadata snapshot across ingest, storyline,
    render-task, render-status, and scheduler-report artifacts, while preserving
    each artifact's original trust boundary. The health/index layer includes a

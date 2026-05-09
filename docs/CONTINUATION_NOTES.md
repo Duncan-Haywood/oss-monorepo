@@ -2,6 +2,52 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 15:30 UTC
+
+This run advanced the pre-render production execution boundary that the previous
+run identified as the next test-first target:
+
+- Added `compare_and_write_production_job_status(...)` plus
+  `ProductionStatusPreconditionError`, giving `production_status.json` the same
+  single-job guarded update shape as render status: local advisory lock,
+  validated reload, expected state/attempt check, optional `updated_at` lease
+  token, replacement of exactly one status, and no reset of unrelated progress.
+- Added `shootflow.production_worker`, a renderer-neutral production worker
+  contract for proxy/VLM/color/story/package jobs. It plans dependency-ready
+  pending/retryable jobs from a trusted `ProductionPlan` and matching
+  `ProductionStatusManifest`, reports blocked jobs with missing dependencies,
+  claims one matching action as running, verifies declared output files before
+  success, and reports retry/failure states without cleanup or deletion
+  authority.
+- Updated README, product strategy, business plan, and design decisions so future
+  runs treat production-worker transitions as implemented infrastructure rather
+  than an unresolved handoff gap.
+
+Branch reconciliation for this run:
+
+- Refreshed `origin/main` before and after implementation. Before this run's new
+  commit, `git branch -r --no-merged origin/main` and
+  `git branch --no-merged origin/main` returned no pre-existing feature branches
+  with work stranded outside main.
+- No older branch work was merged or rejected in this pass because the useful
+  branch work from previous runs was already reachable from `origin/main`.
+- This run's new production-worker work is intentionally left on the assigned
+  branch for the automation PR flow. Cloud branch policy for this session says to
+  push only `cursor/repository-branch-consolidation-d65c`, so do not manually
+  push `main` from this checkout unless a later explicit instruction supersedes
+  that policy.
+
+Good next test-first targets:
+
+- Persist production-worker claim/success/retry/failure transitions through a
+  small adapter/scheduler wrapper that calls
+  `compare_and_write_production_job_status(...)` for each planned action.
+- Add stale-running production lease planning/persistence, mirroring the render
+  lease contract before allowing concurrent local production workers.
+- Add a deterministic dry-run production adapter that materializes placeholder
+  proxy/analysis/look/graded/story outputs only at declared paths, then reports
+  success through the new worker helpers.
+
 ## Implementation continuation note - 2026-05-09 15:00 UTC
 
 Branch reconciliation found the active branch already aligned with

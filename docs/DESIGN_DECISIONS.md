@@ -56,7 +56,16 @@ The repo currently contains a Python core package because it is quick to test an
   initializes and validates `production_status.json` against the deterministic
   production-plan fingerprint, preserving pending/running/succeeded/failed/
   retryable job state for proxy, analysis, grading, storyline, and packaging
-  workers without granting cleanup or media-write authority.
+  workers without granting cleanup or media-write authority. Single-job
+  compare/write updates take the same local lock, check expected state/attempt
+  and optional lease timestamp, replace exactly one status, and reject stale
+  workers before they can clobber newer progress.
+- `shootflow.production_worker`: the safe pre-render worker contract. It consumes
+  only a trusted `ProductionPlan` plus matching `ProductionStatusManifest`, plans
+  dependency-ready pending/retryable jobs, keeps blocked jobs visible with missing
+  dependencies, claims one action as running, verifies declared output files
+  before success, and reports retry/failure statuses without deleting source,
+  graded, render, or deliverable files.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads
@@ -237,14 +246,18 @@ The desired high-quality pipeline is:
 23. Initialize production-status manifests from verified ingest manifests so
     pre-render workers can resume production waves without confusing
     caller-reported completed IDs with durable job progress.
-24. Build a workspace index after ingest, scheduling, or retries so UI and
+24. Use production-worker action/status helpers to claim proxy/VLM/color/story
+    jobs from trusted status, checksum declared outputs before success, and
+    report retry/failure without giving workers file cleanup or deletion
+    authority.
+25. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-23. Compare metadata-only render input fingerprints across health/index snapshots
+26. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.
-24. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-25. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+27. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+28. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -289,6 +302,16 @@ High quality depends on scene-level consistency and reversible edits. The system
   path loads the matching trusted `production_status.json` and derives completed
   IDs from succeeded statuses. It deliberately writes no analysis, graded,
   render-task, status, scheduler-report, or deliverable files.
+- `shootflow.production_worker` is the mutation boundary after the read-only
+  production handoff. It accepts only a trusted production plan plus matching
+  status manifest, schedules pending/retryable jobs whose dependencies have
+  succeeded, and returns blocked-job reasons for UI/agent visibility. Workers can
+  claim a matching pending/retryable status as running, report success only after
+  every declared output file exists and checksums, or report retry/failure with a
+  clear error message. Persisted status transitions should use
+  `compare_and_write_production_job_status(...)`, which checks expected state,
+  attempt, and optional `updated_at` lease token while holding the local status
+  lock.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

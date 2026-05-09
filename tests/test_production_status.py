@@ -15,9 +15,11 @@ from shootflow.production_status import (
     PRODUCTION_STATUS_MANIFEST_PATH,
     OutputChecksum,
     ProductionJobStatus,
+    ProductionStatusPreconditionError,
     ProductionStatusError,
     ProductionStatusManifest,
     build_initial_production_status_manifest,
+    compare_and_write_production_job_status,
     initialize_production_status_manifest,
     load_production_status_manifest,
     production_plan_fingerprint,
@@ -269,6 +271,82 @@ class ProductionStatusManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ProductionStatusError, "Unsafe production output checksum path"):
                 write_production_status_manifest(unsafe_manifest, Path(tmp), trusted_plan=trusted_plan)
+
+    def test_compare_and_write_updates_exactly_one_job_status(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_status = ProductionJobStatus(
+            job_id="proxy_asset_00000",
+            state="running",
+            worker_adapter="proxy-local",
+            attempts=1,
+            updated_at="2026-05-09T15:31:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_production_status_manifest(
+                build_initial_production_status_manifest(trusted_plan),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+
+            updated_manifest = compare_and_write_production_job_status(
+                workspace,
+                trusted_plan=trusted_plan,
+                updated_status=running_status,
+                expected_state="pending",
+                expected_attempts=0,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(updated_manifest, loaded_manifest)
+        self.assertEqual(updated_manifest.job_statuses[0], running_status)
+        self.assertTrue(all(status.state == "pending" for status in updated_manifest.job_statuses[1:]))
+
+    def test_compare_and_write_rejects_stale_expected_status(self) -> None:
+        trusted_plan = self._trusted_plan()
+        running_status = ProductionJobStatus(
+            job_id="proxy_asset_00000",
+            state="running",
+            worker_adapter="proxy-local",
+            attempts=1,
+            updated_at="2026-05-09T15:31:00Z",
+        )
+        retryable_status = ProductionJobStatus(
+            job_id="proxy_asset_00000",
+            state="retryable",
+            worker_adapter="proxy-local",
+            attempts=1,
+            error_message="proxy worker interrupted; no source media was deleted",
+            updated_at="2026-05-09T15:32:00Z",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_production_status_manifest(
+                build_initial_production_status_manifest(trusted_plan),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            compare_and_write_production_job_status(
+                workspace,
+                trusted_plan=trusted_plan,
+                updated_status=running_status,
+                expected_state="pending",
+                expected_attempts=0,
+            )
+
+            with self.assertRaisesRegex(ProductionStatusPreconditionError, "precondition failed"):
+                compare_and_write_production_job_status(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    updated_status=retryable_status,
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest.job_statuses[0], running_status)
 
     @staticmethod
     def _trusted_plan():
