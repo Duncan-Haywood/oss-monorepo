@@ -37,7 +37,8 @@ The repo currently contains a Python core package because it is quick to test an
   go through the checksum manifest importer.
 - `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
-  produces conservative `StorageCandidate` records before handing off to the existing reviewed route
+  can apply native Mac volume metadata overrides for display name, removable/read-only state, and capacity.
+  It still produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
@@ -109,6 +110,9 @@ The repo currently contains a Python core package because it is quick to test an
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  Both the route-planning and card-dump commands can consume strict native volume
+  metadata JSON so a Swift/Menu Bar shell can pass Disk Arbitration facts without
+  widening copy, delete, or render authority.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
