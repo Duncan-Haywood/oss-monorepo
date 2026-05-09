@@ -44,6 +44,30 @@ Good next test-first targets:
   and lease conflicts as review states, not as cleanup, overwrite, or automatic
   retry authority.
 
+Branch reconciliation for this run:
+
+- `git fetch --prune origin` pruned the prior
+  `origin/cursor/branch-reconciliation-and-merge-2e3f` branch after its work had
+  already been fast-forwarded into the assigned branch.
+- A new remote branch, `origin/cursor/branch-consolidation-strategy-d2e7`,
+  appeared during final reconciliation. Its tree matches the already-merged
+  production-health commit `74a5b4e` and contains no content beyond that
+  consolidation merge; it was not merged because doing so would move the current
+  branch away from the newer production lease recovery commits.
+- Deleted the local gone branch `cursor/setup-dev-env-3ad0` after confirming it
+  was merged into the current branch.
+- `origin/main` still points at `0f169fd`. Cloud branch policy for this run
+  requires pushing only `cursor/repository-branch-consolidation-4c04`, so this
+  run did not push `main`; the assigned branch now contains the consolidated
+  production-health work plus the production lease recovery work.
+- Final verification after review fixes:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check && git status --short --branch` -> 294 tests OK,
+  compileall/diff-check exited 0, and the tree was clean.
+- Follow-up correctness and testing reviewers reported no remaining findings
+  after the review fixes.
+
 ## Implementation continuation note - 2026-05-09 17:30 UTC
 
 This run advanced the production-health visibility gap identified by the 17:00
