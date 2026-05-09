@@ -184,6 +184,34 @@ class StorageDiscoveryTest(unittest.TestCase):
                 discover_storage_candidates([volumes], volume_hints={card: VolumeDiscoveryHint(display_name=123)})  # type: ignore[arg-type]
             with self.assertRaises(ValueError):
                 discover_storage_candidates([volumes], volume_hints={card: VolumeDiscoveryHint(display_name="   ")})
+            with self.assertRaises(TypeError):
+                discover_storage_candidates([volumes], volume_hints={card: VolumeDiscoveryHint(is_removable="yes")})  # type: ignore[arg-type]
+            with self.assertRaises(TypeError):
+                discover_storage_candidates([volumes], volume_hints={card: VolumeDiscoveryHint(is_read_only="no")})  # type: ignore[arg-type]
+
+    def test_discover_import_route_carries_hints_through_capacity_gate(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            card = volumes / "Untitled"
+            ssd = volumes / "External"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir(parents=True)
+
+            with mock.patch("shootflow.storage_discovery._read_filesystem_stats", return_value=(900 * 1024**3, 2 * 1024**4)):
+                recommendation = discover_import_route(
+                    [volumes],
+                    expected_import_bytes=100 * 1024**3,
+                    headroom_bytes=32 * 1024**3,
+                    volume_hints={
+                        card: VolumeDiscoveryHint(display_name="EOS_R5_CARD", is_removable=True),
+                        ssd: VolumeDiscoveryHint(display_name="Samsung_T7", is_removable=True, is_read_only=False),
+                    },
+                )
+
+        self.assertTrue(recommendation.ready)
+        self.assertEqual(recommendation.source.candidate.name, "EOS_R5_CARD")
+        self.assertEqual(recommendation.destination.candidate.name, "Samsung_T7")
+        self.assertIn("capacity gate active", " ".join(recommendation.safety_notes))
 
     def test_read_write_hint_cannot_override_unwritable_filesystem_check(self):
         with tempfile.TemporaryDirectory() as root:
