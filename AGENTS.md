@@ -34,6 +34,7 @@ PYTHONPATH=src python3 -m shootflow.cli write-render-tasks --ingest-manifest <pa
 PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace --workspace <dir>
+PYTHONPATH=src python3 -m shootflow.cli create-card-dump-demo-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
 ```
 

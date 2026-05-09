@@ -27,6 +27,300 @@ from shootflow.story import ContentSequence, StorylinePlan, write_storyline_arti
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_card_dump_demo_workspace_runs_detected_card_to_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_stdout = io.StringIO()
+
+            create_exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "demo-wedding",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                ],
+                stdout=create_stdout,
+            )
+            self.assertEqual(create_exit_code, 0)
+            create_report = json.loads(create_stdout.getvalue())
+            shoot_folder = Path(create_report["shoot_folder"])
+            ingest_manifest_exists = (shoot_folder / "ingest_manifest.json").exists()
+            render_tasks_exists = (shoot_folder / "deliverables" / "render_tasks.json").exists()
+            render_status_exists_before_init = (
+                shoot_folder / "deliverables" / "render_status.json"
+            ).exists()
+            source_video_bytes = (
+                Path(create_report["source_volume"]) / "PRIVATE" / "A001.MOV"
+            ).read_bytes()
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+
+            init_exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(shoot_folder),
+                ],
+                stdout=init_stdout,
+            )
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(shoot_folder),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-08T17:00:00Z",
+                "--completed-at",
+                "2026-05-08T17:00:05Z",
+                "--generated-at",
+                "2026-05-08T17:00:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+                "--print-report",
+            ]
+            for dependency_id in create_report["required_completed_dependency_ids"]:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+
+            scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
+
+        init_summary = json.loads(init_stdout.getvalue())
+        printed_scheduler_report = json.loads(scheduler_stdout.getvalue())
+        self.assertEqual(create_report["schema_version"], 1)
+        self.assertEqual(create_report["card_dump"]["status"], "ingest_complete")
+        self.assertTrue(create_report["card_dump"]["ingest_executed"])
+        self.assertEqual(
+            create_report["card_dump"]["asset_counts"],
+            {"photo": 2, "video": 1, "total": 3},
+        )
+        self.assertTrue(ingest_manifest_exists)
+        self.assertTrue(render_tasks_exists)
+        self.assertFalse(render_status_exists_before_init)
+        self.assertEqual(source_video_bytes, b"video-bytes")
+        self.assertIn("card-dump demo source media was not deleted", create_report["safety_notes"])
+        self.assertEqual(init_exit_code, 0)
+        self.assertTrue(init_summary["created"])
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(printed_scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(
+            printed_scheduler_report["outputs_materialized"],
+            create_report["expected_output_paths"],
+        )
+        self.assertEqual(printed_scheduler_report["review_required_task_ids"], [])
+
+    def test_card_dump_demo_workspace_refuses_to_overwrite_existing_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            existing_source = workspace / "Volumes" / "EOS_DIGITAL" / "PRIVATE" / "A001.MOV"
+            existing_source.parent.mkdir(parents=True)
+            existing_source.write_bytes(b"user-owned-video")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing to overwrite existing different demo source file", stderr.getvalue())
+            self.assertEqual(existing_source.read_bytes(), b"user-owned-video")
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7" / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_refuses_unexpected_sibling_volume(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            sibling_media = workspace / "Volumes" / "OTHER_CARD" / "DCIM" / "100EOS5D" / "IMG_9999.JPG"
+            sibling_media.parent.mkdir(parents=True)
+            sibling_media.write_bytes(b"not-demo-media")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo volume entry", stderr.getvalue())
+            self.assertEqual(sibling_media.read_bytes(), b"not-demo-media")
+            self.assertFalse((workspace / "Volumes" / "EOS_DIGITAL").exists())
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7").exists())
+
+    def test_card_dump_demo_workspace_refuses_unexpected_source_media(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            extra_media = workspace / "Volumes" / "EOS_DIGITAL" / "DCIM" / "100EOS5D" / "EXTRA.MOV"
+            extra_media.parent.mkdir(parents=True)
+            extra_media.write_bytes(b"user-extra-video")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo source media", stderr.getvalue())
+            self.assertEqual(extra_media.read_bytes(), b"user-extra-video")
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7" / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_refuses_existing_destination_shoot_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            existing_shoot_note = (
+                workspace
+                / "Volumes"
+                / "Samsung_T7"
+                / "ShootFlow"
+                / "2026-05-08_cli-demo-shoot"
+                / "notes"
+                / "client.txt"
+            )
+            existing_shoot_note.parent.mkdir(parents=True)
+            existing_shoot_note.write_text("real client notes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing existing demo destination shoot folder", stderr.getvalue())
+            self.assertEqual(existing_shoot_note.read_text(), "real client notes")
+            self.assertFalse((existing_shoot_note.parents[1] / "ingest_manifest.json").exists())
+            self.assertFalse((existing_shoot_note.parents[1] / "deliverables").exists())
+
+    def test_card_dump_demo_workspace_refuses_existing_allowed_volume_user_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            source_note = workspace / "Volumes" / "EOS_DIGITAL" / "MISC" / "OWNER.TXT"
+            destination_note = workspace / "Volumes" / "Samsung_T7" / "ExistingProject" / "client.txt"
+            source_note.parent.mkdir(parents=True)
+            destination_note.parent.mkdir(parents=True)
+            source_note.write_text("real card note")
+            destination_note.write_text("real destination note")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo", stderr.getvalue())
+            self.assertEqual(source_note.read_text(), "real card note")
+            self.assertEqual(destination_note.read_text(), "real destination note")
+            self.assertFalse((source_note.parents[1] / "DCIM").exists())
+            self.assertFalse((destination_note.parents[1] / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_rejects_invalid_date_before_writing_media(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-date",
+                    "not-a-date",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("shoot_date must be an ISO-8601 date", stderr.getvalue())
+            self.assertFalse((workspace / "Volumes").exists())
+
+    def test_card_dump_demo_workspace_uses_synthetic_capacity_hints(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            with patch("shootflow.storage_discovery._read_filesystem_stats", return_value=(1, 1)):
+                exit_code = main(
+                    [
+                        "create-card-dump-demo-workspace",
+                        "--workspace",
+                        str(workspace),
+                    ],
+                    stdout=stdout,
+                )
+
+            self.assertEqual(exit_code, 0)
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(report["card_dump"]["status"], "ingest_complete")
+
+    def test_card_dump_demo_workspace_rejects_symlinked_workspace_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            real_parent = Path(tmp) / "real-parent"
+            real_parent.mkdir()
+            linked_parent = Path(tmp) / "linked-parent"
+            linked_parent.symlink_to(real_parent, target_is_directory=True)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(linked_parent / "demo"),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing symlinked demo workspace path", stderr.getvalue())
+            self.assertFalse((real_parent / "demo").exists())
+
     def test_create_demo_workspace_command_outputs_scheduler_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

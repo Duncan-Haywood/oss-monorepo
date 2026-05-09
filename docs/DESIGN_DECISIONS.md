@@ -510,6 +510,22 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
 
+### Decision: card-dump demos must exercise the real ingest boundary
+
+- **Status:** accepted
+- **Rationale:** A demo that skips directly to render tasks proves scheduler
+  safety, but it does not show the product wedge of reviewed card/SSD routing,
+  checksum ingest, and manifest-backed handoff. At the same time, demo helpers
+  must never normalize unsafe writes to real user media.
+- **Consequence:** `create-card-dump-demo-workspace` seeds synthetic mounted
+  volumes under a caller-chosen workspace, runs the real confirmed
+  `card-dump-workflow`, then writes trusted render tasks into the ingested shoot
+  folder. It refuses symlinked workspace parents, existing destination shoot
+  folders, non-empty synthetic destination volumes, unexpected sibling volumes,
+  unexpected existing source-volume entries, unexpected source media, and
+  existing different demo source bytes; it still leaves render status and
+  scheduler reports to the normal CLI commands.
+
 ### Decision: card-dump reports expose machine-readable agent handoff state
 
 - **Status:** accepted

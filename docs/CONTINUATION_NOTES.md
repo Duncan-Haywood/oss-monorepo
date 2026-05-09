@@ -2,6 +2,65 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-09 14:30 UTC
+
+The assigned branch `cursor/repository-branch-consolidation-c5fc` started at the
+same commit as `origin/main` (`870eb03`). Local `main` still points at the
+repository's initial commit, so compare future consolidation work against
+`origin/main`, not local `main`, unless local refs have been refreshed.
+
+Branch reconciliation findings:
+
+- Several remote branches still appear ahead of `origin/main` by ancestry even
+  though the 14:00 UTC consolidation had already integrated their useful ideas
+  by merge or superseding implementation. Cherry-equivalent examples included
+  `origin/cursor/ai-media-operating-system-ee55`,
+  `origin/cursor/ai-media-operating-system-f6b6`, and
+  `origin/cursor/autonomous-media-studio-4da3`.
+- `origin/cursor/ai-media-operating-system-c1c0` contained the strongest
+  unmerged capability: a synthetic card-dump-to-render demo workspace. Rather
+  than cherry-picking the older branch wholesale, this run reimplemented the
+  useful behavior on the consolidated current code.
+- Other ahead-by-ancestry branches such as old production-status, read-only
+  workspace-state, and alternate macOS metadata implementations should still be
+  treated cautiously. Many overlap with current `workspace_health`,
+  `workspace_index`, `render_workspace`, `macos_volume_metadata`, and
+  `production_handoff` surfaces. Review file-level diffs before considering any
+  merge.
+
+This run added the card-dump demo bridge:
+
+- `shootflow.demo_workspace.create_card_dump_cli_demo_workspace(...)` creates a
+  synthetic `Volumes/EOS_DIGITAL` card and `Volumes/Samsung_T7` destination,
+  runs the real confirmed `card-dump-workflow`, then seeds the ingested shoot
+  folder with the trusted persisted render-task demo.
+- `python -m shootflow.cli create-card-dump-demo-workspace --workspace <dir>`
+  prints a schema-versioned handoff with the synthetic volume paths, resulting
+  shoot folder, render-task manifest path, scheduler dependency IDs, expected
+  output paths, copied asset counts, and safety notes.
+- Guardrails: the helper refuses symlinked workspace parents, existing
+  destination shoot folders, non-empty synthetic destination volumes, unexpected
+  sibling demo volumes, unexpected existing source-volume entries, unexpected
+  source media, and existing source files whose bytes differ from the
+  deterministic demo fixtures. It also uses fixed synthetic capacity hints so
+  tiny demo media does not depend on the host filesystem having large free
+  space. It does not initialize render status, run the scheduler, delete source
+  media, or treat the demo as authority to overwrite real work.
+- Docs updated in README, product strategy, business plan, design decisions, and
+  AGENTS command reference so future runs treat this as the current GTM/smoke
+  bridge from safe ingest to render scheduling.
+
+Fresh verification after this change:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests
+python3 -m compileall -q src tests
+git diff --check
+```
+
+Final result after review follow-up: 240 tests passed; compileall and
+diff-check exited 0.
+
 ## Branch consolidation note - 2026-05-09 01:00 UTC
 
 The assigned branch `cursor/ai-media-operating-system-9806` started as an

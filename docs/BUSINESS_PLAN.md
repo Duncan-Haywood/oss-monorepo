@@ -52,6 +52,10 @@ Why this wedge wins:
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
   reporting together for Mac app shells and demos.
+- A synthetic card-dump demo workspace that seeds fake mounted card/SSD volumes,
+  runs the real confirmed card-dump flow, and then creates trusted render tasks
+  in the ingested shoot folder so sales demos can prove the ingest-to-render
+  handoff without touching real cards.
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.
@@ -180,14 +184,11 @@ Run practical experiments tied to this ICP-first plan:
    read-only post-ingest summary. The `card-dump-workflow` command combines
    those steps into one native-shell contract, so the next step is binding it to
    a SwiftUI/menu-bar approval screen before AI/color work starts.
-2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in both `shootflow.demo_workspace` and the real
-   `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
-   trusted storyline/graded fixtures so one smoke path runs from detected card
-   to persisted render tasks, status initialization, scheduler report, and
-   reviewable outputs. `index-workspace` provides the UI/agent state snapshot
-   and `inspect-render-workspace` provides the safe read-only state probe
-   before initialization and after scheduler runs.
+2. Turn the synthetic card-dump demo into a proof-based GTM artifact. The smoke
+   path now runs from detected fake card/SSD volumes through confirmed ingest and
+   trusted render tasks; next, wrap that in a short scripted demo that also runs
+   status initialization, scheduler report generation, `index-workspace`, and
+   `inspect-render-workspace` so prospects see safe state transitions end to end.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.
