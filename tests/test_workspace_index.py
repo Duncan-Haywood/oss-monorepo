@@ -13,6 +13,7 @@ from shootflow.demo_workspace import (
 )
 from shootflow.production import build_production_plan
 from shootflow.production_scheduler import (
+    PRODUCTION_SCHEDULER_REPORT_PATH,
     run_dry_run_production_scheduler,
     write_dry_run_production_scheduler_report,
 )
@@ -153,6 +154,72 @@ class WorkspaceIndexTests(unittest.TestCase):
             workspace_health.summary["production_status_counts"]["succeeded"],
             production_status.summary["succeeded_job_count"],
         )
+
+    def test_workspace_index_reports_invalid_production_status_without_resetting_it(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = create_card_dump_cli_demo_workspace(root)
+            trusted_plan = self._production_plan_from_workspace(demo.shoot_folder)
+            initialize_production_status_manifest(demo.shoot_folder, trusted_plan=trusted_plan)
+            status_path = demo.shoot_folder / "production_status.json"
+            status_path.write_text('{"schema_version":1,"job_statuses":[]}\n', encoding="utf-8")
+            status_before = status_path.read_text(encoding="utf-8")
+
+            index = build_workspace_index(
+                demo.shoot_folder,
+                generated_at="2026-05-09T19:01:00Z",
+            )
+            status_after = status_path.read_text(encoding="utf-8")
+
+        production_status = self._artifact(index, "production_status")
+        production_report = self._artifact(index, "production_scheduler_report")
+        workspace_health = self._artifact(index, "workspace_health")
+
+        self.assertTrue(production_status.present)
+        self.assertFalse(production_status.trusted)
+        self.assertEqual(production_status.status, "invalid")
+        self.assertIn("production", production_status.summary["error"])
+        self.assertFalse(production_report.present)
+        self.assertEqual(production_report.status, "missing")
+        self.assertEqual(
+            workspace_health.summary["next_action"]["name"],
+            "review_invalid_production_status",
+        )
+        self.assertEqual(status_after, status_before)
+
+    def test_workspace_index_reports_invalid_production_scheduler_report_for_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = create_card_dump_cli_demo_workspace(root)
+            trusted_plan = self._production_plan_from_workspace(demo.shoot_folder)
+            initialize_production_status_manifest(demo.shoot_folder, trusted_plan=trusted_plan)
+            report_path = demo.shoot_folder / PRODUCTION_SCHEDULER_REPORT_PATH
+            report_path.write_text(
+                '{"schema_version":1,"completed_job_ids":["ghost"]}\n',
+                encoding="utf-8",
+            )
+            report_before = report_path.read_text(encoding="utf-8")
+
+            index = build_workspace_index(
+                demo.shoot_folder,
+                generated_at="2026-05-09T19:01:30Z",
+            )
+            report_after = report_path.read_text(encoding="utf-8")
+
+        production_status = self._artifact(index, "production_status")
+        production_report = self._artifact(index, "production_scheduler_report")
+        workspace_health = self._artifact(index, "workspace_health")
+
+        self.assertTrue(production_status.trusted)
+        self.assertTrue(production_report.present)
+        self.assertFalse(production_report.trusted)
+        self.assertEqual(production_report.status, "invalid")
+        self.assertIn("production", production_report.summary["error"])
+        self.assertEqual(
+            workspace_health.summary["next_action"]["name"],
+            "review_invalid_production_scheduler_report",
+        )
+        self.assertEqual(report_after, report_before)
 
     def test_write_and_load_workspace_index_rejects_symlinked_index_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

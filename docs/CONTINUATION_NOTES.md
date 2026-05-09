@@ -2,6 +2,47 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 19:00 UTC
+
+This run first reconciled the assigned branch with the latest verified remote
+lineage:
+
+- Fetched and pruned remote branches. Most historical cursor branches were
+  already removed upstream; the useful active line was
+  `origin/cursor/repository-branch-consolidation-4b72`.
+- Fast-forwarded `cursor/branch-reconciliation-and-merge-8418` from the
+  production-scheduler-report baseline (`0f169fd`) to `0e1c4a9`, bringing in
+  production-status/workspace-health/index visibility, stale production lease
+  recovery, retryable handoff review gates, and the 18:30 reconciliation notes.
+- Pushed the reconciled assigned branch to
+  `origin/cursor/branch-reconciliation-and-merge-8418`.
+
+This run then closed the negative-trust coverage gap called out by the previous
+handoff:
+
+- Added `workspace_index` regressions proving a corrupt `production_status.json`
+  is indexed as an untrusted invalid production artifact, leaves
+  `production_scheduler_report` missing/untrusted, routes the derived
+  workspace-health next action to `review_invalid_production_status`, and does
+  not rewrite the corrupt status file.
+- Added `workspace_index` regressions proving a corrupt
+  `production_scheduler_report.json` is indexed as an untrusted invalid report,
+  routes the derived workspace-health next action to
+  `review_invalid_production_scheduler_report`, and does not rewrite the corrupt
+  report file.
+
+Good next test-first targets:
+
+- Add product metric emission at production/render scheduler report boundaries
+  now that both pre-render and render progress surfaces have durable report
+  artifacts and review-required states.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Add UI/agent contract tests proving Mac shells treat expired production leases
+  and production lease conflicts as review states, not cleanup, overwrite, or
+  automatic retry authority.
+
 ## Implementation continuation note - 2026-05-09 18:30 UTC
 
 This run first reconciled the previous completed branch work:
@@ -43,8 +84,8 @@ Good next test-first targets:
 - Start a real local proxy or metadata adapter behind the production-worker
   action contract, preserving declared-output-only authority and using the stale
   lease expiry path for interrupted jobs.
-- Add negative trust coverage for invalid production status/report artifacts in
-  `index-workspace`, complementing the health and scheduler report coverage.
+- Negative trust coverage for invalid production status/report artifacts in
+  `index-workspace` was added in the 19:00 UTC run above.
 
 Branch reconciliation for this run:
 
