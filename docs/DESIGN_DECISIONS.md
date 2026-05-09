@@ -162,9 +162,12 @@ The repo currently contains a Python core package because it is quick to test an
   production scheduler reports from the trusted ingest manifest, then validates
   the persisted render-task manifest, matching render-status manifest, and render
   scheduler report when enough trusted context exists. It summarizes production
-  and render status counts and emits a single next safe action. Missing files are
+  and render status counts, exposes validated scheduler product metrics when
+  trusted reports exist, and emits a single next safe action. Missing files are
   treated as workflow state, while invalid files are surfaced for review instead
-  of being reset, repaired, or overwritten.
+  of being reset, repaired, or overwritten. Metrics are observational UI/analytics
+  state only; scheduling and file authority stay bound to the underlying trusted
+  manifests and reports.
 - `shootflow.render_workspace`: a read-only state index over persisted render
   handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
   missing status manifest as `needs_status_initialization` without creating one,

@@ -64,6 +64,10 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(scheduler_report.summary["stopped_reason"], "complete")
         self.assertEqual(scheduler_report.summary["review_required_task_count"], 0)
         self.assertEqual(
+            scheduler_report.summary["product_metrics"]["completed_task_count"],
+            4,
+        )
+        self.assertEqual(
             scheduler_report.summary["outputs_materialized_count"],
             len(demo.expected_output_paths),
         )
@@ -151,8 +155,18 @@ class WorkspaceIndexTests(unittest.TestCase):
             len(result.completed_job_ids),
         )
         self.assertEqual(
+            production_report.summary["product_metrics"]["completed_job_count"],
+            len(result.completed_job_ids),
+        )
+        self.assertEqual(
             workspace_health.summary["production_status_counts"]["succeeded"],
             production_status.summary["succeeded_job_count"],
+        )
+        self.assertEqual(
+            workspace_health.summary["production_scheduler_product_metrics"][
+                "completed_job_count"
+            ],
+            len(result.completed_job_ids),
         )
 
     def test_workspace_index_reports_invalid_production_status_without_resetting_it(self) -> None:
@@ -185,6 +199,7 @@ class WorkspaceIndexTests(unittest.TestCase):
             workspace_health.summary["next_action"]["name"],
             "review_invalid_production_status",
         )
+        self.assertIsNone(workspace_health.summary["production_scheduler_product_metrics"])
         self.assertEqual(status_after, status_before)
 
     def test_workspace_index_reports_invalid_production_scheduler_report_for_review(self) -> None:
@@ -219,6 +234,7 @@ class WorkspaceIndexTests(unittest.TestCase):
             workspace_health.summary["next_action"]["name"],
             "review_invalid_production_scheduler_report",
         )
+        self.assertIsNone(workspace_health.summary["production_scheduler_product_metrics"])
         self.assertEqual(report_after, report_before)
 
     def test_write_and_load_workspace_index_rejects_symlinked_index_path(self) -> None:
@@ -342,6 +358,12 @@ class WorkspaceIndexTests(unittest.TestCase):
                 "stopped_reason"
             ],
             "complete",
+        )
+        self.assertEqual(
+            self._artifact_payload(printed_index, "workspace_health")["summary"][
+                "render_scheduler_product_metrics"
+            ]["completed_task_count"],
+            4,
         )
 
     def test_index_workspace_cli_rejects_missing_workspace(self) -> None:

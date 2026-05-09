@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -98,6 +99,8 @@ class WorkspaceHealthSummary:
     render_plan_fingerprint: str | None
     render_inputs_fingerprint: str | None
     render_input_count: int
+    production_scheduler_product_metrics: Mapping[str, int] | None
+    render_scheduler_product_metrics: Mapping[str, int] | None
     task_count: int
     status_counts: WorkspaceRenderStatusCounts
     next_action: WorkspaceNextAction
@@ -121,6 +124,8 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
     render_status_manifest: RenderStatusManifest | None = None
     render_inputs_fingerprint: str | None = None
     render_input_count = 0
+    production_scheduler_product_metrics: Mapping[str, int] | None = None
+    render_scheduler_product_metrics: Mapping[str, int] | None = None
 
     if _path_exists_or_is_symlink(ingest_manifest_path):
         try:
@@ -168,10 +173,13 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         and _path_exists_or_is_symlink(production_scheduler_report_path)
     ):
         try:
-            load_dry_run_production_scheduler_report(
+            production_scheduler_report_manifest = load_dry_run_production_scheduler_report(
                 root,
                 trusted_plan=trusted_production_plan,
                 final_manifest=production_status_manifest,
+            )
+            production_scheduler_product_metrics = (
+                production_scheduler_report_manifest.product_metrics
             )
             production_scheduler_report = WorkspaceArtifactHealth(
                 path=production_scheduler_report_path,
@@ -261,11 +269,12 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         and _path_exists_or_is_symlink(scheduler_report_path)
     ):
         try:
-            load_dry_run_render_scheduler_report(
+            render_scheduler_report_manifest = load_dry_run_render_scheduler_report(
                 root,
                 trusted_plan=trusted_plan,
                 final_manifest=render_status_manifest,
             )
+            render_scheduler_product_metrics = render_scheduler_report_manifest.product_metrics
             scheduler_report = WorkspaceArtifactHealth(
                 path=scheduler_report_path,
                 exists=True,
@@ -324,6 +333,8 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         ),
         render_inputs_fingerprint=render_inputs_fingerprint,
         render_input_count=render_input_count,
+        production_scheduler_product_metrics=production_scheduler_product_metrics,
+        render_scheduler_product_metrics=render_scheduler_product_metrics,
         task_count=0 if trusted_plan is None else len(trusted_plan.render_tasks),
         status_counts=status_counts,
         next_action=_next_action(
@@ -360,6 +371,12 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
         "render_plan_fingerprint": summary.render_plan_fingerprint,
         "render_inputs_fingerprint": summary.render_inputs_fingerprint,
         "render_input_count": summary.render_input_count,
+        "production_scheduler_product_metrics": _optional_metrics_to_dict(
+            summary.production_scheduler_product_metrics
+        ),
+        "render_scheduler_product_metrics": _optional_metrics_to_dict(
+            summary.render_scheduler_product_metrics
+        ),
         "task_count": summary.task_count,
         "artifacts": {
             "production_status": _artifact_to_dict(summary.production_status),
@@ -620,6 +637,12 @@ def _next_action_to_dict(action: WorkspaceNextAction) -> dict[str, object]:
     return payload
 
 
+def _optional_metrics_to_dict(metrics: Mapping[str, int] | None) -> dict[str, int] | None:
+    if metrics is None:
+        return None
+    return dict(metrics)
+
+
 def _validate_summary(summary: WorkspaceHealthSummary) -> None:
     if not isinstance(summary, WorkspaceHealthSummary):
         raise WorkspaceHealthError("summary must be a WorkspaceHealthSummary")
@@ -641,3 +664,26 @@ def _validate_summary(summary: WorkspaceHealthSummary) -> None:
         or len(summary.render_inputs_fingerprint) != 64
     ):
         raise WorkspaceHealthError("summary render_inputs_fingerprint is invalid")
+    _validate_optional_product_metrics(
+        summary.production_scheduler_product_metrics,
+        "production_scheduler_product_metrics",
+    )
+    _validate_optional_product_metrics(
+        summary.render_scheduler_product_metrics,
+        "render_scheduler_product_metrics",
+    )
+
+
+def _validate_optional_product_metrics(
+    metrics: Mapping[str, int] | None,
+    label: str,
+) -> None:
+    if metrics is None:
+        return
+    if not isinstance(metrics, Mapping):
+        raise WorkspaceHealthError(f"summary {label} must be a mapping or None")
+    for key, value in metrics.items():
+        if not isinstance(key, str) or not key.strip():
+            raise WorkspaceHealthError(f"summary {label} keys must be non-empty strings")
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise WorkspaceHealthError(f"summary {label} values must be non-negative integers")

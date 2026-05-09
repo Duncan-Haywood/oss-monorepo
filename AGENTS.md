@@ -47,7 +47,8 @@ and same-attempt heartbeat refreshes are reported as conflicts rather than
 being clobbered. Production and render scheduler reports are schema v2 and
 include validated product metric counts derived from the report state.
 `workspace-health` and `index-workspace` expose production status/report
-summaries read-only before falling through to render handoffs.
+summaries and validated scheduler product metrics read-only before falling
+through to render handoffs.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`
 and `deliverables/render_status.json` manifests in the workspace directory.
 `write-render-tasks` can create the render-task manifest from an ingest manifest

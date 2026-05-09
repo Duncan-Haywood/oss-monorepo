@@ -112,7 +112,8 @@ This repo currently contains the first testable core utilities:
   automations a read-only health check over trusted handoff files. It reports
   whether production status, production scheduler reports, render tasks, render
   status, and render scheduler reports exist and validate, summarizes production
-  and render status counts, and suggests the next safe CLI action without
+  and render status counts, surfaces validated scheduler product metrics when
+  trusted reports are present, and suggests the next safe CLI action without
   creating, resetting, deleting, or repairing any files.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,

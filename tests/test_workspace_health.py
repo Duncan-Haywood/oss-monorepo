@@ -28,7 +28,7 @@ from shootflow.render_scheduler import (
     write_dry_run_render_scheduler_report,
 )
 from shootflow.render_status import initialize_render_status_manifest, load_render_status_manifest
-from shootflow.workspace_health import build_workspace_health_summary
+from shootflow.workspace_health import build_workspace_health_summary, workspace_health_summary_to_dict
 
 
 class WorkspaceHealthTests(unittest.TestCase):
@@ -147,12 +147,14 @@ class WorkspaceHealthTests(unittest.TestCase):
             status_before = status_path.read_text(encoding="utf-8")
 
             summary = build_workspace_health_summary(workspace)
+            payload = workspace_health_summary_to_dict(summary)
             status_after = status_path.read_text(encoding="utf-8")
 
         self.assertTrue(summary.render_tasks.valid)
         self.assertTrue(summary.render_status.exists)
         self.assertFalse(summary.render_status.valid)
         self.assertIn("render status", summary.render_status.error_message or "")
+        self.assertIsNone(payload["render_scheduler_product_metrics"])
         self.assertEqual(summary.next_action.name, "review_invalid_render_status")
         self.assertFalse(summary.next_action.writes_files)
         self.assertEqual(status_after, status_before)
@@ -185,10 +187,19 @@ class WorkspaceHealthTests(unittest.TestCase):
             )
 
             summary = build_workspace_health_summary(workspace)
+            payload = workspace_health_summary_to_dict(summary)
 
         self.assertTrue(summary.scheduler_report.exists)
         self.assertTrue(summary.scheduler_report.valid)
         self.assertEqual(summary.status_counts.retryable, 1)
+        self.assertEqual(
+            payload["render_scheduler_product_metrics"]["retryable_task_count"],
+            1,
+        )
+        self.assertEqual(
+            payload["render_scheduler_product_metrics"]["total_task_count"],
+            summary.task_count,
+        )
         self.assertEqual(summary.next_action.name, "review_scheduler_report")
         self.assertFalse(summary.next_action.writes_files)
 
@@ -308,11 +319,13 @@ class WorkspaceHealthTests(unittest.TestCase):
             status_before = status_path.read_text(encoding="utf-8")
 
             summary = build_workspace_health_summary(demo.shoot_folder)
+            payload = workspace_health_summary_to_dict(summary)
             status_after = status_path.read_text(encoding="utf-8")
 
         self.assertTrue(summary.production_status.exists)
         self.assertFalse(summary.production_status.valid)
         self.assertIn("production status", summary.production_status.error_message or "")
+        self.assertIsNone(payload["production_scheduler_product_metrics"])
         self.assertEqual(summary.next_action.name, "review_invalid_production_status")
         self.assertFalse(summary.next_action.writes_files)
         self.assertEqual(status_after, status_before)
@@ -350,10 +363,19 @@ class WorkspaceHealthTests(unittest.TestCase):
             )
 
             summary = build_workspace_health_summary(demo.shoot_folder)
+            payload = workspace_health_summary_to_dict(summary)
 
         self.assertTrue(summary.production_scheduler_report.exists)
         self.assertTrue(summary.production_scheduler_report.valid)
         self.assertEqual(summary.production_status_counts.retryable, 1)
+        self.assertEqual(
+            payload["production_scheduler_product_metrics"]["retryable_job_count"],
+            1,
+        )
+        self.assertEqual(
+            payload["production_scheduler_product_metrics"]["total_job_count"],
+            summary.production_job_count,
+        )
         self.assertEqual(summary.next_action.name, "review_production_scheduler_report")
         self.assertFalse(summary.next_action.writes_files)
 

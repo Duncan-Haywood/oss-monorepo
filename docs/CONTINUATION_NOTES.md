@@ -2,6 +2,35 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 20:00 UTC
+
+This run advanced the metrics-consumption target from the previous handoff:
+
+- `workspace-health` now exposes validated production and render scheduler
+  `product_metrics` as read-only JSON fields when matching trusted scheduler
+  reports are present. Missing or invalid reports leave those metric fields
+  unavailable instead of deriving analytics from untrusted files.
+- `index-workspace` now carries the same metrics in its derived
+  `workspace_health` artifact and includes each trusted production/render
+  scheduler report's `product_metrics` in that report artifact summary.
+- Metrics remain observational only: next-action routing still depends on the
+  validated status/report state, not on metric counts, and no copy, retry,
+  cleanup, overwrite, materialization, or deletion authority was added.
+- Added regression coverage for render and production health payloads plus
+  workspace-index scheduler summaries/CLI output.
+
+Good next test-first targets:
+
+- Add UI/agent contract tests proving Mac shells render metric counts as
+  reliability/throughput indicators while continuing to branch on explicit
+  review states for retryable jobs, lease conflicts, and invalid artifacts.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Define the first pilot dashboard contract that consumes health/index metrics
+  for activation, intervention rate, and throughput without reading raw worker
+  internals.
+
 ## Implementation continuation note - 2026-05-09 19:30 UTC
 
 This run advanced the product-metrics target that had been carried in the

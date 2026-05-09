@@ -438,9 +438,15 @@ def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
             "production_plan_fingerprint": health["production_plan_fingerprint"],
             "production_job_count": health["production_job_count"],
             "production_status_counts": health["production_status_counts"],
+            "production_scheduler_product_metrics": health[
+                "production_scheduler_product_metrics"
+            ],
             "render_plan_fingerprint": health["render_plan_fingerprint"],
             "render_inputs_fingerprint": health["render_inputs_fingerprint"],
             "render_input_count": health["render_input_count"],
+            "render_scheduler_product_metrics": health[
+                "render_scheduler_product_metrics"
+            ],
             "task_count": health["task_count"],
             "status_counts": health["status_counts"],
             "next_action": health["next_action"],
@@ -619,6 +625,7 @@ def _production_scheduler_report_summary(
         "blocked_job_count": len(report.blocked_job_ids),
         "review_required_job_count": len(report.review_required_job_ids),
         "outputs_materialized_count": len(report.outputs_materialized),
+        "product_metrics": dict(report.product_metrics),
     }
 
 
@@ -649,6 +656,7 @@ def _scheduler_report_summary(report: DryRunRenderSchedulerReport) -> dict[str, 
         "blocked_task_count": len(report.blocked_task_ids),
         "review_required_task_count": len(report.review_required_task_ids),
         "outputs_materialized_count": len(report.outputs_materialized),
+        "product_metrics": dict(report.product_metrics),
     }
 
 

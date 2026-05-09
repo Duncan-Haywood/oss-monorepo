@@ -173,7 +173,11 @@ The current core models a concrete promise for high-volume users:
     artifacts. Workspace health and the derived index also include a current
     render-input fingerprint over trusted storyline/graded inputs, so future
     agents can detect in-place input drift between snapshots before relying on
-    older render progress.
+    older render progress. They now surface validated production and render
+    scheduler product metrics as observational UI/analytics fields, letting a
+    future Mac app or pilot dashboard show throughput and intervention-rate
+    signals without parsing worker internals or treating metrics as file
+    authority.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
