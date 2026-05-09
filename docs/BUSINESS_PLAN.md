@@ -62,6 +62,9 @@ Why this wedge wins:
   production plan, while refusing to overwrite a different existing handoff.
 - Safe render-status initialization plus dry-run worker scheduler/status
   reporting for resumable pipelines.
+- Read-only render-workspace inspection that tells a Mac app, launch agent, or
+  continuation automation whether to initialize, schedule, review blocked or
+  retryable work, or review deliverables without mutating files.
 
 ## Phase 2: productionized deliverables
 
@@ -182,8 +185,9 @@ Run practical experiments tied to this ICP-first plan:
    `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
    trusted storyline/graded fixtures so one smoke path runs from detected card
    to persisted render tasks, status initialization, scheduler report, and
-   reviewable outputs. `index-workspace` should be the UI/agent state probe for
-   that smoke path.
+   reviewable outputs. `index-workspace` provides the UI/agent state snapshot
+   and `inspect-render-workspace` provides the safe read-only state probe
+   before initialization and after scheduler runs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

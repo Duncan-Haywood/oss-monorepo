@@ -217,6 +217,23 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 - Added focused tests for registered dry-run dispatch, unsupported adapter
   rejection without status writes, scheduler-level unsupported adapter rejection,
   and direct dry-run entrypoint guards.
+- Added a read-only render workspace inspection handoff:
+  - `shootflow.render_workspace.inspect_render_workspace(...)` starts from the
+    strict persisted `deliverables/render_tasks.json` manifest, treats a missing
+    render-status file as `needs_status_initialization` without writing one, and
+    validates matching status/scheduler reports when they exist;
+  - `python -m shootflow.cli inspect-render-workspace --workspace <dir>` prints a
+    schema-versioned JSON state summary with task counts, expected outputs,
+    materialized outputs, review-required task IDs, and safe next actions for a
+    Mac UI, launch agent, or continuation agent;
+  - stale or conflicting scheduler reports fail closed instead of becoming UI
+    truth; symlinked output paths are refused, and succeeded tasks whose
+    declared deliverables are missing or whose bytes no longer match their
+    recorded SHA-256 checksums are surfaced for render-output review.
+- Added CLI tests covering missing-status inspection with no side effects,
+  completed demo-workspace inspection after scheduler execution, stale
+  scheduler-report rejection, missing succeeded-output review states, and
+  checksum-mismatched output review states.
 
 ## Previous iteration
 
