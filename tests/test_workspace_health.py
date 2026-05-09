@@ -244,6 +244,26 @@ class WorkspaceHealthTests(unittest.TestCase):
         )
         self.assertEqual(status_after, status_before)
 
+    def test_invalid_production_status_is_reported_without_resetting_progress(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = create_card_dump_cli_demo_workspace(root)
+            trusted_plan = self._production_plan_from_workspace(demo.shoot_folder)
+            initialize_production_status_manifest(demo.shoot_folder, trusted_plan=trusted_plan)
+            status_path = demo.shoot_folder / "production_status.json"
+            status_path.write_text('{"schema_version":1,"job_statuses":[]}\n', encoding="utf-8")
+            status_before = status_path.read_text(encoding="utf-8")
+
+            summary = build_workspace_health_summary(demo.shoot_folder)
+            status_after = status_path.read_text(encoding="utf-8")
+
+        self.assertTrue(summary.production_status.exists)
+        self.assertFalse(summary.production_status.valid)
+        self.assertIn("production status", summary.production_status.error_message or "")
+        self.assertEqual(summary.next_action.name, "review_invalid_production_status")
+        self.assertFalse(summary.next_action.writes_files)
+        self.assertEqual(status_after, status_before)
+
     def test_valid_retryable_production_report_points_to_review_not_render_work(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

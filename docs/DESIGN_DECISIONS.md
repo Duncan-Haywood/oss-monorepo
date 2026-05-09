@@ -199,11 +199,13 @@ The repo currently contains a Python core package because it is quick to test an
   production-plan review without interpreting prose notes.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
-  `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
-  it never performs those writes itself. When a trusted render-task manifest is
-  present, the health summary also fingerprints the current storyline/graded
-  render inputs as metadata only, so UI shells and future agents can notice
-  in-place input drift without treating the fingerprint as new file authority.
+  `init-production-status`, `dry-run-production-scheduler`, production review
+  states, `write-render-tasks`, `init-render-status`, or
+  `dry-run-render-scheduler`, but it never performs those writes itself. When a
+  trusted render-task manifest is present, the health summary also fingerprints
+  the current storyline/graded render inputs as metadata only, so UI shells and
+  future agents can notice in-place input drift without treating the fingerprint
+  as new file authority.
   The `index-workspace` command adds a single metadata handoff over the current
   workspace state, including the health-derived next safe action, so native
   shells do not need to infer readiness by probing many files directly or calling
