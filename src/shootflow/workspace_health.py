@@ -10,6 +10,20 @@ from shootflow.assembly import (
     AssemblyPlanError,
     load_trusted_render_tasks_manifest,
 )
+from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
+from shootflow.production import ProductionPlan, build_production_plan
+from shootflow.production_scheduler import (
+    PRODUCTION_SCHEDULER_REPORT_PATH,
+    DryRunProductionSchedulerError,
+    load_dry_run_production_scheduler_report,
+)
+from shootflow.production_status import (
+    PRODUCTION_STATUS_MANIFEST_PATH,
+    ProductionStatusError,
+    ProductionStatusManifest,
+    load_production_status_manifest,
+    production_plan_fingerprint,
+)
 from shootflow.render_scheduler import (
     RENDER_SCHEDULER_REPORT_PATH,
     DryRunRenderSchedulerError,
@@ -24,8 +38,9 @@ from shootflow.render_status import (
 )
 
 
-_WORKSPACE_HEALTH_SCHEMA_VERSION = 2
+_WORKSPACE_HEALTH_SCHEMA_VERSION = 3
 _SCHEDULER_RUNTIME_ARGS = ("--renderer", "--started-at", "--completed-at", "--generated-at")
+_PRODUCTION_SCHEDULER_RUNTIME_ARGS = ("--worker", "--started-at", "--completed-at", "--generated-at")
 
 
 class WorkspaceHealthError(ValueError):
@@ -50,6 +65,15 @@ class WorkspaceRenderStatusCounts:
 
 
 @dataclass(frozen=True)
+class WorkspaceProductionStatusCounts:
+    pending: int = 0
+    running: int = 0
+    succeeded: int = 0
+    failed: int = 0
+    retryable: int = 0
+
+
+@dataclass(frozen=True)
 class WorkspaceNextAction:
     name: str
     command: tuple[str, ...] = ()
@@ -61,6 +85,12 @@ class WorkspaceNextAction:
 @dataclass(frozen=True)
 class WorkspaceHealthSummary:
     workspace_root: Path
+    production_plan_exists: bool
+    production_status: WorkspaceArtifactHealth
+    production_scheduler_report: WorkspaceArtifactHealth
+    production_plan_fingerprint: str | None
+    production_job_count: int
+    production_status_counts: WorkspaceProductionStatusCounts
     render_tasks: WorkspaceArtifactHealth
     render_status: WorkspaceArtifactHealth
     scheduler_report: WorkspaceArtifactHealth
@@ -78,14 +108,98 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
     """Summarize trusted ShootFlow handoffs without creating or repairing files."""
 
     root = _workspace_root(workspace_root)
+    ingest_manifest_path = root / "ingest_manifest.json"
+    production_status_path = root / PRODUCTION_STATUS_MANIFEST_PATH
+    production_scheduler_report_path = root / PRODUCTION_SCHEDULER_REPORT_PATH
     render_tasks_path = root / RENDER_TASKS_MANIFEST_PATH
     render_status_path = root / RENDER_STATUS_MANIFEST_PATH
     scheduler_report_path = root / RENDER_SCHEDULER_REPORT_PATH
 
+    trusted_production_plan: ProductionPlan | None = None
+    production_status_manifest: ProductionStatusManifest | None = None
     trusted_plan: AssemblyPlan | None = None
     render_status_manifest: RenderStatusManifest | None = None
     render_inputs_fingerprint: str | None = None
     render_input_count = 0
+
+    if _path_exists_or_is_symlink(ingest_manifest_path):
+        try:
+            catalog = load_ingest_manifest(ingest_manifest_path)
+            trusted_production_plan = build_production_plan(
+                production_assets_from_manifest(catalog),
+                shoot_slug=catalog.shoot_slug,
+            )
+        except Exception:
+            trusted_production_plan = None
+
+    if trusted_production_plan is not None and _path_exists_or_is_symlink(production_status_path):
+        try:
+            production_status_manifest = load_production_status_manifest(
+                root,
+                trusted_plan=trusted_production_plan,
+            )
+            production_status = WorkspaceArtifactHealth(
+                path=production_status_path,
+                exists=True,
+                valid=True,
+            )
+        except (ProductionStatusError, OSError, FileNotFoundError) as exc:
+            production_status = WorkspaceArtifactHealth(
+                path=production_status_path,
+                exists=True,
+                valid=False,
+                error_message=f"invalid production status manifest: {exc}",
+            )
+    else:
+        production_status = WorkspaceArtifactHealth(
+            path=production_status_path,
+            exists=_path_exists_or_is_symlink(production_status_path),
+            valid=False,
+            error_message=(
+                "production status manifest requires a valid ingest manifest"
+                if trusted_production_plan is None and _path_exists_or_is_symlink(production_status_path)
+                else None
+            ),
+        )
+
+    if (
+        trusted_production_plan is not None
+        and production_status_manifest is not None
+        and _path_exists_or_is_symlink(production_scheduler_report_path)
+    ):
+        try:
+            load_dry_run_production_scheduler_report(
+                root,
+                trusted_plan=trusted_production_plan,
+                final_manifest=production_status_manifest,
+            )
+            production_scheduler_report = WorkspaceArtifactHealth(
+                path=production_scheduler_report_path,
+                exists=True,
+                valid=True,
+            )
+        except (DryRunProductionSchedulerError, OSError, FileNotFoundError) as exc:
+            production_scheduler_report = WorkspaceArtifactHealth(
+                path=production_scheduler_report_path,
+                exists=True,
+                valid=False,
+                error_message=f"invalid production scheduler report: {exc}",
+            )
+    else:
+        production_scheduler_report = WorkspaceArtifactHealth(
+            path=production_scheduler_report_path,
+            exists=_path_exists_or_is_symlink(production_scheduler_report_path),
+            valid=False,
+            error_message=(
+                "production scheduler report requires valid production status"
+                if (
+                    trusted_production_plan is None
+                    or production_status_manifest is None
+                )
+                and _path_exists_or_is_symlink(production_scheduler_report_path)
+                else None
+            ),
+        )
 
     if _path_exists_or_is_symlink(render_tasks_path):
         try:
@@ -178,12 +292,33 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         )
 
     status_counts = _status_counts(render_status_manifest)
+    production_status_counts = _production_status_counts(production_status_manifest)
     summary = WorkspaceHealthSummary(
         workspace_root=root,
+        production_plan_exists=trusted_production_plan is not None,
+        production_status=production_status,
+        production_scheduler_report=production_scheduler_report,
+        production_plan_fingerprint=(
+            None
+            if trusted_production_plan is None
+            else production_plan_fingerprint(trusted_production_plan)
+        ),
+        production_job_count=(
+            0 if trusted_production_plan is None else len(trusted_production_plan.jobs)
+        ),
+        production_status_counts=production_status_counts,
         render_tasks=render_tasks,
         render_status=render_status,
         scheduler_report=scheduler_report,
-        shoot_slug=None if trusted_plan is None else trusted_plan.shoot_slug,
+        shoot_slug=(
+            trusted_plan.shoot_slug
+            if trusted_plan is not None
+            else (
+                None
+                if trusted_production_plan is None
+                else trusted_production_plan.shoot_slug
+            )
+        ),
         render_plan_fingerprint=(
             None if trusted_plan is None else render_plan_fingerprint(trusted_plan)
         ),
@@ -193,6 +328,11 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         status_counts=status_counts,
         next_action=_next_action(
             root,
+            ingest_manifest_path=ingest_manifest_path,
+            trusted_production_plan=trusted_production_plan,
+            production_status=production_status,
+            production_scheduler_report=production_scheduler_report,
+            production_status_counts=production_status_counts,
             trusted_plan=trusted_plan,
             render_tasks=render_tasks,
             render_status=render_status,
@@ -215,14 +355,27 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
         "schema_version": _WORKSPACE_HEALTH_SCHEMA_VERSION,
         "workspace": str(summary.workspace_root),
         "shoot_slug": summary.shoot_slug,
+        "production_plan_fingerprint": summary.production_plan_fingerprint,
+        "production_job_count": summary.production_job_count,
         "render_plan_fingerprint": summary.render_plan_fingerprint,
         "render_inputs_fingerprint": summary.render_inputs_fingerprint,
         "render_input_count": summary.render_input_count,
         "task_count": summary.task_count,
         "artifacts": {
+            "production_status": _artifact_to_dict(summary.production_status),
+            "production_scheduler_report": _artifact_to_dict(
+                summary.production_scheduler_report
+            ),
             "render_tasks": _artifact_to_dict(summary.render_tasks),
             "render_status": _artifact_to_dict(summary.render_status),
             "scheduler_report": _artifact_to_dict(summary.scheduler_report),
+        },
+        "production_status_counts": {
+            "pending": summary.production_status_counts.pending,
+            "running": summary.production_status_counts.running,
+            "succeeded": summary.production_status_counts.succeeded,
+            "failed": summary.production_status_counts.failed,
+            "retryable": summary.production_status_counts.retryable,
         },
         "status_counts": {
             "pending": summary.status_counts.pending,
@@ -280,6 +433,20 @@ def _status_counts(manifest: RenderStatusManifest | None) -> WorkspaceRenderStat
     )
 
 
+def _production_status_counts(
+    manifest: ProductionStatusManifest | None,
+) -> WorkspaceProductionStatusCounts:
+    if manifest is None:
+        return WorkspaceProductionStatusCounts()
+    return WorkspaceProductionStatusCounts(
+        pending=sum(1 for status in manifest.job_statuses if status.state == "pending"),
+        running=sum(1 for status in manifest.job_statuses if status.state == "running"),
+        succeeded=sum(1 for status in manifest.job_statuses if status.state == "succeeded"),
+        failed=sum(1 for status in manifest.job_statuses if status.state == "failed"),
+        retryable=sum(1 for status in manifest.job_statuses if status.state == "retryable"),
+    )
+
+
 def _render_input_provenance(
     root: Path,
     *,
@@ -331,12 +498,51 @@ def _file_sha256(path: Path) -> str:
 def _next_action(
     workspace_root: Path,
     *,
+    ingest_manifest_path: Path,
+    trusted_production_plan: ProductionPlan | None,
+    production_status: WorkspaceArtifactHealth,
+    production_scheduler_report: WorkspaceArtifactHealth,
+    production_status_counts: WorkspaceProductionStatusCounts,
     trusted_plan: AssemblyPlan | None,
     render_tasks: WorkspaceArtifactHealth,
     render_status: WorkspaceArtifactHealth,
     scheduler_report: WorkspaceArtifactHealth,
     status_counts: WorkspaceRenderStatusCounts,
 ) -> WorkspaceNextAction:
+    if production_status.exists and not production_status.valid:
+        return WorkspaceNextAction(name="review_invalid_production_status")
+    if production_scheduler_report.exists and not production_scheduler_report.valid:
+        return WorkspaceNextAction(name="review_invalid_production_scheduler_report")
+    if trusted_production_plan is not None:
+        if not production_status.exists:
+            return WorkspaceNextAction(
+                name="init_production_status",
+                command=(
+                    "init-production-status",
+                    "--ingest-manifest",
+                    str(ingest_manifest_path),
+                ),
+                writes_files=True,
+            )
+        if production_scheduler_report.valid and (
+            production_status_counts.succeeded != len(trusted_production_plan.jobs)
+        ):
+            return WorkspaceNextAction(name="review_production_scheduler_report")
+        if production_status_counts.failed or production_status_counts.retryable:
+            return WorkspaceNextAction(name="review_production_status")
+        if production_status_counts.running:
+            return WorkspaceNextAction(name="review_production_status")
+        if production_status_counts.pending:
+            return WorkspaceNextAction(
+                name="run_dry_run_production_scheduler",
+                command=(
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(ingest_manifest_path),
+                ),
+                requires_runtime_args=_PRODUCTION_SCHEDULER_RUNTIME_ARGS,
+                writes_files=True,
+            )
     if render_tasks.exists and not render_tasks.valid:
         return WorkspaceNextAction(name="review_invalid_render_tasks")
     if trusted_plan is None:
@@ -419,8 +625,15 @@ def _validate_summary(summary: WorkspaceHealthSummary) -> None:
         raise WorkspaceHealthError("summary must be a WorkspaceHealthSummary")
     if not isinstance(summary.workspace_root, Path):
         raise WorkspaceHealthError("summary workspace_root must be a Path")
+    if summary.production_job_count < 0:
+        raise WorkspaceHealthError("summary production_job_count cannot be negative")
     if summary.task_count < 0:
         raise WorkspaceHealthError("summary task_count cannot be negative")
+    if summary.production_plan_fingerprint is not None and (
+        not isinstance(summary.production_plan_fingerprint, str)
+        or len(summary.production_plan_fingerprint) != 64
+    ):
+        raise WorkspaceHealthError("summary production_plan_fingerprint is invalid")
     if summary.render_input_count < 0:
         raise WorkspaceHealthError("summary render_input_count cannot be negative")
     if summary.render_inputs_fingerprint is not None and (

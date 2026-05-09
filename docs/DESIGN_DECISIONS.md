@@ -100,10 +100,11 @@ The repo currently contains a Python core package because it is quick to test an
   the same no-delete/no-overwrite boundaries as the lower-level commands.
 - `shootflow.workspace_index`: a metadata-only continuity layer for Mac apps,
   launch agents, and future autonomous runs. It inspects a shoot workspace,
-  validates ingest/render/status/report artifacts through their existing trust
-  boundaries, marks standalone storyline JSON as untrusted until rebound to a
-  production plan, and can persist `shootflow_workspace_index.json` without
-  creating or deleting any media pipeline artifacts.
+  validates ingest, production-status, production-scheduler-report, render,
+  status, and report artifacts through their existing trust boundaries, marks
+  standalone storyline JSON as untrusted until rebound to a production plan, and
+  can persist `shootflow_workspace_index.json` without creating or deleting any
+  media pipeline artifacts.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.
@@ -152,11 +153,14 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
-- `shootflow.workspace_health`: a read-only continuation diagnostic for native shells, launch agents, and future
-  agents. It validates the persisted render-task manifest, matching render-status manifest, and scheduler report when
-  enough trusted context exists; summarizes status counts; and emits a single next safe action. Missing files are
-  treated as workflow state, while invalid files are surfaced for review instead of being reset, repaired, or
-  overwritten.
+- `shootflow.workspace_health`: a read-only continuation diagnostic for native
+  shells, launch agents, and future agents. It validates production status plus
+  production scheduler reports from the trusted ingest manifest, then validates
+  the persisted render-task manifest, matching render-status manifest, and render
+  scheduler report when enough trusted context exists. It summarizes production
+  and render status counts and emits a single next safe action. Missing files are
+  treated as workflow state, while invalid files are surfaced for review instead
+  of being reset, repaired, or overwritten.
 - `shootflow.render_workspace`: a read-only state index over persisted render
   handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
   missing status manifest as `needs_status_initialization` without creating one,
@@ -278,9 +282,10 @@ The desired high-quality pipeline is:
     package jobs without reconstructing the worker loop in UI code. Retryable,
     failed, or blocked jobs remain review states, not cleanup authority; prior
     retryable jobs require an explicit reviewed retry allow-list.
-27. Build a workspace index after ingest, scheduling, or retries so UI and
-    continuation agents can show one coherent shoot-state snapshot while keeping
-    every authoritative decision bound to the underlying trusted manifests.
+27. Build a workspace health summary or workspace index after ingest,
+    production scheduling, render scheduling, or retries so UI and continuation
+    agents can show one coherent shoot-state snapshot while keeping every
+    authoritative decision bound to the underlying trusted manifests.
 28. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.

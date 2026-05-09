@@ -13,8 +13,19 @@ from shootflow.assembly import (
     AssemblyPlan,
     load_trusted_render_tasks_manifest,
 )
-from shootflow.catalog import ShootCatalog, load_ingest_manifest
+from shootflow.catalog import ShootCatalog, load_ingest_manifest, production_assets_from_manifest
+from shootflow.production import ProductionPlan, build_production_plan
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.production_scheduler import (
+    PRODUCTION_SCHEDULER_REPORT_PATH,
+    DryRunProductionSchedulerReport,
+    load_dry_run_production_scheduler_report,
+)
+from shootflow.production_status import (
+    PRODUCTION_STATUS_MANIFEST_PATH,
+    ProductionStatusManifest,
+    load_production_status_manifest,
+)
 from shootflow.render_scheduler import (
     RENDER_SCHEDULER_REPORT_PATH,
     DryRunRenderSchedulerReport,
@@ -86,7 +97,19 @@ def build_workspace_index(
     _validate_timestamp(generated_at)
 
     ingest_artifact, catalog = _ingest_manifest_artifact(root)
-    production_artifact = _production_plan_artifact(root, catalog=catalog)
+    production_artifact, trusted_production_plan = _production_plan_artifact(
+        root,
+        catalog=catalog,
+    )
+    production_status_artifact, production_status = _production_status_artifact(
+        root,
+        trusted_plan=trusted_production_plan,
+    )
+    production_scheduler_report_artifact = _production_scheduler_report_artifact(
+        root,
+        trusted_plan=trusted_production_plan,
+        final_status=production_status,
+    )
     storyline_artifact = _storyline_artifact(root)
     render_tasks_artifact, trusted_plan = _render_tasks_artifact(root)
     render_status_artifact, final_status = _render_status_artifact(
@@ -107,12 +130,16 @@ def build_workspace_index(
         index_path=root / WORKSPACE_INDEX_PATH,
         shoot_slug=_shoot_slug(
             catalog=catalog,
+            trusted_production_plan=trusted_production_plan,
+            production_status=production_status,
             trusted_plan=trusted_plan,
             final_status=final_status,
         ),
         artifacts=(
             ingest_artifact,
             production_artifact,
+            production_status_artifact,
+            production_scheduler_report_artifact,
             storyline_artifact,
             render_tasks_artifact,
             render_status_artifact,
@@ -227,28 +254,131 @@ def _production_plan_artifact(
     root: Path,
     *,
     catalog: ShootCatalog | None,
-) -> WorkspaceArtifactSummary:
+) -> tuple[WorkspaceArtifactSummary, ProductionPlan | None]:
     path = root / "ingest_manifest.json"
     if catalog is None:
-        return _missing_artifact("production_plan", "derived_from_ingest_manifest")
+        return _missing_artifact("production_plan", "derived_from_ingest_manifest"), None
     try:
         report = build_production_plan_report(path)
+        plan = build_production_plan(
+            production_assets_from_manifest(catalog),
+            shoot_slug=catalog.shoot_slug,
+        )
     except Exception as exc:
-        return _artifact(
+        return (
+            _artifact(
+                "production_plan",
+                "derived_from_ingest_manifest",
+                present=False,
+                trusted=False,
+                status="invalid",
+                summary={"error": str(exc)},
+            ),
+            None,
+        )
+    return (
+        _artifact(
             "production_plan",
             "derived_from_ingest_manifest",
             present=False,
+            trusted=True,
+            status="derived",
+            summary=_production_report_summary(report),
+        ),
+        plan,
+    )
+
+
+def _production_status_artifact(
+    root: Path,
+    *,
+    trusted_plan: ProductionPlan | None,
+) -> tuple[WorkspaceArtifactSummary, ProductionStatusManifest | None]:
+    path = root / PRODUCTION_STATUS_MANIFEST_PATH
+    if not path.exists() and not path.is_symlink():
+        return _missing_artifact("production_status", PRODUCTION_STATUS_MANIFEST_PATH), None
+    if trusted_plan is None:
+        return (
+            _artifact(
+                "production_status",
+                PRODUCTION_STATUS_MANIFEST_PATH,
+                present=True,
+                trusted=False,
+                status="present_untrusted",
+                summary={"error": "production status requires trusted ingest manifest"},
+            ),
+            None,
+        )
+    try:
+        manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    except Exception as exc:
+        return (
+            _artifact(
+                "production_status",
+                PRODUCTION_STATUS_MANIFEST_PATH,
+                present=True,
+                trusted=False,
+                status="invalid",
+                summary={"error": str(exc)},
+            ),
+            None,
+        )
+    return (
+        _artifact(
+            "production_status",
+            PRODUCTION_STATUS_MANIFEST_PATH,
+            present=True,
+            trusted=True,
+            status="trusted",
+            summary=_production_status_summary(manifest),
+        ),
+        manifest,
+    )
+
+
+def _production_scheduler_report_artifact(
+    root: Path,
+    *,
+    trusted_plan: ProductionPlan | None,
+    final_status: ProductionStatusManifest | None,
+) -> WorkspaceArtifactSummary:
+    path = root / PRODUCTION_SCHEDULER_REPORT_PATH
+    if not path.exists() and not path.is_symlink():
+        return _missing_artifact(
+            "production_scheduler_report",
+            PRODUCTION_SCHEDULER_REPORT_PATH,
+        )
+    if trusted_plan is None or final_status is None:
+        return _artifact(
+            "production_scheduler_report",
+            PRODUCTION_SCHEDULER_REPORT_PATH,
+            present=True,
+            trusted=False,
+            status="present_untrusted",
+            summary={"error": "production scheduler report requires trusted production status"},
+        )
+    try:
+        report = load_dry_run_production_scheduler_report(
+            root,
+            trusted_plan=trusted_plan,
+            final_manifest=final_status,
+        )
+    except Exception as exc:
+        return _artifact(
+            "production_scheduler_report",
+            PRODUCTION_SCHEDULER_REPORT_PATH,
+            present=True,
             trusted=False,
             status="invalid",
             summary={"error": str(exc)},
         )
     return _artifact(
-        "production_plan",
-        "derived_from_ingest_manifest",
-        present=False,
+        "production_scheduler_report",
+        PRODUCTION_SCHEDULER_REPORT_PATH,
+        present=True,
         trusted=True,
-        status="derived",
-        summary=_production_report_summary(report),
+        status="trusted",
+        summary=_production_scheduler_report_summary(report),
     )
 
 
@@ -305,6 +435,9 @@ def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
         trusted=True,
         status="derived",
         summary={
+            "production_plan_fingerprint": health["production_plan_fingerprint"],
+            "production_job_count": health["production_job_count"],
+            "production_status_counts": health["production_status_counts"],
             "render_plan_fingerprint": health["render_plan_fingerprint"],
             "render_inputs_fingerprint": health["render_inputs_fingerprint"],
             "render_input_count": health["render_input_count"],
@@ -456,6 +589,39 @@ def _production_report_summary(report: ProductionPlanReport) -> dict[str, object
     }
 
 
+def _production_status_summary(manifest: ProductionStatusManifest) -> dict[str, object]:
+    return {
+        "shoot_slug": manifest.shoot_slug,
+        "production_plan_fingerprint": manifest.production_plan_fingerprint,
+        "job_count": len(manifest.job_statuses),
+        "pending_job_count": _production_status_count(manifest, "pending"),
+        "running_job_count": _production_status_count(manifest, "running"),
+        "succeeded_job_count": _production_status_count(manifest, "succeeded"),
+        "failed_job_count": _production_status_count(manifest, "failed"),
+        "retryable_job_count": _production_status_count(manifest, "retryable"),
+    }
+
+
+def _production_scheduler_report_summary(
+    report: DryRunProductionSchedulerReport,
+) -> dict[str, object]:
+    return {
+        "shoot_slug": report.shoot_slug,
+        "production_plan_fingerprint": report.production_plan_fingerprint,
+        "production_status_fingerprint": report.production_status_fingerprint,
+        "worker_adapter": report.worker_adapter,
+        "stopped_reason": report.stopped_reason,
+        "iteration_count": report.iteration_count,
+        "total_job_count": report.total_job_count,
+        "completed_job_count": len(report.completed_job_ids),
+        "retryable_job_count": len(report.retryable_job_ids),
+        "failed_job_count": len(report.failed_job_ids),
+        "blocked_job_count": len(report.blocked_job_ids),
+        "review_required_job_count": len(report.review_required_job_ids),
+        "outputs_materialized_count": len(report.outputs_materialized),
+    }
+
+
 def _render_status_summary(manifest: RenderStatusManifest) -> dict[str, object]:
     return {
         "shoot_slug": manifest.shoot_slug,
@@ -490,9 +656,15 @@ def _status_count(manifest: RenderStatusManifest, state: str) -> int:
     return sum(1 for status in manifest.task_statuses if status.state == state)
 
 
+def _production_status_count(manifest: ProductionStatusManifest, state: str) -> int:
+    return sum(1 for status in manifest.job_statuses if status.state == state)
+
+
 def _shoot_slug(
     *,
     catalog: ShootCatalog | None,
+    trusted_production_plan: ProductionPlan | None,
+    production_status: ProductionStatusManifest | None,
     trusted_plan: AssemblyPlan | None,
     final_status: RenderStatusManifest | None,
 ) -> str | None:
@@ -500,6 +672,8 @@ def _shoot_slug(
         slug
         for slug in (
             None if catalog is None else catalog.shoot_slug,
+            None if trusted_production_plan is None else trusted_production_plan.shoot_slug,
+            None if production_status is None else production_status.shoot_slug,
             None if trusted_plan is None else trusted_plan.shoot_slug,
             None if final_status is None else final_status.shoot_slug,
         )

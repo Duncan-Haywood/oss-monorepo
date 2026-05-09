@@ -75,9 +75,12 @@ Why this wedge wins:
   `production_scheduler_report.json` bound to the final production status so
   UI/agent layers can show completed outputs, retry conflicts, blocked work, and
   failure messages without rerunning orchestration.
-- A workspace index handoff that summarizes trusted artifacts and review state
-  for Mac app shells, background agents, and continuation runs without granting
-  new media-write or deletion authority.
+- A workspace health/index handoff that summarizes trusted artifacts and review
+  state for Mac app shells, background agents, and continuation runs without
+  granting new media-write or deletion authority. It now covers production
+  status and production scheduler reports as well as render handoffs, so
+  pre-render progress, retryable conflicts, blocked jobs, and next safe actions
+  are visible without custom manifest parsing.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -210,11 +213,9 @@ Run practical experiments tied to this ICP-first plan:
    initialization, scheduler report, and reviewable outputs. `index-workspace`
    provides the UI/agent state snapshot and `inspect-render-workspace` provides
    the safe read-only state probe before initialization and after scheduler runs.
-3. Surface production-scheduler state in workspace health/index reports so Mac
-   shells can show pre-render progress, retryable conflicts, and blocked jobs
-   without separately parsing `production_status.json` or
-   `production_scheduler_report.json`.
-4. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
-5. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-6. Instrument key product metrics at scheduler/report boundaries.
-7. Start proof-based GTM content showing real workflows and outcomes.
+3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
+5. Instrument key product metrics at scheduler/report boundaries now that both
+   production and render scheduler state are surfaced through workspace
+   health/index.
+6. Start proof-based GTM content showing real workflows and outcomes.

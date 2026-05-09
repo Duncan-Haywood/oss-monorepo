@@ -6,7 +6,20 @@ import tempfile
 import unittest
 
 from shootflow.cli import main
-from shootflow.demo_workspace import create_persisted_cli_demo_workspace
+from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
+from shootflow.demo_workspace import (
+    create_card_dump_cli_demo_workspace,
+    create_persisted_cli_demo_workspace,
+)
+from shootflow.production import build_production_plan
+from shootflow.production_scheduler import (
+    run_dry_run_production_scheduler,
+    write_dry_run_production_scheduler_report,
+)
+from shootflow.production_status import (
+    initialize_production_status_manifest,
+    load_production_status_manifest,
+)
 from shootflow.workspace_index import (
     WORKSPACE_INDEX_PATH,
     WorkspaceIndexError,
@@ -88,6 +101,58 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(workspace_health.summary["render_input_count"], 5)
         self.assertIsInstance(workspace_health.summary["render_inputs_fingerprint"], str)
         self.assertEqual(len(workspace_health.summary["render_inputs_fingerprint"]), 64)
+
+    def test_workspace_index_includes_production_status_and_report_state(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            demo = create_card_dump_cli_demo_workspace(root)
+            trusted_plan = self._production_plan_from_workspace(demo.shoot_folder)
+            initialize_production_status_manifest(demo.shoot_folder, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                demo.shoot_folder,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:31:00Z",
+                completed_at="2026-05-09T17:31:05Z",
+                max_concurrency=2,
+                max_iterations=20,
+            )
+            final_manifest = load_production_status_manifest(
+                demo.shoot_folder,
+                trusted_plan=trusted_plan,
+            )
+            write_dry_run_production_scheduler_report(
+                result,
+                demo.shoot_folder,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:31:06Z",
+            )
+
+            index = build_workspace_index(
+                demo.shoot_folder,
+                generated_at="2026-05-09T17:31:07Z",
+            )
+
+        production_status = self._artifact(index, "production_status")
+        production_report = self._artifact(index, "production_scheduler_report")
+        workspace_health = self._artifact(index, "workspace_health")
+
+        self.assertTrue(production_status.trusted)
+        self.assertEqual(
+            production_status.summary["succeeded_job_count"],
+            sum(1 for status in final_manifest.job_statuses if status.state == "succeeded"),
+        )
+        self.assertTrue(production_report.trusted)
+        self.assertEqual(production_report.summary["stopped_reason"], result.stopped_reason)
+        self.assertEqual(
+            production_report.summary["completed_job_count"],
+            len(result.completed_job_ids),
+        )
+        self.assertEqual(
+            workspace_health.summary["production_status_counts"]["succeeded"],
+            production_status.summary["succeeded_job_count"],
+        )
 
     def test_write_and_load_workspace_index_rejects_symlinked_index_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -276,6 +341,13 @@ class WorkspaceIndexTests(unittest.TestCase):
             if artifact["name"] == name:
                 return artifact
         raise AssertionError(f"Missing artifact payload: {name}")
+
+    def _production_plan_from_workspace(self, workspace: Path):
+        catalog = load_ingest_manifest(workspace / "ingest_manifest.json")
+        return build_production_plan(
+            production_assets_from_manifest(catalog),
+            shoot_slug=catalog.shoot_slug,
+        )
 
 
 if __name__ == "__main__":

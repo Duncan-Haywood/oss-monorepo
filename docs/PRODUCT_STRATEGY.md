@@ -158,10 +158,15 @@ The current core models a concrete promise for high-volume users:
 26. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
     UI/agent layers one coherent handoff plus the health-derived next safe
-    action without treating raw model JSON as authority. Workspace health and
-    the derived index include a current render-input fingerprint over trusted
-    storyline/graded inputs, so future agents can detect in-place input drift
-    between snapshots before relying on older render progress.
+    action without treating raw model JSON as authority. Workspace health now
+    validates production status and production scheduler reports alongside render
+    handoffs, exposes production job/state counts, and points native shells at
+    production init, scheduler execution, or review states before render work.
+    The derived index carries the same production summaries as metadata-only
+    artifacts. Workspace health and the derived index also include a current
+    render-input fingerprint over trusted storyline/graded inputs, so future
+    agents can detect in-place input drift between snapshots before relying on
+    older render progress.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -248,16 +253,17 @@ to automate.
    shells can advance pre-render jobs without embedding scheduling logic or
    retrying prior or newly retryable conflicts in a tight loop.
    The next-production-wave handoff can derive its completed dependency set
-   directly from that manifest. The workspace index
-   gives those shells a single metadata snapshot across ingest, storyline,
-   render-task, render-status, and scheduler-report artifacts, while preserving
-   each artifact's original trust boundary. The health/index layer includes a
-   metadata-only render-input fingerprint, giving continuation agents a simple
-   drift signal when trusted storyline or graded files change in place. Render
-   workspace inspection adds the missing read-only state surface around those
-   handoffs: it reports whether status is missing, work is ready, blocked,
-   running, review required, or complete, while rejecting stale scheduler
-   reports instead of treating them as product truth.
+   directly from that manifest. The workspace health and index layer gives those
+   shells a single metadata snapshot across ingest, production-status,
+   production-scheduler-report, storyline, render-task, render-status, and
+   scheduler-report artifacts, while preserving each artifact's original trust
+   boundary. It includes production job/status counts and production scheduler
+   report review state, plus a metadata-only render-input fingerprint that gives
+   continuation agents a simple drift signal when trusted storyline or graded
+   files change in place. Render workspace inspection adds the missing read-only
+   state surface around render handoffs: it reports whether status is missing,
+   work is ready, blocked, running, review required, or complete, while rejecting
+   stale scheduler reports instead of treating them as product truth.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

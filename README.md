@@ -110,8 +110,9 @@ This repo currently contains the first testable core utilities:
   reuses the same review-required, capacity-gated import-route recommendation.
 - `shootflow.workspace_health` gives Mac shells, launch agents, and continuation
   automations a read-only health check over trusted handoff files. It reports
-  whether render tasks, render status, and scheduler reports exist and validate,
-  summarizes status counts, and suggests the next safe CLI action without
+  whether production status, production scheduler reports, render tasks, render
+  status, and render scheduler reports exist and validate, summarizes production
+  and render status counts, and suggests the next safe CLI action without
   creating, resetting, deleting, or repairing any files.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
@@ -169,11 +170,12 @@ This repo currently contains the first testable core utilities:
   creating deliverable outputs.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
-  continuation runs. It summarizes trusted ingest, render-task, render-status,
-  and scheduler-report artifacts through their existing validators, marks
-  model-authored storyline JSON as untrusted until rebound to a production plan,
-  includes the health-derived next safe action, and never creates analysis,
-  graded, render, deliverable, or deletion files.
+  continuation runs. It summarizes trusted ingest, production-status,
+  production-scheduler-report, render-task, render-status, and scheduler-report
+  artifacts through their existing validators, marks model-authored storyline
+  JSON as untrusted until rebound to a production plan, includes the
+  health-derived next safe action, and never creates analysis, graded, render,
+  deliverable, or deletion files.
 
 The intended first workflow is:
 
@@ -331,25 +333,31 @@ PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <di
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and
 refuses stale status manifests whose production-plan fingerprint no longer
-matches the verified ingest manifest. The dry-run production scheduler then
-advances only dependency-ready jobs from that trusted status file, reports
-retryable or blocked jobs for review, retries prior retryable jobs only when
-their IDs are explicitly supplied with `--retryable-job`, and does not retry a
-newly retryable job in the same run. It writes
-`production_scheduler_report.json` so UI and continuation layers can inspect the
-last run without rerunning worker orchestration. The render-status init command writes only
+matches the verified ingest manifest. `workspace-health` now validates that
+status and the optional `production_scheduler_report.json`, exposes production
+job counts plus pending/running/succeeded/failed/retryable counts, and points at
+`init-production-status`, `dry-run-production-scheduler`, or the relevant review
+state before render handoffs. The dry-run production scheduler then advances
+only dependency-ready jobs from that trusted status file, reports retryable or
+blocked jobs for review, retries prior retryable jobs only when their IDs are
+explicitly supplied with `--retryable-job`, and does not retry a newly retryable
+job in the same run. It writes `production_scheduler_report.json` so UI and
+continuation layers can inspect the last run without rerunning worker
+orchestration. The render-status init command writes only
 metadata under `deliverables/`, never deletes media, and fails rather than
 overwriting an existing status manifest that no longer matches the trusted
 render-task plan.
 The index command writes only `shootflow_workspace_index.json`, summarizing
 validated artifacts and explicitly marking unvalidated storyline JSON as
-non-authoritative. It also embeds the same read-only next safe action exposed by
-`workspace-health`, so native shells and continuation agents can render one
-coherent state snapshot without granting the index any write authority. When a
-trusted render-task handoff exists, both workspace health and the index include a
-metadata-only `render_inputs_fingerprint` plus `render_input_count` over the
-current storyline/graded inputs, giving future agents a cheap way to detect
-in-place input changes between snapshots without changing renderer authority.
+non-authoritative. It includes production-status and production-scheduler-report
+summaries as metadata-only artifacts, and embeds the same read-only next safe
+action exposed by `workspace-health`, so native shells and continuation agents
+can render one coherent state snapshot without granting the index any write
+authority. When a trusted render-task handoff exists, both workspace health and
+the index include a metadata-only `render_inputs_fingerprint` plus
+`render_input_count` over the current storyline/graded inputs, giving future
+agents a cheap way to detect in-place input changes between snapshots without
+changing renderer authority.
 The inspection command writes nothing; it fails closed if an existing status or
 scheduler report no longer matches the trusted render-task plan, and it marks
 succeeded tasks for review if their declared deliverable files are missing,

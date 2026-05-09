@@ -41,6 +41,8 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
 The production init/scheduler CLI commands need a trusted `ingest_manifest.json`
 and matching `production_status.json` in the shoot workspace. The scheduler
 writes a trusted `production_scheduler_report.json` bound to the final status.
+`workspace-health` and `index-workspace` expose production status/report
+summaries read-only before falling through to render handoffs.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`
 and `deliverables/render_status.json` manifests in the workspace directory.
 `write-render-tasks` can create the render-task manifest from an ingest manifest

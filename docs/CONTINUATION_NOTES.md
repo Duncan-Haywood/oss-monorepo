@@ -2,6 +2,46 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 17:30 UTC
+
+This run advanced the production-health visibility gap identified by the 17:00
+handoff:
+
+- `workspace-health` now derives the trusted production plan from
+  `ingest_manifest.json`, validates `production_status.json` and the optional
+  `production_scheduler_report.json`, exposes production plan/job counts and
+  pending/running/succeeded/failed/retryable counts, and recommends
+  `init-production-status`, `dry-run-production-scheduler`, or explicit
+  production review states before falling through to render handoffs.
+- `workspace-health` remains read-only: it does not create production status,
+  run schedulers, repair stale reports, reset progress, overwrite outputs, or
+  delete media. Invalid production status/report artifacts fail closed into
+  review actions.
+- `index-workspace` now carries `production_status` and
+  `production_scheduler_report` artifacts, plus the health-derived production
+  counts and next action, so native shells and continuation agents can render
+  pre-render progress without parsing raw manifests directly.
+- The workspace-health schema version is now `3` because its JSON includes
+  production fields and production artifacts.
+
+Good next test-first targets:
+
+- Add stale-running production lease planning/persistence, mirroring render stale
+  lease contracts before allowing concurrent local production workers.
+- Begin a real local proxy/VLM/metadata worker adapter behind the existing
+  production-worker action contract, preserving declared-output-only authority.
+- Add product metric emission at scheduler/report boundaries now that both
+  production and render progress are surfaced through health/index.
+
+Branch reconciliation for this run:
+
+- The assigned branch started equal to `origin/main` at `0f169fd`, and the
+  current work is the only new branch delta.
+- Historical remote branches remain visible, but previous reconciliation passes
+  already merged the useful storage, demo, production, render, health, and index
+  work into `origin/main`. This run did not identify a newer remote branch tip
+  that should supersede the current main lineage.
+
 ## Implementation continuation note - 2026-05-09 17:00 UTC
 
 This run advanced the production-scheduler observability gap identified by the
