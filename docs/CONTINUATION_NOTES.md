@@ -54,6 +54,9 @@ Branch reconciliation for this run:
   shows it would remove the newer production lease recovery, retryable handoff
   review gates, production scheduler report conflict messages, workspace index
   production-state coverage, and this run's negative trust tests.
+- `origin/main` was fast-forwarded from `0f169fd` to the verified assigned
+  branch lineage so the consolidated production lease, health/index, retryable
+  handoff, and negative trust coverage work is represented on main.
 - Final verification on the assigned branch:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
