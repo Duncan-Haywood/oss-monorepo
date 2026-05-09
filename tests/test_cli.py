@@ -3,13 +3,16 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from shootflow.assembly import AssemblyPlan, RenderTask, write_render_tasks_manifest
+from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
 from shootflow.cli import main
 from shootflow.demo_workspace import (
     DemoWorkspaceError,
     create_persisted_cli_demo_workspace,
 )
+from shootflow.production import ProductionPlan, build_production_plan
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
     RenderStatusManifest,
@@ -18,6 +21,7 @@ from shootflow.render_status import (
     render_plan_fingerprint,
     write_render_status_manifest,
 )
+from shootflow.story import ContentSequence, StorylinePlan, write_storyline_artifact
 
 
 class ShootFlowCliTests(unittest.TestCase):
@@ -825,6 +829,370 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             self.assertFalse((shoot_folder / "deliverables").exists())
 
 
+class ShootFlowRenderTaskCliTests(unittest.TestCase):
+    def test_write_render_tasks_command_persists_trusted_assembly_handoff(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            video_grade = self._graded_outputs(production_plan, "graded_video")[0]
+            first_photo_grade, second_photo_grade = self._graded_outputs(
+                production_plan,
+                "graded_photo",
+            )
+            self._touch_graded_files(
+                workspace,
+                (video_grade, first_photo_grade, second_photo_grade),
+            )
+            write_storyline_artifact(
+                StorylinePlan(
+                    reel=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(video_grade,),
+                        total_duration_seconds=8.0,
+                        rationale="Use the hero video.",
+                    ),
+                    carousel=ContentSequence(
+                        output_kind="instagram_carousel",
+                        aspect_ratio="4:5",
+                        asset_paths=(first_photo_grade,),
+                        total_duration_seconds=None,
+                        rationale="Use the strongest frame.",
+                    ),
+                    photo_set=ContentSequence(
+                        output_kind="instagram_photo_set",
+                        aspect_ratio="4:5",
+                        asset_paths=(first_photo_grade, second_photo_grade),
+                        total_duration_seconds=None,
+                        rationale="Export all ranked photos.",
+                    ),
+                ),
+                workspace,
+                allowed_asset_paths={video_grade, first_photo_grade, second_photo_grade},
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "write-render-tasks",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--photo-set-chunk-size",
+                    "1",
+                ],
+                stdout=stdout,
+            )
+            summary = json.loads(stdout.getvalue())
+            manifest_data = json.loads(
+                (workspace / "deliverables" / "render_tasks.json").read_text(encoding="utf-8")
+            )
+            reel_output_exists_before_scheduler = (
+                workspace / "deliverables" / "instagram_reel.mp4"
+            ).exists()
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+            init_exit_code = main(
+                summary["next_actions"][0]["command"],
+                stdout=init_stdout,
+            )
+            scheduler_exit_code = main(
+                [
+                    *summary["next_actions"][1]["command"],
+                    "--renderer",
+                    "dry-run-local",
+                    "--started-at",
+                    "2026-05-08T16:30:00Z",
+                    "--completed-at",
+                    "2026-05-08T16:30:05Z",
+                    "--generated-at",
+                    "2026-05-08T16:30:06Z",
+                    "--max-concurrency",
+                    "2",
+                    "--max-iterations",
+                    "4",
+                    "--print-report",
+                ],
+                stdout=scheduler_stdout,
+            )
+            scheduler_report = json.loads(scheduler_stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertTrue(summary["created"])
+        self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(summary["ingest_manifest_path"], str(manifest_path))
+        self.assertEqual(summary["shoot_slug"], "render-handoff")
+        self.assertEqual(summary["task_count"], 4)
+        self.assertEqual(
+            summary["task_ids"],
+            [
+                "render_instagram_reel",
+                "render_instagram_carousel",
+                "export_instagram_photo_set_part_00001",
+                "export_instagram_photo_set_part_00002",
+            ],
+        )
+        self.assertIn("writes render task manifest only", summary["notes"])
+        self.assertEqual(
+            summary["next_actions"],
+            [
+                {
+                    "name": "init_render_status",
+                    "command": [
+                        "init-render-status",
+                        "--workspace",
+                        str(workspace),
+                    ],
+                    "writes_files": True,
+                },
+                {
+                    "name": "run_dry_run_render_scheduler",
+                    "command": [
+                        "dry-run-render-scheduler",
+                        "--workspace",
+                        str(workspace),
+                        "--completed-dependency",
+                        "rank_instagram_storylines",
+                        "--completed-dependency",
+                        "grade_asset_00002",
+                        "--completed-dependency",
+                        "grade_asset_00000",
+                        "--completed-dependency",
+                        "grade_asset_00001",
+                    ],
+                    "requires_runtime_args": [
+                        "--renderer",
+                        "--started-at",
+                        "--completed-at",
+                        "--generated-at",
+                    ],
+                    "writes_files": True,
+                },
+            ],
+        )
+        self.assertEqual(
+            [task["task_id"] for task in manifest_data["render_tasks"]],
+            summary["task_ids"],
+        )
+        self.assertFalse(reel_output_exists_before_scheduler)
+        self.assertEqual(init_exit_code, 0)
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(scheduler_report["completed_task_ids"], summary["task_ids"])
+
+    def test_write_render_tasks_command_refuses_existing_different_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            video_grade = self._graded_outputs(production_plan, "graded_video")[0]
+            self._touch_graded_files(workspace, (video_grade,))
+            write_storyline_artifact(
+                StorylinePlan(
+                    reel=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(video_grade,),
+                        total_duration_seconds=8.0,
+                        rationale="Use the hero video.",
+                    ),
+                    carousel=ContentSequence(
+                        output_kind="instagram_carousel",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No carousel selected.",
+                    ),
+                    photo_set=ContentSequence(
+                        output_kind="instagram_photo_set",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No photo set selected.",
+                    ),
+                ),
+                workspace,
+                allowed_asset_paths={video_grade},
+            )
+            existing_plan = self._single_task_plan()
+            write_render_tasks_manifest(existing_plan, workspace)
+            existing_manifest = (workspace / "deliverables" / "render_tasks.json").read_text(
+                encoding="utf-8"
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "write-render-tasks",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+            after_manifest = (workspace / "deliverables" / "render_tasks.json").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("not match trusted assembly plan", stderr.getvalue())
+        self.assertEqual(after_manifest, existing_manifest)
+
+    def test_write_render_tasks_command_reports_reused_manifest_after_creation_race(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            video_grade = self._graded_outputs(production_plan, "graded_video")[0]
+            self._touch_graded_files(workspace, (video_grade,))
+            write_storyline_artifact(
+                StorylinePlan(
+                    reel=ContentSequence(
+                        output_kind="instagram_reel",
+                        aspect_ratio="9:16",
+                        asset_paths=(video_grade,),
+                        total_duration_seconds=8.0,
+                        rationale="Use the hero video.",
+                    ),
+                    carousel=ContentSequence(
+                        output_kind="instagram_carousel",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No carousel selected.",
+                    ),
+                    photo_set=ContentSequence(
+                        output_kind="instagram_photo_set",
+                        aspect_ratio="4:5",
+                        asset_paths=(),
+                        total_duration_seconds=None,
+                        rationale="No photo set selected.",
+                    ),
+                ),
+                workspace,
+                allowed_asset_paths={video_grade},
+            )
+            stdout = io.StringIO()
+
+            def simulate_matching_manifest_race(src, dst):
+                Path(dst).write_text(Path(src).read_text(encoding="utf-8"), encoding="utf-8")
+                raise FileExistsError("matching manifest appeared concurrently")
+
+            with patch("shootflow.assembly.os.link", side_effect=simulate_matching_manifest_race):
+                exit_code = main(
+                    [
+                        "write-render-tasks",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                    ],
+                    stdout=stdout,
+                )
+
+            summary = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertFalse(summary["created"])
+        self.assertEqual(
+            summary["render_tasks_manifest_path"],
+            str(workspace / "deliverables" / "render_tasks.json"),
+        )
+
+    def test_write_render_tasks_command_reports_invalid_ingest_manifest_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            workspace = root / "library" / "2026-05-08_bad-json"
+            workspace.mkdir(parents=True)
+            manifest_path = workspace / "ingest_manifest.json"
+            manifest_path.write_text("{not-json", encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "write-render-tasks",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("Invalid ingest manifest JSON", stderr.getvalue())
+
+    def _create_ingested_workspace(self, root: Path) -> tuple[Path, ProductionPlan]:
+        card = root / "card"
+        destination = root / "library"
+        video = card / "PRIVATE" / "A001.MOV"
+        raw = card / "DCIM" / "100EOS5D" / "IMG_0001.CR3"
+        jpeg = card / "DCIM" / "100EOS5D" / "IMG_0002.JPG"
+        video.parent.mkdir(parents=True)
+        raw.parent.mkdir(parents=True)
+        video.write_bytes(b"video-bytes")
+        raw.write_bytes(b"raw-bytes")
+        jpeg.write_bytes(b"jpeg-bytes")
+        stdout = io.StringIO()
+        exit_code = main(
+            [
+                "execute-ingest",
+                "--source",
+                str(card),
+                "--destination",
+                str(destination),
+                "--shoot-date",
+                "2026-05-08",
+                "--shoot-slug",
+                "render-handoff",
+                "--confirm",
+            ],
+            stdout=stdout,
+        )
+        self.assertEqual(exit_code, 0)
+        manifest_path = destination / "2026-05-08_render-handoff" / "ingest_manifest.json"
+        catalog = load_ingest_manifest(manifest_path)
+        return manifest_path, build_production_plan(
+            production_assets_from_manifest(catalog),
+            shoot_slug=catalog.shoot_slug,
+        )
+
+    def _touch_graded_files(self, workspace: Path, relative_paths: tuple[str, ...]) -> None:
+        for relative_path in relative_paths:
+            path = workspace / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"graded media")
+
+    def _graded_outputs(self, production_plan: ProductionPlan, output_kind: str) -> tuple[str, ...]:
+        return tuple(
+            job.outputs[0]
+            for job in production_plan.jobs
+            if job.output_kind == output_kind
+        )
+
+    def _single_task_plan(self) -> AssemblyPlan:
+        return AssemblyPlan(
+            shoot_slug="existing-render-handoff",
+            render_tasks=(
+                RenderTask(
+                    task_id="render_instagram_reel",
+                    sequence_name="reel",
+                    source_job_id="assemble_instagram_reel",
+                    output_kind="instagram_reel",
+                    aspect_ratio="9:16",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_99999/OTHER.MOV",
+                    ),
+                    outputs=("deliverables/instagram_reel.mp4",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_99999"),
+                    can_run_in_parallel=False,
+                ),
+            ),
+        )
+
+
 class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
     def test_card_dump_workflow_previews_route_without_copying(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -874,6 +1242,18 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["preview"]["shoot_folder"], str(shoot_folder))
             self.assertIsNone(report["ingest"])
             self.assertIsNone(report["production_report"])
+            self.assertEqual(
+                report["next_actions"],
+                [
+                    {
+                        "name": "review_and_confirm_ingest",
+                        "requires": [
+                            "human review of source, destination, checksums, and backup notes",
+                        ],
+                        "writes_files": True,
+                    }
+                ],
+            )
             self.assertFalse(shoot_folder.exists())
             self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
             self.assertFalse((shoot_folder / "originals").exists())
@@ -929,6 +1309,32 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
             self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
             self.assertFalse(report["production_report"]["wrote_downstream_files"])
+            self.assertEqual(
+                report["next_actions"],
+                [
+                    {
+                        "name": "prepare_storyline_and_graded_assets",
+                        "requires": [
+                            "analysis/instagram_storylines.json",
+                            "graded outputs for selected storyline assets",
+                        ],
+                        "writes_files": True,
+                    },
+                    {
+                        "name": "write_render_tasks",
+                        "command": [
+                            "write-render-tasks",
+                            "--ingest-manifest",
+                            str(manifest_path),
+                        ],
+                        "requires": [
+                            "analysis/instagram_storylines.json",
+                            "graded outputs for selected storyline assets",
+                        ],
+                        "writes_files": True,
+                    },
+                ],
+            )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
@@ -964,6 +1370,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
         self.assertIsNone(report["preview"])
         self.assertIsNone(report["production_report"])
         self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
+        self.assertEqual(report["next_actions"], [])
 
     def test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

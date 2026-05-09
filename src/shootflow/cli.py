@@ -7,13 +7,19 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TextIO
 
-from shootflow.assembly import AssemblyPlanError, load_trusted_render_tasks_manifest
+from shootflow.assembly import (
+    AssemblyPlan,
+    AssemblyPlanError,
+    build_assembly_plan,
+    ensure_render_tasks_manifest,
+    load_trusted_render_tasks_manifest,
+)
 from shootflow.card_workflow import (
     CardDumpWorkflowError,
     CardDumpWorkflowReport,
     run_card_dump_workflow,
 )
-from shootflow.catalog import CatalogError
+from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -23,7 +29,7 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
-from shootflow.production import ProductionPlanError
+from shootflow.production import ProductionPlanError, build_production_plan
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
@@ -40,6 +46,19 @@ from shootflow.render_status import (
 )
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.story import StoryPlanError
+from shootflow.workspace_health import (
+    WorkspaceHealthError,
+    WorkspaceHealthSummary,
+    build_workspace_health_summary,
+    workspace_health_summary_to_dict,
+)
+from shootflow.workspace_index import (
+    WorkspaceIndexError,
+    build_workspace_index,
+    workspace_index_to_dict,
+    write_workspace_index,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -84,8 +103,14 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "write-render-tasks":
+            _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "workspace-health":
+            _run_workspace_health_command(args, stdout=out)
+        elif args.command == "index-workspace":
+            _run_index_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +123,9 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        StoryPlanError,
+        WorkspaceHealthError,
+        WorkspaceIndexError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -237,6 +265,35 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    if args.photo_set_chunk_size < 1:
+        raise ShootFlowCliError("--photo-set-chunk-size must be a positive integer")
+
+    ingest_manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(ingest_manifest_path)
+    production_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    workspace = ingest_manifest_path.parent
+    assembly_plan = build_assembly_plan(
+        production_plan,
+        workspace,
+        photo_set_chunk_size=args.photo_set_chunk_size,
+    )
+    write_result = ensure_render_tasks_manifest(assembly_plan, workspace)
+
+    stdout.write(
+        _write_render_tasks_summary_json(
+            assembly_plan,
+            ingest_manifest_path=ingest_manifest_path,
+            workspace=workspace,
+            manifest_path=write_result.manifest_path,
+            created=write_result.created,
+        )
+    )
+
+
 def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
@@ -249,6 +306,27 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         confirm_ingest=args.confirm_ingest,
     )
     stdout.write(_card_dump_workflow_report_json(report))
+
+
+def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    summary = build_workspace_health_summary(args.workspace)
+    stdout.write(_workspace_health_summary_json(summary))
+
+
+def _run_index_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    workspace = Path(args.workspace)
+    index = build_workspace_index(workspace, generated_at=args.generated_at)
+    if args.write:
+        write_workspace_index(index, workspace)
+    stdout.write(
+        json.dumps(
+            workspace_index_to_dict(index),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -353,6 +431,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
     )
 
+    render_tasks = subparsers.add_parser(
+        "write-render-tasks",
+        help="Build and persist deliverables/render_tasks.json from trusted storyline and graded assets.",
+    )
+    render_tasks.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json whose workspace contains analysis and graded artifacts.",
+    )
+    render_tasks.add_argument(
+        "--photo-set-chunk-size",
+        type=int,
+        default=250,
+        help="Maximum number of photo-set inputs per parallel export task.",
+    )
+
     card_dump = subparsers.add_parser(
         "card-dump-workflow",
         help="Run the reviewed route -> ingest preview -> optional safe copy -> production summary flow.",
@@ -387,6 +481,36 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    workspace_health = subparsers.add_parser(
+        "workspace-health",
+        help="Summarize trusted handoff health and the next safe CLI action without writing files.",
+    )
+    workspace_health.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing ShootFlow handoff manifests.",
+    )
+
+    index = subparsers.add_parser(
+        "index-workspace",
+        help="Summarize trusted workspace handoff artifacts for UI or background agents.",
+    )
+    index.add_argument(
+        "--workspace",
+        default=".",
+        help="Shoot workspace containing ingest/render handoff artifacts.",
+    )
+    index.add_argument(
+        "--generated-at",
+        required=True,
+        help="Caller-supplied timestamp for the metadata-only index.",
+    )
+    index.add_argument(
+        "--write",
+        action="store_true",
+        help="Persist shootflow_workspace_index.json in the workspace after building it.",
     )
 
     return parser
@@ -663,6 +787,90 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
     ) + "\n"
 
 
+def _write_render_tasks_summary_json(
+    plan: AssemblyPlan,
+    *,
+    ingest_manifest_path: Path,
+    workspace: Path,
+    manifest_path: Path,
+    created: bool,
+) -> str:
+    if not isinstance(plan, AssemblyPlan):
+        raise ShootFlowCliError("plan must be an AssemblyPlan")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "created": created,
+            "ingest_manifest_path": str(ingest_manifest_path),
+            "workspace": str(workspace),
+            "render_tasks_manifest_path": str(manifest_path),
+            "shoot_slug": plan.shoot_slug,
+            "task_count": len(plan.render_tasks),
+            "task_ids": [task.task_id for task in plan.render_tasks],
+            "output_paths": [
+                output_path
+                for task in plan.render_tasks
+                for output_path in task.outputs
+            ],
+            "next_actions": _write_render_tasks_next_actions(plan, workspace),
+            "notes": [
+                "writes render task manifest only",
+                "requires trusted storyline and graded artifacts in the shoot workspace",
+                "does not render media, delete sources, or create deliverable outputs",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _write_render_tasks_next_actions(plan: AssemblyPlan, workspace: Path) -> list[dict[str, object]]:
+    scheduler_command = [
+        "dry-run-render-scheduler",
+        "--workspace",
+        str(workspace),
+    ]
+    for dependency_id in _non_render_dependency_ids(plan):
+        scheduler_command.extend(["--completed-dependency", dependency_id])
+
+    return [
+        {
+            "name": "init_render_status",
+            "command": [
+                "init-render-status",
+                "--workspace",
+                str(workspace),
+            ],
+            "writes_files": True,
+        },
+        {
+            "name": "run_dry_run_render_scheduler",
+            "command": scheduler_command,
+            "requires_runtime_args": [
+                "--renderer",
+                "--started-at",
+                "--completed-at",
+                "--generated-at",
+            ],
+            "writes_files": True,
+        },
+    ]
+
+
+def _non_render_dependency_ids(plan: AssemblyPlan) -> list[str]:
+    render_task_ids = {task.task_id for task in plan.render_tasks}
+    dependency_ids: list[str] = []
+    seen: set[str] = set()
+    for task in plan.render_tasks:
+        for dependency_id in task.depends_on:
+            if dependency_id in render_task_ids or dependency_id in seen:
+                continue
+            seen.add(dependency_id)
+            dependency_ids.append(dependency_id)
+    return dependency_ids
+
+
 def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
     if not isinstance(report, CardDumpWorkflowReport):
         raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
@@ -687,12 +895,27 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
             "preview": _card_dump_preview_json(report),
             "ingest": _card_dump_ingest_json(report),
             "production_report": _card_dump_production_report_json(report),
+            "next_actions": _card_dump_next_actions(report),
             "notes": list(report.notes),
         },
         ensure_ascii=True,
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _workspace_health_summary_json(summary: WorkspaceHealthSummary) -> str:
+    if not isinstance(summary, WorkspaceHealthSummary):
+        raise ShootFlowCliError("summary must be a WorkspaceHealthSummary")
+    return (
+        json.dumps(
+            workspace_health_summary_to_dict(summary),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
@@ -726,6 +949,43 @@ def _card_dump_preview_json(report: CardDumpWorkflowReport) -> dict[str, object]
             for item in report.preview_plan.items
         ],
     }
+
+
+def _card_dump_next_actions(report: CardDumpWorkflowReport) -> list[dict[str, object]]:
+    if report.copy_report is not None:
+        manifest_path = str(report.copy_report.manifest_path)
+        storyline_requirements = [
+            "analysis/instagram_storylines.json",
+            "graded outputs for selected storyline assets",
+        ]
+        return [
+            {
+                "name": "prepare_storyline_and_graded_assets",
+                "requires": storyline_requirements,
+                "writes_files": True,
+            },
+            {
+                "name": "write_render_tasks",
+                "command": [
+                    "write-render-tasks",
+                    "--ingest-manifest",
+                    manifest_path,
+                ],
+                "requires": storyline_requirements,
+                "writes_files": True,
+            },
+        ]
+    if report.preview_plan is not None:
+        return [
+            {
+                "name": "review_and_confirm_ingest",
+                "requires": [
+                    "human review of source, destination, checksums, and backup notes",
+                ],
+                "writes_files": True,
+            }
+        ]
+    return []
 
 
 def _card_dump_ingest_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:
