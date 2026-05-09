@@ -482,6 +482,46 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                     final_manifest=final_manifest,
                 )
 
+    def test_scheduler_report_rejects_duplicate_failure_metric_sources(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        first_output = trusted_plan.jobs[0].outputs[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            output_path = workspace / first_output
+            output_path.parent.mkdir(parents=True)
+            output_path.write_bytes(b"manual proxy export")
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:47Z",
+                completed_at="2026-05-09T17:00:48Z",
+                max_concurrency=1,
+                max_iterations=5,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:49Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["failure_messages"].append(raw_report["failure_messages"][0])
+            raw_report["product_metrics"]["failure_message_count"] = 2
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunProductionSchedulerError, "duplicate"):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
     def test_schema_v1_scheduler_report_loads_with_derived_metrics(self) -> None:
         trusted_plan = self._video_only_plan()
         initial_manifest = self._pending_manifest(trusted_plan)

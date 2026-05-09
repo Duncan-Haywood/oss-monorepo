@@ -94,6 +94,8 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertEqual(payload["retryable_job_ids"], [])
         self.assertEqual(payload["review_required_job_ids"], [])
         self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
+        self.assertEqual(payload["product_metrics"]["completed_job_count"], len(production_plan.jobs))
+        self.assertEqual(payload["product_metrics"]["review_required_job_count"], 0)
         self.assertEqual([status.state for status in status_manifest.job_statuses], ["succeeded"] * 7)
         self.assertTrue(reel_output_exists)
         self.assertTrue(report_exists)
