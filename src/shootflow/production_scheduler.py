@@ -4,10 +4,11 @@ import json
 import os
 import re
 import uuid
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
+from types import MappingProxyType
 
 from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
@@ -136,7 +137,7 @@ class DryRunProductionSchedulerReport:
     review_required_job_ids: tuple[str, ...]
     outputs_materialized: tuple[str, ...]
     failure_messages: tuple[ProductionSchedulerJobMessage, ...]
-    product_metrics: dict[str, int]
+    product_metrics: Mapping[str, int]
 
 
 def run_dry_run_production_scheduler(
@@ -833,7 +834,7 @@ def _json_string_tuple(value: object, field_name: str) -> tuple[str, ...]:
     return tuple(result)
 
 
-def _json_product_metrics(raw_metrics: object) -> dict[str, int]:
+def _json_product_metrics(raw_metrics: object) -> Mapping[str, int]:
     if not isinstance(raw_metrics, dict):
         raise DryRunProductionSchedulerError("product_metrics must be an object")
     unknown_keys = set(raw_metrics) - _PRODUCT_METRIC_NAMES
@@ -852,7 +853,7 @@ def _json_product_metrics(raw_metrics: object) -> dict[str, int]:
         if isinstance(value, bool) or not isinstance(value, int) or value < 0:
             raise DryRunProductionSchedulerError(f"product_metrics {name} must be a non-negative integer")
         metrics[name] = value
-    return metrics
+    return _freeze_product_metrics(metrics)
 
 
 def _validate_report(
@@ -1094,6 +1095,7 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
         for item in value:
             if not isinstance(item, str) or not item.strip():
                 raise DryRunProductionSchedulerError(f"report {field_name} contains an invalid string")
+        _reject_duplicate_strings(value, f"report {field_name}")
     if not isinstance(report.failure_messages, tuple):
         raise DryRunProductionSchedulerError("report failure_messages must be a tuple")
     for message in report.failure_messages:
@@ -1106,9 +1108,9 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
     _validate_product_metrics(report.product_metrics)
 
 
-def _validate_product_metrics(metrics: dict[str, int]) -> None:
-    if not isinstance(metrics, dict):
-        raise DryRunProductionSchedulerError("report product_metrics must be a dict")
+def _validate_product_metrics(metrics: Mapping[str, int]) -> None:
+    if not isinstance(metrics, Mapping):
+        raise DryRunProductionSchedulerError("report product_metrics must be a mapping")
     unknown_keys = set(metrics) - _PRODUCT_METRIC_NAMES
     missing_keys = _PRODUCT_METRIC_NAMES - set(metrics)
     if unknown_keys:
@@ -1126,7 +1128,7 @@ def _validate_product_metrics(metrics: dict[str, int]) -> None:
             )
 
 
-def _product_metrics_from_report(report: DryRunProductionSchedulerReport) -> dict[str, int]:
+def _product_metrics_from_report(report: DryRunProductionSchedulerReport) -> Mapping[str, int]:
     return _product_metrics(
         iteration_count=report.iteration_count,
         total_job_count=report.total_job_count,
@@ -1159,8 +1161,8 @@ def _product_metrics(
     conflicted_lease_job_ids: tuple[str, ...],
     outputs_materialized: tuple[str, ...],
     failure_messages: tuple[ProductionSchedulerJobMessage, ...],
-) -> dict[str, int]:
-    return {
+) -> Mapping[str, int]:
+    return _freeze_product_metrics({
         "attempted_job_count": len(attempted_job_ids),
         "blocked_job_count": len(blocked_job_ids),
         "completed_job_count": len(completed_job_ids),
@@ -1174,7 +1176,19 @@ def _product_metrics(
         "review_required_job_count": len(review_required_job_ids),
         "skipped_retryable_job_count": len(skipped_retryable_job_ids),
         "total_job_count": total_job_count,
-    }
+    })
+
+
+def _freeze_product_metrics(metrics: dict[str, int]) -> Mapping[str, int]:
+    return MappingProxyType(dict(metrics))
+
+
+def _reject_duplicate_strings(values: tuple[str, ...], field_name: str) -> None:
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            raise DryRunProductionSchedulerError(f"{field_name} contains duplicate value: {value}")
+        seen.add(value)
 
 
 def _production_scheduler_report_path(workspace_root: Path | str) -> Path:
