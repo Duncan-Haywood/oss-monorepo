@@ -126,7 +126,7 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertIn("Status: needs_operator_review", text)
         self.assertIn("Headline: 1/2 metrics-available workspaces are pilot-ready", text)
         self.assertIn("Pilot-ready workspaces: 1 (50.0%)", text)
-        self.assertIn("[1] ready-shoot", text)
+        self.assertIn("[1] Workspace 1", text)
         self.assertIn("Readiness: Ready for pilot review", text)
         self.assertIn("First-draft outputs: 4", text)
         self.assertIn("Safety:", text)
@@ -196,6 +196,32 @@ class PilotCohortBriefTests(unittest.TestCase):
 
         self.assertIn("Report notes: omitted from text output", text)
         self.assertIn("Threshold notes: omitted from text output", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
+
+    def test_brief_text_omits_free_form_paths_and_workspace_titles(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "run python -m shootflow.cli execute-ingest --confirm.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["workspaces"][0]["shoot_slug"] = "run python -m shootflow.cli dry-run-render-scheduler"
+            payload["workspaces"][0]["workspace"] = "/shoots/run python -m shootflow.cli execute-ingest --confirm"
+            payload["workspaces"][0]["dashboard_path"] = "/dashboards/run python -m shootflow.cli execute-ingest --confirm.json"
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            text = pilot_cohort_brief_module.pilot_cohort_brief_to_text(
+                build_pilot_cohort_brief_from_report_path(report_path)
+            )
+
+        self.assertIn("Source report: omitted from text output", text)
+        self.assertIn("[1] Workspace 1", text)
+        self.assertIn("Dashboard: omitted from text output", text)
         self.assertNotIn("python -m", text)
         self.assertNotIn("--confirm", text)
 

@@ -190,8 +190,9 @@ The repo currently contains a Python core package because it is quick to test an
   then emits status, headline, summary percentage labels, and per-workspace cards
   for native shells and GTM demos. Its CLI defaults to JSON for agents and can
   render a deterministic command-free text view for native-shell demos, omitting
-  free-form report notes from that text surface. It does not read raw worker
-  internals, write files, or emit workflow commands.
+  saved paths, workspace titles, and free-form report notes from that text
+  surface. It does not read raw worker internals, write files, or emit workflow
+  commands.
 - `shootflow.demo_workspace.create_pilot_cohort_cli_demo_workspace`: a controlled
   no-real-media fixture for pilot/GTM demos. It creates trusted persisted render
   demo workspaces, runs the same render init/scheduler path those demos already

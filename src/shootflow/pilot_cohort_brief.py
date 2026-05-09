@@ -145,7 +145,7 @@ def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
         "ShootFlow pilot cohort brief",
         f"Status: {brief.status}",
         f"Headline: {brief.headline}",
-        f"Source report: {brief.cohort_report_path}",
+        "Source report: omitted from text output",
         f"Source generated at: {brief.source_generated_at}",
         "",
         "Summary:",
@@ -168,12 +168,12 @@ def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
     for index, card in enumerate(brief.workspace_cards, start=1):
         lines.extend(
             [
-                f"[{index}] {card.title}",
+                f"[{index}] Workspace {index}",
                 f"  Readiness: {card.readiness_label}",
                 f"  Completion: {card.completion_rate_label}",
                 f"  Manual intervention: {card.intervention_rate_label}",
                 f"  First-draft outputs: {_output_count_label(card.materialized_output_count)}",
-                f"  Dashboard: {card.dashboard_path}",
+                "  Dashboard: omitted from text output",
                 "  Threshold notes: omitted from text output",
             ]
         )
