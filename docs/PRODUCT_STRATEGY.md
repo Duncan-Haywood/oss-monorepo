@@ -50,7 +50,8 @@ to trust and sell:
 
 The current core models a concrete promise for high-volume users:
 
-1. Discover mounted-volume candidates from reviewed roots, rank detected storage, then recommend a
+1. Discover mounted-volume candidates from reviewed roots, layer in advisory
+   native metadata hints when available, rank detected storage, then recommend a
    review-required source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
@@ -131,9 +132,9 @@ to automate.
 ## Next product bets
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
-   import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
-   recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
+   import route. The current core now includes a mounted-volume discovery bridge, advisory native metadata
+   hints for Disk Arbitration/Swift shells, capacity-gated route recommendation, safe ingest commands, and
+   a read-only `plan-production` report after ingest; the next step is a native approval screen around the
    new `card-dump-workflow` contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
@@ -250,7 +251,9 @@ Messaging should emphasize:
 To keep the product useful for professionals, ingest must stay conservative:
 
 1. **Detection is advisory:** drive/card detection proposes a route for review; it
-   is never permission to start destructive actions.
+   is never permission to start destructive actions. Native volume hints can
+   improve labels and ranking, but cannot override filesystem writability,
+   checksum copy, or no-delete requirements.
 2. **Offload before edit:** users should route source card -> working destination
    first, then run grading/assembly from the ingest manifest boundary.
 3. **Capacity gate by default:** destination selection should require estimated

@@ -8,6 +8,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added advisory native volume metadata hints to the mounted-volume discovery
+  bridge:
+  - `shootflow.storage_discovery.VolumeDiscoveryHint` lets a future Swift/Disk
+    Arbitration or iPhone shell pass display names, removable status, and
+    read-only status keyed by discovered volume path;
+  - `discover_storage_candidates(..., volume_hints=...)` applies those hints
+    only after a path is discovered under a reviewed volume root and still skips
+    symlinks, files, inaccessible entries, and paths without filesystem stats;
+  - read-only hints are conservative: `is_read_only=True` can prevent automatic
+    destination selection, but `is_read_only=False` cannot override a failed
+    filesystem writability check;
+  - `discover_import_route(..., volume_hints=...)` carries the same metadata
+    into source/destination ranking and capacity-gated route recommendation.
+- Updated storage-discovery tests for hinted candidate metadata, hinted route
+  ranking, invalid hint maps, and stale read-write hints on unwritable
+  filesystem paths.
+- Updated README, product strategy, and design decisions to position native
+  metadata as an advisory UX/ranking layer, not file-operation authority.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

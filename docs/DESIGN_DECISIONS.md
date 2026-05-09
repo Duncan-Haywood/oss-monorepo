@@ -21,6 +21,10 @@ ShootFlow is a personal tool and product concept for photographers and videograp
   symlinks and files rather than following them. A source/destination route can be recommended only as
   `ready_for_review`; the Mac app still has to show the user the source, destination, no-delete note, and
   checksum-manifest requirement before invoking ingest.
+- Treat native volume metadata as a hint layer. Disk Arbitration, Swift, or
+  iPhone shells may provide friendlier labels and removable/read-only flags, but
+  the core must still verify mounted directories, capacity, actual writability,
+  and no-delete/copy-manifest requirements.
 
 ## Core architecture
 
@@ -38,7 +42,9 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
-  recommendation and capacity-gate logic.
+  recommendation and capacity-gate logic. Native shells can also pass `VolumeDiscoveryHint` metadata keyed by
+  discovered volume path to improve display names and removable/read-only classification, but those hints are
+  advisory and cannot make an actually unwritable filesystem path eligible as a destination.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -366,6 +372,18 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native volume metadata is advisory only
+
+- **Status:** accepted
+- **Rationale:** macOS Disk Arbitration and future iPhone import shells can
+  classify internal disks, removable cards, external SSDs, and read-only media
+  better than a portable mount-root scanner. That metadata improves UX labels
+  and route ranking, but it should not become a bypass around filesystem checks.
+- **Consequence:** `VolumeDiscoveryHint` can override candidate display names
+  and removable/read-only classification for discovered paths. A read-write hint
+  cannot override an actual failed writability check, and hints do not expand
+  discovery beyond reviewed roots or grant copy/delete authority.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 

@@ -43,7 +43,8 @@ Why this wedge wins:
 
 ## Phase 1: trusted automation core (current direction)
 
-- SD/SSD/local source discovery and route recommendation.
+- SD/SSD/local source discovery, advisory native metadata hints, and route
+  recommendation.
 - Safe ingest with checksums and immutable manifests.
 - Read-only post-ingest production reports that show asset counts, planned
   parallel work, and IG deliverables before downstream jobs write artifacts.
@@ -161,15 +162,14 @@ Run practical experiments tied to this ICP-first plan:
 
 ## 8) Execution priorities for next iteration
 
-1. Finish native Mac metadata and UI approval around the mounted-volume
-   discovery, safe route recommendation, and ingest assistant flow. The
-   `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
-   commands now expose the full operator-review-then-copy path, and
-   `plan-production` exposes the next read-only post-ingest summary. The new
-   `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+1. Finish native Mac UI approval around the mounted-volume discovery, safe route
+   recommendation, and ingest assistant flow. The core now accepts advisory
+   native volume hints for display names, removable status, and read-only status;
+   the `plan-import-route` + `preview-ingest` + `execute-ingest --confirm` CLI
+   commands expose the operator-review-then-copy path, and `plan-production`
+   exposes the next read-only post-ingest summary. The `card-dump-workflow`
+   command combines those steps into one native-shell contract, so the next step
+   is binding it to a SwiftUI/menu-bar approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect
