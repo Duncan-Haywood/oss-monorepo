@@ -39,6 +39,11 @@ The repo currently contains a Python core package because it is quick to test an
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
   recommendation and capacity-gate logic.
+- `shootflow.macos_volume_metadata`: native metadata handoff for a future Swift/Disk Arbitration shell. It
+  accepts typed volume facts, validates capacity and boolean flags, skips system/network/missing/file-backed
+  or symlinked mounts, and then feeds the same `StorageCandidate` route contract used by portable discovery.
+  Ejectable external drives count as removable for ranking, but the metadata adapter remains advisory: it
+  does not copy, delete, eject, recursively scan, or bypass operator review.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -97,6 +102,11 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.workspace_health`: a read-only continuation diagnostic for native shells, launch agents, and future
+  agents. It validates the persisted render-task manifest, matching render-status manifest, and scheduler report when
+  enough trusted context exists; summarizes status counts; and emits a single next safe action. Missing files are
+  treated as workflow state, while invalid files are surfaced for review instead of being reset, repaired, or
+  overwritten.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -106,9 +116,25 @@ The repo currently contains a Python core package because it is quick to test an
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
   Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
+  The `write-render-tasks` command closes the real shoot handoff into that
+  persisted renderer contract: it reloads `ingest_manifest.json`, rebuilds the
+  production plan, asks `shootflow.assembly` to verify trusted storyline and
+  graded artifact inputs, then creates or reuses `deliverables/render_tasks.json`
+  without replacing a different existing manifest or creating deliverable
+  outputs. Its JSON summary includes advisory `next_actions` for status
+  initialization and scheduler execution, including trusted completed dependency
+  IDs while keeping runtime timestamps and renderer choices explicit instead of
+  baking them into the manifest.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  Confirmed reports expose advisory `next_actions` for trusted storyline/graded
+  preparation and render-task writing so native shells can guide the user without
+  expanding file authority.
+  The `workspace-health` command exposes the read-only continuation diagnostic as
+  schema-versioned JSON. It is intentionally non-advancing: it may recommend
+  `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
+  it never performs those writes itself.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -131,7 +157,7 @@ The desired high-quality pipeline is:
 6. Generate non-destructive color decisions per scene/set, not isolated per asset.
 7. Rank storylines from VLM outputs so first-cut reels and carousels have narrative and scene variety.
 8. Export graded intermediates for all selects.
-9. Plan assembly tasks from trusted graded selections before invoking any renderer.
+9. Plan and persist assembly tasks from trusted graded selections before invoking any renderer.
 10. Initialize and track render-worker progress through a resumable status manifest keyed by the trusted task plan.
 11. Plan renderer-neutral worker actions from the trusted task/status pair.
 12. Claim ready render actions as running, then report success/retry/failure statuses with checksums for
@@ -149,8 +175,9 @@ The desired high-quality pipeline is:
 18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
-    begin from durable handoffs rather than an in-process Python object graph.
+19. Run `write-render-tasks`, persisted-manifest init, and scheduler commands
+    through a CLI/background-agent flow so native app work can begin from durable
+    handoffs rather than an in-process Python object graph.
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
@@ -366,6 +393,20 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native macOS metadata still feeds the same reviewed route contract
+
+- **Status:** accepted
+- **Rationale:** Disk Arbitration/Swift can identify ejectable, removable,
+  internal, network, read-only, and system volumes more accurately than a
+  portable `/Volumes` directory scan, but richer metadata should not create a
+  separate authority path for ingest.
+- **Consequence:** `MacOSVolumeMetadata` and
+  `recommend_import_route_from_macos_metadata(...)` are pure adapters. They
+  filter unsafe native records and then reuse `StorageCandidate` ranking plus
+  capacity-gated route recommendation. Future Mac UI work should pass native
+  facts through this adapter, then still require source/destination review and
+  explicit ingest confirmation.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 
