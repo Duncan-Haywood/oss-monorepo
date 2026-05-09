@@ -36,11 +36,21 @@ Good next test-first targets:
 Branch reconciliation for this run:
 
 - The assigned branch started equal to `origin/main` at `0f169fd`, and the
-  current work is the only new branch delta.
+  current work is the only new branch delta:
+  `67e903b feat(workspace): surface production scheduler health`.
 - Historical remote branches remain visible, but previous reconciliation passes
   already merged the useful storage, demo, production, render, health, and index
   work into `origin/main`. This run did not identify a newer remote branch tip
   that should supersede the current main lineage.
+- Final reconciliation after push: `git rev-list --left-right --count
+  origin/main...HEAD` returned `0 1`; `git branch --no-merged origin/main` and
+  `git branch -r --no-merged origin/main` returned only the assigned branch
+  `cursor/branch-reconciliation-and-merge-2e3f`.
+- Final verification before push: `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src
+  python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests
+  && git diff --check && git status --short --branch` -> 284 tests OK,
+  compileall/diff-check exited 0, and the tree was clean.
 
 ## Implementation continuation note - 2026-05-09 17:00 UTC
 
