@@ -114,6 +114,14 @@ The repo currently contains a Python core package because it is quick to test an
   enough trusted context exists; summarizes status counts; and emits a single next safe action. Missing files are
   treated as workflow state, while invalid files are surfaced for review instead of being reset, repaired, or
   overwritten.
+- `shootflow.render_workspace`: a read-only state index over persisted render
+  handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
+  missing status manifest as `needs_status_initialization` without creating one,
+  validates any existing `deliverables/render_status.json` and
+  `deliverables/render_scheduler_report.json`, rejects stale reports instead of
+  using them as UI truth, treats succeeded tasks with missing deliverable files
+  as review-required, and returns task counts, expected/materialized outputs,
+  review-required task IDs, and safe next-action recommendations.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -132,6 +140,9 @@ The repo currently contains a Python core package because it is quick to test an
   initialization and scheduler execution, including trusted completed dependency
   IDs while keeping runtime timestamps and renderer choices explicit instead of
   baking them into the manifest.
+  The inspection command reads those same handoffs and emits the current product state without initializing,
+  scheduling, retrying, deleting, or materializing outputs. None of these commands accept model-authored paths,
+  delete files, or widen renderer authority beyond the persisted render-task/status contracts.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
@@ -195,10 +206,13 @@ The desired high-quality pipeline is:
 19. Run `write-render-tasks`, persisted-manifest init, and scheduler commands
     through a CLI/background-agent flow so native app work can begin from durable
     handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Inspect the persisted render workspace before and after scheduler runs so
+    native app shells and background agents can show a safe next action without
+    mutating status or trusting stale scheduler reports.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
 22. Build a workspace index after ingest, scheduling, or retries so UI and

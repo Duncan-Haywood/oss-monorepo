@@ -44,6 +44,7 @@ from shootflow.render_status import (
     initialize_render_status_manifest,
     load_render_status_manifest,
 )
+from shootflow.render_workspace import RenderWorkspaceError, RenderWorkspaceReport, inspect_render_workspace
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import (
     DiscoveredVolumeMetadata,
@@ -115,6 +116,8 @@ def main(
             _run_workspace_health_command(args, stdout=out)
         elif args.command == "index-workspace":
             _run_index_workspace_command(args, stdout=out)
+        elif args.command == "inspect-render-workspace":
+            _run_inspect_render_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -130,6 +133,7 @@ def main(
         StoryPlanError,
         WorkspaceHealthError,
         WorkspaceIndexError,
+        RenderWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -337,6 +341,11 @@ def _run_index_workspace_command(args: argparse.Namespace, *, stdout: TextIO) ->
     )
 
 
+def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = inspect_render_workspace(args.workspace)
+    stdout.write(_render_workspace_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -527,6 +536,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--write",
         action="store_true",
         help="Persist shootflow_workspace_index.json in the workspace after building it.",
+    )
+
+    inspect_workspace = subparsers.add_parser(
+        "inspect-render-workspace",
+        help="Read persisted render handoffs and summarize safe next actions without writes.",
+    )
+    inspect_workspace.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing deliverables/render_tasks.json.",
     )
 
     return parser
@@ -1024,6 +1043,35 @@ def _workspace_health_summary_json(summary: WorkspaceHealthSummary) -> str:
         )
         + "\n"
     )
+
+
+def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
+    if not isinstance(report, RenderWorkspaceReport):
+        raise ShootFlowCliError("report must be a RenderWorkspaceReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(report.workspace_root),
+            "shoot_slug": report.shoot_slug,
+            "render_plan_fingerprint": report.render_plan_fingerprint,
+            "status": report.status,
+            "status_manifest_present": report.status_manifest_present,
+            "scheduler_report_present": report.scheduler_report_present,
+            "task_counts_by_state": report.task_counts_by_state,
+            "expected_outputs": list(report.expected_outputs),
+            "materialized_outputs": list(report.materialized_outputs),
+            "review_required_task_ids": list(report.review_required_task_ids),
+            "safe_next_actions": list(report.safe_next_actions),
+            "notes": [
+                "read-only render workspace inspection",
+                "no render status, scheduler report, or deliverable files were written",
+                "safe_next_actions are recommendations, not permission to delete or overwrite media",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _source_estimate_json(report: CardDumpWorkflowReport) -> dict[str, object] | None:

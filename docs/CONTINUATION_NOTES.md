@@ -213,6 +213,24 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   - invalid metadata is rejected before route output, and metadata only improves
     advisory classification. It does not grant copy/delete/format/render
     authority.
+- Added a read-only render workspace inspection handoff:
+  - `shootflow.render_workspace.inspect_render_workspace(...)` starts from the
+    strict persisted `deliverables/render_tasks.json` manifest, treats a missing
+    render-status file as `needs_status_initialization` without writing one, and
+    validates matching status/scheduler reports when they exist;
+  - `python -m shootflow.cli inspect-render-workspace --workspace <dir>` prints a
+    schema-versioned JSON state summary with task counts, expected outputs,
+    materialized outputs, review-required task IDs, and safe next actions for a
+    Mac UI, launch agent, or continuation agent;
+  - stale or conflicting scheduler reports fail closed instead of becoming UI
+    truth; symlinked output paths are refused, and succeeded tasks whose
+    declared deliverables are missing are surfaced for render-output review.
+- Added CLI tests covering missing-status inspection with no side effects,
+  completed demo-workspace inspection after scheduler execution, stale
+  scheduler-report rejection, and missing succeeded-output review states.
+- Updated README and strategy/design/business docs to place inspection between
+  persisted render-task creation, status initialization, scheduling, retry
+  review, and deliverable review.
 
 ## Previous iteration
 

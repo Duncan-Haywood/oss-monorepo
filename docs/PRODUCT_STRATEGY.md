@@ -103,36 +103,40 @@ The current core models a concrete promise for high-volume users:
     whichever handoff files exist, reports invalid manifests for review, shows
     render status counts, and prints the next safe command without writing or
     resetting anything.
-21. Drive safe ingest itself through the same CLI surface: `preview-ingest`
+21. Inspect persisted render state through a read-only CLI surface so product
+    shells and continuation agents can show whether the next safe action is
+    status initialization, scheduling, blocked/retry review, or deliverable
+    review without mutating workspace files.
+22. Drive safe ingest itself through the same CLI surface: `preview-ingest`
     plans a checksum-verified copy and prints planned items as JSON without
     moving bytes; `execute-ingest --confirm` runs the existing safe copy +
     manifest contract (no source deletion, no overwriting different bytes,
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-22. Offer a unified `card-dump-workflow` command for native-shell demos and the
+23. Offer a unified `card-dump-workflow` command for native-shell demos and the
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary. Confirmed reports now include explicit `next_actions` for trusted
     storyline/grading preparation and the subsequent render-task handoff.
-23. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
+24. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
     flow that demos already exercise. Its summary now points native shells at
     `init-render-status` and `dry-run-render-scheduler` with the trusted
     completed dependency IDs included, while keeping runtime scheduler
     parameters outside the static handoff.
-24. Create repeatable persisted-manifest smoke/demo workspaces through the core
+25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-25. Summarize the current shoot workspace through `index-workspace`, a
+26. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
     UI/agent layers one coherent handoff plus the health-derived next safe
     action without treating raw model JSON as authority. Workspace health and
     the derived index now include a current render-input fingerprint over trusted
     storyline/graded inputs, so future agents can detect in-place input drift
     between snapshots before relying on older render progress.
-26. Assemble reels, carousels, and photo sets from graded masters.
+27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -208,7 +212,11 @@ to automate.
    render-task, render-status, and scheduler-report artifacts, while preserving
    each artifact's original trust boundary. The health/index layer now also
    includes a metadata-only render-input fingerprint, giving continuation agents
-   a simple drift signal when trusted storyline or graded files change in place.
+   a simple drift signal when trusted storyline or graded files change in place. Render workspace
+   inspection now adds the missing read-only state surface around those handoffs:
+   it reports whether status is missing, work is ready, blocked, running, review
+   required, or complete, while rejecting stale scheduler reports instead of
+   treating them as product truth.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 
