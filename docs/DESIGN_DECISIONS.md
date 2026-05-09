@@ -376,7 +376,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   production plan and final `production_status.json`, then records attempted,
   skipped retryable, expired-lease, conflicted-lease, completed, retryable,
   failed, blocked, review-required, materialized-output, and failure-message
-  details for UI/continuation review.
+  details for UI/continuation review. It also emits validated product metric
+  counts derived from those same fields, so metrics cannot be forged into product
+  truth without matching the final trusted status.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -464,7 +466,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   `write_dry_run_render_scheduler_report(...)` turns the in-memory result plus the final trusted status manifest into
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
-  state, not a renderer authority: renderers still consume trusted render tasks and status manifests.
+  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 adds
+  derived product metrics to the report and validates them against the task/status fields instead of trusting caller
+  supplied analytics.
 - `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.

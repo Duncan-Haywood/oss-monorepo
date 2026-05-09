@@ -65,7 +65,7 @@ This repo currently contains the first testable core utilities:
   It can also persist `deliverables/render_scheduler_report.json`, a strict
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
-  details without granting any new file authority.
+  details plus derived product metrics without granting any new file authority.
 - `shootflow.render_workspace` gives a Mac app, launch agent, or continuation
   automation a read-only inspection surface over persisted render handoffs. It
   loads the strict render-task manifest, optionally validates the matching
@@ -161,7 +161,8 @@ This repo currently contains the first testable core utilities:
   and background agents. It can persist `production_scheduler_report.json` with
   completed, retryable, failed, blocked, attempted, skipped retryable,
   expired-lease, conflicted-lease, review-required, materialized output, and
-  failure-message details bound to the final production status.
+  failure-message details plus derived product metrics bound to the final
+  production status.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
@@ -356,7 +357,7 @@ supplied, it expires stale running jobs into retryable review states through the
 guarded production-status compare/write path and reports heartbeat-refresh
 conflicts without clobbering the active worker. It writes
 `production_scheduler_report.json` so UI and continuation layers can inspect the
-last run without rerunning worker orchestration. The render-status init command writes only
+last run and derived product metrics without rerunning worker orchestration. The render-status init command writes only
 metadata under `deliverables/`, never deletes media, and fails rather than
 overwriting an existing status manifest that no longer matches the trusted
 render-task plan.

@@ -44,7 +44,8 @@ writes a trusted `production_scheduler_report.json` bound to the final status.
 It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
-being clobbered.
+being clobbered. Production and render scheduler reports are schema v2 and
+include validated product metric counts derived from the report state.
 `workspace-health` and `index-workspace` expose production status/report
 summaries read-only before falling through to render handoffs.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`

@@ -78,7 +78,8 @@ Why this wedge wins:
   `production_scheduler_report.json` bound to the final production status so
   UI/agent layers can show completed outputs, retry conflicts, blocked work,
   expired leases, lease conflicts, and failure messages without rerunning
-  orchestration.
+  orchestration. The report now also carries derived product metrics so pilot
+  analytics can track throughput and intervention rate from the trusted handoff.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
@@ -219,7 +220,7 @@ Run practical experiments tied to this ICP-first plan:
    the safe read-only state probe before initialization and after scheduler runs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-5. Instrument key product metrics at scheduler/report boundaries now that both
-   production and render scheduler state are surfaced through workspace
-   health/index.
+5. Consume scheduler report product metrics in the future Mac UI, continuation
+   dashboards, and pilot analytics so throughput, manual intervention, lease
+   conflicts, and review-required rates become visible.
 6. Start proof-based GTM content showing real workflows and outcomes.

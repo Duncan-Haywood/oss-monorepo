@@ -94,7 +94,8 @@ The current core models a concrete promise for high-volume users:
     or background agent.
 18. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
-    task IDs, stale-lease conflicts, and human-readable failure messages.
+    task IDs, stale-lease conflicts, human-readable failure messages, and derived
+    product metrics for activation/reliability dashboards.
 19. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
     commands so a Mac launch agent, menu-bar app, or automation runner can
     bootstrap and advance work without reconstructing the production planner in
@@ -153,6 +154,9 @@ The current core models a concrete promise for high-volume users:
     production-plan fingerprint and final `production_status.json`, so the next
     UI or background agent can inspect materialized outputs, review-required
     jobs, expired leases, and lease conflicts without rerunning scheduler logic.
+    These scheduler reports now include validated product metric counts for
+    completed, retryable, failed, blocked, attempted, skipped, review-required,
+    lease, materialized-output, failure-message, and total work.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -255,7 +259,11 @@ to automate.
    adapter in the same persisted-status loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
-   or clobbering heartbeat-refreshed workers in a tight loop.
+   or clobbering heartbeat-refreshed workers in a tight loop. The persisted
+   production and render scheduler reports now emit derived product metrics,
+   giving the future Mac app and pilot analytics a trusted way to measure
+   automation throughput, intervention rate, and reliability without parsing raw
+   worker internals.
    The next-production-wave handoff can derive its completed dependency set
    directly from that manifest. The workspace health and index layer gives those
    shells a single metadata snapshot across ingest, production-status,
