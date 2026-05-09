@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
+from shootflow.pilot_authority import observe_only_workflow_authority_to_dict
 from shootflow.workspace_health import (
     WorkspaceHealthSummary,
     WorkspaceNextAction,
@@ -152,6 +153,7 @@ def pilot_dashboard_summary_to_dict(summary: PilotDashboardSummary) -> dict[str,
         "generated_at": summary.generated_at,
         "workspace": str(summary.workspace_root),
         "shoot_slug": summary.shoot_slug,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "workflow_state": summary.workflow_state,
         "next_action": _next_action_to_dict(summary.next_action),
         "metric_sources": {

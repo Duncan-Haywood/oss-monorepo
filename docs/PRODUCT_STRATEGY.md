@@ -286,7 +286,11 @@ to automate.
    worker internals. `pilot-dashboard` is the first stable pilot-facing summary
    on top of those metrics: unavailable reports remain unavailable rather than
    silently becoming zeroes, and write-capable next actions are named without
-   re-emitting executable scheduler commands.
+   re-emitting executable scheduler commands. Pilot dashboard, cohort report,
+   and cohort brief JSON now share a structured `workflow_authority` contract so
+   native shells and continuation agents can see that readiness metrics are
+   presentation-only and do not permit copy, retry, cleanup, overwrite,
+   materialization, deletion, or any file mutation.
    The next-production-wave handoff can derive its completed dependency set
    directly from that manifest. The workspace health and index layer gives those
    shells a single metadata snapshot across ingest, production-status,

@@ -47,6 +47,20 @@ class PilotDashboardTests(unittest.TestCase):
         self.assertEqual(payload["schema_version"], 2)
         self.assertEqual(payload["generated_at"], "2026-05-09T20:31:00Z")
         self.assertEqual(payload["shoot_slug"], "cli-demo-shoot")
+        self.assertEqual(
+            payload["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertTrue(payload["metric_sources"]["render_scheduler_report"])
         self.assertFalse(payload["metric_sources"]["production_scheduler_report"])
         self.assertEqual(payload["workflow_state"], "ready_for_review")

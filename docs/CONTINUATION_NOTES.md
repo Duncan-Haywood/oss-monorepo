@@ -2,6 +2,40 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 23:30 UTC
+
+This run hardened the observe-only pilot analytics/UI contract for future native
+shells and continuation agents:
+
+- Added `shootflow.pilot_authority`, a shared structured
+  `workflow_authority` payload for pilot presentation surfaces. The contract is
+  `mode=observe_only`, `handoff_kind=presentation_only`, and false for file
+  mutation, copy, retry, cleanup, overwrite, materialization, and deletion.
+- `pilot-dashboard`, `pilot-cohort-report`, and `pilot-cohort-brief` JSON now
+  emit that same authority object. This makes the trust boundary machine-readable
+  for agent-native UIs instead of leaving consumers to parse safety-note prose.
+- Saved dashboard JSON and saved cohort reports remain backward-compatible when
+  the field is absent, but if a saved payload includes `workflow_authority`, the
+  loaders validate it and reject malformed or authorizing values instead of
+  silently masking them.
+- Cohort reports and briefs still emit no executable workflow commands. The
+  text-mode cohort brief remains command-free and continues omitting saved paths,
+  timestamps, workspace titles, and free-form report notes.
+- Updated README, AGENTS, product strategy/architecture/business docs to treat
+  `workflow_authority` as the first safety gate for future Mac UI controls.
+
+Good next test-first targets:
+
+- Broaden UI/agent contract coverage so `workspace-health`, `workspace-index`,
+  and future native wrappers also expose or respect explicit no-authority fields
+  before presenting write-capable controls.
+- Bind the command-free text cohort brief plus structured JSON authority into a
+  tiny native SwiftUI/menu-bar readout or shell wrapper that shows readiness
+  cards while invoking only explicit, reviewed next-action contracts.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-09 23:00 UTC
 
 This run closed the prior text-mode/native-shell cohort brief target:

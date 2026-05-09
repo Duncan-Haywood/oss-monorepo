@@ -5,6 +5,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from shootflow.pilot_authority import (
+    PilotAuthorityError,
+    observe_only_workflow_authority_to_dict,
+    validate_observe_only_workflow_authority,
+)
+
 _PILOT_COHORT_BRIEF_SCHEMA_VERSION = 1
 _PILOT_COHORT_REPORT_SCHEMA_VERSION = 1
 _BASIS_POINTS = 10_000
@@ -99,6 +105,7 @@ def pilot_cohort_brief_to_dict(brief: PilotCohortBrief) -> dict[str, object]:
         "source_generated_at": brief.source_generated_at,
         "status": brief.status,
         "headline": brief.headline,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "summary": {
             "dashboard_count": brief.summary.dashboard_count,
             "metrics_available_dashboard_count": (
@@ -213,6 +220,15 @@ def _load_report_payload(path: Path) -> Mapping[str, object]:
         raise PilotCohortBriefError(
             f"pilot cohort report schema_version must be {_PILOT_COHORT_REPORT_SCHEMA_VERSION}: {path}"
         )
+    authority = payload.get("workflow_authority")
+    if authority is not None:
+        try:
+            validate_observe_only_workflow_authority(
+                authority,
+                field_label="workflow_authority",
+            )
+        except PilotAuthorityError as exc:
+            raise PilotCohortBriefError(str(exc)) from exc
     return payload
 
 

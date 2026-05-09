@@ -38,6 +38,20 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["pilot_ready_workspace_rate_label"], "50.0%")
         self.assertEqual(payload["summary"]["median_intervention_rate_label"], "12.5%")
         self.assertEqual(payload["summary"]["first_draft_output_count"], 5)
+        self.assertEqual(
+            payload["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertEqual(payload["workspace_cards"][0]["title"], "ready-shoot")
         self.assertEqual(payload["workspace_cards"][0]["readiness_label"], "Ready for pilot review")
         self.assertEqual(payload["workspace_cards"][0]["completion_rate_label"], "100.0%")
@@ -246,6 +260,33 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertIn("Source generated at: omitted from text output", text)
         self.assertNotIn("python -m", text)
         self.assertNotIn("--confirm", text)
+
+    def test_brief_rejects_malformed_saved_report_authority_when_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["workflow_authority"] = {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": True,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            }
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaisesRegex(PilotCohortBriefError, "workflow_authority"):
+                build_pilot_cohort_brief_from_report_path(report_path)
 
     def test_brief_rejects_forged_ready_report_with_no_metrics_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

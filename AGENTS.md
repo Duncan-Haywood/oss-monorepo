@@ -59,15 +59,20 @@ schema v2 also evaluates default pilot acceptance thresholds for completion
 rate, manual intervention rate, and materialized outputs. It consumes workspace
 health rather than raw worker internals, omits executable commands for
 write-capable next actions, and grants no copy, retry, cleanup, overwrite,
-materialization, or deletion authority.
+materialization, or deletion authority. Pilot dashboard JSON includes a
+structured `workflow_authority` object marking the payload observe-only,
+presentation-only, and false for copy, retry, cleanup, overwrite,
+materialization, deletion, and any file mutation.
 `pilot-cohort-report` aggregates saved schema v2 dashboard JSON payloads into
 pilot-ready workspace rate, median intervention rate, and first-draft output
-count without reading raw worker internals or granting workflow authority.
+count without reading raw worker internals or granting workflow authority; its
+JSON emits the same observe-only `workflow_authority` contract.
 `pilot-cohort-brief` reads one saved cohort report and emits presentation-ready
 status/headline/card labels for native shells and GTM demos while remaining
 observe-only and command-free. JSON remains the default for agents; `--format
 text` emits the same validated brief as a deterministic text-mode demo/readout
-without executable workflow commands.
+without executable workflow commands. Brief JSON also carries the shared
+observe-only `workflow_authority` object.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before

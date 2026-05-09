@@ -121,17 +121,21 @@ This repo currently contains the first testable core utilities:
   acceptance thresholds, and the same next safe action for Mac shells or pilot
   dashboards. It intentionally consumes
   validated health/report metrics instead of raw worker internals and grants no
-  copy, retry, cleanup, overwrite, materialization, or deletion authority.
+  copy, retry, cleanup, overwrite, materialization, or deletion authority. Its
+  JSON includes a structured `workflow_authority` block so native UIs and agents
+  can reject file-changing interpretations without parsing prose notes.
 - `shootflow.pilot_cohort_report` aggregates saved schema v2
   `pilot-dashboard` JSON payloads into cross-workspace pilot analytics. It
   reports pilot-ready workspace rate, median intervention rate, first-draft
   output count, and per-workspace readiness evidence without reading raw worker
-  internals or granting workflow authority.
+  internals or granting workflow authority. Its JSON also carries the same
+  observe-only `workflow_authority` contract.
 - `shootflow.pilot_cohort_brief` reads one saved cohort report and converts it
   into presentation-ready observe-only labels for native shells and GTM demos:
   status, headline, summary percentages, and per-workspace readiness cards. It
   can also render a deterministic text-mode demo surface. It does not emit
-  commands or grant workflow authority.
+  commands or grant workflow authority, and its JSON exposes the same
+  structured observe-only authority block as the dashboard and cohort report.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -306,16 +310,22 @@ The intended first workflow is:
     unavailable rather than defaulting them to false precision. Its schema v2
     `pilot_acceptance` field evaluates trusted completion rate, manual
     intervention rate, and materialized-output count against default pilot
-    thresholds without authorizing workflow actions.
+    thresholds without authorizing workflow actions. Its structured
+    `workflow_authority` object marks the payload as `observe_only`,
+    `presentation_only`, and false for copy, retry, cleanup, overwrite,
+    materialization, deletion, and all file mutation.
 27. Aggregate saved dashboard JSON files with `pilot-cohort-report` when pilot
     operations need cohort-level ready rate, median intervention rate, and
     first-draft output count. The report consumes only dashboard payloads, never
     raw workspace manifests, and cannot copy, retry, materialize, clean up,
-    overwrite, or delete files.
+    overwrite, or delete files; the same `workflow_authority` object is emitted
+    for agent-native consumers.
 28. Convert a saved cohort report into native-shell display state with
     `pilot-cohort-brief` when a Mac shell, GTM demo, or continuation agent needs
     human-readable readiness labels and workspace cards without parsing raw
-    report metrics or receiving executable commands.
+    report metrics or receiving executable commands. JSON consumers should
+    respect its observe-only `workflow_authority` before presenting any
+    adjacent retry or materialization controls.
 29. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent

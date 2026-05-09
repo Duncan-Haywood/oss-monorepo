@@ -7,6 +7,7 @@ import unittest
 
 from shootflow.cli import main
 from shootflow.pilot_cohort_report import (
+    PilotCohortReportError,
     build_pilot_cohort_report_from_paths,
     pilot_cohort_report_to_dict,
 )
@@ -65,6 +66,20 @@ class PilotCohortReportTests(unittest.TestCase):
         self.assertEqual(payload["cohort"]["pilot_ready_workspace_rate_basis_points"], 5000)
         self.assertEqual(payload["cohort"]["median_intervention_rate_basis_points"], 1250)
         self.assertEqual(payload["cohort"]["first_draft_output_count"], 5)
+        self.assertEqual(
+            payload["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertEqual(payload["workspaces"][0]["shoot_slug"], "ready-shoot")
         self.assertTrue(payload["workspaces"][0]["ready_for_pilot_review"])
         self.assertFalse(payload["workspaces"][1]["ready_for_pilot_review"])
@@ -177,6 +192,40 @@ class PilotCohortReportTests(unittest.TestCase):
         self.assertTrue(payload["cohort"]["ready_for_pilot_review"])
         self.assertNotIn("command", json.dumps(payload, sort_keys=True))
         self.assertIn("dashboard JSON payloads", " ".join(payload["safety_notes"]))
+
+    def test_cohort_report_rejects_malformed_saved_dashboard_authority_when_present(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dashboard = self._write_dashboard(
+                root,
+                "ready.json",
+                shoot_slug="ready-shoot",
+                workspace="/shoots/ready",
+                metrics_available=True,
+                ready_for_review=True,
+                completion_rate=10000,
+                intervention_rate=0,
+                output_count=2,
+            )
+            payload = json.loads(dashboard.read_text(encoding="utf-8"))
+            payload["workflow_authority"] = {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": 0,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            }
+            dashboard.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaisesRegex(PilotCohortReportError, "workflow_authority"):
+                build_pilot_cohort_report_from_paths(
+                    [dashboard],
+                    generated_at="2026-05-09T21:32:30Z",
+                )
 
     def _write_dashboard(
         self,

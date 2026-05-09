@@ -245,7 +245,9 @@ Run practical experiments tied to this ICP-first plan:
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,
    review-required rates, and schema v2 pilot-readiness thresholds become visible
-   from trusted handoff metrics.
+   from trusted handoff metrics. Use the structured `workflow_authority` JSON
+   block from dashboards, cohort reports, and cohort briefs as the native UI's
+   first safety gate before exposing any adjacent file-changing controls.
 6. Use the saved pilot cohort demo fixture for proof-based GTM content while
    real pilot workspaces are still scarce; the demo should show readiness
    thresholds and safety boundaries, not imply automatic publishing or cleanup.

@@ -177,14 +177,20 @@ The repo currently contains a Python core package because it is quick to test an
   Acceptance uses integer basis points over the same trusted metrics and remains
   observational; it cannot schedule, retry, materialize, repair, overwrite,
   clean up, or delete files. It names the next safe action but omits executable
-  commands for write-capable actions.
+  commands for write-capable actions. Serialized dashboard JSON includes a
+  structured `workflow_authority` object with `mode=observe_only`,
+  `handoff_kind=presentation_only`, and false booleans for copy, retry,
+  cleanup, overwrite, materialization, deletion, and any file mutation so
+  native shells and agents do not have to infer authority from prose.
 - `shootflow.pilot_cohort_report`: a read-only aggregation contract above saved
   schema v2 pilot-dashboard JSON payloads. It never opens shoot workspaces or
   raw worker manifests; instead it validates each dashboard payload and derives
   cohort-level pilot-ready workspace rate, median intervention rate, first-draft
   output count, and per-workspace readiness evidence. Missing dashboard metrics
   remain unavailable rather than becoming false successes or failures, and the
-  cohort report emits no workflow commands.
+  cohort report emits no workflow commands. It emits the same
+  `workflow_authority` observe-only object as the dashboard rather than trusting
+  any authority claim inside saved dashboard inputs.
 - `shootflow.pilot_cohort_brief`: a read-only presentation contract above a
   saved schema v1 pilot cohort report. It validates and reads one saved report,
   then emits status, headline, summary percentage labels, and per-workspace cards
@@ -192,7 +198,9 @@ The repo currently contains a Python core package because it is quick to test an
   render a deterministic command-free text view for native-shell demos, omitting
   saved paths, timestamps, workspace titles, and free-form report notes from that
   text surface. It does not read raw worker internals, write files, or emit
-  workflow commands.
+  workflow commands. Its JSON representation includes the shared
+  `workflow_authority` object; the text representation keeps authority as plain
+  safety copy and continues omitting free-form saved report fields.
 - `shootflow.demo_workspace.create_pilot_cohort_cli_demo_workspace`: a controlled
   no-real-media fixture for pilot/GTM demos. It creates trusted persisted render
   demo workspaces, runs the same render init/scheduler path those demos already
