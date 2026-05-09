@@ -54,9 +54,10 @@ The current core models a concrete promise for high-volume users:
    review-required source/destination route.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
-4. Generate a read-only production-plan report from that manifest so the user
-   can review asset counts, parallel wave shape, and planned IG deliverables
-   before AI/color jobs start writing new artifacts.
+4. Generate read-only production reports and next-wave handoffs from that
+   manifest so the user can review asset counts, parallel wave shape, planned
+   IG deliverables, and the next proxy/VLM/color jobs before AI/color work
+   starts writing new artifacts.
 5. Fan out proxy and VLM analysis work across every asset.
 6. Rejoin at scene grouping and look development so the grade is consistent.
 7. Fan out graded master rendering.
@@ -108,10 +109,15 @@ The current core models a concrete promise for high-volume users:
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
+22. Offer `next-production-wave` as the read-only execution handoff after
+    `plan-production`: callers provide completed production job IDs, and the
+    core returns the next ready proxy, VLM, grouping, look, grading, storyline,
+    or social-packaging wave without writing artifacts or granting destructive
+    file authority.
+23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -132,9 +138,11 @@ to automate.
 
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
-   recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   recommendation, safe ingest commands, a read-only `plan-production` report
+   after ingest, and a read-only `next-production-wave` handoff for production
+   workers; the next step is native macOS metadata (Disk Arbitration/Swift UI
+   approval) plus an approval/progress screen around the new `card-dump-workflow`
+   and production-wave contracts before real proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one

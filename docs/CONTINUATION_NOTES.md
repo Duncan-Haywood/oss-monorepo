@@ -8,6 +8,26 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first read-only production execution handoff:
+  - `shootflow.production_handoff.plan_next_production_wave(...)` reloads a
+    verified `ingest_manifest.json`, rebuilds the deterministic production plan,
+    validates caller-reported completed production job IDs, and returns the next
+    ready wave plus safety notes;
+  - `python -m shootflow.cli next-production-wave --ingest-manifest <path>`
+    prints a schema-versioned JSON handoff for Mac app shells, launch agents, or
+    AI/color workers;
+  - the handoff writes no `analysis/`, `graded/`, `deliverables/`, render-task,
+    status, or scheduler-report files, and it grants no authority to delete
+    source media or invent output paths.
+- Added focused tests for the first proxy wave, advancing to VLM analysis after
+  proxy completions, rejecting unknown/impossible completed job IDs, and the CLI
+  JSON/no-side-effect path.
+- Updated README, product strategy, and design/continuation docs to position
+  `next-production-wave` as the seam between post-ingest production planning and
+  future real proxy/VLM/color execution.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

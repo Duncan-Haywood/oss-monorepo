@@ -775,6 +775,122 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             self.assertFalse((shoot_folder / "graded").exists())
             self.assertFalse((shoot_folder / "deliverables").exists())
 
+    def test_next_production_wave_command_prints_ready_wave_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            clip = card / "PRIVATE" / "A001.MOV"
+            photo.parent.mkdir(parents=True)
+            clip.parent.mkdir(parents=True)
+            photo.write_bytes(b"jpeg-bytes")
+            clip.write_bytes(b"video-bytes")
+            ingest_stdout = io.StringIO()
+
+            ingest_exit_code = main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "launch-demo",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_launch-demo"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "proxy_asset_00000",
+                    "--completed-job",
+                    "proxy_asset_00001",
+                ],
+                stdout=stdout,
+            )
+
+            handoff = json.loads(stdout.getvalue())
+            self.assertEqual(ingest_exit_code, 0)
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(handoff["schema_version"], 1)
+            self.assertEqual(handoff["manifest_path"], str(manifest_path))
+            self.assertEqual(handoff["workspace"], str(shoot_folder))
+            self.assertEqual(handoff["shoot_slug"], "launch-demo")
+            self.assertEqual(handoff["status"], "ready")
+            self.assertEqual(handoff["wave_index"], 1)
+            self.assertEqual(handoff["completed_job_ids"], ["proxy_asset_00000", "proxy_asset_00001"])
+            self.assertEqual(handoff["blocked_dependency_ids"], [])
+            self.assertEqual(
+                [(job["job_id"], job["output_kind"]) for job in handoff["jobs"]],
+                [
+                    ("analyze_asset_00000", "vlm_asset_analysis"),
+                    ("analyze_asset_00001", "vlm_asset_analysis"),
+                ],
+            )
+            self.assertIn("read-only production wave handoff", handoff["notes"])
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
+    def test_next_production_wave_command_rejects_unknown_completed_job_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            photo.write_bytes(b"jpeg-bytes")
+            ingest_stdout = io.StringIO()
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "launch-demo",
+                    "--confirm",
+                ],
+                stdout=ingest_stdout,
+            )
+            shoot_folder = destination / "2026-05-09_launch-demo"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "next-production-wave",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--completed-job",
+                    "proxy_asset_99999",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unknown completed production job ID", stderr.getvalue())
+            self.assertFalse((shoot_folder / "analysis").exists())
+            self.assertFalse((shoot_folder / "graded").exists())
+            self.assertFalse((shoot_folder / "deliverables").exists())
+
     def test_plan_production_command_rejects_deleted_source_manifest_without_writes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
