@@ -24,6 +24,32 @@ shells and continuation agents:
 - Updated README, AGENTS, product strategy/architecture/business docs to treat
   `workflow_authority` as the first safety gate for future Mac UI controls.
 
+Review, verification, and branch reconciliation for this run:
+
+- Test-first red run failed on missing `workflow_authority` in dashboard, cohort
+  report, and cohort brief JSON. Implementation added the shared authority
+  helper and serializers.
+- Focused review found two issues: numeric zero could pass as `False`, and saved
+  payloads with a malformed present authority block were silently masked. A
+  follow-up red run reproduced both gaps; the validator now requires exact bool
+  values and report loaders reject malformed present authority fields.
+- Verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 337 tests OK; compileall and diff-check exited 0.
+- Commit pushed to the assigned branch:
+  `09ec3bc feat(pilot): expose observe-only authority contract`.
+- `git fetch --prune origin` removed historical remote automation branches.
+  After pruning, only `origin/cursor/branch-reconciliation-and-merge-c0a6` had
+  unique work versus `origin/main`; `origin/cursor/branch-consolidation-strategy-adee`
+  and `origin/cursor/repository-branch-consolidation-471c` were already merged.
+- Fast-forwarded local `main` to `origin/main`, fast-forwarded `main` to the
+  assigned branch tip, and pushed `origin/main`. After that compare, every
+  surviving remote branch had `ahead=0` versus `origin/main`.
+- Deleted stale local branch `cursor/setup-dev-env-3ad0` whose upstream was gone.
+  Kept the assigned automation branch because it tracks the just-pushed feature
+  branch and is now merged into `main`.
+
 Good next test-first targets:
 
 - Broaden UI/agent contract coverage so `workspace-health`, `workspace-index`,
