@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from shootflow.assembly import (
     RENDER_TASKS_MANIFEST_PATH,
@@ -575,16 +577,21 @@ def _workspace_index_from_json(raw_index: dict[str, object]) -> WorkspaceIndex:
 def _artifact_from_json(raw_artifact: object) -> WorkspaceArtifactSummary:
     if not isinstance(raw_artifact, dict):
         raise WorkspaceIndexError("workspace index artifacts must contain objects")
-    _validate_exact_keys(raw_artifact, allowed_keys=_ARTIFACT_KEYS, label="workspace index artifact")
-    summary = raw_artifact["summary"]
+    raw_artifact_dict = cast(dict[str, object], raw_artifact)
+    _validate_exact_keys(
+        raw_artifact_dict,
+        allowed_keys=_ARTIFACT_KEYS,
+        label="workspace index artifact",
+    )
+    summary = raw_artifact_dict["summary"]
     if not isinstance(summary, dict):
         raise WorkspaceIndexError("workspace index artifact summary must be an object")
     return _artifact(
-        _json_string(raw_artifact["name"], "artifact.name"),
-        _json_string(raw_artifact["path"], "artifact.path"),
-        present=_json_bool(raw_artifact["present"], "artifact.present"),
-        trusted=_json_bool(raw_artifact["trusted"], "artifact.trusted"),
-        status=_json_string(raw_artifact["status"], "artifact.status"),
+        _json_string(raw_artifact_dict["name"], "artifact.name"),
+        _json_string(raw_artifact_dict["path"], "artifact.path"),
+        present=_json_bool(raw_artifact_dict["present"], "artifact.present"),
+        trusted=_json_bool(raw_artifact_dict["trusted"], "artifact.trusted"),
+        status=_json_string(raw_artifact_dict["status"], "artifact.status"),
         summary=dict(summary),
     )
 
@@ -724,7 +731,7 @@ def _read_text_no_follow(path: Path) -> str:
 
 
 def _validate_exact_keys(
-    data: dict[object, object],
+    data: Mapping[str, object],
     *,
     allowed_keys: frozenset[str],
     label: str,
