@@ -54,6 +54,9 @@ Why this wedge wins:
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status
   reporting for resumable pipelines.
+- Read-only render workspace inspection that verifies completed deliverables
+  against trusted checksums and flags review-required work without retrying,
+  cleaning, overwriting, or deleting files.
 
 ## Phase 2: productionized deliverables
 
@@ -174,7 +177,7 @@ Run practical experiments tied to this ICP-first plan:
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect
    `card-dump-workflow` with the persisted render-task demo so one smoke path
-   runs from detected card to scheduler report.
+   runs from detected card to scheduler report and read-only output inspection.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

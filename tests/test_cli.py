@@ -1,4 +1,5 @@
 import io
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -12,6 +13,7 @@ from shootflow.demo_workspace import (
 )
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
+    OutputChecksum,
     RenderStatusManifest,
     RenderTaskStatus,
     load_render_status_manifest,
@@ -443,6 +445,65 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("Unexpected render task field", stderr.getvalue())
+
+    def test_inspect_render_workspace_command_prints_verified_report_without_requiring_inputs(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            output = workspace / "deliverables" / "instagram_reel.mp4"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(b"finished reel")
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256=hashlib.sha256(b"finished reel").hexdigest(),
+                                ),
+                            ),
+                            updated_at="2026-05-09T10:00:00Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+            archived_storyline_missing = not (
+                workspace / "analysis" / "instagram_storylines.json"
+            ).exists()
+            archived_grade_missing = not (
+                workspace / "graded" / "grade_asset_00000" / "A001.MOV"
+            ).exists()
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["shoot_slug"], "cli-scheduler")
+        self.assertEqual(report["verified_output_count"], 1)
+        self.assertEqual(report["review_required_task_ids"], [])
+        self.assertEqual(report["outputs"][0]["state"], "verified")
+        self.assertTrue(archived_storyline_missing)
+        self.assertTrue(archived_grade_missing)
 
     def _pending_manifest(self, trusted_plan: AssemblyPlan) -> RenderStatusManifest:
         return RenderStatusManifest(

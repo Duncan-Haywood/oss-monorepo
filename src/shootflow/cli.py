@@ -25,6 +25,11 @@ from shootflow.ingest import (
 )
 from shootflow.production import ProductionPlanError
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.render_inspection import (
+    RenderInspectionError,
+    RenderWorkspaceInspectionReport,
+    inspect_render_workspace,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -78,6 +83,8 @@ def main(
             _run_plan_import_route_command(args, stdout=out)
         elif args.command == "dry-run-render-scheduler":
             _run_dry_run_render_scheduler_command(args, stdout=out)
+        elif args.command == "inspect-render-workspace":
+            _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "preview-ingest":
             _run_preview_ingest_command(args, stdout=out)
         elif args.command == "execute-ingest":
@@ -92,6 +99,7 @@ def main(
         AssemblyPlanError,
         CatalogError,
         DryRunRenderSchedulerError,
+        RenderInspectionError,
         RenderStatusError,
         ShootFlowCliError,
         IngestError,
@@ -205,6 +213,11 @@ def _run_dry_run_render_scheduler_command(args: argparse.Namespace, *, stdout: T
         )
         + "\n"
     )
+
+
+def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = inspect_render_workspace(Path(args.workspace))
+    stdout.write(_render_inspection_report_json(report))
 
 
 def _run_preview_ingest_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -324,6 +337,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--print-report",
         action="store_true",
         help="Print the persisted scheduler report JSON to stdout.",
+    )
+
+    inspection = subparsers.add_parser(
+        "inspect-render-workspace",
+        help="Verify declared succeeded render outputs against trusted status checksums.",
+    )
+    inspection.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing deliverables/render_tasks.json and render_status.json.",
     )
 
     preview = subparsers.add_parser(
@@ -469,6 +492,42 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
                 {"task_id": message.task_id, "message": message.message}
                 for message in report.failure_messages
             ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _render_inspection_report_json(report: RenderWorkspaceInspectionReport) -> str:
+    if not isinstance(report, RenderWorkspaceInspectionReport):
+        raise ShootFlowCliError("report must be a RenderWorkspaceInspectionReport")
+    return json.dumps(
+        {
+            "schema_version": report.schema_version,
+            "shoot_slug": report.shoot_slug,
+            "render_plan_fingerprint": report.render_plan_fingerprint,
+            "total_task_count": report.total_task_count,
+            "status_counts": dict(report.status_counts),
+            "pending_task_ids": list(report.pending_task_ids),
+            "running_task_ids": list(report.running_task_ids),
+            "succeeded_task_ids": list(report.succeeded_task_ids),
+            "failed_task_ids": list(report.failed_task_ids),
+            "retryable_task_ids": list(report.retryable_task_ids),
+            "outputs": [
+                {
+                    "task_id": output.task_id,
+                    "path": output.path,
+                    "state": output.state,
+                    "expected_sha256": output.expected_sha256,
+                    "actual_sha256": output.actual_sha256,
+                    "message": output.message,
+                }
+                for output in report.outputs
+            ],
+            "verified_output_count": report.verified_output_count,
+            "review_required_task_ids": list(report.review_required_task_ids),
+            "notes": list(report.notes),
         },
         ensure_ascii=True,
         indent=2,

@@ -108,10 +108,14 @@ The current core models a concrete promise for high-volume users:
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
+22. Inspect persisted render workspaces after scheduling so delivery/retry
+    screens can verify declared succeeded outputs by checksum, flag missing or
+    mismatched deliverables, and surface failed/retryable tasks without creating,
+    retrying, cleaning, overwriting, or deleting files.
+23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -181,6 +185,10 @@ to automate.
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
    without bypassing the real init/status/scheduler path.
+   A read-only render inspection handoff now verifies declared succeeded
+   deliverables against their trusted status checksums, while marking missing,
+   mismatched, unsafe, failed, or retryable work for review without granting any
+   retry or cleanup authority.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

@@ -201,7 +201,11 @@ def load_render_tasks_manifest(
     return loaded_plan
 
 
-def load_trusted_render_tasks_manifest(workspace_root: Path | str) -> AssemblyPlan:
+def load_trusted_render_tasks_manifest(
+    workspace_root: Path | str,
+    *,
+    verify_inputs: bool = True,
+) -> AssemblyPlan:
     """Load the persisted render-task handoff as the trusted plan for worker CLIs.
 
     This is intended for background agents that start from the strict
@@ -209,6 +213,9 @@ def load_trusted_render_tasks_manifest(workspace_root: Path | str) -> AssemblyPl
     ``ProductionPlan``. The file still receives the same schema, path, and
     canonical task validation before callers may use it as authority.
     """
+
+    if not isinstance(verify_inputs, bool):
+        raise TypeError("verify_inputs must be a boolean")
 
     manifest_path = _render_tasks_manifest_path(workspace_root)
     root = Path(workspace_root)
@@ -221,7 +228,8 @@ def load_trusted_render_tasks_manifest(workspace_root: Path | str) -> AssemblyPl
     )
     loaded_plan = _assembly_plan_from_json(_read_json_object(manifest_path))
     _validate_assembly_plan(loaded_plan)
-    _verify_persisted_render_task_inputs(root, loaded_plan)
+    if verify_inputs:
+        _verify_persisted_render_task_inputs(root, loaded_plan)
     return loaded_plan
 
 

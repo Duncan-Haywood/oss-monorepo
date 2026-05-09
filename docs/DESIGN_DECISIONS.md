@@ -97,6 +97,13 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.render_inspection`: a read-only post-scheduler verification layer.
+  It starts from the trusted persisted render-task and render-status manifests,
+  checks only declared succeeded outputs under `deliverables/`, verifies them
+  against status checksums, and classifies missing, mismatched, unsafe, non-file,
+  and unreadable outputs for review. It deliberately skips input verification so
+  delivery review can still work after upstream analysis/graded intermediates are
+  archived, but it never creates, retries, overwrites, cleans, or deletes files.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -104,6 +111,8 @@ The repo currently contains a Python core package because it is quick to test an
   command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
   render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`, and
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
+  The inspection command prints the read-only output verification report from the
+  same trusted task/status pair.
   Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
   render-task/status contracts.
   The `card-dump-workflow` command now exposes the first complete product
@@ -151,10 +160,14 @@ The desired high-quality pipeline is:
     attention.
 19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+20. Inspect the persisted render workspace after scheduling so delivery/retry
+    screens can verify completed deliverables and review failed, retryable,
+    missing, mismatched, unsafe, non-file, or unreadable outputs without gaining
+    file mutation authority.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
 22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
@@ -282,6 +295,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
   state, not a renderer authority: renderers still consume trusted render tasks and status manifests.
+- `shootflow.render_inspection` is the delivery-truth check after status/reporting.
+  It loads `deliverables/render_tasks.json` as the trusted plan without requiring
+  upstream render inputs to still exist, then validates `deliverables/render_status.json`
+  against that plan before opening any declared outputs. Succeeded outputs are
+  read with no-follow file opens and regular-file checks, classified instead of
+  repaired, and matched back to task IDs so the UI can show which deliverables
+  are safe to deliver and which tasks need review.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
@@ -415,3 +435,14 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   demos must still call `init-render-status` and `dry-run-render-scheduler` to
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
+
+### Decision: delivery inspection is read-only and output-focused
+
+- **Status:** accepted
+- **Rationale:** a Mac app, launch agent, or continuation agent needs to know
+  whether succeeded render tasks actually produced the expected deliverables,
+  even if upstream analysis or graded inputs have already been archived.
+- **Consequence:** `inspect-render-workspace` verifies only declared succeeded
+  outputs from the trusted status manifest, reports review-required tasks, and
+  does not initialize status, schedule retries, materialize outputs, overwrite
+  files, clean temporary paths, or delete media.
