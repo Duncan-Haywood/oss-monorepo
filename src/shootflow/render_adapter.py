@@ -7,6 +7,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from shootflow.assembly import AssemblyPlan, RenderTask
 from shootflow.render_status import (
@@ -53,6 +54,56 @@ class DryRunRenderBatchResult:
     results: tuple[DryRunRenderResult, ...]
     failures: tuple[DryRunRenderFailure, ...]
     blocked_task_ids: tuple[str, ...]
+
+
+class RenderBatchRunner(Protocol):
+    def __call__(
+        self,
+        workspace_root: Path | str,
+        *,
+        trusted_plan: AssemblyPlan,
+        action_plan: RenderWorkerActionPlan,
+        started_at: str,
+        completed_at: str,
+        max_concurrency: int,
+    ) -> DryRunRenderBatchResult:
+        """Run a trusted render action plan for one registered adapter."""
+
+
+def supported_render_adapter_names() -> tuple[str, ...]:
+    """Return renderer adapter names that this build can execute locally."""
+
+    return tuple(_render_adapter_registry())
+
+
+def run_render_adapter_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: AssemblyPlan,
+    action_plan: RenderWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunRenderBatchResult:
+    """Dispatch a trusted render action plan to its registered local adapter.
+
+    The registry is the explicit execution boundary between scheduler/status
+    orchestration and renderer-specific implementations. Unknown adapters fail
+    before any worker action is claimed or output path is materialized.
+    """
+
+    _validate_action_plan(action_plan, trusted_plan=trusted_plan)
+    runner = _render_batch_runner(action_plan.renderer_adapter)
+    result = runner(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+    )
+    _validate_batch_result(result)
+    return result
 
 
 def run_dry_run_render_action(
@@ -528,6 +579,24 @@ def _batch_failure_message(exc: Exception) -> str:
         "Dry-run batch scheduler could not execute action: "
         f"{detail}. No source, graded, or deliverable files were deleted."
     )
+
+
+def _render_adapter_registry() -> dict[str, RenderBatchRunner]:
+    return {"dry-run-local": run_dry_run_render_batch}
+
+
+def _render_batch_runner(renderer_adapter: str) -> RenderBatchRunner:
+    if not isinstance(renderer_adapter, str) or not renderer_adapter.strip():
+        raise DryRunRendererError("renderer_adapter cannot be empty")
+    registry = _render_adapter_registry()
+    try:
+        return registry[renderer_adapter]
+    except KeyError as exc:
+        supported_adapters = ", ".join(registry) or "none"
+        raise DryRunRendererError(
+            f"Unsupported renderer adapter: {renderer_adapter}. "
+            f"Supported adapters: {supported_adapters}"
+        ) from exc
 
 
 def _validate_batch_result(result: DryRunRenderBatchResult) -> None:
