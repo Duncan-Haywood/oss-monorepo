@@ -2,6 +2,62 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 19:30 UTC
+
+This run advanced the product-metrics target that had been carried in the
+handoff notes:
+
+- Production and render scheduler reports now write schema version 2 with a
+  `product_metrics` object derived from the trusted report/status fields.
+  Metrics cover total, completed, retryable, failed, blocked, review-required,
+  attempted, skipped retryable, stale lease, materialized output, failure
+  message, and iteration counts.
+- Report loading remains backwards-compatible with schema version 1 scheduler
+  reports that do not contain `product_metrics`; loaders derive the same metric
+  object from the v1 fields after validation.
+- Metrics are immutable on loaded report dataclasses and are validated against
+  the report state. Forged metric counts, duplicate task/job ID lists, duplicate
+  materialized outputs, and multiple failure messages for the same task/job are
+  rejected so analytics cannot become a new trust bypass.
+- CLI `--print-report` output for production and render scheduler reports now
+  includes schema v2 metrics. The default production scheduler summary also
+  carries the same product metrics for simple Mac-shell/agent consumption.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so product metrics are treated as implemented infrastructure rather than a
+  future target.
+
+Good next test-first targets:
+
+- Consume scheduler report product metrics in workspace-health/workspace-index
+  summaries or a future Mac UI state contract without granting metrics any file
+  authority.
+- Add UI/agent contract tests proving expired production leases, lease conflicts,
+  retryable jobs, and metric counts are rendered as review states, not cleanup,
+  overwrite, or automatic retry authority.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
+Branch reconciliation for this run:
+
+- Fetched and pruned remote branches. The assigned branch
+  `cursor/branch-reconciliation-and-merge-9549` started at the previous
+  `origin/main` and now contains this run's metrics work.
+- The only remote branch still not merged into the final tree is
+  `origin/cursor/branch-consolidation-strategy-71a5`. It is rejected as
+  superseded: `git diff HEAD..origin/cursor/branch-consolidation-strategy-71a5`
+  would remove the scheduler metrics implementation, tests, and docs while only
+  adding older consolidation merge commits.
+- Deleted stale local branch `cursor/setup-dev-env-3ad0` after confirming it was
+  already merged.
+- Fast-forwarded local `main` to the verified assigned branch and pushed
+  `origin/main`; `origin/main` and the assigned branch now compare `0 0` with
+  `git rev-list --left-right --count origin/main...HEAD`.
+- Final verification before the main push:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 309 tests OK, compileall/diff-check exited 0.
+
 ## Implementation continuation note - 2026-05-09 19:00 UTC
 
 This run first reconciled the assigned branch with the latest verified remote
