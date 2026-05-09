@@ -34,6 +34,18 @@ Good next test-first targets:
   production-status progress and dry-run production scheduler outcomes to a Mac
   shell without mutating render handoffs.
 
+Branch reconciliation for this run:
+
+- Refreshed `origin/main` before and after implementation. Before merging this
+  run's work, the only branch not reachable from `origin/main` was the assigned
+  branch `origin/cursor/branch-reconciliation-and-merge-98f9`.
+- Reviewed the only new branch diff, addressed independent review findings about
+  public materialization bypass and directory-style package outputs, and
+  fast-forwarded `main` to include the completed adapter commit.
+- Pushed both `origin/cursor/branch-reconciliation-and-merge-98f9` and
+  `origin/main` at the same adapter lineage. No older remote branch had new work
+  to merge in this pass.
+
 ## Implementation continuation note - 2026-05-09 15:30 UTC
 
 This run advanced the pre-render production execution boundary that the previous
