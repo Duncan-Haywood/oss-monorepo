@@ -71,7 +71,10 @@ Why this wedge wins:
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
   authority. Previously retryable jobs require an explicit reviewed retry ID
-  before a background run will attempt them again.
+  before a background run will attempt them again. Each run can persist a
+  `production_scheduler_report.json` bound to the final production status so
+  UI/agent layers can show completed outputs, retry conflicts, blocked work, and
+  failure messages without rerunning orchestration.
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.
@@ -209,7 +212,8 @@ Run practical experiments tied to this ICP-first plan:
    the safe read-only state probe before initialization and after scheduler runs.
 3. Surface production-scheduler state in workspace health/index reports so Mac
    shells can show pre-render progress, retryable conflicts, and blocked jobs
-   without separately parsing `production_status.json`.
+   without separately parsing `production_status.json` or
+   `production_scheduler_report.json`.
 4. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 5. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 6. Instrument key product metrics at scheduler/report boundaries.

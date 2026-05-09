@@ -45,9 +45,12 @@ from shootflow.production_handoff import (
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
+    DryRunProductionSchedulerReport,
     DryRunProductionSchedulerError,
     DryRunProductionSchedulerResult,
+    load_dry_run_production_scheduler_report,
     run_dry_run_production_scheduler,
+    write_dry_run_production_scheduler_report,
 )
 from shootflow.production_status import (
     ProductionStatusError,
@@ -345,12 +348,29 @@ def _run_dry_run_production_scheduler_command(args: argparse.Namespace, *, stdou
         max_iterations=args.max_iterations,
         reviewed_retryable_job_ids=tuple(args.retryable_job),
     )
-    load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+    final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+    report_path = write_dry_run_production_scheduler_report(
+        result,
+        workspace,
+        trusted_plan=trusted_plan,
+        final_manifest=final_manifest,
+        generated_at=args.generated_at,
+    )
+    report = load_dry_run_production_scheduler_report(
+        workspace,
+        trusted_plan=trusted_plan,
+        final_manifest=final_manifest,
+    )
+    if args.print_report:
+        stdout.write(_production_scheduler_report_json(report))
+        return
+
     stdout.write(
         _dry_run_production_scheduler_summary_json(
             result,
             ingest_manifest_path=manifest_path,
             workspace=workspace,
+            report_path=report_path,
         )
     )
 
@@ -590,6 +610,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
     production_scheduler.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")
+    production_scheduler.add_argument("--generated-at", required=True, help="ISO-like timestamp for the scheduler report.")
     production_scheduler.add_argument("--max-concurrency", type=int, default=1)
     production_scheduler.add_argument("--max-iterations", type=int, default=1)
     production_scheduler.add_argument(
@@ -597,6 +618,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         help="Previously retryable production job ID that has been reviewed and may be retried.",
+    )
+    production_scheduler.add_argument(
+        "--print-report",
+        action="store_true",
+        help="Print the persisted production scheduler report JSON to stdout.",
     )
 
     render_tasks = subparsers.add_parser(
@@ -846,6 +872,7 @@ def _dry_run_production_scheduler_summary_json(
     *,
     ingest_manifest_path: Path,
     workspace: Path,
+    report_path: Path,
 ) -> str:
     if not isinstance(result, DryRunProductionSchedulerResult):
         raise ShootFlowCliError("result must be a DryRunProductionSchedulerResult")
@@ -856,6 +883,7 @@ def _dry_run_production_scheduler_summary_json(
         "schema_version": 1,
         "workspace": str(workspace),
         "ingest_manifest_path": str(ingest_manifest_path),
+        "report_path": str(report_path),
         "shoot_slug": result.shoot_slug,
         "worker_adapter": result.worker_adapter,
         "stopped_reason": result.stopped_reason,
@@ -932,6 +960,39 @@ def _ordered_unique_strings(values: tuple[str, ...]) -> tuple[str, ...]:
         seen.add(value)
         ordered.append(value)
     return tuple(ordered)
+
+
+def _production_scheduler_report_json(report: DryRunProductionSchedulerReport) -> str:
+    if not isinstance(report, DryRunProductionSchedulerReport):
+        raise ShootFlowCliError("report must be a DryRunProductionSchedulerReport")
+    return json.dumps(
+        {
+            "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
+            "generated_at": report.generated_at,
+            "shoot_slug": report.shoot_slug,
+            "production_plan_fingerprint": report.production_plan_fingerprint,
+            "production_status_fingerprint": report.production_status_fingerprint,
+            "worker_adapter": report.worker_adapter,
+            "stopped_reason": report.stopped_reason,
+            "iteration_count": report.iteration_count,
+            "total_job_count": report.total_job_count,
+            "completed_job_ids": list(report.completed_job_ids),
+            "retryable_job_ids": list(report.retryable_job_ids),
+            "failed_job_ids": list(report.failed_job_ids),
+            "blocked_job_ids": list(report.blocked_job_ids),
+            "attempted_job_ids": list(report.attempted_job_ids),
+            "skipped_retryable_job_ids": list(report.skipped_retryable_job_ids),
+            "review_required_job_ids": list(report.review_required_job_ids),
+            "outputs_materialized": list(report.outputs_materialized),
+            "failure_messages": [
+                {"job_id": message.job_id, "message": message.message}
+                for message in report.failure_messages
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:

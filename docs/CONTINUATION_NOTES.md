@@ -2,6 +2,47 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 17:00 UTC
+
+This run advanced the production-scheduler observability gap identified by the
+16:30 handoff:
+
+- Added `production_scheduler_report.json`, a strict durable report for dry-run
+  production scheduler runs. The report is bound to the trusted production-plan
+  fingerprint and the final `production_status.json`, and records completed,
+  retryable, failed, blocked, attempted, skipped retryable, review-required,
+  materialized-output, and failure-message details.
+- Updated `dry-run-production-scheduler` so it requires `--generated-at`, writes
+  the persisted report after loading final status, returns `report_path` in the
+  summary payload, and can print the full report with `--print-report`.
+- Preserved the explicit retry safety invariant: prior retryable jobs still need
+  `--retryable-job`, and report persistence does not grant cleanup, deletion,
+  overwrite, or arbitrary output authority.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future sessions treat production scheduler reporting as implemented
+  infrastructure.
+
+Good next test-first targets:
+
+- Surface `production_status.json` and `production_scheduler_report.json` through
+  workspace-health/workspace-index so Mac shells can show pre-render progress,
+  retryable conflicts, blocked jobs, and safe next actions without parsing raw
+  manifests directly.
+- Add stale-running production lease planning/persistence before allowing
+  multiple long-running local production workers.
+- Begin a real local proxy/VLM/metadata worker adapter behind the existing
+  production-worker action contract, preserving declared-output-only authority.
+
+Branch reconciliation for this run:
+
+- The assigned branch started equal to `origin/main` (`9256751`), and the remote
+  tracking branch did not exist when fetched.
+- `git rev-list --left-right --count origin/main...HEAD` returned `0 0`;
+  `git branch -r --no-merged origin/main` and
+  `git branch --no-merged origin/main` returned no unmerged branches.
+- No older branch work was merged or rejected in this pass because all visible
+  useful remote branch work was already reachable from `origin/main`.
+
 ## Implementation continuation note - 2026-05-09 16:30 UTC
 
 This run advanced the production-side scheduler target identified by the 16:00

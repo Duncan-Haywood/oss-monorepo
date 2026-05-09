@@ -5,9 +5,13 @@ import unittest
 from shootflow.deliverables import MediaAsset
 from shootflow.production import build_production_plan
 from shootflow.production_scheduler import (
+    PRODUCTION_SCHEDULER_REPORT_PATH,
     DryRunProductionSchedulerError,
+    DryRunProductionSchedulerReport,
     DryRunProductionSchedulerResult,
+    load_dry_run_production_scheduler_report,
     run_dry_run_production_scheduler,
+    write_dry_run_production_scheduler_report,
 )
 from shootflow.production_status import (
     ProductionJobStatus,
@@ -193,6 +197,103 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
 
         self.assertEqual(loaded_manifest, initial_manifest)
+
+    def test_scheduler_report_persists_and_loads_against_final_status(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:00Z",
+                completed_at="2026-05-09T17:00:05Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(report_path.name, PRODUCTION_SCHEDULER_REPORT_PATH)
+        self.assertIsInstance(loaded_report, DryRunProductionSchedulerReport)
+        self.assertEqual(loaded_report.generated_at, "2026-05-09T17:00:06Z")
+        self.assertEqual(loaded_report.shoot_slug, trusted_plan.shoot_slug)
+        self.assertEqual(
+            loaded_report.production_plan_fingerprint,
+            production_plan_fingerprint(trusted_plan),
+        )
+        self.assertEqual(loaded_report.stopped_reason, "complete")
+        self.assertEqual(loaded_report.total_job_count, len(trusted_plan.jobs))
+        self.assertEqual(loaded_report.review_required_job_ids, ())
+        self.assertEqual(loaded_report.completed_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
+        self.assertGreater(len(loaded_report.outputs_materialized), 0)
+
+    def test_scheduler_report_rejects_final_status_drift(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:01:00Z",
+                completed_at="2026-05-09T17:01:05Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:01:06Z",
+            )
+            original_status = final_manifest.job_statuses[0]
+            drifted_manifest = ProductionStatusManifest(
+                shoot_slug=final_manifest.shoot_slug,
+                production_plan_fingerprint=final_manifest.production_plan_fingerprint,
+                job_statuses=(
+                    ProductionJobStatus(
+                        job_id=original_status.job_id,
+                        state=original_status.state,
+                        worker_adapter=original_status.worker_adapter,
+                        attempts=original_status.attempts + 1,
+                        error_message=original_status.error_message,
+                        output_checksums=original_status.output_checksums,
+                        updated_at="2026-05-09T17:01:30Z",
+                    ),
+                )
+                + final_manifest.job_statuses[1:],
+            )
+
+            with self.assertRaisesRegex(
+                DryRunProductionSchedulerError,
+                "status fingerprint",
+            ):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=drifted_manifest,
+                )
 
     @staticmethod
     def _video_only_plan():

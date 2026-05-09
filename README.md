@@ -78,10 +78,10 @@ This repo currently contains the first testable core utilities:
   `python -m shootflow.cli init-render-status`, and
   `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
   strict persisted render-task manifest, creates the companion render-status
-  manifest only when missing, and never resets existing matching progress. The
-  scheduler command then runs the dry-run scheduler against the matching
-  render-status manifest, writes the scheduler report, and can print that report
-  as JSON for a Mac app or automation runner. The
+  manifest only when missing, and never resets existing matching progress.
+  Scheduler commands then run against matching status manifests, write scheduler
+  reports bound to final status, and can print those reports as JSON for a Mac
+  app or automation runner. The
   `inspect-render-workspace` command is read-only and summarizes current render
   state before initialization, after scheduling, or during retry/review loops.
 - `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
@@ -152,7 +152,9 @@ This repo currently contains the first testable core utilities:
   requires explicit review before retrying a previously retryable job, avoids
   retrying a job that already became retryable in the same run, and returns
   explicit complete/blocked/retryable/failed/waiting state for Mac shells and
-  background agents.
+  background agents. It can persist `production_scheduler_report.json` with
+  completed, retryable, failed, blocked, attempted, review-required, materialized
+  output, and failure-message details bound to the final production status.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
@@ -310,6 +312,7 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-production-scheduler \
   --worker dry-run-production-local \
   --started-at 2026-05-07T15:59:00Z \
   --completed-at 2026-05-07T15:59:05Z \
+  --generated-at 2026-05-07T15:59:06Z \
   --max-concurrency 3 \
   --max-iterations 10
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
@@ -332,7 +335,9 @@ matches the verified ingest manifest. The dry-run production scheduler then
 advances only dependency-ready jobs from that trusted status file, reports
 retryable or blocked jobs for review, retries prior retryable jobs only when
 their IDs are explicitly supplied with `--retryable-job`, and does not retry a
-newly retryable job in the same run. The render-status init command writes only
+newly retryable job in the same run. It writes
+`production_scheduler_report.json` so UI and continuation layers can inspect the
+last run without rerunning worker orchestration. The render-status init command writes only
 metadata under `deliverables/`, never deletes media, and fails rather than
 overwriting an existing status manifest that no longer matches the trusted
 render-task plan.

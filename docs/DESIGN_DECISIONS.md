@@ -353,7 +353,11 @@ High quality depends on scene-level consistency and reversible edits. The system
   trusted `ProductionPlan`, dispatches a dry-run batch with a caller-supplied
   concurrency cap, and stops when the status is complete, blocked, failed,
   waiting, or retryable work needs review. Previously retryable jobs are skipped
-  unless their IDs are explicitly supplied as reviewed retry candidates.
+  unless their IDs are explicitly supplied as reviewed retry candidates. The
+  persisted `production_scheduler_report.json` is validated against the trusted
+  production plan and final `production_status.json`, then records attempted,
+  skipped retryable, completed, retryable, failed, blocked, review-required,
+  materialized-output, and failure-message details for UI/continuation review.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

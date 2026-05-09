@@ -145,7 +145,11 @@ The current core models a concrete promise for high-volume users:
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
     require an explicit reviewed retry ID before the scheduler will attempt them
-    again.
+    again. It also writes `production_scheduler_report.json`, a strict run
+    record bound to the production-plan fingerprint and final
+    `production_status.json`, so the next UI or background agent can inspect
+    materialized outputs and review-required jobs without rerunning scheduler
+    logic.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
