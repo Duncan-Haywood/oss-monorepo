@@ -337,7 +337,7 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(printed_summary["destination"]["free_bytes"], 900 * 1024**3)
         self.assertFalse(printed_summary["destination"]["is_removable"])
         self.assertEqual(
-            [candidate["name"] for candidate in printed_summary["discovered_candidates"]],
+            sorted(candidate["name"] for candidate in printed_summary["discovered_candidates"]),
             ["EOS_DIGITAL", "StudioRaid"],
         )
 
@@ -369,6 +369,46 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("free_bytes cannot be negative", stderr.getvalue())
+
+    def test_plan_import_route_command_rejects_inconsistent_native_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
 
     def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -918,6 +958,50 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
 
 
 class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
+    def test_card_dump_workflow_rejects_inconsistent_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "metadata-error",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
+
     def test_card_dump_workflow_uses_native_volume_metadata_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

@@ -60,7 +60,7 @@ def discover_storage_candidates(
                     is_read_only=_candidate_is_read_only(child, child_metadata),
                 )
             )
-    return sorted(candidates, key=lambda candidate: candidate.name.casefold())
+    return candidates
 
 
 def discover_import_route(

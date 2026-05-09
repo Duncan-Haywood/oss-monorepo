@@ -586,10 +586,14 @@ def _volume_metadata_from_json_entry(
     raw_path = raw_volume.get("path")
     if not isinstance(raw_path, str) or not raw_path.strip():
         raise ShootFlowCliError(f"Volume metadata path must be a non-empty string: {index}")
+    free_bytes = _optional_metadata_int(raw_volume, "free_bytes")
+    total_bytes = _optional_metadata_int(raw_volume, "total_bytes")
+    if free_bytes is not None and total_bytes is not None and free_bytes > total_bytes:
+        raise ShootFlowCliError("free_bytes cannot exceed total_bytes")
     return Path(raw_path), DiscoveredVolumeMetadata(
         name=_optional_metadata_string(raw_volume, "name"),
-        free_bytes=_optional_metadata_int(raw_volume, "free_bytes"),
-        total_bytes=_optional_metadata_int(raw_volume, "total_bytes"),
+        free_bytes=free_bytes,
+        total_bytes=total_bytes,
         is_removable=_optional_metadata_bool(raw_volume, "is_removable"),
         is_read_only=_optional_metadata_bool(raw_volume, "is_read_only"),
     )

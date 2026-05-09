@@ -54,14 +54,31 @@ class StorageDiscoveryTest(unittest.TestCase):
                 },
             )
 
-        self.assertEqual(candidates[0].name, "EOS_DIGITAL")
-        self.assertEqual(candidates[0].free_bytes, 4 * 1024**3)
-        self.assertEqual(candidates[0].total_bytes, 128 * 1024**3)
-        self.assertTrue(candidates[0].is_removable)
-        self.assertTrue(candidates[0].is_read_only)
-        self.assertEqual(candidates[1].name, "StudioRaid")
-        self.assertFalse(candidates[1].is_removable)
-        self.assertFalse(candidates[1].is_read_only)
+        candidates_by_name = {candidate.name: candidate for candidate in candidates}
+        card_candidate = candidates_by_name["EOS_DIGITAL"]
+        ssd_candidate = candidates_by_name["StudioRaid"]
+        self.assertEqual(card_candidate.free_bytes, 4 * 1024**3)
+        self.assertEqual(card_candidate.total_bytes, 128 * 1024**3)
+        self.assertTrue(card_candidate.is_removable)
+        self.assertTrue(card_candidate.is_read_only)
+        self.assertFalse(ssd_candidate.is_removable)
+        self.assertFalse(ssd_candidate.is_read_only)
+
+    def test_discovery_preserves_volume_root_order_without_metadata(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            first_root = workspace / "FirstRoot"
+            second_root = workspace / "SecondRoot"
+            first_card = first_root / "ZZZ_EOS"
+            second_card = second_root / "AAA_EOS"
+            (first_card / "DCIM").mkdir(parents=True)
+            (second_card / "DCIM").mkdir(parents=True)
+
+            candidates = discover_storage_candidates([first_root, second_root])
+            recommendation = discover_import_route([first_root, second_root])
+
+        self.assertEqual([candidate.name for candidate in candidates], ["ZZZ_EOS", "AAA_EOS"])
+        self.assertEqual(recommendation.source.candidate.name, "ZZZ_EOS")
 
     def test_discover_import_route_uses_native_metadata_for_capacity_gating(self):
         with tempfile.TemporaryDirectory() as root:
