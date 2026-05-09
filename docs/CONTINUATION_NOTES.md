@@ -19,6 +19,22 @@ This run advanced the metrics-consumption target from the previous handoff:
 - Added regression coverage for render and production health payloads plus
   workspace-index scheduler summaries/CLI output.
 
+Branch reconciliation for this run:
+
+- Fetched and pruned remote branches. The many historical cursor branches from
+  earlier runs had already been removed upstream after prior consolidation.
+- The newly visible `origin/cursor/branch-consolidation-fedb` had no unique
+  commits beyond the verified baseline; comparing it to this branch returned
+  `1 0`, so it is simply behind this run's metrics-consumption commit and was
+  not merged separately.
+- Before the final main fast-forward, `origin/main...HEAD` compared `0 1`: the
+  only new useful work was this run's focused workspace health/index metrics
+  exposure commit.
+- Final verification before merge/push:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 309 tests OK; compileall/diff-check exited 0.
+
 Good next test-first targets:
 
 - Add UI/agent contract tests proving Mac shells render metric counts as
