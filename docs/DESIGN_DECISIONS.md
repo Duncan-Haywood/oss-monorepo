@@ -114,7 +114,10 @@ The repo currently contains a Python core package because it is quick to test an
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
-  contract as the product.
+  contract as the product. The `create-demo-workspace` CLI command exposes this
+  helper as schema-versioned JSON for Mac UI shells, launch-agent smoke tests,
+  GTM demos, and continuation agents without granting new renderer or deletion
+  authority.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -154,9 +157,10 @@ The desired high-quality pipeline is:
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
-    shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
-    flow without constructing trusted render tasks by hand.
+21. Keep a small persisted-manifest demo workspace helper and
+    `create-demo-workspace` CLI command available so Mac UI shells, launch-agent
+    smoke tests, GTM demos, and continuation agents can exercise the
+    init-to-report flow without constructing trusted render tasks by hand.
 22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
 23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 

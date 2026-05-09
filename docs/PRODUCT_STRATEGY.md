@@ -108,9 +108,10 @@ The current core models a concrete promise for high-volume users:
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
-    helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
-    handoff as real shoots.
+22. Create repeatable persisted-manifest smoke/demo workspaces through
+    `python -m shootflow.cli create-demo-workspace` so Mac UI shells, GTM demos,
+    and continuation agents exercise the same init/status/scheduler handoff as
+    real shoots without importing Python internals.
 23. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -180,7 +181,9 @@ to automate.
    scheduler, write that report, and can print JSON summaries for a Mac app or
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
-   without bypassing the real init/status/scheduler path.
+   without bypassing the real init/status/scheduler path, and the
+   `create-demo-workspace` CLI command exposes that handoff directly for native
+   shells and continuation agents.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 

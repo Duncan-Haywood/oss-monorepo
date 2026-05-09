@@ -8,6 +8,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the public persisted-render demo CLI handoff:
+  - `python -m shootflow.cli create-demo-workspace --workspace <dir>` wraps
+    `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)`;
+  - the command prints schema-versioned JSON with the workspace path,
+    `deliverables/render_tasks.json` path, shoot slug, render task count,
+    required completed dependency IDs, expected output paths, safety notes, and
+    next-step hints;
+  - the command creates only deterministic placeholder analysis/graded inputs
+    plus the trusted render-task manifest, leaving render status, scheduler
+    reports, deliverable outputs, source media, and ingest manifests to their
+    normal commands;
+  - conflict failures use the existing `shootflow: <message>` stderr pattern and
+    preserve user-owned files without creating `render_tasks.json`.
+- Added CLI tests covering the public JSON handoff, a CLI-only
+  `create-demo-workspace -> init-render-status -> dry-run-render-scheduler`
+  smoke flow, and conflict rejection without overwrite side effects.
+- Updated README/product/business/design docs and added a focused design note at
+  `docs/superpowers/specs/2026-05-09-cli-demo-workspace-command-design.md`.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

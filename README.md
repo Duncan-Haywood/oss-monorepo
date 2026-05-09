@@ -75,7 +75,10 @@ This repo currently contains the first testable core utilities:
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
   different files, and leaves render-status/report creation to the normal CLI
-  commands so existing progress is not reset.
+  commands so existing progress is not reset. `shootflow.cli` exposes this as
+  `python -m shootflow.cli create-demo-workspace` so Mac UI shells, GTM demos,
+  and continuation agents can create the handoff without importing Python
+  internals.
 - `shootflow.storage` ranks possible source and destination drives
   conservatively, then can recommend a review-required import route from a
   likely camera card/source to a writable SSD/local destination without granting
@@ -172,10 +175,10 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
-    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
-    GTM demos, and continuation agents without touching source media or resetting
-    render progress.
+21. Use `python -m shootflow.cli create-demo-workspace` to build a safe,
+    repeatable persisted-manifest smoke workspace for Mac UI shells, GTM demos,
+    and continuation agents without touching source media or resetting render
+    progress.
 
 The current persisted-manifest CLI flow is:
 
@@ -192,6 +195,39 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
+
+The CLI demo workspace flow is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace \
+  --workspace /tmp/shootflow-demo \
+  --shoot-slug cli-demo-shoot
+
+PYTHONPATH=src python3 -m shootflow.cli init-render-status \
+  --workspace /tmp/shootflow-demo
+
+PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler \
+  --workspace /tmp/shootflow-demo \
+  --completed-dependency rank_instagram_storylines \
+  --completed-dependency grade_asset_00000 \
+  --completed-dependency grade_asset_00001 \
+  --completed-dependency grade_asset_00002 \
+  --completed-dependency grade_asset_00003 \
+  --renderer dry-run-local \
+  --started-at 2026-05-09T05:30:00Z \
+  --completed-at 2026-05-09T05:30:05Z \
+  --generated-at 2026-05-09T05:30:06Z \
+  --max-concurrency 3 \
+  --max-iterations 4 \
+  --print-report
+```
+
+The demo command prints schema-versioned JSON with the render-task manifest
+path, required completed dependency IDs, expected deliverable output paths,
+safety notes, and next-step hints. It creates only placeholder analysis/graded
+inputs plus `deliverables/render_tasks.json`; status, scheduler reports,
+deliverable outputs, source media, and ingest manifests are still created only
+by their normal commands.
 
 The import-route planning flow is:
 
