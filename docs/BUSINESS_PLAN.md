@@ -51,7 +51,17 @@ Why this wedge wins:
   parallel work, and IG deliverables before downstream jobs write artifacts.
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
-  reporting together for Mac app shells and demos.
+  reporting together for Mac app shells and demos, plus a synthetic
+  card-dump-to-render smoke workspace that proves the same path without real
+  media.
+- Resumable `production_status.json` initialization for pre-render proxy,
+  analysis, grading, storyline, and packaging work, bound to the verified
+  manifest-backed production plan, plus a status-backed next-wave handoff so
+  workers can resume from durable succeeded/running/failed/retryable state
+  instead of trusting caller-reported completion lists.
+- Production-worker action/status helpers that plan dependency-ready jobs from
+  trusted status, claim a matching attempt, verify declared outputs before
+  success, and report retry/failure without cleanup or deletion authority.
 - A workspace index handoff that summarizes trusted artifacts and review state
   for Mac app shells, background agents, and continuation runs without granting
   new media-write or deletion authority.
@@ -180,15 +190,17 @@ Run practical experiments tied to this ICP-first plan:
    read-only post-ingest summary. The `card-dump-workflow` command combines
    those steps into one native-shell contract, so the next step is binding it to
    a SwiftUI/menu-bar approval screen before AI/color work starts.
-2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in both `shootflow.demo_workspace` and the real
-   `write-render-tasks` CLI handoff; next, connect `card-dump-workflow` with
-   trusted storyline/graded fixtures so one smoke path runs from detected card
-   to persisted render tasks, status initialization, scheduler report, and
-   reviewable outputs. `index-workspace` provides the UI/agent state snapshot
-   and `inspect-render-workspace` provides the safe read-only state probe
-   before initialization and after scheduler runs.
-3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
-4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-5. Instrument key product metrics at scheduler/report boundaries.
-6. Start proof-based GTM content showing real workflows and outcomes.
+2. Extend the post-ingest report toward native UI proof. The render-task half
+   now exists in both `shootflow.demo_workspace` and the real
+   `write-render-tasks` CLI handoff, and the synthetic card-dump demo now runs
+   from detected card to checksum ingest, persisted render tasks, status
+   initialization, scheduler report, and reviewable outputs. `index-workspace`
+   provides the UI/agent state snapshot and `inspect-render-workspace` provides
+   the safe read-only state probe before initialization and after scheduler runs.
+3. Add production-worker transition helpers around `production_status.json` so
+   proxy/VLM/grading/story jobs can claim, succeed, retry, or fail through the
+   same stale-safe pattern already proven on render status.
+4. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+5. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
+6. Instrument key product metrics at scheduler/report boundaries.
+7. Start proof-based GTM content showing real workflows and outcomes.

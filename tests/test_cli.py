@@ -27,6 +27,450 @@ from shootflow.story import ContentSequence, StorylinePlan, write_storyline_arti
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_create_demo_workspace_command_outputs_scheduler_handoff(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "launch-demo",
+                ],
+                stdout=stdout,
+            )
+            self.assertEqual(exit_code, 0)
+            report = json.loads(stdout.getvalue())
+            render_tasks_manifest_exists = Path(report["render_tasks_manifest_path"]).exists()
+
+            init_stdout = io.StringIO()
+            init_exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=init_stdout,
+            )
+            scheduler_stdout = io.StringIO()
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(workspace),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-09T05:30:00Z",
+                "--completed-at",
+                "2026-05-09T05:30:05Z",
+                "--generated-at",
+                "2026-05-09T05:30:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+                "--print-report",
+            ]
+            for dependency_id in report["required_completed_dependency_ids"]:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+            scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
+
+        scheduler_report = json.loads(scheduler_stdout.getvalue())
+        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["workspace"], str(workspace))
+        self.assertEqual(report["shoot_slug"], "launch-demo")
+        self.assertEqual(report["render_task_count"], 4)
+        self.assertTrue(render_tasks_manifest_exists)
+        self.assertEqual(
+            report["required_completed_dependency_ids"],
+            [
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+                "grade_asset_00002",
+                "grade_asset_00003",
+            ],
+        )
+        self.assertEqual(
+            report["expected_output_paths"],
+            [
+                "deliverables/instagram_reel.mp4",
+                "deliverables/instagram_reels/hero.mp4",
+                "deliverables/instagram_carousel/slide_00001.jpg",
+                "deliverables/instagram_carousel/slide_00002.jpg",
+                "deliverables/instagram_photo_set/photo_00001.jpg",
+                "deliverables/instagram_photo_set/photo_00002.jpg",
+            ],
+        )
+        self.assertIn("init-render-status", report["next_steps"][0])
+        self.assertIn("dry-run-render-scheduler", report["next_steps"][1])
+        self.assertEqual(init_exit_code, 0)
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(scheduler_report["outputs_materialized"], report["expected_output_paths"])
+
+    def test_create_demo_workspace_command_rejects_existing_input_without_side_effects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            storyline_path = workspace / "analysis" / "instagram_storylines.json"
+            storyline_path.parent.mkdir(parents=True)
+            storyline_path.write_bytes(b"user-owned storyline")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing to overwrite", stderr.getvalue())
+            self.assertEqual(storyline_path.read_bytes(), b"user-owned storyline")
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+
+    def test_create_demo_workspace_command_rejects_unsafe_manifest_path_without_demo_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside-deliverables"
+            outside.mkdir()
+            (workspace / "deliverables").symlink_to(outside, target_is_directory=True)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("render task manifest directory", stderr.getvalue())
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "graded" / "grade_asset_00000" / "A001.MOV").exists())
+            self.assertFalse((outside / "render_tasks.json").exists())
+
+    def test_card_dump_demo_workspace_runs_detected_card_to_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_stdout = io.StringIO()
+
+            create_exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "demo-wedding",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                ],
+                stdout=create_stdout,
+            )
+            self.assertEqual(create_exit_code, 0)
+            create_report = json.loads(create_stdout.getvalue())
+            shoot_folder = Path(create_report["shoot_folder"])
+            manifest_exists = (shoot_folder / "ingest_manifest.json").exists()
+            render_tasks_exists = (shoot_folder / "deliverables" / "render_tasks.json").exists()
+            render_status_exists_before_init = (shoot_folder / "deliverables" / "render_status.json").exists()
+            source_video_bytes = (Path(create_report["source_volume"]) / "PRIVATE" / "A001.MOV").read_bytes()
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+
+            init_exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(shoot_folder),
+                ],
+                stdout=init_stdout,
+            )
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(shoot_folder),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-08T17:00:00Z",
+                "--completed-at",
+                "2026-05-08T17:00:05Z",
+                "--generated-at",
+                "2026-05-08T17:00:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+                "--print-report",
+            ]
+            for dependency_id in create_report["required_completed_dependency_ids"]:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+
+            scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
+
+        init_summary = json.loads(init_stdout.getvalue())
+        printed_scheduler_report = json.loads(scheduler_stdout.getvalue())
+        self.assertEqual(create_report["schema_version"], 1)
+        self.assertEqual(create_report["card_dump"]["status"], "ingest_complete")
+        self.assertTrue(create_report["card_dump"]["ingest_executed"])
+        self.assertEqual(create_report["card_dump"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
+        self.assertTrue(manifest_exists)
+        self.assertTrue(render_tasks_exists)
+        self.assertFalse(render_status_exists_before_init)
+        self.assertEqual(source_video_bytes, b"video-bytes")
+        self.assertIn("card-dump demo source media was not deleted", create_report["safety_notes"])
+        self.assertEqual(init_exit_code, 0)
+        self.assertTrue(init_summary["created"])
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(printed_scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(printed_scheduler_report["outputs_materialized"], create_report["expected_output_paths"])
+        self.assertEqual(printed_scheduler_report["review_required_task_ids"], [])
+
+    def test_card_dump_demo_workspace_refuses_to_overwrite_existing_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            existing_source = workspace / "Volumes" / "EOS_DIGITAL" / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            existing_source.parent.mkdir(parents=True)
+            existing_source.write_bytes(b"user-owned-photo")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing to overwrite existing different demo source file", stderr.getvalue())
+            self.assertEqual(existing_source.read_bytes(), b"user-owned-photo")
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7" / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_refuses_unexpected_sibling_volume(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            sibling_media = workspace / "Volumes" / "OTHER_CARD" / "DCIM" / "100EOS5D" / "IMG_9999.JPG"
+            sibling_media.parent.mkdir(parents=True)
+            sibling_media.write_bytes(b"not-demo-media")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo volume entry", stderr.getvalue())
+            self.assertEqual(sibling_media.read_bytes(), b"not-demo-media")
+            self.assertFalse((workspace / "Volumes" / "EOS_DIGITAL").exists())
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7").exists())
+
+    def test_card_dump_demo_workspace_refuses_unexpected_source_media(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            extra_media = workspace / "Volumes" / "EOS_DIGITAL" / "DCIM" / "100EOS5D" / "EXTRA.MOV"
+            extra_media.parent.mkdir(parents=True)
+            extra_media.write_bytes(b"user-extra-video")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo source media", stderr.getvalue())
+            self.assertEqual(extra_media.read_bytes(), b"user-extra-video")
+            self.assertFalse((workspace / "Volumes" / "Samsung_T7" / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_rejects_symlinked_volume_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside-volumes"
+            outside.mkdir()
+            (workspace / "Volumes").symlink_to(outside, target_is_directory=True)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("demo volume root must be a directory", stderr.getvalue())
+            self.assertEqual(list(outside.iterdir()), [])
+
+    def test_card_dump_demo_workspace_refuses_existing_destination_shoot_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            existing_shoot_note = (
+                workspace
+                / "Volumes"
+                / "Samsung_T7"
+                / "ShootFlow"
+                / "2026-05-08_cli-demo-shoot"
+                / "notes"
+                / "client.txt"
+            )
+            existing_shoot_note.parent.mkdir(parents=True)
+            existing_shoot_note.write_text("real client notes")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing existing demo destination shoot folder", stderr.getvalue())
+            self.assertEqual(existing_shoot_note.read_text(), "real client notes")
+            self.assertFalse((existing_shoot_note.parents[1] / "ingest_manifest.json").exists())
+            self.assertFalse((existing_shoot_note.parents[1] / "deliverables").exists())
+
+    def test_card_dump_demo_workspace_refuses_existing_allowed_volume_user_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            source_note = workspace / "Volumes" / "EOS_DIGITAL" / "MISC" / "OWNER.TXT"
+            destination_note = workspace / "Volumes" / "Samsung_T7" / "ExistingProject" / "client.txt"
+            source_note.parent.mkdir(parents=True)
+            destination_note.parent.mkdir(parents=True)
+            source_note.write_text("real card note")
+            destination_note.write_text("real destination note")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Unexpected demo", stderr.getvalue())
+            self.assertEqual(source_note.read_text(), "real card note")
+            self.assertEqual(destination_note.read_text(), "real destination note")
+            self.assertFalse((source_note.parents[1] / "DCIM").exists())
+            self.assertFalse((destination_note.parents[1] / "ShootFlow").exists())
+
+    def test_card_dump_demo_workspace_rejects_invalid_date_before_writing_media(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-date",
+                    "not-a-date",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("shoot_date must be an ISO-8601 date", stderr.getvalue())
+            self.assertFalse((workspace / "Volumes").exists())
+
+    def test_card_dump_demo_workspace_uses_synthetic_capacity_hints(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            with patch("shootflow.storage_discovery._read_filesystem_stats", return_value=(1, 1)):
+                exit_code = main(
+                    [
+                        "create-card-dump-demo-workspace",
+                        "--workspace",
+                        str(workspace),
+                    ],
+                    stdout=stdout,
+                )
+
+            self.assertEqual(exit_code, 0)
+            report = json.loads(stdout.getvalue())
+            self.assertEqual(report["card_dump"]["status"], "ingest_complete")
+
+    def test_card_dump_demo_workspace_rejects_symlinked_workspace_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            real_parent = Path(tmp) / "real-parent"
+            real_parent.mkdir()
+            linked_parent = Path(tmp) / "linked-parent"
+            linked_parent.symlink_to(real_parent, target_is_directory=True)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-card-dump-demo-workspace",
+                    "--workspace",
+                    str(linked_parent / "demo"),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing symlinked demo workspace path", stderr.getvalue())
+            self.assertFalse((real_parent / "demo").exists())
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -687,6 +1131,177 @@ class ShootFlowCliTests(unittest.TestCase):
             [candidate["name"] for candidate in printed_summary["discovered_candidates"]],
             ["EOS_DIGITAL", "Samsung_T7"],
         )
+
+    def test_plan_import_route_command_uses_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "Untitled"
+            ssd = volumes / "StudioRaid"
+            metadata_path = workspace / "volume_metadata.json"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(card),
+                                "name": "EOS_DIGITAL",
+                                "free_bytes": 4 * 1024**3,
+                                "total_bytes": 128 * 1024**3,
+                                "is_removable": True,
+                                "is_read_only": True,
+                            },
+                            {
+                                "path": str(ssd),
+                                "free_bytes": 900 * 1024**3,
+                                "total_bytes": 2 * 1024**4,
+                                "is_removable": False,
+                                "is_read_only": False,
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--expected-import-bytes",
+                    str(100 * 1024**3),
+                    "--headroom-bytes",
+                    "0",
+                    "--print-candidates",
+                ],
+                stdout=stdout,
+            )
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["status"], "ready_for_review")
+        self.assertEqual(printed_summary["source"]["name"], "EOS_DIGITAL")
+        self.assertEqual(printed_summary["destination"]["name"], "StudioRaid")
+        self.assertEqual(printed_summary["destination"]["free_bytes"], 900 * 1024**3)
+        self.assertFalse(printed_summary["destination"]["is_removable"])
+        self.assertEqual(
+            sorted(candidate["name"] for candidate in printed_summary["discovered_candidates"]),
+            ["EOS_DIGITAL", "StudioRaid"],
+        )
+
+    def test_plan_import_route_command_rejects_invalid_native_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volumes.mkdir()
+            metadata_path = workspace / "volume_metadata.json"
+            metadata_path.write_text(
+                json.dumps({"volumes": [{"path": str(volumes), "free_bytes": -1}]}),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot be negative", stderr.getvalue())
+
+    def test_plan_import_route_command_rejects_inconsistent_native_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
+
+    def test_plan_import_route_command_rejects_partial_metadata_capacity_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 10**30,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("candidate free_bytes cannot exceed total_bytes", stderr.getvalue())
 
     def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1709,6 +2324,113 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
 
 
 class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
+    def test_card_dump_workflow_rejects_inconsistent_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 20,
+                                "total_bytes": 10,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "metadata-error",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
+
+    def test_card_dump_workflow_uses_native_volume_metadata_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "Untitled"
+            ssd = volumes / "StudioRaid"
+            metadata_path = workspace / "volume_metadata.json"
+            photo = card / "DCIM" / "100CANON" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(card),
+                                "name": "EOS_DIGITAL",
+                                "free_bytes": 4 * 1024**3,
+                                "total_bytes": 128 * 1024**3,
+                                "is_removable": True,
+                                "is_read_only": True,
+                            },
+                            {
+                                "path": str(ssd),
+                                "free_bytes": 900 * 1024**3,
+                                "total_bytes": 2 * 1024**4,
+                                "is_removable": False,
+                                "is_read_only": False,
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "metadata-preview",
+                    "--headroom-bytes",
+                    "0",
+                ],
+                stdout=stdout,
+            )
+
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["status"], "ready_for_review")
+        self.assertEqual(report["route"]["source"]["name"], "EOS_DIGITAL")
+        self.assertEqual(report["route"]["destination"]["name"], "StudioRaid")
+        self.assertEqual(report["route"]["destination"]["free_bytes"], 900 * 1024**3)
+        self.assertFalse(report["route"]["destination"]["is_removable"])
+        self.assertEqual(report["preview"]["item_count"], 1)
+
     def test_card_dump_workflow_previews_route_without_copying(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

@@ -52,6 +52,28 @@ The repo currently contains a Python core package because it is quick to test an
   parallel/serial wave shape, and planned Instagram deliverables without writing analysis, graded, render,
   status, or deliverable files. This gives the future Mac UI a safe "what happens next" screen between
   card offload and AI/color execution.
+- `shootflow.production_status`: durable pre-render production progress. It
+  initializes and validates `production_status.json` against the deterministic
+  production-plan fingerprint, preserving pending/running/succeeded/failed/
+  retryable job state for proxy, analysis, grading, storyline, and packaging
+  workers without granting cleanup or media-write authority. Single-job
+  compare/write updates take the same local lock, check expected state/attempt
+  and optional lease timestamp, replace exactly one status, and reject stale
+  workers before they can clobber newer progress.
+- `shootflow.production_worker`: the safe pre-render worker contract. It consumes
+  only a trusted `ProductionPlan` plus matching `ProductionStatusManifest`, plans
+  dependency-ready pending/retryable jobs, keeps blocked jobs visible with missing
+  dependencies, claims one action as running, verifies declared output files
+  before success, and reports retry/failure statuses without deleting source,
+  graded, render, or deliverable files.
+- `shootflow.production_handoff`: the read-only bridge between plan review and
+  actual proxy/VLM/color/story workers. It can still derive a next wave from
+  caller-reported completed IDs for simple demos, but the product path now reads
+  trusted `production_status.json` via
+  `plan_next_production_wave_from_status(...)`, treating succeeded jobs as
+  completed, pending/retryable jobs as schedulable when dependencies are
+  satisfied, and running/failed jobs as non-schedulable state that remains
+  visible for UI or agent review.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -168,7 +190,9 @@ The repo currently contains a Python core package because it is quick to test an
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
-  contract as the product.
+  contract as the product. Its card-dump demo variant first builds synthetic
+  card/SSD volumes, runs the real confirmed checksum ingest workflow, then seeds
+  the ingested shoot folder with the same render-task demo handoff.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -217,15 +241,23 @@ The desired high-quality pipeline is:
     authority.
 22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
-    flow without constructing trusted render tasks by hand.
-22. Build a workspace index after ingest, scheduling, or retries so UI and
+    flow without constructing trusted render tasks by hand; use the card-dump
+    demo variant when the demo must also cover route discovery and checksum ingest.
+23. Initialize production-status manifests from verified ingest manifests so
+    pre-render workers can resume production waves without confusing
+    caller-reported completed IDs with durable job progress.
+24. Use production-worker action/status helpers to claim proxy/VLM/color/story
+    jobs from trusted status, checksum declared outputs before success, and
+    report retry/failure without giving workers file cleanup or deletion
+    authority.
+25. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-23. Compare metadata-only render input fingerprints across health/index snapshots
+26. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.
-24. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-25. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+27. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+28. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -263,13 +295,23 @@ High quality depends on scene-level consistency and reversible edits. The system
   originals, which keeps social assembly downstream of the color pipeline.
 - `shootflow.production_handoff` is the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It reloads the verified ingest manifest,
-  rebuilds the deterministic production plan, canonicalizes caller-reported
-  completed job IDs into plan order, rejects unknown IDs, duplicates, and
-  completed jobs whose dependencies are not also complete, then returns the next
-  ready wave. It deliberately writes no analysis, graded, render-task, status,
-  scheduler-report, or deliverable files; a future production-status manifest
-  should replace caller-reported completions before real worker retries become
-  automatic.
+  rebuilds the deterministic production plan, canonicalizes completed job IDs
+  into plan order, rejects unknown IDs, duplicates, and completed jobs whose
+  dependencies are not also complete, then returns the next ready wave. The
+  legacy path accepts caller-reported completed IDs for simple demos; the product
+  path loads the matching trusted `production_status.json` and derives completed
+  IDs from succeeded statuses. It deliberately writes no analysis, graded,
+  render-task, status, scheduler-report, or deliverable files.
+- `shootflow.production_worker` is the mutation boundary after the read-only
+  production handoff. It accepts only a trusted production plan plus matching
+  status manifest, schedules pending/retryable jobs whose dependencies have
+  succeeded, and returns blocked-job reasons for UI/agent visibility. Workers can
+  claim a matching pending/retryable status as running, report success only after
+  every declared output file exists and checksums, or report retry/failure with a
+  clear error message. Persisted status transitions should use
+  `compare_and_write_production_job_status(...)`, which checks expected state,
+  attempt, and optional `updated_at` lease token while holding the local status
+  lock.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

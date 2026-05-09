@@ -19,13 +19,8 @@ Requires Python 3.10+. The VM ships with Python 3.12.3, which works.
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-<<<<<<< HEAD
-All 195 tests use `unittest` (stdlib). No pytest, no test dependencies. The
-`PYTHONPATH=src` prefix is required so `import shootflow` resolves.
-=======
 All committed tests use `unittest` (stdlib). No pytest, no test dependencies.
 The `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
->>>>>>> origin/cursor/ai-media-operating-system-ad50
 
 ### Running the CLI
 
@@ -33,13 +28,12 @@ The `PYTHONPATH=src` prefix is required so `import shootflow` resolves.
 PYTHONPATH=src python3 -m shootflow.cli --help
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route --volume-root <dir> ...
-<<<<<<< HEAD
 PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli write-render-tasks --ingest-manifest <path>
-=======
 PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
->>>>>>> origin/cursor/ai-media-operating-system-ad50
+PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
+PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
 ```
 

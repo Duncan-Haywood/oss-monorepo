@@ -12,9 +12,15 @@ from shootflow.storage import (
 )
 
 
+class StorageDiscoveryError(ValueError):
+    """Raised when mounted-volume discovery inputs cannot produce trusted candidates."""
+
+
 @dataclass(frozen=True)
 class VolumeDiscoveryHint:
     display_name: str | None = None
+    free_bytes: int | None = None
+    total_bytes: int | None = None
     is_removable: bool | None = None
     is_read_only: bool | None = None
 
@@ -45,8 +51,8 @@ def discover_storage_candidates(
             stats = _read_filesystem_stats(child)
             if stats is None:
                 continue
-            free_bytes, total_bytes = stats
             hint = _hint_for_volume(child, volume_hints)
+            free_bytes, total_bytes = _candidate_capacity(stats, hint)
             filesystem_is_read_only = not os.access(child, os.W_OK)
             candidates.append(
                 StorageCandidate(
@@ -90,7 +96,7 @@ def _validate_volume_roots(volume_roots: list[Path]) -> None:
     if not isinstance(volume_roots, list):
         raise TypeError("volume_roots must be a list of Path objects")
     if not volume_roots:
-        raise ValueError("volume_roots cannot be empty")
+        raise StorageDiscoveryError("volume_roots cannot be empty")
     for root in volume_roots:
         if not isinstance(root, Path):
             raise TypeError("volume_roots must contain only Path objects")
@@ -122,7 +128,16 @@ def _validate_volume_hints(volume_hints: dict[Path, VolumeDiscoveryHint] | None)
             if not isinstance(hint.display_name, str):
                 raise TypeError("VolumeDiscoveryHint.display_name must be a string when provided")
             if not hint.display_name.strip():
-                raise ValueError("VolumeDiscoveryHint.display_name cannot be blank")
+                raise StorageDiscoveryError("VolumeDiscoveryHint.display_name cannot be blank")
+        for key, value in (("free_bytes", hint.free_bytes), ("total_bytes", hint.total_bytes)):
+            if value is None:
+                continue
+            if type(value) is not int:
+                raise TypeError(f"VolumeDiscoveryHint.{key} must be an integer when provided")
+            if value < 0:
+                raise StorageDiscoveryError(f"VolumeDiscoveryHint.{key} cannot be negative")
+        if hint.free_bytes is not None and hint.total_bytes is not None and hint.free_bytes > hint.total_bytes:
+            raise StorageDiscoveryError("free_bytes cannot exceed total_bytes")
         if hint.is_removable is not None and not isinstance(hint.is_removable, bool):
             raise TypeError("VolumeDiscoveryHint.is_removable must be a boolean when provided")
         if hint.is_read_only is not None and not isinstance(hint.is_read_only, bool):
@@ -145,6 +160,20 @@ def _candidate_name(volume_path: Path, hint: VolumeDiscoveryHint | None) -> str:
     if hint is not None and hint.display_name is not None:
         return hint.display_name.strip()
     return volume_path.name
+
+
+def _candidate_capacity(
+    stats: tuple[int, int],
+    hint: VolumeDiscoveryHint | None,
+) -> tuple[int, int]:
+    fallback_free_bytes, fallback_total_bytes = stats
+    if hint is None:
+        return fallback_free_bytes, fallback_total_bytes
+    free_bytes = hint.free_bytes if hint.free_bytes is not None else fallback_free_bytes
+    total_bytes = hint.total_bytes if hint.total_bytes is not None else fallback_total_bytes
+    if free_bytes > total_bytes:
+        raise StorageDiscoveryError("candidate free_bytes cannot exceed total_bytes")
+    return free_bytes, total_bytes
 
 
 def _candidate_is_removable(hint: VolumeDiscoveryHint | None) -> bool:

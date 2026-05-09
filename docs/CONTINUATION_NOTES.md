@@ -2,6 +2,142 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 15:30 UTC
+
+This run advanced the pre-render production execution boundary that the previous
+run identified as the next test-first target:
+
+- Added `compare_and_write_production_job_status(...)` plus
+  `ProductionStatusPreconditionError`, giving `production_status.json` the same
+  single-job guarded update shape as render status: local advisory lock,
+  validated reload, expected state/attempt check, optional `updated_at` lease
+  token, replacement of exactly one status, and no reset of unrelated progress.
+- Added `shootflow.production_worker`, a renderer-neutral production worker
+  contract for proxy/VLM/color/story/package jobs. It plans dependency-ready
+  pending/retryable jobs from a trusted `ProductionPlan` and matching
+  `ProductionStatusManifest`, reports blocked jobs with missing dependencies,
+  claims one matching action as running, verifies declared output files before
+  success, and reports retry/failure states without cleanup or deletion
+  authority.
+- Updated README, product strategy, business plan, and design decisions so future
+  runs treat production-worker transitions as implemented infrastructure rather
+  than an unresolved handoff gap.
+
+Branch reconciliation for this run:
+
+- Refreshed `origin/main` before and after implementation. Before this run's new
+  commit, `git branch -r --no-merged origin/main` and
+  `git branch --no-merged origin/main` returned no pre-existing feature branches
+  with work stranded outside main.
+- No older branch work was merged or rejected in this pass because the useful
+  branch work from previous runs was already reachable from `origin/main`.
+- This run's new production-worker work is intentionally left on the assigned
+  branch for the automation PR flow. Cloud branch policy for this session says to
+  push only `cursor/repository-branch-consolidation-d65c`, so do not manually
+  push `main` from this checkout unless a later explicit instruction supersedes
+  that policy.
+
+Good next test-first targets:
+
+- Persist production-worker claim/success/retry/failure transitions through a
+  small adapter/scheduler wrapper that calls
+  `compare_and_write_production_job_status(...)` for each planned action.
+- Add stale-running production lease planning/persistence, mirroring the render
+  lease contract before allowing concurrent local production workers.
+- Add a deterministic dry-run production adapter that materializes placeholder
+  proxy/analysis/look/graded/story outputs only at declared paths, then reports
+  success through the new worker helpers.
+
+## Implementation continuation note - 2026-05-09 15:00 UTC
+
+Branch reconciliation found the active branch already aligned with
+`origin/main`; after `git fetch origin main`, `git branch -r --no-merged
+origin/main` returned no remote feature branches with work stranded outside main.
+The remaining local `main` ref is still stale/behind, so compare future
+reconciliation against `origin/main` unless it is explicitly fast-forwarded.
+
+This run advanced the pre-render production orchestration layer:
+
+- Added `plan_next_production_wave_from_status(...)`, which reloads the verified
+  ingest manifest, rebuilds the deterministic production plan, loads trusted
+  `production_status.json`, derives completed job IDs from succeeded statuses,
+  and returns the next dependency-ready pending/retryable production jobs without
+  writing analysis, graded, render-task, status, scheduler-report, or deliverable
+  files.
+- `ProductionWaveHandoff` now carries `status_source`, `active_job_ids`, and
+  `review_required_job_ids` so UI/agent consumers can distinguish legacy
+  caller-reported progress from durable production status and avoid rescheduling
+  running or failed jobs.
+- `next-production-wave --use-production-status` exposes the durable status path
+  on the CLI and rejects mixing that mode with `--completed-job` arguments.
+- Documentation now treats status-backed next-wave planning as the product path
+  before future production-worker claim/succeed/retry/fail helpers.
+
+Good next test-first target: add production-worker transition helpers analogous
+to the render-worker/status path, so proxy/VLM/grading/story jobs can claim a
+pending/retryable production job, persist guarded status updates, verify declared
+outputs, and report retry/failure without widening file authority or deleting
+source/graded/deliverable media.
+
+## Branch reconciliation note - 2026-05-09 15:00 UTC
+
+This run refreshed remote branch state before implementation. The fetch pruned
+older deleted `media-content-automation-*` branches and surfaced 24 remote
+feature tips still not reachable from `origin/main`. Blindly merging those tips
+would have downgraded the current consolidated core, because most were based on
+the older `f30c6ec` lineage and lacked newer `workspace_health`,
+`workspace_index`, `render_workspace`, demo-workspace hardening, and CLI
+contracts.
+
+Best-work reconciliation decisions:
+
+- Integrated the missing synthetic card-dump-to-render demo workspace from the
+  `ai-media-operating-system-c1c0` line onto the current core:
+  `create-card-dump-demo-workspace` now builds fake card/SSD volumes, runs the
+  real confirmed checksum ingest workflow, writes the resulting
+  `ingest_manifest.json`, seeds deterministic trusted render-task demo inputs,
+  and leaves render-status/scheduler report creation to the normal commands.
+  A late-arriving consolidation branch added extra hardening that is also
+  included here: ISO date validation before writes, synthetic capacity/read-only
+  hints for deterministic routing, destination shoot-folder preflight, refusal of
+  unexpected destination/source entries, and symlinked workspace-parent
+  rejection.
+- Added the storage-discovery regression from the native-volume-hints branches:
+  hints for paths outside reviewed volume roots are ignored and cannot create a
+  source/destination route.
+- Integrated the new resumable `production_status.json` manifest from the
+  production-status branches. It binds pre-render production job progress to the
+  deterministic manifest-backed production-plan fingerprint and exposes
+  `init-production-status --ingest-manifest <path>` without creating analysis,
+  graded, render, or deliverable files.
+- Kept current `macos_volume_metadata`, `storage_discovery`, `card_workflow`,
+  `production_handoff`, `render_workspace`, `workspace_health`, and
+  `workspace_index` implementations instead of replacing them with older branch
+  variants. Those current modules have stricter validation, richer read-only
+  summaries, render-input fingerprinting, and stronger safety tests.
+- Did not add the older standalone `workspace_state` or parallel
+  `render_inspection` modules because their useful read-only state behavior is
+  already covered by the current `workspace_health`, `workspace_index`, and
+  `render_workspace` surfaces. Future work can revisit "inspect outputs after
+  render inputs are archived" as an explicit API change instead of introducing a
+  duplicate inspection command.
+
+Final verification after reconciliation:
+
+```bash
+git diff --check
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests
+PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests
+git branch -r --no-merged origin/main
+git status --short --branch
+```
+
+Result: 256 tests passed, compileall and diff-check exited 0, no remote feature
+branches remained unmerged into `origin/main`, and the working tree was clean.
+Optional `python3 -m ruff check src/ tests/` still reports the two known
+pre-existing unused imports in `tests/test_render_worker.py` and
+`tests/test_story.py`.
+
 ## Branch consolidation note - 2026-05-09 01:00 UTC
 
 The assigned branch `cursor/ai-media-operating-system-9806` started as an
@@ -263,6 +399,28 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
     a next step can move bytes.
 - Extended card-dump CLI tests to pin the handoff contract across blocked,
   preview-only, and confirmed-ingest states.
+- Branch reconciliation notes for this cron run:
+  - remote `main` advanced during the session and already integrated the
+    workspace health/index line, adapter-dispatch registry, render-workspace
+    inspection, card-dump agent handoff, native `VolumeDiscoveryHint` routing,
+    and next-production-wave handoff;
+  - the active branch was rebased by merge onto that advanced `origin/main`
+    rather than pushing over it;
+  - retained the public `create-demo-workspace` CLI handoff from
+    `origin/cursor/ai-media-operating-system-255f` because `main` still lacked a
+    direct native-shell command for creating the trusted persisted demo workspace;
+  - retained strict `--volume-metadata-json` parsing on `plan-import-route` and
+    `card-dump-workflow`, mapped onto the current `VolumeDiscoveryHint` contract,
+    because it gives Swift/Menu Bar shells one file-based handoff for display
+    name, capacity, removable, and read-only facts without granting copy/delete
+    authority;
+  - added `StorageDiscoveryError` so inconsistent native capacity overrides,
+    including partial `free_bytes` overrides that exceed the filesystem total,
+    return the normal `shootflow: ...` CLI error path instead of surfacing a raw
+    traceback;
+  - left older duplicate macOS/metadata/demo/workspace-state branches unmerged
+    unless their exact capability is not represented by advanced `main` plus this
+    branch's demo and metadata-JSON additions.
 
 ## Previous iteration
 

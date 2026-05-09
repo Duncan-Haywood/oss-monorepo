@@ -20,6 +20,13 @@ from shootflow.card_workflow import (
     run_card_dump_workflow,
 )
 from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
+from shootflow.demo_workspace import (
+    CardDumpCliDemoWorkspace,
+    DemoWorkspaceError,
+    PersistedCliDemoWorkspace,
+    create_card_dump_cli_demo_workspace,
+    create_persisted_cli_demo_workspace,
+)
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -34,8 +41,14 @@ from shootflow.production_handoff import (
     ProductionHandoffError,
     ProductionWaveHandoff,
     plan_next_production_wave,
+    plan_next_production_wave_from_status,
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.production_status import (
+    ProductionStatusError,
+    ProductionStatusInitializationResult,
+    initialize_production_status_manifest,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -51,7 +64,12 @@ from shootflow.render_status import (
 )
 from shootflow.render_workspace import RenderWorkspaceError, RenderWorkspaceReport, inspect_render_workspace
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
-from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.storage_discovery import (
+    StorageDiscoveryError,
+    VolumeDiscoveryHint,
+    discover_import_route,
+    discover_storage_candidates,
+)
 from shootflow.story import StoryPlanError
 from shootflow.workspace_health import (
     WorkspaceHealthError,
@@ -109,6 +127,8 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "init-production-status":
+            _run_init_production_status_command(args, stdout=out)
         elif args.command == "write-render-tasks":
             _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "next-production-wave":
@@ -121,6 +141,10 @@ def main(
             _run_index_workspace_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
+        elif args.command == "create-demo-workspace":
+            _run_create_demo_workspace_command(args, stdout=out)
+        elif args.command == "create-card-dump-demo-workspace":
+            _run_create_card_dump_demo_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -133,11 +157,14 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         ProductionHandoffError,
+        ProductionStatusError,
         CardDumpWorkflowError,
         StoryPlanError,
         WorkspaceHealthError,
         WorkspaceIndexError,
         RenderWorkspaceError,
+        DemoWorkspaceError,
+        StorageDiscoveryError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -159,11 +186,12 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
     volume_roots = _parse_volume_roots(args.volume_root)
+    volume_hints = _load_volume_metadata_json(args.volume_metadata_json)
     expected_import_bytes = args.expected_import_bytes
     source_estimate: ImportSourceEstimate | None = None
 
     if args.estimate_source_bytes:
-        initial_recommendation = discover_import_route(volume_roots)
+        initial_recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
         if initial_recommendation.source is not None:
             source_estimate = estimate_import_source(initial_recommendation.source.candidate.path)
             expected_import_bytes = source_estimate.estimated_bytes
@@ -171,6 +199,7 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
                 volume_roots,
                 expected_import_bytes=expected_import_bytes,
                 headroom_bytes=args.headroom_bytes,
+                volume_hints=volume_hints,
             )
         else:
             recommendation = initial_recommendation
@@ -179,13 +208,14 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
             volume_roots,
             expected_import_bytes=expected_import_bytes,
             headroom_bytes=args.headroom_bytes,
+            volume_hints=volume_hints,
         )
     else:
-        recommendation = discover_import_route(volume_roots)
+        recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
 
     discovered_candidates: list[StorageCandidate] = []
     if args.print_candidates:
-        discovered_candidates = discover_storage_candidates(volume_roots)
+        discovered_candidates = discover_storage_candidates(volume_roots, volume_hints=volume_hints)
 
     stdout.write(
         _import_route_json(
@@ -277,6 +307,17 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_init_production_status_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(manifest_path)
+    trusted_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    result = initialize_production_status_manifest(manifest_path.parent, trusted_plan=trusted_plan)
+    stdout.write(_production_status_initialization_json(result) + "\n")
+
+
 def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.photo_set_chunk_size < 1:
         raise ShootFlowCliError("--photo-set-chunk-size must be a positive integer")
@@ -307,10 +348,17 @@ def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO)
 
 
 def _run_next_production_wave_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
-    handoff = plan_next_production_wave(
-        args.ingest_manifest,
-        completed_job_ids=tuple(args.completed_job),
-    )
+    if args.use_production_status:
+        if args.completed_job:
+            raise ShootFlowCliError(
+                "--completed-job cannot be combined with --use-production-status"
+            )
+        handoff = plan_next_production_wave_from_status(args.ingest_manifest)
+    else:
+        handoff = plan_next_production_wave(
+            args.ingest_manifest,
+            completed_job_ids=tuple(args.completed_job),
+        )
     stdout.write(_production_wave_handoff_json(handoff))
 
 
@@ -324,6 +372,7 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         destination_subfolder=args.destination_subfolder,
         headroom_bytes=args.headroom_bytes,
         confirm_ingest=args.confirm_ingest,
+        volume_hints=_load_volume_metadata_json(args.volume_metadata_json),
     )
     stdout.write(_card_dump_workflow_report_json(report))
 
@@ -352,6 +401,24 @@ def _run_index_workspace_command(args: argparse.Namespace, *, stdout: TextIO) ->
 def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     report = inspect_render_workspace(args.workspace)
     stdout.write(_render_workspace_report_json(report))
+
+
+def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_persisted_cli_demo_workspace(
+        args.workspace,
+        shoot_slug=args.shoot_slug,
+    )
+    stdout.write(_demo_workspace_json(demo))
+
+
+def _run_create_card_dump_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    demo = create_card_dump_cli_demo_workspace(
+        args.workspace,
+        shoot_date=args.shoot_date,
+        shoot_slug=args.shoot_slug,
+        destination_subfolder=args.destination_subfolder,
+    )
+    stdout.write(_card_dump_demo_workspace_json(demo))
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -398,6 +465,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--print-candidates",
         action="store_true",
         help="Include discovered storage candidates in command output.",
+    )
+    plan_import_route.add_argument(
+        "--volume-metadata-json",
+        help="Optional strict JSON file from native volume discovery with per-volume metadata overrides.",
     )
 
     scheduler = subparsers.add_parser(
@@ -456,6 +527,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
     )
 
+    production_status = subparsers.add_parser(
+        "init-production-status",
+        help="Create production_status.json from a trusted ingest manifest if missing.",
+    )
+    production_status.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
     render_tasks = subparsers.add_parser(
         "write-render-tasks",
         help="Build and persist deliverables/render_tasks.json from trusted storyline and graded assets.",
@@ -486,6 +567,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         help="Production job ID the caller has completed. Repeat for each completed job.",
+    )
+    next_wave.add_argument(
+        "--use-production-status",
+        action="store_true",
+        help="Read completed production jobs from production_status.json next to the ingest manifest.",
     )
 
     card_dump = subparsers.add_parser(
@@ -522,6 +608,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+    card_dump.add_argument(
+        "--volume-metadata-json",
+        help="Optional strict JSON file from native volume discovery with per-volume metadata overrides.",
     )
 
     workspace_health = subparsers.add_parser(
@@ -562,6 +652,46 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workspace",
         default=".",
         help="Workspace containing deliverables/render_tasks.json.",
+    )
+
+    create_demo = subparsers.add_parser(
+        "create-demo-workspace",
+        help="Create a tiny persisted render-task workspace for CLI and native-shell demos.",
+    )
+    create_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace where placeholder inputs and deliverables/render_tasks.json will be created.",
+    )
+    create_demo.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Shoot slug to embed in the demo render-task manifest.",
+    )
+
+    card_dump_demo = subparsers.add_parser(
+        "create-card-dump-demo-workspace",
+        help="Create a safe synthetic card-dump workspace seeded for init/scheduler smoke demos.",
+    )
+    card_dump_demo.add_argument(
+        "--workspace",
+        default=".",
+        help="Directory where the synthetic Volumes/ card and SSD demo tree will be created.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-date",
+        default="2026-05-08",
+        help="ISO-8601 shoot date used by the synthetic ingest demo.",
+    )
+    card_dump_demo.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Slug for the synthetic shoot folder. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
+    card_dump_demo.add_argument(
+        "--destination-subfolder",
+        default="ShootFlow",
+        help="Relative library folder inside the synthetic destination volume.",
     )
 
     return parser
@@ -615,6 +745,38 @@ def _render_status_count(result: object, state: str) -> int:
     if not isinstance(result, RenderStatusInitializationResult):
         raise ShootFlowCliError("result must be a RenderStatusInitializationResult")
     return sum(1 for status in result.manifest.task_statuses if status.state == state)
+
+
+def _production_status_initialization_json(result: object) -> str:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return json.dumps(
+        {
+            "created": result.created,
+            "status_path": str(result.manifest_path),
+            "shoot_slug": result.manifest.shoot_slug,
+            "production_plan_fingerprint": result.manifest.production_plan_fingerprint,
+            "job_count": len(result.manifest.job_statuses),
+            "pending_job_count": _production_status_count(result, "pending"),
+            "running_job_count": _production_status_count(result, "running"),
+            "succeeded_job_count": _production_status_count(result, "succeeded"),
+            "failed_job_count": _production_status_count(result, "failed"),
+            "retryable_job_count": _production_status_count(result, "retryable"),
+            "notes": [
+                "production status is bound to the verified ingest manifest and deterministic production plan",
+                "initialization never resets an existing matching production_status.json",
+                "no analysis, grading, render, deliverable, deletion, or cleanup files were written",
+            ],
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+
+
+def _production_status_count(result: object, state: str) -> int:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return sum(1 for status in result.manifest.job_statuses if status.state == state)
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
@@ -693,6 +855,98 @@ def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
             raise ShootFlowCliError("volume roots must be non-empty strings")
         roots.append(Path(raw_root))
     return roots
+
+
+def _load_volume_metadata_json(raw_path: str | None) -> dict[Path, VolumeDiscoveryHint] | None:
+    if raw_path is None:
+        return None
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError("volume metadata path must be a non-empty string")
+    path = Path(raw_path)
+    if path.is_symlink():
+        raise ShootFlowCliError(f"Refusing volume metadata symlink: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    try:
+        raw_data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ShootFlowCliError(f"Invalid volume metadata JSON: {path}") from exc
+    if not isinstance(raw_data, dict):
+        raise ShootFlowCliError("Volume metadata JSON root must be an object")
+    raw_volumes = raw_data.get("volumes")
+    if not isinstance(raw_volumes, list):
+        raise ShootFlowCliError("Volume metadata JSON must contain a volumes list")
+
+    volume_hints: dict[Path, VolumeDiscoveryHint] = {}
+    for index, raw_volume in enumerate(raw_volumes):
+        volume_path, hint = _volume_hint_from_json_entry(raw_volume, index=index)
+        if volume_path in volume_hints:
+            raise ShootFlowCliError(f"Duplicate volume metadata path: {volume_path}")
+        volume_hints[volume_path] = hint
+    return volume_hints
+
+
+def _volume_hint_from_json_entry(
+    raw_volume: object,
+    *,
+    index: int,
+) -> tuple[Path, VolumeDiscoveryHint]:
+    if not isinstance(raw_volume, dict):
+        raise ShootFlowCliError(f"Volume metadata entry must be an object: {index}")
+    allowed_fields = {
+        "path",
+        "name",
+        "free_bytes",
+        "total_bytes",
+        "is_removable",
+        "is_read_only",
+    }
+    unexpected_fields = tuple(sorted(str(key) for key in raw_volume if key not in allowed_fields))
+    if unexpected_fields:
+        raise ShootFlowCliError(f"Unexpected volume metadata field: {unexpected_fields[0]}")
+    raw_path = raw_volume.get("path")
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError(f"Volume metadata path must be a non-empty string: {index}")
+    free_bytes = _optional_metadata_int(raw_volume, "free_bytes")
+    total_bytes = _optional_metadata_int(raw_volume, "total_bytes")
+    if free_bytes is not None and total_bytes is not None and free_bytes > total_bytes:
+        raise ShootFlowCliError("free_bytes cannot exceed total_bytes")
+    return Path(raw_path), VolumeDiscoveryHint(
+        display_name=_optional_metadata_string(raw_volume, "name"),
+        free_bytes=free_bytes,
+        total_bytes=total_bytes,
+        is_removable=_optional_metadata_bool(raw_volume, "is_removable"),
+        is_read_only=_optional_metadata_bool(raw_volume, "is_read_only"),
+    )
+
+
+def _optional_metadata_string(raw_volume: dict[object, object], key: str) -> str | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise ShootFlowCliError(f"{key} must be a non-empty string")
+    return value
+
+
+def _optional_metadata_int(raw_volume: dict[object, object], key: str) -> int | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if type(value) is not int:
+        raise ShootFlowCliError(f"{key} must be an integer")
+    if value < 0:
+        raise ShootFlowCliError(f"{key} cannot be negative")
+    return value
+
+
+def _optional_metadata_bool(raw_volume: dict[object, object], key: str) -> bool | None:
+    value = raw_volume.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        raise ShootFlowCliError(f"{key} must be a boolean")
+    return value
 
 
 def _ranked_storage_candidate_json(candidate: RankedStorageCandidate | None) -> dict[str, object] | None:
@@ -848,9 +1102,12 @@ def _production_wave_handoff_json(handoff: ProductionWaveHandoff) -> str:
             "workspace": str(handoff.workspace),
             "shoot_slug": handoff.shoot_slug,
             "status": handoff.status,
+            "status_source": handoff.status_source,
             "wave_index": handoff.wave_index,
             "completed_job_ids": list(handoff.completed_job_ids),
             "blocked_dependency_ids": list(handoff.blocked_dependency_ids),
+            "active_job_ids": list(handoff.active_job_ids),
+            "review_required_job_ids": list(handoff.review_required_job_ids),
             "production_plan": {
                 "job_count": len(handoff.production_plan.jobs),
                 "wave_count": len(handoff.production_plan.execution_waves),
@@ -1029,6 +1286,75 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
                 "read-only render workspace inspection",
                 "no render status, scheduler report, or deliverable files were written",
                 "safe_next_actions are recommendations, not permission to delete or overwrite media",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
+    if not isinstance(demo, PersistedCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a PersistedCliDemoWorkspace")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(demo.workspace_root),
+            "render_tasks_manifest_path": str(demo.render_tasks_manifest_path),
+            "shoot_slug": demo.trusted_plan.shoot_slug,
+            "render_task_count": len(demo.trusted_plan.render_tasks),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "safety_notes": list(demo.safety_notes),
+            "next_steps": [
+                "run init-render-status for this workspace before scheduling",
+                "run dry-run-render-scheduler with each required_completed_dependency_id",
+            ],
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _card_dump_demo_workspace_json(demo: CardDumpCliDemoWorkspace) -> str:
+    if not isinstance(demo, CardDumpCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a CardDumpCliDemoWorkspace")
+    production_report = demo.card_dump_report.production_report
+    if production_report is None:
+        raise ShootFlowCliError("demo must include a production report")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace_root": str(demo.workspace_root),
+            "volume_root": str(demo.volume_root),
+            "source_volume": str(demo.source_volume),
+            "destination_volume": str(demo.destination_volume),
+            "shoot_folder": str(demo.shoot_folder),
+            "render_tasks_manifest_path": str(demo.render_demo.render_tasks_manifest_path),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "card_dump": {
+                "status": demo.card_dump_report.status,
+                "ingest_executed": demo.card_dump_report.ingest_executed,
+                "manifest_path": (
+                    None
+                    if demo.card_dump_report.copy_report is None
+                    else str(demo.card_dump_report.copy_report.manifest_path)
+                ),
+                "asset_counts": {
+                    "photo": production_report.photo_asset_count,
+                    "video": production_report.video_asset_count,
+                    "total": production_report.photo_asset_count + production_report.video_asset_count,
+                },
+                "copied_manifest_item_count": production_report.copied_manifest_item_count,
+                "wrote_downstream_files_before_demo_seed": False,
+            },
+            "safety_notes": list(demo.safety_notes),
+            "next_steps": [
+                "run init-render-status against shoot_folder before scheduling",
+                "run dry-run-render-scheduler with each required_completed_dependency_id",
             ],
         },
         ensure_ascii=True,

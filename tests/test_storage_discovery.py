@@ -228,6 +228,24 @@ class StorageDiscoveryTest(unittest.TestCase):
         self.assertEqual(len(candidates), 1)
         self.assertTrue(candidates[0].is_read_only)
 
+    def test_discovery_ignores_hints_for_paths_outside_reviewed_volume_roots(self):
+        with tempfile.TemporaryDirectory() as root:
+            workspace = Path(root)
+            volumes = workspace / "Volumes"
+            outside = workspace / "EOS_R5_CARD"
+            volumes.mkdir()
+            (outside / "DCIM").mkdir(parents=True)
+            hints = {
+                outside: VolumeDiscoveryHint(display_name="EOS_R5_CARD", is_removable=True),
+            }
+
+            candidates = discover_storage_candidates([volumes], volume_hints=hints)
+            recommendation = discover_import_route([volumes], volume_hints=hints)
+
+        self.assertEqual(candidates, [])
+        self.assertFalse(recommendation.ready)
+        self.assertIn("no discovered storage candidates found", recommendation.safety_notes)
+
 
 if __name__ == "__main__":
     unittest.main()
