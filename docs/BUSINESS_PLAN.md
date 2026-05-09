@@ -71,10 +71,14 @@ Why this wedge wins:
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
   authority. Previously retryable jobs require an explicit reviewed retry ID
-  before a background run will attempt them again. Each run can persist a
+  before a background run will attempt them again. The scheduler can also expire
+  stale running production leases through guarded compare/write preconditions,
+  turning interrupted jobs into retryable review states while preserving
+  heartbeat-refresh conflicts. Each run can persist a
   `production_scheduler_report.json` bound to the final production status so
-  UI/agent layers can show completed outputs, retry conflicts, blocked work, and
-  failure messages without rerunning orchestration.
+  UI/agent layers can show completed outputs, retry conflicts, blocked work,
+  expired leases, lease conflicts, and failure messages without rerunning
+  orchestration.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

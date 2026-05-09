@@ -137,7 +137,11 @@ This repo currently contains the first testable core utilities:
   pending/retryable jobs, claims work as running, verifies declared output bytes
   before reporting success, reports retry/failure states without file cleanup
   authority, and pairs with guarded single-job compare/write status updates so
-  stale workers cannot clobber newer production progress.
+  stale workers cannot clobber newer production progress. It can also plan and
+  persist stale-running lease expirations as retryable statuses, using the
+  running job's `updated_at` as a compare/write lease token so active heartbeat
+  refreshes win without deleting source, analysis, graded, render, or deliverable
+  files.
 - `shootflow.production_adapter` proves that pre-render worker handoff with a
   deterministic dry-run adapter. It consumes only trusted production-worker
   actions, persists each claim and final result through the guarded
@@ -149,13 +153,15 @@ This repo currently contains the first testable core utilities:
   visibility for UI/scheduler review.
 - `shootflow.production_scheduler` runs the dry-run production adapter in an
   iterative local loop: each pass reloads trusted `production_status.json`,
-  plans dependency-ready pending/retryable jobs, runs a bounded dry-run batch,
-  requires explicit review before retrying a previously retryable job, avoids
-  retrying a job that already became retryable in the same run, and returns
-  explicit complete/blocked/retryable/failed/waiting state for Mac shells and
-  background agents. It can persist `production_scheduler_report.json` with
-  completed, retryable, failed, blocked, attempted, review-required, materialized
-  output, and failure-message details bound to the final production status.
+  optionally expires stale-running leases through the guarded production-worker
+  helper, plans dependency-ready pending/retryable jobs, runs a bounded dry-run
+  batch, requires explicit review before retrying a previously retryable job,
+  avoids retrying a job that already became retryable in the same run, and
+  returns explicit complete/blocked/retryable/failed/waiting state for Mac shells
+  and background agents. It can persist `production_scheduler_report.json` with
+  completed, retryable, failed, blocked, attempted, skipped retryable,
+  expired-lease, conflicted-lease, review-required, materialized output, and
+  failure-message details bound to the final production status.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
@@ -315,6 +321,8 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-production-scheduler \
   --started-at 2026-05-07T15:59:00Z \
   --completed-at 2026-05-07T15:59:05Z \
   --generated-at 2026-05-07T15:59:06Z \
+  --stale-before 2026-05-07T15:30:00Z \
+  --lease-updated-at 2026-05-07T15:59:00Z \
   --max-concurrency 3 \
   --max-iterations 10
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
@@ -341,9 +349,12 @@ state before render handoffs. The dry-run production scheduler then advances
 only dependency-ready jobs from that trusted status file, reports retryable or
 blocked jobs for review, retries prior retryable jobs only when their IDs are
 explicitly supplied with `--retryable-job`, and does not retry a newly retryable
-job in the same run. It writes `production_scheduler_report.json` so UI and
-continuation layers can inspect the last run without rerunning worker
-orchestration. The render-status init command writes only
+job in the same run. When both `--stale-before` and `--lease-updated-at` are
+supplied, it expires stale running jobs into retryable review states through the
+guarded production-status compare/write path and reports heartbeat-refresh
+conflicts without clobbering the active worker. It writes
+`production_scheduler_report.json` so UI and continuation layers can inspect the
+last run without rerunning worker orchestration. The render-status init command writes only
 metadata under `deliverables/`, never deletes media, and fails rather than
 overwriting an existing status manifest that no longer matches the trusted
 render-task plan.

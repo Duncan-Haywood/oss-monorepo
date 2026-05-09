@@ -65,7 +65,10 @@ The repo currently contains a Python core package because it is quick to test an
   dependency-ready pending/retryable jobs, keeps blocked jobs visible with missing
   dependencies, claims one action as running, verifies declared output files
   before success, and reports retry/failure statuses without deleting source,
-  graded, render, or deliverable files.
+  graded, render, or deliverable files. It also plans and persists stale-running
+  lease expirations as retryable statuses through the same compare/write status
+  helper, using the running status timestamp as the lease token so active workers
+  that refresh their heartbeat are not clobbered.
 - `shootflow.production_adapter`: the first pre-render adapter proof. Its
   deterministic dry-run adapter consumes a trusted `ProductionWorkerAction`,
   persists the claim through the single-job production-status compare/write
@@ -78,13 +81,14 @@ The repo currently contains a Python core package because it is quick to test an
   only trusted action plans, preserves serial production jobs, bounds parallel
   local work, and keeps blocked jobs visible rather than mutating them.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
-  reloads the trusted production status manifest each pass, plans
+  reloads the trusted production status manifest each pass, optionally expires
+  stale running leases through guarded compare/write updates, plans
   dependency-ready actions, runs the dry-run production batch adapter, and stops
-  with explicit complete/blocked/retryable/failed/waiting state. A job that
-  is already retryable is skipped until the caller explicitly allow-lists that
+  with explicit complete/blocked/retryable/failed/waiting state. A job that is
+  already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
-  again in the same run. This protects manual outputs and future review loops
-  from repeated overwrite attempts.
+  again in the same run. This protects manual outputs, active workers, and future
+  review loops from repeated overwrite attempts.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads
@@ -283,7 +287,9 @@ The desired high-quality pipeline is:
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,
     failed, or blocked jobs remain review states, not cleanup authority; prior
-    retryable jobs require an explicit reviewed retry allow-list.
+    retryable jobs require an explicit reviewed retry allow-list. Stale running
+    jobs can be expired only through explicit cutoff inputs and guarded
+    preconditions, preserving heartbeat-refresh conflicts for review.
 27. Build a workspace health summary or workspace index after ingest,
     production scheduling, render scheduling, or retries so UI and continuation
     agents can show one coherent shoot-state snapshot while keeping every
@@ -346,7 +352,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   clear error message. Persisted status transitions should use
   `compare_and_write_production_job_status(...)`, which checks expected state,
   attempt, and optional `updated_at` lease token while holding the local status
-  lock.
+  lock. Stale lease persistence uses that same precondition so an interrupted
+  worker can be marked retryable without overwriting a same-attempt heartbeat
+  refresh from an active worker.
 - `shootflow.production_adapter` now proves that persistence path without real
   media or model execution. The dry-run adapter rebinds each action to the
   trusted production job before any status mutation, persists a running claim
@@ -360,11 +368,14 @@ High quality depends on scene-level consistency and reversible edits. The system
   trusted `ProductionPlan`, dispatches a dry-run batch with a caller-supplied
   concurrency cap, and stops when the status is complete, blocked, failed,
   waiting, or retryable work needs review. Previously retryable jobs are skipped
-  unless their IDs are explicitly supplied as reviewed retry candidates. The
+  unless their IDs are explicitly supplied as reviewed retry candidates. When a
+  lease cutoff is supplied, stale running jobs are first expired into retryable
+  review state and heartbeat-refresh conflicts are preserved. The
   persisted `production_scheduler_report.json` is validated against the trusted
   production plan and final `production_status.json`, then records attempted,
-  skipped retryable, completed, retryable, failed, blocked, review-required,
-  materialized-output, and failure-message details for UI/continuation review.
+  skipped retryable, expired-lease, conflicted-lease, completed, retryable,
+  failed, blocked, review-required, materialized-output, and failure-message
+  details for UI/continuation review.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

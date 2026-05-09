@@ -2,6 +2,48 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 18:00 UTC
+
+This run first reconciled the only active remote branch not reachable from
+`origin/main`:
+
+- Fast-forwarded the assigned branch `cursor/repository-branch-consolidation-4c04`
+  to include `origin/cursor/branch-reconciliation-and-merge-2e3f`, bringing in
+  production-status and production-scheduler visibility inside
+  `workspace-health` and `workspace-index`.
+
+Then it advanced the next documented reliability target for local production
+workers:
+
+- Added stale-running production lease planning in `shootflow.production_worker`.
+  `plan_stale_production_leases(...)` validates trusted production status,
+  selects only running jobs older than an explicit ISO cutoff, and returns
+  retryable status transitions with no-delete/no-cleanup error messages.
+- Added guarded stale production lease persistence. `persist_stale_production_leases(...)`
+  writes each retryable transition through
+  `compare_and_write_production_job_status(...)` using the original running
+  `updated_at` as the lease token, so a same-attempt heartbeat refresh becomes a
+  conflict instead of being overwritten.
+- Integrated the same lease path into `run_dry_run_production_scheduler(...)` and
+  the `dry-run-production-scheduler` CLI via `--stale-before` plus
+  `--lease-updated-at`.
+- Extended `production_scheduler_report.json` and CLI summaries with
+  `expired_lease_job_ids` and `conflicted_lease_job_ids`, while preserving the
+  rule that expired jobs become retryable review states and are not automatically
+  retried unless explicitly allow-listed with `--retryable-job`.
+
+Good next test-first targets:
+
+- Add product metric emission at production/render scheduler report boundaries
+  now that both progress surfaces include status counts, retry/review states, and
+  lease events.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and using the new
+  lease expiry path for interrupted jobs.
+- Add UI/agent contract tests proving Mac shells treat expired production leases
+  and lease conflicts as review states, not as cleanup, overwrite, or automatic
+  retry authority.
+
 ## Implementation continuation note - 2026-05-09 17:30 UTC
 
 This run advanced the production-health visibility gap identified by the 17:00

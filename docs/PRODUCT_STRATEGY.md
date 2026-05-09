@@ -145,11 +145,14 @@ The current core models a concrete promise for high-volume users:
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
     require an explicit reviewed retry ID before the scheduler will attempt them
-    again. It also writes `production_scheduler_report.json`, a strict run
-    record bound to the production-plan fingerprint and final
-    `production_status.json`, so the next UI or background agent can inspect
-    materialized outputs and review-required jobs without rerunning scheduler
-    logic.
+    again. The scheduler can now expire stale running production leases through
+    the guarded status compare/write path when the caller supplies a cutoff and
+    lease timestamp, preserving active heartbeat refreshes as visible conflicts
+    instead of clobbering them. It also writes
+    `production_scheduler_report.json`, a strict run record bound to the
+    production-plan fingerprint and final `production_status.json`, so the next
+    UI or background agent can inspect materialized outputs, review-required
+    jobs, expired leases, and lease conflicts without rerunning scheduler logic.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -249,9 +252,10 @@ to automate.
    claim/materialize/report loop for declared file artifacts such as proxy,
    analysis, look, graded, and storyline outputs before real local or
    model-backed workers are wired in. The dry-run production scheduler wraps that
-   adapter in the same persisted-status loop the render side uses, so native
-   shells can advance pre-render jobs without embedding scheduling logic or
-   retrying prior or newly retryable conflicts in a tight loop.
+   adapter in the same persisted-status loop the render side uses, including
+   guarded stale-lease expiration, so native shells can advance pre-render jobs
+   without embedding scheduling logic or retrying prior/newly retryable conflicts
+   or clobbering heartbeat-refreshed workers in a tight loop.
    The next-production-wave handoff can derive its completed dependency set
    directly from that manifest. The workspace health and index layer gives those
    shells a single metadata snapshot across ingest, production-status,
