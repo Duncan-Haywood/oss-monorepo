@@ -97,6 +97,12 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.workspace_state`: a read-only workspace index for UI shells,
+  launch agents, and continuation automation. It fingerprints known handoff
+  artifacts, validates persisted render tasks/status/scheduler reports through
+  the existing trust boundaries when their prerequisites exist, reports invalid
+  artifacts without clobbering them, and suggests the next conservative workflow
+  action without creating status, report, render, graded, or deliverable files.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -109,6 +115,8 @@ The repo currently contains a Python core package because it is quick to test an
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  The `inspect-workspace-state` command exposes the read-only state index so a
+  process can decide what to do next before invoking any mutating command.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -149,16 +157,20 @@ The desired high-quality pipeline is:
 18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
+19. Inspect the workspace through a read-only state report so native app,
+    background-agent, and future autonomous runs can reason about artifact trust,
+    missing handoffs, invalid JSON, and next actions without mutating the shoot
+    folder.
+20. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

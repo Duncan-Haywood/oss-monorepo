@@ -17,4 +17,5 @@ __all__ = [
     "storage",
     "storage_discovery",
     "story",
+    "workspace_state",
 ]

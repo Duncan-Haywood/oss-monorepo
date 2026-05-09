@@ -8,6 +8,29 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first read-only workspace state index:
+  - `shootflow.workspace_state.build_workspace_state_report(...)` inspects a
+    shoot workspace for `ingest_manifest.json`, storyline selections,
+    `deliverables/render_tasks.json`, `deliverables/render_status.json`, and
+    `deliverables/render_scheduler_report.json`;
+  - present artifacts receive size and SHA-256 metadata, while render
+    tasks/status/scheduler reports are validated through the existing trusted
+    loaders when their prerequisites exist;
+  - invalid handoff artifacts are reported with error messages instead of being
+    overwritten, preserving the no-reset/no-delete safety posture;
+  - the report includes render status counts, scheduler stop/review state, notes,
+    and one conservative next action for Mac UI shells, launch agents, or future
+    continuation agents.
+- Added `python -m shootflow.cli inspect-workspace-state --workspace <dir>`,
+  which prints that report as sorted, indented JSON and creates no workspace
+  files.
+- Added focused tests for trusted render handoff inspection, invalid status
+  reporting without mutation, and CLI no-side-effect behavior.
+- Updated README/product/design docs so future runs treat state inspection as the
+  start-of-run continuity layer before status initialization or scheduling.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

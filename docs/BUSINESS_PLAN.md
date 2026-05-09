@@ -50,6 +50,9 @@ Why this wedge wins:
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
   reporting together for Mac app shells and demos.
+- Read-only workspace state inspection so a Mac UI or automation runner can show
+  trust status, fingerprints, blocked handoffs, and next safe actions before
+  mutating any render/status files.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status

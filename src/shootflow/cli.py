@@ -40,6 +40,12 @@ from shootflow.render_status import (
 )
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.workspace_state import (
+    WORKSPACE_STATE_SCHEMA_VERSION,
+    WorkspaceStateError,
+    WorkspaceStateReport,
+    build_workspace_state_report,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -86,6 +92,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "inspect-workspace-state":
+            _run_inspect_workspace_state_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +106,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        WorkspaceStateError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +260,11 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_inspect_workspace_state_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = build_workspace_state_report(args.workspace)
+    stdout.write(_workspace_state_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -387,6 +401,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    workspace_state = subparsers.add_parser(
+        "inspect-workspace-state",
+        help="Inspect known ShootFlow handoff artifacts without writing workspace files.",
+    )
+    workspace_state.add_argument(
+        "--workspace",
+        default=".",
+        help="Shoot workspace to inspect.",
     )
 
     return parser
@@ -770,6 +794,37 @@ def _card_dump_production_report_json(report: CardDumpWorkflowReport) -> dict[st
         ],
         "wrote_downstream_files": False,
     }
+
+
+def _workspace_state_report_json(report: WorkspaceStateReport) -> str:
+    if not isinstance(report, WorkspaceStateReport):
+        raise ShootFlowCliError("report must be a WorkspaceStateReport")
+    return json.dumps(
+        {
+            "schema_version": WORKSPACE_STATE_SCHEMA_VERSION,
+            "workspace": str(report.workspace),
+            "shoot_slug": report.shoot_slug,
+            "render_plan_fingerprint": report.render_plan_fingerprint,
+            "artifacts": {
+                artifact.name: {
+                    "path": str(artifact.path),
+                    "status": artifact.status,
+                    "size_bytes": artifact.size_bytes,
+                    "sha256": artifact.sha256,
+                    "error_message": artifact.error_message,
+                }
+                for artifact in report.artifacts
+            },
+            "render_status_counts": dict(report.render_status_counts),
+            "scheduler_stopped_reason": report.scheduler_stopped_reason,
+            "review_required_task_ids": list(report.review_required_task_ids),
+            "next_actions": list(report.next_actions),
+            "notes": list(report.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _validate_main_args(

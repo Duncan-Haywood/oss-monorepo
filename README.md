@@ -63,6 +63,11 @@ This repo currently contains the first testable core utilities:
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
+- `shootflow.workspace_state` provides a read-only workspace index for future
+  Mac shells, launch agents, and continuation agents. It fingerprints known
+  handoff artifacts, validates render tasks/status/scheduler reports through
+  the existing trust boundaries when possible, and returns next safe actions
+  without creating or mutating workspace files.
 - `shootflow.cli` exposes the first background-agent commands:
   `python -m shootflow.cli init-render-status` and
   `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
@@ -71,6 +76,10 @@ This repo currently contains the first testable core utilities:
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
   as JSON for a Mac app or automation runner.
+  `python -m shootflow.cli inspect-workspace-state` inspects the same workspace
+  from a read-only starting point so UI/background processes can decide whether
+  to initialize status, run the scheduler, review blocked work, or continue from
+  ingest/production planning.
 - `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
@@ -164,15 +173,20 @@ The intended first workflow is:
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-19. Run the same handoff through
+19. Inspect the shoot workspace with `inspect-workspace-state` when a Mac app,
+    launch agent, or continuation automation starts from disk. The command
+    reports which handoff artifacts are missing, present, trusted, or invalid,
+    includes SHA-256 fingerprints for present artifacts, and suggests the next
+    conservative workflow action without writing files.
+20. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+21. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+22. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
@@ -187,11 +201,19 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
   --started-at 2026-05-07T16:00:00Z \
   --completed-at 2026-05-07T16:00:05Z \
   --generated-at 2026-05-07T16:00:06Z
+PYTHONPATH=src python3 -m shootflow.cli inspect-workspace-state --workspace <dir>
 ```
 
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
+
+The state inspection command is read-only. It hashes known handoff files such as
+`ingest_manifest.json`, `analysis/instagram_storylines.json`,
+`deliverables/render_tasks.json`, `deliverables/render_status.json`, and
+`deliverables/render_scheduler_report.json`, validates trusted render artifacts
+when their prerequisites exist, and prints suggested next actions for UI or
+automation runners.
 
 The import-route planning flow is:
 
