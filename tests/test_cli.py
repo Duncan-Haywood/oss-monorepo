@@ -131,6 +131,32 @@ class ShootFlowCliTests(unittest.TestCase):
             self.assertEqual(storyline_path.read_bytes(), b"user-owned storyline")
             self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
 
+    def test_create_demo_workspace_command_rejects_unsafe_manifest_path_without_demo_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside-deliverables"
+            outside.mkdir()
+            (workspace / "deliverables").symlink_to(outside, target_is_directory=True)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("render task manifest directory", stderr.getvalue())
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "graded" / "grade_asset_00000" / "A001.MOV").exists())
+            self.assertFalse((outside / "render_tasks.json").exists())
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
