@@ -111,7 +111,11 @@ The current core models a concrete promise for high-volume users:
 22. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+23. Expose that smoke path as `run-demo-workflow`, a single CLI handoff that
+    creates the persisted demo workspace, initializes render status, runs the
+    dry-run scheduler, persists the scheduler report, and prints the compact
+    JSON a native shell can show in onboarding or sales demos.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -134,7 +138,8 @@ to automate.
    import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
    recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
    step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   new `card-dump-workflow` contract before proxy/analysis/grading work begins. The `run-demo-workflow`
+   command now gives that shell a deterministic render/status/report smoke test without requiring a real card.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one

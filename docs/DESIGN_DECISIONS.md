@@ -115,6 +115,10 @@ The repo currently contains a Python core package because it is quick to test an
   different files, and intentionally leaves status initialization plus scheduler
   report creation to the normal CLI path so demos exercise the same no-reset
   contract as the product.
+  The `run-demo-workflow` CLI command now composes that helper with the normal
+  init/status/scheduler/report path for a one-command native-shell smoke demo;
+  it still defaults to dry-run rendering, writes only declared demo/deliverable
+  files, and refuses conflicting user-owned files before status/report creation.
 
 Future native applications should wrap these contracts rather than reimplementing the safety rules in UI code.
 
@@ -157,8 +161,11 @@ The desired high-quality pipeline is:
 21. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+22. Expose a single demo workflow command that creates the helper workspace,
+    initializes render status, runs the dry-run scheduler, and persists/prints the
+    scheduler report for native-shell onboarding and regression smoke checks.
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

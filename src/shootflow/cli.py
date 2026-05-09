@@ -14,6 +14,11 @@ from shootflow.card_workflow import (
     run_card_dump_workflow,
 )
 from shootflow.catalog import CatalogError
+from shootflow.demo_workspace import (
+    DemoWorkspaceError,
+    PersistedCliDemoWorkspace,
+    create_persisted_cli_demo_workspace,
+)
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -28,11 +33,13 @@ from shootflow.production_report import ProductionPlanReport, build_production_p
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
+    RENDER_SCHEDULER_REPORT_PATH,
     load_dry_run_render_scheduler_report,
     run_dry_run_render_scheduler,
     write_dry_run_render_scheduler_report,
 )
 from shootflow.render_status import (
+    RenderStatusManifest,
     RenderStatusError,
     RenderStatusInitializationResult,
     initialize_render_status_manifest,
@@ -86,6 +93,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "run-demo-workflow":
+            _run_demo_workflow_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +107,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        DemoWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +261,74 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_demo_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    workspace = Path(args.workspace)
+    _preflight_existing_demo_scheduler_report(workspace)
+    demo = create_persisted_cli_demo_workspace(
+        workspace,
+        shoot_slug=args.shoot_slug,
+    )
+    status_result = initialize_render_status_manifest(
+        demo.workspace_root,
+        trusted_plan=demo.trusted_plan,
+    )
+    scheduler_result = run_dry_run_render_scheduler(
+        demo.workspace_root,
+        trusted_plan=demo.trusted_plan,
+        completed_dependency_ids=demo.required_completed_dependency_ids,
+        renderer_adapter=args.renderer,
+        started_at=args.started_at,
+        completed_at=args.completed_at,
+        max_concurrency=args.max_concurrency,
+        max_iterations=args.max_iterations,
+        stale_before=args.stale_before,
+        lease_updated_at=args.lease_updated_at,
+    )
+    final_manifest = load_render_status_manifest(
+        demo.workspace_root,
+        trusted_plan=demo.trusted_plan,
+    )
+    report_path = write_dry_run_render_scheduler_report(
+        scheduler_result,
+        demo.workspace_root,
+        trusted_plan=demo.trusted_plan,
+        final_manifest=final_manifest,
+        generated_at=args.generated_at,
+    )
+    scheduler_report = load_dry_run_render_scheduler_report(
+        demo.workspace_root,
+        trusted_plan=demo.trusted_plan,
+        final_manifest=final_manifest,
+    )
+    stdout.write(
+        _demo_workflow_report_json(
+            demo,
+            status_result,
+            final_manifest,
+            scheduler_report,
+            report_path=report_path,
+        )
+    )
+
+
+def _preflight_existing_demo_scheduler_report(workspace: Path) -> None:
+    report_path = workspace / RENDER_SCHEDULER_REPORT_PATH
+    if not report_path.exists() and not report_path.is_symlink():
+        return
+    try:
+        existing_plan = load_trusted_render_tasks_manifest(workspace)
+        existing_status = load_render_status_manifest(workspace, trusted_plan=existing_plan)
+        load_dry_run_render_scheduler_report(
+            workspace,
+            trusted_plan=existing_plan,
+            final_manifest=existing_status,
+        )
+    except (AssemblyPlanError, DryRunRenderSchedulerError, RenderStatusError) as exc:
+        raise ShootFlowCliError(
+            f"Refusing to overwrite existing render scheduler report: {report_path}"
+        ) from exc
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -389,6 +467,33 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
     )
 
+    demo_workflow = subparsers.add_parser(
+        "run-demo-workflow",
+        help="Create a safe persisted demo workspace, initialize status, and run the dry-run scheduler.",
+    )
+    demo_workflow.add_argument(
+        "--workspace",
+        required=True,
+        help="Workspace where demo inputs, render tasks, status, report, and dry-run outputs are written.",
+    )
+    demo_workflow.add_argument(
+        "--shoot-slug",
+        default="cli-demo-shoot",
+        help="Slug to embed in the demo render plan. Must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$.",
+    )
+    demo_workflow.add_argument(
+        "--renderer",
+        default="dry-run-local",
+        help="Renderer adapter name. Defaults to dry-run-local for zero-config smoke demos.",
+    )
+    demo_workflow.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
+    demo_workflow.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")
+    demo_workflow.add_argument("--generated-at", required=True, help="ISO-like timestamp for the scheduler report.")
+    demo_workflow.add_argument("--max-concurrency", type=int, default=3)
+    demo_workflow.add_argument("--max-iterations", type=int, default=4)
+    demo_workflow.add_argument("--stale-before")
+    demo_workflow.add_argument("--lease-updated-at")
+
     return parser
 
 
@@ -474,6 +579,72 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _demo_workflow_report_json(
+    demo: PersistedCliDemoWorkspace,
+    status_result: RenderStatusInitializationResult,
+    final_manifest: RenderStatusManifest,
+    scheduler_report: DryRunRenderSchedulerReport,
+    *,
+    report_path: Path,
+) -> str:
+    if not isinstance(demo, PersistedCliDemoWorkspace):
+        raise ShootFlowCliError("demo must be a PersistedCliDemoWorkspace")
+    if not isinstance(status_result, RenderStatusInitializationResult):
+        raise ShootFlowCliError("status_result must be a RenderStatusInitializationResult")
+    if not isinstance(final_manifest, RenderStatusManifest):
+        raise ShootFlowCliError("final_manifest must be a RenderStatusManifest")
+    if not isinstance(scheduler_report, DryRunRenderSchedulerReport):
+        raise ShootFlowCliError("scheduler_report must be a DryRunRenderSchedulerReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(demo.workspace_root),
+            "shoot_slug": demo.trusted_plan.shoot_slug,
+            "render_tasks_manifest_path": str(demo.render_tasks_manifest_path),
+            "required_completed_dependency_ids": list(demo.required_completed_dependency_ids),
+            "expected_output_paths": list(demo.expected_output_paths),
+            "safety_notes": list(demo.safety_notes),
+            "render_status": {
+                "created": status_result.created,
+                "status_path": str(status_result.manifest_path),
+                "task_count": len(final_manifest.task_statuses),
+                "pending_task_count": _render_status_manifest_count(final_manifest, "pending"),
+                "running_task_count": _render_status_manifest_count(final_manifest, "running"),
+                "succeeded_task_count": _render_status_manifest_count(final_manifest, "succeeded"),
+                "failed_task_count": _render_status_manifest_count(final_manifest, "failed"),
+                "retryable_task_count": _render_status_manifest_count(final_manifest, "retryable"),
+            },
+            "scheduler_report": {
+                "report_path": str(report_path),
+                "renderer_adapter": scheduler_report.renderer_adapter,
+                "stopped_reason": scheduler_report.stopped_reason,
+                "iteration_count": scheduler_report.iteration_count,
+                "total_task_count": scheduler_report.total_task_count,
+                "completed_task_ids": list(scheduler_report.completed_task_ids),
+                "retryable_task_ids": list(scheduler_report.retryable_task_ids),
+                "failed_task_ids": list(scheduler_report.failed_task_ids),
+                "blocked_task_ids": list(scheduler_report.blocked_task_ids),
+                "attempted_task_ids": list(scheduler_report.attempted_task_ids),
+                "review_required_task_ids": list(scheduler_report.review_required_task_ids),
+                "outputs_materialized": list(scheduler_report.outputs_materialized),
+                "failure_messages": [
+                    {"task_id": message.task_id, "message": message.message}
+                    for message in scheduler_report.failure_messages
+                ],
+            },
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def _render_status_manifest_count(manifest: RenderStatusManifest, state: str) -> int:
+    if not isinstance(manifest, RenderStatusManifest):
+        raise ShootFlowCliError("manifest must be a RenderStatusManifest")
+    return sum(1 for status in manifest.task_statuses if status.state == state)
 
 
 def _import_route_json(

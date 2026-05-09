@@ -4,7 +4,12 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from shootflow.assembly import AssemblyPlan, RenderTask, write_render_tasks_manifest
+from shootflow.assembly import (
+    AssemblyPlan,
+    RenderTask,
+    load_trusted_render_tasks_manifest,
+    write_render_tasks_manifest,
+)
 from shootflow.cli import main
 from shootflow.demo_workspace import (
     DemoWorkspaceError,
@@ -21,6 +26,128 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_run_demo_workflow_command_creates_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "run-demo-workflow",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "native-shell-demo",
+                    "--renderer",
+                    "dry-run-local",
+                    "--started-at",
+                    "2026-05-08T15:10:00Z",
+                    "--completed-at",
+                    "2026-05-08T15:10:05Z",
+                    "--generated-at",
+                    "2026-05-08T15:10:06Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "4",
+                ],
+                stdout=stdout,
+            )
+            trusted_plan = load_trusted_render_tasks_manifest(workspace)
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            loaded_report = load_dry_run_render_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(summary["schema_version"], 1)
+        self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(summary["shoot_slug"], "native-shell-demo")
+        self.assertEqual(summary["render_tasks_manifest_path"], str(workspace / "deliverables" / "render_tasks.json"))
+        self.assertTrue(summary["render_status"]["created"])
+        self.assertEqual(summary["render_status"]["task_count"], 4)
+        self.assertEqual(summary["render_status"]["pending_task_count"], 0)
+        self.assertEqual(summary["render_status"]["succeeded_task_count"], 4)
+        self.assertEqual(summary["scheduler_report"]["stopped_reason"], "complete")
+        self.assertEqual(summary["scheduler_report"]["completed_task_ids"], list(loaded_report.completed_task_ids))
+        self.assertEqual(summary["scheduler_report"]["outputs_materialized"], list(loaded_report.outputs_materialized))
+        self.assertEqual(summary["scheduler_report"]["report_path"], str(workspace / "deliverables" / "render_scheduler_report.json"))
+        self.assertEqual(loaded_report.review_required_task_ids, ())
+
+    def test_run_demo_workflow_command_reports_conflict_without_partial_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            later_input = workspace / "graded" / "grade_asset_00002" / "BTS.MOV"
+            later_input.parent.mkdir(parents=True)
+            later_input.write_bytes(b"user-owned bts edit")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "run-demo-workflow",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "native-shell-demo",
+                    "--started-at",
+                    "2026-05-08T15:10:00Z",
+                    "--completed-at",
+                    "2026-05-08T15:10:05Z",
+                    "--generated-at",
+                    "2026-05-08T15:10:06Z",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing to overwrite", stderr.getvalue())
+            self.assertEqual(later_input.read_bytes(), b"user-owned bts edit")
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_status.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_scheduler_report.json").exists())
+
+    def test_run_demo_workflow_command_refuses_existing_unknown_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            report_path = workspace / "deliverables" / "render_scheduler_report.json"
+            report_path.parent.mkdir(parents=True)
+            report_path.write_text("user-owned report\n", encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "run-demo-workflow",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "native-shell-demo",
+                    "--started-at",
+                    "2026-05-08T15:10:00Z",
+                    "--completed-at",
+                    "2026-05-08T15:10:05Z",
+                    "--generated-at",
+                    "2026-05-08T15:10:06Z",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("existing render scheduler report", stderr.getvalue())
+            self.assertEqual(report_path.read_text(encoding="utf-8"), "user-owned report\n")
+            self.assertFalse((workspace / "analysis" / "instagram_storylines.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+            self.assertFalse((workspace / "deliverables" / "render_status.json").exists())
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

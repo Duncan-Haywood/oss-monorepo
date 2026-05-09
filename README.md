@@ -176,6 +176,10 @@ The intended first workflow is:
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
+22. Use `python -m shootflow.cli run-demo-workflow` when a native shell or
+    automation runner needs one zero-card smoke command that creates the demo
+    handoff, initializes status, runs the dry-run scheduler, persists the
+    scheduler report, and prints a compact JSON summary.
 
 The current persisted-manifest CLI flow is:
 
@@ -192,6 +196,23 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
+
+The one-command persisted demo smoke flow is:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli run-demo-workflow \
+  --workspace <dir> \
+  --shoot-slug native-shell-demo \
+  --started-at 2026-05-07T16:00:00Z \
+  --completed-at 2026-05-07T16:00:05Z \
+  --generated-at 2026-05-07T16:00:06Z
+```
+
+This writes only deterministic demo inputs, `deliverables/render_tasks.json`,
+`deliverables/render_status.json`, dry-run placeholder outputs, and
+`deliverables/render_scheduler_report.json`. It uses the same trusted init and
+scheduler boundaries as the multi-command flow, defaults to the dry-run renderer,
+and refuses to overwrite user-owned conflicting demo files.
 
 The import-route planning flow is:
 
