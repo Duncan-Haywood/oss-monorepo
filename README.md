@@ -123,7 +123,8 @@ This repo currently contains the first testable core utilities:
   continuation runs. It summarizes trusted ingest, render-task, render-status,
   and scheduler-report artifacts through their existing validators, marks
   model-authored storyline JSON as untrusted until rebound to a production plan,
-  and never creates analysis, graded, render, deliverable, or deletion files.
+  includes the health-derived next safe action, and never creates analysis,
+  graded, render, deliverable, or deletion files.
 
 The intended first workflow is:
 
@@ -234,7 +235,9 @@ and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
 The index command writes only `shootflow_workspace_index.json`, summarizing
 validated artifacts and explicitly marking unvalidated storyline JSON as
-non-authoritative.
+non-authoritative. It also embeds the same read-only next safe action exposed by
+`workspace-health`, so native shells and continuation agents can render one
+coherent state snapshot without granting the index any write authority.
 
 The import-route planning flow is:
 

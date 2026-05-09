@@ -142,8 +142,9 @@ The repo currently contains a Python core package because it is quick to test an
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
   it never performs those writes itself.
   The `index-workspace` command adds a single metadata handoff over the current
-  workspace state so native shells do not need to infer readiness by probing many
-  files directly.
+  workspace state, including the health-derived next safe action, so native
+  shells do not need to infer readiness by probing many files directly or calling
+  a second command just to decide which reviewed handoff comes next.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing

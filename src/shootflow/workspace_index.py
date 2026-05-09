@@ -25,6 +25,7 @@ from shootflow.render_status import (
     render_plan_fingerprint,
 )
 from shootflow.story import STORYLINE_ARTIFACT_PATH
+from shootflow.workspace_health import build_workspace_health_summary, workspace_health_summary_to_dict
 
 WORKSPACE_INDEX_PATH = "shootflow_workspace_index.json"
 _WORKSPACE_INDEX_SCHEMA_VERSION = 1
@@ -95,6 +96,7 @@ def build_workspace_index(
         trusted_plan=trusted_plan,
         final_status=final_status,
     )
+    workspace_health_artifact = _workspace_health_artifact(root)
 
     index = WorkspaceIndex(
         schema_version=_WORKSPACE_INDEX_SCHEMA_VERSION,
@@ -113,6 +115,7 @@ def build_workspace_index(
             render_tasks_artifact,
             render_status_artifact,
             scheduler_report_artifact,
+            workspace_health_artifact,
         ),
         notes=(
             "metadata only",
@@ -277,6 +280,33 @@ def _storyline_artifact(root: Path) -> WorkspaceArtifactSummary:
         status="present_unvalidated",
         summary={
             "trust_boundary": "load with a manifest-backed production plan before use",
+        },
+    )
+
+
+def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
+    try:
+        health = workspace_health_summary_to_dict(build_workspace_health_summary(root))
+    except Exception as exc:
+        return _artifact(
+            "workspace_health",
+            "derived_from_trusted_handoffs",
+            present=False,
+            trusted=False,
+            status="invalid",
+            summary={"error": str(exc)},
+        )
+    return _artifact(
+        "workspace_health",
+        "derived_from_trusted_handoffs",
+        present=False,
+        trusted=True,
+        status="derived",
+        summary={
+            "render_plan_fingerprint": health["render_plan_fingerprint"],
+            "task_count": health["task_count"],
+            "status_counts": health["status_counts"],
+            "next_action": health["next_action"],
         },
     )
 

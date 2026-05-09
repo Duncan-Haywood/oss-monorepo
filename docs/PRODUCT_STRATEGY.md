@@ -127,8 +127,8 @@ The current core models a concrete promise for high-volume users:
     handoff as real shoots.
 25. Summarize the current shoot workspace through `index-workspace`, a
     metadata-only command that validates existing trusted artifacts and gives
-    UI/agent layers one coherent handoff without treating raw model JSON as
-    authority.
+    UI/agent layers one coherent handoff plus the health-derived next safe
+    action without treating raw model JSON as authority.
 26. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

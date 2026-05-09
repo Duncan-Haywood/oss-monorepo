@@ -63,6 +63,28 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(payload["shoot_slug"], "cli-demo-shoot")
         self.assertIn("metadata only", payload["notes"])
 
+    def test_workspace_index_includes_derived_next_safe_action(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+
+            index = build_workspace_index(
+                workspace,
+                generated_at="2026-05-09T00:01:30Z",
+            )
+
+        workspace_health = self._artifact(index, "workspace_health")
+
+        self.assertFalse(workspace_health.present)
+        self.assertTrue(workspace_health.trusted)
+        self.assertEqual(workspace_health.status, "derived")
+        self.assertEqual(workspace_health.summary["next_action"]["name"], "init_render_status")
+        self.assertEqual(
+            workspace_health.summary["next_action"]["command"],
+            ["init-render-status", "--workspace", str(workspace)],
+        )
+        self.assertTrue(workspace_health.summary["next_action"]["writes_files"])
+
     def test_write_and_load_workspace_index_rejects_symlinked_index_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

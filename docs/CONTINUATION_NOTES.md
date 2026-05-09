@@ -167,6 +167,10 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
   plus optional persistence.
 - Updated README and strategy/design/business/legal docs to position the index
   as a metadata-only continuity artifact, not a new source of render authority.
+- This branch then folded the read-only workspace health signal into the index
+  as a derived `workspace_health` artifact. `index-workspace` now carries the
+  same next safe action as `workspace-health` while remaining metadata-only and
+  non-advancing.
 
 ## Previous iteration
 
