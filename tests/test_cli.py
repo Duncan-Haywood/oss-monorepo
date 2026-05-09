@@ -874,6 +874,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["preview"]["shoot_folder"], str(shoot_folder))
             self.assertIsNone(report["ingest"])
             self.assertIsNone(report["production_report"])
+            self.assertEqual(
+                report["agent_handoff"],
+                {
+                    "next_step": "review_preview",
+                    "human_review_required": True,
+                    "safe_to_rerun": True,
+                    "may_copy_bytes": False,
+                    "requires_confirm_ingest": True,
+                },
+            )
             self.assertFalse(shoot_folder.exists())
             self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
             self.assertFalse((shoot_folder / "originals").exists())
@@ -929,6 +939,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
             self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
             self.assertFalse(report["production_report"]["wrote_downstream_files"])
+            self.assertEqual(
+                report["agent_handoff"],
+                {
+                    "next_step": "review_production_plan",
+                    "human_review_required": True,
+                    "safe_to_rerun": True,
+                    "may_copy_bytes": False,
+                    "requires_confirm_ingest": False,
+                },
+            )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
@@ -963,6 +983,16 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
         self.assertIsNone(report["route"]["destination"])
         self.assertIsNone(report["preview"])
         self.assertIsNone(report["production_report"])
+        self.assertEqual(
+            report["agent_handoff"],
+            {
+                "next_step": "fix_route",
+                "human_review_required": True,
+                "safe_to_rerun": True,
+                "may_copy_bytes": False,
+                "requires_confirm_ingest": False,
+            },
+        )
         self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
 
     def test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview(self) -> None:
