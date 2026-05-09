@@ -10,6 +10,7 @@ __all__ = [
     "ingest",
     "production",
     "production_report",
+    "production_status",
     "render_adapter",
     "render_scheduler",
     "render_status",

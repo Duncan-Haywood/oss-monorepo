@@ -13,7 +13,7 @@ from shootflow.card_workflow import (
     CardDumpWorkflowReport,
     run_card_dump_workflow,
 )
-from shootflow.catalog import CatalogError
+from shootflow.catalog import CatalogError, load_ingest_manifest, production_assets_from_manifest
 from shootflow.ingest import (
     CopyPlan,
     CopyReport,
@@ -23,8 +23,13 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
-from shootflow.production import ProductionPlanError
+from shootflow.production import ProductionPlanError, build_production_plan
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.production_status import (
+    ProductionStatusError,
+    ProductionStatusInitializationResult,
+    initialize_production_status_manifest,
+)
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
     DryRunRenderSchedulerReport,
@@ -84,6 +89,8 @@ def main(
             _run_execute_ingest_command(args, stdout=out)
         elif args.command == "plan-production":
             _run_plan_production_command(args, stdout=out)
+        elif args.command == "init-production-status":
+            _run_init_production_status_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
         else:
@@ -97,6 +104,7 @@ def main(
         IngestError,
         FileNotFoundError,
         ProductionPlanError,
+        ProductionStatusError,
         CardDumpWorkflowError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
@@ -237,6 +245,19 @@ def _run_plan_production_command(args: argparse.Namespace, *, stdout: TextIO) ->
     stdout.write(_production_plan_report_json(report))
 
 
+def _run_init_production_status_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    catalog = load_ingest_manifest(Path(args.ingest_manifest))
+    trusted_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    result = initialize_production_status_manifest(
+        Path(args.ingest_manifest).parent,
+        trusted_plan=trusted_plan,
+    )
+    stdout.write(_production_status_initialization_json(result) + "\n")
+
+
 def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
@@ -353,6 +374,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
     )
 
+    production_status = subparsers.add_parser(
+        "init-production-status",
+        help="Create production_status.json from a verified ingest manifest if missing.",
+    )
+    production_status.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
     card_dump = subparsers.add_parser(
         "card-dump-workflow",
         help="Run the reviewed route -> ingest preview -> optional safe copy -> production summary flow.",
@@ -440,6 +471,38 @@ def _render_status_count(result: object, state: str) -> int:
     if not isinstance(result, RenderStatusInitializationResult):
         raise ShootFlowCliError("result must be a RenderStatusInitializationResult")
     return sum(1 for status in result.manifest.task_statuses if status.state == state)
+
+
+def _production_status_initialization_json(result: object) -> str:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return json.dumps(
+        {
+            "created": result.created,
+            "status_path": str(result.manifest_path),
+            "shoot_slug": result.manifest.shoot_slug,
+            "production_plan_fingerprint": result.manifest.production_plan_fingerprint,
+            "job_count": len(result.manifest.job_statuses),
+            "pending_job_count": _production_status_count(result, "pending"),
+            "running_job_count": _production_status_count(result, "running"),
+            "succeeded_job_count": _production_status_count(result, "succeeded"),
+            "failed_job_count": _production_status_count(result, "failed"),
+            "retryable_job_count": _production_status_count(result, "retryable"),
+            "notes": [
+                "production status is bound to the verified ingest manifest and deterministic production plan",
+                "initialization never resets an existing matching production_status.json",
+                "no analysis, grading, render, deliverable, deletion, or cleanup files were written",
+            ],
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+
+
+def _production_status_count(result: object, state: str) -> int:
+    if not isinstance(result, ProductionStatusInitializationResult):
+        raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
+    return sum(1 for status in result.manifest.job_statuses if status.state == state)
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:

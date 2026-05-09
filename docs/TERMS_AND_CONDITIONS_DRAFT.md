@@ -26,6 +26,10 @@ This is a working product/legal draft for review by counsel before any public la
 - Post-ingest production planning is read-only. The current `plan-production`
   command reloads and validates the manifest, summarizes planned work, and does
   not create analysis, graded, render-status, or deliverable files.
+- Production-status initialization writes only `production_status.json` beside a
+  verified ingest manifest. It is an operational progress record for local
+  workers, not permission to delete source media, format cards, clean up files,
+  or trust arbitrary model-authored output paths.
 
 ## Customer responsibilities
 
