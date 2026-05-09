@@ -86,6 +86,10 @@ Why this wedge wins:
   status and production scheduler reports as well as render handoffs, so
   pre-render progress, retryable conflicts, blocked jobs, and next safe actions
   are visible without custom manifest parsing.
+- A read-only pilot dashboard contract that consumes workspace health and
+  validated scheduler product metrics to show activation, throughput, and manual
+  intervention signals without parsing raw worker internals or granting copy,
+  retry, cleanup, overwrite, materialization, or deletion authority.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -220,7 +224,7 @@ Run practical experiments tied to this ICP-first plan:
    the safe read-only state probe before initialization and after scheduler runs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-5. Consume scheduler report product metrics in the future Mac UI, continuation
-   dashboards, and pilot analytics so throughput, manual intervention, lease
-   conflicts, and review-required rates become visible.
+5. Bind the new pilot-dashboard contract into the future Mac UI, continuation
+   dashboards, and GTM demos so throughput, manual intervention, lease conflicts,
+   and review-required rates become visible from trusted handoff metrics.
 6. Start proof-based GTM content showing real workflows and outcomes.

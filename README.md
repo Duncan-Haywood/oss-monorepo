@@ -115,6 +115,12 @@ This repo currently contains the first testable core utilities:
   and render status counts, surfaces validated scheduler product metrics when
   trusted reports are present, and suggests the next safe CLI action without
   creating, resetting, deleting, or repairing any files.
+- `shootflow.pilot_dashboard` turns that trusted workspace-health state into the
+  first read-only pilot analytics contract: activation signals, throughput
+  counts, manual-intervention counts, metric-source availability, and the same
+  next safe action for Mac shells or pilot dashboards. It intentionally consumes
+  validated health/report metrics instead of raw worker internals and grants no
+  copy, retry, cleanup, overwrite, materialization, or deletion authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -282,29 +288,34 @@ The intended first workflow is:
     `index-workspace` so native shells and future agents can discover the
     current shoot state from one strict metadata summary without trusting
     arbitrary model JSON or widening file authority.
-26. Run the same handoff through
+26. Build a read-only pilot dashboard with `pilot-dashboard` when Mac shells,
+    pilot analytics, or GTM demos need activation, throughput, and
+    intervention-rate signals. The dashboard consumes `workspace-health` and
+    validated scheduler product metrics only; missing reports leave metric fields
+    unavailable rather than defaulting them to false precision.
+27. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-27. Inspect persisted render workspace state with
+28. Inspect persisted render workspace state with
     `python -m shootflow.cli inspect-render-workspace` so UIs and continuation
     agents can decide whether to initialize status, run the scheduler, review
     blocked/retryable work, or review finished deliverables without writing
     files. Succeeded render outputs must still be present and match their
     recorded SHA-256 checksums before inspection reports the workspace complete.
-28. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+29. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
     The report includes machine-readable `agent_handoff` fields for the next
     safe step and whether that step requires human review or may copy bytes.
-29. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+30. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress. Use `create_card_dump_cli_demo_workspace(...)` or
     `python -m shootflow.cli create-card-dump-demo-workspace` when a demo should
     also prove the detected-card -> checksum-ingest -> production-summary path.
-30. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
+31. Run `python -m shootflow.cli workspace-health --workspace <dir>` whenever a
     native shell, launch agent, or automation resumes a shoot. The command
     validates the durable handoff files it can trust, reports invalid handoffs
     for review, and prints the next safe command instead of trying to repair or
@@ -339,6 +350,8 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> \
   --generated-at 2026-05-07T16:00:07Z \
   --write
+PYTHONPATH=src python3 -m shootflow.cli pilot-dashboard --workspace <dir> \
+  --generated-at 2026-05-07T16:00:08Z
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
@@ -373,6 +386,14 @@ the index include a metadata-only `render_inputs_fingerprint` plus
 `render_input_count` over the current storyline/graded inputs, giving future
 agents a cheap way to detect in-place input changes between snapshots without
 changing renderer authority.
+The pilot dashboard command writes nothing and consumes the same health summary
+instead of raw worker internals. It reports which scheduler metric sources are
+available, activation flags for trusted production/render handoffs, aggregate
+throughput, and manual-intervention counts. Missing or invalid scheduler reports
+keep throughput/intervention fields unavailable rather than deriving dashboard
+numbers from untrusted files. The dashboard names the next safe action for
+display, but omits executable commands for write-capable actions so analytics
+surfaces cannot become schedulers.
 The inspection command writes nothing; it fails closed if an existing status or
 scheduler report no longer matches the trusted render-task plan, and it marks
 succeeded tasks for review if their declared deliverable files are missing,

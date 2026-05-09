@@ -177,7 +177,9 @@ The current core models a concrete promise for high-volume users:
     scheduler product metrics as observational UI/analytics fields, letting a
     future Mac app or pilot dashboard show throughput and intervention-rate
     signals without parsing worker internals or treating metrics as file
-    authority.
+    authority. The first `pilot-dashboard` contract now consumes that health
+    layer directly and reports activation flags, metric-source availability,
+    throughput, and manual-intervention counts as read-only product signals.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -267,7 +269,10 @@ to automate.
    production and render scheduler reports now emit derived product metrics,
    giving the future Mac app and pilot analytics a trusted way to measure
    automation throughput, intervention rate, and reliability without parsing raw
-   worker internals.
+   worker internals. `pilot-dashboard` is the first stable pilot-facing summary
+   on top of those metrics: unavailable reports remain unavailable rather than
+   silently becoming zeroes, and write-capable next actions are named without
+   re-emitting executable scheduler commands.
    The next-production-wave handoff can derive its completed dependency set
    directly from that manifest. The workspace health and index layer gives those
    shells a single metadata snapshot across ingest, production-status,

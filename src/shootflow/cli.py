@@ -43,6 +43,12 @@ from shootflow.production_handoff import (
     plan_next_production_wave,
     plan_next_production_wave_from_status,
 )
+from shootflow.pilot_dashboard import (
+    PilotDashboardError,
+    PilotDashboardSummary,
+    build_pilot_dashboard_summary,
+    pilot_dashboard_summary_to_dict,
+)
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
     DryRunProductionSchedulerReport,
@@ -149,6 +155,8 @@ def main(
             _run_workspace_health_command(args, stdout=out)
         elif args.command == "index-workspace":
             _run_index_workspace_command(args, stdout=out)
+        elif args.command == "pilot-dashboard":
+            _run_pilot_dashboard_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
@@ -173,6 +181,7 @@ def main(
         StoryPlanError,
         WorkspaceHealthError,
         WorkspaceIndexError,
+        PilotDashboardError,
         RenderWorkspaceError,
         DemoWorkspaceError,
         StorageDiscoveryError,
@@ -456,6 +465,14 @@ def _run_index_workspace_command(args: argparse.Namespace, *, stdout: TextIO) ->
     )
 
 
+def _run_pilot_dashboard_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    summary = build_pilot_dashboard_summary(
+        args.workspace,
+        generated_at=args.generated_at,
+    )
+    stdout.write(_pilot_dashboard_summary_json(summary))
+
+
 def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     report = inspect_render_workspace(args.workspace)
     stdout.write(_render_workspace_report_json(report))
@@ -733,6 +750,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--write",
         action="store_true",
         help="Persist shootflow_workspace_index.json in the workspace after building it.",
+    )
+
+    dashboard = subparsers.add_parser(
+        "pilot-dashboard",
+        help="Build a read-only pilot metrics dashboard from trusted workspace health.",
+    )
+    dashboard.add_argument(
+        "--workspace",
+        default=".",
+        help="Shoot workspace containing ShootFlow handoff artifacts.",
+    )
+    dashboard.add_argument(
+        "--generated-at",
+        required=True,
+        help="Caller-supplied timestamp for the read-only pilot dashboard.",
     )
 
     inspect_workspace = subparsers.add_parser(
@@ -1438,6 +1470,20 @@ def _workspace_health_summary_json(summary: WorkspaceHealthSummary) -> str:
     return (
         json.dumps(
             workspace_health_summary_to_dict(summary),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
+def _pilot_dashboard_summary_json(summary: PilotDashboardSummary) -> str:
+    if not isinstance(summary, PilotDashboardSummary):
+        raise ShootFlowCliError("summary must be a PilotDashboardSummary")
+    return (
+        json.dumps(
+            pilot_dashboard_summary_to_dict(summary),
             ensure_ascii=True,
             indent=2,
             sort_keys=True,

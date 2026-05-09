@@ -2,6 +2,55 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 20:30 UTC
+
+This run closed the pilot-dashboard contract target from the previous handoff:
+
+- Added `shootflow.pilot_dashboard`, a read-only product analytics layer over
+  `workspace-health`. It reports metric-source availability, activation signals,
+  aggregate throughput, manual-intervention counts, and the current next action
+  without reading raw worker internals.
+- Added `pilot-dashboard --workspace <dir> --generated-at <timestamp>` to the
+  CLI. Its JSON output is deterministic and observe-only. For write-capable
+  next actions, it names the action and `writes_files` flag but omits executable
+  `command` and runtime-arg fields so analytics surfaces cannot become
+  schedulers, retry runners, or materializers.
+- Missing or invalid scheduler reports leave throughput/intervention counts
+  unavailable (`null`) rather than treating unknown metrics as zero.
+- Added coverage for complete render dashboards, production retry/review
+  dashboards, and missing-metrics dashboard state. A code-review pass caught the
+  initial executable-command leak in the dashboard payload; the follow-up fix
+  added an observe-only next-action view.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  to treat `pilot-dashboard` as implemented pilot analytics infrastructure.
+
+Branch reconciliation for this run:
+
+- Fetched and pruned remote branches. The assigned branch started equal to
+  `origin/main` and `origin/cursor/repository-branch-consolidation-6ce3`.
+- `origin/cursor/branch-consolidation-fedb` remains behind this lineage
+  (`HEAD...branch` compared `2 0`) and was not merged.
+- Deleted stale local branch `cursor/setup-dev-env-3ad0` after confirming it was
+  merged into the assigned branch.
+- Final verification before commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_dashboard &&
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 3 targeted tests OK, 312 tests OK; compileall/diff-check
+  exited 0.
+
+Good next test-first targets:
+
+- Bind `pilot-dashboard` into a minimal native-shell/UI fixture that proves Mac
+  surfaces display intervention and throughput metrics as observational state,
+  while still branching only on explicit next-action/review contracts.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Define pilot acceptance thresholds for activation, intervention rate, and
+  first-draft throughput using the dashboard payload rather than raw worker
+  internals.
+
 ## Implementation continuation note - 2026-05-09 20:00 UTC
 
 This run advanced the metrics-consumption target from the previous handoff:
