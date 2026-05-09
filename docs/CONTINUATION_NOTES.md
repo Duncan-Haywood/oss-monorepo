@@ -35,6 +35,30 @@ Good next test-first targets:
   retryable jobs if a future Mac-shell contract needs full JSON output coverage
   in addition to the core handoff test.
 
+Branch reconciliation for this run:
+
+- `git fetch --prune origin` removed the historical remote cursor branches that
+  had already been merged, superseded, or deleted remotely.
+- `origin/main` remains at `0f169fd`; the assigned branch is 10 commits ahead
+  and contains the prior production-health/lease-recovery work plus this handoff
+  contract fix.
+- `origin/cursor/repository-branch-consolidation-4c04` is fully represented by
+  the assigned branch; the assigned branch is one commit ahead of it.
+- The only remote branch still not merged into the assigned branch is
+  `origin/cursor/branch-consolidation-strategy-d2e7`. Its tree was already
+  superseded by the production lease recovery lineage; it is behind the assigned
+  branch by six commits and ahead only by its old consolidation merge commit, so
+  it was not merged.
+- Deleted the stale local branch `cursor/setup-dev-env-3ad0` after confirming it
+  was merged into the assigned branch. Local `main` is stale but was left in
+  place because cloud branch policy requires development and pushes on the
+  assigned branch.
+- Verification after the code/doc change:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check && git status --short --branch` -> 295 tests OK,
+  compileall/diff-check exited 0, and the tree was clean at commit `0dc5361`.
+
 ## Implementation continuation note - 2026-05-09 18:00 UTC
 
 This run first reconciled the only active remote branch not reachable from
