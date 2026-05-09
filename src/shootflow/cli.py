@@ -53,6 +53,7 @@ from shootflow.render_workspace import RenderWorkspaceError, RenderWorkspaceRepo
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import (
     DiscoveredVolumeMetadata,
+    StorageDiscoveryError,
     discover_import_route,
     discover_storage_candidates,
 )
@@ -142,6 +143,7 @@ def main(
         WorkspaceIndexError,
         RenderWorkspaceError,
         DemoWorkspaceError,
+        StorageDiscoveryError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1

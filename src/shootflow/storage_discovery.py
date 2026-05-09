@@ -12,6 +12,10 @@ from shootflow.storage import (
 )
 
 
+class StorageDiscoveryError(ValueError):
+    """Raised when mounted-volume discovery inputs cannot produce trusted candidates."""
+
+
 @dataclass(frozen=True)
 class DiscoveredVolumeMetadata:
     name: str | None = None
@@ -89,7 +93,7 @@ def _validate_volume_roots(volume_roots: list[Path]) -> None:
     if not isinstance(volume_roots, list):
         raise TypeError("volume_roots must be a list of Path objects")
     if not volume_roots:
-        raise ValueError("volume_roots cannot be empty")
+        raise StorageDiscoveryError("volume_roots cannot be empty")
     for root in volume_roots:
         if not isinstance(root, Path):
             raise TypeError("volume_roots must contain only Path objects")
@@ -115,14 +119,14 @@ def _validate_discovered_volume_metadata(metadata: DiscoveredVolumeMetadata) -> 
     if not isinstance(metadata, DiscoveredVolumeMetadata):
         raise TypeError("metadata_by_path values must be DiscoveredVolumeMetadata objects")
     if metadata.name is not None and (not isinstance(metadata.name, str) or not metadata.name.strip()):
-        raise ValueError("metadata name must be a non-empty string when provided")
+        raise StorageDiscoveryError("metadata name must be a non-empty string when provided")
     for key, value in (("free_bytes", metadata.free_bytes), ("total_bytes", metadata.total_bytes)):
         if value is None:
             continue
         if type(value) is not int:
             raise TypeError(f"{key} must be an integer")
         if value < 0:
-            raise ValueError(f"{key} cannot be negative")
+            raise StorageDiscoveryError(f"{key} cannot be negative")
     for key, value in (("is_removable", metadata.is_removable), ("is_read_only", metadata.is_read_only)):
         if value is not None and not isinstance(value, bool):
             raise TypeError(f"{key} must be a boolean")
@@ -131,7 +135,7 @@ def _validate_discovered_volume_metadata(metadata: DiscoveredVolumeMetadata) -> 
         and metadata.total_bytes is not None
         and metadata.free_bytes > metadata.total_bytes
     ):
-        raise ValueError("free_bytes cannot exceed total_bytes")
+        raise StorageDiscoveryError("free_bytes cannot exceed total_bytes")
 
 
 def _validate_capacity_arguments(*, expected_import_bytes: int | None, headroom_bytes: int) -> None:
@@ -139,11 +143,11 @@ def _validate_capacity_arguments(*, expected_import_bytes: int | None, headroom_
         if not isinstance(expected_import_bytes, int):
             raise TypeError("expected_import_bytes must be an integer")
         if expected_import_bytes <= 0:
-            raise ValueError("expected_import_bytes must be greater than zero")
+            raise StorageDiscoveryError("expected_import_bytes must be greater than zero")
         if not isinstance(headroom_bytes, int):
             raise TypeError("headroom_bytes must be an integer")
         if headroom_bytes < 0:
-            raise ValueError("headroom_bytes cannot be negative")
+            raise StorageDiscoveryError("headroom_bytes cannot be negative")
 
 
 def _empty_discovery_recommendation(*, capacity_gate_active: bool) -> ImportRouteRecommendation:
@@ -202,7 +206,7 @@ def _candidate_capacity(
     free_bytes = metadata.free_bytes if metadata.free_bytes is not None else fallback_free_bytes
     total_bytes = metadata.total_bytes if metadata.total_bytes is not None else fallback_total_bytes
     if free_bytes > total_bytes:
-        raise ValueError("candidate free_bytes cannot exceed total_bytes")
+        raise StorageDiscoveryError("candidate free_bytes cannot exceed total_bytes")
     return free_bytes, total_bytes
 
 

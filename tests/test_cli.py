@@ -775,6 +775,45 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("free_bytes cannot exceed total_bytes", stderr.getvalue())
 
+    def test_plan_import_route_command_rejects_partial_metadata_capacity_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            volume = volumes / "EOS_DIGITAL"
+            metadata_path = workspace / "volume_metadata.json"
+            (volume / "DCIM").mkdir(parents=True)
+            metadata_path.write_text(
+                json.dumps(
+                    {
+                        "volumes": [
+                            {
+                                "path": str(volume),
+                                "free_bytes": 10**30,
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-metadata-json",
+                    str(metadata_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("candidate free_bytes cannot exceed total_bytes", stderr.getvalue())
+
     def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             volumes = Path(tmp) / "Volumes"
