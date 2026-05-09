@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from shootflow.assembly import (
@@ -14,6 +15,7 @@ from shootflow.assembly import (
 )
 from shootflow.card_workflow import CardDumpWorkflowReport, run_card_dump_workflow
 from shootflow.ingest import MEDIA_EXTENSIONS
+from shootflow.storage_discovery import VolumeDiscoveryHint
 
 _SHOOT_SLUG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$")
 _DEFAULT_SHOOT_SLUG = "cli-demo-shoot"
@@ -85,11 +87,10 @@ def create_card_dump_cli_demo_workspace(
 ) -> CardDumpCliDemoWorkspace:
     """Create a synthetic card-dump-to-render workspace for CLI demos.
 
-    The helper creates a fake mounted card and SSD under ``workspace_root``,
-    runs the real confirmed card-dump workflow, then seeds the ingested shoot
-    folder with the persisted render-task demo. It does not initialize render
-    status, run the scheduler, delete source media, or overwrite different
-    existing demo files.
+    The helper seeds a fake mounted card and destination SSD under
+    ``workspace_root``, runs the real confirmed card-dump workflow, then adds the
+    persisted render-task demo to the ingested shoot folder. It deliberately
+    leaves render status and scheduler reports to the normal CLI commands.
     """
 
     root = _workspace_root(workspace_root)
@@ -101,10 +102,14 @@ def create_card_dump_cli_demo_workspace(
     volume_root = root / _DEMO_VOLUME_ROOT
     source_volume = volume_root / _DEMO_SOURCE_VOLUME
     destination_volume = volume_root / _DEMO_DESTINATION_VOLUME
+    destination_shoot_folder = destination_volume / destination_subfolder / f"{shoot_date}_{shoot_slug}"
+
     _preflight_card_dump_demo_volume_root(volume_root)
     _ensure_demo_directory_available(volume_root, root=root, label="demo volume root")
     _ensure_demo_directory_available(source_volume, root=root, label="demo source volume")
     _ensure_demo_directory_available(destination_volume, root=root, label="demo destination volume")
+    _preflight_card_dump_demo_destination_shoot_folder(destination_shoot_folder, root=root)
+    _preflight_card_dump_demo_destination_volume(destination_volume)
     _preflight_card_dump_demo_source_media(source_volume, root=root)
     _preflight_card_dump_demo_source_contents(source_volume)
     _write_card_dump_demo_source_media(source_volume, root=root)
@@ -118,6 +123,7 @@ def create_card_dump_cli_demo_workspace(
         destination_subfolder=destination_subfolder,
         headroom_bytes=0,
         confirm_ingest=True,
+        volume_hints=_card_dump_demo_volume_hints(source_volume, destination_volume),
     )
     if card_dump_report.production_report is None:
         raise DemoWorkspaceError("Card-dump demo did not produce a production report")
@@ -188,11 +194,13 @@ def _workspace_root(workspace_root: Path | str) -> Path:
     if not isinstance(workspace_root, (Path, str)):
         raise DemoWorkspaceError("workspace_root must be a pathlib.Path or string")
     root = Path(workspace_root)
+    _reject_symlink_path_components(root)
     if root.is_symlink():
         raise DemoWorkspaceError(f"Refusing demo workspace symlink: {root}")
     if root.exists() and not root.is_dir():
         raise DemoWorkspaceError(f"Demo workspace root must be a directory: {root}")
     root.mkdir(parents=True, exist_ok=True)
+    _reject_symlink_path_components(root)
     if root.is_symlink():
         raise DemoWorkspaceError(f"Refusing demo workspace symlink: {root}")
     return root
@@ -211,6 +219,10 @@ def _validate_card_dump_demo_args(
 ) -> None:
     if not isinstance(shoot_date, str) or not shoot_date.strip():
         raise DemoWorkspaceError("shoot_date must be a non-empty string")
+    try:
+        date.fromisoformat(shoot_date)
+    except ValueError as exc:
+        raise DemoWorkspaceError("shoot_date must be an ISO-8601 date") from exc
     _validate_shoot_slug(shoot_slug)
     if not isinstance(destination_subfolder, str) or not destination_subfolder.strip():
         raise DemoWorkspaceError("destination_subfolder must be a non-empty relative path")
@@ -218,7 +230,9 @@ def _validate_card_dump_demo_args(
     if subfolder_path.is_absolute():
         raise DemoWorkspaceError("destination_subfolder must be relative")
     if any(part in ("", ".", "..") for part in subfolder_path.parts):
-        raise DemoWorkspaceError("destination_subfolder cannot contain empty, current, or parent components")
+        raise DemoWorkspaceError(
+            "destination_subfolder cannot contain empty, current, or parent components"
+        )
 
 
 def _preflight_card_dump_demo_volume_root(volume_root: Path) -> None:
@@ -241,23 +255,46 @@ def _preflight_card_dump_demo_source_media(source_volume: Path, *, root: Path) -
         if path.is_symlink() or not path.is_file():
             raise DemoWorkspaceError(f"Refusing unsafe existing demo source file: {path}")
         if path.read_bytes() != content:
-            raise DemoWorkspaceError(f"Refusing to overwrite existing different demo source file: {path}")
+            raise DemoWorkspaceError(
+                f"Refusing to overwrite existing different demo source file: {path}"
+            )
+
+
+def _preflight_card_dump_demo_destination_shoot_folder(shoot_folder: Path, *, root: Path) -> None:
+    _reject_symlink_ancestors(shoot_folder.parent, root=root)
+    if shoot_folder.exists() or shoot_folder.is_symlink():
+        raise DemoWorkspaceError(f"Refusing existing demo destination shoot folder: {shoot_folder}")
+
+
+def _preflight_card_dump_demo_destination_volume(destination_volume: Path) -> None:
+    if not destination_volume.exists():
+        return
+    for child in destination_volume.iterdir():
+        raise DemoWorkspaceError(f"Unexpected demo destination entry: {child}")
 
 
 def _preflight_card_dump_demo_source_contents(source_volume: Path) -> None:
     if not source_volume.exists():
         return
     expected_media_paths = {Path(relative_path) for relative_path, _content in _CARD_DUMP_DEMO_SOURCE_MEDIA}
+    expected_directories = {
+        parent
+        for path in expected_media_paths
+        for parent in path.parents
+        if parent != Path(".")
+    }
     for path in sorted(source_volume.rglob("*")):
         if path.is_symlink():
             raise DemoWorkspaceError(f"Refusing unsafe existing demo source file: {path}")
-        if path.is_dir():
-            continue
-        if path.suffix.lower() not in MEDIA_EXTENSIONS:
-            continue
         relative_path = path.relative_to(source_volume)
+        if path.is_dir():
+            if relative_path not in expected_directories:
+                raise DemoWorkspaceError(f"Unexpected demo source entry: {path}")
+            continue
         if relative_path not in expected_media_paths:
-            raise DemoWorkspaceError(f"Unexpected demo source media: {path}")
+            if path.suffix.lower() in MEDIA_EXTENSIONS:
+                raise DemoWorkspaceError(f"Unexpected demo source media: {path}")
+            raise DemoWorkspaceError(f"Unexpected demo source entry: {path}")
 
 
 def _ensure_demo_directory_available(path: Path, *, root: Path, label: str) -> None:
@@ -269,6 +306,28 @@ def _ensure_demo_directory_available(path: Path, *, root: Path, label: str) -> N
 def _write_card_dump_demo_source_media(source_volume: Path, *, root: Path) -> None:
     for relative_path, content in _CARD_DUMP_DEMO_SOURCE_MEDIA:
         _write_exact_demo_file(source_volume / relative_path, root=root, content=content)
+
+
+def _card_dump_demo_volume_hints(
+    source_volume: Path,
+    destination_volume: Path,
+) -> dict[Path, VolumeDiscoveryHint]:
+    return {
+        source_volume: VolumeDiscoveryHint(
+            display_name=_DEMO_SOURCE_VOLUME,
+            free_bytes=1024**3,
+            total_bytes=2 * 1024**3,
+            is_removable=True,
+            is_read_only=True,
+        ),
+        destination_volume: VolumeDiscoveryHint(
+            display_name=_DEMO_DESTINATION_VOLUME,
+            free_bytes=1024**4,
+            total_bytes=2 * 1024**4,
+            is_removable=True,
+            is_read_only=False,
+        ),
+    }
 
 
 def _demo_assembly_plan(shoot_slug: str) -> AssemblyPlan:
@@ -450,6 +509,18 @@ def _reject_symlink_ancestors(path: Path, *, root: Path) -> None:
         current = current / part
         if current.is_symlink():
             raise DemoWorkspaceError(f"Refusing symlinked demo workspace path: {current}")
+
+
+def _reject_symlink_path_components(path: Path) -> None:
+    current = Path(path.anchor) if path.anchor else Path()
+    for part in path.parts:
+        if path.anchor and part == path.anchor:
+            continue
+        current = current / part
+        if current.is_symlink():
+            raise DemoWorkspaceError(f"Refusing symlinked demo workspace path: {current}")
+        if not current.exists():
+            break
 
 
 def _validate_demo_workspace(demo: PersistedCliDemoWorkspace) -> None:

@@ -20,6 +20,11 @@ Best-work reconciliation decisions:
   real confirmed checksum ingest workflow, writes the resulting
   `ingest_manifest.json`, seeds deterministic trusted render-task demo inputs,
   and leaves render-status/scheduler report creation to the normal commands.
+  A late-arriving consolidation branch added extra hardening that is also
+  included here: ISO date validation before writes, synthetic capacity/read-only
+  hints for deterministic routing, destination shoot-folder preflight, refusal of
+  unexpected destination/source entries, and symlinked workspace-parent
+  rejection.
 - Added the storage-discovery regression from the native-volume-hints branches:
   hints for paths outside reviewed volume roots are ignored and cannot create a
   source/destination route.
