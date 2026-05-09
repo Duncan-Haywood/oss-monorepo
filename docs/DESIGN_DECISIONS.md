@@ -261,6 +261,15 @@ High quality depends on scene-level consistency and reversible edits. The system
   emits `AssetAnalysis` records that point at graded artifacts rather than originals.
 - Jobs expose explicit output artifacts. Instagram deliverables consume graded-master artifacts, not raw
   originals, which keeps social assembly downstream of the color pipeline.
+- `shootflow.production_handoff` is the read-only bridge between plan review and
+  actual proxy/VLM/color/story workers. It reloads the verified ingest manifest,
+  rebuilds the deterministic production plan, canonicalizes caller-reported
+  completed job IDs into plan order, rejects unknown IDs, duplicates, and
+  completed jobs whose dependencies are not also complete, then returns the next
+  ready wave. It deliberately writes no analysis, graded, render-task, status,
+  scheduler-report, or deliverable files; a future production-status manifest
+  should replace caller-reported completions before real worker retries become
+  automatic.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

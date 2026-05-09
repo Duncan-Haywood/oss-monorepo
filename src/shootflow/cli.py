@@ -30,6 +30,11 @@ from shootflow.ingest import (
     plan_import,
 )
 from shootflow.production import ProductionPlanError, build_production_plan
+from shootflow.production_handoff import (
+    ProductionHandoffError,
+    ProductionWaveHandoff,
+    plan_next_production_wave,
+)
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
@@ -106,6 +111,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "write-render-tasks":
             _run_write_render_tasks_command(args, stdout=out)
+        elif args.command == "next-production-wave":
+            _run_next_production_wave_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
         elif args.command == "workspace-health":
@@ -125,6 +132,7 @@ def main(
         IngestError,
         FileNotFoundError,
         ProductionPlanError,
+        ProductionHandoffError,
         CardDumpWorkflowError,
         StoryPlanError,
         WorkspaceHealthError,
@@ -298,6 +306,14 @@ def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO)
     )
 
 
+def _run_next_production_wave_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    handoff = plan_next_production_wave(
+        args.ingest_manifest,
+        completed_job_ids=tuple(args.completed_job),
+    )
+    stdout.write(_production_wave_handoff_json(handoff))
+
+
 def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
@@ -454,6 +470,22 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=250,
         help="Maximum number of photo-set inputs per parallel export task.",
+    )
+
+    next_wave = subparsers.add_parser(
+        "next-production-wave",
+        help="Return the next ready manifest-backed production wave without writing artifacts.",
+    )
+    next_wave.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+    next_wave.add_argument(
+        "--completed-job",
+        action="append",
+        default=[],
+        help="Production job ID the caller has completed. Repeat for each completed job.",
     )
 
     card_dump = subparsers.add_parser(
@@ -806,6 +838,42 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
     ) + "\n"
 
 
+def _production_wave_handoff_json(handoff: ProductionWaveHandoff) -> str:
+    if not isinstance(handoff, ProductionWaveHandoff):
+        raise ShootFlowCliError("handoff must be a ProductionWaveHandoff")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "manifest_path": str(handoff.manifest_path),
+            "workspace": str(handoff.workspace),
+            "shoot_slug": handoff.shoot_slug,
+            "status": handoff.status,
+            "wave_index": handoff.wave_index,
+            "completed_job_ids": list(handoff.completed_job_ids),
+            "blocked_dependency_ids": list(handoff.blocked_dependency_ids),
+            "production_plan": {
+                "job_count": len(handoff.production_plan.jobs),
+                "wave_count": len(handoff.production_plan.execution_waves),
+            },
+            "jobs": [
+                {
+                    "job_id": job.job_id,
+                    "output_kind": job.output_kind,
+                    "inputs": list(job.inputs),
+                    "outputs": list(job.outputs),
+                    "depends_on": list(job.depends_on),
+                    "can_run_in_parallel": job.can_run_in_parallel,
+                }
+                for job in handoff.jobs
+            ],
+            "notes": list(handoff.notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
 def _write_render_tasks_summary_json(
     plan: AssemblyPlan,
     *,
@@ -888,6 +956,7 @@ def _non_render_dependency_ids(plan: AssemblyPlan) -> list[str]:
             seen.add(dependency_id)
             dependency_ids.append(dependency_id)
     return dependency_ids
+
 
 
 def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
