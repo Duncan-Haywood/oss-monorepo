@@ -97,6 +97,12 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.render_inspection`: a read-only verification layer for persisted
+  render workspaces. It loads the trusted render-status manifest against the
+  trusted task plan, checks only declared succeeded `deliverables/` outputs,
+  and reports verified, missing, checksum-mismatched, unsafe, non-file, or
+  unreadable outputs. It intentionally does not initialize status, schedule
+  work, retry tasks, overwrite files, clean temporary paths, or delete media.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -104,8 +110,10 @@ The repo currently contains a Python core package because it is quick to test an
   command then treats the persisted render-task/status pair as the trusted renderer contract, validates the matching
   render-status manifest by fingerprint, runs the scheduler, writes `deliverables/render_scheduler_report.json`, and
   optionally prints the same schema-versioned report JSON for a Mac UI, launch agent, or continuation automation.
-  Neither command accepts model-authored paths, deletes files, or widens renderer authority beyond the persisted
-  render-task/status contracts.
+  `inspect-render-workspace` prints the same read-only inspection contract from
+  persisted manifests before UI review/retry/delivery decisions. None of these
+  commands accept model-authored paths, delete files, or widen renderer
+  authority beyond the persisted render-task/status contracts.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
@@ -149,16 +157,20 @@ The desired high-quality pipeline is:
 18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
-    begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+19. Inspect declared succeeded deliverable outputs from the trusted persisted
+    status manifest so review/retry layers can catch missing or changed files
+    before treating a render as deliverable-ready.
+20. Run the persisted-manifest init, scheduler, and inspection commands through
+    a CLI/background-agent flow so native app work can begin from durable
+    handoffs rather than an in-process Python object graph.
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
-22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-23. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 

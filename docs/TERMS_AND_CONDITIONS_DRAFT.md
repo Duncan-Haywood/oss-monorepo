@@ -26,6 +26,10 @@ This is a working product/legal draft for review by counsel before any public la
 - Post-ingest production planning is read-only. The current `plan-production`
   command reloads and validates the manifest, summarizes planned work, and does
   not create analysis, graded, render-status, or deliverable files.
+- Render workspace inspection is read-only. It validates trusted render
+  manifests and checks declared succeeded deliverable outputs by checksum, but
+  it does not schedule work, retry tasks, overwrite outputs, clean temporary
+  files, or delete media.
 
 ## Customer responsibilities
 

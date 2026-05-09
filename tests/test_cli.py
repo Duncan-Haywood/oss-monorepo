@@ -1,4 +1,5 @@
 import io
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -12,6 +13,7 @@ from shootflow.demo_workspace import (
 )
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
+    OutputChecksum,
     RenderStatusManifest,
     RenderTaskStatus,
     load_render_status_manifest,
@@ -443,6 +445,114 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("Unexpected render task field", stderr.getvalue())
+
+    def test_inspect_render_workspace_command_reports_verified_outputs_without_writes(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(b"rendered reel")
+            output_checksum = hashlib.sha256(output_path.read_bytes()).hexdigest()
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256=output_checksum,
+                                ),
+                            ),
+                            updated_at="2026-05-09T10:10:00Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+            )
+
+            report = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["status"], "complete")
+        self.assertEqual(report["task_counts"]["succeeded"], 1)
+        self.assertEqual(report["output_counts"]["verified"], 1)
+        self.assertEqual(report["review_required_task_ids"], [])
+        self.assertEqual(report["outputs"][0]["state"], "verified")
+        self.assertFalse((workspace / "deliverables" / "render_scheduler_report.json").exists())
+
+    def test_inspect_render_workspace_command_allows_archived_task_inputs(self) -> None:
+        trusted_plan = self._single_task_plan()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            output_path = workspace / "deliverables" / "instagram_reel.mp4"
+            output_path.write_bytes(b"rendered reel")
+            output_checksum = hashlib.sha256(output_path.read_bytes()).hexdigest()
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256=output_checksum,
+                                ),
+                            ),
+                            updated_at="2026-05-09T10:20:00Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            report = json.loads(stdout.getvalue())
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        self.assertEqual(report["status"], "complete")
+        self.assertEqual(report["output_counts"]["verified"], 1)
 
     def _pending_manifest(self, trusted_plan: AssemblyPlan) -> RenderStatusManifest:
         return RenderStatusManifest(

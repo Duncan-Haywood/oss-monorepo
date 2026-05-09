@@ -29,6 +29,7 @@ PYTHONPATH=src python3 -m shootflow.cli --help
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route --volume-root <dir> ...
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
+PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
 The CLI needs pre-built `deliverables/render_tasks.json` and
