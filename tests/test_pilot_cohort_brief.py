@@ -225,6 +225,28 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertNotIn("python -m", text)
         self.assertNotIn("--confirm", text)
 
+    def test_brief_text_omits_free_form_generated_at(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["generated_at"] = "run python -m shootflow.cli execute-ingest --confirm"
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            text = pilot_cohort_brief_module.pilot_cohort_brief_to_text(
+                build_pilot_cohort_brief_from_report_path(report_path)
+            )
+
+        self.assertIn("Source generated at: omitted from text output", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
+
     def test_brief_rejects_forged_ready_report_with_no_metrics_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

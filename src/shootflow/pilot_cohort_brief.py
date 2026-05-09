@@ -146,7 +146,7 @@ def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
         f"Status: {brief.status}",
         f"Headline: {brief.headline}",
         "Source report: omitted from text output",
-        f"Source generated at: {brief.source_generated_at}",
+        "Source generated at: omitted from text output",
         "",
         "Summary:",
         f"- Dashboards: {brief.summary.dashboard_count}",

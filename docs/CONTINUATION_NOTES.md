@@ -18,6 +18,9 @@ This run closed the prior text-mode/native-shell cohort brief target:
 - A final review pass found the same risk in saved report paths, workspace
   titles, and dashboard paths. The text view now omits those free-form fields too
   and uses ordinal workspace labels instead.
+- A re-review found the same risk in saved `generated_at` strings. The text view
+  now omits that timestamp field too; JSON remains the complete machine-readable
+  contract.
 - Updated README, AGENTS, product strategy, business plan, and design decisions
   to treat the text-mode brief as the command-free presentation layer over saved
   cohort reports.
@@ -29,6 +32,8 @@ Review and branch reconciliation for this run:
   echoed into text output.
 - Review-follow-up red run failed because free-form saved paths and workspace
   titles were echoed into text output.
+- Re-review-follow-up red run failed because a free-form saved `generated_at`
+  string was echoed into text output.
 - Verification before the first commit:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&

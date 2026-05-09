@@ -452,9 +452,9 @@ headline, summary labels, and per-workspace readiness cards so demos can show
 readiness, intervention, and first-draft output evidence without parsing raw
 worker internals. JSON remains the default output for integrations; `--format
 text` prints a deterministic command-free native-shell view for demos and
-operator readouts, omitting saved paths, workspace titles, and free-form report
-notes so text output cannot become a shell handoff. It remains observe-only and
-does not emit executable workflow commands.
+operator readouts, omitting saved paths, timestamps, workspace titles, and
+free-form report notes so text output cannot become a shell handoff. It remains
+observe-only and does not emit executable workflow commands.
 The pilot cohort demo command writes a controlled fixture for demos: multiple
 trusted persisted render demo workspaces under `workspaces/`, saved schema v2
 dashboard JSON under `pilot_dashboards/`, and one saved
