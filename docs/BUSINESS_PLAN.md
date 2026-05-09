@@ -171,8 +171,8 @@ Run practical experiments tied to this ICP-first plan:
    native Disk Arbitration metadata and an approval screen before AI/color work
    starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in `shootflow.demo_workspace`, and `plan-production` proves
-   the safe ingest-to-production-plan handoff; next, connect
+   half is now public through `create-demo-workspace`, and `plan-production`
+   proves the safe ingest-to-production-plan handoff; next, connect
    `card-dump-workflow` with the persisted render-task demo so one smoke path
    runs from detected card to scheduler report.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).

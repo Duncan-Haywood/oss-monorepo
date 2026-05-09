@@ -21,6 +21,137 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_create_demo_workspace_command_prints_public_handoff_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "demo"
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "launch-demo",
+                ],
+                stdout=stdout,
+            )
+
+            status_path = workspace / "deliverables" / "render_status.json"
+            scheduler_report_path = workspace / "deliverables" / "render_scheduler_report.json"
+            status_manifest_exists = status_path.exists()
+            scheduler_report_exists = scheduler_report_path.exists()
+
+        self.assertNotEqual(stdout.getvalue(), "")
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["schema_version"], 1)
+        self.assertEqual(printed_summary["workspace"], str(workspace))
+        self.assertEqual(printed_summary["shoot_slug"], "launch-demo")
+        self.assertEqual(printed_summary["render_task_count"], 4)
+        self.assertTrue(printed_summary["render_tasks_manifest_path"].endswith("deliverables/render_tasks.json"))
+        self.assertEqual(
+            printed_summary["required_completed_dependency_ids"],
+            [
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+                "grade_asset_00002",
+                "grade_asset_00003",
+            ],
+        )
+        self.assertEqual(len(printed_summary["expected_output_paths"]), 6)
+        self.assertIn("demo helper never deletes source media", printed_summary["safety_notes"])
+        self.assertFalse(status_manifest_exists)
+        self.assertFalse(scheduler_report_exists)
+
+    def test_create_demo_workspace_command_runs_cli_only_init_to_scheduler_flow(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "demo"
+            create_stdout = io.StringIO()
+            init_stdout = io.StringIO()
+            scheduler_stdout = io.StringIO()
+
+            create_exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=create_stdout,
+            )
+            self.assertNotEqual(create_stdout.getvalue(), "")
+            create_summary = json.loads(create_stdout.getvalue())
+            init_exit_code = main(
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=init_stdout,
+            )
+            scheduler_args = [
+                "dry-run-render-scheduler",
+                "--workspace",
+                str(workspace),
+                "--renderer",
+                "dry-run-local",
+                "--started-at",
+                "2026-05-09T04:35:00Z",
+                "--completed-at",
+                "2026-05-09T04:35:05Z",
+                "--generated-at",
+                "2026-05-09T04:35:06Z",
+                "--max-concurrency",
+                "3",
+                "--max-iterations",
+                "4",
+                "--print-report",
+            ]
+            for dependency_id in create_summary["required_completed_dependency_ids"]:
+                scheduler_args.extend(["--completed-dependency", dependency_id])
+
+            scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
+
+        init_summary = json.loads(init_stdout.getvalue())
+        scheduler_report = json.loads(scheduler_stdout.getvalue())
+        self.assertEqual(create_exit_code, 0)
+        self.assertEqual(init_exit_code, 0)
+        self.assertTrue(init_summary["created"])
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(scheduler_report["stopped_reason"], "complete")
+        self.assertEqual(
+            scheduler_report["outputs_materialized"],
+            create_summary["expected_output_paths"],
+        )
+        self.assertEqual(scheduler_report["review_required_task_ids"], [])
+
+    def test_create_demo_workspace_command_refuses_existing_input_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "demo"
+            storyline_path = workspace / "analysis" / "instagram_storylines.json"
+            storyline_path.parent.mkdir(parents=True)
+            storyline_path.write_bytes(b"user-owned storyline")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(storyline_path.read_bytes(), b"user-owned storyline")
+            self.assertFalse((workspace / "deliverables" / "render_tasks.json").exists())
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("Refusing to overwrite", stderr.getvalue())
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
