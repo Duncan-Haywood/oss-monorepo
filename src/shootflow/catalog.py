@@ -70,7 +70,10 @@ def load_ingest_manifest(manifest_path: Path | str) -> ShootCatalog:
     if not manifest.is_file():
         raise FileNotFoundError(manifest)
 
-    raw_data = json.loads(manifest.read_text(encoding="utf-8"))
+    try:
+        raw_data = json.loads(manifest.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise CatalogError(f"Invalid ingest manifest JSON: {manifest}") from exc
     if not isinstance(raw_data, dict):
         raise CatalogError("Manifest root must be an object")
 

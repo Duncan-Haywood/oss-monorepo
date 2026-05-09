@@ -17,6 +17,10 @@ This is a working product/legal draft for review by counsel before any public la
 - Drive detection and import suggestions should be treated as recommendations until the user reviews the source and destination. The legal terms should avoid promising that the product can identify every SD card, SSD, corrupt file, or unsafe path perfectly.
 - Mounted-volume discovery should be framed as advisory scanning of user/system-provided locations. Skipping symlinks, files, inaccessible paths, or unusual devices is a safety feature, not a guarantee that every connected device will be detected.
 - Generated manifests, render status files, and scheduler reports should be presented as operational records, not as a substitute for independent backups or professional media archive practices.
+- Workspace index files should be presented as metadata summaries of operational
+  records. They do not expand renderer authority, prove backup completeness, or
+  make standalone AI/storyline artifacts safe to execute without the underlying
+  manifest-backed validation.
 - Command-line ingest automation requires an explicit `--confirm` flag before any media is copied. Discovery and preview commands are advisory; they never copy files, never write a manifest, and never delete media. Even with `--confirm`, source media is not deleted, destination files are never overwritten with different bytes, and every copy is verified by SHA-256 before the manifest is written.
 - The unified card-dump workflow follows the same boundary: without
   `--confirm-ingest` it only discovers routes, estimates source media, and
