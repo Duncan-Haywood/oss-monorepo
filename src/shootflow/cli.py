@@ -39,7 +39,7 @@ from shootflow.render_status import (
     load_render_status_manifest,
 )
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
-from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
+from shootflow.storage_discovery import VolumeDiscoveryHint, discover_import_route, discover_storage_candidates
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 1
 
@@ -119,11 +119,12 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
     if args.headroom_bytes < 0:
         raise ShootFlowCliError("--headroom-bytes cannot be negative")
     volume_roots = _parse_volume_roots(args.volume_root)
+    volume_hints = _load_volume_hints_json(args.volume_hints_json)
     expected_import_bytes = args.expected_import_bytes
     source_estimate: ImportSourceEstimate | None = None
 
     if args.estimate_source_bytes:
-        initial_recommendation = discover_import_route(volume_roots)
+        initial_recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
         if initial_recommendation.source is not None:
             source_estimate = estimate_import_source(initial_recommendation.source.candidate.path)
             expected_import_bytes = source_estimate.estimated_bytes
@@ -131,6 +132,7 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
                 volume_roots,
                 expected_import_bytes=expected_import_bytes,
                 headroom_bytes=args.headroom_bytes,
+                volume_hints=volume_hints,
             )
         else:
             recommendation = initial_recommendation
@@ -139,13 +141,14 @@ def _run_plan_import_route_command(args: argparse.Namespace, *, stdout: TextIO) 
             volume_roots,
             expected_import_bytes=expected_import_bytes,
             headroom_bytes=args.headroom_bytes,
+            volume_hints=volume_hints,
         )
     else:
-        recommendation = discover_import_route(volume_roots)
+        recommendation = discover_import_route(volume_roots, volume_hints=volume_hints)
 
     discovered_candidates: list[StorageCandidate] = []
     if args.print_candidates:
-        discovered_candidates = discover_storage_candidates(volume_roots)
+        discovered_candidates = discover_storage_candidates(volume_roots, volume_hints=volume_hints)
 
     stdout.write(
         _import_route_json(
@@ -247,6 +250,7 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         destination_subfolder=args.destination_subfolder,
         headroom_bytes=args.headroom_bytes,
         confirm_ingest=args.confirm_ingest,
+        volume_hints=_load_volume_hints_json(args.volume_hints_json),
     )
     stdout.write(_card_dump_workflow_report_json(report))
 
@@ -295,6 +299,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--print-candidates",
         action="store_true",
         help="Include discovered storage candidates in command output.",
+    )
+    plan_import_route.add_argument(
+        "--volume-hints-json",
+        help="Optional native volume metadata JSON file keyed by mounted volume path.",
     )
 
     scheduler = subparsers.add_parser(
@@ -387,6 +395,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+    card_dump.add_argument(
+        "--volume-hints-json",
+        help="Optional native volume metadata JSON file keyed by mounted volume path.",
     )
 
     return parser
@@ -518,6 +530,76 @@ def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
             raise ShootFlowCliError("volume roots must be non-empty strings")
         roots.append(Path(raw_root))
     return roots
+
+
+def _load_volume_hints_json(raw_path: str | None) -> dict[Path, VolumeDiscoveryHint] | None:
+    if raw_path is None:
+        return None
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError("--volume-hints-json must be a non-empty path")
+    hint_path = Path(raw_path)
+    try:
+        with hint_path.open("r", encoding="utf-8") as hint_file:
+            payload = json.load(hint_file)
+    except OSError as exc:
+        raise ShootFlowCliError(f"Could not read volume hints JSON: {hint_path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ShootFlowCliError(f"Volume hints JSON is not valid JSON: {hint_path}") from exc
+    return _parse_volume_hints_payload(payload)
+
+
+def _parse_volume_hints_payload(payload: object) -> dict[Path, VolumeDiscoveryHint]:
+    if not isinstance(payload, dict):
+        raise ShootFlowCliError("volume hints JSON must be an object")
+    allowed_keys = {"schema_version", "volumes"}
+    unknown_keys = set(payload) - allowed_keys
+    if unknown_keys:
+        raise ShootFlowCliError(f"volume hints JSON has unknown fields: {', '.join(sorted(unknown_keys))}")
+    if payload.get("schema_version") != 1:
+        raise ShootFlowCliError("volume hints JSON schema_version must be 1")
+    volumes = payload.get("volumes")
+    if not isinstance(volumes, list):
+        raise ShootFlowCliError("volume hints JSON volumes must be a list")
+
+    hints: dict[Path, VolumeDiscoveryHint] = {}
+    for index, entry in enumerate(volumes):
+        if not isinstance(entry, dict):
+            raise ShootFlowCliError(f"volume hint entry {index} must be an object")
+        path, hint = _parse_volume_hint_entry(entry, index)
+        if path in hints:
+            raise ShootFlowCliError(f"volume hint entry {index} duplicates path: {path}")
+        hints[path] = hint
+    return hints
+
+
+def _parse_volume_hint_entry(entry: dict[object, object], index: int) -> tuple[Path, VolumeDiscoveryHint]:
+    allowed_keys = {"path", "display_name", "is_removable", "is_read_only"}
+    unknown_keys = set(entry) - allowed_keys
+    if unknown_keys:
+        raise ShootFlowCliError(
+            f"volume hint entry {index} has unknown fields: {', '.join(sorted(str(key) for key in unknown_keys))}"
+        )
+    raw_path = entry.get("path")
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ShootFlowCliError(f"volume hint entry {index} path must be a non-empty string")
+
+    display_name = entry.get("display_name")
+    if display_name is not None and (not isinstance(display_name, str) or not display_name.strip()):
+        raise ShootFlowCliError(f"volume hint entry {index} display_name must be a non-empty string")
+
+    is_removable = entry.get("is_removable")
+    if is_removable is not None and not isinstance(is_removable, bool):
+        raise ShootFlowCliError(f"volume hint entry {index} is_removable must be a boolean")
+
+    is_read_only = entry.get("is_read_only")
+    if is_read_only is not None and not isinstance(is_read_only, bool):
+        raise ShootFlowCliError(f"volume hint entry {index} is_read_only must be a boolean")
+
+    return Path(raw_path), VolumeDiscoveryHint(
+        display_name=display_name,
+        is_removable=is_removable,
+        is_read_only=is_read_only,
+    )
 
 
 def _ranked_storage_candidate_json(candidate: RankedStorageCandidate | None) -> dict[str, object] | None:

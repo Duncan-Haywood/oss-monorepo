@@ -51,7 +51,9 @@ to trust and sell:
 The current core models a concrete promise for high-volume users:
 
 1. Discover mounted-volume candidates from reviewed roots, rank detected storage, then recommend a
-   review-required source/destination route.
+   review-required source/destination route. Native shells may pass advisory
+   volume hints so a generic card such as `Untitled` can display as a camera
+   card and internal disks can rank below external SSDs without bypassing review.
 2. Ingest safely from the approved card, local folder, or SSD.
 3. Preserve originals and emit a manifest.
 4. Generate a read-only production-plan report from that manifest so the user
@@ -133,8 +135,9 @@ to automate.
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes a mounted-volume discovery bridge plus capacity-gated route
    recommendation, safe ingest commands, and a read-only `plan-production` report after ingest; the next
-   step is native macOS metadata (Disk Arbitration/Swift UI approval) plus an approval screen around the
-   new `card-dump-workflow` contract before proxy/analysis/grading work begins.
+   step is a SwiftUI approval screen around the new `card-dump-workflow` contract before proxy/analysis/
+   grading work begins. The core and CLI now accept strict native volume-hint JSON, which is the bridge for
+   Disk Arbitration metadata until the desktop shell calls the Python API directly.
 2. Color-look profile model that can learn from a reference edit or existing
    Lightroom/DaVinci exports.
 3. Selects model that creates several reel/carousel narratives instead of one
@@ -250,7 +253,9 @@ Messaging should emphasize:
 To keep the product useful for professionals, ingest must stay conservative:
 
 1. **Detection is advisory:** drive/card detection proposes a route for review; it
-   is never permission to start destructive actions.
+   is never permission to start destructive actions. Native metadata hints can
+   influence names and ranking, but only for volumes already discovered under
+   reviewed roots.
 2. **Offload before edit:** users should route source card -> working destination
    first, then run grading/assembly from the ingest manifest boundary.
 3. **Capacity gate by default:** destination selection should require estimated

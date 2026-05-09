@@ -85,8 +85,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.storage_discovery` is the first native-app-facing discovery
   bridge: it scans reviewed mounted-volume roots such as macOS `/Volumes`,
   skips symlinks/files/inaccessible entries, turns immediate volume directories
-  into `StorageCandidate` records, and can feed the same capacity-gated route
-  recommendation contract.
+  into `StorageCandidate` records, applies optional advisory native volume
+  hints for display/removable/read-only metadata, and can feed the same
+  capacity-gated route recommendation contract.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -198,6 +199,7 @@ The import-route planning flow is:
 ```bash
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route \
   --volume-root /Volumes \
+  --volume-hints-json /tmp/shootflow-volume-hints.json \
   --estimate-source-bytes \
   --headroom-bytes 34359738368 \
   --print-candidates
@@ -206,7 +208,31 @@ PYTHONPATH=src python3 -m shootflow.cli plan-import-route \
 This command performs mounted-volume discovery and emits a review-required JSON
 recommendation for source/destination routing. It can estimate media bytes from
 the discovered source and apply a destination capacity gate before ingest.
-It does not copy files, delete source media, or grant destructive authority.
+An optional hint file lets a native macOS layer pass advisory metadata without
+changing filesystem checks:
+
+```json
+{
+  "schema_version": 1,
+  "volumes": [
+    {
+      "path": "/Volumes/Untitled",
+      "display_name": "EOS_R5_CARD",
+      "is_removable": true,
+      "is_read_only": true
+    },
+    {
+      "path": "/Volumes/Macintosh HD",
+      "is_removable": false
+    }
+  ]
+}
+```
+
+Hints can rename discovered candidates and adjust route ranking; they do not
+create candidates, bypass capacity checks, or grant destructive authority.
+`is_read_only: false` cannot override an unwritable filesystem path. The command
+does not copy files or delete source media.
 
 The unified card-dump workflow for a Mac app shell or demo is:
 
@@ -214,6 +240,7 @@ The unified card-dump workflow for a Mac app shell or demo is:
 # Preview detected route + checksum copy plan. No bytes are copied.
 PYTHONPATH=src python3 -m shootflow.cli card-dump-workflow \
   --volume-root /Volumes \
+  --volume-hints-json /tmp/shootflow-volume-hints.json \
   --shoot-date 2026-05-08 \
   --shoot-slug desert-editorial \
   --destination-subfolder ShootFlow

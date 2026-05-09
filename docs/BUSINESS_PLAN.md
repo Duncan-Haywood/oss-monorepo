@@ -50,6 +50,9 @@ Why this wedge wins:
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
   reporting together for Mac app shells and demos.
+- Strict native volume-hint JSON so a Mac shell can pass Disk Arbitration-style
+  display/removable/read-only metadata into route ranking without widening file
+  authority.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status
@@ -167,9 +170,9 @@ Run practical experiments tied to this ICP-first plan:
    commands now expose the full operator-review-then-copy path, and
    `plan-production` exposes the next read-only post-ingest summary. The new
    `card-dump-workflow` command combines those steps into one native-shell
-   contract, so the next step is binding it to a SwiftUI/menu-bar shell with
-   native Disk Arbitration metadata and an approval screen before AI/color work
-   starts.
+   contract, and `--volume-hints-json` now provides the strict bridge for native
+   Disk Arbitration metadata. The next step is binding that contract to a
+   SwiftUI/menu-bar approval screen before AI/color work starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
    the safe ingest-to-production-plan handoff; next, connect

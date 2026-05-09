@@ -38,7 +38,9 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.storage_discovery`: native-app-facing mounted-volume discovery. It scans caller-approved volume
   roots such as macOS `/Volumes`, skips symlinked or non-directory entries, reads filesystem capacity, and
   produces conservative `StorageCandidate` records before handing off to the existing reviewed route
-  recommendation and capacity-gate logic.
+  recommendation and capacity-gate logic. Native shells can pass `VolumeDiscoveryHint` metadata keyed by
+  mounted volume path so Disk Arbitration/Swift layers can improve display names, removable/internal
+  ranking, and conservative read-only handling without creating candidates or bypassing filesystem checks.
 - `shootflow.deliverables`: parallelizable job planning for graded intermediates and Instagram outputs.
 - `shootflow.production`: shoot-level execution planning with proxy, VLM analysis, scene grouping, look
   development, grading, and Instagram packaging waves.
@@ -109,6 +111,9 @@ The repo currently contains a Python core package because it is quick to test an
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  `plan-import-route` and `card-dump-workflow` can both read a strict
+  `--volume-hints-json` file from a native layer; malformed hints fail before
+  preview/copy side effects, and valid hints remain advisory route metadata only.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -366,6 +371,21 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   adapter can provide richer removable/read-only metadata, but it should still
   preserve the symlink skip, no-delete, review-required, and capacity-gated
   handoff semantics.
+
+### Decision: native volume hints are advisory route metadata
+
+- **Status:** accepted
+- **Rationale:** macOS can identify details that portable filesystem scanning
+  cannot, such as "Untitled" cards with user-friendly camera labels, internal
+  disks that should rank below external SSDs, and read-only media that should be
+  treated conservatively. The Python core should accept that metadata without
+  trusting it as authority to copy, overwrite, delete, or format media.
+- **Consequence:** `VolumeDiscoveryHint` and the CLI `--volume-hints-json` schema
+  let native shells pass `display_name`, `is_removable`, and `is_read_only`
+  values keyed by discovered volume path. Hints apply only after a volume is
+  discovered under a reviewed root; `is_read_only: false` cannot override a
+  failed writability check; malformed hint JSON fails before card-dump preview or
+  confirmed ingest side effects.
 
 ### Decision: CLI offload planning should support source-size-derived capacity gating
 

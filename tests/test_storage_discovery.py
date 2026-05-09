@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest import mock
 
 from shootflow.storage_discovery import (
+    VolumeDiscoveryHint,
     discover_import_route,
     discover_storage_candidates,
 )
@@ -116,6 +117,32 @@ class StorageDiscoveryTest(unittest.TestCase):
         self.assertIsNone(recommendation.source)
         self.assertIsNone(recommendation.destination)
         self.assertIn("no discovered storage candidates found", recommendation.safety_notes)
+
+    def test_discovery_applies_advisory_volume_hints_without_overriding_filesystem_capacity(self):
+        with tempfile.TemporaryDirectory() as root:
+            volumes = Path(root) / "Volumes"
+            card = volumes / "Untitled"
+            internal = volumes / "InternalMac"
+            external = volumes / "T7_MEDIA"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            internal.mkdir(parents=True)
+            external.mkdir(parents=True)
+
+            hints = {
+                card: VolumeDiscoveryHint(display_name="EOS_R5_CARD"),
+                internal: VolumeDiscoveryHint(is_removable=False),
+                external: VolumeDiscoveryHint(is_removable=True, is_read_only=False),
+            }
+
+            candidates = discover_storage_candidates([volumes], volume_hints=hints)
+            recommendation = discover_import_route([volumes], volume_hints=hints)
+
+        self.assertEqual([candidate.name for candidate in candidates], ["InternalMac", "T7_MEDIA", "EOS_R5_CARD"])
+        self.assertFalse(candidates[0].is_removable)
+        self.assertTrue(candidates[1].is_removable)
+        self.assertFalse(candidates[1].is_read_only)
+        self.assertEqual(recommendation.source.candidate.name, "EOS_R5_CARD")
+        self.assertEqual(recommendation.destination.candidate.name, "T7_MEDIA")
 
 
 if __name__ == "__main__":

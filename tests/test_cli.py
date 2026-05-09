@@ -278,6 +278,55 @@ class ShootFlowCliTests(unittest.TestCase):
             ["EOS_DIGITAL", "Samsung_T7"],
         )
 
+    def test_plan_import_route_command_uses_volume_hint_json_for_native_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "Untitled"
+            internal = volumes / "InternalMac"
+            external = volumes / "T7_MEDIA"
+            hint_path = workspace / "volume_hints.json"
+            (card / "DCIM" / "100CANON").mkdir(parents=True)
+            internal.mkdir(parents=True)
+            external.mkdir(parents=True)
+            (card / "DCIM" / "100CANON" / "A001.JPG").write_bytes(b"photo-bytes")
+            hint_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "volumes": [
+                            {"path": str(card), "display_name": "EOS_R5_CARD"},
+                            {"path": str(internal), "is_removable": False},
+                            {"path": str(external), "is_removable": True},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "plan-import-route",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-hints-json",
+                    str(hint_path),
+                    "--estimate-source-bytes",
+                    "--headroom-bytes",
+                    "0",
+                    "--print-candidates",
+                ],
+                stdout=stdout,
+            )
+
+        printed_summary = json.loads(stdout.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["source"]["name"], "EOS_R5_CARD")
+        self.assertEqual(printed_summary["destination"]["name"], "T7_MEDIA")
+        self.assertFalse(printed_summary["discovered_candidates"][0]["is_removable"])
+        self.assertEqual(printed_summary["expected_import_bytes"], 11)
+
     def test_plan_import_route_command_blocks_cleanly_when_no_candidates_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             volumes = Path(tmp) / "Volumes"
@@ -1040,6 +1089,49 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertEqual(stdout.getvalue(), "")
             self.assertIn("destination subfolder", stderr.getvalue())
+            self.assertEqual(photo.read_bytes(), b"photo-bytes")
+
+    def test_card_dump_workflow_rejects_invalid_volume_hint_json_before_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            volumes = workspace / "Volumes"
+            card = volumes / "EOS_DIGITAL"
+            ssd = volumes / "Samsung_T7"
+            hint_path = workspace / "volume_hints.json"
+            photo = card / "DCIM" / "100EOS5D" / "IMG_0001.JPG"
+            photo.parent.mkdir(parents=True)
+            ssd.mkdir(parents=True)
+            photo.write_bytes(b"photo-bytes")
+            hint_path.write_text(
+                json.dumps({"schema_version": 1, "volumes": [{"path": str(card), "is_removable": "yes"}]}),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--volume-hints-json",
+                    str(hint_path),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "invalid-hints",
+                    "--headroom-bytes",
+                    "0",
+                    "--confirm-ingest",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("is_removable must be a boolean", stderr.getvalue())
+            self.assertFalse((ssd / "2026-05-08_invalid-hints").exists())
             self.assertEqual(photo.read_bytes(), b"photo-bytes")
 
 

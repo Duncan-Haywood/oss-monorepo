@@ -13,7 +13,7 @@ from shootflow.ingest import (
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.storage import ImportRouteRecommendation
-from shootflow.storage_discovery import discover_import_route
+from shootflow.storage_discovery import VolumeDiscoveryHint, discover_import_route
 
 
 class CardDumpWorkflowError(ValueError):
@@ -42,6 +42,7 @@ def run_card_dump_workflow(
     destination_subfolder: str | None = None,
     headroom_bytes: int = 32 * 1024**3,
     confirm_ingest: bool = False,
+    volume_hints: dict[Path, VolumeDiscoveryHint] | None = None,
 ) -> CardDumpWorkflowReport:
     """Run the safe card-dump planning flow, optionally executing ingest.
 
@@ -57,9 +58,10 @@ def run_card_dump_workflow(
         destination_subfolder=destination_subfolder,
         headroom_bytes=headroom_bytes,
         confirm_ingest=confirm_ingest,
+        volume_hints=volume_hints,
     )
 
-    initial_route = discover_import_route(volume_roots)
+    initial_route = discover_import_route(volume_roots, volume_hints=volume_hints)
     source_estimate = _estimate_source_media(initial_route)
     route = initial_route
     if source_estimate is not None and source_estimate.estimated_bytes > 0:
@@ -67,6 +69,7 @@ def run_card_dump_workflow(
             volume_roots,
             expected_import_bytes=source_estimate.estimated_bytes,
             headroom_bytes=headroom_bytes,
+            volume_hints=volume_hints,
         )
 
     if route.source is None or route.destination is None:
@@ -143,6 +146,7 @@ def _validate_workflow_args(
     destination_subfolder: str | None,
     headroom_bytes: int,
     confirm_ingest: bool,
+    volume_hints: dict[Path, VolumeDiscoveryHint] | None,
 ) -> None:
     if not isinstance(volume_roots, list):
         raise CardDumpWorkflowError("volume_roots must be a list of Path objects")
@@ -161,6 +165,14 @@ def _validate_workflow_args(
         raise CardDumpWorkflowError("headroom_bytes cannot be negative")
     if not isinstance(confirm_ingest, bool):
         raise CardDumpWorkflowError("confirm_ingest must be a boolean")
+    if volume_hints is not None:
+        if not isinstance(volume_hints, dict):
+            raise CardDumpWorkflowError("volume_hints must be a dict keyed by Path")
+        for path, hint in volume_hints.items():
+            if not isinstance(path, Path):
+                raise CardDumpWorkflowError("volume_hints keys must be Path objects")
+            if not isinstance(hint, VolumeDiscoveryHint):
+                raise CardDumpWorkflowError("volume_hints values must be VolumeDiscoveryHint objects")
     if destination_subfolder is not None:
         _validate_destination_subfolder(destination_subfolder)
 
