@@ -35,6 +35,49 @@ class WorkspaceHealthTests(unittest.TestCase):
         )
         self.assertTrue(summary.next_action.writes_files)
 
+    def test_render_input_fingerprint_changes_when_trusted_inputs_change(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+
+            initial_summary = build_workspace_health_summary(workspace)
+            (workspace / "graded" / "grade_asset_00000" / "A001.MOV").write_bytes(
+                b"updated graded hero video\n"
+            )
+            updated_summary = build_workspace_health_summary(workspace)
+            (workspace / "analysis" / "instagram_storylines.json").write_bytes(
+                b'{"demo":true,"note":"updated storyline"}\n'
+            )
+            storyline_summary = build_workspace_health_summary(workspace)
+
+        self.assertEqual(initial_summary.render_input_count, 5)
+        self.assertIsNotNone(initial_summary.render_inputs_fingerprint)
+        self.assertEqual(len(initial_summary.render_inputs_fingerprint or ""), 64)
+        self.assertNotEqual(
+            updated_summary.render_inputs_fingerprint,
+            initial_summary.render_inputs_fingerprint,
+        )
+        self.assertNotEqual(
+            storyline_summary.render_inputs_fingerprint,
+            updated_summary.render_inputs_fingerprint,
+        )
+
+    def test_unreadable_render_input_is_reported_for_review(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+            input_path = workspace / "graded" / "grade_asset_00000" / "A001.MOV"
+            input_path.chmod(0)
+            try:
+                summary = build_workspace_health_summary(workspace)
+            finally:
+                input_path.chmod(0o600)
+
+        self.assertTrue(summary.render_tasks.exists)
+        self.assertFalse(summary.render_tasks.valid)
+        self.assertIn("render input", summary.render_tasks.error_message or "")
+        self.assertEqual(summary.next_action.name, "review_invalid_render_tasks")
+
     def test_pending_status_points_to_scheduler_without_writing_files(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -144,8 +187,10 @@ class WorkspaceHealthTests(unittest.TestCase):
 
         summary = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(summary["schema_version"], 1)
+        self.assertEqual(summary["schema_version"], 2)
         self.assertEqual(summary["workspace"], str(workspace))
+        self.assertEqual(summary["render_input_count"], 5)
+        self.assertIsInstance(summary["render_inputs_fingerprint"], str)
         self.assertTrue(summary["artifacts"]["render_tasks"]["valid"])
         self.assertFalse(summary["artifacts"]["render_status"]["exists"])
         self.assertEqual(summary["next_action"]["name"], "init_render_status")

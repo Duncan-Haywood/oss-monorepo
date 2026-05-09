@@ -2,6 +2,31 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-09 01:00 UTC
+
+The assigned branch `cursor/ai-media-operating-system-9806` started as an
+ancestor of the latest verified `origin/cursor/ai-media-operating-system-515f`
+lineage, so this run first fast-forwarded to that baseline and pushed it to the
+assigned branch.
+
+This run then added render-input provenance to the read-only continuation
+surfaces:
+
+- `shootflow.workspace_health.build_workspace_health_summary(...)` now computes
+  a deterministic `render_inputs_fingerprint` and `render_input_count` for the
+  unique trusted storyline/graded input files referenced by
+  `deliverables/render_tasks.json`.
+- `python -m shootflow.cli workspace-health --workspace <dir>` exposes those
+  fields in its schema-versioned JSON (now schema version 2) without writing,
+  repairing, deleting, or advancing any workspace artifact.
+- `shootflow.workspace_index.build_workspace_index(...)` carries the same fields
+  inside the derived `workspace_health` artifact, so persisted
+  `shootflow_workspace_index.json` snapshots can be compared by future agents or
+  native shells to notice in-place storyline/graded input changes.
+- This is intentionally metadata-only. The trusted render task manifest remains
+  the source of path authority, while the fingerprint helps detect drift between
+  snapshots before future real renderers trust old status/report context.
+
 ## Branch consolidation note - 2026-05-08 23:30 UTC
 
 The assigned branch `cursor/autonomous-media-studio-8ebc` started this cron run

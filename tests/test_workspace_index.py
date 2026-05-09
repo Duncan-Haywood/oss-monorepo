@@ -85,6 +85,9 @@ class WorkspaceIndexTests(unittest.TestCase):
             ["init-render-status", "--workspace", str(workspace)],
         )
         self.assertTrue(workspace_health.summary["next_action"]["writes_files"])
+        self.assertEqual(workspace_health.summary["render_input_count"], 5)
+        self.assertIsInstance(workspace_health.summary["render_inputs_fingerprint"], str)
+        self.assertEqual(len(workspace_health.summary["render_inputs_fingerprint"]), 64)
 
     def test_write_and_load_workspace_index_rejects_symlinked_index_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

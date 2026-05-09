@@ -237,7 +237,11 @@ The index command writes only `shootflow_workspace_index.json`, summarizing
 validated artifacts and explicitly marking unvalidated storyline JSON as
 non-authoritative. It also embeds the same read-only next safe action exposed by
 `workspace-health`, so native shells and continuation agents can render one
-coherent state snapshot without granting the index any write authority.
+coherent state snapshot without granting the index any write authority. When a
+trusted render-task handoff exists, both workspace health and the index include a
+metadata-only `render_inputs_fingerprint` plus `render_input_count` over the
+current storyline/graded inputs, giving future agents a cheap way to detect
+in-place input changes between snapshots without changing renderer authority.
 
 The import-route planning flow is:
 

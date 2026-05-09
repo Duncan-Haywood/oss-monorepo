@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,7 +24,7 @@ from shootflow.render_status import (
 )
 
 
-_WORKSPACE_HEALTH_SCHEMA_VERSION = 1
+_WORKSPACE_HEALTH_SCHEMA_VERSION = 2
 _SCHEDULER_RUNTIME_ARGS = ("--renderer", "--started-at", "--completed-at", "--generated-at")
 
 
@@ -65,6 +66,8 @@ class WorkspaceHealthSummary:
     scheduler_report: WorkspaceArtifactHealth
     shoot_slug: str | None
     render_plan_fingerprint: str | None
+    render_inputs_fingerprint: str | None
+    render_input_count: int
     task_count: int
     status_counts: WorkspaceRenderStatusCounts
     next_action: WorkspaceNextAction
@@ -81,16 +84,23 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
 
     trusted_plan: AssemblyPlan | None = None
     render_status_manifest: RenderStatusManifest | None = None
+    render_inputs_fingerprint: str | None = None
+    render_input_count = 0
 
     if _path_exists_or_is_symlink(render_tasks_path):
         try:
-            trusted_plan = load_trusted_render_tasks_manifest(root)
+            loaded_plan = load_trusted_render_tasks_manifest(root)
+            render_input_count, render_inputs_fingerprint = _render_input_provenance(
+                root,
+                trusted_plan=loaded_plan,
+            )
+            trusted_plan = loaded_plan
             render_tasks = WorkspaceArtifactHealth(
                 path=render_tasks_path,
                 exists=True,
                 valid=True,
             )
-        except (AssemblyPlanError, OSError, FileNotFoundError) as exc:
+        except (AssemblyPlanError, WorkspaceHealthError, OSError, FileNotFoundError) as exc:
             render_tasks = WorkspaceArtifactHealth(
                 path=render_tasks_path,
                 exists=True,
@@ -177,6 +187,8 @@ def build_workspace_health_summary(workspace_root: Path | str) -> WorkspaceHealt
         render_plan_fingerprint=(
             None if trusted_plan is None else render_plan_fingerprint(trusted_plan)
         ),
+        render_inputs_fingerprint=render_inputs_fingerprint,
+        render_input_count=render_input_count,
         task_count=0 if trusted_plan is None else len(trusted_plan.render_tasks),
         status_counts=status_counts,
         next_action=_next_action(
@@ -204,6 +216,8 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
         "workspace": str(summary.workspace_root),
         "shoot_slug": summary.shoot_slug,
         "render_plan_fingerprint": summary.render_plan_fingerprint,
+        "render_inputs_fingerprint": summary.render_inputs_fingerprint,
+        "render_input_count": summary.render_input_count,
         "task_count": summary.task_count,
         "artifacts": {
             "render_tasks": _artifact_to_dict(summary.render_tasks),
@@ -239,6 +253,21 @@ def _path_exists_or_is_symlink(path: Path) -> bool:
     return path.exists() or path.is_symlink()
 
 
+def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
+    current = path
+    while True:
+        try:
+            if current.is_symlink():
+                raise WorkspaceHealthError(f"Refusing symlinked {label}: {current}")
+        except OSError as exc:
+            raise WorkspaceHealthError(f"Unable to inspect {label}: {current}") from exc
+        if current == root or current.absolute() == root.absolute():
+            break
+        if current.parent == current:
+            break
+        current = current.parent
+
+
 def _status_counts(manifest: RenderStatusManifest | None) -> WorkspaceRenderStatusCounts:
     if manifest is None:
         return WorkspaceRenderStatusCounts()
@@ -249,6 +278,54 @@ def _status_counts(manifest: RenderStatusManifest | None) -> WorkspaceRenderStat
         failed=sum(1 for status in manifest.task_statuses if status.state == "failed"),
         retryable=sum(1 for status in manifest.task_statuses if status.state == "retryable"),
     )
+
+
+def _render_input_provenance(
+    root: Path,
+    *,
+    trusted_plan: AssemblyPlan,
+) -> tuple[int, str]:
+    digest = hashlib.sha256()
+    input_paths = _unique_render_input_paths(trusted_plan)
+    for input_path in input_paths:
+        path = root / input_path
+        _reject_symlink_path(path, root, "render input")
+        if not path.exists():
+            raise WorkspaceHealthError(f"Missing render input: {input_path}")
+        if not path.is_file():
+            raise WorkspaceHealthError(f"Render input must be a file: {input_path}")
+        file_digest = _file_sha256(path)
+        file_size = path.stat().st_size
+        digest.update(input_path.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(str(file_size).encode("ascii"))
+        digest.update(b"\0")
+        digest.update(file_digest.encode("ascii"))
+        digest.update(b"\n")
+    return len(input_paths), digest.hexdigest()
+
+
+def _unique_render_input_paths(trusted_plan: AssemblyPlan) -> tuple[str, ...]:
+    seen: set[str] = set()
+    input_paths: list[str] = []
+    for task in trusted_plan.render_tasks:
+        for input_path in task.inputs:
+            if input_path in seen:
+                continue
+            seen.add(input_path)
+            input_paths.append(input_path)
+    return tuple(sorted(input_paths))
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise WorkspaceHealthError(f"Unable to checksum render input: {path}") from exc
+    return digest.hexdigest()
 
 
 def _next_action(
@@ -344,3 +421,10 @@ def _validate_summary(summary: WorkspaceHealthSummary) -> None:
         raise WorkspaceHealthError("summary workspace_root must be a Path")
     if summary.task_count < 0:
         raise WorkspaceHealthError("summary task_count cannot be negative")
+    if summary.render_input_count < 0:
+        raise WorkspaceHealthError("summary render_input_count cannot be negative")
+    if summary.render_inputs_fingerprint is not None and (
+        not isinstance(summary.render_inputs_fingerprint, str)
+        or len(summary.render_inputs_fingerprint) != 64
+    ):
+        raise WorkspaceHealthError("summary render_inputs_fingerprint is invalid")

@@ -306,6 +306,8 @@ def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
         status="derived",
         summary={
             "render_plan_fingerprint": health["render_plan_fingerprint"],
+            "render_inputs_fingerprint": health["render_inputs_fingerprint"],
+            "render_input_count": health["render_input_count"],
             "task_count": health["task_count"],
             "status_counts": health["status_counts"],
             "next_action": health["next_action"],

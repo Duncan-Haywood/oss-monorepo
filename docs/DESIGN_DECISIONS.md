@@ -140,7 +140,10 @@ The repo currently contains a Python core package because it is quick to test an
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `write-render-tasks`, `init-render-status`, or `dry-run-render-scheduler`, but
-  it never performs those writes itself.
+  it never performs those writes itself. When a trusted render-task manifest is
+  present, the health summary also fingerprints the current storyline/graded
+  render inputs as metadata only, so UI shells and future agents can notice
+  in-place input drift without treating the fingerprint as new file authority.
   The `index-workspace` command adds a single metadata handoff over the current
   workspace state, including the health-derived next safe action, so native
   shells do not need to infer readiness by probing many files directly or calling
@@ -197,8 +200,11 @@ The desired high-quality pipeline is:
 22. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-23. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-24. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+23. Compare metadata-only render input fingerprints across health/index snapshots
+    so automation can flag changed storyline or graded bytes before relying on
+    older render status/report context.
+24. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+25. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
