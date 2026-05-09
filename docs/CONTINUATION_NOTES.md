@@ -8,6 +8,27 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added the first workspace index handoff:
+  - `shootflow.workspace_index.build_workspace_index(...)` inspects a shoot
+    workspace and summarizes ingest manifests, derived production plans,
+    storyline artifacts, render tasks, render status, and scheduler reports;
+  - trusted artifacts are loaded through their existing validators, while
+    standalone `analysis/instagram_storylines.json` is reported as
+    `present_unvalidated` until rebound to a manifest-backed production plan;
+  - `write_workspace_index(...)` persists only
+    `shootflow_workspace_index.json` through a no-follow temporary metadata file
+    and rejects symlinked index paths;
+  - `python -m shootflow.cli index-workspace --workspace <dir>
+    --generated-at <timestamp> [--write]` prints the same JSON for Mac app
+    shells, background agents, and continuation runs.
+- Added focused tests for building the index from the persisted CLI demo
+  workspace, safe write/load behavior with symlink rejection, and CLI printing
+  plus optional persistence.
+- Updated README and strategy/design/business/legal docs to position the index
+  as a metadata-only continuity artifact, not a new source of render authority.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

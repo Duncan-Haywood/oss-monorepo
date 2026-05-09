@@ -4,6 +4,7 @@ __all__ = [
     "assembly",
     "analysis",
     "catalog",
+    "card_workflow",
     "cli",
     "deliverables",
     "demo_workspace",
@@ -17,4 +18,5 @@ __all__ = [
     "storage",
     "storage_discovery",
     "story",
+    "workspace_index",
 ]
