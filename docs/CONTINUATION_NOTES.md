@@ -53,11 +53,11 @@ Branch reconciliation for this run:
   was merged into the assigned branch. Local `main` is stale but was left in
   place because cloud branch policy requires development and pushes on the
   assigned branch.
-- Verification after the code/doc change:
+- Final verification on the assigned branch:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
   git diff --check && git status --short --branch` -> 295 tests OK,
-  compileall/diff-check exited 0, and the tree was clean at commit `0dc5361`.
+  compileall/diff-check exited 0, and the working tree was clean.
 
 ## Implementation continuation note - 2026-05-09 18:00 UTC
 
