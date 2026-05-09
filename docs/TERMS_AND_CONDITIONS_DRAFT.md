@@ -22,7 +22,9 @@ This is a working product/legal draft for review by counsel before any public la
   `--confirm-ingest` it only discovers routes, estimates source media, and
   previews checksums; with `--confirm-ingest` it performs the verified copy and
   then runs read-only production planning. It does not add source deletion,
-  formatting, cleanup, or overwrite authority.
+  formatting, cleanup, or overwrite authority. Machine-readable next-action
+  suggestions are advisory UI/automation hints and do not remove the need for
+  explicit confirmation before copy operations.
 - Post-ingest production planning is read-only. The current `plan-production`
   command reloads and validates the manifest, summarizes planned work, and does
   not create analysis, graded, render-status, or deliverable files.

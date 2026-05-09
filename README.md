@@ -102,7 +102,9 @@ This repo currently contains the first testable core utilities:
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
-  shells and GTM demos.
+  shells and GTM demos. Its CLI JSON includes machine-readable `next_actions`
+  so UI shells and continuation agents can show the next safe command without
+  guessing from prose.
 
 The intended first workflow is:
 
@@ -172,6 +174,8 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
+    Its `next_actions` list distinguishes review-only storage fixes, explicit
+    confirmed ingest, and read-only production-plan review.
 21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
@@ -231,7 +235,11 @@ Without `--confirm-ingest`, this command only discovers, estimates, and previews
 the copy plan. With `--confirm-ingest`, it still never deletes source media,
 never overwrites different destination bytes, verifies every copied item by
 SHA-256, writes `ingest_manifest.json`, and then runs read-only production
-planning from that manifest.
+planning from that manifest. The printed JSON always includes `next_actions`:
+blocked routes ask for storage review with no command, preview-only reports
+include the exact `card-dump-workflow --confirm-ingest` command to run after
+operator review, and completed ingests point at the read-only `plan-production`
+command for the written manifest.
 
 The safe ingest CLI flow (after operator review of the planned route) is:
 

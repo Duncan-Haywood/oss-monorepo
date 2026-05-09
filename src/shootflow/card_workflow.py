@@ -23,6 +23,10 @@ class CardDumpWorkflowError(ValueError):
 @dataclass(frozen=True)
 class CardDumpWorkflowReport:
     volume_roots: tuple[Path, ...]
+    shoot_date: str
+    shoot_slug: str
+    destination_subfolder: str | None
+    headroom_bytes: int
     status: str
     route: ImportRouteRecommendation
     source_estimate: ImportSourceEstimate | None
@@ -72,6 +76,10 @@ def run_card_dump_workflow(
     if route.source is None or route.destination is None:
         return CardDumpWorkflowReport(
             volume_roots=tuple(volume_roots),
+            shoot_date=shoot_date,
+            shoot_slug=shoot_slug,
+            destination_subfolder=destination_subfolder,
+            headroom_bytes=headroom_bytes,
             status="blocked",
             route=route,
             source_estimate=source_estimate,
@@ -100,6 +108,10 @@ def run_card_dump_workflow(
     if not confirm_ingest:
         return CardDumpWorkflowReport(
             volume_roots=tuple(volume_roots),
+            shoot_date=shoot_date,
+            shoot_slug=shoot_slug,
+            destination_subfolder=destination_subfolder,
+            headroom_bytes=headroom_bytes,
             status="ready_for_review",
             route=route,
             source_estimate=source_estimate,
@@ -119,6 +131,10 @@ def run_card_dump_workflow(
     production_report = build_production_plan_report(copy_report.manifest_path)
     return CardDumpWorkflowReport(
         volume_roots=tuple(volume_roots),
+        shoot_date=shoot_date,
+        shoot_slug=shoot_slug,
+        destination_subfolder=destination_subfolder,
+        headroom_bytes=headroom_bytes,
         status="ingest_complete",
         route=route,
         source_estimate=source_estimate,

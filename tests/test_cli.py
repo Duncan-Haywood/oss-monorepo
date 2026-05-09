@@ -874,6 +874,31 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["preview"]["shoot_folder"], str(shoot_folder))
             self.assertIsNone(report["ingest"])
             self.assertIsNone(report["production_report"])
+            self.assertEqual(len(report["next_actions"]), 1)
+            self.assertEqual(report["next_actions"][0]["action_id"], "execute_safe_ingest")
+            self.assertTrue(report["next_actions"][0]["requires_review"])
+            self.assertTrue(report["next_actions"][0]["writes_files"])
+            self.assertFalse(report["next_actions"][0]["destructive"])
+            self.assertEqual(
+                report["next_actions"][0]["command"],
+                [
+                    "python3",
+                    "-m",
+                    "shootflow.cli",
+                    "card-dump-workflow",
+                    "--volume-root",
+                    str(volumes),
+                    "--shoot-date",
+                    "2026-05-08",
+                    "--shoot-slug",
+                    "desert-editorial",
+                    "--destination-subfolder",
+                    "ShootFlow",
+                    "--headroom-bytes",
+                    "0",
+                    "--confirm-ingest",
+                ],
+            )
             self.assertFalse(shoot_folder.exists())
             self.assertFalse((shoot_folder / "ingest_manifest.json").exists())
             self.assertFalse((shoot_folder / "originals").exists())
@@ -929,6 +954,22 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             self.assertEqual(report["production_report"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
             self.assertEqual(report["production_report"]["copied_manifest_item_count"], 4)
             self.assertFalse(report["production_report"]["wrote_downstream_files"])
+            self.assertEqual(len(report["next_actions"]), 1)
+            self.assertEqual(report["next_actions"][0]["action_id"], "review_production_plan")
+            self.assertFalse(report["next_actions"][0]["requires_review"])
+            self.assertFalse(report["next_actions"][0]["writes_files"])
+            self.assertFalse(report["next_actions"][0]["destructive"])
+            self.assertEqual(
+                report["next_actions"][0]["command"],
+                [
+                    "python3",
+                    "-m",
+                    "shootflow.cli",
+                    "plan-production",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+            )
             self.assertTrue(manifest_path.exists())
             self.assertFalse((shoot_folder / "analysis").exists())
             self.assertFalse((shoot_folder / "graded").exists())
@@ -963,6 +1004,12 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
         self.assertIsNone(report["route"]["destination"])
         self.assertIsNone(report["preview"])
         self.assertIsNone(report["production_report"])
+        self.assertEqual(len(report["next_actions"]), 1)
+        self.assertEqual(report["next_actions"][0]["action_id"], "review_storage_route")
+        self.assertTrue(report["next_actions"][0]["requires_review"])
+        self.assertFalse(report["next_actions"][0]["writes_files"])
+        self.assertFalse(report["next_actions"][0]["destructive"])
+        self.assertIsNone(report["next_actions"][0]["command"])
         self.assertIn("no discovered storage candidates found", report["route"]["safety_notes"])
 
     def test_card_dump_workflow_rejects_symlinked_destination_subfolder_before_preview(self) -> None:

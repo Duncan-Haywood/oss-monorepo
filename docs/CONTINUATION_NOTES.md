@@ -8,6 +8,25 @@ ShootFlow is being shaped as a Mac-first, iPhone-companion product for safe high
 
 ## What landed in this iteration
 
+- Added machine-readable next actions to the card-dump CLI handoff:
+  - `python -m shootflow.cli card-dump-workflow` now prints a top-level
+    `next_actions` array alongside the route, preview, ingest, and production
+    report data;
+  - blocked route reports emit a `review_storage_route` action with no command
+    and no write authority;
+  - preview-only reports emit an exact `execute_safe_ingest` command that
+    reruns `card-dump-workflow` with the same volume roots, shoot metadata,
+    destination subfolder, headroom, and explicit `--confirm-ingest`;
+  - completed ingest reports emit a read-only `review_production_plan` command
+    for the written `ingest_manifest.json`;
+  - every next action marks whether it requires review, writes files, or is
+    destructive so native shells and future agents do not infer safety posture
+    from prose.
+- Updated README, product strategy, design decisions, business plan, and terms
+  notes to preserve the explicit-confirmation boundary around suggested actions.
+
+## Previous iteration
+
 - Added the first unified card-dump workflow handoff:
   - `shootflow.card_workflow.run_card_dump_workflow(...)` composes mounted-volume
     discovery, source media size estimation, capacity-gated route recommendation,

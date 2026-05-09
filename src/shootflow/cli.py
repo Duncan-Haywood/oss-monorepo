@@ -687,6 +687,7 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
             "preview": _card_dump_preview_json(report),
             "ingest": _card_dump_ingest_json(report),
             "production_report": _card_dump_production_report_json(report),
+            "next_actions": _card_dump_next_actions_json(report),
             "notes": list(report.notes),
         },
         ensure_ascii=True,
@@ -770,6 +771,86 @@ def _card_dump_production_report_json(report: CardDumpWorkflowReport) -> dict[st
         ],
         "wrote_downstream_files": False,
     }
+
+
+def _card_dump_next_actions_json(report: CardDumpWorkflowReport) -> list[dict[str, object]]:
+    if report.status == "blocked":
+        return [
+            {
+                "action_id": "review_storage_route",
+                "label": (
+                    "Review attached storage and rerun card-dump-workflow after a source "
+                    "and destination are available."
+                ),
+                "command": None,
+                "requires_review": True,
+                "writes_files": False,
+                "destructive": False,
+                "reason": (
+                    "No safe source/destination route was available, so ingest preview "
+                    "was not planned."
+                ),
+            }
+        ]
+    if report.status == "ready_for_review":
+        return [
+            {
+                "action_id": "execute_safe_ingest",
+                "label": (
+                    "Rerun the card-dump workflow with explicit confirmation after "
+                    "reviewing the source, destination, and checksums."
+                ),
+                "command": _card_dump_confirm_ingest_command(report),
+                "requires_review": True,
+                "writes_files": True,
+                "destructive": False,
+                "reason": (
+                    "Preview completed without copying; the next command performs the "
+                    "checksum-verified copy."
+                ),
+            }
+        ]
+    if report.status == "ingest_complete" and report.copy_report is not None:
+        return [
+            {
+                "action_id": "review_production_plan",
+                "label": (
+                    "Review the manifest-backed production plan before starting AI analysis, "
+                    "grading, or render work."
+                ),
+                "command": [
+                    "python3",
+                    "-m",
+                    "shootflow.cli",
+                    "plan-production",
+                    "--ingest-manifest",
+                    str(report.copy_report.manifest_path),
+                ],
+                "requires_review": False,
+                "writes_files": False,
+                "destructive": False,
+                "reason": "Safe ingest completed and the production-plan command is read-only.",
+            }
+        ]
+    return []
+
+
+def _card_dump_confirm_ingest_command(report: CardDumpWorkflowReport) -> list[str]:
+    command = ["python3", "-m", "shootflow.cli", "card-dump-workflow"]
+    for root in report.volume_roots:
+        command.extend(["--volume-root", str(root)])
+    command.extend(
+        [
+            "--shoot-date",
+            report.shoot_date,
+            "--shoot-slug",
+            report.shoot_slug,
+        ]
+    )
+    if report.destination_subfolder is not None:
+        command.extend(["--destination-subfolder", report.destination_subfolder])
+    command.extend(["--headroom-bytes", str(report.headroom_bytes), "--confirm-ingest"])
+    return command
 
 
 def _validate_main_args(

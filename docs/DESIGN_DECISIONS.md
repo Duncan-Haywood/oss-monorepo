@@ -109,6 +109,9 @@ The repo currently contains a Python core package because it is quick to test an
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
+  Its JSON includes a `next_actions` array with explicit review/write/destructive
+  flags and command arguments, keeping native shells and agents on the same
+  safety rails as the CLI.
 - `shootflow.demo_workspace`: a demo/native-shell smoke-test helper that creates
   a tiny persisted render workspace by writing deterministic placeholder inputs
   and `deliverables/render_tasks.json`. It refuses symlinked roots and existing
@@ -154,6 +157,8 @@ The desired high-quality pipeline is:
 20. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
+    Treat its `next_actions` output as guidance only: commands that write files
+    still require the explicit confirmation flag and operator review.
 21. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.

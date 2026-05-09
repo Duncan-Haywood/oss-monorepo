@@ -49,7 +49,8 @@ Why this wedge wins:
   parallel work, and IG deliverables before downstream jobs write artifacts.
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
-  reporting together for Mac app shells and demos.
+  reporting together for Mac app shells and demos, including `next_actions`
+  metadata that makes the next safe operator step explicit.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status
@@ -136,7 +137,8 @@ Use pricing and packaging that stays obviously ROI-positive for the pro ICP:
 Run practical experiments tied to this ICP-first plan:
 
 1. **Workflow proof demos:** show end-to-end "card dump -> graded social draft"
-   with concrete turnaround deltas and safety notes.
+   with concrete turnaround deltas, safety notes, and visible `next_actions`
+   that prove the app does not silently cross from preview into copy.
 2. **Instagram demand tests:** short-form before/after process ads targeted to
    wedding/event/photo-video professionals.
 3. **Problem-interview loop:** weekly interviews with active pros to validate
