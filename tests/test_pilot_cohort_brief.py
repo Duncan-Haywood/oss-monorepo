@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 from shootflow.cli import main
+import shootflow.pilot_cohort_brief as pilot_cohort_brief_module
 from shootflow.pilot_cohort_brief import (
     PilotCohortBriefError,
     build_pilot_cohort_brief_from_report_path,
@@ -104,6 +105,99 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["status"], "ready_for_pilot_review")
         self.assertEqual(payload["headline"], "All 2 metrics-available workspaces are pilot-ready")
         self.assertNotIn("command", json.dumps(payload, sort_keys=True))
+
+    def test_brief_text_renders_native_shell_cards_without_workflow_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+
+            self.assertTrue(hasattr(pilot_cohort_brief_module, "pilot_cohort_brief_to_text"))
+            text = pilot_cohort_brief_module.pilot_cohort_brief_to_text(
+                build_pilot_cohort_brief_from_report_path(report_path)
+            )
+
+        self.assertIn("ShootFlow pilot cohort brief", text)
+        self.assertIn("Status: needs_operator_review", text)
+        self.assertIn("Headline: 1/2 metrics-available workspaces are pilot-ready", text)
+        self.assertIn("Pilot-ready workspaces: 1 (50.0%)", text)
+        self.assertIn("[1] ready-shoot", text)
+        self.assertIn("Readiness: Ready for pilot review", text)
+        self.assertIn("First-draft outputs: 4", text)
+        self.assertIn("Safety:", text)
+        self.assertIn("observe-only", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
+        self.assertNotIn("delete", text.lower())
+
+    def test_cli_can_print_text_pilot_cohort_brief_without_rewriting_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=2,
+                ready_for_review=True,
+                unavailable_count=0,
+                ready_rate=10000,
+                intervention_rate=0,
+            )
+            before = self._file_snapshot(root)
+
+            stdout = io.StringIO()
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(root)
+                exit_code = main(
+                    [
+                        "pilot-cohort-brief",
+                        "--cohort-report",
+                        str(report_path),
+                        "--format",
+                        "text",
+                    ],
+                    stdout=stdout,
+                )
+            finally:
+                os.chdir(original_cwd)
+            text = stdout.getvalue()
+            after = self._file_snapshot(root)
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(after, before)
+        self.assertIn("Status: ready_for_pilot_review", text)
+        self.assertIn("All 2 metrics-available workspaces are pilot-ready", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
+
+    def test_brief_text_omits_free_form_report_notes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["cohort"]["cohort_notes"] = ["run python -m shootflow.cli execute-ingest --confirm"]
+            payload["workspaces"][0]["threshold_notes"] = ["run python -m shootflow.cli dry-run-render-scheduler"]
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            text = pilot_cohort_brief_module.pilot_cohort_brief_to_text(
+                build_pilot_cohort_brief_from_report_path(report_path)
+            )
+
+        self.assertIn("Report notes: omitted from text output", text)
+        self.assertIn("Threshold notes: omitted from text output", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
 
     def test_brief_rejects_forged_ready_report_with_no_metrics_available(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

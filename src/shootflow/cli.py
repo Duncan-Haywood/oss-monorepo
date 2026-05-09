@@ -62,6 +62,7 @@ from shootflow.pilot_cohort_brief import (
     PilotCohortBriefError,
     build_pilot_cohort_brief_from_report_path,
     pilot_cohort_brief_to_dict,
+    pilot_cohort_brief_to_text,
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
@@ -505,7 +506,10 @@ def _run_pilot_cohort_report_command(args: argparse.Namespace, *, stdout: TextIO
 
 def _run_pilot_cohort_brief_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     brief = build_pilot_cohort_brief_from_report_path(args.cohort_report)
-    stdout.write(_pilot_cohort_brief_json(brief))
+    if args.format == "text":
+        stdout.write(pilot_cohort_brief_to_text(brief))
+    else:
+        stdout.write(_pilot_cohort_brief_json(brief))
 
 
 def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -836,6 +840,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--cohort-report",
         required=True,
         help="Path to a saved pilot-cohort-report JSON payload.",
+    )
+    cohort_brief.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format. Defaults to json for existing integrations.",
     )
 
     inspect_workspace = subparsers.add_parser(

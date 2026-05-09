@@ -130,7 +130,8 @@ This repo currently contains the first testable core utilities:
 - `shootflow.pilot_cohort_brief` reads one saved cohort report and converts it
   into presentation-ready observe-only labels for native shells and GTM demos:
   status, headline, summary percentages, and per-workspace readiness cards. It
-  does not emit commands or grant workflow authority.
+  can also render a deterministic text-mode demo surface. It does not emit
+  commands or grant workflow authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
 - `shootflow.story` turns VLM analysis scores into ranked first-cut reel,
   carousel, photo-set, and named reel-variant recommendations, then persists
@@ -385,6 +386,9 @@ PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report \
   --generated-at 2026-05-07T16:00:09Z
 PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
   --cohort-report <pilot_cohort_report.json>
+PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
+  --cohort-report <pilot_cohort_report.json> \
+  --format text
 PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
   --workspace <demo-dir> \
   --workspace-count 2 \
@@ -446,7 +450,10 @@ The pilot cohort brief command reads one saved cohort report and writes nothing.
 It turns the trusted cohort metrics into a native-shell-friendly status,
 headline, summary labels, and per-workspace readiness cards so demos can show
 readiness, intervention, and first-draft output evidence without parsing raw
-worker internals. It remains observe-only and does not emit executable workflow
+worker internals. JSON remains the default output for integrations; `--format
+text` prints a deterministic command-free native-shell view for demos and
+operator readouts, omitting free-form report notes so text output cannot become
+a shell handoff. It remains observe-only and does not emit executable workflow
 commands.
 The pilot cohort demo command writes a controlled fixture for demos: multiple
 trusted persisted render demo workspaces under `workspaces/`, saved schema v2

@@ -135,6 +135,64 @@ def pilot_cohort_brief_to_dict(brief: PilotCohortBrief) -> dict[str, object]:
     }
 
 
+def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
+    """Render a command-free native-shell summary for pilot/GTM demos."""
+
+    if not isinstance(brief, PilotCohortBrief):
+        raise PilotCohortBriefError("brief must be a PilotCohortBrief")
+    _validate_pilot_cohort_brief(brief)
+    lines = [
+        "ShootFlow pilot cohort brief",
+        f"Status: {brief.status}",
+        f"Headline: {brief.headline}",
+        f"Source report: {brief.cohort_report_path}",
+        f"Source generated at: {brief.source_generated_at}",
+        "",
+        "Summary:",
+        f"- Dashboards: {brief.summary.dashboard_count}",
+        (
+            "- Metrics: "
+            f"{brief.summary.metrics_available_dashboard_count} available, "
+            f"{brief.summary.metrics_unavailable_dashboard_count} unavailable"
+        ),
+        (
+            "- Pilot-ready workspaces: "
+            f"{brief.summary.pilot_ready_workspace_count} "
+            f"({brief.summary.pilot_ready_workspace_rate_label})"
+        ),
+        f"- Median manual intervention: {brief.summary.median_intervention_rate_label}",
+        f"- First-draft outputs: {brief.summary.first_draft_output_count}",
+        "",
+        "Workspace cards:",
+    ]
+    for index, card in enumerate(brief.workspace_cards, start=1):
+        lines.extend(
+            [
+                f"[{index}] {card.title}",
+                f"  Readiness: {card.readiness_label}",
+                f"  Completion: {card.completion_rate_label}",
+                f"  Manual intervention: {card.intervention_rate_label}",
+                f"  First-draft outputs: {_output_count_label(card.materialized_output_count)}",
+                f"  Dashboard: {card.dashboard_path}",
+                "  Threshold notes: omitted from text output",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "Report notes: omitted from text output",
+            "",
+            "Safety:",
+            "- observe-only presentation over one saved cohort report",
+            "- does not authorize copy, retry, cleanup, overwrite, materialization, or other file-changing actions",
+        ]
+    )
+    result = "\n".join(lines) + "\n"
+    if not isinstance(result, str) or not result.strip():
+        raise PilotCohortBriefError("brief text output must be a non-empty string")
+    return result
+
+
 def _load_report_payload(path: Path) -> Mapping[str, object]:
     if path.is_symlink():
         raise PilotCohortBriefError(f"Refusing pilot cohort report symlink: {path}")
@@ -406,6 +464,12 @@ def _basis_points_label(value: int | None) -> str:
     if value is None:
         return "unavailable"
     return f"{value / 100:.1f}%"
+
+
+def _output_count_label(value: int | None) -> str:
+    if value is None:
+        return "unavailable"
+    return str(value)
 
 
 def _validate_report_path(cohort_report_path: Path | str) -> Path:
