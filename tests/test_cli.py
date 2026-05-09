@@ -386,6 +386,59 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("symlink", stderr.getvalue())
 
+    def test_inspect_render_workspace_rejects_symlinked_output_file(self) -> None:
+        trusted_plan = self._single_task_plan()
+        output_bytes = b"outside-render-output"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside"
+            outside_output_path = outside / "instagram_reel.mp4"
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            outside.mkdir()
+            outside_output_path.write_bytes(output_bytes)
+            (workspace / "deliverables" / "instagram_reel.mp4").symlink_to(outside_output_path)
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reel.mp4",
+                                    sha256=hashlib.sha256(output_bytes).hexdigest(),
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("symlink", stderr.getvalue())
+
     def test_inspect_render_workspace_flags_completed_report_after_output_removal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

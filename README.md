@@ -209,7 +209,7 @@ and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan. The inspection command writes nothing; it
 fails closed if an existing status or scheduler report no longer matches the
 trusted render-task plan, and it marks succeeded tasks for review if their
-declared deliverable files are no longer present.
+declared deliverable files are missing, symlinked, or checksum-mismatched.
 
 The import-route planning flow is:
 
