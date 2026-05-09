@@ -1,3 +1,4 @@
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -309,6 +310,81 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(report["checksum_mismatch_task_ids"], ["render_instagram_reel"])
         self.assertEqual(report["review_required_task_ids"], ["render_instagram_reel"])
         self.assertEqual(report["safe_next_actions"], ["review_render_outputs"])
+
+    def test_inspect_render_workspace_rejects_symlinked_output_parent(self) -> None:
+        trusted_plan = AssemblyPlan(
+            shoot_slug="cli-scheduler",
+            render_tasks=(
+                RenderTask(
+                    task_id="render_instagram_reel_variant_hero",
+                    sequence_name="reel",
+                    source_job_id="assemble_instagram_reel",
+                    output_kind="instagram_reel",
+                    aspect_ratio="9:16",
+                    inputs=(
+                        "analysis/instagram_storylines.json",
+                        "graded/grade_asset_00000/A001.MOV",
+                    ),
+                    outputs=("deliverables/instagram_reels/hero.mp4",),
+                    depends_on=("rank_instagram_storylines", "grade_asset_00000"),
+                    can_run_in_parallel=False,
+                ),
+            ),
+        )
+        output_bytes = b"outside-render-output"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            outside = workspace / "outside"
+            outside_output_dir = outside / "instagram_reels"
+            outside_output_path = outside_output_dir / "hero.mp4"
+            self._touch_task_inputs(workspace, trusted_plan)
+            write_render_tasks_manifest(trusted_plan, workspace)
+            outside_output_dir.mkdir(parents=True)
+            outside_output_path.write_bytes(output_bytes)
+            (workspace / "deliverables" / "instagram_reels").symlink_to(
+                outside_output_dir,
+                target_is_directory=True,
+            )
+            write_render_status_manifest(
+                RenderStatusManifest(
+                    shoot_slug=trusted_plan.shoot_slug,
+                    render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
+                    task_statuses=(
+                        RenderTaskStatus(
+                            task_id="render_instagram_reel_variant_hero",
+                            state="succeeded",
+                            renderer_adapter="dry-run-local",
+                            attempts=1,
+                            output_checksums=(
+                                OutputChecksum(
+                                    path="deliverables/instagram_reels/hero.mp4",
+                                    sha256=hashlib.sha256(output_bytes).hexdigest(),
+                                ),
+                            ),
+                            updated_at="2026-05-08T15:10:05Z",
+                        ),
+                    ),
+                ),
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "inspect-render-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("symlink", stderr.getvalue())
 
     def test_inspect_render_workspace_flags_completed_report_after_output_removal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

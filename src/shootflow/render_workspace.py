@@ -175,8 +175,7 @@ def _materialized_outputs(root: Path, trusted_plan: AssemblyPlan) -> tuple[str, 
     materialized: list[str] = []
     for output in _expected_outputs(trusted_plan):
         output_path = root / output
-        if output_path.is_symlink():
-            raise RenderWorkspaceError(f"Refusing symlinked render output: {output}")
+        _reject_symlink_path(output_path, root, "render output")
         if output_path.is_file():
             materialized.append(output)
     return tuple(materialized)
@@ -286,10 +285,9 @@ def _checksum_mismatch_task_ids(
             continue
         for checksum in status.output_checksums:
             output_path = root / checksum.path
+            _reject_symlink_path(output_path, root, "render output")
             if not output_path.exists():
                 continue
-            if output_path.is_symlink():
-                raise RenderWorkspaceError(f"Refusing symlinked render output: {checksum.path}")
             if not output_path.is_file():
                 continue
             if _sha256(output_path) != checksum.sha256:
@@ -307,6 +305,18 @@ def _sha256(path: Path) -> str:
     except OSError as exc:
         raise RenderWorkspaceError(f"Unable to checksum render output: {path}") from exc
     return digest.hexdigest()
+
+
+def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
+    current = path
+    while True:
+        if current.is_symlink():
+            raise RenderWorkspaceError(f"Refusing {label} symlink: {current}")
+        if current == root or current.absolute() == root.absolute():
+            break
+        if current.parent == current:
+            break
+        current = current.parent
 
 
 def _validate_report(report: RenderWorkspaceReport, *, trusted_plan: AssemblyPlan) -> None:
