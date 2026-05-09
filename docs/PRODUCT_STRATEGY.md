@@ -179,7 +179,11 @@ The current core models a concrete promise for high-volume users:
     signals without parsing worker internals or treating metrics as file
     authority. The first `pilot-dashboard` contract now consumes that health
     layer directly and reports activation flags, metric-source availability,
-    throughput, and manual-intervention counts as read-only product signals.
+    throughput, manual-intervention counts, and schema v2 pilot acceptance
+    thresholds as read-only product signals. Default readiness is intentionally
+    conservative: at least 90% trusted completion, at most 20% manual
+    intervention, and at least one materialized output before a workspace is
+    counted as ready for pilot review.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

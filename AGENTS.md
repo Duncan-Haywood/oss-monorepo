@@ -51,9 +51,11 @@ include validated product metric counts derived from the report state.
 status/report summaries and validated scheduler product metrics read-only before
 falling through to render handoffs. `pilot-dashboard` is the first stable
 activation/throughput/intervention summary for Mac shells and pilot analytics;
-it consumes workspace health rather than raw worker internals, omits executable
-commands for write-capable next actions, and grants no copy, retry, cleanup,
-overwrite, materialization, or deletion authority.
+schema v2 also evaluates default pilot acceptance thresholds for completion
+rate, manual intervention rate, and materialized outputs. It consumes workspace
+health rather than raw worker internals, omits executable commands for
+write-capable next actions, and grants no copy, retry, cleanup, overwrite,
+materialization, or deletion authority.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`
 and `deliverables/render_status.json` manifests in the workspace directory.
 `write-render-tasks` can create the render-task manifest from an ingest manifest

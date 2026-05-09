@@ -10,7 +10,11 @@ from shootflow.workspace_health import (
     build_workspace_health_summary,
 )
 
-_PILOT_DASHBOARD_SCHEMA_VERSION = 1
+_PILOT_DASHBOARD_SCHEMA_VERSION = 2
+_BASIS_POINTS = 10_000
+_DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS = 9_000
+_DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS = 2_000
+_DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT = 1
 
 
 class PilotDashboardError(ValueError):
@@ -55,6 +59,27 @@ class PilotInterventionMetrics:
 
 
 @dataclass(frozen=True)
+class PilotAcceptanceThresholds:
+    min_completion_rate_basis_points: int = _DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS
+    max_intervention_rate_basis_points: int = _DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS
+    min_materialized_output_count: int = _DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT
+
+
+@dataclass(frozen=True)
+class PilotAcceptanceAssessment:
+    thresholds: PilotAcceptanceThresholds
+    metrics_available: bool
+    completion_rate_basis_points: int | None
+    intervention_rate_basis_points: int | None
+    materialized_output_count: int | None
+    meets_completion_threshold: bool | None
+    meets_intervention_threshold: bool | None
+    meets_output_threshold: bool | None
+    ready_for_pilot_review: bool
+    threshold_notes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class PilotDashboardSummary:
     workspace_root: Path
     generated_at: str
@@ -65,6 +90,7 @@ class PilotDashboardSummary:
     activation: PilotActivationSignals
     throughput: PilotThroughputMetrics
     intervention: PilotInterventionMetrics
+    pilot_acceptance: PilotAcceptanceAssessment
     safety_notes: tuple[str, ...]
 
 
@@ -82,6 +108,8 @@ def build_pilot_dashboard_summary(
         render_scheduler_report=health.render_scheduler_product_metrics is not None,
     )
     metrics = _trusted_metric_sources(health)
+    throughput = _throughput_metrics(metrics)
+    intervention = _intervention_metrics(metrics)
     summary = PilotDashboardSummary(
         workspace_root=health.workspace_root,
         generated_at=generated_at,
@@ -97,11 +125,17 @@ def build_pilot_dashboard_summary(
             render_status_trusted=health.render_status.valid,
             render_scheduler_report_trusted=health.scheduler_report.valid,
         ),
-        throughput=_throughput_metrics(metrics),
-        intervention=_intervention_metrics(metrics),
+        throughput=throughput,
+        intervention=intervention,
+        pilot_acceptance=_pilot_acceptance_assessment(
+            throughput,
+            intervention,
+            thresholds=PilotAcceptanceThresholds(),
+        ),
         safety_notes=(
             "pilot-dashboard is read-only and consumes workspace-health instead of raw worker internals",
             "metric counts are unavailable until trusted scheduler reports validate",
+            "pilot acceptance thresholds are observational and do not authorize workflow actions",
             "dashboard summaries do not grant copy, retry, cleanup, overwrite, materialization, or deletion authority",
         ),
     )
@@ -155,6 +189,7 @@ def pilot_dashboard_summary_to_dict(summary: PilotDashboardSummary) -> dict[str,
                 summary.intervention.intervention_rate_basis_count
             ),
         },
+        "pilot_acceptance": _pilot_acceptance_to_dict(summary.pilot_acceptance),
         "safety_notes": list(summary.safety_notes),
     }
 
@@ -247,6 +282,126 @@ def _sum_metrics(metrics: tuple[Mapping[str, int], ...], *names: str) -> int:
     return total
 
 
+def _pilot_acceptance_assessment(
+    throughput: PilotThroughputMetrics,
+    intervention: PilotInterventionMetrics,
+    *,
+    thresholds: PilotAcceptanceThresholds,
+) -> PilotAcceptanceAssessment:
+    _validate_acceptance_thresholds(thresholds)
+    total_work = throughput.total_work_count
+    completed_work = throughput.completed_work_count
+    materialized_outputs = _acceptance_output_evidence_count(throughput)
+    manual_interventions = intervention.manual_intervention_count
+    intervention_basis = intervention.intervention_rate_basis_count
+    metrics_available = all(
+        value is not None
+        for value in (
+            total_work,
+            completed_work,
+            materialized_outputs,
+            manual_interventions,
+            intervention_basis,
+        )
+    )
+    if (
+        not metrics_available
+        or total_work is None
+        or completed_work is None
+        or materialized_outputs is None
+        or manual_interventions is None
+        or intervention_basis is None
+        or total_work <= 0
+        or intervention_basis <= 0
+    ):
+        return PilotAcceptanceAssessment(
+            thresholds=thresholds,
+            metrics_available=False,
+            completion_rate_basis_points=None,
+            intervention_rate_basis_points=None,
+            materialized_output_count=materialized_outputs,
+            meets_completion_threshold=None,
+            meets_intervention_threshold=None,
+            meets_output_threshold=None,
+            ready_for_pilot_review=False,
+            threshold_notes=("trusted scheduler metrics are required before pilot acceptance can be evaluated",),
+        )
+
+    completion_rate = _floor_rate_basis_points(completed_work, total_work)
+    intervention_rate = _ceil_rate_basis_points(manual_interventions, intervention_basis)
+    meets_completion = completion_rate >= thresholds.min_completion_rate_basis_points
+    meets_intervention = intervention_rate <= thresholds.max_intervention_rate_basis_points
+    meets_outputs = materialized_outputs >= thresholds.min_materialized_output_count
+    notes: list[str] = []
+    if not meets_completion:
+        notes.append("completion rate is below the pilot acceptance threshold")
+    if not meets_intervention:
+        notes.append("manual intervention rate is above the pilot acceptance threshold")
+    if not meets_outputs:
+        notes.append("materialized output count is below the pilot acceptance threshold")
+    if not notes:
+        notes.append("trusted dashboard metrics meet the default pilot acceptance thresholds")
+
+    return PilotAcceptanceAssessment(
+        thresholds=thresholds,
+        metrics_available=True,
+        completion_rate_basis_points=completion_rate,
+        intervention_rate_basis_points=intervention_rate,
+        materialized_output_count=materialized_outputs,
+        meets_completion_threshold=meets_completion,
+        meets_intervention_threshold=meets_intervention,
+        meets_output_threshold=meets_outputs,
+        ready_for_pilot_review=meets_completion and meets_intervention and meets_outputs,
+        threshold_notes=tuple(notes),
+    )
+
+
+def _floor_rate_basis_points(numerator: int, denominator: int) -> int:
+    return (numerator * _BASIS_POINTS) // denominator
+
+
+def _ceil_rate_basis_points(numerator: int, denominator: int) -> int:
+    return (numerator * _BASIS_POINTS + denominator - 1) // denominator
+
+
+def _acceptance_output_evidence_count(throughput: PilotThroughputMetrics) -> int | None:
+    candidates = [
+        value
+        for value in (
+            throughput.materialized_output_count,
+            throughput.completed_work_count,
+        )
+        if value is not None
+    ]
+    if not candidates:
+        return None
+    return max(candidates)
+
+
+def _pilot_acceptance_to_dict(assessment: PilotAcceptanceAssessment) -> dict[str, object]:
+    _validate_acceptance_assessment(assessment)
+    return {
+        "thresholds": {
+            "min_completion_rate_basis_points": (
+                assessment.thresholds.min_completion_rate_basis_points
+            ),
+            "max_intervention_rate_basis_points": (
+                assessment.thresholds.max_intervention_rate_basis_points
+            ),
+            "min_materialized_output_count": assessment.thresholds.min_materialized_output_count,
+        },
+        "metrics_available": assessment.metrics_available,
+        "completion_rate_basis_points": assessment.completion_rate_basis_points,
+        "intervention_rate_basis_points": assessment.intervention_rate_basis_points,
+        "materialized_output_count": assessment.materialized_output_count,
+        "meets_completion_threshold": assessment.meets_completion_threshold,
+        "meets_intervention_threshold": assessment.meets_intervention_threshold,
+        "meets_output_threshold": assessment.meets_output_threshold,
+        "ready_for_pilot_review": assessment.ready_for_pilot_review,
+        "threshold_notes": list(assessment.threshold_notes),
+    }
+
+
 def _workflow_state(next_action: WorkspaceNextAction) -> str:
     name = next_action.name
     if name == "review_deliverables":
@@ -302,6 +457,7 @@ def _validate_dashboard_summary(summary: PilotDashboardSummary) -> None:
         raise PilotDashboardError("summary next_action must be a WorkspaceNextAction")
     _validate_optional_non_negative_metrics(summary.throughput)
     _validate_optional_non_negative_metrics(summary.intervention)
+    _validate_acceptance_assessment(summary.pilot_acceptance)
     if not isinstance(summary.safety_notes, tuple):
         raise PilotDashboardError("summary safety_notes must be a tuple")
     for note in summary.safety_notes:
@@ -315,6 +471,56 @@ def _validate_optional_non_negative_metrics(metrics: object) -> None:
             continue
         if isinstance(value, bool) or not isinstance(value, int) or value < 0:
             raise PilotDashboardError(f"{field_name} must be a non-negative integer or None")
+
+
+def _validate_acceptance_assessment(assessment: PilotAcceptanceAssessment) -> None:
+    if not isinstance(assessment, PilotAcceptanceAssessment):
+        raise PilotDashboardError("pilot_acceptance must be a PilotAcceptanceAssessment")
+    _validate_acceptance_thresholds(assessment.thresholds)
+    if not isinstance(assessment.metrics_available, bool):
+        raise PilotDashboardError("pilot_acceptance metrics_available must be a boolean")
+    if not isinstance(assessment.ready_for_pilot_review, bool):
+        raise PilotDashboardError("pilot_acceptance ready_for_pilot_review must be a boolean")
+    for field_name in (
+        "completion_rate_basis_points",
+        "intervention_rate_basis_points",
+        "materialized_output_count",
+    ):
+        value = getattr(assessment, field_name)
+        if value is None:
+            continue
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise PilotDashboardError(f"pilot_acceptance {field_name} is invalid")
+    for field_name in (
+        "meets_completion_threshold",
+        "meets_intervention_threshold",
+        "meets_output_threshold",
+    ):
+        value = getattr(assessment, field_name)
+        if value is not None and not isinstance(value, bool):
+            raise PilotDashboardError(f"pilot_acceptance {field_name} must be a boolean or None")
+    if not isinstance(assessment.threshold_notes, tuple):
+        raise PilotDashboardError("pilot_acceptance threshold_notes must be a tuple")
+    for note in assessment.threshold_notes:
+        if not isinstance(note, str) or not note.strip():
+            raise PilotDashboardError("pilot_acceptance threshold_notes must contain non-empty strings")
+
+
+def _validate_acceptance_thresholds(thresholds: PilotAcceptanceThresholds) -> None:
+    if not isinstance(thresholds, PilotAcceptanceThresholds):
+        raise PilotDashboardError("thresholds must be PilotAcceptanceThresholds")
+    for field_name in (
+        "min_completion_rate_basis_points",
+        "max_intervention_rate_basis_points",
+        "min_materialized_output_count",
+    ):
+        value = getattr(thresholds, field_name)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise PilotDashboardError(f"threshold {field_name} must be a non-negative integer")
+    if thresholds.min_completion_rate_basis_points > _BASIS_POINTS:
+        raise PilotDashboardError("min_completion_rate_basis_points cannot exceed 10000")
+    if thresholds.max_intervention_rate_basis_points > _BASIS_POINTS:
+        raise PilotDashboardError("max_intervention_rate_basis_points cannot exceed 10000")
 
 
 def _validate_timestamp(timestamp: str) -> None:

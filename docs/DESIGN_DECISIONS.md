@@ -171,11 +171,13 @@ The repo currently contains a Python core package because it is quick to test an
 - `shootflow.pilot_dashboard`: the first read-only product analytics contract
   above workspace health. It consumes validated health/report metrics to expose
   activation flags, metric-source availability, aggregate throughput, manual
-  intervention counts, and the current next safe action for Mac shells, pilot
-  dashboards, and GTM demos. Missing scheduler reports keep metrics unavailable
-  rather than defaulting them to zero. It names the next safe action but omits
-  executable commands for write-capable actions, and it never schedules, retries,
-  repairs, materializes, overwrites, cleans up, or deletes files.
+  intervention counts, schema v2 pilot acceptance thresholds, and the current
+  next safe action for Mac shells, pilot dashboards, and GTM demos. Missing
+  scheduler reports keep metrics unavailable rather than defaulting them to zero.
+  Acceptance uses integer basis points over the same trusted metrics and remains
+  observational; it cannot schedule, retry, materialize, repair, overwrite,
+  clean up, or delete files. It names the next safe action but omits executable
+  commands for write-capable actions.
 - `shootflow.render_workspace`: a read-only state index over persisted render
   handoffs. It starts from strict `deliverables/render_tasks.json`, treats a
   missing status manifest as `needs_status_initialization` without creating one,

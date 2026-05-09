@@ -117,8 +117,9 @@ This repo currently contains the first testable core utilities:
   creating, resetting, deleting, or repairing any files.
 - `shootflow.pilot_dashboard` turns that trusted workspace-health state into the
   first read-only pilot analytics contract: activation signals, throughput
-  counts, manual-intervention counts, metric-source availability, and the same
-  next safe action for Mac shells or pilot dashboards. It intentionally consumes
+  counts, manual-intervention counts, metric-source availability, default pilot
+  acceptance thresholds, and the same next safe action for Mac shells or pilot
+  dashboards. It intentionally consumes
   validated health/report metrics instead of raw worker internals and grants no
   copy, retry, cleanup, overwrite, materialization, or deletion authority.
 - `shootflow.deliverables` builds initial Instagram deliverable job plans.
@@ -292,7 +293,10 @@ The intended first workflow is:
     pilot analytics, or GTM demos need activation, throughput, and
     intervention-rate signals. The dashboard consumes `workspace-health` and
     validated scheduler product metrics only; missing reports leave metric fields
-    unavailable rather than defaulting them to false precision.
+    unavailable rather than defaulting them to false precision. Its schema v2
+    `pilot_acceptance` field evaluates trusted completion rate, manual
+    intervention rate, and materialized-output count against default pilot
+    thresholds without authorizing workflow actions.
 27. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
@@ -389,11 +393,15 @@ changing renderer authority.
 The pilot dashboard command writes nothing and consumes the same health summary
 instead of raw worker internals. It reports which scheduler metric sources are
 available, activation flags for trusted production/render handoffs, aggregate
-throughput, and manual-intervention counts. Missing or invalid scheduler reports
-keep throughput/intervention fields unavailable rather than deriving dashboard
-numbers from untrusted files. The dashboard names the next safe action for
-display, but omits executable commands for write-capable actions so analytics
-surfaces cannot become schedulers.
+throughput, manual-intervention counts, and a pilot-readiness assessment. The
+assessment uses integer basis points over trusted scheduler metrics: by default,
+a workspace is ready for pilot review only when completion is at least 90%,
+manual intervention is at most 20%, and at least one declared output has been
+materialized. Missing or invalid scheduler reports keep throughput/intervention
+and acceptance fields unavailable rather than deriving dashboard numbers from
+untrusted files. The dashboard names the next safe action for display, but omits
+executable commands for write-capable actions so analytics surfaces cannot become
+schedulers.
 The inspection command writes nothing; it fails closed if an existing status or
 scheduler report no longer matches the trusted render-task plan, and it marks
 succeeded tasks for review if their declared deliverable files are missing,

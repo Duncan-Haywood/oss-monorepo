@@ -44,7 +44,7 @@ class PilotDashboardTests(unittest.TestCase):
                 encoding="utf-8"
             )
 
-        self.assertEqual(payload["schema_version"], 1)
+        self.assertEqual(payload["schema_version"], 2)
         self.assertEqual(payload["generated_at"], "2026-05-09T20:31:00Z")
         self.assertEqual(payload["shoot_slug"], "cli-demo-shoot")
         self.assertTrue(payload["metric_sources"]["render_scheduler_report"])
@@ -56,6 +56,17 @@ class PilotDashboardTests(unittest.TestCase):
         self.assertEqual(
             payload["throughput"]["materialized_output_count"],
             len(demo.expected_output_paths),
+        )
+        self.assertTrue(payload["pilot_acceptance"]["metrics_available"])
+        self.assertEqual(payload["pilot_acceptance"]["completion_rate_basis_points"], 10000)
+        self.assertEqual(payload["pilot_acceptance"]["intervention_rate_basis_points"], 0)
+        self.assertTrue(payload["pilot_acceptance"]["meets_completion_threshold"])
+        self.assertTrue(payload["pilot_acceptance"]["meets_intervention_threshold"])
+        self.assertTrue(payload["pilot_acceptance"]["meets_output_threshold"])
+        self.assertTrue(payload["pilot_acceptance"]["ready_for_pilot_review"])
+        self.assertEqual(
+            payload["pilot_acceptance"]["thresholds"]["min_completion_rate_basis_points"],
+            9000,
         )
         self.assertEqual(payload["intervention"]["manual_intervention_count"], 0)
         self.assertTrue(payload["activation"]["render_tasks_trusted"])
@@ -131,6 +142,26 @@ class PilotDashboardTests(unittest.TestCase):
             payload["intervention"]["intervention_rate_basis_count"],
             payload["throughput"]["total_work_count"],
         )
+        self.assertTrue(payload["pilot_acceptance"]["metrics_available"])
+        self.assertLess(
+            payload["pilot_acceptance"]["completion_rate_basis_points"],
+            payload["pilot_acceptance"]["thresholds"]["min_completion_rate_basis_points"],
+        )
+        self.assertFalse(payload["pilot_acceptance"]["meets_completion_threshold"])
+        self.assertGreater(
+            payload["pilot_acceptance"]["intervention_rate_basis_points"],
+            payload["pilot_acceptance"]["thresholds"]["max_intervention_rate_basis_points"],
+        )
+        self.assertFalse(payload["pilot_acceptance"]["meets_intervention_threshold"])
+        self.assertFalse(payload["pilot_acceptance"]["ready_for_pilot_review"])
+        self.assertIn(
+            "completion rate",
+            " ".join(payload["pilot_acceptance"]["threshold_notes"]),
+        )
+        self.assertIn(
+            "manual intervention rate",
+            " ".join(payload["pilot_acceptance"]["threshold_notes"]),
+        )
         self.assertGreater(payload["throughput"]["attempted_work_count"], 0)
         self.assertIn("read-only", " ".join(payload["safety_notes"]))
         self.assertEqual(production_status_after, production_status_before)
@@ -159,8 +190,85 @@ class PilotDashboardTests(unittest.TestCase):
         self.assertIsNone(payload["throughput"]["total_work_count"])
         self.assertIsNone(payload["throughput"]["completed_work_count"])
         self.assertIsNone(payload["intervention"]["manual_intervention_count"])
+        self.assertFalse(payload["pilot_acceptance"]["metrics_available"])
+        self.assertIsNone(payload["pilot_acceptance"]["completion_rate_basis_points"])
+        self.assertIsNone(payload["pilot_acceptance"]["intervention_rate_basis_points"])
+        self.assertIsNone(payload["pilot_acceptance"]["materialized_output_count"])
+        self.assertIsNone(payload["pilot_acceptance"]["meets_completion_threshold"])
+        self.assertIsNone(payload["pilot_acceptance"]["meets_intervention_threshold"])
+        self.assertIsNone(payload["pilot_acceptance"]["meets_output_threshold"])
+        self.assertFalse(payload["pilot_acceptance"]["ready_for_pilot_review"])
+        self.assertIn("trusted scheduler metrics", " ".join(payload["pilot_acceptance"]["threshold_notes"]))
         self.assertTrue(payload["activation"]["render_tasks_trusted"])
         self.assertFalse(payload["activation"]["render_status_trusted"])
+
+    def test_acceptance_survives_completed_workspace_noop_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            demo = create_persisted_cli_demo_workspace(workspace)
+            self._run_demo_render_scheduler(workspace, demo.required_completed_dependency_ids)
+            self._run_demo_render_scheduler(workspace, demo.required_completed_dependency_ids)
+
+            payload = pilot_dashboard_summary_to_dict(
+                build_pilot_dashboard_summary(
+                    workspace,
+                    generated_at="2026-05-09T21:01:00Z",
+                )
+            )
+
+        self.assertEqual(payload["throughput"]["completed_work_count"], 4)
+        self.assertEqual(payload["throughput"]["materialized_output_count"], 0)
+        self.assertEqual(payload["pilot_acceptance"]["materialized_output_count"], 4)
+        self.assertTrue(payload["pilot_acceptance"]["meets_output_threshold"])
+        self.assertTrue(payload["pilot_acceptance"]["ready_for_pilot_review"])
+
+    def test_blocked_scheduler_report_fails_output_acceptance_threshold(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+            init_exit = main(
+                ["init-render-status", "--workspace", str(workspace)],
+                stdout=io.StringIO(),
+            )
+            self.assertEqual(init_exit, 0)
+            scheduler_exit = main(
+                [
+                    "dry-run-render-scheduler",
+                    "--workspace",
+                    str(workspace),
+                    "--renderer",
+                    "dry-run-local",
+                    "--started-at",
+                    "2026-05-09T21:01:10Z",
+                    "--completed-at",
+                    "2026-05-09T21:01:15Z",
+                    "--generated-at",
+                    "2026-05-09T21:01:16Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "4",
+                ],
+                stdout=io.StringIO(),
+            )
+            self.assertEqual(scheduler_exit, 0)
+
+            payload = pilot_dashboard_summary_to_dict(
+                build_pilot_dashboard_summary(
+                    workspace,
+                    generated_at="2026-05-09T21:01:17Z",
+                )
+            )
+
+        self.assertTrue(payload["pilot_acceptance"]["metrics_available"])
+        self.assertEqual(payload["throughput"]["completed_work_count"], 0)
+        self.assertEqual(payload["pilot_acceptance"]["materialized_output_count"], 0)
+        self.assertFalse(payload["pilot_acceptance"]["meets_output_threshold"])
+        self.assertFalse(payload["pilot_acceptance"]["ready_for_pilot_review"])
+        self.assertIn(
+            "materialized output count",
+            " ".join(payload["pilot_acceptance"]["threshold_notes"]),
+        )
 
     def _run_demo_render_scheduler(self, workspace: Path, dependencies: tuple[str, ...]) -> None:
         init_exit = main(

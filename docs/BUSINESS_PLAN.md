@@ -161,6 +161,8 @@ Track product and business metrics together:
 - median hours saved/user/week (self-reported + modeled),
 - deliverables generated per shoot,
 - manual intervention rate per 100 tasks,
+- pilot-ready workspace rate from trusted dashboard thresholds (default: >=90%
+  completion, <=20% manual intervention, and >=1 materialized output),
 - paid conversion from trial,
 - retention at 30/90 days,
 - expansion (seat upgrades or usage add-ons).
@@ -191,6 +193,9 @@ Run practical experiments tied to this ICP-first plan:
    burst compute credits with usage telemetry.
 5. **Quality confidence metric:** track how often users accept default selects/
    grades/deliverables vs requiring manual intervention.
+6. **Pilot readiness gate:** count a shoot as dashboard-ready only from the
+   schema v2 `pilot_acceptance` payload, not from raw worker logs or manual
+   spreadsheet interpretation.
 
 ## 7) Key risks and mitigations
 
@@ -224,7 +229,8 @@ Run practical experiments tied to this ICP-first plan:
    the safe read-only state probe before initialization and after scheduler runs.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
-5. Bind the new pilot-dashboard contract into the future Mac UI, continuation
+5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,
-   and review-required rates become visible from trusted handoff metrics.
+   review-required rates, and schema v2 pilot-readiness thresholds become visible
+   from trusted handoff metrics.
 6. Start proof-based GTM content showing real workflows and outcomes.

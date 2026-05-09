@@ -15,6 +15,7 @@ __all__ = [
     "production_report",
     "production_status",
     "production_worker",
+    "pilot_dashboard",
     "render_adapter",
     "render_scheduler",
     "render_status",

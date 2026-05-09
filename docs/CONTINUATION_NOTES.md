@@ -2,6 +2,60 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 21:00 UTC
+
+This run advanced the pilot-dashboard measurement target from the previous
+handoff:
+
+- `shootflow.pilot_dashboard` now emits schema version 2 with a
+  `pilot_acceptance` object derived only from trusted workspace-health scheduler
+  metrics. It computes completion and manual-intervention rates as integer basis
+  points, carries the default thresholds in the payload, and marks
+  `ready_for_pilot_review` only when completion is at least 90%, manual
+  intervention is at most 20%, and at least one declared output has materialized.
+- Missing or invalid scheduler metrics keep pilot acceptance unavailable rather
+  than silently treating unknown values as success or failure.
+- Acceptance state is explicitly observational. It does not schedule, retry,
+  materialize, repair, overwrite, clean up, delete files, or re-emit executable
+  write-capable next actions.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future agents and GTM work treat schema v2 pilot readiness as the canonical
+  measurement layer instead of raw worker logs or spreadsheets.
+- Added dashboard coverage for passing render-workspace readiness, retryable
+  production intervention/completion failure, missing-metric unavailability,
+  blocked no-output reports, and completed-workspace no-op scheduler reruns.
+
+Branch reconciliation for this run:
+
+- Fetched and pruned remote branches. Most historical automation branches were
+  already deleted upstream.
+- The assigned branch started equal to `origin/main` and
+  `origin/cursor/branch-reconciliation-and-merge-9ad3`.
+- `origin/cursor/repository-branch-consolidation-6ce3` and
+  `origin/cursor/branch-consolidation-fedb` are behind this lineage with no
+  unique commits (`HEAD...branch` compared `2 0` and `4 0` respectively), so no
+  remote merge was needed.
+- Deleted merged stale local branch `cursor/setup-dev-env-3ad0`.
+- Verification before commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_dashboard`
+  -> 5 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check` -> 312 tests OK; compileall/diff-check exited 0.
+
+Good next test-first targets:
+
+- Bind schema v2 `pilot_acceptance` into a minimal native-shell/UI fixture that
+  displays readiness as observational state while still branching only on
+  explicit next-action/review contracts.
+- Define a pilot cohort report fixture that aggregates multiple dashboard JSON
+  payloads into pilot-ready workspace rate, median intervention rate, and
+  first-draft output count without reading raw worker internals.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-09 20:30 UTC
 
 This run closed the pilot-dashboard contract target from the previous handoff:
