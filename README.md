@@ -63,14 +63,22 @@ This repo currently contains the first testable core utilities:
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
   details without granting any new file authority.
+- `shootflow.render_workspace` inspects a persisted render workspace without
+  writing files. It loads the trusted `render_tasks.json`, optionally validates
+  the matching `render_status.json` and `render_scheduler_report.json`, then
+  returns the overall state, status counts, expected outputs, review-required
+  tasks, and safe next actions for a Mac UI or continuation agent.
 - `shootflow.cli` exposes the first background-agent commands:
-  `python -m shootflow.cli init-render-status` and
+  `python -m shootflow.cli init-render-status`,
+  `python -m shootflow.cli inspect-render-workspace`, and
   `python -m shootflow.cli dry-run-render-scheduler`. The init command loads the
   strict persisted render-task manifest, creates the companion render-status
   manifest only when missing, and never resets existing matching progress. The
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
-  as JSON for a Mac app or automation runner.
+  as JSON for a Mac app or automation runner. The inspection command is
+  read-only and tells the caller whether the safe next step is initialization,
+  scheduling, retry review, dependency review, or deliverable review.
 - `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
@@ -164,15 +172,18 @@ The intended first workflow is:
     assembly plan and final render status so a Mac app, background agent, or next
     automation run can show what finished and what needs review without parsing
     worker internals.
-19. Run the same handoff through
+19. Inspect the persisted render workspace through a read-only report that
+    validates task/status/report consistency and exposes safe next actions before
+    a UI or agent decides whether to initialize, schedule, review, or retry work.
+20. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
     process starts from persisted manifests instead of an in-memory production
     plan.
-20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
+21. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
+22. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
     build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
     GTM demos, and continuation agents without touching source media or resetting
     render progress.
@@ -181,6 +192,7 @@ The current persisted-manifest CLI flow is:
 
 ```bash
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
+PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \
   --renderer dry-run-local \
@@ -192,6 +204,12 @@ PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <di
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer
 matches the trusted render-task plan.
+
+The inspection command writes nothing. It reports whether
+`render_status.json` and `render_scheduler_report.json` are present and trusted,
+counts task states, lists expected/materialized outputs, and emits next-action
+strings such as `run init-render-status`, `run dry-run-render-scheduler`, or
+`review completed deliverables`.
 
 The import-route planning flow is:
 

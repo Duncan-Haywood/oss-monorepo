@@ -172,9 +172,11 @@ Run practical experiments tied to this ICP-first plan:
    starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
    half now exists in `shootflow.demo_workspace`, and `plan-production` proves
-   the safe ingest-to-production-plan handoff; next, connect
-   `card-dump-workflow` with the persisted render-task demo so one smoke path
-   runs from detected card to scheduler report.
+   the safe ingest-to-production-plan handoff. The new
+   `inspect-render-workspace` command gives the demo a read-only UI/agent state
+   summary after initialization or scheduling; next, connect `card-dump-workflow`
+   with the persisted render-task demo so one smoke path runs from detected card
+   to scheduler report and final inspection.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

@@ -13,6 +13,7 @@ __all__ = [
     "render_adapter",
     "render_scheduler",
     "render_status",
+    "render_workspace",
     "render_worker",
     "storage",
     "storage_discovery",

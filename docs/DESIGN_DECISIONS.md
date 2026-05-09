@@ -97,6 +97,12 @@ The repo currently contains a Python core package because it is quick to test an
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
   blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+- `shootflow.render_workspace`: a read-only persisted-workspace inspection layer for Mac UI shells,
+  launch agents, and continuation automations. It starts from the trusted `deliverables/render_tasks.json`
+  handoff, optionally validates the matching `deliverables/render_status.json` and
+  `deliverables/render_scheduler_report.json`, and returns overall state, status counts, expected outputs,
+  materialized outputs, review-required task IDs, and safe next actions without creating, deleting, or
+  resetting any files. Stale scheduler reports fail closed instead of being treated as UI truth.
 - `shootflow.cli`: the first background-agent command surface. The init command loads the persisted
   `deliverables/render_tasks.json` handoff through the same strict task schema/path validation and creates the
   matching `deliverables/render_status.json` only when missing, returning a compact JSON summary for a Mac UI or
@@ -149,12 +155,15 @@ The desired high-quality pipeline is:
 18. Persist a scheduler report after each run so UI/retry/continuation layers can tell the user which deliverables
     finished, which tasks need review, which outputs were materialized, and which failures or lease conflicts require
     attention.
-19. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
+19. Inspect persisted render workspaces through a read-only manifest index so native UI and continuation agents can
+    safely decide whether to initialize status, run the scheduler, wait on dependencies, review failures, or review
+    completed deliverables without parsing untrusted JSON by hand.
+20. Run the persisted-manifest init and scheduler commands through a CLI/background-agent flow so native app work can
     begin from durable handoffs rather than an in-process Python object graph.
-20. Drive the route -> preview -> optional ingest -> production-summary path
+21. Drive the route -> preview -> optional ingest -> production-summary path
     through a single `card-dump-workflow` command so native UI shells can prove
     the card-dump experience without reimplementing storage or ingest safety.
-21. Keep a small persisted-manifest demo workspace helper available so Mac UI
+22. Keep a small persisted-manifest demo workspace helper available so Mac UI
     shells, launch-agent smoke tests, and GTM demos can exercise the init-to-report
     flow without constructing trusted render tasks by hand.
 22. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
@@ -415,3 +424,15 @@ Avoid competing only on generic AI editing. The differentiator is end-to-end wor
   demos must still call `init-render-status` and `dry-run-render-scheduler` to
   create progress and reports through the same strict persisted-manifest path as
   production workflows.
+
+### Decision: UI/agent render state should come from a read-only workspace inspection
+
+- **Status:** accepted
+- **Rationale:** a Mac app, launch agent, or future autonomous worker should not
+  infer product state by partially parsing whichever render files happen to
+  exist. The inspection layer centralizes the trust checks and keeps missing
+  status files distinct from stale or forged reports.
+- **Consequence:** `inspect-render-workspace` and
+  `shootflow.render_workspace.inspect_render_workspace(...)` are the preferred
+  handoff for deciding whether to run status initialization, scheduling, retry
+  review, dependency review, or deliverable review.

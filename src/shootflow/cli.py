@@ -38,6 +38,11 @@ from shootflow.render_status import (
     initialize_render_status_manifest,
     load_render_status_manifest,
 )
+from shootflow.render_workspace import (
+    RenderWorkspaceError,
+    RenderWorkspaceReport,
+    inspect_render_workspace,
+)
 from shootflow.storage import ImportRouteRecommendation, RankedStorageCandidate, StorageCandidate
 from shootflow.storage_discovery import discover_import_route, discover_storage_candidates
 
@@ -86,6 +91,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "inspect-render-workspace":
+            _run_inspect_render_workspace_command(args, stdout=out)
         else:
             raise ShootFlowCliError(f"Unknown command: {args.command}")
     except (
@@ -98,6 +105,7 @@ def main(
         FileNotFoundError,
         ProductionPlanError,
         CardDumpWorkflowError,
+        RenderWorkspaceError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -251,6 +259,11 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
     stdout.write(_card_dump_workflow_report_json(report))
 
 
+def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    report = inspect_render_workspace(args.workspace)
+    stdout.write(_render_workspace_report_json(report))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="shootflow")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -387,6 +400,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confirm-ingest",
         action="store_true",
         help="Actually execute the checksum-verified copy after preview. Without this, no files are copied.",
+    )
+
+    inspect_workspace = subparsers.add_parser(
+        "inspect-render-workspace",
+        help="Summarize trusted render task/status/report handoffs without writing files.",
+    )
+    inspect_workspace.add_argument(
+        "--workspace",
+        default=".",
+        help="Workspace containing deliverables/render_tasks.json.",
     )
 
     return parser
@@ -770,6 +793,37 @@ def _card_dump_production_report_json(report: CardDumpWorkflowReport) -> dict[st
         ],
         "wrote_downstream_files": False,
     }
+
+
+def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
+    if not isinstance(report, RenderWorkspaceReport):
+        raise ShootFlowCliError("report must be a RenderWorkspaceReport")
+    return json.dumps(
+        {
+            "schema_version": 1,
+            "workspace": str(report.workspace_root),
+            "render_tasks_manifest_path": str(report.render_tasks_manifest_path),
+            "render_status_manifest_path": str(report.render_status_manifest_path),
+            "scheduler_report_path": str(report.scheduler_report_path),
+            "shoot_slug": report.shoot_slug,
+            "render_plan_fingerprint": report.render_plan_fingerprint,
+            "overall_status": report.overall_status,
+            "render_tasks_present": report.render_tasks_present,
+            "render_status_present": report.render_status_present,
+            "scheduler_report_present": report.scheduler_report_present,
+            "task_count": report.task_count,
+            "status_counts_by_state": report.status_counts_by_state,
+            "expected_output_paths": list(report.expected_output_paths),
+            "scheduler_stopped_reason": report.scheduler_stopped_reason,
+            "review_required_task_ids": list(report.review_required_task_ids),
+            "outputs_materialized": list(report.outputs_materialized),
+            "next_actions": list(report.next_actions),
+            "safety_notes": list(report.safety_notes),
+        },
+        ensure_ascii=True,
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def _validate_main_args(

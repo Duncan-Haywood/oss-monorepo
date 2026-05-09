@@ -92,26 +92,30 @@ The current core models a concrete promise for high-volume users:
 18. Persist a strict scheduler report for the Mac app or next background agent,
     including completed outputs, retryable/failed/blocked tasks, review-required
     task IDs, stale-lease conflicts, and human-readable failure messages.
-19. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
+19. Inspect the persisted render workspace through a read-only UI/agent report
+    that validates render tasks, status, and scheduler reports before exposing
+    overall state, task counts, expected outputs, materialized outputs, review
+    requirements, and safe next actions.
+20. Invoke the same init/scheduler/report handoff from persisted-manifest CLI
     commands so a Mac launch agent, menu-bar app, or automation runner can
     bootstrap and advance work without reconstructing the production planner in
     memory.
-20. Drive safe ingest itself through the same CLI surface: `preview-ingest`
+21. Drive safe ingest itself through the same CLI surface: `preview-ingest`
     plans a checksum-verified copy and prints planned items as JSON without
     moving bytes; `execute-ingest --confirm` runs the existing safe copy +
     manifest contract (no source deletion, no overwriting different bytes,
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
     a card copy by accident.
-21. Offer a unified `card-dump-workflow` command for native-shell demos and the
+22. Offer a unified `card-dump-workflow` command for native-shell demos and the
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
     only with `--confirm-ingest` performs the copy plus a read-only production
     summary.
-22. Create repeatable persisted-manifest smoke/demo workspaces through the core
+23. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots.
-23. Assemble reels, carousels, and photo sets from graded masters.
+24. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
 perfect. A photographer or editor can trust the file organization, review the
@@ -181,6 +185,10 @@ to automate.
    background automation process. The demo workspace helper now creates a tiny
    trusted persisted render-task workspace for smoke tests and product demos
    without bypassing the real init/status/scheduler path.
+   A new read-only render-workspace inspection report now gives UI shells and
+   continuation agents a safe product state index over those persisted manifests,
+   including whether to initialize status, run scheduling, review retryable or
+   blocked work, or review completed deliverables.
 4. Review UI for accepting, tweaking, or regenerating deliverables.
 5. iPhone companion for review, approvals, publishing prep, and mobile imports.
 
