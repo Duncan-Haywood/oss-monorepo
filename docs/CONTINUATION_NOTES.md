@@ -67,7 +67,7 @@ Branch reconciliation for this run:
 - Final verification on the assigned branch:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
   PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
-  git diff --check && git status --short --branch` -> 298 tests OK,
+  git diff --check && git status --short --branch` -> 297 tests OK,
   compileall/diff-check exited 0, and the working tree was clean.
 
 ## Implementation continuation note - 2026-05-09 18:00 UTC
