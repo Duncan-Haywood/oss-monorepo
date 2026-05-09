@@ -328,6 +328,44 @@ class ShootFlowCliTests(unittest.TestCase):
             self.assertFalse((workspace / "workspaces").exists())
             self.assertFalse((workspace / "pilot_cohort_report.json").exists())
 
+    def test_create_pilot_cohort_demo_command_rejects_existing_shoot_workspace_before_scheduler_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            existing_report = (
+                workspace
+                / "workspaces"
+                / "pilot-demo-001"
+                / "deliverables"
+                / "render_scheduler_report.json"
+            )
+            existing_report.parent.mkdir(parents=True)
+            existing_report.write_text("user-owned scheduler report", encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-pilot-cohort-demo",
+                    "--workspace",
+                    str(workspace),
+                    "--workspace-count",
+                    "1",
+                    "--dashboard-generated-at",
+                    "2026-05-09T22:05:00Z",
+                    "--generated-at",
+                    "2026-05-09T22:06:00Z",
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("Refusing existing pilot demo shoot workspace", stderr.getvalue())
+            self.assertEqual(existing_report.read_text(encoding="utf-8"), "user-owned scheduler report")
+            self.assertFalse((workspace / "pilot_dashboards").exists())
+            self.assertFalse((workspace / "pilot_cohort_report.json").exists())
+
     def test_card_dump_demo_workspace_refuses_to_overwrite_existing_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

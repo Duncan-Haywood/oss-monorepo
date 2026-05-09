@@ -128,6 +128,7 @@ def create_pilot_cohort_cli_demo_workspace(
     shoot_workspaces = _pilot_demo_shoot_workspaces(root, workspace_count)
     dashboard_paths = _pilot_demo_dashboard_paths(root, workspace_count)
     cohort_report_path = root / _PILOT_COHORT_REPORT_PATH
+    _preflight_pilot_demo_shoot_workspaces(root, shoot_workspaces)
     _preflight_pilot_demo_outputs(root, dashboard_paths, cohort_report_path)
 
     for index, shoot_workspace in enumerate(shoot_workspaces, start=1):
@@ -361,6 +362,22 @@ def _preflight_pilot_demo_outputs(
         root=root,
         label="pilot cohort report",
     )
+
+
+def _preflight_pilot_demo_shoot_workspaces(
+    root: Path,
+    shoot_workspaces: tuple[Path, ...],
+) -> None:
+    for shoot_workspace in shoot_workspaces:
+        _reject_symlink_ancestors(shoot_workspace.parent, root=root)
+        if shoot_workspace.parent.exists() and not shoot_workspace.parent.is_dir():
+            raise DemoWorkspaceError(
+                f"pilot demo shoot workspace directory must be a directory: {shoot_workspace.parent}"
+            )
+        if shoot_workspace.exists() or shoot_workspace.is_symlink():
+            raise DemoWorkspaceError(
+                f"Refusing existing pilot demo shoot workspace: {shoot_workspace}"
+            )
 
 
 def _preflight_pilot_demo_output_path(path: Path, *, root: Path, label: str) -> None:
