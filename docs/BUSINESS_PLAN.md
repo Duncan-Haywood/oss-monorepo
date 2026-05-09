@@ -50,6 +50,8 @@ Why this wedge wins:
 - A single card-dump workflow command that ties route discovery, capacity
   gating, ingest preview, optional confirmed copy, and post-ingest production
   reporting together for Mac app shells and demos.
+- A safe demo-workspace command that creates a trusted persisted render-task
+  smoke fixture for launch-agent tests, GTM demos, and future Mac UI shells.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - Safe render-status initialization plus dry-run worker scheduler/status
@@ -171,10 +173,10 @@ Run practical experiments tied to this ICP-first plan:
    native Disk Arbitration metadata and an approval screen before AI/color work
    starts.
 2. Extend the post-ingest report toward a full card-dump demo. The render-task
-   half now exists in `shootflow.demo_workspace`, and `plan-production` proves
-   the safe ingest-to-production-plan handoff; next, connect
-   `card-dump-workflow` with the persisted render-task demo so one smoke path
-   runs from detected card to scheduler report.
+   half now exists in `shootflow.demo_workspace` and is creatable via
+   `create-demo-workspace`; next, connect `card-dump-workflow` with the
+   persisted render-task demo so one smoke path runs from detected card to
+   scheduler report.
 3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Instrument key product metrics at scheduler/report boundaries.

@@ -70,7 +70,9 @@ This repo currently contains the first testable core utilities:
   manifest only when missing, and never resets existing matching progress. The
   scheduler command then runs the dry-run scheduler against the matching
   render-status manifest, writes the scheduler report, and can print that report
-  as JSON for a Mac app or automation runner.
+  as JSON for a Mac app or automation runner. It also exposes
+  `create-demo-workspace`, a safe native-shell command for creating the trusted
+  persisted render-task demo workspace before running the init/scheduler flow.
 - `shootflow.demo_workspace` can create a tiny persisted CLI smoke workspace for
   demos and native-shell testing. It writes deterministic placeholder graded
   inputs plus `deliverables/render_tasks.json`, refuses to overwrite existing
@@ -172,22 +174,36 @@ The intended first workflow is:
 20. Use `python -m shootflow.cli card-dump-workflow` as the first complete
     native-shell handoff from detected volumes to previewed ingest, and only
     with `--confirm-ingest`, verified copy plus a read-only production summary.
-21. Use `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)` to
-    build a safe, repeatable persisted-manifest smoke workspace for Mac UI shells,
-    GTM demos, and continuation agents without touching source media or resetting
+21. Use `python -m shootflow.cli create-demo-workspace` (or
+    `shootflow.demo_workspace.create_persisted_cli_demo_workspace(...)`) to build
+    a safe, repeatable persisted-manifest smoke workspace for Mac UI shells, GTM
+    demos, and continuation agents without touching source media or resetting
     render progress.
 
 The current persisted-manifest CLI flow is:
 
 ```bash
+PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace \
+  --workspace <dir> \
+  --shoot-slug cli-demo-shoot
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> \
   --completed-dependency rank_instagram_storylines \
+  --completed-dependency grade_asset_00000 \
+  --completed-dependency grade_asset_00001 \
+  --completed-dependency grade_asset_00002 \
+  --completed-dependency grade_asset_00003 \
   --renderer dry-run-local \
   --started-at 2026-05-07T16:00:00Z \
   --completed-at 2026-05-07T16:00:05Z \
   --generated-at 2026-05-07T16:00:06Z
 ```
+
+The demo command writes deterministic placeholder analysis/graded inputs and
+`deliverables/render_tasks.json`, then prints the required completed dependency
+IDs and expected deliverable outputs as JSON. It deliberately does not create
+`render_status.json`, scheduler reports, source media, or final outputs; the
+normal init/scheduler commands still exercise the trusted no-reset handoff.
 
 The init command writes only metadata under `deliverables/`, never deletes media,
 and fails rather than overwriting an existing status manifest that no longer

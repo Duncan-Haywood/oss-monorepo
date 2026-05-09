@@ -21,6 +21,87 @@ from shootflow.render_status import (
 
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_create_demo_workspace_command_writes_persisted_handoff_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "demo"
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                    "--shoot-slug",
+                    "launch-demo",
+                ],
+                stdout=stdout,
+            )
+
+            response = json.loads(stdout.getvalue())
+            storyline_exists = (workspace / "analysis" / "instagram_storylines.json").is_file()
+            render_tasks_exists = (workspace / "deliverables" / "render_tasks.json").is_file()
+            render_status_exists = (workspace / "deliverables" / "render_status.json").exists()
+            scheduler_report_exists = (workspace / "deliverables" / "render_scheduler_report.json").exists()
+            deliverable_files = sorted(
+                path.relative_to(workspace).as_posix()
+                for path in (workspace / "deliverables").rglob("*")
+                if path.is_file()
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(response["schema_version"], 1)
+        self.assertEqual(response["workspace"], str(workspace))
+        self.assertEqual(response["shoot_slug"], "launch-demo")
+        self.assertEqual(
+            response["render_tasks_manifest_path"],
+            str(workspace / "deliverables" / "render_tasks.json"),
+        )
+        self.assertEqual(response["task_count"], 4)
+        self.assertEqual(
+            response["required_completed_dependency_ids"],
+            [
+                "rank_instagram_storylines",
+                "grade_asset_00000",
+                "grade_asset_00001",
+                "grade_asset_00002",
+                "grade_asset_00003",
+            ],
+        )
+        self.assertIn("deliverables/instagram_reel.mp4", response["expected_output_paths"])
+        self.assertIn("demo helper never deletes source media", response["safety_notes"])
+        self.assertTrue(storyline_exists)
+        self.assertTrue(render_tasks_exists)
+        self.assertFalse(render_status_exists)
+        self.assertFalse(scheduler_report_exists)
+        self.assertEqual(deliverable_files, ["deliverables/render_tasks.json"])
+
+    def test_create_demo_workspace_command_reports_conflicts_without_overwriting(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "demo"
+            storyline_path = workspace / "analysis" / "instagram_storylines.json"
+            storyline_path.parent.mkdir(parents=True)
+            storyline_path.write_bytes(b"user-owned storyline")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "create-demo-workspace",
+                    "--workspace",
+                    str(workspace),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+            preserved_storyline = storyline_path.read_bytes()
+            render_tasks_exists = (workspace / "deliverables" / "render_tasks.json").exists()
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("Refusing to overwrite", stderr.getvalue())
+        self.assertEqual(preserved_storyline, b"user-owned storyline")
+        self.assertFalse(render_tasks_exists)
+
     def test_persisted_cli_demo_workspace_runs_init_to_scheduler_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
