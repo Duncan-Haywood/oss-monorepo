@@ -57,6 +57,12 @@ from shootflow.pilot_cohort_report import (
     build_pilot_cohort_report_from_paths,
     pilot_cohort_report_to_dict,
 )
+from shootflow.pilot_cohort_brief import (
+    PilotCohortBrief,
+    PilotCohortBriefError,
+    build_pilot_cohort_brief_from_report_path,
+    pilot_cohort_brief_to_dict,
+)
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
     DryRunProductionSchedulerReport,
@@ -167,6 +173,8 @@ def main(
             _run_pilot_dashboard_command(args, stdout=out)
         elif args.command == "pilot-cohort-report":
             _run_pilot_cohort_report_command(args, stdout=out)
+        elif args.command == "pilot-cohort-brief":
+            _run_pilot_cohort_brief_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
@@ -195,6 +203,7 @@ def main(
         WorkspaceIndexError,
         PilotDashboardError,
         PilotCohortReportError,
+        PilotCohortBriefError,
         RenderWorkspaceError,
         DemoWorkspaceError,
         StorageDiscoveryError,
@@ -492,6 +501,11 @@ def _run_pilot_cohort_report_command(args: argparse.Namespace, *, stdout: TextIO
         generated_at=args.generated_at,
     )
     stdout.write(_pilot_cohort_report_json(report))
+
+
+def _run_pilot_cohort_brief_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    brief = build_pilot_cohort_brief_from_report_path(args.cohort_report)
+    stdout.write(_pilot_cohort_brief_json(brief))
 
 
 def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -812,6 +826,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--generated-at",
         required=True,
         help="Caller-supplied timestamp for the read-only cohort report.",
+    )
+
+    cohort_brief = subparsers.add_parser(
+        "pilot-cohort-brief",
+        help="Build an observe-only UI brief from a saved pilot-cohort-report JSON payload.",
+    )
+    cohort_brief.add_argument(
+        "--cohort-report",
+        required=True,
+        help="Path to a saved pilot-cohort-report JSON payload.",
     )
 
     inspect_workspace = subparsers.add_parser(
@@ -1571,6 +1595,20 @@ def _pilot_cohort_report_json(report: PilotCohortReport) -> str:
     return (
         json.dumps(
             pilot_cohort_report_to_dict(report),
+            ensure_ascii=True,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
+def _pilot_cohort_brief_json(brief: PilotCohortBrief) -> str:
+    if not isinstance(brief, PilotCohortBrief):
+        raise ShootFlowCliError("brief must be a PilotCohortBrief")
+    return (
+        json.dumps(
+            pilot_cohort_brief_to_dict(brief),
             ensure_ascii=True,
             indent=2,
             sort_keys=True,
