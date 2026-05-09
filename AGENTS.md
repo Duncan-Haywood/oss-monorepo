@@ -32,11 +32,14 @@ PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli write-render-tasks --ingest-manifest <path>
 PYTHONPATH=src python3 -m shootflow.cli next-production-wave --ingest-manifest <path> ...
+PYTHONPATH=src python3 -m shootflow.cli dry-run-production-scheduler --ingest-manifest <path> ...
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli create-demo-workspace --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli dry-run-render-scheduler --workspace <dir> ...
 ```
 
+The production init/scheduler CLI commands need a trusted `ingest_manifest.json`
+and matching `production_status.json` in the shoot workspace.
 The render init/scheduler CLI commands need trusted `deliverables/render_tasks.json`
 and `deliverables/render_status.json` manifests in the workspace directory.
 `write-render-tasks` can create the render-task manifest from an ingest manifest

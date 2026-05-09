@@ -11,12 +11,84 @@ from shootflow.production_status import (
     OutputChecksum,
     ProductionJobStatus,
     ProductionStatusManifest,
+    load_production_status_manifest,
     production_plan_fingerprint,
     write_production_status_manifest,
 )
 
 
 class ShootFlowProductionStatusCliTests(unittest.TestCase):
+    def test_dry_run_production_scheduler_command_advances_persisted_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            clip = card / "DCIM" / "A001.MOV"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-09",
+                    "--shoot-slug",
+                    "production-scheduler",
+                    "--confirm",
+                ],
+                stdout=io.StringIO(),
+            )
+            shoot_folder = destination / "2026-05-09_production-scheduler"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            production_plan = self._production_plan(manifest_path)
+            init_exit_code = main(
+                [
+                    "init-production-status",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=io.StringIO(),
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "dry-run-production-local",
+                    "--started-at",
+                    "2026-05-09T16:40:00Z",
+                    "--completed-at",
+                    "2026-05-09T16:40:05Z",
+                    "--max-concurrency",
+                    "2",
+                    "--max-iterations",
+                    "10",
+                ],
+                stdout=stdout,
+            )
+            status_manifest = load_production_status_manifest(shoot_folder, trusted_plan=production_plan)
+            reel_output_exists = (shoot_folder / "deliverables" / "instagram_reel.mp4").exists()
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(init_exit_code, 0)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["schema_version"], 1)
+        self.assertEqual(payload["workspace"], str(shoot_folder))
+        self.assertEqual(payload["ingest_manifest_path"], str(manifest_path))
+        self.assertEqual(payload["shoot_slug"], "production-scheduler")
+        self.assertEqual(payload["stopped_reason"], "complete")
+        self.assertEqual(payload["retryable_job_ids"], [])
+        self.assertEqual(payload["review_required_job_ids"], [])
+        self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
+        self.assertEqual([status.state for status in status_manifest.job_statuses], ["succeeded"] * 7)
+        self.assertTrue(reel_output_exists)
+
     def test_init_production_status_command_creates_manifest_without_downstream_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

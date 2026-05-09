@@ -74,7 +74,17 @@ The repo currently contains a Python core package because it is quick to test an
   the same status boundary. Directory-style package outputs become retryable
   review states instead of files that would block later render directories. It
   does not open arbitrary media, delete files, clean up user outputs, or grant
-  workers authority beyond the trusted production job.
+  workers authority beyond the trusted production job. Its batch runner executes
+  only trusted action plans, preserves serial production jobs, bounds parallel
+  local work, and keeps blocked jobs visible rather than mutating them.
+- `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
+  reloads the trusted production status manifest each pass, plans
+  dependency-ready actions, runs the dry-run production batch adapter, and stops
+  with explicit complete/blocked/retryable/failed/waiting state. A job that
+  is already retryable is skipped until the caller explicitly allow-lists that
+  reviewed job ID, and a job that becomes retryable during a run is not hammered
+  again in the same run. This protects manual outputs and future review loops
+  from repeated overwrite attempts.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads
@@ -263,14 +273,19 @@ The desired high-quality pipeline is:
     materializes only declared placeholder file artifacts and persists success
     or retryable state through `production_status.json` before real proxy, VLM,
     color, or storyline runners are trusted.
-26. Build a workspace index after ingest, scheduling, or retries so UI and
+26. Run the dry-run production scheduler from persisted status so Mac shells and
+    background agents can advance proxy, analysis, look, grading, storyline, and
+    package jobs without reconstructing the worker loop in UI code. Retryable,
+    failed, or blocked jobs remain review states, not cleanup authority; prior
+    retryable jobs require an explicit reviewed retry allow-list.
+27. Build a workspace index after ingest, scheduling, or retries so UI and
     continuation agents can show one coherent shoot-state snapshot while keeping
     every authoritative decision bound to the underlying trusted manifests.
-27. Compare metadata-only render input fingerprints across health/index snapshots
+28. Compare metadata-only render input fingerprints across health/index snapshots
     so automation can flag changed storyline or graded bytes before relying on
     older render status/report context.
-28. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
-29. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
+29. Assemble deliverables: reels, carousels, photo sets, story crops, thumbnails, captions, and suggested posting packages.
+30. Iterate using reviewer feedback: "warmer skin," "more cinematic contrast," "use more behind-the-scenes," "make it faster."
 
 High quality depends on scene-level consistency and reversible edits. The system should produce edit decision data first, then render from masters.
 
@@ -332,6 +347,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   placeholder bytes only to declared file output paths, refuses symlinked,
   directory-style, or existing different outputs, and records retryable errors
   that explicitly preserve the no-delete/no-cleanup boundary.
+- `shootflow.production_scheduler` composes that adapter into a bounded local
+  loop. It does not invent job progress from command-line IDs; each iteration
+  reloads `production_status.json`, plans ready pending/retryable work from the
+  trusted `ProductionPlan`, dispatches a dry-run batch with a caller-supplied
+  concurrency cap, and stops when the status is complete, blocked, failed,
+  waiting, or retryable work needs review. Previously retryable jobs are skipped
+  unless their IDs are explicitly supplied as reviewed retry candidates.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;

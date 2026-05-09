@@ -2,6 +2,53 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-09 16:30 UTC
+
+This run advanced the production-side scheduler target identified by the 16:00
+handoff:
+
+- Added bounded dry-run production batch execution to `shootflow.production_adapter`.
+  The batch runner accepts only trusted `ProductionWorkerActionPlan` objects,
+  preserves serial jobs, runs parallel-safe jobs under a caller-supplied
+  concurrency cap, records stale-action failures without broadening file
+  authority, and keeps blocked jobs visible.
+- Added `shootflow.production_scheduler`, an iterative pre-render scheduler that
+  reloads trusted `production_status.json`, plans dependency-ready
+  pending/retryable jobs, runs the dry-run production batch adapter, avoids
+  hammering jobs that were already retryable or became retryable earlier in the
+  same run, and stops with explicit
+  complete/blocked/retryable/failed/waiting/max-iterations state. A prior
+  retryable job must be explicitly passed as a reviewed retry candidate before a
+  later scheduler invocation will attempt it again.
+- Added CLI command `dry-run-production-scheduler --ingest-manifest ... --worker
+  dry-run-production-local ...`, giving Mac shells and launch agents a persisted
+  status-driven way to advance proxy, analysis, look, grading, storyline, and
+  package jobs without reconstructing worker loops in UI code.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future sessions treat production scheduler orchestration as implemented
+  infrastructure.
+
+Good next test-first targets:
+
+- Persist a production scheduler report analogous to
+  `deliverables/render_scheduler_report.json`, bound to the production-plan
+  fingerprint and final `production_status.json`, so UI/index/continuation layers
+  can validate pre-render progress without rerunning the scheduler.
+- Add workspace-health/workspace-index visibility for production-status and
+  production-scheduler state, including retryable/blocked job IDs and safe next
+  action recommendations.
+- Add stale-running production lease planning/persistence before allowing
+  multiple long-running local production workers.
+
+Branch reconciliation for this run:
+
+- The assigned branch started at `origin/main` (`1ae7a63`); its remote tracking
+  branch did not exist yet when fetched.
+- Older remote branches remain visible, but previous reconciliation notes already
+  identify them as stale/older-lineage or already incorporated into current
+  `origin/main`. This run's useful work is the new production scheduler line and
+  should be merged once tests and branch policy checks pass.
+
 ## Implementation continuation note - 2026-05-09 16:00 UTC
 
 This run advanced the pre-render production execution proof point that the

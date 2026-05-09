@@ -44,10 +44,16 @@ from shootflow.production_handoff import (
     plan_next_production_wave_from_status,
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
+from shootflow.production_scheduler import (
+    DryRunProductionSchedulerError,
+    DryRunProductionSchedulerResult,
+    run_dry_run_production_scheduler,
+)
 from shootflow.production_status import (
     ProductionStatusError,
     ProductionStatusInitializationResult,
     initialize_production_status_manifest,
+    load_production_status_manifest,
 )
 from shootflow.render_scheduler import (
     DryRunRenderSchedulerError,
@@ -129,6 +135,8 @@ def main(
             _run_plan_production_command(args, stdout=out)
         elif args.command == "init-production-status":
             _run_init_production_status_command(args, stdout=out)
+        elif args.command == "dry-run-production-scheduler":
+            _run_dry_run_production_scheduler_command(args, stdout=out)
         elif args.command == "write-render-tasks":
             _run_write_render_tasks_command(args, stdout=out)
         elif args.command == "next-production-wave":
@@ -151,6 +159,7 @@ def main(
         AssemblyPlanError,
         CatalogError,
         DryRunRenderSchedulerError,
+        DryRunProductionSchedulerError,
         RenderStatusError,
         ShootFlowCliError,
         IngestError,
@@ -316,6 +325,34 @@ def _run_init_production_status_command(args: argparse.Namespace, *, stdout: Tex
     )
     result = initialize_production_status_manifest(manifest_path.parent, trusted_plan=trusted_plan)
     stdout.write(_production_status_initialization_json(result) + "\n")
+
+
+def _run_dry_run_production_scheduler_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(manifest_path)
+    trusted_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    workspace = manifest_path.parent
+    result = run_dry_run_production_scheduler(
+        workspace,
+        trusted_plan=trusted_plan,
+        worker_adapter=args.worker,
+        started_at=args.started_at,
+        completed_at=args.completed_at,
+        max_concurrency=args.max_concurrency,
+        max_iterations=args.max_iterations,
+        reviewed_retryable_job_ids=tuple(args.retryable_job),
+    )
+    load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+    stdout.write(
+        _dry_run_production_scheduler_summary_json(
+            result,
+            ingest_manifest_path=manifest_path,
+            workspace=workspace,
+        )
+    )
 
 
 def _run_write_render_tasks_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -535,6 +572,31 @@ def _build_parser() -> argparse.ArgumentParser:
         "--ingest-manifest",
         required=True,
         help="Path to the shoot ingest_manifest.json written by execute-ingest.",
+    )
+
+    production_scheduler = subparsers.add_parser(
+        "dry-run-production-scheduler",
+        help="Run the trusted dry-run production scheduler against production_status.json.",
+    )
+    production_scheduler.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Path to the shoot ingest_manifest.json next to production_status.json.",
+    )
+    production_scheduler.add_argument(
+        "--worker",
+        required=True,
+        help="Production worker adapter name, such as dry-run-production-local.",
+    )
+    production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
+    production_scheduler.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")
+    production_scheduler.add_argument("--max-concurrency", type=int, default=1)
+    production_scheduler.add_argument("--max-iterations", type=int, default=1)
+    production_scheduler.add_argument(
+        "--retryable-job",
+        action="append",
+        default=[],
+        help="Previously retryable production job ID that has been reviewed and may be retried.",
     )
 
     render_tasks = subparsers.add_parser(
@@ -777,6 +839,99 @@ def _production_status_count(result: object, state: str) -> int:
     if not isinstance(result, ProductionStatusInitializationResult):
         raise ShootFlowCliError("result must be a ProductionStatusInitializationResult")
     return sum(1 for status in result.manifest.job_statuses if status.state == state)
+
+
+def _dry_run_production_scheduler_summary_json(
+    result: DryRunProductionSchedulerResult,
+    *,
+    ingest_manifest_path: Path,
+    workspace: Path,
+) -> str:
+    if not isinstance(result, DryRunProductionSchedulerResult):
+        raise ShootFlowCliError("result must be a DryRunProductionSchedulerResult")
+    review_required_job_ids = _ordered_unique_strings(
+        result.retryable_job_ids + result.failed_job_ids + result.blocked_job_ids
+    )
+    payload = {
+        "schema_version": 1,
+        "workspace": str(workspace),
+        "ingest_manifest_path": str(ingest_manifest_path),
+        "shoot_slug": result.shoot_slug,
+        "worker_adapter": result.worker_adapter,
+        "stopped_reason": result.stopped_reason,
+        "iteration_count": len(result.iterations),
+        "completed_job_ids": list(result.completed_job_ids),
+        "retryable_job_ids": list(result.retryable_job_ids),
+        "failed_job_ids": list(result.failed_job_ids),
+        "blocked_job_ids": list(result.blocked_job_ids),
+        "attempted_job_ids": list(_production_iteration_job_ids(result, "attempted_job_ids")),
+        "skipped_retryable_job_ids": list(
+            _production_iteration_job_ids(result, "skipped_retryable_job_ids")
+        ),
+        "review_required_job_ids": list(review_required_job_ids),
+        "outputs_materialized": list(_production_outputs_materialized(result)),
+        "failure_messages": [
+            {"job_id": job_id, "message": message}
+            for job_id, message in _production_failure_messages(result)
+        ],
+        "notes": [
+            "dry-run production scheduler consumes only trusted production_status.json and the verified ingest manifest",
+            "previously retryable jobs require review and --retryable-job before another scheduler attempt",
+            "new retryable, failed, or blocked jobs require review before another scheduler attempt",
+            "no source media, graded media, render outputs, or deliverables were deleted",
+        ],
+    }
+    return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
+
+
+def _production_iteration_job_ids(
+    result: DryRunProductionSchedulerResult,
+    field_name: str,
+) -> tuple[str, ...]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for iteration in result.iterations:
+        for job_id in getattr(iteration, field_name):
+            if job_id in seen:
+                continue
+            seen.add(job_id)
+            ordered.append(job_id)
+    return tuple(ordered)
+
+
+def _production_outputs_materialized(result: DryRunProductionSchedulerResult) -> tuple[str, ...]:
+    outputs: list[str] = []
+    for iteration in result.iterations:
+        if iteration.batch_result is None:
+            continue
+        for action_result in iteration.batch_result.results:
+            outputs.extend(action_result.outputs_materialized)
+    return tuple(outputs)
+
+
+def _production_failure_messages(result: DryRunProductionSchedulerResult) -> tuple[tuple[str, str], ...]:
+    messages: list[tuple[str, str]] = []
+    for iteration in result.iterations:
+        if iteration.batch_result is None:
+            continue
+        for failure in iteration.batch_result.failures:
+            messages.append((failure.job_id, failure.error_message))
+        for action_result in iteration.batch_result.results:
+            final_status = action_result.final_status
+            if final_status.state in {"retryable", "failed"} and final_status.error_message is not None:
+                messages.append((final_status.job_id, final_status.error_message))
+    return tuple(messages)
+
+
+def _ordered_unique_strings(values: tuple[str, ...]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return tuple(ordered)
 
 
 def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:

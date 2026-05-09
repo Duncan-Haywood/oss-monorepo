@@ -4,18 +4,21 @@ import hashlib
 import json
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.production_status import (
     ProductionJobStatus,
+    ProductionStatusError,
     ProductionStatusManifest,
     compare_and_write_production_job_status,
     load_production_status_manifest,
 )
 from shootflow.production_worker import (
     ProductionWorkerAction,
+    ProductionWorkerActionPlan,
     ProductionWorkerError,
     claim_production_worker_action,
     report_production_worker_retryable,
@@ -38,10 +41,105 @@ class DryRunProductionAdapterResult:
     outputs_materialized: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class DryRunProductionFailure:
+    job_id: str
+    error_message: str
+
+
+@dataclass(frozen=True)
+class DryRunProductionBatchResult:
+    shoot_slug: str
+    worker_adapter: str
+    max_concurrency: int
+    results: tuple[DryRunProductionAdapterResult, ...]
+    failures: tuple[DryRunProductionFailure, ...]
+    blocked_job_ids: tuple[str, ...]
+
+
 def supported_production_adapter_names() -> tuple[str, ...]:
     """Return production adapter names that this build can execute locally."""
 
     return (_DRY_RUN_PRODUCTION_ADAPTER,)
+
+
+def run_dry_run_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunProductionBatchResult:
+    """Run trusted dry-run production actions while respecting per-job parallelism."""
+
+    _validate_action_plan(
+        action_plan,
+        trusted_plan=trusted_plan,
+        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+    )
+    _validate_timestamp(started_at, "started_at")
+    _validate_timestamp(completed_at, "completed_at")
+    _validate_max_concurrency(max_concurrency)
+
+    ordered_results: dict[int, DryRunProductionAdapterResult] = {}
+    ordered_failures: dict[int, DryRunProductionFailure] = {}
+    action_index = 0
+    actions = action_plan.actions
+
+    while action_index < len(actions):
+        current_action = actions[action_index]
+        if not current_action.can_run_in_parallel or max_concurrency == 1:
+            result, failure = _run_batch_action(
+                workspace_root,
+                trusted_plan=trusted_plan,
+                action=current_action,
+                started_at=started_at,
+                completed_at=completed_at,
+            )
+            if result is not None:
+                ordered_results[action_index] = result
+            if failure is not None:
+                ordered_failures[action_index] = failure
+            action_index += 1
+            continue
+
+        group_start = action_index
+        group_end = group_start
+        while group_end < len(actions) and actions[group_end].can_run_in_parallel:
+            group_end += 1
+        with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
+            futures = {
+                executor.submit(
+                    _run_batch_action,
+                    workspace_root,
+                    trusted_plan=trusted_plan,
+                    action=action,
+                    started_at=started_at,
+                    completed_at=completed_at,
+                ): index
+                for index, action in enumerate(actions[group_start:group_end], start=group_start)
+            }
+            for future in as_completed(futures):
+                index = futures[future]
+                result, failure = future.result()
+                if result is not None:
+                    ordered_results[index] = result
+                if failure is not None:
+                    ordered_failures[index] = failure
+        action_index = group_end
+
+    batch_result = DryRunProductionBatchResult(
+        shoot_slug=action_plan.shoot_slug,
+        worker_adapter=action_plan.worker_adapter,
+        max_concurrency=max_concurrency,
+        results=tuple(ordered_results[index] for index in sorted(ordered_results)),
+        failures=tuple(ordered_failures[index] for index in sorted(ordered_failures)),
+        blocked_job_ids=tuple(blocked.job_id for blocked in action_plan.blocked_jobs),
+    )
+    _validate_batch_result(batch_result)
+    return batch_result
 
 
 def run_dry_run_production_action(
@@ -191,6 +289,60 @@ def _trusted_job_for_action(
         if job.job_id == action.job_id:
             return job
     raise DryRunProductionError(f"dry-run production action references unknown trusted job: {action.job_id}")
+
+
+def _validate_action_plan(
+    action_plan: ProductionWorkerActionPlan,
+    *,
+    trusted_plan: ProductionPlan,
+    expected_adapter: str | None = None,
+) -> None:
+    if not isinstance(trusted_plan, ProductionPlan):
+        raise DryRunProductionError("trusted_plan must be a ProductionPlan")
+    if not isinstance(action_plan, ProductionWorkerActionPlan):
+        raise DryRunProductionError("action_plan must be a ProductionWorkerActionPlan")
+    if not isinstance(action_plan.shoot_slug, str) or not action_plan.shoot_slug.strip():
+        raise DryRunProductionError("dry-run production action plan shoot_slug cannot be empty")
+    if action_plan.shoot_slug != trusted_plan.shoot_slug:
+        raise DryRunProductionError("dry-run production action plan shoot_slug does not match trusted plan")
+    if not isinstance(action_plan.worker_adapter, str) or not action_plan.worker_adapter.strip():
+        raise DryRunProductionError("dry-run production action plan worker_adapter cannot be empty")
+    if expected_adapter is not None and action_plan.worker_adapter != expected_adapter:
+        raise DryRunProductionError(
+            "dry-run production action plan worker_adapter must be "
+            f"{expected_adapter}: {action_plan.worker_adapter}"
+        )
+    if not isinstance(action_plan.actions, tuple):
+        raise DryRunProductionError("dry-run production action plan actions must be a tuple")
+    if not isinstance(action_plan.blocked_jobs, tuple):
+        raise DryRunProductionError("dry-run production action plan blocked_jobs must be a tuple")
+
+    trusted_jobs = {job.job_id: job for job in trusted_plan.jobs}
+    seen_job_ids: set[str] = set()
+    for action in action_plan.actions:
+        _validate_action(action, expected_adapter=expected_adapter)
+        _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
+        if action.worker_adapter != action_plan.worker_adapter:
+            raise DryRunProductionError("dry-run production action adapter does not match action plan")
+        if action.job_id in seen_job_ids:
+            raise DryRunProductionError(f"dry-run production action plan has duplicate action: {action.job_id}")
+        seen_job_ids.add(action.job_id)
+    for blocked_job in action_plan.blocked_jobs:
+        if not isinstance(blocked_job.job_id, str) or not blocked_job.job_id.strip():
+            raise DryRunProductionError("dry-run production action plan blocked job_id cannot be empty")
+        if blocked_job.job_id not in trusted_jobs:
+            raise DryRunProductionError(
+                f"dry-run production action plan blocked unknown job: {blocked_job.job_id}"
+            )
+
+
+def _validate_max_concurrency(max_concurrency: int) -> None:
+    if (
+        isinstance(max_concurrency, bool)
+        or not isinstance(max_concurrency, int)
+        or max_concurrency < 1
+    ):
+        raise DryRunProductionError("dry-run production batch max_concurrency must be a positive integer")
 
 
 def _validate_timestamp(timestamp: str, label: str) -> None:
@@ -369,3 +521,65 @@ def _validate_result(result: DryRunProductionAdapterResult) -> None:
         raise DryRunProductionError("dry-run production result outputs_materialized must be a tuple")
     for output in result.outputs_materialized:
         _validate_production_output_path(output)
+
+
+def _run_batch_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> tuple[DryRunProductionAdapterResult | None, DryRunProductionFailure | None]:
+    try:
+        result = run_dry_run_production_action(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action=action,
+            started_at=started_at,
+            completed_at=completed_at,
+        )
+    except (DryRunProductionError, ProductionWorkerError, ProductionStatusError) as exc:
+        return None, DryRunProductionFailure(
+            job_id=action.job_id,
+            error_message=_batch_failure_message(exc),
+        )
+    return result, None
+
+
+def _batch_failure_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Dry-run production batch scheduler could not execute action: "
+        f"{detail}. No source, graded, render, or deliverable files were deleted."
+    )
+
+
+def _validate_batch_result(result: DryRunProductionBatchResult) -> None:
+    if not isinstance(result, DryRunProductionBatchResult):
+        raise DryRunProductionError("dry-run production batch result is invalid")
+    if not isinstance(result.shoot_slug, str) or not result.shoot_slug.strip():
+        raise DryRunProductionError("dry-run production batch result shoot_slug cannot be empty")
+    if not isinstance(result.worker_adapter, str) or not result.worker_adapter.strip():
+        raise DryRunProductionError("dry-run production batch result worker_adapter cannot be empty")
+    _validate_max_concurrency(result.max_concurrency)
+    if not isinstance(result.results, tuple):
+        raise DryRunProductionError("dry-run production batch results must be a tuple")
+    if not isinstance(result.failures, tuple):
+        raise DryRunProductionError("dry-run production batch failures must be a tuple")
+    if not isinstance(result.blocked_job_ids, tuple):
+        raise DryRunProductionError("dry-run production batch blocked_job_ids must be a tuple")
+    for action_result in result.results:
+        _validate_result(action_result)
+    for failure in result.failures:
+        if not isinstance(failure, DryRunProductionFailure):
+            raise DryRunProductionError("dry-run production batch failure is invalid")
+        if not isinstance(failure.job_id, str) or not failure.job_id.strip():
+            raise DryRunProductionError("dry-run production batch failure job_id cannot be empty")
+        if not isinstance(failure.error_message, str) or not failure.error_message.strip():
+            raise DryRunProductionError("dry-run production batch failure error_message cannot be empty")
+    for job_id in result.blocked_job_ids:
+        if not isinstance(job_id, str) or not job_id.strip():
+            raise DryRunProductionError("dry-run production batch blocked job_id cannot be empty")
