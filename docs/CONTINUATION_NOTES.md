@@ -2,6 +2,71 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 18:00 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-acbe` at `02229d5`, matching
+`origin/main` and the previously consolidated grading-adapter head. The local
+`main` ref was stale, but `origin/main` and the assigned branch were aligned at
+session start.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and compared all local and remote refs against it.
+- The only useful branch-only work after implementation was the assigned branch:
+  `d8b27ad fix(production): validate grade analysis handoff`,
+  `334df2b test(production): align grade analysis fixtures`, and
+  `87052af test(production): cover malformed grade scheduler reports`.
+- Historical remote automation branches were all behind `origin/main` and had no
+  commits ahead to merge. The stale local `cursor/setup-dev-env-3ad0` branch was
+  also fully behind current main.
+- This work is intended to be fast-forwarded into `main` during final
+  reconciliation so the grade safety checks are not stranded on the assigned
+  branch.
+
+This run closed two high-priority grading follow-ups from the prior note:
+
+- Added scheduler/report coverage for `grade-production-local` success. The
+  persisted scheduler report now has tests proving graded output materialization,
+  completed-job counts, materialized-output counts, and downstream story/package
+  jobs remaining pending for later compatible adapters.
+- Added scheduler/report coverage for a drifted analysis dependency. The grade
+  job becomes retryable/review-required, no graded output is materialized, and
+  the failure message survives in the persisted report product surface.
+- Hardened `grade-production-local` against checksum-consistent but
+  schema-invalid analysis payloads. The adapter now requires analysis
+  `schema_version` 1, `shootflow-analysis-production-local`, and
+  `adapter_metadata` fields matching the trusted dependency job before a grade
+  stand-in can be written.
+- Added both direct adapter coverage and end-to-end scheduler/report coverage
+  for malformed analysis payloads so schema drift routes to retryable review
+  instead of silently producing a graded artifact.
+
+Verification performed during this run:
+
+- Initial red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_grade_adapter_scheduler_materializes_grade_and_reports_output tests.test_production_scheduler.DryRunProductionSchedulerTests.test_grade_adapter_scheduler_reports_analysis_checksum_drift_as_retryable tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_analysis_dependency_retryable`
+  produced two passing scheduler tests and one failing malformed-analysis test
+  because the grade adapter still accepted `schema_version` 2 analysis payloads.
+- Focused green after implementation: the same command -> 3 tests OK.
+- Related production suites after fixture alignment:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 89 tests OK.
+- Final implementation verification before documentation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 90 related production tests OK and 424 full tests OK; compileall and
+  diff-check exited 0; the working tree was clean.
+
+Good next test-first targets:
+
+- Register a deterministic `story-production-local` adapter now that grade
+  artifacts are more tightly bound to validated analysis/look handoffs.
+- Add direct negative coverage for malformed look payload variants consumed by
+  `grade-production-local` beyond the current happy-path look validation.
+- Replace the grade stand-in with an ffmpeg/Core Image/Metal renderer behind the
+  same declared-output-only, no-overwrite, checksum-verified dependency
+  boundary.
+
 ## Implementation continuation note - 2026-05-10 17:30 UTC
 
 This run started on assigned branch

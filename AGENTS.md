@@ -64,9 +64,9 @@ first serial scene-rejoin proof. `look-production-local` reads that verified
 scene-group summary and writes deterministic `color/shoot_look.json` only for
 `look_development` jobs as a shoot-look handoff proof before real color science
 or style learning. `grade-production-local` reads one trusted original plus its
-checksum-verified analysis and look dependencies, then writes deterministic
-stand-in graded artifacts only for `graded_photo`/`graded_video` jobs before
-real ffmpeg/Core Image/Metal grading is trusted. Scheduler dispatch is
+schema-validated/checksum-verified analysis and look dependencies, then writes
+deterministic stand-in graded artifacts only for `graded_photo`/`graded_video`
+jobs before real ffmpeg/Core Image/Metal grading is trusted. Scheduler dispatch is
 adapter-capability aware, so proxy, analysis, scene, look, and grade adapters
 receive only the output kinds they can materialize and leave downstream
 story/package jobs pending or blocked for a compatible worker.

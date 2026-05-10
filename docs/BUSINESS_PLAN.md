@@ -109,9 +109,9 @@ Why this wedge wins:
   deterministic shoot-look profile from the verified scene summary.
   `grade-production-local` receives only `graded_photo`/`graded_video` jobs and
   writes deterministic stand-in graded artifacts from one trusted original plus
-  checksum-verified analysis/look dependencies, then leaves later story/package
-  work pending or running for future adapters instead of reporting
-  stage-mismatch failures for incompatible stages.
+  schema-validated/checksum-verified analysis and look dependencies, then leaves
+  later story/package work pending or running for future adapters instead of
+  reporting stage-mismatch failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

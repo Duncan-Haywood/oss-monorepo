@@ -163,8 +163,8 @@ The current core models a concrete promise for high-volume users:
     `look_development` jobs only, proving the shoot-level look handoff before
     real color science or creator style learning is trusted.
     `grade-production-local` now applies that verified look plus
-    checksum-verified per-asset analysis to one trusted source original at a
-    time, writing deterministic stand-in graded outputs only for
+    schema-validated/checksum-verified per-asset analysis to one trusted source
+    original at a time, writing deterministic stand-in graded outputs only for
     `graded_photo`/`graded_video` jobs before real ffmpeg/Core Image/Metal
     grading is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
@@ -343,9 +343,9 @@ to automate.
    from trusted analysis artifacts; `look-production-local` extends the path to
    a deterministic shoot-look profile from the trusted scene summary; and
    `grade-production-local` extends the path into deterministic per-asset graded
-   stand-ins from trusted originals, analysis, and look dependencies. Storyline
-   and package work still waits for compatible future adapters. The persisted
-   production and render scheduler reports now emit
+   stand-ins from trusted originals, schema-validated analysis, and look
+   dependencies. Storyline and package work still waits for compatible future
+   adapters. The persisted production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future
    Mac app and pilot analytics a
    trusted way to measure automation throughput, intervention rate, and
