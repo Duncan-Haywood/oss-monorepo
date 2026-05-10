@@ -28,13 +28,18 @@ adapter-registry version of the same scheduler-routing work.
 Branch reconciliation status from this run:
 
 - `origin/cursor/branch-consolidation-strategy-40f7` has been merged into the
-  assigned branch locally; once this note is committed and pushed, its useful
-  work is contained in `origin/cursor/branch-reconciliation-and-merge-448b`.
-- `origin/main` started one commit behind the assigned branch and five commits
-  behind `40f7`; after final verification, main should be fast-forwarded to the
-  reconciled assigned-branch head so completed work is not stranded outside main.
-- Stale local `cursor/setup-dev-env-3ad0` remains marked `[gone]` until final
-  cleanup after verification.
+  assigned branch and `origin/main`, then deleted as redundant after confirming
+  containment.
+- `origin/main` was fast-forwarded to the reconciled assigned-branch head so the
+  adapter-registry work and this session's scheduler regression are not stranded
+  outside main.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after fetch marked its upstream
+  gone, reset local `main` to `origin/main` without checking it out, and restored
+  the assigned branch upstream to
+  `origin/cursor/branch-reconciliation-and-merge-448b`.
+- Final branch state after prune: local `main`, local assigned branch,
+  `origin/main`, and `origin/cursor/branch-reconciliation-and-merge-448b` all
+  point at `c0b5ffa`.
 
 Verification performed after the reconciliation merge:
 
