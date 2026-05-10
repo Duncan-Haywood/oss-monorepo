@@ -2064,18 +2064,37 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         trusted_plan,
         workspace: Path,
     ) -> ProductionStatusManifest:
-        cls._write_analysis_payload(
-            workspace,
-            "analysis/00000.json",
-            source_asset_path="originals/A001.MOV",
-            media_type="video",
-            scene_label="ceremony",
-            aesthetic_score=0.8,
-            story_score=0.9,
-            technical_score=0.7,
-            motion_score=0.6,
-            duration_seconds=12.0,
-            tags=("vows",),
+        analysis_path = workspace / "analysis/00000.json"
+        analysis_path.parent.mkdir(parents=True, exist_ok=True)
+        analysis_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-analysis-production-local",
+                    "source_asset_path": "originals/A001.MOV",
+                    "media_type": "video",
+                    "scene_label": "ceremony",
+                    "aesthetic_score": 0.8,
+                    "story_score": 0.9,
+                    "technical_score": 0.7,
+                    "motion_score": 0.6,
+                    "duration_seconds": 12.0,
+                    "tags": ["vows"],
+                    "adapter_metadata": {
+                        "job_id": "analyze_asset_00000",
+                        "output_kind": "vlm_asset_analysis",
+                        "outputs": ["analysis/00000.json"],
+                        "selected_output": "analysis/00000.json",
+                        "depends_on": ["proxy_asset_00000"],
+                        "can_run_in_parallel": True,
+                    },
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
         )
         look_path = workspace / "color/shoot_look.json"
         look_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2117,7 +2136,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         )
         return cls._grade_ready_manifest_with_checksums(
             trusted_plan,
-            analysis_checksum=cls._sha256_file(workspace / "analysis/00000.json"),
+            analysis_checksum=cls._sha256_file(analysis_path),
             look_checksum=cls._sha256_file(look_path),
         )
 
