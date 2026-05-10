@@ -81,6 +81,68 @@ class ProductionWorkerTests(unittest.TestCase):
             ],
         )
 
+    def test_filters_worker_actions_by_eligible_output_kind_without_blocking_other_stages(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=self._statuses_with(
+                trusted_plan,
+                {
+                    "proxy_asset_00000": self._succeeded_status(
+                        trusted_plan.job_by_id("proxy_asset_00000"),
+                    ),
+                    "proxy_asset_00001": ProductionJobStatus(
+                        job_id="proxy_asset_00001",
+                        state="retryable",
+                        worker_adapter="proxy-local",
+                        attempts=2,
+                        error_message="proxy worker interrupted; no files were deleted",
+                        updated_at="2026-05-09T15:30:00Z",
+                    ),
+                },
+            ),
+        )
+
+        action_plan = plan_production_worker_actions(
+            trusted_plan,
+            manifest,
+            worker_adapter="proxy-production-local",
+            eligible_output_kinds=("proxy_media",),
+        )
+
+        self.assertEqual(
+            [action.job_id for action in action_plan.actions],
+            ["proxy_asset_00001"],
+        )
+        self.assertEqual(action_plan.blocked_jobs, ())
+
+    def test_rejects_invalid_eligible_output_kind_filters(self) -> None:
+        trusted_plan = self._trusted_plan()
+        manifest = ProductionStatusManifest(
+            shoot_slug="production-worker",
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+
+        with self.assertRaisesRegex(ProductionWorkerError, "eligible_output_kinds"):
+            plan_production_worker_actions(
+                trusted_plan,
+                manifest,
+                worker_adapter="proxy-production-local",
+                eligible_output_kinds="proxy_media",
+            )
+        with self.assertRaisesRegex(ProductionWorkerError, "duplicate eligible output kind"):
+            plan_production_worker_actions(
+                trusted_plan,
+                manifest,
+                worker_adapter="proxy-production-local",
+                eligible_output_kinds=("proxy_media", "proxy_media"),
+            )
+
     def test_plans_expired_running_production_leases_as_retryable_transitions(self) -> None:
         trusted_plan = self._trusted_plan()
         manifest = ProductionStatusManifest(

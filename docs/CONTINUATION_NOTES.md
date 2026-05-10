@@ -4,49 +4,188 @@ These notes are for the next automation run continuing the same product prompt.
 
 ## Implementation continuation note - 2026-05-10 13:00 UTC
 
-This run tightened the production scheduler boundary for stage-specific local
-adapters:
+This run reconciled the assigned branch
+`cursor/branch-reconciliation-and-merge-448b` with
+`origin/cursor/branch-consolidation-strategy-40f7`, which contained the stronger
+adapter-registry version of the same scheduler-routing work.
 
-- Added adapter capability filtering before scheduler batch dispatch. The
-  `proxy-production-local` adapter now receives only `proxy_media` actions from
-  `run_dry_run_production_scheduler(...)`; dependency-ready analysis, color,
-  storyline, or package jobs remain pending/blocked for a later compatible
-  worker instead of being offered to proxy and recorded as expected adapter
-  failures.
-- Kept the direct proxy adapter validation from the prior run intact:
-  forged/non-proxy actions still fail before claim if a caller bypasses the
-  scheduler and invokes the proxy batch/action path directly.
-- Added a scheduler regression proving a proxy-only run completes the proxy wave,
-  leaves `analyze_asset_00000` pending with zero attempts, records no second-batch
-  adapter failure, and stops with downstream work still blocked.
+- Initial assigned-branch increment added a proxy scheduler regression plus a
+  simple adapter capability predicate, proving the scheduler should not offer
+  `analyze_asset_00000` to `proxy-production-local`.
+- During reconciliation, adopted the stronger `40f7` design: local adapter
+  capability metadata now lives in `shootflow.production_adapter` via
+  `supported_production_adapter_output_kinds(...)`; `shootflow.production_worker`
+  filters both action planning and stale lease expiration by eligible output
+  kinds; and `shootflow.production_scheduler` reads that registry rather than
+  hard-coding proxy behavior.
+- Kept this run's AGENTS/product-strategy documentation updates and the stronger
+  README/business/design/test coverage from `40f7`.
+- Resulting behavior: proxy-only scheduler runs materialize proxy jobs, leave
+  dependency-ready analysis/color/story/package work pending or running for
+  compatible future adapters, and do not record expected stage mismatch as proxy
+  adapter failure or stale-lease retry state.
 
-Verification performed for this increment:
+Branch reconciliation status from this run:
 
-- Red run:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_stops_after_proxy_wave_without_offering_analysis_jobs`
-  failed because the scheduler still attempted `analyze_asset_00000`.
-- Focused green:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_stops_after_proxy_wave_without_offering_analysis_jobs`
-  -> 1 test OK.
-- Related production regression:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler`
-  -> 40 tests OK.
+- `origin/cursor/branch-consolidation-strategy-40f7` has been merged into the
+  assigned branch locally; once this note is committed and pushed, its useful
+  work is contained in `origin/cursor/branch-reconciliation-and-merge-448b`.
+- `origin/main` started one commit behind the assigned branch and five commits
+  behind `40f7`; after final verification, main should be fast-forwarded to the
+  reconciled assigned-branch head so completed work is not stranded outside main.
+- Stale local `cursor/setup-dev-env-3ad0` remains marked `[gone]` until final
+  cleanup after verification.
+
+Verification performed after the reconciliation merge:
+
+- Focused production/CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 132 tests OK.
 - Full repository verification:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
-  -> 384 tests OK; compileall and diff-check exited 0.
+  -> 389 tests OK; compileall and diff-check exited 0.
+
+## Implementation continuation note - 2026-05-10 12:30 UTC
+
+This run first reconciled the prior 12:00 UTC scheduler-routing branch into the
+assigned branch, then removed the scheduler-owned adapter capability conditional:
+
+- Fast-forwarded assigned branch `cursor/repository-branch-consolidation-1804`
+  to `origin/cursor/repository-branch-consolidation-1bd5`, preserving the
+  stage-specific `proxy-production-local` scheduler routing and stale-lease
+  scoping work.
+- Added `supported_production_adapter_output_kinds(...)` in
+  `shootflow.production_adapter` and backed it with the local adapter registry.
+  Today dry-run and metadata adapters return `None` for all output kinds, while
+  `proxy-production-local` returns `("proxy_media",)`.
+- Updated `shootflow.production_scheduler` to read output-kind eligibility from
+  the adapter layer instead of hard-coding a proxy adapter special case. Future
+  VLM, color, storyline, and packaging workers can now declare their supported
+  `output_kind` values with their adapter registration before the scheduler
+  offers them jobs or expires their stale leases.
+- Updated README, business plan, and design decisions to describe the adapter
+  registry as the source of stage capability metadata.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters`
+  failed because `supported_production_adapter_output_kinds` was missing.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  -> 3 tests OK.
+- Full repository verification after commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 389 tests OK; compileall/diff-check exited 0; working tree was clean on
+  `cursor/repository-branch-consolidation-1804`.
+- Independent code review found no issues. Residual maintenance risk: adapter
+  capability metadata and batch dispatch must stay in sync as future adapters are
+  registered.
+
+Final branch reconciliation:
+
+- Ran `git fetch --prune origin`. Remaining remotes:
+  `origin/main`, `origin/cursor/branch-consolidation-bfe5`,
+  `origin/cursor/repository-branch-consolidation-1bd5`, and assigned
+  `origin/cursor/repository-branch-consolidation-1804`.
+- `origin/cursor/branch-consolidation-bfe5` is exactly contained in
+  `origin/main` (`origin/main...origin/cursor/branch-consolidation-bfe5` =
+  `0 0`), so it has no stranded unique work.
+- `origin/cursor/repository-branch-consolidation-1bd5` is contained in the
+  assigned branch (`1bd5...1804` = `0 1`), so the prior scheduler-routing work is
+  consolidated here.
+- Assigned branch `origin/cursor/repository-branch-consolidation-1804` is four
+  commits ahead of `origin/main`: the two stage-routing commits, the 12:00
+  branch note, and this adapter-registry refactor.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after fetch marked its upstream
+  gone, and reset the local `main` ref to `origin/main` without checking it out.
+- Did not push `origin/main` or delete remote branches because the active Cloud
+  branch instructions require pushes only to the assigned branch. Useful work is
+  pushed on `origin/cursor/repository-branch-consolidation-1804` for normal PR
+  automation; `branch-consolidation-bfe5` is redundant but remote cleanup is
+  intentionally left to automation with branch-write authority.
 
 Good next test-first targets:
 
 - Rename the shared `DryRunProduction*` result/failure/batch types to neutral
-  `ProductionAdapter*` names now that metadata/proxy adapters are real local
-  adapter proofs.
-- Add an explicit multi-adapter production orchestration plan that can run proxy,
-  metadata/VLM, look, grade, storyline, and package stages with distinct
-  compatible workers while keeping retry/review state in one
-  `production_status.json`.
+  `ProductionAdapter*` names now that the adapter registry is adapter-neutral
+  and metadata/proxy adapters are real local adapter proofs.
+- Register the next local adapter capability deliberately, likely a metadata/VLM
+  or real proxy-rendering worker, and prove it only schedules the output kinds it
+  can materialize.
 - Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
   Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
   declared-output-only boundary.
+
+## Implementation continuation note - 2026-05-10 12:00 UTC
+
+This run continued the production-adapter hardening thread from the 11:30 UTC
+proxy adapter work.
+
+- Added an output-kind eligibility filter to `plan_production_worker_actions(...)`
+  so scheduler callers can ask for only the stages a specific local adapter can
+  actually execute.
+- Wired the production scheduler to treat `proxy-production-local` as a
+  stage-specific proxy-wave worker. It now schedules only `proxy_media` jobs for
+  that adapter and leaves ready analysis/color/story/package jobs pending for
+  future adapters rather than attempting them through the proxy copy path.
+- Updated the proxy scheduler regression to assert the desired product behavior:
+  after proxy materialization, analysis remains pending with zero attempts,
+  retryable IDs stay empty, blocked IDs stay empty, and the scheduler stops as
+  `waiting` for another adapter.
+- Updated README/business/design documentation to make the stage-specific adapter
+  contract explicit.
+- Review follow-up fixed stale-lease scoping: proxy-only scheduler runs now pass
+  the same output-kind eligibility filter into stale production lease planning,
+  so stale running analysis/color/story/package jobs are not expired into proxy
+  retryable state.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters`
+  failed because the scheduler still stopped as `blocked`.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_filters_worker_actions_by_eligible_output_kind_without_blocking_other_stages tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters`
+  -> 2 tests OK.
+- Review regression red:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_rejects_invalid_eligible_output_kind_filters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_max_iteration_check_ignores_non_proxy_jobs tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  failed because `analyze_asset_00000` was still expired by the proxy scheduler.
+- Review regression green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_rejects_invalid_eligible_output_kind_filters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_max_iteration_check_ignores_non_proxy_jobs tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  -> 3 tests OK.
+- Focused production/CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 127 tests OK.
+
+Good next test-first targets:
+
+- Move the adapter capability map out of the scheduler into an adapter registry
+  once additional local workers land, so VLM, color, storyline, and packaging
+  adapters can declare their supported `output_kind` values without growing
+  scheduler conditionals.
+- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
+  `ProductionAdapter*` names now that metadata and proxy adapters are real local
+  adapter proofs.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
+Final branch reconciliation:
+
+- Ran `git fetch --prune origin`. Historical remote work branches were pruned by
+  the remote; the only remaining non-main remotes were
+  `origin/cursor/branch-consolidation-bfe5`, which is already contained in
+  `origin/main`, and the assigned
+  `origin/cursor/repository-branch-consolidation-1bd5`, which is two commits
+  ahead of `origin/main` with this run's completed scheduler-routing work.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after confirming it was merged
+  into `origin/main`, and reset the local `main` ref to `origin/main` without
+  checking it out.
+- Did not fast-forward or push `origin/main` in this run because the active Cloud
+  branch instructions require all pushes to the assigned branch only. The useful
+  completed work is therefore consolidated and pushed on
+  `origin/cursor/repository-branch-consolidation-1bd5` for normal PR automation.
 
 ## Implementation continuation note - 2026-05-10 11:30 UTC
 

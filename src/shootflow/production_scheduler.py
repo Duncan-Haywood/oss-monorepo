@@ -14,8 +14,8 @@ from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
     DryRunProductionBatchResult,
     DryRunProductionError,
-    production_adapter_supports_output_kind,
     run_production_adapter_batch,
+    supported_production_adapter_output_kinds,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -188,6 +188,7 @@ def run_dry_run_production_scheduler(
             workspace_root,
             trusted_plan=trusted_plan,
             status_manifest=status_manifest,
+            worker_adapter=worker_adapter,
             stale_before=stale_before,
             lease_updated_at=lease_updated_at,
         )
@@ -200,12 +201,12 @@ def run_dry_run_production_scheduler(
             trusted_plan,
             status_manifest,
             worker_adapter=worker_adapter,
+            eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
         )
         ready_actions = tuple(
             action
             for action in action_plan.actions
-            if production_adapter_supports_output_kind(worker_adapter, action.output_kind)
-            and action.job_id not in attempted_job_ids
+            if action.job_id not in attempted_job_ids
             and action.job_id not in expired_this_run_job_ids
             and (
                 statuses_by_id[action.job_id].state != "retryable"
@@ -276,12 +277,12 @@ def run_dry_run_production_scheduler(
         trusted_plan,
         final_manifest,
         worker_adapter=worker_adapter,
+        eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
     )
     ready_after_cap = tuple(
         action
         for action in final_action_plan.actions
-        if production_adapter_supports_output_kind(worker_adapter, action.output_kind)
-        and action.job_id not in attempted_job_ids
+        if action.job_id not in attempted_job_ids
         and action.job_id not in expired_this_run_job_ids
         and (
             final_statuses_by_id[action.job_id].state != "retryable"
@@ -430,11 +431,19 @@ def _reviewed_retryable_tuple(
     return tuple(reviewed)
 
 
+def _eligible_output_kinds_for_adapter(worker_adapter: str) -> tuple[str, ...] | None:
+    try:
+        return supported_production_adapter_output_kinds(worker_adapter)
+    except DryRunProductionError as exc:
+        raise DryRunProductionSchedulerError(str(exc)) from exc
+
+
 def _expire_stale_leases(
     workspace_root: Path | str,
     *,
     trusted_plan: ProductionPlan,
     status_manifest: ProductionStatusManifest,
+    worker_adapter: str,
     stale_before: str | None,
     lease_updated_at: str | None,
 ) -> ProductionLeasePersistenceResult | None:
@@ -447,6 +456,7 @@ def _expire_stale_leases(
         status_manifest,
         stale_before=stale_before,
         updated_at=lease_updated_at,
+        eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
     )
     if not expiration_plan.expired_leases:
         return None

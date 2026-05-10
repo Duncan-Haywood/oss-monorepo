@@ -12,6 +12,7 @@ from shootflow.production_adapter import (
     run_dry_run_production_action,
     run_metadata_production_action,
     run_proxy_production_action,
+    supported_production_adapter_output_kinds,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -26,6 +27,20 @@ from shootflow.production_worker import plan_production_worker_actions
 
 
 class DryRunProductionAdapterTests(unittest.TestCase):
+    def test_declares_supported_output_kinds_for_stage_specific_adapters(self) -> None:
+        self.assertEqual(
+            supported_production_adapter_names(),
+            ("dry-run-production-local", "metadata-production-local", "proxy-production-local"),
+        )
+        self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
+        self.assertIsNone(supported_production_adapter_output_kinds("metadata-production-local"))
+        self.assertEqual(
+            supported_production_adapter_output_kinds("proxy-production-local"),
+            ("proxy_media",),
+        )
+        with self.assertRaisesRegex(DryRunProductionError, "Unsupported production adapter"):
+            supported_production_adapter_output_kinds("future-vlm-local")
+
     def test_persists_claim_and_success_for_declared_outputs(self) -> None:
         trusted_plan = self._trusted_plan()
         initial_manifest = self._pending_manifest(trusted_plan)
@@ -50,10 +65,6 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             output_path = workspace / action.outputs[0]
             output_exists = output_path.exists()
 
-        self.assertEqual(
-            supported_production_adapter_names(),
-            ("dry-run-production-local", "metadata-production-local", "proxy-production-local"),
-        )
         self.assertIsInstance(result, DryRunProductionAdapterResult)
         self.assertEqual(result.job_id, action.job_id)
         self.assertEqual(result.claimed_status.state, "running")

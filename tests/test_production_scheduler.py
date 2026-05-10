@@ -16,6 +16,7 @@ from shootflow.production_scheduler import (
     write_dry_run_production_scheduler_report,
 )
 from shootflow.production_status import (
+    OutputChecksum,
     ProductionJobStatus,
     ProductionStatusManifest,
     load_production_status_manifest,
@@ -66,7 +67,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         )
         self.assertEqual(attempted_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
 
-    def test_proxy_adapter_stops_after_proxy_wave_without_offering_analysis_jobs(self) -> None:
+    def test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters(self) -> None:
         trusted_plan = self._video_only_plan()
         initial_manifest = self._pending_manifest(trusted_plan)
 
@@ -88,14 +89,105 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             )
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
 
-        self.assertEqual(result.stopped_reason, "blocked")
+        self.assertEqual(result.stopped_reason, "waiting")
         self.assertEqual(loaded_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(loaded_manifest.job_statuses[1].state, "pending")
         self.assertEqual(loaded_manifest.job_statuses[1].attempts, 0)
         self.assertEqual(result.retryable_job_ids, ())
-        self.assertEqual(result.iterations[0].attempted_job_ids, ("proxy_asset_00000",))
+        self.assertEqual(result.blocked_job_ids, ())
         self.assertEqual(result.iterations[1].attempted_job_ids, ())
         self.assertIsNone(result.iterations[1].batch_result)
+
+    def test_proxy_adapter_scheduler_max_iteration_check_ignores_non_proxy_jobs(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / trusted_plan.jobs[0].inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted proxy source")
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="proxy-production-local",
+                started_at="2026-05-10T12:10:00Z",
+                completed_at="2026-05-10T12:10:05Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("proxy_asset_00000",))
+        self.assertEqual(loaded_manifest.job_statuses[0].state, "succeeded")
+        self.assertEqual(loaded_manifest.job_statuses[1].state, "pending")
+        self.assertEqual(loaded_manifest.job_statuses[1].attempts, 0)
+        self.assertEqual(result.retryable_job_ids, ())
+        self.assertEqual(result.blocked_job_ids, ())
+
+    def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
+        trusted_plan = self._video_only_plan()
+        running_analysis_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id="proxy_asset_00000",
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    updated_at="2026-05-10T12:11:00Z",
+                    output_checksums=(
+                        OutputChecksum(
+                            path=trusted_plan.job_by_id("proxy_asset_00000").outputs[0],
+                            sha256="a" * 64,
+                        ),
+                    ),
+                ),
+                ProductionJobStatus(
+                    job_id="analyze_asset_00000",
+                    state="running",
+                    worker_adapter="metadata-production-local",
+                    attempts=1,
+                    updated_at="2026-05-10T12:00:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[2:]
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(
+                running_analysis_manifest,
+                workspace,
+                trusted_plan=trusted_plan,
+            )
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="proxy-production-local",
+                started_at="2026-05-10T12:12:00Z",
+                completed_at="2026-05-10T12:12:05Z",
+                max_concurrency=1,
+                max_iterations=1,
+                stale_before="2026-05-10T12:05:00Z",
+                lease_updated_at="2026-05-10T12:12:00Z",
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].expired_lease_job_ids, ())
+        self.assertEqual(result.iterations[0].attempted_job_ids, ())
+        self.assertEqual(loaded_manifest.job_statuses[1].state, "running")
+        self.assertEqual(loaded_manifest.job_statuses[1].attempts, 1)
+        self.assertEqual(result.retryable_job_ids, ())
 
     def test_scheduler_does_not_hammer_retryable_job_in_same_run(self) -> None:
         trusted_plan = self._video_only_plan()

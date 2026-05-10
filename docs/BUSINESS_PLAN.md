@@ -93,10 +93,12 @@ Why this wedge wins:
   orchestration. Schema v3 reports now also carry observe-only
   `workflow_authority` plus derived product metrics so pilot analytics can track
   throughput and intervention rate from the trusted handoff without turning the
-  handoff into file-operation authority. Scheduler dispatch is
-  adapter-capability aware, so the proxy-local adapter advances only proxy jobs
-  and leaves downstream analysis/color/story/package work pending or blocked for
-  a compatible worker instead of treating stage mismatch as a failure.
+  handoff into file-operation authority. Stage-specific local adapters now
+  declare output-kind capabilities in the adapter registry, and the scheduler
+  uses that registry for both worker planning and stale-lease expiration:
+  `proxy-production-local` receives only `proxy_media` jobs, then leaves later
+  analysis/color/story/package work pending or running for future adapters
+  instead of reporting proxy-adapter failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
