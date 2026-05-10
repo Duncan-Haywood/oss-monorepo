@@ -36,12 +36,12 @@ _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
 }
 
 
-class DryRunProductionError(ValueError):
-    """Raised when the dry-run production adapter cannot safely run a job."""
+class ProductionAdapterError(ValueError):
+    """Raised when a production adapter cannot safely run a job."""
 
 
 @dataclass(frozen=True)
-class DryRunProductionAdapterResult:
+class ProductionAdapterResult:
     job_id: str
     claimed_status: ProductionJobStatus
     final_status: ProductionJobStatus
@@ -50,33 +50,33 @@ class DryRunProductionAdapterResult:
 
 
 @dataclass(frozen=True)
-class MetadataProductionAdapterResult(DryRunProductionAdapterResult):
+class MetadataProductionAdapterResult(ProductionAdapterResult):
     """Result from the local metadata adapter.
 
-    It intentionally shares the dry-run result shape so scheduler reports and
+    It intentionally shares the adapter result shape so scheduler reports and
     status transitions remain adapter-neutral while a real local worker proves
     input-reading behavior.
     """
 
 
 @dataclass(frozen=True)
-class ProxyProductionAdapterResult(DryRunProductionAdapterResult):
+class ProxyProductionAdapterResult(ProductionAdapterResult):
     """Result from the local proxy adapter."""
 
 
 @dataclass(frozen=True)
-class DryRunProductionFailure:
+class ProductionAdapterFailure:
     job_id: str
     error_message: str
 
 
 @dataclass(frozen=True)
-class DryRunProductionBatchResult:
+class ProductionAdapterBatchResult:
     shoot_slug: str
     worker_adapter: str
     max_concurrency: int
-    results: tuple[DryRunProductionAdapterResult, ...]
-    failures: tuple[DryRunProductionFailure, ...]
+    results: tuple[ProductionAdapterResult, ...]
+    failures: tuple[ProductionAdapterFailure, ...]
     blocked_job_ids: tuple[str, ...]
 
 
@@ -90,12 +90,12 @@ def supported_production_adapter_output_kinds(adapter_name: str) -> tuple[str, .
     """Return the output kinds an adapter may schedule, or None for all kinds."""
 
     if not isinstance(adapter_name, str) or not adapter_name.strip():
-        raise DryRunProductionError("adapter_name must be a non-empty string")
+        raise ProductionAdapterError("adapter_name must be a non-empty string")
     try:
         output_kinds = _PRODUCTION_ADAPTER_OUTPUT_KINDS[adapter_name]
     except KeyError as exc:
         supported_adapters = ", ".join(supported_production_adapter_names()) or "none"
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             f"Unsupported production adapter: {adapter_name}. "
             f"Supported adapters: {supported_adapters}"
         ) from exc
@@ -112,11 +112,11 @@ def run_production_adapter_batch(
     started_at: str,
     completed_at: str,
     max_concurrency: int,
-) -> DryRunProductionBatchResult:
+) -> ProductionAdapterBatchResult:
     """Run a supported production adapter batch by explicit adapter name."""
 
     if not isinstance(action_plan, ProductionWorkerActionPlan):
-        raise DryRunProductionError("action_plan must be a ProductionWorkerActionPlan")
+        raise ProductionAdapterError("action_plan must be a ProductionWorkerActionPlan")
     if action_plan.worker_adapter == _DRY_RUN_PRODUCTION_ADAPTER:
         return run_dry_run_production_batch(
             workspace_root,
@@ -145,7 +145,7 @@ def run_production_adapter_batch(
             max_concurrency=max_concurrency,
         )
     supported_adapters = ", ".join(supported_production_adapter_names())
-    raise DryRunProductionError(
+    raise ProductionAdapterError(
         f"Unsupported production adapter: {action_plan.worker_adapter}. "
         f"Supported adapters: {supported_adapters}"
     )
@@ -159,7 +159,7 @@ def run_dry_run_production_batch(
     started_at: str,
     completed_at: str,
     max_concurrency: int,
-) -> DryRunProductionBatchResult:
+) -> ProductionAdapterBatchResult:
     """Run trusted dry-run production actions while respecting per-job parallelism."""
 
     return _run_adapter_batch(
@@ -182,7 +182,7 @@ def run_metadata_production_batch(
     started_at: str,
     completed_at: str,
     max_concurrency: int,
-) -> DryRunProductionBatchResult:
+) -> ProductionAdapterBatchResult:
     """Run trusted metadata production actions while respecting parallelism."""
 
     return _run_adapter_batch(
@@ -205,7 +205,7 @@ def run_proxy_production_batch(
     started_at: str,
     completed_at: str,
     max_concurrency: int,
-) -> DryRunProductionBatchResult:
+) -> ProductionAdapterBatchResult:
     """Run trusted proxy production actions while respecting parallelism."""
 
     return _run_adapter_batch(
@@ -230,7 +230,7 @@ def _run_adapter_batch(
     max_concurrency: int,
     expected_adapter: str,
     run_action,
-) -> DryRunProductionBatchResult:
+) -> ProductionAdapterBatchResult:
     _validate_action_plan(
         action_plan,
         trusted_plan=trusted_plan,
@@ -240,8 +240,8 @@ def _run_adapter_batch(
     _validate_timestamp(completed_at, "completed_at")
     _validate_max_concurrency(max_concurrency)
 
-    ordered_results: dict[int, DryRunProductionAdapterResult] = {}
-    ordered_failures: dict[int, DryRunProductionFailure] = {}
+    ordered_results: dict[int, ProductionAdapterResult] = {}
+    ordered_failures: dict[int, ProductionAdapterFailure] = {}
     action_index = 0
     actions = action_plan.actions
 
@@ -289,7 +289,7 @@ def _run_adapter_batch(
                     ordered_failures[index] = failure
         action_index = group_end
 
-    batch_result = DryRunProductionBatchResult(
+    batch_result = ProductionAdapterBatchResult(
         shoot_slug=action_plan.shoot_slug,
         worker_adapter=action_plan.worker_adapter,
         max_concurrency=max_concurrency,
@@ -308,7 +308,7 @@ def run_dry_run_production_action(
     action: ProductionWorkerAction,
     started_at: str,
     completed_at: str,
-) -> DryRunProductionAdapterResult:
+) -> ProductionAdapterResult:
     """Persist one trusted production action through claim, dry-run output, and result.
 
     This adapter proves the pre-render production-worker status handoff without
@@ -326,7 +326,7 @@ def run_dry_run_production_action(
         expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
         materialize_outputs=_materialize_dry_run_production_outputs,
         retryable_error_message=_retryable_error_message,
-        result_type=DryRunProductionAdapterResult,
+        result_type=ProductionAdapterResult,
     )
 
 
@@ -388,7 +388,7 @@ def _run_production_action(
     materialize_outputs,
     retryable_error_message,
     result_type,
-) -> DryRunProductionAdapterResult:
+) -> ProductionAdapterResult:
     _validate_action(action, expected_adapter=expected_adapter)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
@@ -403,7 +403,7 @@ def _run_production_action(
             updated_at=started_at,
         )
     except ProductionWorkerError as exc:
-        raise DryRunProductionError(str(exc)) from exc
+        raise ProductionAdapterError(str(exc)) from exc
     compare_and_write_production_job_status(
         root,
         trusted_plan=trusted_plan,
@@ -421,7 +421,7 @@ def _run_production_action(
             root,
             updated_at=completed_at,
         )
-    except (DryRunProductionError, ProductionWorkerError) as exc:
+    except (ProductionAdapterError, ProductionWorkerError) as exc:
         outputs_materialized = ()
         final_status = report_production_worker_retryable(
             running_status,
@@ -498,12 +498,12 @@ def _materialize_proxy_production_outputs(
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             "Proxy production adapter only materializes proxy_media jobs: "
             f"{action.output_kind}"
         )
     if len(action.inputs) != 1:
-        raise DryRunProductionError("Proxy production adapter requires exactly one input")
+        raise ProductionAdapterError("Proxy production adapter requires exactly one input")
 
 
 def _validate_action(
@@ -512,21 +512,21 @@ def _validate_action(
     expected_adapter: str | None = None,
 ) -> None:
     if not isinstance(action, ProductionWorkerAction):
-        raise DryRunProductionError("action must be a ProductionWorkerAction")
+        raise ProductionAdapterError("action must be a ProductionWorkerAction")
     if not isinstance(action.worker_adapter, str) or not action.worker_adapter.strip():
-        raise DryRunProductionError("dry-run production action worker_adapter cannot be empty")
+        raise ProductionAdapterError("production action worker_adapter cannot be empty")
     if expected_adapter is not None and action.worker_adapter != expected_adapter:
-        raise DryRunProductionError(
-            "dry-run production action worker_adapter must be "
+        raise ProductionAdapterError(
+            "production action worker_adapter must be "
             f"{expected_adapter}: {action.worker_adapter}"
         )
     if not isinstance(action.outputs, tuple) or not action.outputs:
-        raise DryRunProductionError("dry-run production action must declare at least one output")
+        raise ProductionAdapterError("production action must declare at least one output")
     seen_outputs: set[str] = set()
     for output in action.outputs:
         _validate_production_output_path(output)
         if output in seen_outputs:
-            raise DryRunProductionError(f"dry-run production action has duplicate output: {output}")
+            raise ProductionAdapterError(f"production action has duplicate output: {output}")
         seen_outputs.add(output)
 
 
@@ -536,7 +536,7 @@ def _validate_action_matches_trusted_plan(
     trusted_plan: ProductionPlan,
 ) -> None:
     if not isinstance(trusted_plan, ProductionPlan):
-        raise DryRunProductionError("trusted_plan must be a ProductionPlan")
+        raise ProductionAdapterError("trusted_plan must be a ProductionPlan")
     trusted_job = _trusted_job_for_action(action, trusted_plan=trusted_plan)
     expected_fields = (
         "output_kind",
@@ -547,7 +547,7 @@ def _validate_action_matches_trusted_plan(
     )
     for field_name in expected_fields:
         if getattr(action, field_name) != getattr(trusted_job, field_name):
-            raise DryRunProductionError(
+            raise ProductionAdapterError(
                 f"dry-run production action {field_name} does not match trusted job: {action.job_id}"
             )
 
@@ -560,7 +560,7 @@ def _trusted_job_for_action(
     for job in trusted_plan.jobs:
         if job.job_id == action.job_id:
             return job
-    raise DryRunProductionError(f"dry-run production action references unknown trusted job: {action.job_id}")
+    raise ProductionAdapterError(f"production action references unknown trusted job: {action.job_id}")
 
 
 def _validate_action_plan(
@@ -570,24 +570,24 @@ def _validate_action_plan(
     expected_adapter: str | None = None,
 ) -> None:
     if not isinstance(trusted_plan, ProductionPlan):
-        raise DryRunProductionError("trusted_plan must be a ProductionPlan")
+        raise ProductionAdapterError("trusted_plan must be a ProductionPlan")
     if not isinstance(action_plan, ProductionWorkerActionPlan):
-        raise DryRunProductionError("action_plan must be a ProductionWorkerActionPlan")
+        raise ProductionAdapterError("action_plan must be a ProductionWorkerActionPlan")
     if not isinstance(action_plan.shoot_slug, str) or not action_plan.shoot_slug.strip():
-        raise DryRunProductionError("dry-run production action plan shoot_slug cannot be empty")
+        raise ProductionAdapterError("production action plan shoot_slug cannot be empty")
     if action_plan.shoot_slug != trusted_plan.shoot_slug:
-        raise DryRunProductionError("dry-run production action plan shoot_slug does not match trusted plan")
+        raise ProductionAdapterError("production action plan shoot_slug does not match trusted plan")
     if not isinstance(action_plan.worker_adapter, str) or not action_plan.worker_adapter.strip():
-        raise DryRunProductionError("dry-run production action plan worker_adapter cannot be empty")
+        raise ProductionAdapterError("production action plan worker_adapter cannot be empty")
     if expected_adapter is not None and action_plan.worker_adapter != expected_adapter:
-        raise DryRunProductionError(
-            "dry-run production action plan worker_adapter must be "
+        raise ProductionAdapterError(
+            "production action plan worker_adapter must be "
             f"{expected_adapter}: {action_plan.worker_adapter}"
         )
     if not isinstance(action_plan.actions, tuple):
-        raise DryRunProductionError("dry-run production action plan actions must be a tuple")
+        raise ProductionAdapterError("production action plan actions must be a tuple")
     if not isinstance(action_plan.blocked_jobs, tuple):
-        raise DryRunProductionError("dry-run production action plan blocked_jobs must be a tuple")
+        raise ProductionAdapterError("production action plan blocked_jobs must be a tuple")
 
     trusted_jobs = {job.job_id: job for job in trusted_plan.jobs}
     seen_job_ids: set[str] = set()
@@ -595,16 +595,16 @@ def _validate_action_plan(
         _validate_action(action, expected_adapter=expected_adapter)
         _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
         if action.worker_adapter != action_plan.worker_adapter:
-            raise DryRunProductionError("dry-run production action adapter does not match action plan")
+            raise ProductionAdapterError("production action adapter does not match action plan")
         if action.job_id in seen_job_ids:
-            raise DryRunProductionError(f"dry-run production action plan has duplicate action: {action.job_id}")
+            raise ProductionAdapterError(f"production action plan has duplicate action: {action.job_id}")
         seen_job_ids.add(action.job_id)
     for blocked_job in action_plan.blocked_jobs:
         if not isinstance(blocked_job.job_id, str) or not blocked_job.job_id.strip():
-            raise DryRunProductionError("dry-run production action plan blocked job_id cannot be empty")
+            raise ProductionAdapterError("production action plan blocked job_id cannot be empty")
         if blocked_job.job_id not in trusted_jobs:
-            raise DryRunProductionError(
-                f"dry-run production action plan blocked unknown job: {blocked_job.job_id}"
+            raise ProductionAdapterError(
+                f"production action plan blocked unknown job: {blocked_job.job_id}"
             )
 
 
@@ -614,20 +614,20 @@ def _validate_max_concurrency(max_concurrency: int) -> None:
         or not isinstance(max_concurrency, int)
         or max_concurrency < 1
     ):
-        raise DryRunProductionError("dry-run production batch max_concurrency must be a positive integer")
+        raise ProductionAdapterError("production adapter batch max_concurrency must be a positive integer")
 
 
 def _validate_timestamp(timestamp: str, label: str) -> None:
     if not isinstance(timestamp, str) or not timestamp.strip():
-        raise DryRunProductionError(f"dry-run production {label} must be a non-empty string")
+        raise ProductionAdapterError(f"production adapter {label} must be a non-empty string")
     if len(timestamp) > 80 or "\x00" in timestamp or "\n" in timestamp or "\r" in timestamp:
-        raise DryRunProductionError(f"dry-run production {label} is invalid")
+        raise ProductionAdapterError(f"production adapter {label} is invalid")
 
 
 def _workspace_root(workspace_root: Path | str) -> Path:
     root = Path(workspace_root)
     if root.is_symlink():
-        raise DryRunProductionError(f"Refusing dry-run production workspace symlink: {root}")
+        raise ProductionAdapterError(f"Refusing production adapter workspace symlink: {root}")
     return root
 
 
@@ -638,7 +638,7 @@ def _status_for_action(
     for status in manifest.job_statuses:
         if status.job_id == action.job_id:
             return status
-    raise DryRunProductionError(f"Missing production status for action: {action.job_id}")
+    raise ProductionAdapterError(f"Missing production status for action: {action.job_id}")
 
 
 def _write_dry_run_output(
@@ -648,7 +648,7 @@ def _write_dry_run_output(
     output: str,
 ) -> None:
     if output.endswith("/"):
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             "Dry-run production adapter does not materialize directory-style output: "
             f"{output}"
         )
@@ -679,7 +679,7 @@ def _write_metadata_output(
     input_metadata: tuple[dict[str, object], ...],
 ) -> None:
     if output.endswith("/"):
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             "Metadata production adapter does not materialize directory-style output: "
             f"{output}"
         )
@@ -694,7 +694,7 @@ def _copy_proxy_output(
     output: str,
 ) -> None:
     if output.endswith("/"):
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             "Proxy production adapter does not materialize directory-style output: "
             f"{output}"
         )
@@ -707,7 +707,7 @@ def _copy_proxy_output(
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             f"Unable to create proxy production output directory: {output_path.parent}"
         ) from exc
     _reject_symlink_path(output_path.parent, root, "proxy production output directory")
@@ -729,22 +729,22 @@ def _copy_proxy_output(
     try:
         input_fd = os.open(input_path, input_flags)
     except FileNotFoundError as exc:
-        raise DryRunProductionError(f"Missing proxy production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Missing proxy production input: {input_ref}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to open proxy production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to open proxy production input: {input_ref}") from exc
 
     try:
         output_fd = os.open(temp_path, output_flags, 0o600)
     except OSError as exc:
         os.close(input_fd)
-        raise DryRunProductionError(f"Unable to create temporary proxy production output: {temp_path}") from exc
+        raise ProductionAdapterError(f"Unable to create temporary proxy production output: {temp_path}") from exc
 
     digest = hashlib.sha256()
     try:
         with os.fdopen(input_fd, "rb") as input_file, os.fdopen(output_fd, "wb") as temp_file:
             input_stat = os.fstat(input_file.fileno())
             if not stat.S_ISREG(input_stat.st_mode):
-                raise DryRunProductionError(f"Refusing non-file proxy production input: {input_ref}")
+                raise ProductionAdapterError(f"Refusing non-file proxy production input: {input_ref}")
             for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
                 digest.update(chunk)
                 temp_file.write(chunk)
@@ -755,9 +755,9 @@ def _copy_proxy_output(
         except FileExistsError:
             _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
         except OSError as exc:
-            raise DryRunProductionError(f"Unable to commit proxy production output: {output}") from exc
+            raise ProductionAdapterError(f"Unable to commit proxy production output: {output}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to write proxy production output: {output}") from exc
+        raise ProductionAdapterError(f"Unable to write proxy production output: {output}") from exc
     finally:
         try:
             temp_path.unlink()
@@ -779,7 +779,7 @@ def _write_production_output_bytes(
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise DryRunProductionError(
+        raise ProductionAdapterError(
             f"Unable to create {label} output directory: {output_path.parent}"
         ) from exc
     _reject_symlink_path(output_path.parent, root, f"{label} output directory")
@@ -798,7 +798,7 @@ def _write_production_output_bytes(
     try:
         fd = os.open(temp_path, flags, 0o600)
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to create temporary {label} output: {temp_path}") from exc
+        raise ProductionAdapterError(f"Unable to create temporary {label} output: {temp_path}") from exc
 
     try:
         with os.fdopen(fd, "wb") as temp_file:
@@ -809,9 +809,9 @@ def _write_production_output_bytes(
         except FileExistsError:
             _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
         except OSError as exc:
-            raise DryRunProductionError(f"Unable to commit {label} output: {output}") from exc
+            raise ProductionAdapterError(f"Unable to commit {label} output: {output}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to write {label} output: {output}") from exc
+        raise ProductionAdapterError(f"Unable to write {label} output: {output}") from exc
     finally:
         try:
             temp_path.unlink()
@@ -861,20 +861,20 @@ def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> d
     except FileNotFoundError as exc:
         if allow_logical:
             return _logical_input_metadata(input_ref)
-        raise DryRunProductionError(f"Missing metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Missing metadata production input: {input_ref}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to open metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to open metadata production input: {input_ref}") from exc
 
     digest = hashlib.sha256()
     try:
         with os.fdopen(fd, "rb") as input_file:
             input_stat = os.fstat(input_file.fileno())
             if not stat.S_ISREG(input_stat.st_mode):
-                raise DryRunProductionError(f"Refusing non-file metadata production input: {input_ref}")
+                raise ProductionAdapterError(f"Refusing non-file metadata production input: {input_ref}")
             for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
                 digest.update(chunk)
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to read metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to read metadata production input: {input_ref}") from exc
 
     return {
         "path": _workspace_display_path(root, input_path, fallback=input_ref),
@@ -890,20 +890,20 @@ def _sha256_proxy_input(path: Path, *, input_ref: str) -> str:
     try:
         fd = os.open(path, flags)
     except FileNotFoundError as exc:
-        raise DryRunProductionError(f"Missing proxy production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Missing proxy production input: {input_ref}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to open proxy production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to open proxy production input: {input_ref}") from exc
 
     digest = hashlib.sha256()
     try:
         with os.fdopen(fd, "rb") as input_file:
             input_stat = os.fstat(input_file.fileno())
             if not stat.S_ISREG(input_stat.st_mode):
-                raise DryRunProductionError(f"Refusing non-file proxy production input: {input_ref}")
+                raise ProductionAdapterError(f"Refusing non-file proxy production input: {input_ref}")
             for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
                 digest.update(chunk)
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to checksum proxy production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to checksum proxy production input: {input_ref}") from exc
     return digest.hexdigest()
 
 
@@ -923,7 +923,7 @@ def _workspace_output_path(root: Path, output: str) -> Path:
     try:
         output_path.relative_to(root)
     except ValueError as exc:
-        raise DryRunProductionError(f"Dry-run production output escapes workspace: {output}") from exc
+        raise ProductionAdapterError(f"Dry-run production output escapes workspace: {output}") from exc
     return output_path
 
 
@@ -940,28 +940,28 @@ def _workspace_input_path(root: Path, input_ref: str) -> Path:
     try:
         input_path.absolute().relative_to(root_absolute)
     except ValueError as exc:
-        raise DryRunProductionError(f"Metadata production input escapes workspace: {input_ref}") from exc
+        raise ProductionAdapterError(f"Metadata production input escapes workspace: {input_ref}") from exc
     return input_path
 
 
 def _validate_production_output_path(output: str) -> None:
     if not isinstance(output, str) or not output.strip():
-        raise DryRunProductionError("dry-run production output path cannot be empty")
+        raise ProductionAdapterError("dry-run production output path cannot be empty")
     if _contains_invalid_path_character(output):
-        raise DryRunProductionError(f"Unsafe dry-run production output path: {output!r}")
+        raise ProductionAdapterError(f"Unsafe dry-run production output path: {output!r}")
     output_path = Path(output)
     if output_path.is_absolute() or ".." in output_path.parts:
-        raise DryRunProductionError(f"Unsafe dry-run production output path: {output}")
+        raise ProductionAdapterError(f"Unsafe dry-run production output path: {output}")
 
 
 def _validate_production_input_path(input_ref: str) -> None:
     if not isinstance(input_ref, str) or not input_ref.strip():
-        raise DryRunProductionError("metadata production input path cannot be empty")
+        raise ProductionAdapterError("metadata production input path cannot be empty")
     if _contains_invalid_path_character(input_ref):
-        raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref!r}")
+        raise ProductionAdapterError(f"Unsafe metadata production input path: {input_ref!r}")
     input_path = Path(input_ref)
     if ".." in input_path.parts:
-        raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref}")
+        raise ProductionAdapterError(f"Unsafe metadata production input path: {input_ref}")
 
 
 def _contains_invalid_path_character(value: str) -> bool:
@@ -990,9 +990,9 @@ def _validate_existing_output(
     expected_sha256: str,
 ) -> None:
     if not output_path.is_file():
-        raise DryRunProductionError(f"Refusing non-file dry-run production output: {output}")
+        raise ProductionAdapterError(f"Refusing non-file dry-run production output: {output}")
     if _sha256_file(output_path) != expected_sha256:
-        raise DryRunProductionError(f"Refusing to overwrite existing different dry-run production output: {output}")
+        raise ProductionAdapterError(f"Refusing to overwrite existing different dry-run production output: {output}")
 
 
 def _sha256_file(path: Path) -> str:
@@ -1002,7 +1002,7 @@ def _sha256_file(path: Path) -> str:
             for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
                 digest.update(chunk)
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to checksum dry-run production output: {path}") from exc
+        raise ProductionAdapterError(f"Unable to checksum dry-run production output: {path}") from exc
     return digest.hexdigest()
 
 
@@ -1010,7 +1010,7 @@ def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
     current = path
     while True:
         if current.is_symlink():
-            raise DryRunProductionError(f"Refusing {label} symlink: {current}")
+            raise ProductionAdapterError(f"Refusing {label} symlink: {current}")
         if current == root or current.absolute() == root.absolute():
             break
         if current.parent == current:
@@ -1048,19 +1048,19 @@ def _proxy_retryable_error_message(exc: Exception) -> str:
     )
 
 
-def _validate_result(result: DryRunProductionAdapterResult) -> None:
-    if not isinstance(result, DryRunProductionAdapterResult):
-        raise DryRunProductionError("dry-run production adapter returned an invalid result")
+def _validate_result(result: ProductionAdapterResult) -> None:
+    if not isinstance(result, ProductionAdapterResult):
+        raise ProductionAdapterError("production adapter returned an invalid result")
     if not isinstance(result.job_id, str) or not result.job_id.strip():
-        raise DryRunProductionError("dry-run production result job_id cannot be empty")
+        raise ProductionAdapterError("production adapter result job_id cannot be empty")
     if not isinstance(result.claimed_status, ProductionJobStatus):
-        raise DryRunProductionError("dry-run production result claimed_status is invalid")
+        raise ProductionAdapterError("production adapter result claimed_status is invalid")
     if not isinstance(result.final_status, ProductionJobStatus):
-        raise DryRunProductionError("dry-run production result final_status is invalid")
+        raise ProductionAdapterError("production adapter result final_status is invalid")
     if not isinstance(result.manifest, ProductionStatusManifest):
-        raise DryRunProductionError("dry-run production result manifest is invalid")
+        raise ProductionAdapterError("production adapter result manifest is invalid")
     if not isinstance(result.outputs_materialized, tuple):
-        raise DryRunProductionError("dry-run production result outputs_materialized must be a tuple")
+        raise ProductionAdapterError("production adapter result outputs_materialized must be a tuple")
     for output in result.outputs_materialized:
         _validate_production_output_path(output)
 
@@ -1073,7 +1073,7 @@ def _run_batch_action(
     started_at: str,
     completed_at: str,
     run_action,
-) -> tuple[DryRunProductionAdapterResult | None, DryRunProductionFailure | None]:
+) -> tuple[ProductionAdapterResult | None, ProductionAdapterFailure | None]:
     try:
         result = run_action(
             workspace_root,
@@ -1082,8 +1082,8 @@ def _run_batch_action(
             started_at=started_at,
             completed_at=completed_at,
         )
-    except (DryRunProductionError, ProductionWorkerError, ProductionStatusError) as exc:
-        return None, DryRunProductionFailure(
+    except (ProductionAdapterError, ProductionWorkerError, ProductionStatusError) as exc:
+        return None, ProductionAdapterFailure(
             job_id=action.job_id,
             error_message=_batch_failure_message(exc),
         )
@@ -1100,29 +1100,29 @@ def _batch_failure_message(exc: Exception) -> str:
     )
 
 
-def _validate_batch_result(result: DryRunProductionBatchResult) -> None:
-    if not isinstance(result, DryRunProductionBatchResult):
-        raise DryRunProductionError("dry-run production batch result is invalid")
+def _validate_batch_result(result: ProductionAdapterBatchResult) -> None:
+    if not isinstance(result, ProductionAdapterBatchResult):
+        raise ProductionAdapterError("production adapter batch result is invalid")
     if not isinstance(result.shoot_slug, str) or not result.shoot_slug.strip():
-        raise DryRunProductionError("dry-run production batch result shoot_slug cannot be empty")
+        raise ProductionAdapterError("production adapter batch result shoot_slug cannot be empty")
     if not isinstance(result.worker_adapter, str) or not result.worker_adapter.strip():
-        raise DryRunProductionError("dry-run production batch result worker_adapter cannot be empty")
+        raise ProductionAdapterError("production adapter batch result worker_adapter cannot be empty")
     _validate_max_concurrency(result.max_concurrency)
     if not isinstance(result.results, tuple):
-        raise DryRunProductionError("dry-run production batch results must be a tuple")
+        raise ProductionAdapterError("production adapter batch results must be a tuple")
     if not isinstance(result.failures, tuple):
-        raise DryRunProductionError("dry-run production batch failures must be a tuple")
+        raise ProductionAdapterError("production adapter batch failures must be a tuple")
     if not isinstance(result.blocked_job_ids, tuple):
-        raise DryRunProductionError("dry-run production batch blocked_job_ids must be a tuple")
+        raise ProductionAdapterError("production adapter batch blocked_job_ids must be a tuple")
     for action_result in result.results:
         _validate_result(action_result)
     for failure in result.failures:
-        if not isinstance(failure, DryRunProductionFailure):
-            raise DryRunProductionError("dry-run production batch failure is invalid")
+        if not isinstance(failure, ProductionAdapterFailure):
+            raise ProductionAdapterError("production adapter batch failure is invalid")
         if not isinstance(failure.job_id, str) or not failure.job_id.strip():
-            raise DryRunProductionError("dry-run production batch failure job_id cannot be empty")
+            raise ProductionAdapterError("production adapter batch failure job_id cannot be empty")
         if not isinstance(failure.error_message, str) or not failure.error_message.strip():
-            raise DryRunProductionError("dry-run production batch failure error_message cannot be empty")
+            raise ProductionAdapterError("production adapter batch failure error_message cannot be empty")
     for job_id in result.blocked_job_ids:
         if not isinstance(job_id, str) or not job_id.strip():
-            raise DryRunProductionError("dry-run production batch blocked job_id cannot be empty")
+            raise ProductionAdapterError("production adapter batch blocked job_id cannot be empty")

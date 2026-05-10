@@ -89,7 +89,10 @@ The repo currently contains a Python core package because it is quick to test an
   visible rather than mutating them. The adapter registry also declares
   output-kind scope for each worker: dry-run and metadata adapters can currently
   accept all planned kinds, while `proxy-production-local` is explicitly limited
-  to `proxy_media`.
+  to `proxy_media`. Shared result, failure, batch, and error types are named
+  `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
+  adapters can reuse the same contract without carrying dry-run-specific type
+  names through scheduler code.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
   reloads the trusted production status manifest each pass, optionally expires
   stale running leases through guarded compare/write updates, plans

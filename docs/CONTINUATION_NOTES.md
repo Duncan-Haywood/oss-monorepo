@@ -2,6 +2,73 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 13:30 UTC
+
+This run continued from `origin/main`/`origin/cursor/branch-reconciliation-and-merge-448b`
+on the assigned local branch `cursor/branch-reconciliation-and-merge-c7c5`.
+The remote branch did not exist at session start, but the local branch was
+already at the reconciled main head.
+
+- Completed the next documented adapter cleanup: shared production-adapter
+  handoff types are now adapter-neutral:
+  - `ProductionAdapterError`
+  - `ProductionAdapterResult`
+  - `ProductionAdapterFailure`
+  - `ProductionAdapterBatchResult`
+- Updated `shootflow.production_scheduler` to import and annotate the neutral
+  batch/error types while leaving the scheduler-specific
+  `DryRunProductionScheduler*` names intact. The scheduler remains a dry-run
+  local orchestration loop; only the adapter handoff stopped implying dry-run
+  execution.
+- Updated adapter tests to import the neutral names and assert that metadata
+  batch execution returns `ProductionAdapterBatchResult`. This protects the
+  registry/dispatch surface future VLM, color, storyline, and packaging adapters
+  will share.
+- Updated README and design decisions to record why this matters: metadata and
+  proxy adapters are real local proofs now, so the shared adapter result/error
+  contract should not carry a placeholder-only name.
+
+Branch reconciliation status from this run:
+
+- `git fetch --prune origin main` succeeded.
+- Remote `origin/main` and `origin/cursor/branch-reconciliation-and-merge-448b`
+  were already at `fc7e4d1`; the local assigned branch started at the same
+  commit.
+- The requested remote branch
+  `origin/cursor/branch-reconciliation-and-merge-c7c5` did not exist before this
+  run, so this session will push the assigned branch as a new remote branch.
+- A full remote-branch comparison showed every existing remote work branch was
+  contained in `origin/main` (`branch_only=0` for all non-main remotes). No
+  useful completed work was stranded outside main. Remaining old remote branches
+  are redundant historical refs, but this session has no dedicated remote branch
+  deletion tool/permission.
+- Local `main` was still the initial commit and should be reset to `origin/main`
+  during final cleanup if it remains unused. Local `cursor/setup-dev-env-3ad0`
+  is contained in `origin/main` and can be deleted locally.
+
+Verification performed during this run so far:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_persists_claim_and_success_for_declared_outputs`
+  failed because `ProductionAdapterBatchResult` was not exported yet.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter`
+  -> 23 tests OK.
+- Scheduler focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler`
+  -> 20 tests OK.
+
+Good next test-first targets:
+
+- Register the next local adapter capability deliberately, likely a VLM/analysis
+  metadata worker or real proxy-rendering worker, and prove it only schedules the
+  output kinds it can materialize.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+- Keep `ProductionAdapter*` and adapter capability metadata synchronized as
+  additional worker backends are registered.
+
 ## Implementation continuation note - 2026-05-10 13:00 UTC
 
 This run reconciled the assigned branch
@@ -112,9 +179,6 @@ Final branch reconciliation:
 
 Good next test-first targets:
 
-- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
-  `ProductionAdapter*` names now that the adapter registry is adapter-neutral
-  and metadata/proxy adapters are real local adapter proofs.
 - Register the next local adapter capability deliberately, likely a metadata/VLM
   or real proxy-rendering worker, and prove it only schedules the output kinds it
   can materialize.
@@ -169,9 +233,8 @@ Good next test-first targets:
   once additional local workers land, so VLM, color, storyline, and packaging
   adapters can declare their supported `output_kind` values without growing
   scheduler conditionals.
-- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
-  `ProductionAdapter*` names now that metadata and proxy adapters are real local
-  adapter proofs.
+- Completed later in the 13:30 UTC iteration: rename shared adapter
+  result/failure/batch/error types to neutral `ProductionAdapter*` names.
 - Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
   Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
   declared-output-only boundary.
@@ -245,9 +308,8 @@ Good next test-first targets:
   stage-specific adapters without accidentally offering a proxy-only adapter
   later analysis/color/story jobs. Until then, run `proxy-production-local` as a
   proxy-wave adapter, not as an end-to-end production scheduler worker.
-- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
-  `ProductionAdapter*` names now that metadata and proxy adapters are real
-  local adapter proofs.
+- Completed later in the 13:30 UTC iteration: rename shared adapter
+  result/failure/batch/error types to neutral `ProductionAdapter*` names.
 - Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
   Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
   declared-output-only boundary.
@@ -412,8 +474,8 @@ Good next test-first targets:
 - Add a real proxy-generation adapter behind the same `ProductionWorkerAction`
   boundary, using `metadata-production-local` as the input-fingerprint and
   declared-output safety pattern.
-- Rename the remaining `DryRunProduction*` shared result types to neutral
-  `ProductionAdapter*` names before additional real adapters land.
+- Completed later in the 13:30 UTC iteration: rename shared adapter
+  result/failure/batch/error types to neutral `ProductionAdapter*` names.
 - Bind scheduler reports plus `handoff-controls` into a minimal native-shell CLI
   fixture so UI controls are disabled from the authority payload rather than
   presentation prose.

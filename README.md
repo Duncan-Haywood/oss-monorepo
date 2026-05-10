@@ -184,7 +184,10 @@ This repo currently contains the first testable core utilities:
   and report retryable status without deleting source, graded, render, or
   deliverable media. The local batch dispatcher can execute trusted action plans
   in bounded parallel batches while preserving serial-only production jobs and
-  blocked-job visibility for UI/scheduler review.
+  blocked-job visibility for UI/scheduler review. Shared adapter handoff types
+  now use adapter-neutral `ProductionAdapter*` names, so scheduler and future
+  worker code no longer imply that metadata/proxy execution is merely dry-run
+  machinery.
 - `shootflow.production_scheduler` runs trusted local production adapters in an
   iterative local loop: each pass reloads trusted `production_status.json`,
   optionally expires stale-running leases through the guarded production-worker

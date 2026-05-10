@@ -6,8 +6,9 @@ import unittest
 from shootflow.deliverables import MediaAsset
 from shootflow.production import ExecutionWave, ProductionJob, ProductionPlan, build_production_plan
 from shootflow.production_adapter import (
-    DryRunProductionAdapterResult,
-    DryRunProductionError,
+    ProductionAdapterBatchResult,
+    ProductionAdapterError,
+    ProductionAdapterResult,
     run_production_adapter_batch,
     run_dry_run_production_action,
     run_metadata_production_action,
@@ -38,7 +39,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             supported_production_adapter_output_kinds("proxy-production-local"),
             ("proxy_media",),
         )
-        with self.assertRaisesRegex(DryRunProductionError, "Unsupported production adapter"):
+        with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
 
     def test_persists_claim_and_success_for_declared_outputs(self) -> None:
@@ -65,7 +66,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             output_path = workspace / action.outputs[0]
             output_exists = output_path.exists()
 
-        self.assertIsInstance(result, DryRunProductionAdapterResult)
+        self.assertIsInstance(result, ProductionAdapterResult)
         self.assertEqual(result.job_id, action.job_id)
         self.assertEqual(result.claimed_status.state, "running")
         self.assertEqual(result.final_status.state, "succeeded")
@@ -133,7 +134,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             workspace = Path(tmpdir)
             write_production_status_manifest(running_manifest, workspace, trusted_plan=trusted_plan)
 
-            with self.assertRaisesRegex(DryRunProductionError, "current status"):
+            with self.assertRaisesRegex(ProductionAdapterError, "current status"):
                 run_dry_run_production_action(
                     workspace,
                     trusted_plan=trusted_plan,
@@ -770,6 +771,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             )
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
 
+        self.assertIsInstance(result, ProductionAdapterBatchResult)
         self.assertEqual(result.worker_adapter, "metadata-production-local")
         self.assertEqual(tuple(action.job_id for action in action_plan.actions), ("proxy_asset_00000", "proxy_asset_00001"))
         self.assertEqual(tuple(action_result.final_status.state for action_result in result.results), ("succeeded", "succeeded"))
@@ -777,7 +779,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
 
     def test_adapter_batch_rejects_invalid_action_plan_before_dispatch(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            with self.assertRaisesRegex(DryRunProductionError, "action_plan"):
+            with self.assertRaisesRegex(ProductionAdapterError, "action_plan"):
                 run_production_adapter_batch(
                     Path(tmpdir),
                     trusted_plan=self._trusted_plan(),

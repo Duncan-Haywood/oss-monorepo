@@ -12,8 +12,8 @@ from types import MappingProxyType
 
 from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
-    DryRunProductionBatchResult,
-    DryRunProductionError,
+    ProductionAdapterBatchResult,
+    ProductionAdapterError,
     run_production_adapter_batch,
     supported_production_adapter_output_kinds,
     supported_production_adapter_names,
@@ -108,7 +108,7 @@ class DryRunProductionSchedulerIteration:
     attempted_job_ids: tuple[str, ...]
     skipped_retryable_job_ids: tuple[str, ...]
     blocked_job_ids: tuple[str, ...]
-    batch_result: DryRunProductionBatchResult | None
+    batch_result: ProductionAdapterBatchResult | None
 
 
 @dataclass(frozen=True)
@@ -241,7 +241,7 @@ def run_dry_run_production_scheduler(
                     completed_at=completed_at,
                     max_concurrency=max_concurrency,
                 )
-            except DryRunProductionError as exc:
+            except ProductionAdapterError as exc:
                 raise DryRunProductionSchedulerError(str(exc)) from exc
 
         iteration = DryRunProductionSchedulerIteration(
@@ -434,7 +434,7 @@ def _reviewed_retryable_tuple(
 def _eligible_output_kinds_for_adapter(worker_adapter: str) -> tuple[str, ...] | None:
     try:
         return supported_production_adapter_output_kinds(worker_adapter)
-    except DryRunProductionError as exc:
+    except ProductionAdapterError as exc:
         raise DryRunProductionSchedulerError(str(exc)) from exc
 
 
@@ -1369,7 +1369,7 @@ def _validate_iteration(iteration: DryRunProductionSchedulerIteration) -> None:
         raise DryRunProductionSchedulerError("conflicted_lease_failure_messages must be a tuple")
     for message in iteration.conflicted_lease_failure_messages:
         _validate_job_message(message)
-    if iteration.batch_result is not None and not isinstance(iteration.batch_result, DryRunProductionBatchResult):
+    if iteration.batch_result is not None and not isinstance(iteration.batch_result, ProductionAdapterBatchResult):
         raise DryRunProductionSchedulerError("batch_result is invalid")
 
 
