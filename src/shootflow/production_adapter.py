@@ -701,9 +701,15 @@ def _workspace_output_path(root: Path, output: str) -> Path:
 def _workspace_input_path(root: Path, input_ref: str) -> Path:
     _validate_production_input_path(input_ref)
     raw_input_path = Path(input_ref)
-    input_path = raw_input_path if raw_input_path.is_absolute() else root / raw_input_path
+    root_absolute = root.absolute()
+    if raw_input_path.is_absolute():
+        input_path = raw_input_path
+    elif _path_is_relative_to(raw_input_path.absolute(), root_absolute):
+        input_path = raw_input_path.absolute()
+    else:
+        input_path = (root / raw_input_path).absolute()
     try:
-        input_path.absolute().relative_to(root.absolute())
+        input_path.absolute().relative_to(root_absolute)
     except ValueError as exc:
         raise DryRunProductionError(f"Metadata production input escapes workspace: {input_ref}") from exc
     return input_path
@@ -731,6 +737,14 @@ def _validate_production_input_path(input_ref: str) -> None:
 
 def _contains_invalid_path_character(value: str) -> bool:
     return "\x00" in value or "\n" in value or "\r" in value
+
+
+def _path_is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
 
 
 def _validate_existing_output(
