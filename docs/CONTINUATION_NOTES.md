@@ -34,11 +34,27 @@ Verification performed during this run:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_rejects_existing_directory_with_unplanned_extra_file tests.test_production_scheduler.DryRunProductionSchedulerTests.test_package_adapter_scheduler_names_unexpected_directory_entries`
   failed because retryable package errors did not include `extra.bin`.
 - Focused green after implementation: the same command -> 2 tests OK.
+- Related production suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 101 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 435 tests OK; compileall and diff-check exited 0.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and the assigned branch. The assigned branch was one
+  commit ahead of `origin/main` with this package reportability work.
+- Local `main` remained stale at the initial commit until final reconciliation.
+- The only other remote branch ahead of `origin/main` was
+  `origin/cursor/branch-consolidation-6dc9` (ahead 2, behind 1). Its net diff
+  would remove current scheduler/report package coverage and roll back to an
+  older package-adapter shape, so it was intentionally not merged.
+- Useful completed work from this run should be fast-forwarded into `main`
+  after this note is committed and verification is re-run.
 
 Good next test-first targets:
 
-- Add package dependency checksum-drift scheduler/report coverage if that branch
-  work is not recovered elsewhere.
 - Start a native-shell bridge proof that reads completed package scheduler
   reports and binds copy/retry/materialization controls to
   `workflow_authority`/`handoff-controls` fail-closed state.
