@@ -144,11 +144,13 @@ The current core models a concrete promise for high-volume users:
     completion IDs. Production-worker helpers now turn that trusted status into
     claimable job actions, report success only after declared outputs exist and
     checksum, and record retry/failure statuses without granting cleanup,
-    deletion, or arbitrary path authority. The dry-run production adapter now
-    exercises that status contract by persisting claims and final success or
-    retryable states through the guarded compare/write path, writing only
-    declared placeholder file outputs, and refusing directory-style package
-    outputs or existing different files without cleanup authority. The dry-run
+    deletion, or arbitrary path authority. Local production adapters now
+    exercise that status contract by persisting claims and final success or
+    retryable states through the guarded compare/write path. The dry-run adapter
+    writes declared placeholder file outputs; `metadata-production-local` reads
+    only workspace-bound trusted inputs and writes deterministic metadata JSON to
+    declared outputs. Both refuse symlinked paths, directory-style package
+    outputs, or existing different files without cleanup authority. The dry-run
     production scheduler now gives Mac shells a single command to advance those
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
@@ -291,11 +293,12 @@ to automate.
    work the same resumable, fingerprint-bound progress boundary as rendering:
    workers can plan dependency-ready jobs, claim a matching attempt, verify
    declared outputs before success, and report retry/failure without deleting or
-   inventing paths. The dry-run production adapter now proves the same
-   claim/materialize/report loop for declared file artifacts such as proxy,
-   analysis, look, graded, and storyline outputs before real local or
-   model-backed workers are wired in. The dry-run production scheduler wraps that
-   adapter in the same persisted-status loop the render side uses, including
+   inventing paths. The dry-run production adapter and
+   `metadata-production-local` now prove the same claim/materialize/report loop
+   for declared file artifacts such as proxy, analysis, look, graded, and
+   storyline outputs before real local or model-backed workers are wired in. The
+   dry-run production scheduler wraps those adapters in the same persisted-status
+   loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
    or clobbering heartbeat-refreshed workers in a tight loop. The persisted

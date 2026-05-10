@@ -62,11 +62,13 @@ Why this wedge wins:
 - Production-worker action/status helpers that plan dependency-ready jobs from
   trusted status, claim a matching attempt, verify declared outputs before
   success, and report retry/failure without cleanup or deletion authority.
-- A deterministic dry-run production adapter that persists claim and result
-  transitions through `production_status.json`, writes only declared placeholder
-  file outputs, and preserves directory-style package outputs or output
-  conflicts as retryable review states before real proxy/VLM/color/story workers
-  are introduced.
+- Deterministic local production adapters that persist claim and result
+  transitions through `production_status.json`. The dry-run adapter writes only
+  declared placeholder file outputs; `metadata-production-local` reads only
+  trusted workspace-bound inputs and writes deterministic metadata JSON to
+  declared outputs. Both preserve symlink, directory-style package output, and
+  output-conflict cases as retryable review states before real proxy/VLM/color/
+  story workers are introduced.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
@@ -256,7 +258,8 @@ Run practical experiments tied to this ICP-first plan:
    initialization, scheduler report, and reviewable outputs. `index-workspace`
    provides the UI/agent state snapshot and `inspect-render-workspace` provides
    the safe read-only state probe before initialization and after scheduler runs.
-3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+3. Extend the local metadata adapter toward real media probes or add the first
+   real renderer adapter shape while still honoring no-delete/no-overwrite rules.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,

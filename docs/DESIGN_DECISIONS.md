@@ -70,21 +70,25 @@ The repo currently contains a Python core package because it is quick to test an
   helper, using the running status timestamp as the lease token so active workers
   that refresh their heartbeat are not clobbered.
 - `shootflow.production_adapter`: the first pre-render adapter proof. Its
-  deterministic dry-run adapter consumes a trusted `ProductionWorkerAction`,
-  persists the claim through the single-job production-status compare/write
-  helper, writes only the action's declared file artifacts as non-overwriting
-  placeholder files, then persists success checksums or retryable errors through
-  the same status boundary. Directory-style package outputs become retryable
-  review states instead of files that would block later render directories. It
-  does not open arbitrary media, delete files, clean up user outputs, or grant
-  workers authority beyond the trusted production job. Its batch runner executes
-  only trusted action plans, preserves serial production jobs, bounds parallel
-  local work, and keeps blocked jobs visible rather than mutating them.
+  deterministic dry-run adapter consumes a trusted `ProductionWorkerAction` and
+  writes only the action's declared file artifacts as non-overwriting placeholder
+  files. `metadata-production-local` uses the same action/status boundary to read
+  only workspace-bound trusted inputs and write deterministic metadata JSON to
+  declared outputs, giving future proxy/VLM/color workers a safer local probe
+  shape. Both adapters persist claims through the single-job production-status
+  compare/write helper, then persist success checksums or retryable errors
+  through the same status boundary. Directory-style package outputs, symlinked
+  inputs or outputs, and different existing files become retryable review states
+  instead of cleanup instructions. They do not open arbitrary paths, delete
+  files, clean up user outputs, or grant workers authority beyond the trusted
+  production job. The batch runner executes only trusted action plans, preserves
+  serial production jobs, bounds parallel local work, and keeps blocked jobs
+  visible rather than mutating them.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
   reloads the trusted production status manifest each pass, optionally expires
   stale running leases through guarded compare/write updates, plans
-  dependency-ready actions, runs the dry-run production batch adapter, and stops
-  with explicit complete/blocked/retryable/failed/waiting state. A job that is
+  dependency-ready actions, runs the registered local production batch adapter,
+  and stops with explicit complete/blocked/retryable/failed/waiting state. A job that is
   already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
   again in the same run. This protects manual outputs, active workers, and future
@@ -350,10 +354,12 @@ The desired high-quality pipeline is:
     jobs from trusted status, checksum declared outputs before success, and
     report retry/failure without giving workers file cleanup or deletion
     authority.
-25. Exercise those helpers through the dry-run production adapter, which
-    materializes only declared placeholder file artifacts and persists success
-    or retryable state through `production_status.json` before real proxy, VLM,
-    color, or storyline runners are trusted.
+25. Exercise those helpers through the registered local production adapters:
+    the dry-run adapter materializes only declared placeholder file artifacts,
+    while `metadata-production-local` writes deterministic metadata JSON from
+    workspace-bound trusted inputs. Both persist success or retryable state
+    through `production_status.json` before real proxy, VLM, color, or storyline
+    runners are trusted.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,
