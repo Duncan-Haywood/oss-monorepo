@@ -344,6 +344,125 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.retryable_job_ids, ())
         self.assertEqual(result.blocked_job_ids, ())
 
+    def test_look_adapter_scheduler_reports_scene_checksum_drift_as_retryable(self) -> None:
+        trusted_plan = self._video_only_plan()
+        scene_job = trusted_plan.job_by_id("group_scene_sets")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            scene_path = self._write_scene_groups_payload(workspace)
+            scene_checksum = self._sha256_file(scene_path)
+            ready_manifest = self._look_ready_manifest(trusted_plan, scene_checksum=scene_checksum)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+            scene_path.write_text('{"schema_version": 1, "scene_groups": []}\n', encoding="utf-8")
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="look-production-local",
+                started_at="2026-05-10T16:20:00Z",
+                completed_at="2026-05-10T16:20:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T16:20:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            output_exists = (workspace / "color/shoot_look.json").exists()
+
+        look_status = final_manifest.job_statuses[3]
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.completed_job_ids, ("proxy_asset_00000", "analyze_asset_00000", scene_job.job_id))
+        self.assertEqual(result.retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("develop_shoot_look",))
+        self.assertEqual(result.iterations[-1].skipped_retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(look_status.state, "retryable")
+        self.assertIn("Look production dependency checksum mismatch", look_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_report.retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(loaded_report.review_required_job_ids, ("develop_shoot_look",))
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 3)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 1)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["failure_message_count"], 1)
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "develop_shoot_look")
+        self.assertIn("Look production dependency checksum mismatch", loaded_report.failure_messages[0].message)
+
+    def test_look_adapter_scheduler_reports_malformed_scene_summary_as_retryable(self) -> None:
+        trusted_plan = self._video_only_plan()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            scene_path = self._write_scene_groups_payload(workspace)
+            scene_payload = json.loads(scene_path.read_text(encoding="utf-8"))
+            scene_groups = scene_payload["scene_groups"]
+            self.assertIsInstance(scene_groups, list)
+            first_scene = scene_groups[0]
+            self.assertIsInstance(first_scene, dict)
+            first_scene["asset_paths"] = "originals/A001.MOV"
+            scene_path.write_text(
+                json.dumps(scene_payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            ready_manifest = self._look_ready_manifest(
+                trusted_plan,
+                scene_checksum=self._sha256_file(scene_path),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="look-production-local",
+                started_at="2026-05-10T16:21:00Z",
+                completed_at="2026-05-10T16:21:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T16:21:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            output_exists = (workspace / "color/shoot_look.json").exists()
+
+        look_status = final_manifest.job_statuses[3]
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("develop_shoot_look",))
+        self.assertEqual(result.iterations[-1].skipped_retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(look_status.state, "retryable")
+        self.assertIn("asset_paths must be a list", look_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_report.retryable_job_ids, ("develop_shoot_look",))
+        self.assertEqual(loaded_report.review_required_job_ids, ("develop_shoot_look",))
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 3)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 1)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["failure_message_count"], 1)
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "develop_shoot_look")
+        self.assertIn("asset_paths must be a list", loaded_report.failure_messages[0].message)
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
@@ -1132,6 +1251,46 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             job_statuses=tuple(
                 ProductionJobStatus(job_id=job.job_id, state="pending")
                 for job in trusted_plan.jobs
+            ),
+        )
+
+    @staticmethod
+    def _look_ready_manifest(trusted_plan, *, scene_checksum: str) -> ProductionStatusManifest:
+        proxy_job = trusted_plan.job_by_id("proxy_asset_00000")
+        analysis_job = trusted_plan.job_by_id("analyze_asset_00000")
+        scene_job = trusted_plan.job_by_id("group_scene_sets")
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id=proxy_job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),),
+                    updated_at="2026-05-10T14:10:00Z",
+                ),
+                ProductionJobStatus(
+                    job_id=analysis_job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=analysis_job.outputs[0], sha256="b" * 64),),
+                    updated_at="2026-05-10T15:10:00Z",
+                ),
+                ProductionJobStatus(
+                    job_id=scene_job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=scene_job.outputs[0], sha256=scene_checksum),),
+                    updated_at="2026-05-10T15:20:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[3:]
             ),
         )
 
