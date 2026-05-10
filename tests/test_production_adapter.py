@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from shootflow.deliverables import MediaAsset
-from shootflow.production import build_production_plan
+from shootflow.production import ExecutionWave, ProductionJob, ProductionPlan, build_production_plan
 from shootflow.production_adapter import (
     DryRunProductionAdapterResult,
     DryRunProductionError,
@@ -253,6 +253,44 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.final_status.state, "retryable")
         self.assertIn("Missing metadata production input", result.final_status.error_message or "")
         self.assertEqual(result.outputs_materialized, ())
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
+
+    def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
+        job = ProductionJob(
+            job_id="metadata_bad_input",
+            output_kind="proxy_media",
+            inputs=("originals/bad\x00.MOV",),
+            outputs=("proxies/metadata_bad_input.json",),
+        )
+        trusted_plan = ProductionPlan(
+            shoot_slug="metadata-bad-input",
+            jobs=(job,),
+            execution_waves=(ExecutionWave(wave_index=0, jobs=(job,)),),
+        )
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T10:08:00Z",
+                completed_at="2026-05-10T10:08:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Unsafe metadata production input path", result.final_status.error_message or "")
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
 
