@@ -50,8 +50,12 @@ Branch reconciliation findings:
   `origin/cursor/branch-consolidation-6dc9` (ahead 2, behind 1). Its net diff
   would remove current scheduler/report package coverage and roll back to an
   older package-adapter shape, so it was intentionally not merged.
-- Useful completed work from this run should be fast-forwarded into `main`
-  after this note is committed and verification is re-run.
+- After verification, local `main` was fast-forwarded from stale local history to
+  `origin/main`, then through this assigned branch, and `origin/main` was pushed
+  to the same head as `cursor/branch-reconciliation-and-merge-7c58`. Final
+  reconciliation showed local/remote main and local/remote assigned branch all at
+  `2e5dc6a`; `origin/cursor/branch-consolidation-6dc9` remained intentionally
+  unmerged and was then behind 3/ahead 2 against the consolidated main.
 
 Good next test-first targets:
 
