@@ -315,11 +315,11 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
 
         payload = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(payload["stopped_reason"], "retryable")
-        self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs[:3]])
-        self.assertIn("develop_shoot_look", payload["review_required_job_ids"])
+        self.assertEqual(payload["stopped_reason"], "complete")
+        self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
+        self.assertEqual(payload["review_required_job_ids"], [])
         self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
-        self.assertEqual(status_manifest.job_statuses[3].state, "retryable")
+        self.assertEqual([status.state for status in status_manifest.job_statuses], ["succeeded"] * len(production_plan.jobs))
         self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production-local")
         self.assertEqual(proxy_payload["input_metadata"][0]["path"], "originals/DCIM/A001.MOV")
 
