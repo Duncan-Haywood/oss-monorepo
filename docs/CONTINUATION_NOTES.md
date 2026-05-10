@@ -34,8 +34,10 @@ Verification performed after reconciliation:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler`
   -> 38 tests OK.
 - Full repository verification:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
-  -> 348 tests OK; compileall and diff-check exited 0.
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 350 tests OK; compileall and diff-check exited 0; working tree clean
+  on `cursor/repository-branch-consolidation-110c` tracking
+  `origin/cursor/repository-branch-consolidation-110c`.
 
 Good next test-first targets:
 
