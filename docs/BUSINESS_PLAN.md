@@ -67,6 +67,12 @@ Why this wedge wins:
   file outputs, and preserves directory-style package outputs or output
   conflicts as retryable review states before real proxy/VLM/color/story workers
   are introduced.
+- A local metadata production adapter that uses the same claim/result boundary
+  but reads trusted local inputs, records file size and SHA-256 metadata, and
+  writes deterministic JSON only to declared output files. This creates a first
+  real input-fingerprint path for proxy/analysis/color/story work without
+  granting copy, overwrite, cleanup, deletion, or arbitrary materialization
+  authority.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion

@@ -14,7 +14,7 @@ from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
     DryRunProductionBatchResult,
     DryRunProductionError,
-    run_dry_run_production_batch,
+    run_production_adapter_batch,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -218,7 +218,7 @@ def run_dry_run_production_scheduler(
         if ready_actions:
             attempted_job_ids.update(action.job_id for action in ready_actions)
             try:
-                batch_result = run_dry_run_production_batch(
+                batch_result = run_production_adapter_batch(
                     workspace_root,
                     trusted_plan=trusted_plan,
                     action_plan=ProductionWorkerActionPlan(

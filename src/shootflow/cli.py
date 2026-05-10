@@ -679,7 +679,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     production_scheduler = subparsers.add_parser(
         "dry-run-production-scheduler",
-        help="Run the trusted dry-run production scheduler against production_status.json.",
+        help="Run trusted local production adapters against production_status.json.",
     )
     production_scheduler.add_argument(
         "--ingest-manifest",
@@ -689,7 +689,7 @@ def _build_parser() -> argparse.ArgumentParser:
     production_scheduler.add_argument(
         "--worker",
         required=True,
-        help="Production worker adapter name, such as dry-run-production-local.",
+        help="Production worker adapter name, such as dry-run-production-local or metadata-production-local.",
     )
     production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
     production_scheduler.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")

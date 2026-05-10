@@ -50,7 +50,11 @@ writes a trusted `production_scheduler_report.json` bound to the final status.
 It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
-being clobbered. Production and render scheduler reports are schema v2 and
+being clobbered. The scheduler dispatches trusted local production adapters:
+`dry-run-production-local` writes placeholders, while `metadata-production-local`
+fingerprints real local inputs and writes deterministic metadata JSON only to
+declared output files without copying, deleting, or inventing media paths.
+Production and render scheduler reports are schema v2 and
 include validated product metric counts derived from the report state.
 `workspace-health`, `index-workspace`, and `pilot-dashboard` expose production
 status/report summaries and validated scheduler product metrics read-only before

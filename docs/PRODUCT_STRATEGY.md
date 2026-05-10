@@ -293,11 +293,16 @@ to automate.
    adapter in the same persisted-status loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
-   or clobbering heartbeat-refreshed workers in a tight loop. The persisted
-   production and render scheduler reports now emit derived product metrics,
-   giving the future Mac app and pilot analytics a trusted way to measure
-   automation throughput, intervention rate, and reliability without parsing raw
-   worker internals. `pilot-dashboard` is the first stable pilot-facing summary
+   or clobbering heartbeat-refreshed workers in a tight loop. The first local
+   metadata production adapter now extends the same worker contract beyond pure
+   placeholders: it reads trusted local inputs, fingerprints their bytes, and
+   writes deterministic metadata JSON only to declared output files, while
+   preserving missing-input, directory-output, stale-claim, and output-conflict
+   review states. The persisted production and render scheduler reports now emit
+   derived product metrics, giving the future Mac app and pilot analytics a
+   trusted way to measure automation throughput, intervention rate, and
+   reliability without parsing raw worker internals. `pilot-dashboard` is the
+   first stable pilot-facing summary
    on top of those metrics: unavailable reports remain unavailable rather than
    silently becoming zeroes, and write-capable next actions are named without
    re-emitting executable scheduler commands. Pilot dashboard, cohort report,

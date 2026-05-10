@@ -544,6 +544,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
   It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
+- `shootflow.production_adapter` now has a second local adapter,
+  `metadata-production-local`, behind the same production-worker action/status
+  contract as the dry-run adapter. It reads only trusted local inputs, records
+  file size and SHA-256 metadata, writes deterministic JSON only to declared
+  output files, and routes missing inputs, directory-style outputs, stale claims,
+  or output conflicts back to retry/review status without deleting or cleaning
+  up media.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 
