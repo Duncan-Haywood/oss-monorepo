@@ -2,6 +2,39 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-10 07:00 UTC
+
+This run consolidated the remaining useful branch work onto the assigned branch
+`cursor/branch-consolidation-1ada`:
+
+- Started from `2ae8935`, matching `origin/main`.
+- Preserved the local metadata production adapter from
+  `origin/cursor/repository-branch-consolidation-e334`.
+- Preserved the scheduler authority fallback and CLI authority regressions from
+  `origin/cursor/branch-consolidation-e152`.
+- Folded in the cleaner continuation-note resolution from
+  `origin/cursor/branch-reconciliation-and-merge-5098`.
+- Deleted the superseded remote branches after their useful work was present on
+  `cursor/branch-consolidation-1ada`, removed the stale local
+  `cursor/setup-dev-env-3ad0`, and reset local `main` to `origin/main`.
+- Final branch shape for the single-worker setup is local `main` plus
+  `cursor/branch-consolidation-1ada`; the remote branch list is `origin/main`
+  plus `origin/cursor/branch-consolidation-1ada` with `origin/HEAD` pointing at
+  `origin/main`.
+
+Review follow-up in this run:
+
+- `run_production_adapter_batch(...)` now validates `action_plan` through the
+  shared production-adapter validator before reading `worker_adapter`, so invalid
+  public caller input fails with `DryRunProductionError` instead of
+  `AttributeError`.
+
+Verification in this session:
+
+- Consolidated tree before review follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 359 tests OK; compileall and diff-check passed.
+
 ## Implementation continuation note - 2026-05-10 05:30 UTC
 
 This run shipped the first local metadata production adapter and reconciled the

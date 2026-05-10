@@ -455,6 +455,18 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(tuple(action_result.final_status.state for action_result in result.results), ("succeeded", "succeeded"))
         self.assertEqual(tuple(status.state for status in loaded_manifest.job_statuses[:2]), ("succeeded", "succeeded"))
 
+    def test_adapter_batch_rejects_invalid_action_plan_before_dispatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaisesRegex(DryRunProductionError, "action_plan"):
+                run_production_adapter_batch(
+                    Path(tmpdir),
+                    trusted_plan=self._trusted_plan(),
+                    action_plan=object(),
+                    started_at="2026-05-10T07:09:00Z",
+                    completed_at="2026-05-10T07:09:05Z",
+                    max_concurrency=1,
+                )
+
     @staticmethod
     def _trusted_plan():
         return build_production_plan(

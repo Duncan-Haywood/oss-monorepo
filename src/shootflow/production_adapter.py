@@ -77,7 +77,9 @@ def run_production_adapter_batch(
 ) -> DryRunProductionBatchResult:
     """Run trusted local production actions while respecting per-job parallelism."""
 
-    if action_plan.worker_adapter == _DRY_RUN_PRODUCTION_ADAPTER:
+    _validate_action_plan(action_plan, trusted_plan=trusted_plan)
+    worker_adapter = action_plan.worker_adapter
+    if worker_adapter == _DRY_RUN_PRODUCTION_ADAPTER:
         return _run_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
@@ -88,7 +90,7 @@ def run_production_adapter_batch(
             expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
             action_runner=run_dry_run_production_action,
         )
-    if action_plan.worker_adapter == _METADATA_PRODUCTION_ADAPTER:
+    if worker_adapter == _METADATA_PRODUCTION_ADAPTER:
         return _run_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
@@ -99,7 +101,7 @@ def run_production_adapter_batch(
             expected_adapter=_METADATA_PRODUCTION_ADAPTER,
             action_runner=run_metadata_production_action,
         )
-    raise DryRunProductionError(f"Unsupported production adapter: {action_plan.worker_adapter}")
+    raise DryRunProductionError(f"Unsupported production adapter: {worker_adapter}")
 
 
 def run_dry_run_production_batch(
