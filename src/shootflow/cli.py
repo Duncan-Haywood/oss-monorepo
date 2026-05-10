@@ -689,7 +689,10 @@ def _build_parser() -> argparse.ArgumentParser:
     production_scheduler.add_argument(
         "--worker",
         required=True,
-        help="Production worker adapter name, such as dry-run-production-local or metadata-production-local.",
+        help=(
+            "Production worker adapter name, such as dry-run-production-local, "
+            "metadata-production-local, or proxy-production-local."
+        ),
     )
     production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
     production_scheduler.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")

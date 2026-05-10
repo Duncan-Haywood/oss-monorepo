@@ -174,7 +174,10 @@ This repo currently contains the first testable core utilities:
   local adapters. The dry-run adapter writes deterministic placeholder
   artifacts, while the metadata adapter reads trusted local inputs and writes
   deterministic metadata JSON to declared output files as the first
-  non-placeholder production path. Both consume only trusted production-worker
+  non-placeholder production path. The proxy adapter is the first local
+  media-byte materializer: it byte-copies a trusted source input into its
+  declared proxy output as a conservative stand-in before ffmpeg/Metal proxy
+  generation lands. All adapters consume only trusted production-worker
   actions, persist each claim and final result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
   file outputs, refuse symlinked, directory-style, or different existing files,
@@ -279,7 +282,9 @@ The intended first workflow is:
     in. The dry-run adapter writes only declared placeholder file artifacts. The
     metadata adapter reads local trusted inputs and writes deterministic metadata
     JSON into declared output files, giving the product a real input-fingerprint
-    path without copying, deleting, or inventing media paths. Stale claims,
+    path without deleting or inventing media paths. The proxy adapter copies
+    trusted local input bytes into declared proxy outputs as a safety-proven
+    stand-in for future downsampled proxy generation. Stale claims,
     directory-style package outputs, missing inputs, or output conflicts remain
     visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
@@ -442,10 +447,11 @@ PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <di
 ```
 
 Use `--worker metadata-production-local` for the deterministic local metadata
-adapter. It follows the same scheduler/status contract, reads only trusted
-workspace-bound inputs, writes only declared outputs, and records retryable
-review states for symlinked inputs/outputs, directory-style package outputs, or
-output conflicts.
+adapter. Use `--worker proxy-production-local` for the conservative local proxy
+stand-in that copies trusted input bytes into declared proxy outputs. Both follow
+the same scheduler/status contract, read only trusted workspace-bound inputs,
+write only declared outputs, and record retryable review states for symlinked
+inputs/outputs, directory-style outputs, missing inputs, or output conflicts.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and

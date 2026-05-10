@@ -28,6 +28,7 @@ from shootflow.production_worker import (
 
 _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
 _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
+_PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
 
 
 class DryRunProductionError(ValueError):
@@ -54,6 +55,11 @@ class MetadataProductionAdapterResult(DryRunProductionAdapterResult):
 
 
 @dataclass(frozen=True)
+class ProxyProductionAdapterResult(DryRunProductionAdapterResult):
+    """Result from the local proxy adapter."""
+
+
+@dataclass(frozen=True)
 class DryRunProductionFailure:
     job_id: str
     error_message: str
@@ -72,7 +78,7 @@ class DryRunProductionBatchResult:
 def supported_production_adapter_names() -> tuple[str, ...]:
     """Return production adapter names that this build can execute locally."""
 
-    return (_DRY_RUN_PRODUCTION_ADAPTER, _METADATA_PRODUCTION_ADAPTER)
+    return (_DRY_RUN_PRODUCTION_ADAPTER, _METADATA_PRODUCTION_ADAPTER, _PROXY_PRODUCTION_ADAPTER)
 
 
 def run_production_adapter_batch(
@@ -99,6 +105,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _METADATA_PRODUCTION_ADAPTER:
         return run_metadata_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _PROXY_PRODUCTION_ADAPTER:
+        return run_proxy_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -156,6 +171,29 @@ def run_metadata_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_METADATA_PRODUCTION_ADAPTER,
         run_action=run_metadata_production_action,
+    )
+
+
+def run_proxy_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunProductionBatchResult:
+    """Run trusted proxy production actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_PROXY_PRODUCTION_ADAPTER,
+        run_action=run_proxy_production_action,
     )
 
 
@@ -292,6 +330,29 @@ def run_metadata_production_action(
     )
 
 
+def run_proxy_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> ProxyProductionAdapterResult:
+    """Persist one trusted proxy action through claim, byte-copy output, and result."""
+
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_PROXY_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_proxy_production_outputs,
+        retryable_error_message=_proxy_retryable_error_message,
+        result_type=ProxyProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -391,6 +452,29 @@ def _materialize_metadata_production_outputs(
     materialized: list[str] = []
     for output in action.outputs:
         _write_metadata_output(root, action=action, output=output, input_metadata=input_metadata)
+        materialized.append(output)
+    return tuple(materialized)
+
+
+def _materialize_proxy_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+) -> tuple[str, ...]:
+    """Create byte-identical local proxy stand-ins from trusted workspace inputs."""
+
+    _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
+    if action.output_kind != "proxy_media":
+        raise DryRunProductionError(
+            "Proxy production adapter only materializes proxy_media jobs: "
+            f"{action.output_kind}"
+        )
+    if len(action.inputs) != 1:
+        raise DryRunProductionError("Proxy production adapter requires exactly one input")
+
+    root = _workspace_root(workspace_root)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _copy_proxy_output(root, input_ref=action.inputs[0], output=output)
         materialized.append(output)
     return tuple(materialized)
 
@@ -576,6 +660,84 @@ def _write_metadata_output(
     _write_production_output_bytes(root, output=output, content=content, label="metadata production")
 
 
+def _copy_proxy_output(
+    root: Path,
+    *,
+    input_ref: str,
+    output: str,
+) -> None:
+    if output.endswith("/"):
+        raise DryRunProductionError(
+            "Proxy production adapter does not materialize directory-style output: "
+            f"{output}"
+        )
+    input_path = _workspace_input_path(root, input_ref)
+    _reject_symlink_path(input_path.parent, root, "proxy production input directory")
+    _reject_symlink_path(input_path, root, "proxy production input")
+
+    output_path = _workspace_output_path(root, output)
+    _reject_symlink_path(output_path.parent, root, "proxy production output directory")
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise DryRunProductionError(
+            f"Unable to create proxy production output directory: {output_path.parent}"
+        ) from exc
+    _reject_symlink_path(output_path.parent, root, "proxy production output directory")
+    _reject_symlink_path(output_path, root, "proxy production output")
+
+    if output_path.exists():
+        expected_sha256 = _sha256_proxy_input(input_path, input_ref=input_ref)
+        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        return
+
+    temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
+    _reject_symlink_path(temp_path, root, "temporary proxy production output")
+    input_flags = os.O_RDONLY
+    output_flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        input_flags |= os.O_NOFOLLOW
+        output_flags |= os.O_NOFOLLOW
+
+    try:
+        input_fd = os.open(input_path, input_flags)
+    except FileNotFoundError as exc:
+        raise DryRunProductionError(f"Missing proxy production input: {input_ref}") from exc
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to open proxy production input: {input_ref}") from exc
+
+    try:
+        output_fd = os.open(temp_path, output_flags, 0o600)
+    except OSError as exc:
+        os.close(input_fd)
+        raise DryRunProductionError(f"Unable to create temporary proxy production output: {temp_path}") from exc
+
+    digest = hashlib.sha256()
+    try:
+        with os.fdopen(input_fd, "rb") as input_file, os.fdopen(output_fd, "wb") as temp_file:
+            input_stat = os.fstat(input_file.fileno())
+            if not stat.S_ISREG(input_stat.st_mode):
+                raise DryRunProductionError(f"Refusing non-file proxy production input: {input_ref}")
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+                temp_file.write(chunk)
+        _reject_symlink_path(temp_path, root, "temporary proxy production output")
+        expected_sha256 = digest.hexdigest()
+        try:
+            os.link(temp_path, output_path)
+        except FileExistsError:
+            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        except OSError as exc:
+            raise DryRunProductionError(f"Unable to commit proxy production output: {output}") from exc
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to write proxy production output: {output}") from exc
+    finally:
+        try:
+            temp_path.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def _write_production_output_bytes(
     root: Path,
     *,
@@ -692,6 +854,30 @@ def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> d
         "sha256": digest.hexdigest(),
         "size_bytes": input_stat.st_size,
     }
+
+
+def _sha256_proxy_input(path: Path, *, input_ref: str) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError as exc:
+        raise DryRunProductionError(f"Missing proxy production input: {input_ref}") from exc
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to open proxy production input: {input_ref}") from exc
+
+    digest = hashlib.sha256()
+    try:
+        with os.fdopen(fd, "rb") as input_file:
+            input_stat = os.fstat(input_file.fileno())
+            if not stat.S_ISREG(input_stat.st_mode):
+                raise DryRunProductionError(f"Refusing non-file proxy production input: {input_ref}")
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to checksum proxy production input: {input_ref}") from exc
+    return digest.hexdigest()
 
 
 def _logical_input_metadata(input_ref: str) -> dict[str, object]:
@@ -821,6 +1007,16 @@ def _metadata_retryable_error_message(exc: Exception) -> str:
         detail = detail[:1497] + "..."
     return (
         "Metadata production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
+    )
+
+
+def _proxy_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Proxy production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
     )
 

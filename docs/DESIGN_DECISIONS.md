@@ -75,10 +75,13 @@ The repo currently contains a Python core package because it is quick to test an
   files. `metadata-production-local` uses the same action/status boundary to read
   only workspace-bound trusted inputs and write deterministic metadata JSON to
   declared outputs, giving future proxy/VLM/color workers a safer local probe
-  shape. Both adapters persist claims through the single-job production-status
-  compare/write helper, then persist success checksums or retryable errors
-  through the same status boundary. Directory-style package outputs, symlinked
-  inputs or outputs, and different existing files become retryable review states
+  shape. `proxy-production-local` is the first media-byte local adapter: it
+  copies a trusted workspace input into the declared proxy output as a
+  byte-identical stand-in until real downsampled proxy generation lands. All
+  adapters persist claims through the single-job production-status compare/write
+  helper, then persist success checksums or retryable errors through the same
+  status boundary. Directory-style package outputs, symlinked inputs or outputs,
+  missing inputs, and different existing files become retryable review states
   instead of cleanup instructions. They do not open arbitrary paths, delete
   files, clean up user outputs, or grant workers authority beyond the trusted
   production job. The batch runner executes only trusted action plans, preserves
@@ -365,9 +368,11 @@ The desired high-quality pipeline is:
 25. Exercise those helpers through the registered local production adapters:
     the dry-run adapter materializes only declared placeholder file artifacts,
     while `metadata-production-local` writes deterministic metadata JSON from
-    workspace-bound trusted inputs. Both persist success or retryable state
-    through `production_status.json` before real proxy, VLM, color, or storyline
-    runners are trusted.
+    workspace-bound trusted inputs. `proxy-production-local` byte-copies trusted
+    local source inputs into declared proxy outputs as a safety-proven stand-in
+    before a real proxy renderer is trusted. All adapters persist success or
+    retryable state through `production_status.json` before real VLM, color, or
+    storyline runners are trusted.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,
@@ -562,13 +567,15 @@ High quality depends on scene-level consistency and reversible edits. The system
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
   It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
-- `shootflow.production_adapter` now has a second local adapter,
-  `metadata-production-local`, behind the same production-worker action/status
-  contract as the dry-run adapter. It reads only trusted local inputs, records
-  file size and SHA-256 metadata, writes deterministic JSON only to declared
-  output files, and routes missing inputs, directory-style outputs, stale claims,
-  or output conflicts back to retry/review status without deleting or cleaning
-  up media.
+- `shootflow.production_adapter` now has real local adapter proofs behind the
+  same production-worker action/status contract as the dry-run adapter.
+  `metadata-production-local` reads trusted local inputs, records file size and
+  SHA-256 metadata, and writes deterministic JSON only to declared output files.
+  `proxy-production-local` copies trusted local source bytes into declared proxy
+  outputs as a reversible stand-in for future ffmpeg/Metal proxy generation.
+  Missing inputs, directory-style outputs, stale claims, symlinks, or output
+  conflicts route back to retry/review status without deleting or cleaning up
+  media.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

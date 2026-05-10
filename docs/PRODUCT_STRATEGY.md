@@ -149,9 +149,11 @@ The current core models a concrete promise for high-volume users:
     retryable states through the guarded compare/write path. The dry-run adapter
     writes declared placeholder file outputs; `metadata-production-local` reads
     only workspace-bound trusted inputs and writes deterministic metadata JSON to
-    declared outputs. Both refuse symlinked paths, directory-style package
-    outputs, or existing different files without cleanup authority. The dry-run
-    production scheduler now gives Mac shells a single command to advance those
+    declared outputs; `proxy-production-local` copies trusted local source bytes
+    into declared proxy outputs as a conservative proxy stand-in. All refuse
+    symlinked paths, directory-style package outputs, missing inputs, or existing
+    different files without cleanup authority. The dry-run production scheduler
+    now gives Mac shells a single command to advance those
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
     require an explicit reviewed retry ID before the scheduler will attempt them
@@ -297,10 +299,9 @@ to automate.
    work the same resumable, fingerprint-bound progress boundary as rendering:
    workers can plan dependency-ready jobs, claim a matching attempt, verify
    declared outputs before success, and report retry/failure without deleting or
-   inventing paths. The dry-run production adapter and
-   `metadata-production-local` now prove the same claim/materialize/report loop
-   for declared file artifacts such as proxy, analysis, look, graded, and
-   storyline outputs before real local or model-backed workers are wired in. The
+   inventing paths. The dry-run production adapter, `metadata-production-local`,
+   and `proxy-production-local` now prove the same claim/materialize/report loop
+   for declared file artifacts before real model-backed workers are wired in. The
    dry-run production scheduler wraps those adapters in the same persisted-status
    loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
@@ -310,7 +311,10 @@ to automate.
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
    writes deterministic metadata JSON only to declared output files, while
    preserving missing-input, directory-output, stale-claim, and output-conflict
-   review states. The persisted production and render scheduler reports now emit
+   review states. The proxy adapter extends the contract into media-byte
+   materialization by copying trusted source bytes only to declared proxy outputs
+   while preserving the same no-overwrite/no-cleanup review states. The persisted
+   production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future
    Mac app and pilot analytics a
    trusted way to measure automation throughput, intervention rate, and

@@ -73,6 +73,12 @@ Why this wedge wins:
   real input-fingerprint path for proxy/analysis/color/story work without
   granting copy, overwrite, cleanup, deletion, or arbitrary materialization
   authority.
+- A local proxy production adapter that uses the same guarded boundary to
+  byte-copy trusted local source inputs into declared proxy outputs. This is not
+  final ffmpeg/Metal proxy generation; it is a safety-proven stand-in that
+  exercises real media-byte materialization, checksum success reporting, and
+  no-overwrite review behavior before quality-focused proxy rendering is wired
+  in.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion

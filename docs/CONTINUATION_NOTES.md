@@ -2,6 +2,58 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 11:30 UTC
+
+This run first reconciled stranded completed work, then added the next
+production-adapter increment:
+
+- Merged `origin/cursor/branch-consolidation-strategy-a88d` into the assigned
+  branch `cursor/repository-branch-consolidation-7d3b`, preserving main's
+  schema-v2 legacy scheduler authority coverage and bringing in the
+  `metadata-production-local` adapter plus pilot readiness blocker work.
+- Resolved scheduler-test conflicts by keeping both useful assertions: legacy
+  schema v2 reports synthesize observe-only `workflow_authority` while
+  preserving product metrics, and current schema v3 reports reject missing
+  authority.
+- Added `proxy-production-local` as a guarded local production adapter. It
+  byte-copies a trusted workspace input into the declared proxy output as a
+  conservative stand-in for future ffmpeg/Metal downsampled proxy generation.
+  It consumes only trusted `ProductionWorkerAction` records, persists claim and
+  result transitions through `production_status.json`, refuses missing inputs,
+  symlinks, directory-style outputs, and existing different outputs, and reports
+  retryable review state without deleting or cleaning up media.
+- Updated README, AGENTS, product strategy, business plan, design decisions, and
+  CLI help to make the proxy adapter's scope explicit: it proves safe
+  media-byte materialization but is not the final quality proxy renderer.
+
+Verification performed after the proxy increment:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter`
+  failed because `run_proxy_production_action` was missing.
+- Focused proxy green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter`
+  -> 20 tests OK.
+- Focused production/CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli tests.test_production_scheduler tests.test_cli`
+  -> 115 tests OK.
+- Full repository verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 381 tests OK; compileall and diff-check exited 0.
+
+Good next test-first targets:
+
+- Teach the production scheduler or worker planning layer how to run
+  stage-specific adapters without accidentally offering a proxy-only adapter
+  later analysis/color/story jobs. Until then, run `proxy-production-local` as a
+  proxy-wave adapter, not as an end-to-end production scheduler worker.
+- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
+  `ProductionAdapter*` names now that metadata and proxy adapters are real
+  local adapter proofs.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Branch reconciliation note - 2026-05-10 11:00 UTC
 
 This automation run continued from `origin/main`/`2ae8935` on the assigned

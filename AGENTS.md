@@ -51,9 +51,12 @@ It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
 being clobbered. The scheduler dispatches trusted local production adapters:
-`dry-run-production-local` writes placeholders, while `metadata-production-local`
+`dry-run-production-local` writes placeholders, `metadata-production-local`
 fingerprints real local inputs and writes deterministic metadata JSON only to
-declared output files without copying, deleting, or inventing media paths.
+declared output files, and `proxy-production-local` byte-copies trusted local
+inputs into declared proxy outputs as a conservative stand-in before real
+ffmpeg/Metal proxy generation. None of these adapters may delete, clean up,
+overwrite different bytes, or invent media paths.
 Production and render scheduler reports are schema v3 and include root
 observe-only `workflow_authority` plus validated product metric counts derived
 from the report state, so persisted post-operation reports cannot be mistaken
