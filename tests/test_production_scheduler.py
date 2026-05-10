@@ -261,6 +261,89 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.retryable_job_ids, ())
         self.assertEqual(result.blocked_job_ids, ())
 
+    def test_look_adapter_scheduler_leaves_grading_jobs_pending(self) -> None:
+        trusted_plan = self._video_only_plan()
+        proxy_job = trusted_plan.job_by_id("proxy_asset_00000")
+        analysis_job = trusted_plan.job_by_id("analyze_asset_00000")
+        scene_job = trusted_plan.job_by_id("group_scene_sets")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            scene_path = self._write_scene_groups_payload(workspace)
+            scene_checksum = self._sha256_file(scene_path)
+            ready_manifest = ProductionStatusManifest(
+                shoot_slug=trusted_plan.shoot_slug,
+                production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+                job_statuses=(
+                    ProductionJobStatus(
+                        job_id=proxy_job.job_id,
+                        state="succeeded",
+                        worker_adapter="proxy-production-local",
+                        attempts=1,
+                        output_checksums=(OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),),
+                        updated_at="2026-05-10T14:10:00Z",
+                    ),
+                    ProductionJobStatus(
+                        job_id=analysis_job.job_id,
+                        state="succeeded",
+                        worker_adapter="analysis-production-local",
+                        attempts=1,
+                        output_checksums=(OutputChecksum(path=analysis_job.outputs[0], sha256="b" * 64),),
+                        updated_at="2026-05-10T15:10:00Z",
+                    ),
+                    ProductionJobStatus(
+                        job_id=scene_job.job_id,
+                        state="succeeded",
+                        worker_adapter="scene-production-local",
+                        attempts=1,
+                        output_checksums=(OutputChecksum(path=scene_job.outputs[0], sha256=scene_checksum),),
+                        updated_at="2026-05-10T15:20:00Z",
+                    ),
+                )
+                + tuple(
+                    ProductionJobStatus(job_id=job.job_id, state="pending")
+                    for job in trusted_plan.jobs[3:]
+                ),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="look-production-local",
+                started_at="2026-05-10T16:10:00Z",
+                completed_at="2026-05-10T16:10:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T16:10:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            look_payload = json.loads((workspace / "color/shoot_look.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("develop_shoot_look",))
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertEqual(loaded_manifest.job_statuses[3].state, "succeeded")
+        self.assertEqual(loaded_manifest.job_statuses[4].state, "pending")
+        self.assertEqual(loaded_manifest.job_statuses[4].attempts, 0)
+        self.assertEqual(look_payload["adapter"], "shootflow-look-production-local")
+        self.assertEqual(loaded_report.outputs_materialized, ("color/shoot_look.json",))
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 4)
+        self.assertEqual(result.retryable_job_ids, ())
+        self.assertEqual(result.blocked_job_ids, ())
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
@@ -1059,6 +1142,48 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _write_scene_groups_payload(workspace: Path) -> Path:
+        scene_path = workspace / "analysis/scene_groups.json"
+        scene_path.parent.mkdir(parents=True, exist_ok=True)
+        scene_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-scene-production-local",
+                    "job_id": "group_scene_sets",
+                    "output_kind": "scene_grouping",
+                    "inputs": ["originals/A001.MOV"],
+                    "outputs": ["analysis/scene_groups.json"],
+                    "selected_output": "analysis/scene_groups.json",
+                    "depends_on": ["analyze_asset_00000"],
+                    "can_run_in_parallel": False,
+                    "analysis_count": 1,
+                    "scene_count": 1,
+                    "scene_groups": [
+                        {
+                            "scene_label": "ceremony",
+                            "asset_count": 1,
+                            "video_count": 1,
+                            "photo_count": 0,
+                            "asset_paths": ["originals/A001.MOV"],
+                            "primary_tags": ["vows"],
+                            "average_aesthetic_score": 0.8,
+                            "average_story_score": 0.9,
+                            "average_technical_score": 0.7,
+                            "average_motion_score": 0.6,
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return scene_path
 
 
 if __name__ == "__main__":

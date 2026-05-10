@@ -88,7 +88,12 @@ The repo currently contains a Python core package because it is quick to test an
   dependency files against the succeeded analysis job checksums in
   `production_status.json`, and writes one declared `analysis/scene_groups.json`
   summary for `scene_grouping` jobs only, proving the analysis-to-scene rejoin
-  before real clustering or look-development workers are trusted. All adapters
+  before real clustering workers are trusted. `look-production-local` is the next
+  deterministic serial-stage probe: it verifies the succeeded scene-grouping
+  output against `production_status.json` checksums and writes one declared
+  `color/shoot_look.json` profile for `look_development` jobs only, proving the
+  scene-to-look handoff before real color science, reference-look learning, or
+  grading workers are trusted. All adapters
   persist claims through the
   single-job production-status compare/write helper, then persist success
   checksums or retryable errors through the same status boundary. Directory-style
@@ -102,8 +107,8 @@ The repo currently contains a Python core package because it is quick to test an
   and metadata adapters can currently accept all planned kinds, while
   `proxy-production-local` is explicitly limited to `proxy_media` and
   `analysis-production-local` to `vlm_asset_analysis`, and
-  `scene-production-local` to `scene_grouping`. Shared result, failure, batch,
-  and error types are named
+  `scene-production-local` to `scene_grouping`, and `look-production-local` to
+  `look_development`. Shared result, failure, batch, and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.
@@ -401,8 +406,10 @@ The desired high-quality pipeline is:
     before real local or hosted VLM runners are trusted. `scene-production-local`
     materializes the first deterministic serial rejoin artifact,
     `analysis/scene_groups.json`, from checksum-verified trusted analysis
-    outputs while leaving look, grading, storyline, and package jobs for
-    compatible future adapters.
+    outputs. `look-production-local` materializes the next deterministic serial
+    handoff, `color/shoot_look.json`, from the checksum-verified scene summary
+    while leaving grading, storyline, and package jobs for compatible future
+    adapters.
     All adapters persist success or retryable state through
     `production_status.json` before real VLM, color, or storyline runners are
     trusted.

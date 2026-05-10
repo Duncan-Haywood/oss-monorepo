@@ -185,7 +185,11 @@ This repo currently contains the first testable core utilities:
   per-asset analysis artifacts, verifies them against their succeeded status
   checksums, and writes a deterministic `analysis/scene_groups.json` grouping
   summary for `scene_grouping` jobs only, proving the next serial rejoin point
-  before real scene clustering or look development is trusted. All adapters
+  before real scene clustering is trusted. `look-production-local` consumes that
+  checksum-verified scene summary and writes a deterministic
+  `color/shoot_look.json` profile for `look_development` jobs only, proving the
+  scene-to-look handoff before real color science, creator style learning, or
+  grading adapters are trusted. All adapters
   consume only trusted production-worker
   actions, persist each claim and final result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
@@ -466,10 +470,11 @@ write only declared outputs, and record retryable review states for symlinked
 inputs/outputs, directory-style outputs, missing inputs, or output conflicts.
 The production adapter registry declares stage capability metadata for local
 workers. The scheduler reads that registry before planning actions or expiring
-stale leases, so `proxy-production-local` receives only `proxy_media` jobs and
-later analysis, look, grading, storyline, and packaging jobs stay pending or
-running for their own future adapters instead of being attempted through the
-proxy copy path.
+stale leases, so `proxy-production-local`, `analysis-production-local`,
+`scene-production-local`, and `look-production-local` receive only the output
+kinds they can materialize, while later grading, storyline, and packaging jobs
+stay pending or running for their own future adapters instead of being attempted
+through an incompatible worker.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and

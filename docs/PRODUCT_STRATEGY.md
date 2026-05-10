@@ -158,7 +158,10 @@ The current core models a concrete promise for high-volume users:
     execution is trusted. `scene-production-local` now consumes those trusted
     analysis artifacts and writes deterministic `analysis/scene_groups.json` for
     `scene_grouping` jobs only, proving the serial scene-rejoin handoff before
-    real clustering or look development is trusted. All refuse
+    real clustering is trusted. `look-production-local` consumes the verified
+    scene summary and writes deterministic `color/shoot_look.json` for
+    `look_development` jobs only, proving the shoot-level look handoff before
+    real color science or creator style learning is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
     different files without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
@@ -316,9 +319,10 @@ to automate.
    without embedding scheduling logic or retrying prior/newly retryable conflicts
    or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
    is adapter-capability aware: `proxy-production-local`,
-   `analysis-production-local`, and `scene-production-local` receive only
-   dependency-ready jobs for their declared output kinds, while later
-   color/story/package jobs remain pending or blocked for a compatible worker
+   `analysis-production-local`, `scene-production-local`, and
+   `look-production-local` receive only dependency-ready jobs for their declared
+   output kinds, while later grading/story/package jobs remain pending or
+   blocked for a compatible worker
    rather than becoming expected stage-mismatch failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
@@ -331,8 +335,9 @@ to automate.
    next wave by materializing deterministic per-asset analysis JSON only for
    `vlm_asset_analysis` jobs. `scene-production-local` extends the path across
    the first serial rejoin by materializing deterministic scene-group summaries
-   from trusted analysis artifacts; color, storyline, and package work still
-   waits for compatible future adapters. The persisted
+   from trusted analysis artifacts; `look-production-local` extends the path to
+   a deterministic shoot-look profile from the trusted scene summary; grading,
+   storyline, and package work still waits for compatible future adapters. The persisted
    production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future
    Mac app and pilot analytics a

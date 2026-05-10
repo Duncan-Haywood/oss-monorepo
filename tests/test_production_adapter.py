@@ -17,6 +17,7 @@ from shootflow.production_adapter import (
     run_dry_run_production_action,
     run_metadata_production_action,
     run_proxy_production_action,
+    run_look_production_action,
     run_scene_production_action,
     supported_production_adapter_output_kinds,
     supported_production_adapter_names,
@@ -42,6 +43,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "proxy-production-local",
                 "analysis-production-local",
                 "scene-production-local",
+                "look-production-local",
             ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
@@ -57,6 +59,10 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(
             supported_production_adapter_output_kinds("scene-production-local"),
             ("scene_grouping",),
+        )
+        self.assertEqual(
+            supported_production_adapter_output_kinds("look-production-local"),
+            ("look_development",),
         )
         with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
@@ -766,6 +772,201 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertIn("Unplanned per-asset analysis file", result.final_status.error_message or "")
         self.assertFalse(output_exists)
 
+    def test_look_adapter_writes_deterministic_look_from_trusted_scene_groups(self) -> None:
+        trusted_plan, _ready_manifest, action = self._look_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_groups_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:05:00Z",
+                completed_at="2026-05-10T16:05:05Z",
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+            scene_checksum = self._sha256_file(workspace / "analysis/scene_groups.json")
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, ("color/shoot_look.json",))
+        self.assertEqual(output_payload["adapter"], "shootflow-look-production-local")
+        self.assertEqual(output_payload["job_id"], "develop_shoot_look")
+        self.assertEqual(output_payload["source_scene_groups"]["sha256"], scene_checksum)
+        self.assertEqual(output_payload["source_scene_groups"]["scene_count"], 2)
+        self.assertEqual(output_payload["source_scene_groups"]["primary_tags"], ["dance", "portrait", "vows"])
+        self.assertEqual(output_payload["look_profile"]["name"], "local-documentary-neutral")
+        self.assertEqual(loaded_manifest.job_statuses[5], result.final_status)
+
+    def test_look_adapter_malformed_scene_dependency_becomes_retryable_after_claim(self) -> None:
+        scene_job = ProductionJob(
+            job_id="group_scene_sets",
+            output_kind="scene_grouping",
+            inputs=("originals/A001.MOV",),
+            outputs=(),
+        )
+        look_job = ProductionJob(
+            job_id="develop_shoot_look",
+            output_kind="look_development",
+            inputs=("custom-look",),
+            outputs=("color/shoot_look.json",),
+            depends_on=(scene_job.job_id,),
+            can_run_in_parallel=False,
+        )
+        trusted_plan = ProductionPlan(
+            shoot_slug="custom-look",
+            jobs=(scene_job, look_job),
+            execution_waves=(
+                ExecutionWave(wave_index=0, jobs=(scene_job,)),
+                ExecutionWave(wave_index=1, jobs=(look_job,)),
+            ),
+        )
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id=scene_job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=(),
+                    updated_at="2026-05-10T15:20:00Z",
+                ),
+                ProductionJobStatus(job_id=look_job.job_id, state="pending"),
+            ),
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="look-production-local",
+            eligible_output_kinds=("look_development",),
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:06:00Z",
+                completed_at="2026-05-10T16:06:05Z",
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            output_exists = (workspace / action.outputs[0]).exists()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("requires analysis/scene_groups.json", result.final_status.error_message or "")
+        self.assertEqual(loaded_manifest.job_statuses[1], result.final_status)
+        self.assertFalse(output_exists)
+
+    def test_look_adapter_accepts_custom_scene_dependency_id_from_trusted_plan(self) -> None:
+        scene_job = ProductionJob(
+            job_id="cluster_reception_scenes",
+            output_kind="scene_grouping",
+            inputs=("originals/A001.MOV",),
+            outputs=("analysis/scene_groups.json",),
+            can_run_in_parallel=False,
+        )
+        look_job = ProductionJob(
+            job_id="develop_shoot_look",
+            output_kind="look_development",
+            inputs=("custom-look",),
+            outputs=("color/shoot_look.json",),
+            depends_on=(scene_job.job_id,),
+            can_run_in_parallel=False,
+        )
+        trusted_plan = ProductionPlan(
+            shoot_slug="custom-look",
+            jobs=(scene_job, look_job),
+            execution_waves=(
+                ExecutionWave(wave_index=0, jobs=(scene_job,)),
+                ExecutionWave(wave_index=1, jobs=(look_job,)),
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            scene_path = workspace / scene_job.outputs[0]
+            scene_path.parent.mkdir(parents=True)
+            scene_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "adapter": "shootflow-scene-production-local",
+                        "job_id": scene_job.job_id,
+                        "output_kind": "scene_grouping",
+                        "inputs": ["originals/A001.MOV"],
+                        "outputs": ["analysis/scene_groups.json"],
+                        "selected_output": "analysis/scene_groups.json",
+                        "depends_on": [],
+                        "can_run_in_parallel": False,
+                        "analysis_count": 1,
+                        "scene_count": 1,
+                        "scene_groups": [
+                            {
+                                "scene_label": "reception",
+                                "asset_count": 1,
+                                "video_count": 1,
+                                "photo_count": 0,
+                                "asset_paths": ["originals/A001.MOV"],
+                                "primary_tags": ["dance"],
+                                "average_aesthetic_score": 0.8,
+                                "average_story_score": 0.9,
+                                "average_technical_score": 0.7,
+                                "average_motion_score": 0.6,
+                            },
+                        ],
+                    },
+                    ensure_ascii=True,
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            ready_manifest = ProductionStatusManifest(
+                shoot_slug=trusted_plan.shoot_slug,
+                production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+                job_statuses=(
+                    ProductionJobStatus(
+                        job_id=scene_job.job_id,
+                        state="succeeded",
+                        worker_adapter="scene-production-local",
+                        attempts=1,
+                        output_checksums=(
+                            OutputChecksum(path=scene_job.outputs[0], sha256=self._sha256_file(scene_path)),
+                        ),
+                        updated_at="2026-05-10T15:20:00Z",
+                    ),
+                    ProductionJobStatus(job_id=look_job.job_id, state="pending"),
+                ),
+            )
+            action = plan_production_worker_actions(
+                trusted_plan,
+                ready_manifest,
+                worker_adapter="look-production-local",
+                eligible_output_kinds=("look_development",),
+            ).actions[0]
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:07:00Z",
+                completed_at="2026-05-10T16:07:05Z",
+            )
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(output_payload["source_scene_groups"]["scene_labels"], ["reception"])
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",
@@ -1383,6 +1584,21 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         return trusted_plan, ready_manifest, action
 
     @classmethod
+    def _look_ready_context(cls):
+        trusted_plan = cls._trusted_plan()
+        ready_manifest = cls._look_ready_manifest_with_checksum(
+            trusted_plan,
+            scene_checksum="a" * 64,
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="look-production-local",
+            eligible_output_kinds=("look_development",),
+        ).actions[0]
+        return trusted_plan, ready_manifest, action
+
+    @classmethod
     def _write_scene_analyses_with_manifest(
         cls,
         trusted_plan,
@@ -1419,6 +1635,117 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "analysis/00000.json": cls._sha256_file(workspace / "analysis/00000.json"),
                 "analysis/00001.json": cls._sha256_file(workspace / "analysis/00001.json"),
             },
+        )
+
+    @classmethod
+    def _write_scene_groups_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        scene_path = workspace / "analysis/scene_groups.json"
+        scene_path.parent.mkdir(parents=True, exist_ok=True)
+        scene_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-scene-production-local",
+                    "job_id": "group_scene_sets",
+                    "output_kind": "scene_grouping",
+                    "inputs": ["originals/A001.MOV", "originals/IMG_0001.CR3"],
+                    "outputs": ["analysis/scene_groups.json"],
+                    "selected_output": "analysis/scene_groups.json",
+                    "depends_on": ["analyze_asset_00000", "analyze_asset_00001"],
+                    "can_run_in_parallel": False,
+                    "analysis_count": 2,
+                    "scene_count": 2,
+                    "scene_groups": [
+                        {
+                            "scene_label": "ceremony",
+                            "asset_count": 1,
+                            "video_count": 1,
+                            "photo_count": 0,
+                            "asset_paths": ["originals/A001.MOV"],
+                            "primary_tags": ["vows"],
+                            "average_aesthetic_score": 0.8,
+                            "average_story_score": 0.9,
+                            "average_technical_score": 0.7,
+                            "average_motion_score": 0.6,
+                        },
+                        {
+                            "scene_label": "portraits",
+                            "asset_count": 1,
+                            "video_count": 0,
+                            "photo_count": 1,
+                            "asset_paths": ["originals/IMG_0001.CR3"],
+                            "primary_tags": ["dance", "portrait"],
+                            "average_aesthetic_score": 0.7,
+                            "average_story_score": 0.6,
+                            "average_technical_score": 0.8,
+                            "average_motion_score": 0.5,
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return cls._look_ready_manifest_with_checksum(
+            trusted_plan,
+            scene_checksum=cls._sha256_file(scene_path),
+        )
+
+    @staticmethod
+    def _look_ready_manifest_with_checksum(
+        trusted_plan,
+        *,
+        scene_checksum: str,
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=job.outputs[0], sha256=scene_checksum),
+                    ),
+                    updated_at="2026-05-10T15:20:00Z",
+                )
+                if job.output_kind == "scene_grouping"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="b" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
         )
 
     @staticmethod

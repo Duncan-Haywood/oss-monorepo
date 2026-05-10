@@ -60,10 +60,13 @@ schema-compatible analysis JSON only for `vlm_asset_analysis` jobs as a local
 contract probe before real VLM execution. `scene-production-local` reads those
 validated per-asset analysis artifacts and writes deterministic
 `analysis/scene_groups.json` summaries only for `scene_grouping` jobs as the
-first serial scene-rejoin proof. Scheduler dispatch is adapter-capability aware,
-so proxy, analysis, and scene adapters receive only the output kinds they can
-materialize and leave downstream color/story/package jobs pending or blocked for
-a compatible worker.
+first serial scene-rejoin proof. `look-production-local` reads that verified
+scene-group summary and writes deterministic `color/shoot_look.json` only for
+`look_development` jobs as a shoot-look handoff proof before real color science
+or style learning. Scheduler dispatch is adapter-capability aware, so proxy,
+analysis, scene, and look adapters receive only the output kinds they can
+materialize and leave downstream grading/story/package jobs pending or blocked
+for a compatible worker.
 None of these adapters may delete, clean up, overwrite different bytes, or invent
 media paths.
 Production and render scheduler reports are schema v3 and include root

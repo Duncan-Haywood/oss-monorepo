@@ -2,6 +2,68 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 16:00 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-2473` at `e298730`, matching
+`origin/main` and the previous consolidated scene-coverage head. The assigned
+remote branch did not exist at session start.
+
+This run advanced the next stage-specific production adapter proof:
+
+- Registered `look-production-local` in `shootflow.production_adapter` with
+  output-kind scope `("look_development",)`.
+- Added `LookProductionAdapterResult`, `run_look_production_action(...)`, and
+  `run_look_production_batch(...)` behind the shared `ProductionAdapter*`
+  result/batch/error boundary.
+- The look adapter validates the serial `develop_shoot_look` action shape and
+  declared `color/shoot_look.json` output before claim.
+- It verifies the succeeded `group_scene_sets` dependency output against
+  `production_status.json` checksums, rejects missing/symlinked/drifted scene
+  summaries as retryable review states, and writes deterministic
+  `color/shoot_look.json` from the verified scene grouping payload.
+- Review found an initial malformed-dependency reliability gap: a scene-grouping
+  job with malformed outputs could raise a non-adapter exception after the look
+  job was claimed. The adapter now requires exactly one scene-grouping
+  dependency with declared `analysis/scene_groups.json`, accepts custom
+  scene-grouping job IDs from the trusted plan, reads and checksums the scene
+  summary once, and parses those same verified bytes.
+- Scheduler capability routing now accepts `look-production-local` only for
+  dependency-ready `look_development` jobs, then leaves grade/story/package jobs
+  pending or blocked for compatible future adapters.
+- This is a contract probe, not final color science: it proves the
+  scene-to-shoot-look handoff before real reference-look learning, LUT/Metal
+  color processing, or per-asset grading materialization is trusted.
+
+Verification performed during this run so far:
+
+- Red focused look coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_writes_deterministic_look_from_trusted_scene_groups tests.test_production_scheduler.DryRunProductionSchedulerTests.test_look_adapter_scheduler_leaves_grading_jobs_pending`
+  failed because `run_look_production_action` was missing and the scheduler
+  rejected unsupported adapter `look-production-local`.
+- Focused green for the same command -> 3 tests OK.
+- Review-fix red:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_malformed_scene_dependency_becomes_retryable_after_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_accepts_custom_scene_dependency_id_from_trusted_plan`
+  failed because malformed scene outputs raised `IndexError` after claim and a
+  custom trusted scene dependency ID was not accepted.
+- Review-fix green including happy-path adapter/scheduler coverage -> 4 tests OK.
+- Related production suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 76 tests OK.
+
+Good next test-first targets:
+
+- Add remaining direct negative coverage for `look-production-local`: wrong
+  output kind, malformed `color/shoot_look.json` output shape, symlinked look
+  output, existing different look output, malformed scene summary payload, and
+  scene checksum drift.
+- Register the first guarded grading adapter for `graded_video`/`graded_photo`
+  only after the look artifact has enough schema stability for downstream
+  storyline assembly.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 15:30 UTC
 
 This run started on assigned branch

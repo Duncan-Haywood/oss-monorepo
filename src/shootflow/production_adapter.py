@@ -32,12 +32,14 @@ _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
 _PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
 _ANALYSIS_PRODUCTION_ADAPTER = "analysis-production-local"
 _SCENE_PRODUCTION_ADAPTER = "scene-production-local"
+_LOOK_PRODUCTION_ADAPTER = "look-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
     _PROXY_PRODUCTION_ADAPTER: ("proxy_media",),
     _ANALYSIS_PRODUCTION_ADAPTER: ("vlm_asset_analysis",),
     _SCENE_PRODUCTION_ADAPTER: ("scene_grouping",),
+    _LOOK_PRODUCTION_ADAPTER: ("look_development",),
 }
 
 
@@ -77,6 +79,11 @@ class AnalysisProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class SceneProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local scene-grouping adapter."""
+
+
+@dataclass(frozen=True)
+class LookProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local shoot-look adapter."""
 
 
 @dataclass(frozen=True)
@@ -170,6 +177,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _SCENE_PRODUCTION_ADAPTER:
         return run_scene_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _LOOK_PRODUCTION_ADAPTER:
+        return run_look_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -296,6 +312,29 @@ def run_scene_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_SCENE_PRODUCTION_ADAPTER,
         run_action=run_scene_production_action,
+    )
+
+
+def run_look_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local look-development actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_LOOK_PRODUCTION_ADAPTER,
+        run_action=run_look_production_action,
     )
 
 
@@ -514,6 +553,35 @@ def run_scene_production_action(
     )
 
 
+def run_look_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> LookProductionAdapterResult:
+    """Persist one trusted shoot-look action through deterministic JSON output.
+
+    This adapter creates a conservative local look profile from the verified
+    scene-grouping summary. It proves the scene-to-look handoff before real
+    color science, reference-look learning, or grading adapters are trusted.
+    """
+
+    _validate_look_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_LOOK_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_look_production_outputs,
+        retryable_error_message=_look_retryable_error_message,
+        result_type=LookProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -695,6 +763,28 @@ def _materialize_scene_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_look_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic shoot-look JSON from a trusted scene-group summary."""
+
+    _validate_look_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("look production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    scene_output = _verify_look_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
+    scene_summary = _scene_group_summary(scene_output)
+    content = _look_output_bytes(action, scene_summary=scene_summary)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_production_output_bytes(root, output=output, content=content, label="look production")
+        materialized.append(output)
+    return tuple(materialized)
+
+
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
@@ -746,6 +836,23 @@ def _validate_scene_action_shape(action: ProductionWorkerAction) -> None:
         )
 
 
+def _validate_look_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_LOOK_PRODUCTION_ADAPTER)
+    if action.output_kind != "look_development":
+        raise ProductionAdapterError(
+            "Look production adapter only materializes look_development jobs: "
+            f"{action.output_kind}"
+        )
+    if action.can_run_in_parallel:
+        raise ProductionAdapterError("Look production adapter requires a serial action")
+    if len(action.inputs) != 1:
+        raise ProductionAdapterError("Look production adapter requires exactly one logical shoot input")
+    if len(action.outputs) != 1 or action.outputs[0] != "color/shoot_look.json":
+        raise ProductionAdapterError(
+            "Look production adapter requires color/shoot_look.json output"
+        )
+
+
 def _verify_scene_dependency_outputs(
     root: Path,
     *,
@@ -792,6 +899,60 @@ def _verify_scene_dependency_outputs(
                 raise ProductionAdapterError(
                     f"Scene production dependency checksum mismatch: {output}"
                 )
+
+
+def _verify_look_dependency_outputs(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    trusted_plan: ProductionPlan,
+) -> tuple[str, str, bytes, ProductionJob]:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    if len(action.depends_on) != 1:
+        raise ProductionAdapterError("Look production adapter requires exactly one scene_grouping dependency")
+    dependency_id = action.depends_on[0]
+    try:
+        dependency_job = jobs[dependency_id]
+        dependency_status = statuses[dependency_id]
+    except KeyError as exc:
+        raise ProductionAdapterError(
+            f"Look production dependency is missing from trusted status: {dependency_id}"
+        ) from exc
+    if dependency_job.output_kind != "scene_grouping":
+        raise ProductionAdapterError(
+            "Look production adapter only consumes scene_grouping dependencies: "
+            f"{dependency_job.output_kind}"
+        )
+    if dependency_job.outputs != ("analysis/scene_groups.json",):
+        raise ProductionAdapterError(
+            "Look production dependency requires analysis/scene_groups.json output"
+        )
+    if dependency_status.state != "succeeded":
+        raise ProductionAdapterError(
+            f"Look production dependency is not succeeded: {dependency_job.job_id}"
+        )
+    expected_checksums = {
+        checksum.path: checksum.sha256 for checksum in dependency_status.output_checksums
+    }
+    if set(expected_checksums) != set(dependency_job.outputs):
+        raise ProductionAdapterError(
+            f"Look production dependency checksums do not match planned outputs: {dependency_job.job_id}"
+        )
+    output = dependency_job.outputs[0]
+    output_path = _workspace_output_path(root, output)
+    _reject_symlink_path(output_path.parent, root, "look production dependency output directory")
+    _reject_symlink_path(output_path, root, "look production dependency output")
+    if not output_path.is_file():
+        raise ProductionAdapterError(f"Missing look production dependency output: {output}")
+    content, actual_sha256 = _read_file_bytes_and_sha256(
+        output_path,
+        label="look production dependency output",
+    )
+    if actual_sha256 != expected_checksums[output]:
+        raise ProductionAdapterError(f"Look production dependency checksum mismatch: {output}")
+    return output, actual_sha256, content, dependency_job
 
 
 def _validate_action(
@@ -1250,6 +1411,97 @@ def _scene_output_bytes(action: ProductionWorkerAction, *, analyses) -> bytes:
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _scene_group_summary(scene_output: tuple[str, str, bytes, ProductionJob]) -> dict[str, object]:
+    output, sha256, content, dependency_job = scene_output
+    try:
+        raw_payload = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ProductionAdapterError(f"Invalid look production scene grouping JSON: {output}") from exc
+    if not isinstance(raw_payload, dict):
+        raise ProductionAdapterError(f"Invalid look production scene grouping payload: {output}")
+    expected_fields: tuple[tuple[str, object], ...] = (
+        ("adapter", "shootflow-scene-production-local"),
+        ("job_id", dependency_job.job_id),
+        ("output_kind", "scene_grouping"),
+        ("inputs", list(dependency_job.inputs)),
+        ("outputs", list(dependency_job.outputs)),
+        ("selected_output", dependency_job.outputs[0]),
+        ("depends_on", list(dependency_job.depends_on)),
+        ("can_run_in_parallel", dependency_job.can_run_in_parallel),
+    )
+    for field_name, expected_value in expected_fields:
+        if raw_payload.get(field_name) != expected_value:
+            raise ProductionAdapterError(
+                f"Look production scene grouping {field_name} does not match trusted plan"
+            )
+    if raw_payload.get("schema_version") != 1:
+        raise ProductionAdapterError("Look production requires scene grouping schema_version 1")
+    scene_groups = raw_payload.get("scene_groups")
+    if not isinstance(scene_groups, list):
+        raise ProductionAdapterError("Look production scene_groups must be a list")
+    declared_scene_count = raw_payload.get("scene_count")
+    if not isinstance(declared_scene_count, int) or declared_scene_count != len(scene_groups):
+        raise ProductionAdapterError("Look production scene_count does not match scene_groups")
+    primary_tags: set[str] = set()
+    scene_labels: list[str] = []
+    for scene_group in scene_groups:
+        if not isinstance(scene_group, dict):
+            raise ProductionAdapterError("Look production scene group must be an object")
+        scene_label = scene_group.get("scene_label")
+        if not isinstance(scene_label, str) or not scene_label.strip():
+            raise ProductionAdapterError("Look production scene_label cannot be empty")
+        scene_labels.append(scene_label)
+        raw_tags = scene_group.get("primary_tags", [])
+        if not isinstance(raw_tags, list):
+            raise ProductionAdapterError("Look production primary_tags must be a list")
+        for tag in raw_tags:
+            if not isinstance(tag, str) or not tag.strip():
+                raise ProductionAdapterError("Look production primary_tags must contain strings")
+            primary_tags.add(tag)
+    analysis_count = raw_payload.get("analysis_count")
+    if not isinstance(analysis_count, int) or analysis_count < len(scene_groups):
+        raise ProductionAdapterError("Look production analysis_count is invalid")
+    return {
+        "path": output,
+        "sha256": sha256,
+        "analysis_count": analysis_count,
+        "scene_count": len(scene_groups),
+        "scene_labels": sorted(scene_labels),
+        "primary_tags": sorted(primary_tags),
+    }
+
+
+def _look_output_bytes(
+    action: ProductionWorkerAction,
+    *,
+    scene_summary: dict[str, object],
+) -> bytes:
+    sha256 = scene_summary["sha256"]
+    if not isinstance(sha256, str):
+        raise ProductionAdapterError("look production scene summary is missing sha256")
+    payload = {
+        "schema_version": 1,
+        "adapter": "shootflow-look-production-local",
+        "job_id": action.job_id,
+        "output_kind": action.output_kind,
+        "inputs": list(action.inputs),
+        "outputs": list(action.outputs),
+        "selected_output": action.outputs[0],
+        "depends_on": list(action.depends_on),
+        "can_run_in_parallel": action.can_run_in_parallel,
+        "source_scene_groups": scene_summary,
+        "look_profile": {
+            "name": "local-documentary-neutral",
+            "tone_curve": "soft_contrast",
+            "color_bias": "warm_highlight_protection",
+            "warmth": _analysis_score(sha256, offset=0),
+            "saturation": _analysis_score(sha256, offset=4),
+            "contrast": _analysis_score(sha256, offset=8),
+        },
+    }
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
 def _average_score(scores) -> float:
     values = tuple(float(score) for score in scores)
     if not values:
@@ -1474,6 +1726,36 @@ def _sha256_file(path: Path, *, label: str = "dry-run production output") -> str
     return digest.hexdigest()
 
 
+def _read_file_bytes_and_sha256(
+    path: Path,
+    *,
+    label: str,
+) -> tuple[bytes, str]:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError as exc:
+        raise ProductionAdapterError(f"Missing {label}: {path}") from exc
+    except OSError as exc:
+        raise ProductionAdapterError(f"Unable to open {label}: {path}") from exc
+
+    digest = hashlib.sha256()
+    chunks: list[bytes] = []
+    try:
+        with os.fdopen(fd, "rb") as input_file:
+            input_stat = os.fstat(input_file.fileno())
+            if not stat.S_ISREG(input_stat.st_mode):
+                raise ProductionAdapterError(f"Refusing non-file {label}: {path}")
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+                chunks.append(chunk)
+    except OSError as exc:
+        raise ProductionAdapterError(f"Unable to read {label}: {path}") from exc
+    return b"".join(chunks), digest.hexdigest()
+
+
 def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
     current = path
     while True:
@@ -1533,6 +1815,16 @@ def _scene_retryable_error_message(exc: Exception) -> str:
     return (
         "Scene production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
+    )
+
+
+def _look_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Look production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
     )
 
 
