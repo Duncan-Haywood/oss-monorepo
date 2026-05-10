@@ -18,8 +18,9 @@ fingerprinting:
   behind the production-worker action contract. It:
   - claims exactly one trusted `ProductionWorkerAction` through
     `production_status.json`;
-  - opens only trusted workspace-relative inputs, or absolute manifest inputs
-    that remain under the shoot workspace, with no-follow path checks;
+  - opens only trusted workspace-relative inputs, relative manifest paths that
+    already resolve under the shoot workspace, or absolute manifest inputs that
+    remain under the shoot workspace, with no-follow path checks;
   - records size and SHA-256 metadata into deterministic JSON at declared output
     paths;
   - persists success checksums through the existing guarded status boundary;
@@ -31,7 +32,7 @@ fingerprinting:
   scheduler/CLI worker argument.
 - Focused verification so far:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
-  -> 33 tests OK.
+  -> 34 tests OK.
 
 Good next test-first targets:
 
