@@ -2,6 +2,59 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 15:30 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-17ff` at `1a3141d`, matching
+`origin/main` and the previous consolidated scene-adapter head.
+
+Branch reconciliation findings:
+
+- Ran `git fetch --prune origin`; the old automation remote refs were pruned.
+- The only remaining non-main remote work ref after pruning was
+  `origin/cursor/branch-consolidation-strategy-b3b2`, pointing at `82feb27`.
+  It is contained in `origin/main` and is four commits behind the current
+  consolidated head, so it has no branch-only work to merge.
+- `origin/cursor/branch-reconciliation-and-merge-bb46` also points at
+  `1a3141d`, equal to `origin/main`; it has no branch-only work.
+- Local `main` was fast-forwarded to `origin/main` without leaving the assigned
+  branch, and the stale local-only `cursor/setup-dev-env-3ad0` branch was
+  deleted after confirming it was fully contained in main.
+
+This run converted the previous scene-adapter residual risk list into direct
+coverage:
+
+- Added explicit pre-claim tests for `scene-production-local` wrong
+  `output_kind` and malformed `analysis/scene_groups.json` output shape.
+- Added post-claim safety tests proving symlinked scene-group output targets are
+  not followed, existing different manual scene-group outputs are preserved for
+  review, and unplanned per-asset analysis JSON files prevent scene grouping.
+- Added a reusable scene-analysis fixture helper so future scene adapter tests
+  can create trusted analysis files and matching status checksums without
+  repeating setup.
+
+Verification performed during this run:
+
+- Focused scene negative coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_wrong_output_kind_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_malformed_output_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_symlinked_output_without_modifying_target tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_preserves_existing_different_output_for_review tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_unplanned_analysis_file_without_output`
+  -> 5 tests OK before this note was written.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 406 tests OK; compileall and diff-check exited 0 with only the expected
+  documentation/test files modified.
+
+Good next test-first targets:
+
+- Add scheduler-level checksum-drift coverage for scene grouping so the
+  end-to-end scheduler report path records the retryable review state, not only
+  the direct adapter call.
+- Register the next stage-specific adapter deliberately, likely
+  `look-production-local` for `look_development` or a guarded grade-decision
+  proof, and prove it only schedules output kinds it can materialize.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 15:00 UTC
 
 This run started on assigned branch

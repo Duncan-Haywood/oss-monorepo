@@ -621,6 +621,151 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertIn("Scene production dependency checksum mismatch", result.final_status.error_message or "")
         self.assertFalse(output_exists)
 
+    def test_scene_adapter_rejects_wrong_output_kind_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._scene_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="scene-production-local",
+            attempt_number=action.attempt_number,
+            output_kind="look_development",
+            inputs=action.inputs,
+            outputs=action.outputs,
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "only materializes scene_grouping"):
+                run_scene_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T15:19:00Z",
+                    completed_at="2026-05-10T15:19:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_scene_adapter_rejects_malformed_output_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._scene_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="scene-production-local",
+            attempt_number=action.attempt_number,
+            output_kind=action.output_kind,
+            inputs=action.inputs,
+            outputs=("analysis/not_scene_groups.json",),
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "requires analysis/scene_groups.json output"):
+                run_scene_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T15:20:00Z",
+                    completed_at="2026-05-10T15:20:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_scene_adapter_rejects_symlinked_output_without_modifying_target(self) -> None:
+        trusted_plan, _ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_analyses_with_manifest(trusted_plan, workspace)
+            outside_path = workspace / "outside-scene-groups.json"
+            outside_path.write_bytes(b"do not overwrite")
+            output_path = workspace / action.outputs[0]
+            output_path.symlink_to(outside_path)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:21:00Z",
+                completed_at="2026-05-10T15:21:05Z",
+            )
+            output_is_symlink = output_path.is_symlink()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("scene production output", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertTrue(output_is_symlink)
+        self.assertEqual(outside_bytes, b"do not overwrite")
+
+    def test_scene_adapter_preserves_existing_different_output_for_review(self) -> None:
+        trusted_plan, _ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_analyses_with_manifest(trusted_plan, workspace)
+            output_path = workspace / action.outputs[0]
+            output_path.write_bytes(b"manual scene grouping")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:22:00Z",
+                completed_at="2026-05-10T15:22:05Z",
+            )
+            preserved_bytes = output_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("scene production output", result.final_status.error_message or "")
+        self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertEqual(preserved_bytes, b"manual scene grouping")
+
+    def test_scene_adapter_rejects_unplanned_analysis_file_without_output(self) -> None:
+        trusted_plan, _ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_analyses_with_manifest(trusted_plan, workspace)
+            self._write_analysis_payload(
+                workspace,
+                "analysis/99999.json",
+                source_asset_path="originals/extra.MOV",
+                media_type="video",
+                scene_label="extra",
+                aesthetic_score=0.5,
+                story_score=0.5,
+                technical_score=0.5,
+                motion_score=0.5,
+                duration_seconds=1.0,
+                tags=("unplanned",),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:23:00Z",
+                completed_at="2026-05-10T15:23:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Unplanned per-asset analysis file", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",
@@ -1236,6 +1381,45 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             eligible_output_kinds=("scene_grouping",),
         ).actions[0]
         return trusted_plan, ready_manifest, action
+
+    @classmethod
+    def _write_scene_analyses_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        cls._write_analysis_payload(
+            workspace,
+            "analysis/00000.json",
+            source_asset_path="originals/A001.MOV",
+            media_type="video",
+            scene_label="ceremony",
+            aesthetic_score=0.8,
+            story_score=0.9,
+            technical_score=0.7,
+            motion_score=0.6,
+            duration_seconds=12.0,
+            tags=("vows",),
+        )
+        cls._write_analysis_payload(
+            workspace,
+            "analysis/00001.json",
+            source_asset_path="originals/IMG_0001.CR3",
+            media_type="photo",
+            scene_label="ceremony",
+            aesthetic_score=0.7,
+            story_score=0.6,
+            technical_score=0.8,
+            motion_score=0.5,
+            tags=("portrait",),
+        )
+        return cls._scene_ready_manifest_with_checksums(
+            trusted_plan,
+            {
+                "analysis/00000.json": cls._sha256_file(workspace / "analysis/00000.json"),
+                "analysis/00001.json": cls._sha256_file(workspace / "analysis/00001.json"),
+            },
+        )
 
     @staticmethod
     def _scene_ready_manifest_with_checksums(
