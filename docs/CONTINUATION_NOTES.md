@@ -2,6 +2,69 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 17:30 UTC
+
+This run started on assigned branch
+`cursor/repository-branch-consolidation-bce1` at `840f218`, matching
+`origin/main` and the previously consolidated look scheduler coverage head. The
+assigned remote branch did not exist at session start.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and compared local/remote refs against it.
+- No local or remote refs had commits ahead of `origin/main`; the many historical
+  remote automation branches are already contained in main.
+- Fast-forwarded the stale local `main` ref to `origin/main` without leaving the
+  assigned branch.
+- Deleted the merged local `cursor/setup-dev-env-3ad0` branch. Remote historical
+  branches were left untouched; this automation's safe writable target remains
+  the assigned branch plus the explicit main reconciliation target.
+
+This run closed the next adapter-sequence target:
+
+- Code/docs implementation commit: `a107ead feat(production): add guarded grading
+  adapter`.
+- Added `grade-production-local` to the production adapter registry with
+  capability scope `graded_photo`/`graded_video`.
+- Added `run_grade_production_action(...)` and batch dispatch through the shared
+  production adapter contract.
+- The grading adapter verifies one trusted source original plus the succeeded
+  checksum-bound analysis and look dependencies before writing a deterministic
+  stand-in graded artifact to the declared `graded/<job_id>/<source-name>` path.
+- It preserves the existing no-delete/no-cleanup/no-overwrite boundary: missing
+  sources, missing or drifted dependencies, symlinked paths, and existing
+  different outputs become retryable review states after claim rather than file
+  cleanup authority.
+- Updated AGENTS/product/business/design docs to clarify that this is a contract
+  proof before real ffmpeg/Core Image/Metal grading, not final creative color
+  science.
+
+Verification performed during this run:
+
+- Red check before implementation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_writes_deterministic_grade_from_trusted_dependencies tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_missing_source_retryable_without_output`
+  failed because `run_grade_production_action` did not exist.
+- Focused green after implementation: the same command -> 3 tests OK.
+- Related production suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 86 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 420 tests OK; compileall and diff-check exited 0; only intended files were
+  modified before the grading-adapter commit.
+
+Good next test-first targets:
+
+- Add scheduler-level coverage for `grade-production-local` success and
+  retryable dependency drift so persisted production scheduler reports surface
+  graded output materialization and review-required failures end to end.
+- Add direct negative coverage for malformed look/analysis payloads consumed by
+  the grade adapter before it becomes a dependency of storyline selection.
+- Register a deterministic `story-production-local` adapter only after the grade
+  artifact payload shape is stable enough for `rank_instagram_storylines`.
+- Replace the grade stand-in with an ffmpeg/Core Image/Metal renderer behind the
+  same declared-output-only, no-overwrite boundary.
+
 ## Implementation continuation note - 2026-05-10 17:00 UTC
 
 This run started on assigned branch
