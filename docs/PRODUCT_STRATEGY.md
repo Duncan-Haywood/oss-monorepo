@@ -175,9 +175,11 @@ The current core models a concrete promise for high-volume users:
     package handoff artifacts for `instagram_reel`, `instagram_carousel`, and
     `instagram_photo_set` jobs before real render/export package workers are
     trusted. Directory-style packages are represented by a controlled
-    manifest-plus-directory-checksum contract. All refuse symlinked paths,
-    missing inputs, malformed package directories, or existing different files
-    without cleanup authority. The dry-run production scheduler
+    manifest-plus-directory-checksum contract. Unexpected existing package
+    directory entries are named in retryable adapter/scheduler errors while the
+    stray bytes remain untouched. All refuse symlinked paths, missing inputs,
+    malformed package directories, or existing different files without cleanup
+    authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs

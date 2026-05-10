@@ -1942,8 +1942,11 @@ def _validate_existing_package_directory(output_path: Path, *, root: Path) -> No
         _reject_symlink_path(entry, root, "package production output directory entry")
         relative_entries.append(entry.relative_to(output_path).as_posix())
     if relative_entries != ["package_manifest.json"]:
+        unexpected_entries = [entry for entry in relative_entries if entry != "package_manifest.json"]
+        unexpected_entry_text = ", ".join(unexpected_entries) if unexpected_entries else "<missing package_manifest.json>"
         raise ProductionAdapterError(
-            "Refusing existing package production directory with unexpected package production directory entry"
+            "Refusing existing package production directory with unexpected package production directory "
+            f"entry: {unexpected_entry_text}"
         )
 
 

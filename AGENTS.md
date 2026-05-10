@@ -75,7 +75,9 @@ verifies trusted storyline plus graded dependencies and writes deterministic
 package handoff artifacts only for `instagram_reel`, `instagram_carousel`, and
 `instagram_photo_set` jobs before real render/export packaging is trusted;
 directory-style package outputs receive a deterministic manifest file and
-directory checksum rather than being treated as arbitrary cleanup targets.
+directory checksum rather than being treated as arbitrary cleanup targets, and
+unexpected existing package-directory entries are named in retryable
+adapter/scheduler errors without deleting or trusting those bytes.
 Scheduler dispatch is adapter-capability aware, so proxy, analysis, scene,
 look, grade, story, and package adapters receive only the output kinds they can
 materialize and leave incompatible downstream work pending or blocked for a

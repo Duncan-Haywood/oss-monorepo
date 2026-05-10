@@ -72,7 +72,9 @@ Why this wedge wins:
   artifacts for reel, carousel, and photo-set jobs. Directory-style packages use
   a controlled `package_manifest.json` plus deterministic directory checksums so
   pilot dashboards can count materialized first-draft packages without granting
-  cleanup, deletion, or arbitrary export authority.
+  cleanup, deletion, or arbitrary export authority. Unexpected existing package
+  directory entries are surfaced by relative name in retryable status/report
+  messages without deleting or trusting those stray bytes.
 - A local metadata production adapter that uses the same claim/result boundary
   but reads trusted local inputs, records file size and SHA-256 metadata, and
   writes deterministic JSON only to declared output files. This creates a first

@@ -2,6 +2,50 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 22:00 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-7c58` at `ef0d941`, matching
+`origin/main`. The assigned remote branch did not exist at session start. Local
+`main` was still stale at the initial commit, so branch reconciliation should
+treat `origin/main` as the canonical base for this run.
+
+The highest-value continuity gap was a useful package-stage reportability
+follow-up recorded in automation memory but not present in this checkout:
+
+- Existing directory-style package outputs with unplanned entries already became
+  retryable review states, but the adapter and persisted scheduler report only
+  emitted a generic "unexpected package production directory entry" message.
+- This run adds named-entry reportability: retryable package adapter errors now
+  include stable relative entry names such as `extra.bin` and
+  `nested/extra.txt`, while preserving those stray bytes and still refusing to
+  trust the package directory as materialized output.
+- Added direct adapter coverage for multiple/nested unexpected entries and
+  scheduler/report coverage for malformed photo-only carousel plus photo-set
+  package directories. Both package jobs become retryable, outputs are not
+  materialized/trusted, product metrics count the two retryable failures, and
+  persisted failure messages name the unexpected entries for native UI review.
+- Updated AGENTS, README, product strategy, business plan, and design decisions
+  with the named-entry package reportability contract.
+
+Verification performed during this run:
+
+- Red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_rejects_existing_directory_with_unplanned_extra_file tests.test_production_scheduler.DryRunProductionSchedulerTests.test_package_adapter_scheduler_names_unexpected_directory_entries`
+  failed because retryable package errors did not include `extra.bin`.
+- Focused green after implementation: the same command -> 2 tests OK.
+
+Good next test-first targets:
+
+- Add package dependency checksum-drift scheduler/report coverage if that branch
+  work is not recovered elsewhere.
+- Start a native-shell bridge proof that reads completed package scheduler
+  reports and binds copy/retry/materialization controls to
+  `workflow_authority`/`handoff-controls` fail-closed state.
+- Replace `package-production-local`, `grade-production-local`, and
+  `proxy-production-local` stand-ins with real ffmpeg/Core Image/Metal/render
+  workers behind the same declared-output-only and checksum-verified boundary.
+
 ## Implementation continuation note - 2026-05-10 20:00 UTC
 
 This run started on assigned branch

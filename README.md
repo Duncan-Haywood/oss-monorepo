@@ -200,7 +200,9 @@ This repo currently contains the first testable core utilities:
   dependency outputs and writes deterministic package handoff artifacts for
   `instagram_reel`, `instagram_carousel`, and `instagram_photo_set` jobs;
   directory-style package outputs are represented by a controlled
-  `package_manifest.json` plus a deterministic directory checksum. All adapters
+  `package_manifest.json` plus a deterministic directory checksum. Unexpected
+  existing package-directory entries are reported by relative name in retryable
+  adapter/scheduler errors while their bytes are preserved. All adapters
   consume only trusted production-worker actions, persist each claim and final
   result through the guarded
   `production_status.json` compare/write boundary, materialize only declared

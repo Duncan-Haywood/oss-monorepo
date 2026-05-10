@@ -116,7 +116,10 @@ The repo currently contains a Python core package because it is quick to test an
   checksums or retryable errors through the same status boundary. Symlinked
   inputs or outputs, missing inputs, malformed package directories, and
   different existing files become retryable review states instead of cleanup
-  instructions.
+  instructions. When existing package directories contain unexpected entries,
+  those relative entry names are included in retryable adapter/scheduler
+  messages so native shells can show the operator what needs review without
+  deleting or trusting the stray bytes.
   They do not open arbitrary paths, delete files, clean up user outputs, or
   grant workers authority beyond the trusted production job. The batch runner
   executes only trusted action plans, preserves serial production jobs, bounds

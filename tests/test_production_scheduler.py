@@ -689,6 +689,64 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.product_metrics["review_required_job_count"], 0)
         self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 1)
 
+    def test_package_adapter_scheduler_names_unexpected_directory_entries(self) -> None:
+        trusted_plan = self._photo_only_plan()
+        carousel_job = trusted_plan.job_by_id("assemble_instagram_carousel")
+        photo_set_job = trusted_plan.job_by_id("export_instagram_photo_set")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            dependency_manifest = self._write_photo_package_dependencies_with_manifest(trusted_plan, workspace)
+            for package_job in (carousel_job, photo_set_job):
+                package_dir = workspace / package_job.outputs[0]
+                package_dir.mkdir(parents=True)
+                (package_dir / "package_manifest.json").write_bytes(b"stale deterministic package manifest")
+                (package_dir / "extra.bin").write_bytes(b"unplanned package bytes")
+            nested_extra = workspace / photo_set_job.outputs[0] / "nested/extra.txt"
+            nested_extra.parent.mkdir()
+            nested_extra.write_bytes(b"nested unplanned package bytes")
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="package-production-local",
+                started_at="2026-05-10T20:21:00Z",
+                completed_at="2026-05-10T20:21:05Z",
+                max_concurrency=2,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T20:21:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            extra_bytes = (workspace / carousel_job.outputs[0] / "extra.bin").read_bytes()
+            nested_extra_bytes = nested_extra.read_bytes()
+
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(final_manifest.job_statuses[6].state, "retryable")
+        self.assertEqual(final_manifest.job_statuses[7].state, "retryable")
+        self.assertEqual(loaded_report.retryable_job_ids, ("assemble_instagram_carousel", "export_instagram_photo_set"))
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 6)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 2)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["failure_message_count"], 2)
+        self.assertIn("extra.bin", loaded_report.failure_messages[0].message)
+        self.assertIn("extra.bin", loaded_report.failure_messages[1].message)
+        self.assertIn("nested/extra.txt", loaded_report.failure_messages[1].message)
+        self.assertEqual(extra_bytes, b"unplanned package bytes")
+        self.assertEqual(nested_extra_bytes, b"nested unplanned package bytes")
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
@@ -1470,6 +1528,13 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         )
 
     @staticmethod
+    def _photo_only_plan():
+        return build_production_plan(
+            [MediaAsset(path="originals/IMG_0001.CR3", media_type="photo")],
+            shoot_slug="production-scheduler",
+        )
+
+    @staticmethod
     def _pending_manifest(trusted_plan) -> ProductionStatusManifest:
         return ProductionStatusManifest(
             shoot_slug=trusted_plan.shoot_slug,
@@ -1682,6 +1747,47 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         grade_path = workspace / "graded/grade_asset_00000/A001.MOV"
         grade_path.parent.mkdir(parents=True, exist_ok=True)
         grade_path.write_bytes(b"trusted scheduler package grade")
+        return cls._package_ready_manifest(
+            trusted_plan,
+            story_checksum=cls._sha256_file(story_path),
+            grade_checksum=cls._sha256_file(grade_path),
+        )
+
+    @classmethod
+    def _write_photo_package_dependencies_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        story_path = workspace / "analysis/instagram_storylines.json"
+        story_path.parent.mkdir(parents=True, exist_ok=True)
+        story_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 2,
+                    "sequences": [
+                        {
+                            "sequence_id": "carousel_main",
+                            "deliverable_type": "instagram_carousel",
+                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3"],
+                        },
+                        {
+                            "sequence_id": "photo_set_main",
+                            "deliverable_type": "instagram_photo_set",
+                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3"],
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        grade_path = workspace / "graded/grade_asset_00000/IMG_0001.CR3"
+        grade_path.parent.mkdir(parents=True, exist_ok=True)
+        grade_path.write_bytes(b"trusted scheduler package photo grade")
         return cls._package_ready_manifest(
             trusted_plan,
             story_checksum=cls._sha256_file(story_path),

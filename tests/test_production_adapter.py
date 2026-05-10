@@ -1550,6 +1550,9 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             )
             extra_path = workspace / action.outputs[0] / "extra.bin"
             extra_path.write_bytes(b"unplanned package bytes")
+            nested_extra_path = workspace / action.outputs[0] / "nested/extra.txt"
+            nested_extra_path.parent.mkdir()
+            nested_extra_path.write_bytes(b"nested unplanned package bytes")
             write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
 
             result = run_package_production_action(
@@ -1560,12 +1563,16 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 completed_at="2026-05-10T20:11:25Z",
             )
             extra_bytes = extra_path.read_bytes()
+            nested_extra_bytes = nested_extra_path.read_bytes()
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
 
         self.assertEqual(first_result.final_status.state, "succeeded")
         self.assertEqual(result.final_status.state, "retryable")
         self.assertIn("unexpected package production directory entry", result.final_status.error_message or "")
+        self.assertIn("extra.bin", result.final_status.error_message or "")
+        self.assertIn("nested/extra.txt", result.final_status.error_message or "")
         self.assertEqual(extra_bytes, b"unplanned package bytes")
+        self.assertEqual(nested_extra_bytes, b"nested unplanned package bytes")
         self.assertEqual(loaded_manifest.job_statuses[10], result.final_status)
 
     def test_package_adapter_marks_missing_story_dependency_retryable_without_output(self) -> None:
