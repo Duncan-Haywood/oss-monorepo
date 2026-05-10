@@ -34,6 +34,9 @@ Verification in this session:
 - Consolidated tree before review follow-up:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
   -> 359 tests OK; compileall and diff-check passed.
+- Final tree after adapter validation follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 360 tests OK; compileall and diff-check passed.
 
 ## Implementation continuation note - 2026-05-10 05:30 UTC
 
