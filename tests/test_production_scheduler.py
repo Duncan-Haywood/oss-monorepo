@@ -576,6 +576,73 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             loaded_report.failure_messages[0].message,
         )
 
+    def test_grade_adapter_scheduler_reports_malformed_analysis_as_retryable(self) -> None:
+        trusted_plan = self._video_only_plan()
+        grade_job = trusted_plan.job_by_id("grade_asset_00000")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / grade_job.inputs[0]
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_bytes(b"trusted scheduler grade source")
+            self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            analysis_path = workspace / "analysis/00000.json"
+            analysis_payload = json.loads(analysis_path.read_text(encoding="utf-8"))
+            analysis_payload["schema_version"] = 2
+            analysis_path.write_text(
+                json.dumps(analysis_payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            dependency_manifest = self._grade_ready_manifest(
+                trusted_plan,
+                analysis_checksum=self._sha256_file(analysis_path),
+                look_checksum=self._sha256_file(workspace / "color/shoot_look.json"),
+            )
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="grade-production-local",
+                started_at="2026-05-10T18:07:00Z",
+                completed_at="2026-05-10T18:07:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T18:07:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            output_exists = (workspace / grade_job.outputs[0]).exists()
+
+        grade_status = final_manifest.job_statuses[4]
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.retryable_job_ids, ("grade_asset_00000",))
+        self.assertEqual(grade_status.state, "retryable")
+        self.assertIn("Grade production requires analysis schema_version 1", grade_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_report.retryable_job_ids, ("grade_asset_00000",))
+        self.assertEqual(loaded_report.review_required_job_ids, ("grade_asset_00000",))
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 4)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 1)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["failure_message_count"], 1)
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "grade_asset_00000")
+        self.assertIn(
+            "Grade production requires analysis schema_version 1",
+            loaded_report.failure_messages[0].message,
+        )
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
