@@ -42,8 +42,20 @@ consolidated branch:
   absolute inputs, directory-style outputs, and existing different outputs become
   retryable review states instead of escaping after a claim or modifying user
   files.
+- Video-only metadata scheduler runs now complete end-to-end by treating the
+  look-development shoot slug as a narrow logical input while preserving
+  retryable behavior for missing real file inputs.
 - The branch also inherits pilot cohort readiness blockers and controlled blocker
   labels from the consolidated branch.
+
+Final verification:
+
+- Focused post-merge regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_production_scheduler tests.test_render_scheduler tests.test_cli`
+  -> 164 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 378 tests OK; compileall and diff-check exited 0.
 
 Good next test-first targets:
 
