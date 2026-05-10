@@ -27,8 +27,8 @@ Final reconciliation for this session:
   session's duplicate CLI metadata scheduler test. The assigned branch keeps this
   session's additional docs describing the metadata adapter and branch-specific
   test-first history.
-- Live remote comparison after the merge: the assigned branch is 32 commits ahead
-  of `origin/main`; `origin/cursor/repository-branch-consolidation-8b6e` is
+- Final live remote comparison: the assigned branch is 34 commits ahead of
+  `origin/main`; `origin/cursor/repository-branch-consolidation-8b6e` is
   contained in the assigned branch; `origin/cursor/branch-consolidation-strategy-afaf`
   remains 26 commits ahead of main but is a same-tree/older consolidation branch
   already covered by the merged superset.
@@ -56,6 +56,11 @@ pilot analytics branch:
 - Updated README, AGENTS, product strategy, business plan, and design decisions
   to describe registered local production adapters and the metadata adapter's
   declared-output-only boundary.
+- Code review found no blocking issues and flagged one important coverage gap:
+  metadata-adapter symlink/input/output conflict regressions. This run added
+  `bf1a07b test(production): cover metadata adapter safety conflicts` to cover
+  symlinked inputs, symlinked outputs, and existing different metadata outputs
+  remaining retryable without modifying user files.
 
 Verification so far in this session:
 
@@ -69,6 +74,10 @@ Verification so far in this session:
 - Post-merge focused regression:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_production_scheduler tests.test_render_scheduler tests.test_cli`
   -> 158 tests OK.
+- Final review follow-up and full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 16 metadata adapter tests OK, 375 total tests OK, compileall and
+  diff-check exited 0.
 
 Good next test-first targets:
 
