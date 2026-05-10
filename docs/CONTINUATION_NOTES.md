@@ -22,6 +22,11 @@ production-adapter increment:
   result transitions through `production_status.json`, refuses missing inputs,
   symlinks, directory-style outputs, and existing different outputs, and reports
   retryable review state without deleting or cleaning up media.
+- Review follow-up fixed a proxy-only scheduler safety issue: non-proxy jobs now
+  fail adapter validation before any status claim, so a multi-iteration
+  `proxy-production-local` scheduler run cannot mark analysis/color/story jobs
+  retryable or consume attempts. Added direct symlink input/output regressions
+  for the proxy copy path.
 - Updated README, AGENTS, product strategy, business plan, design decisions, and
   CLI help to make the proxy adapter's scope explicit: it proves safe
   media-byte materialization but is not the final quality proxy renderer.
@@ -37,6 +42,9 @@ Verification performed after the proxy increment:
 - Focused production/CLI regression:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli tests.test_production_scheduler tests.test_cli`
   -> 115 tests OK.
+- Review follow-up focused regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 118 tests OK.
 - Full repository verification:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
   -> 381 tests OK; compileall and diff-check exited 0.

@@ -661,6 +661,77 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.outputs_materialized, ())
         self.assertEqual(preserved_bytes, b"manual proxy")
 
+    def test_proxy_adapter_rejects_symlinked_input_without_output(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="proxy-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            outside_path = workspace / "outside.MOV"
+            outside_path.write_bytes(b"outside camera bytes")
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.symlink_to(outside_path)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_proxy_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T12:06:00Z",
+                completed_at="2026-05-10T12:06:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("proxy production input", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(outside_bytes, b"outside camera bytes")
+
+    def test_proxy_adapter_rejects_symlinked_output_without_modifying_target(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="proxy-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted source media bytes")
+            outside_path = workspace / "outside-proxy.mov"
+            outside_path.write_bytes(b"do not overwrite")
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.symlink_to(outside_path)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_proxy_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T12:07:00Z",
+                completed_at="2026-05-10T12:07:05Z",
+            )
+            output_is_symlink = output_path.is_symlink()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("proxy production output", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertTrue(output_is_symlink)
+        self.assertEqual(outside_bytes, b"do not overwrite")
+
     def test_metadata_adapter_batch_runs_ready_actions_through_same_contract(self) -> None:
         trusted_plan = self._trusted_plan()
         initial_manifest = self._pending_manifest(trusted_plan)

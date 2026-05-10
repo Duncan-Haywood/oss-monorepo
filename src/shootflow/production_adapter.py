@@ -340,6 +340,7 @@ def run_proxy_production_action(
 ) -> ProxyProductionAdapterResult:
     """Persist one trusted proxy action through claim, byte-copy output, and result."""
 
+    _validate_proxy_action_shape(action)
     return _run_production_action(
         workspace_root,
         trusted_plan=trusted_plan,
@@ -462,6 +463,16 @@ def _materialize_proxy_production_outputs(
 ) -> tuple[str, ...]:
     """Create byte-identical local proxy stand-ins from trusted workspace inputs."""
 
+    _validate_proxy_action_shape(action)
+    root = _workspace_root(workspace_root)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _copy_proxy_output(root, input_ref=action.inputs[0], output=output)
+        materialized.append(output)
+    return tuple(materialized)
+
+
+def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
         raise DryRunProductionError(
@@ -470,13 +481,6 @@ def _materialize_proxy_production_outputs(
         )
     if len(action.inputs) != 1:
         raise DryRunProductionError("Proxy production adapter requires exactly one input")
-
-    root = _workspace_root(workspace_root)
-    materialized: list[str] = []
-    for output in action.outputs:
-        _copy_proxy_output(root, input_ref=action.inputs[0], output=output)
-        materialized.append(output)
-    return tuple(materialized)
 
 
 def _validate_action(

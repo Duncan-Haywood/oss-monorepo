@@ -66,6 +66,39 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         )
         self.assertEqual(attempted_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
 
+    def test_proxy_adapter_does_not_mark_analysis_jobs_retryable(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / trusted_plan.jobs[0].inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted proxy source")
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="proxy-production-local",
+                started_at="2026-05-10T12:05:00Z",
+                completed_at="2026-05-10T12:05:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.stopped_reason, "blocked")
+        self.assertEqual(loaded_manifest.job_statuses[0].state, "succeeded")
+        self.assertEqual(loaded_manifest.job_statuses[1].state, "pending")
+        self.assertEqual(loaded_manifest.job_statuses[1].attempts, 0)
+        self.assertEqual(result.retryable_job_ids, ())
+        self.assertEqual(result.iterations[1].attempted_job_ids, ("analyze_asset_00000",))
+        self.assertIsNotNone(result.iterations[1].batch_result)
+        failure = result.iterations[1].batch_result.failures[0]
+        self.assertEqual(failure.job_id, "analyze_asset_00000")
+        self.assertIn("only materializes proxy_media", failure.error_message)
+
     def test_scheduler_does_not_hammer_retryable_job_in_same_run(self) -> None:
         trusted_plan = self._video_only_plan()
         initial_manifest = self._pending_manifest(trusted_plan)
