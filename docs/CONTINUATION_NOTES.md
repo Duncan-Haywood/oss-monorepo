@@ -2,6 +2,42 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 11:00 UTC
+
+This automation run continued from `origin/main`/`2ae8935` on the assigned
+branch `cursor/repository-branch-consolidation-110c` and reconciled the two
+remote branches with unique work:
+
+- Merged `origin/cursor/repository-branch-consolidation-f53c` by fast-forward.
+  This branch was valuable product work: persisted production/render scheduler
+  reports now emit schema v3 with root observe-only `workflow_authority`, legacy
+  scheduler report schemas still load as observe-only, and loaders reject
+  authorizing report authority.
+- Rejected `origin/cursor/branch-consolidation-f0b0` for this run. Its unique
+  diff was only a continuation-note section that described a remote branch state
+  that is no longer true after this session's fetch; no implementation, tests,
+  product strategy, or architecture work was stranded there.
+- Pushed the reconciled assigned branch to
+  `origin/cursor/repository-branch-consolidation-110c`.
+
+Verification performed after reconciliation:
+
+- Focused scheduler/CLI authority suite:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 110 tests OK.
+- Full repository verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 348 tests OK; compileall and diff-check exited 0.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens a saved scheduler report, then
+  validates controls through `handoff-controls`.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
 This run resolved the open scheduler-authority question for persisted scheduler
