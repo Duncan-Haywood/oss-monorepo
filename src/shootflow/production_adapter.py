@@ -387,7 +387,7 @@ def _materialize_metadata_production_outputs(
 
     _validate_action(action, expected_adapter=_METADATA_PRODUCTION_ADAPTER)
     root = _workspace_root(workspace_root)
-    input_metadata = _metadata_for_inputs(root, action.inputs)
+    input_metadata = _metadata_for_inputs(root, action)
     materialized: list[str] = []
     for output in action.outputs:
         _write_metadata_output(root, action=action, output=output, input_metadata=input_metadata)
@@ -651,11 +651,15 @@ def _metadata_output_bytes(
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
-def _metadata_for_inputs(root: Path, inputs: tuple[str, ...]) -> tuple[dict[str, object], ...]:
-    return tuple(_metadata_for_input(root, input_ref) for input_ref in inputs)
+def _metadata_for_inputs(root: Path, action: ProductionWorkerAction) -> tuple[dict[str, object], ...]:
+    allow_logical_inputs = action.output_kind == "look_development"
+    return tuple(
+        _metadata_for_input(root, input_ref, allow_logical=allow_logical_inputs)
+        for input_ref in action.inputs
+    )
 
 
-def _metadata_for_input(root: Path, input_ref: str) -> dict[str, object]:
+def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> dict[str, object]:
     input_path = _workspace_input_path(root, input_ref)
     _reject_symlink_path(input_path.parent, root, "metadata production input directory")
     _reject_symlink_path(input_path, root, "metadata production input")
@@ -666,6 +670,8 @@ def _metadata_for_input(root: Path, input_ref: str) -> dict[str, object]:
     try:
         fd = os.open(input_path, flags)
     except FileNotFoundError as exc:
+        if allow_logical:
+            return _logical_input_metadata(input_ref)
         raise DryRunProductionError(f"Missing metadata production input: {input_ref}") from exc
     except OSError as exc:
         raise DryRunProductionError(f"Unable to open metadata production input: {input_ref}") from exc
@@ -685,6 +691,16 @@ def _metadata_for_input(root: Path, input_ref: str) -> dict[str, object]:
         "path": _workspace_display_path(root, input_path, fallback=input_ref),
         "sha256": digest.hexdigest(),
         "size_bytes": input_stat.st_size,
+    }
+
+
+def _logical_input_metadata(input_ref: str) -> dict[str, object]:
+    encoded = input_ref.encode("utf-8")
+    return {
+        "path": input_ref,
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+        "size_bytes": len(encoded),
+        "logical": True,
     }
 
 
