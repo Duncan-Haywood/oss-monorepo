@@ -94,10 +94,10 @@ Why this wedge wins:
   `workflow_authority` plus derived product metrics so pilot analytics can track
   throughput and intervention rate from the trusted handoff without turning the
   handoff into file-operation authority. Stage-specific local adapters can now
-  narrow worker planning by output kind: `proxy-production-local` receives only
-  `proxy_media` jobs, then leaves later analysis/color/story/package work
-  pending for future adapters instead of reporting proxy-adapter failures for
-  incompatible stages.
+  narrow worker planning and stale-lease expiration by output kind:
+  `proxy-production-local` receives only `proxy_media` jobs, then leaves later
+  analysis/color/story/package work pending or running for future adapters
+  instead of reporting proxy-adapter failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

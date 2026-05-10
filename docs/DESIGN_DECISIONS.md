@@ -94,12 +94,12 @@ The repo currently contains a Python core package because it is quick to test an
   and stops with explicit complete/blocked/retryable/failed/waiting state. A job that is
   already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
-  again in the same run. Stage-specific adapters can now narrow planning by
-  output kind; the proxy adapter is offered only `proxy_media` jobs and leaves
-  downstream analysis/color/story/package stages pending for later adapters
-  rather than converting incompatibility into retryable or blocked state. This
-  protects manual outputs, active workers, and future review loops from repeated
-  overwrite attempts.
+  again in the same run. Stage-specific adapters can now narrow planning and
+  stale-lease expiration by output kind; the proxy adapter is offered only
+  `proxy_media` jobs and leaves downstream analysis/color/story/package stages
+  pending or running for later adapters rather than converting incompatibility
+  into retryable or blocked state. This protects manual outputs, active workers,
+  and future review loops from repeated overwrite attempts.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads

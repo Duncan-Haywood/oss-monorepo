@@ -20,6 +20,10 @@ proxy adapter work.
   `waiting` for another adapter.
 - Updated README/business/design documentation to make the stage-specific adapter
   contract explicit.
+- Review follow-up fixed stale-lease scoping: proxy-only scheduler runs now pass
+  the same output-kind eligibility filter into stale production lease planning,
+  so stale running analysis/color/story/package jobs are not expired into proxy
+  retryable state.
 
 Verification performed during this run:
 
@@ -29,6 +33,12 @@ Verification performed during this run:
 - Focused green:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_filters_worker_actions_by_eligible_output_kind_without_blocking_other_stages tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters`
   -> 2 tests OK.
+- Review regression red:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_rejects_invalid_eligible_output_kind_filters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_max_iteration_check_ignores_non_proxy_jobs tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  failed because `analyze_asset_00000` was still expired by the proxy scheduler.
+- Review regression green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_rejects_invalid_eligible_output_kind_filters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_max_iteration_check_ignores_non_proxy_jobs tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  -> 3 tests OK.
 - Focused production/CLI regression:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
   -> 127 tests OK.

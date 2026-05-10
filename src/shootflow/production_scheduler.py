@@ -187,6 +187,7 @@ def run_dry_run_production_scheduler(
             workspace_root,
             trusted_plan=trusted_plan,
             status_manifest=status_manifest,
+            worker_adapter=worker_adapter,
             stale_before=stale_before,
             lease_updated_at=lease_updated_at,
         )
@@ -440,6 +441,7 @@ def _expire_stale_leases(
     *,
     trusted_plan: ProductionPlan,
     status_manifest: ProductionStatusManifest,
+    worker_adapter: str,
     stale_before: str | None,
     lease_updated_at: str | None,
 ) -> ProductionLeasePersistenceResult | None:
@@ -452,6 +454,7 @@ def _expire_stale_leases(
         status_manifest,
         stale_before=stale_before,
         updated_at=lease_updated_at,
+        eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
     )
     if not expiration_plan.expired_leases:
         return None

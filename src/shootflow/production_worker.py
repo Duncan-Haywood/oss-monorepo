@@ -149,19 +149,27 @@ def plan_stale_production_leases(
     *,
     stale_before: str,
     updated_at: str,
+    eligible_output_kinds: Iterable[str] | None = None,
 ) -> ProductionLeaseExpirationPlan:
     stale_before_time = _parse_lease_timestamp(stale_before, "stale_before")
     updated_at_time = _parse_lease_timestamp(updated_at, "updated_at")
     if updated_at_time < stale_before_time:
         raise ProductionWorkerError("lease expiration updated_at timestamp cannot be before stale_before")
+    eligible_output_kind_set = _eligible_output_kind_set(eligible_output_kinds)
     try:
         validate_production_status_manifest(status_manifest, trusted_plan=trusted_plan)
     except (ProductionStatusError, TypeError) as exc:
         raise ProductionWorkerError("Cannot plan stale production leases from an untrusted status manifest") from exc
 
+    jobs_by_id = {job.job_id: job for job in trusted_plan.jobs}
     expired_leases: list[ExpiredProductionLease] = []
     for status in status_manifest.job_statuses:
         if status.state != "running":
+            continue
+        if (
+            eligible_output_kind_set is not None
+            and jobs_by_id[status.job_id].output_kind not in eligible_output_kind_set
+        ):
             continue
         if status.updated_at is None or status.worker_adapter is None:
             raise ProductionWorkerError("running production status is missing lease metadata")

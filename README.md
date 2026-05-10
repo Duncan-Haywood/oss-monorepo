@@ -455,7 +455,9 @@ inputs/outputs, directory-style outputs, missing inputs, or output conflicts.
 The production scheduler now treats `proxy-production-local` as a stage-specific
 adapter: it schedules only `proxy_media` jobs for that worker, then leaves later
 analysis, look, grading, storyline, and packaging jobs pending for their own
-future adapters instead of attempting them through the proxy copy path.
+future adapters instead of attempting them through the proxy copy path. Stale
+lease expiration uses the same stage filter, so a proxy-only scheduler run cannot
+turn an analysis/color/story/package lease into a retryable proxy review state.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and
