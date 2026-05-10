@@ -2,6 +2,25 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 00:00 UTC
+
+Final reconciliation for this session:
+
+- `origin/cursor/branch-reconciliation-and-merge-cb17` contains the useful
+  workspace-authority implementation plus the review follow-up that normalizes
+  legacy schema v1 workspace indexes into schema v2 with both root and nested
+  observe-only authority fields.
+- `origin/cursor/branch-consolidation-b632` was reviewed against this branch.
+  Its unique tree diff was only an additional continuation-note section. That
+  note was not merged because it documented the pre-fix authority commit
+  (`c4e73a2`) as final, omitted the legacy-index fix (`c59e7f6`), and claimed
+  remote branch deletions that were not true in the current reconciliation pass.
+  No implementation or test work was stranded there.
+- After `git fetch --prune origin`, all historical remote automation branches
+  except `origin/cursor/branch-consolidation-b632` and the assigned branch were
+  already gone. Local `cursor/setup-dev-env-3ad0` remains a stale gone-upstream
+  branch and can be deleted after the final main fast-forward if still present.
+
 ## Implementation continuation note - 2026-05-10 00:00 UTC
 
 This run broadened the structured observe-only authority contract beyond the
