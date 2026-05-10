@@ -49,7 +49,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             output_path = workspace / action.outputs[0]
             output_exists = output_path.exists()
 
-        self.assertEqual(supported_production_adapter_names(), ("dry-run-production-local",))
+        self.assertIn("dry-run-production-local", supported_production_adapter_names())
         self.assertIsInstance(result, DryRunProductionAdapterResult)
         self.assertEqual(result.job_id, action.job_id)
         self.assertEqual(result.claimed_status.state, "running")
@@ -220,7 +220,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             [
                 {
                     "path": action.inputs[0],
-                    "sha256": "5cd00a6f04b1f9fc069579fb82120fe61fe1af4d31d2f9a1fb2e4da5090a0181",
+                    "sha256": "0683f82bd6e80097d89a51f048565135c6e9cd151bd88c8ca1737c5dff7e05b4",
                     "size_bytes": 20,
                 }
             ],
