@@ -1262,6 +1262,8 @@ class ShootFlowCliTests(unittest.TestCase):
 
         printed_summary = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
+        self.assertEqual(printed_summary["schema_version"], 1)
+        self.assertEqual(printed_summary["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(printed_summary["status"], "ready_for_review")
         self.assertTrue(printed_summary["ready"])
         self.assertEqual(printed_summary["source"]["name"], "EOS_DIGITAL")
@@ -1684,6 +1686,8 @@ class ShootFlowIngestCliTests(unittest.TestCase):
             preview = json.loads(stdout.getvalue())
 
             self.assertEqual(exit_code, 0)
+            self.assertEqual(preview["schema_version"], 1)
+            self.assertEqual(preview["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(preview["item_count"], 2)
             self.assertEqual(
                 sorted(item["relative_path"] for item in preview["items"]),
