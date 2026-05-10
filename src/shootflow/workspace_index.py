@@ -765,6 +765,11 @@ def _workspace_index_from_json(raw_index: dict[str, object]) -> WorkspaceIndex:
     if not isinstance(raw_artifacts, list):
         raise WorkspaceIndexError("workspace index artifacts must be a list")
     artifacts = tuple(_artifact_from_json(raw_artifact) for raw_artifact in raw_artifacts)
+    artifacts = _normalize_workspace_health_authority(
+        artifacts,
+        workflow_authority=workflow_authority,
+        legacy_schema=raw_schema_version == _WORKSPACE_INDEX_LEGACY_SCHEMA_VERSION,
+    )
     raw_notes = raw_index["notes"]
     if not isinstance(raw_notes, list):
         raise WorkspaceIndexError("workspace index notes must be a list")
@@ -844,6 +849,42 @@ def _validated_workflow_authority(value: object, *, field_label: str) -> dict[st
     except WorkflowAuthorityError as exc:
         raise WorkspaceIndexError(str(exc)) from exc
     return dict(cast(Mapping[str, object], value))
+
+
+def _normalize_workspace_health_authority(
+    artifacts: tuple[WorkspaceArtifactSummary, ...],
+    *,
+    workflow_authority: Mapping[str, object],
+    legacy_schema: bool,
+) -> tuple[WorkspaceArtifactSummary, ...]:
+    normalized: list[WorkspaceArtifactSummary] = []
+    for artifact in artifacts:
+        if artifact.name != "workspace_health":
+            normalized.append(artifact)
+            continue
+        summary = dict(artifact.summary)
+        if "workflow_authority" not in summary:
+            if not legacy_schema:
+                raise WorkspaceIndexError(
+                    "workspace_health summary is missing workflow_authority"
+                )
+            summary["workflow_authority"] = dict(workflow_authority)
+        else:
+            summary["workflow_authority"] = _validated_workflow_authority(
+                summary["workflow_authority"],
+                field_label="workspace_health.workflow_authority",
+            )
+        normalized.append(
+            _artifact(
+                artifact.name,
+                artifact.path,
+                present=artifact.present,
+                trusted=artifact.trusted,
+                status=artifact.status,
+                summary=summary,
+            )
+        )
+    return tuple(normalized)
 
 
 def _validate_index_binding(index: WorkspaceIndex, root: Path) -> None:

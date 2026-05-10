@@ -336,6 +336,38 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(loaded.workspace_root, workspace.resolve())
         self.assertEqual(loaded.index_path, (workspace / WORKSPACE_INDEX_PATH).resolve())
 
+    def test_legacy_workspace_index_loads_as_observe_only_schema_v2(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+            index = build_workspace_index(
+                workspace,
+                generated_at="2026-05-09T00:02:42Z",
+            )
+            legacy_payload = workspace_index_to_dict(index)
+            legacy_payload["schema_version"] = 1
+            legacy_payload.pop("workflow_authority")
+            self._artifact_payload(legacy_payload, "workspace_health")["summary"].pop(
+                "workflow_authority"
+            )
+            (workspace / WORKSPACE_INDEX_PATH).write_text(
+                json.dumps(legacy_payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+
+            loaded = load_workspace_index(workspace)
+            payload = workspace_index_to_dict(loaded)
+
+        workspace_health = self._artifact_payload(payload, "workspace_health")
+
+        self.assertEqual(payload["schema_version"], 2)
+        self.assertEqual(payload["workflow_authority"]["mode"], "observe_only")
+        self.assertFalse(payload["workflow_authority"]["permits_file_mutation"])
+        self.assertEqual(
+            workspace_health["summary"]["workflow_authority"],
+            payload["workflow_authority"],
+        )
+
     def test_workspace_index_reports_non_file_storyline_artifact_as_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
