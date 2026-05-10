@@ -2,6 +2,78 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 18:30 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-478e` at `3eb7dcf`, matching
+`origin/main` and the prior completed grade-analysis handoff validation.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and compared all local and remote refs against it.
+- The only implementation branch ahead of `origin/main` was the assigned branch,
+  with two commits: `58c44b9 fix(production): validate grade look handoff` and
+  `d1b9eaa test(production): reject signed look dependency checksums`.
+- The only other remote branch ahead was
+  `origin/cursor/branch-consolidation-strategy-1e40`, which was also five
+  commits behind `origin/main` and contained only a stale
+  `docs/CONTINUATION_NOTES.md` branch-consolidation note. It was intentionally
+  not merged because its unique diff did not add product, architecture, test, or
+  implementation value beyond the current canonical notes.
+- Local `main` was stale at session start. Reconciliation fast-forwarded local
+  `main` to `origin/main`, then fast-forwarded it through the assigned branch
+  commits before this continuation-note update.
+
+This run closed the smaller grading reliability follow-up left by the 18:00 UTC
+note:
+
+- Added direct adapter coverage proving `grade-production-local` treats
+  checksum-matching but malformed look payloads as retryable review states
+  without materializing graded outputs.
+- Hardened the grade adapter's look dependency parser so it now requires the
+  deterministic look payload's `source_scene_groups` object, source-scene
+  checksum shape, scene/analysis counts, scene-label/tag lists, and
+  `look_profile` tone/color/score fields before using the look handoff.
+- Review found that `int(sha256, 16)` accepts leading `+`/`-` signs, so this run
+  added a regression for a signed 64-character source-scene checksum and changed
+  validation to require exactly 64 hexadecimal characters.
+- Updated product and architecture docs so grade dependencies are described as
+  schema-validated/checksum-verified for both analysis and look artifacts.
+
+Verification performed during this run:
+
+- Red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_look_dependency_retryable`
+  failed because malformed look payloads still produced succeeded grade jobs.
+- Focused green after implementation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_look_dependency_retryable tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_writes_deterministic_grade_from_trusted_dependencies tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_analysis_dependency_retryable`
+  -> 3 tests OK.
+- Full adapter verification before the first commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter && git diff --check`
+  -> 51 tests OK and diff-check exited 0.
+- Review regression red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_look_dependency_retryable`
+  failed for the signed SHA-256 case before the exact-hex fix.
+- Review regression green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_marks_malformed_look_dependency_retryable tests.test_production_adapter.DryRunProductionAdapterTests.test_grade_adapter_writes_deterministic_grade_from_trusted_dependencies && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter && git diff --check`
+  -> 2 focused tests OK, 51 adapter tests OK, and diff-check exited 0.
+- Final pre-reconciliation verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 91 related production tests OK, 425 full tests OK, compileall and
+  diff-check exited 0, and the assigned branch working tree was clean.
+
+Good next test-first targets:
+
+- Register a deterministic `story-production-local` adapter now that grade
+  artifacts are bound to schema-validated/checksum-verified analysis and look
+  handoffs.
+- Add scheduler-level coverage for malformed look payloads if the Mac UI/report
+  surface needs an explicit persisted-report proof mirroring the existing
+  malformed-analysis scheduler coverage.
+- Replace the grade and proxy stand-ins with real ffmpeg/Core Image/Metal
+  workers behind the same declared-output-only, no-overwrite, checksum-verified
+  dependency boundary.
+
 ## Implementation continuation note - 2026-05-10 18:00 UTC
 
 This run started on assigned branch
