@@ -622,6 +622,17 @@ shells can ask for timestamps/render adapter settings at the right layer. The
 root observe-only authority block remains the permission gate; the advisory
 commands are display/review aids, not authorization to mutate files.
 
+## Workflow authority for native shells
+
+Use `shootflow.workflow_authority.observe_only_handoff_controls_to_dict(...)`
+when a native shell, launch agent, or continuation automation reads a JSON
+handoff that includes `workflow_authority`. The reader validates the root
+observe-only authority object and returns disabled file-operation controls, so
+UIs do not infer copy, retry, materialization, cleanup, overwrite, deletion, or
+general file-mutation permission from `next_actions`, `next_steps`,
+`writes_files`, `agent_handoff`, or prose. See `docs/WORKFLOW_AUTHORITY.md` for
+the consumer contract.
+
 ## Run tests
 
 ```bash
@@ -633,5 +644,6 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`
 - `docs/DESIGN_DECISIONS.md`
+- `docs/WORKFLOW_AUTHORITY.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
 - `docs/CONTINUATION_NOTES.md`

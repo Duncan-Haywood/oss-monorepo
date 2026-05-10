@@ -2,6 +2,50 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 02:30 UTC
+
+This run implemented the first consumer-side authority reader for native shells
+and agents:
+
+- Added `observe_only_handoff_controls_to_dict(...)` in
+  `shootflow.workflow_authority`. The helper validates a handoff's root
+  observe-only `workflow_authority` object and returns all-disabled native
+  file-operation controls for file mutation, copy, retry, cleanup, overwrite,
+  materialization, and deletion.
+- Added focused tests in `tests/test_workflow_authority.py` proving that
+  `next_actions`, `next_steps`, `writes_files`, `agent_handoff`, and prose do
+  not enable native controls, and that missing or authorizing root authority
+  fails closed with `WorkflowAuthorityError`.
+- Added `docs/WORKFLOW_AUTHORITY.md` plus README, AGENTS, and design-decision
+  references so future SwiftUI/menu-bar shells bind controls to the helper's
+  disabled output rather than parsing presentation fields.
+
+Verification and review:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workflow_authority`
+  failed on the missing `observe_only_handoff_controls_to_dict` API.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workflow_authority tests.test_pilot_dashboard tests.test_pilot_cohort_report tests.test_pilot_cohort_brief tests.test_workspace_health tests.test_workspace_index`
+  -> 54 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 342 tests OK; compileall and diff-check passed.
+- Review pass found no blocking issues. Residual risk: the reader is intentionally
+  exact-shape observe-only; a future non-observe action contract will need a new
+  explicit schema/helper rather than adding permissions to this one.
+
+Good next test-first targets:
+
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Bind the new authority reader into any future native SwiftUI/menu-bar readout
+  before exposing retry/copy/materialization controls.
+
 ## Branch reconciliation note - 2026-05-10 02:00 UTC
 
 Final reconciliation for this session:
