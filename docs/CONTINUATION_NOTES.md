@@ -62,6 +62,26 @@ Verification performed during this run:
   -> 400 tests OK; compileall and diff-check exited 0; working tree was clean
   against the pushed assigned branch before this continuation-note update.
 
+Final branch reconciliation:
+
+- Ran `git fetch --prune origin` after implementation. It pruned the historical
+  automation branches that were already gone from the remote and surfaced one
+  remaining non-main remote work ref:
+  `origin/cursor/branch-consolidation-strategy-b3b2`.
+- Compared remaining remote branches against the verified head. The remaining
+  `b3b2` branch pointed at `82feb27`, so it was contained in this run's branch
+  and had no branch-only work ahead of the consolidated head.
+- Fast-forwarded local `main` to the verified assigned-branch head and pushed
+  `origin/main` to `96c2beb`, so the 14:30 hardening commit plus this scene
+  adapter work are not stranded outside main.
+- Restored the assigned branch upstream to
+  `origin/cursor/branch-reconciliation-and-merge-bb46` after the `HEAD:main`
+  push, leaving the current checkout on the assigned branch.
+- Final comparison showed `origin/main`, current `HEAD`, and
+  `origin/cursor/branch-reconciliation-and-merge-bb46` equal; the remaining
+  `origin/cursor/branch-consolidation-strategy-b3b2` branch was two commits
+  behind main and contained no unique work.
+
 Good next test-first targets:
 
 - Register the next stage-specific adapter deliberately, likely
