@@ -11,11 +11,12 @@ This run started on assigned branch
 Branch reconciliation findings:
 
 - Fetched `origin/main` and compared all local/remote refs against it.
-- The current assigned branch has two useful branch-only commits:
+- The current assigned branch has three useful branch-only commits:
   `1a71246 test(production): cover look scheduler scene failures`, which adds
   scheduler/report coverage for retryable look failures, and
   `0a62889 docs: record look scheduler coverage`, which records this
-  continuation state.
+  continuation state, and `0564242 docs: clarify look scheduler branch state`,
+  which corrected this branch summary after the documentation commit.
 - The only other branch with work ahead of `origin/main` is still
   `origin/cursor/branch-consolidation-d362` at `48a7be4`. It remains one commit
   ahead and three commits behind current main. Its diff would remove the current
