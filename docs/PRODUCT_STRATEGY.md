@@ -202,15 +202,19 @@ The current core models a concrete promise for high-volume users:
     intervention, and at least one materialized output before a workspace is
     counted as ready for pilot review. The follow-on `pilot-cohort-report`
     contract aggregates saved dashboard JSON across workspaces into pilot-ready
-    workspace rate, median intervention rate, and first-draft output count
-    without reading worker internals or granting workflow authority. The
+    workspace rate, median intervention rate, first-draft output count, and
+    structured readiness blockers without reading worker internals or granting
+    workflow authority. It validates component dashboard threshold flags against
+    the reported metrics before trusting workspace readiness, so pilot
+    operations can separate missing telemetry from low completion, high
+    intervention, or missing first-draft output bottlenecks. The
     `create-pilot-cohort-demo` fixture now composes trusted demo render
     workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
     demos can show the measurement loop without real media or spreadsheets.
     `pilot-cohort-brief` turns that saved report into native-shell presentation
-    state--status, headline, summary labels, per-workspace cards, and an optional
-    deterministic text-mode readout--without emitting workflow commands or
-    widening authority.
+    state--status, headline, summary labels, structured blocker counts,
+    controlled per-workspace blocker labels, cards, and an optional deterministic
+    text-mode readout--without emitting workflow commands or widening authority.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -301,9 +305,14 @@ to automate.
    loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
-   or clobbering heartbeat-refreshed workers in a tight loop. The persisted
-   production and render scheduler reports now emit root observe-only authority
-   plus derived product metrics, giving the future Mac app and pilot analytics a
+   or clobbering heartbeat-refreshed workers in a tight loop. The first local
+   metadata production adapter now extends the same worker contract beyond pure
+   placeholders: it reads trusted local inputs, fingerprints their bytes, and
+   writes deterministic metadata JSON only to declared output files, while
+   preserving missing-input, directory-output, stale-claim, and output-conflict
+   review states. The persisted production and render scheduler reports now emit
+   root observe-only authority plus derived product metrics, giving the future
+   Mac app and pilot analytics a
    trusted way to measure automation throughput, intervention rate, and
    reliability without parsing raw worker internals. `pilot-dashboard` is the
    first stable pilot-facing summary

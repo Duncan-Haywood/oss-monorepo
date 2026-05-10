@@ -17,6 +17,18 @@ _BASIS_POINTS = 10_000
 _DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS = 9_000
 _DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS = 2_000
 _DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT = 1
+_READINESS_BLOCKER_FIELDS = (
+    "metrics_unavailable",
+    "completion_below_threshold",
+    "intervention_above_threshold",
+    "materialized_outputs_missing",
+)
+_READINESS_BLOCKER_LABELS = {
+    "metrics_unavailable": "Metrics unavailable",
+    "completion_below_threshold": "Completion below threshold",
+    "intervention_above_threshold": "Manual intervention above threshold",
+    "materialized_outputs_missing": "Materialized outputs missing",
+}
 
 
 class PilotCohortBriefError(ValueError):
@@ -33,6 +45,16 @@ class PilotCohortWorkspaceBriefCard:
     intervention_rate_label: str
     materialized_output_count: int | None
     threshold_notes: tuple[str, ...]
+    readiness_blockers: tuple[str, ...]
+    readiness_blocker_labels: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PilotCohortBriefReadinessBlockers:
+    metrics_unavailable: int
+    completion_below_threshold: int
+    intervention_above_threshold: int
+    materialized_outputs_missing: int
 
 
 @dataclass(frozen=True)
@@ -45,6 +67,7 @@ class PilotCohortBriefSummary:
     median_intervention_rate_label: str
     first_draft_output_count: int
     ready_for_pilot_review: bool
+    readiness_blockers: PilotCohortBriefReadinessBlockers
 
 
 @dataclass(frozen=True)
@@ -67,7 +90,7 @@ def build_pilot_cohort_brief_from_report_path(cohort_report_path: Path | str) ->
     cohort = _required_mapping(payload, "cohort", path)
     workspaces = _required_sequence(payload, "workspaces", path)
     source_generated_at = _required_timestamp(payload, "generated_at", path)
-    summary = _brief_summary_from_cohort(cohort, path=path)
+    summary = _brief_summary_from_cohort(cohort, workspaces=workspaces, path=path)
     _validate_saved_report_consistency(
         cohort=cohort,
         workspaces=workspaces,
@@ -123,6 +146,9 @@ def pilot_cohort_brief_to_dict(brief: PilotCohortBrief) -> dict[str, object]:
             ),
             "first_draft_output_count": brief.summary.first_draft_output_count,
             "ready_for_pilot_review": brief.summary.ready_for_pilot_review,
+            "readiness_blockers": _readiness_blockers_to_dict(
+                brief.summary.readiness_blockers
+            ),
         },
         "workspace_cards": [
             {
@@ -134,6 +160,8 @@ def pilot_cohort_brief_to_dict(brief: PilotCohortBrief) -> dict[str, object]:
                 "intervention_rate_label": card.intervention_rate_label,
                 "materialized_output_count": card.materialized_output_count,
                 "threshold_notes": list(card.threshold_notes),
+                "readiness_blockers": list(card.readiness_blockers),
+                "readiness_blocker_labels": list(card.readiness_blocker_labels),
             }
             for card in brief.workspace_cards
         ],
@@ -169,6 +197,10 @@ def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
         ),
         f"- Median manual intervention: {brief.summary.median_intervention_rate_label}",
         f"- First-draft outputs: {brief.summary.first_draft_output_count}",
+        (
+            "- Readiness blockers: "
+            f"{_readiness_blocker_counts_label(brief.summary.readiness_blockers)}"
+        ),
         "",
         "Workspace cards:",
     ]
@@ -180,6 +212,7 @@ def pilot_cohort_brief_to_text(brief: PilotCohortBrief) -> str:
                 f"  Completion: {card.completion_rate_label}",
                 f"  Manual intervention: {card.intervention_rate_label}",
                 f"  First-draft outputs: {_output_count_label(card.materialized_output_count)}",
+                f"  Blockers: {_readiness_blocker_label_list(card.readiness_blocker_labels)}",
                 "  Dashboard: omitted from text output",
                 "  Threshold notes: omitted from text output",
             ]
@@ -235,8 +268,14 @@ def _load_report_payload(path: Path) -> Mapping[str, object]:
 def _brief_summary_from_cohort(
     cohort: Mapping[str, object],
     *,
+    workspaces: Sequence[object],
     path: Path,
 ) -> PilotCohortBriefSummary:
+    readiness_blockers = _cohort_readiness_blockers_from_payloads(
+        cohort,
+        workspaces,
+        path=path,
+    )
     return PilotCohortBriefSummary(
         dashboard_count=_required_non_negative_int(cohort, "dashboard_count", path),
         metrics_available_dashboard_count=_required_non_negative_int(
@@ -266,6 +305,7 @@ def _brief_summary_from_cohort(
             path,
         ),
         ready_for_pilot_review=_required_bool(cohort, "ready_for_pilot_review", path),
+        readiness_blockers=readiness_blockers,
     )
 
 
@@ -295,6 +335,8 @@ def _validate_saved_report_consistency(
         raise PilotCohortBriefError("cohort ready count disagrees with workspace evidence")
     if workspace_metrics["output_count"] != summary.first_draft_output_count:
         raise PilotCohortBriefError("cohort output count disagrees with workspace evidence")
+    if workspace_metrics["readiness_blockers"] != summary.readiness_blockers:
+        raise PilotCohortBriefError("cohort readiness blocker counts disagree with workspace evidence")
     expected_ready_rate = _ready_rate_basis_points(
         ready_count=summary.pilot_ready_workspace_count,
         metrics_available_count=summary.metrics_available_dashboard_count,
@@ -335,6 +377,7 @@ def _workspace_consistency_metrics(
     ready_count = 0
     output_count = 0
     intervention_rates: list[int] = []
+    readiness_blockers = PilotCohortBriefReadinessBlockers(0, 0, 0, 0)
     for workspace in workspaces:
         if not isinstance(workspace, Mapping):
             raise PilotCohortBriefError(f"cohort report workspace entries must be objects: {path}")
@@ -370,12 +413,17 @@ def _workspace_consistency_metrics(
             if ready_for_pilot_review:
                 raise PilotCohortBriefError("metrics-unavailable workspaces cannot be pilot-ready")
             unavailable_count += 1
+        readiness_blockers = _add_workspace_readiness_blockers(
+            readiness_blockers,
+            _workspace_readiness_blockers(workspace, path=path),
+        )
     return {
         "metrics_available_count": available_count,
         "metrics_unavailable_count": unavailable_count,
         "ready_count": ready_count,
         "output_count": output_count,
         "intervention_rates": tuple(intervention_rates),
+        "readiness_blockers": readiness_blockers,
     }
 
 
@@ -422,6 +470,7 @@ def _workspace_card_from_payload(
     metrics_available = _required_bool(payload, "metrics_available", path)
     ready_for_pilot_review = _required_bool(payload, "ready_for_pilot_review", path)
     output_count = _optional_non_negative_int(payload, "materialized_output_count", path)
+    readiness_blockers = _workspace_readiness_blockers(payload, path=path)
     return PilotCohortWorkspaceBriefCard(
         title=_workspace_card_title(shoot_slug=shoot_slug, workspace=workspace),
         workspace=workspace,
@@ -438,6 +487,8 @@ def _workspace_card_from_payload(
         ),
         materialized_output_count=output_count,
         threshold_notes=_required_string_tuple(payload, "threshold_notes", path),
+        readiness_blockers=readiness_blockers,
+        readiness_blocker_labels=_readiness_blocker_labels(readiness_blockers),
     )
 
 
@@ -486,6 +537,177 @@ def _output_count_label(value: int | None) -> str:
     if value is None:
         return "unavailable"
     return str(value)
+
+
+def _cohort_readiness_blockers_from_payloads(
+    cohort: Mapping[str, object],
+    workspaces: Sequence[object],
+    *,
+    path: Path,
+) -> PilotCohortBriefReadinessBlockers:
+    expected = PilotCohortBriefReadinessBlockers(0, 0, 0, 0)
+    for workspace in workspaces:
+        if not isinstance(workspace, Mapping):
+            raise PilotCohortBriefError(f"cohort report workspace entries must be objects: {path}")
+        expected = _add_workspace_readiness_blockers(
+            expected,
+            _workspace_readiness_blockers(workspace, path=path),
+        )
+    declared = cohort.get("readiness_blockers")
+    if declared is None:
+        return expected
+    if not isinstance(declared, Mapping):
+        raise PilotCohortBriefError(f"cohort report readiness_blockers must be an object: {path}")
+    if set(declared.keys()) != set(_READINESS_BLOCKER_FIELDS):
+        raise PilotCohortBriefError(f"cohort report readiness_blockers must use known blocker fields: {path}")
+    parsed = PilotCohortBriefReadinessBlockers(
+        metrics_unavailable=_required_non_negative_int(
+            declared,
+            "metrics_unavailable",
+            path,
+        ),
+        completion_below_threshold=_required_non_negative_int(
+            declared,
+            "completion_below_threshold",
+            path,
+        ),
+        intervention_above_threshold=_required_non_negative_int(
+            declared,
+            "intervention_above_threshold",
+            path,
+        ),
+        materialized_outputs_missing=_required_non_negative_int(
+            declared,
+            "materialized_outputs_missing",
+            path,
+        ),
+    )
+    if parsed != expected:
+        raise PilotCohortBriefError("cohort readiness blocker counts disagree with workspace evidence")
+    return parsed
+
+
+def _workspace_readiness_blockers(
+    payload: Mapping[str, object],
+    *,
+    path: Path,
+) -> tuple[str, ...]:
+    metrics_available = _required_bool(payload, "metrics_available", path)
+    ready_for_pilot_review = _required_bool(payload, "ready_for_pilot_review", path)
+    completion_rate = _optional_basis_points(payload, "completion_rate_basis_points", path)
+    intervention_rate = _optional_basis_points(payload, "intervention_rate_basis_points", path)
+    materialized_output_count = _optional_non_negative_int(
+        payload,
+        "materialized_output_count",
+        path,
+    )
+    derived = _derive_workspace_readiness_blockers(
+        metrics_available=metrics_available,
+        ready_for_pilot_review=ready_for_pilot_review,
+        completion_rate_basis_points=completion_rate,
+        intervention_rate_basis_points=intervention_rate,
+        materialized_output_count=materialized_output_count,
+    )
+    declared = payload.get("readiness_blockers")
+    if declared is None:
+        return derived
+    if not isinstance(declared, list):
+        raise PilotCohortBriefError(f"cohort report readiness_blockers must be a list: {path}")
+    blockers: list[str] = []
+    for blocker in declared:
+        if not isinstance(blocker, str) or blocker not in _READINESS_BLOCKER_LABELS:
+            raise PilotCohortBriefError(
+                f"cohort report readiness_blockers must contain known blocker codes: {path}"
+            )
+        if blocker in blockers:
+            raise PilotCohortBriefError(
+                f"cohort report readiness_blockers must not contain duplicate codes: {path}"
+            )
+        blockers.append(blocker)
+    parsed = tuple(blockers)
+    if parsed != derived:
+        raise PilotCohortBriefError("workspace readiness blockers disagree with default pilot thresholds")
+    return parsed
+
+
+def _derive_workspace_readiness_blockers(
+    *,
+    metrics_available: bool,
+    ready_for_pilot_review: bool,
+    completion_rate_basis_points: int | None,
+    intervention_rate_basis_points: int | None,
+    materialized_output_count: int | None,
+) -> tuple[str, ...]:
+    if not metrics_available:
+        return ("metrics_unavailable",)
+    if (
+        completion_rate_basis_points is None
+        or intervention_rate_basis_points is None
+        or materialized_output_count is None
+    ):
+        return ("metrics_unavailable",)
+    blockers: list[str] = []
+    if completion_rate_basis_points < _DEFAULT_MIN_COMPLETION_RATE_BASIS_POINTS:
+        blockers.append("completion_below_threshold")
+    if intervention_rate_basis_points > _DEFAULT_MAX_INTERVENTION_RATE_BASIS_POINTS:
+        blockers.append("intervention_above_threshold")
+    if materialized_output_count < _DEFAULT_MIN_MATERIALIZED_OUTPUT_COUNT:
+        blockers.append("materialized_outputs_missing")
+    if ready_for_pilot_review and blockers:
+        raise PilotCohortBriefError("workspace readiness disagrees with default pilot thresholds")
+    if not ready_for_pilot_review and not blockers:
+        raise PilotCohortBriefError("workspace readiness disagrees with default pilot thresholds")
+    return tuple(blockers)
+
+
+def _add_workspace_readiness_blockers(
+    counts: PilotCohortBriefReadinessBlockers,
+    blockers: tuple[str, ...],
+) -> PilotCohortBriefReadinessBlockers:
+    return PilotCohortBriefReadinessBlockers(
+        metrics_unavailable=counts.metrics_unavailable + int("metrics_unavailable" in blockers),
+        completion_below_threshold=(
+            counts.completion_below_threshold + int("completion_below_threshold" in blockers)
+        ),
+        intervention_above_threshold=(
+            counts.intervention_above_threshold + int("intervention_above_threshold" in blockers)
+        ),
+        materialized_outputs_missing=(
+            counts.materialized_outputs_missing + int("materialized_outputs_missing" in blockers)
+        ),
+    )
+
+
+def _readiness_blockers_to_dict(
+    blockers: PilotCohortBriefReadinessBlockers,
+) -> dict[str, int]:
+    return {
+        "metrics_unavailable": blockers.metrics_unavailable,
+        "completion_below_threshold": blockers.completion_below_threshold,
+        "intervention_above_threshold": blockers.intervention_above_threshold,
+        "materialized_outputs_missing": blockers.materialized_outputs_missing,
+    }
+
+
+def _readiness_blocker_labels(blockers: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(_READINESS_BLOCKER_LABELS[blocker] for blocker in blockers)
+
+
+def _readiness_blocker_label_list(labels: tuple[str, ...]) -> str:
+    if not labels:
+        return "none"
+    return "; ".join(labels)
+
+
+def _readiness_blocker_counts_label(
+    blockers: PilotCohortBriefReadinessBlockers,
+) -> str:
+    parts = [
+        f"{_READINESS_BLOCKER_LABELS[field]}: {count}"
+        for field, count in _readiness_blockers_to_dict(blockers).items()
+        if count
+    ]
+    return "; ".join(parts) if parts else "none"
 
 
 def _validate_report_path(cohort_report_path: Path | str) -> Path:
@@ -646,6 +868,7 @@ def _validate_brief_summary(summary: PilotCohortBriefSummary) -> None:
             raise PilotCohortBriefError(f"brief summary {field_name} must be a non-empty string")
     if not isinstance(summary.ready_for_pilot_review, bool):
         raise PilotCohortBriefError("brief summary ready_for_pilot_review must be a boolean")
+    _validate_readiness_blockers(summary.readiness_blockers)
 
 
 def _validate_workspace_card(card: PilotCohortWorkspaceBriefCard) -> None:
@@ -673,3 +896,20 @@ def _validate_workspace_card(card: PilotCohortWorkspaceBriefCard) -> None:
     for note in card.threshold_notes:
         if not isinstance(note, str) or not note.strip():
             raise PilotCohortBriefError("workspace card threshold_notes must contain non-empty strings")
+    if not isinstance(card.readiness_blockers, tuple):
+        raise PilotCohortBriefError("workspace card readiness_blockers must be a tuple")
+    for blocker in card.readiness_blockers:
+        if not isinstance(blocker, str) or blocker not in _READINESS_BLOCKER_LABELS:
+            raise PilotCohortBriefError("workspace card readiness_blockers must contain known codes")
+    expected_labels = _readiness_blocker_labels(card.readiness_blockers)
+    if card.readiness_blocker_labels != expected_labels:
+        raise PilotCohortBriefError("workspace card readiness blocker labels disagree with codes")
+
+
+def _validate_readiness_blockers(blockers: PilotCohortBriefReadinessBlockers) -> None:
+    if not isinstance(blockers, PilotCohortBriefReadinessBlockers):
+        raise PilotCohortBriefError("brief summary readiness_blockers must be structured blocker counts")
+    for field_name in _READINESS_BLOCKER_FIELDS:
+        value = getattr(blockers, field_name)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise PilotCohortBriefError(f"brief summary readiness blocker {field_name} is invalid")

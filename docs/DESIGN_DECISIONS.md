@@ -165,7 +165,9 @@ The repo currently contains a Python core package because it is quick to test an
   preserved for review instead of being hammered repeatedly. It can persist a strict
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
-  blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+  blocked, review-required, materialized-output, lease-conflict, failure-message details, validated product metrics,
+  and root observe-only `workflow_authority` without granting new renderer, retry, cleanup, overwrite, or deletion
+  authority.
 - `shootflow.workspace_health`: a read-only continuation diagnostic for native
   shells, launch agents, and future agents. It validates production status plus
   production scheduler reports from the trusted ingest manifest, then validates
@@ -197,21 +199,27 @@ The repo currently contains a Python core package because it is quick to test an
   schema v2 pilot-dashboard JSON payloads. It never opens shoot workspaces or
   raw worker manifests; instead it validates each dashboard payload and derives
   cohort-level pilot-ready workspace rate, median intervention rate, first-draft
-  output count, and per-workspace readiness evidence. Missing dashboard metrics
-  remain unavailable rather than becoming false successes or failures, and the
-  cohort report emits no workflow commands. It emits the same
+  output count, structured readiness-blocker counts, and per-workspace readiness
+  evidence. For metrics-available dashboards, it validates threshold booleans
+  against the reported rates/output count before trusting `ready_for_pilot_review`,
+  so a saved dashboard cannot claim pilot readiness while one component threshold
+  is failing. Missing dashboard metrics remain unavailable rather than becoming
+  false successes or failures, and the cohort report emits no workflow commands.
+  It emits the same
   `workflow_authority` observe-only object as the dashboard rather than trusting
   any authority claim inside saved dashboard inputs.
 - `shootflow.pilot_cohort_brief`: a read-only presentation contract above a
   saved schema v1 pilot cohort report. It validates and reads one saved report,
-  then emits status, headline, summary percentage labels, and per-workspace cards
-  for native shells and GTM demos. Its CLI defaults to JSON for agents and can
-  render a deterministic command-free text view for native-shell demos, omitting
-  saved paths, timestamps, workspace titles, and free-form report notes from that
-  text surface. It does not read raw worker internals, write files, or emit
-  workflow commands. Its JSON representation includes the shared
-  `workflow_authority` object; the text representation keeps authority as plain
-  safety copy and continues omitting free-form saved report fields.
+  then emits status, headline, summary percentage labels, structured readiness
+  blocker counts, controlled blocker labels, and per-workspace cards for native
+  shells and GTM demos. Its CLI defaults to JSON for agents and can render a
+  deterministic command-free text view for native-shell demos, omitting saved
+  paths, timestamps, workspace titles, and free-form report notes from that text
+  surface while still showing controlled blocker labels. It does not read raw
+  worker internals, write files, or emit workflow commands. Its JSON
+  representation includes the shared `workflow_authority` object; the text
+  representation keeps authority as plain safety copy and continues omitting
+  free-form saved report fields.
 - `shootflow.workflow_authority`: the shared no-authority contract reader for
   UI/agent JSON. It emits and validates the root observe-only
   `workflow_authority` object, and `observe_only_handoff_controls_to_dict(...)`
@@ -455,7 +463,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   failed, blocked, review-required, materialized-output, and failure-message
   details for UI/continuation review. It also emits validated product metric
   counts derived from those same fields, so metrics cannot be forged into product
-  truth without matching the final trusted status.
+  truth without matching the final trusted status. Its root observe-only
+  `workflow_authority` makes the saved post-operation report presentation-only;
+  retry, cleanup, materialization, overwrite, and deletion still require a
+  separate reviewed action path.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -551,6 +562,13 @@ High quality depends on scene-level consistency and reversible edits. The system
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
   It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
+- `shootflow.production_adapter` now has a second local adapter,
+  `metadata-production-local`, behind the same production-worker action/status
+  contract as the dry-run adapter. It reads only trusted local inputs, records
+  file size and SHA-256 metadata, writes deterministic JSON only to declared
+  output files, and routes missing inputs, directory-style outputs, stale claims,
+  or output conflicts back to retry/review status without deleting or cleaning
+  up media.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

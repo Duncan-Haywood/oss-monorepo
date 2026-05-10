@@ -2,6 +2,357 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 09:00 UTC
+
+Final reconciliation for this session:
+
+- Started on assigned branch `cursor/repository-branch-consolidation-8b6e`,
+  which initially matched `origin/main` at `2ae8935`.
+- `git fetch --prune origin` removed historical remote-tracking refs and surfaced
+  three live remote branches with useful work:
+  `origin/cursor/branch-consolidation-strategy-90f2`,
+  `origin/cursor/branch-reconciliation-and-merge-4808`, and
+  `origin/cursor/repository-branch-consolidation-3fe2`.
+- `origin/cursor/repository-branch-consolidation-3fe2` was the current superset:
+  it contained the branch-consolidation strategy work, scheduler report authority
+  reconciliation, the `metadata-production-local` adapter, and structured pilot
+  cohort readiness blockers. The assigned branch fast-forwarded to that branch's
+  `457643c docs: record branch reconciliation` state and was pushed to
+  `origin/cursor/repository-branch-consolidation-8b6e`.
+- This session then implemented the next documented test-first target on the
+  assigned branch: binding cohort readiness blockers into `pilot-cohort-brief`
+  JSON/text output for native-shell and GTM presentation, committed as
+  `1614af1 feat(pilot): surface cohort brief blockers`.
+- A final `git fetch --prune origin` deleted the three reconciled remote branches
+  above and surfaced `origin/cursor/branch-consolidation-strategy-afaf`.
+  `afaf` is one empty merge commit ahead of `457643c` with the same tree, so it
+  contains no useful content beyond what the assigned branch already inherited;
+  the assigned branch is one functional commit ahead of it.
+- Local `main` was reset to `origin/main` without checking it out, and stale local
+  branch `cursor/setup-dev-env-3ad0` was deleted after its upstream was pruned.
+- `origin/main` was not checked out or pushed because the Cloud branch
+  requirements for this automation require final pushes to
+  `cursor/repository-branch-consolidation-8b6e`. Once this branch is merged by
+  normal PR automation, `origin/cursor/branch-consolidation-strategy-afaf`
+  should be considered redundant because its useful tree is contained here.
+
+## Implementation continuation note - 2026-05-10 09:00 UTC
+
+This run closed the prior cohort-brief blocker-label target:
+
+- `pilot-cohort-brief` summary JSON now exposes structured readiness blocker
+  counts for `metrics_unavailable`, `completion_below_threshold`,
+  `intervention_above_threshold`, and `materialized_outputs_missing`.
+- Each workspace card now exposes validated blocker codes plus controlled human
+  labels such as `Completion below threshold` and
+  `Manual intervention above threshold`. The labels are generated from an
+  internal allowlist, not copied from free-form saved report notes.
+- The brief validates any saved cohort-level `readiness_blockers` counts against
+  per-workspace evidence and validates per-workspace blocker codes against the
+  product's default pilot thresholds before presenting them.
+- Text-mode briefs now print controlled blocker labels while continuing to omit
+  saved paths, timestamps, workspace titles, free-form threshold notes, and any
+  executable workflow commands.
+- README, AGENTS, product strategy, business plan, and design decisions now
+  record that the brief is the presentation layer for structured blocker counts
+  and controlled blocker labels.
+
+Verification for this focused slice:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief`
+  failed on missing `summary.readiness_blockers`, missing per-card blocker
+  fields, missing text blocker labels, and accepted a forged aggregate blocker
+  count.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief`
+  -> 18 tests OK, including legacy reports without blocker fields and the
+  `materialized_outputs_missing` label path.
+- Related pilot/CLI run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_pilot_dashboard tests.test_cli`
+  -> 98 tests OK.
+- Full final verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 372 tests OK; compileall and diff-check exited 0.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy adapter behind the production-worker action contract,
+  using the `metadata-production-local` adapter as the declared-output-only
+  pattern and preserving stale lease recovery semantics.
+- Add symlink input/output-parent and existing-output conflict coverage around
+  `metadata-production-local` before wiring additional media-producing adapters.
+
+## Branch reconciliation note - 2026-05-10 08:30 UTC
+
+Final reconciliation for this session:
+
+- Started on assigned branch `cursor/repository-branch-consolidation-3fe2`,
+  which had no committed work ahead of `origin/main` before this session's
+  cohort-readiness change.
+- `git fetch --prune origin` removed the historical remote-tracking refs and
+  left two remote branches with unique work versus `origin/main`:
+  `origin/cursor/branch-consolidation-strategy-90f2` (20 commits ahead) and
+  `origin/cursor/branch-reconciliation-and-merge-4808` (22 commits ahead).
+- `origin/cursor/branch-reconciliation-and-merge-4808` was the superset branch:
+  it contained the branch-consolidation strategy work plus the scheduler report
+  observe-only authority commit.
+- This assigned branch first committed the pilot cohort readiness-blocker work
+  as `5d39598 feat(pilot): add cohort readiness blockers`, then merged the
+  superset branch with `2932916 Merge remote-tracking branch
+  'origin/cursor/branch-reconciliation-and-merge-4808' into
+  cursor/repository-branch-consolidation-3fe2`.
+- The only merge conflict was `docs/CONTINUATION_NOTES.md`; it was resolved by
+  keeping the 08:30 cohort-readiness note, preserving the 08:00/08:05
+  reconciliation history from the superset branch, and consolidating the next
+  test-first targets.
+- Full verification on the merged tree passed:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check --cached && git diff --check`
+  -> 369 tests OK; compileall and diff-check passed.
+- `origin/main` was not checked out or pushed because the Cloud branch
+  requirements for this automation require final pushes to
+  `cursor/repository-branch-consolidation-3fe2`. Once this branch is merged by
+  normal PR automation, `origin/cursor/branch-consolidation-strategy-90f2` and
+  `origin/cursor/branch-reconciliation-and-merge-4808` should be considered
+  redundant because their useful work is contained here.
+
+## Implementation continuation note - 2026-05-10 08:30 UTC
+
+This run tightened the pilot cohort analytics trust boundary:
+
+- `pilot-cohort-report` now derives structured readiness blockers for each
+  workspace and the cohort aggregate:
+  `metrics_unavailable`, `completion_below_threshold`,
+  `intervention_above_threshold`, and `materialized_outputs_missing`.
+- For metrics-available dashboards, the cohort report validates
+  `meets_completion_threshold`, `meets_intervention_threshold`, and
+  `meets_output_threshold` against the dashboard's reported rates/output count
+  and the product's default pilot acceptance thresholds before trusting
+  `ready_for_pilot_review`; dashboard-supplied threshold values must match those
+  defaults and cannot relax the policy.
+- Forged saved dashboard JSON that claims pilot readiness while a component
+  threshold flag fails is rejected at report-build time instead of being
+  aggregated into GTM/pilot readiness metrics.
+- README, AGENTS, product strategy, business plan, and design decisions now
+  record the structured readiness-blocker contract so future Mac UI/GTM work can
+  show why a cohort is not ready without parsing free-form threshold notes.
+
+Verification for this focused slice:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_report`
+  failed on missing `readiness_blockers` fields and accepted a forged ready
+  dashboard with a failed threshold flag.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_report`
+  -> 11 tests OK after review-driven coverage for repeated blocker counts,
+  forged readiness flags, relaxed threshold values, and missing threshold flags.
+
+Good next test-first targets:
+
+- Bind the new cohort `readiness_blockers` fields into `pilot-cohort-brief`
+  summary/card JSON if native shells need blocker labels without opening the raw
+  cohort report.
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
+## Branch reconciliation note - 2026-05-10 08:00 UTC
+
+This automation ran on assigned branch
+`cursor/branch-reconciliation-and-merge-4808` and reconciled the one remaining
+remote branch with unique work:
+
+- `git fetch --prune origin` removed the stale historical remote-tracking refs
+  and left `origin/main`, `origin/cursor/branch-reconciliation-and-merge-4808`,
+  and `origin/cursor/branch-consolidation-strategy-90f2`.
+- `origin/cursor/branch-consolidation-strategy-90f2` was 20 commits ahead of
+  `origin/main`. It contained useful completed work: schema v3 observe-only
+  scheduler report authority, legacy scheduler-report fallback coverage, the
+  `metadata-production-local` adapter, adapter-batch validation, and CLI
+  regression tests.
+- The assigned branch first shipped a focused scheduler-report authority slice,
+  then merged `origin/cursor/branch-consolidation-strategy-90f2` and resolved the
+  overlapping authority docs/tests in favor of the consolidated schema v3
+  contract.
+- During merge resolution, current schema v3 scheduler reports were tightened to
+  require root `workflow_authority`, while legacy schema v1/v2 reports still load
+  as observe-only for existing saved workspaces.
+- Full verification after reconciliation passed:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 363 tests OK; compileall and diff-check passed.
+- `origin/main` was not pushed directly in this run because the Cloud branch
+  requirements for this automation require final pushes to
+  `cursor/branch-reconciliation-and-merge-4808`. Once this branch is merged by
+  the normal PR automation, `cursor/branch-consolidation-strategy-90f2` should be
+  considered redundant because its useful work is contained here.
+
+## Branch consolidation handoff note - 2026-05-10 08:05 UTC
+
+This automation reconciled the live branch set for the single-worker setup:
+
+- `git fetch --prune origin` removed stale remote-tracking refs and showed the
+  live remote had `origin/main` plus one unmerged Cursor branch:
+  `origin/cursor/branch-consolidation-1ada`.
+- `cursor/branch-consolidation-1ada` was the best current source branch because
+  it already contained the scheduler authority schema v3 work, the local
+  metadata production adapter, adapter validation fixes, and the latest CLI
+  scheduler regression coverage.
+- The assigned branch `cursor/branch-consolidation-strategy-90f2` merged that
+  source branch with `97e25f1 merge: consolidate branch work` and was pushed to
+  `origin/cursor/branch-consolidation-strategy-90f2`.
+- Full verification after the merge passed:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 361 tests OK; compileall and diff-check passed.
+- After the pushed handoff branch contained the useful work, the redundant
+  remote `cursor/branch-consolidation-1ada` and stale local
+  `cursor/setup-dev-env-3ad0` branch were deleted. Local `main` was reset to
+  track `origin/main`.
+- Final branch shape is local `main` plus
+  `cursor/branch-consolidation-strategy-90f2`; the remote branch list is
+  `origin/main` plus `origin/cursor/branch-consolidation-strategy-90f2` with
+  `origin/HEAD` pointing at `origin/main`.
+
+## Branch consolidation note - 2026-05-10 07:00 UTC
+
+This run consolidated the remaining useful branch work onto the assigned branch
+`cursor/branch-consolidation-1ada`:
+
+- Started from `2ae8935`, matching `origin/main`.
+- Preserved the local metadata production adapter from
+  `origin/cursor/repository-branch-consolidation-e334`.
+- Preserved the scheduler authority fallback and CLI authority regressions from
+  `origin/cursor/branch-consolidation-e152`.
+- Folded in the cleaner continuation-note resolution from
+  `origin/cursor/branch-reconciliation-and-merge-5098`.
+- When `origin/cursor/branch-reconciliation-and-merge-5098` reappeared with a
+  new metadata scheduler CLI regression, preserved that fixture here while
+  keeping this branch's stricter adapter-batch validation.
+- Deleted the superseded remote branches after their useful work was present on
+  `cursor/branch-consolidation-1ada`, removed the stale local
+  `cursor/setup-dev-env-3ad0`, and reset local `main` to `origin/main`.
+- Final branch shape for the single-worker setup is local `main` plus
+  `cursor/branch-consolidation-1ada`; the remote branch list is `origin/main`
+  plus `origin/cursor/branch-consolidation-1ada` with `origin/HEAD` pointing at
+  `origin/main`.
+
+Review follow-up in this run:
+
+- `run_production_adapter_batch(...)` now validates `action_plan` through the
+  shared production-adapter validator before reading `worker_adapter`, so invalid
+  public caller input fails with `DryRunProductionError` instead of
+  `AttributeError`.
+
+Verification in this session:
+
+- Consolidated tree before review follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 359 tests OK; compileall and diff-check passed.
+- Final tree after adapter validation follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 360 tests OK; compileall and diff-check passed.
+- Final tree after preserving the reappeared metadata scheduler CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 361 tests OK; compileall and diff-check passed.
+
+## Implementation continuation note - 2026-05-10 05:30 UTC
+
+This run shipped the first local metadata production adapter and reconciled the
+outstanding scheduler-authority branch into the assigned branch:
+
+- Added `metadata-production-local`, a local production adapter that consumes the
+  existing trusted production-worker action contract, claims jobs through
+  `production_status.json`, fingerprints real local input files, writes
+  deterministic metadata JSON only to declared output files, and reports success
+  or retryable status through the guarded compare/write boundary.
+- Added `run_production_adapter_batch(...)` so the scheduler can dispatch local
+  production adapters by name. `dry-run-production-local` remains the placeholder
+  adapter; `metadata-production-local` is now discoverable through
+  `supported_production_adapter_names()` and batch-runnable by the scheduler.
+- Hardened metadata input handling after review: absolute inputs must stay under
+  the workspace, manifest-relative inputs that already include the workspace
+  prefix are normalized, ordinary workspace-relative inputs win over colliding
+  process-cwd files, missing extensionless file inputs become retryable instead
+  of being mistaken for literals, and file metadata is read from one no-follow
+  descriptor with the same `fstat` size used for the output.
+- Merged `origin/cursor/repository-branch-consolidation-f53c`, preserving its
+  schema v3 observe-only `workflow_authority` work for persisted production and
+  render scheduler reports. The metadata-adapter docs and the scheduler-authority
+  docs were reconciled in AGENTS and product strategy.
+- Updated README, AGENTS, business plan, product strategy, and design decisions
+  to describe the new local adapter boundary without implying copy, overwrite,
+  cleanup, deletion, or arbitrary materialization authority.
+
+Verification in this session:
+
+- Red metadata-adapter tests first failed because the API did not exist.
+- Review-found regression tests first failed for missing extensionless inputs,
+  trusted absolute inputs, relative manifest inputs, and cwd-collision
+  workspace-relative inputs.
+- Focused green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 35 tests OK.
+- Full green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 354 tests OK; compileall and diff-check passed.
+- Post-merge focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_render_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 122 tests OK.
+- Post-merge full green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 356 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 05:30 UTC
+
+Final reconciliation for this session:
+
+- The assigned branch `cursor/repository-branch-consolidation-e334` started at
+  `2ae8935`, matching `origin/main`.
+- `git fetch --prune origin main` showed exactly two remote branches with unique
+  commits versus `origin/main`: `origin/cursor/repository-branch-consolidation-f53c`
+  and `origin/cursor/branch-consolidation-f0b0`.
+- `origin/cursor/repository-branch-consolidation-f53c` contained useful
+  scheduler-authority code/tests/docs. It was merged into the assigned branch via
+  `e68c339 merge: reconcile scheduler authority branch`; conflicts in AGENTS and
+  product strategy were resolved by keeping both the schema v3 report authority
+  decision and this session's metadata-adapter boundary.
+- `origin/cursor/branch-consolidation-f0b0` was reviewed and not merged. Its
+  unique diff is only a stale continuation note claiming the remote branch set
+  contains only main plus that assigned branch; the live remote now contains many
+  historical branches plus this assigned branch, so merging it would make the
+  continuity log inaccurate.
+- `origin/cursor/branch-consolidation-e152` later contributed useful regression
+  coverage for legacy scheduler-report authority fallback and missing handoff
+  authority rejection. Those tests were preserved when this branch was
+  reconciled; its older branch-count notes were superseded by this combined
+  continuation note.
+- Useful completed work is now consolidated on the assigned branch. `main` was
+  not checked out, modified, or pushed because the Cloud branch instructions for
+  this automation require final pushes only to
+  `cursor/repository-branch-consolidation-e334`.
+
+Good next test-first targets:
+
+- Add a CLI-level metadata production scheduler fixture that runs from a real
+  saved ingest manifest through `init-production-status` and
+  `dry-run-production-scheduler --worker metadata-production-local`.
+- Add direct metadata-adapter coverage for symlinked input files, symlinked
+  output parents, matching existing outputs, and different existing outputs.
+- Decide the first real media-producing adapter boundary after metadata:
+  ffmpeg proxy generation, Core Image/Metal look preview, or Resolve handoff.
+
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
 This run resolved the open scheduler-authority question for persisted scheduler
@@ -54,15 +405,6 @@ Final reconciliation for this session:
 - Useful completed work remains on the assigned branch and was not pushed
   directly to `main` because the Cloud branch instructions for this automation
   require final pushes only to `cursor/repository-branch-consolidation-f53c`.
-
-Good next test-first targets:
-
-- Bind the authority-bearing scheduler reports into a minimal native-shell or
-  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
-  then validates controls through `handoff-controls`.
-- Start a real local proxy or metadata adapter behind the production-worker
-  action contract, preserving declared-output-only authority and stale lease
-  recovery semantics.
 
 ## Branch reconciliation note - 2026-05-10 03:30 UTC
 

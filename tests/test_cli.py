@@ -121,6 +121,33 @@ class ShootFlowCliTests(unittest.TestCase):
             stderr.getvalue(),
         )
 
+    def test_handoff_controls_command_rejects_missing_root_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "handoff.json"
+            handoff_path.write_text(
+                json.dumps({"schema_version": 2, "next_steps": []}),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "handoff-controls",
+                    "--handoff-json",
+                    str(handoff_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn(
+            "handoff.workflow_authority must be an object",
+            stderr.getvalue(),
+        )
+
     def test_handoff_controls_command_rejects_invalid_utf8_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             handoff_path = Path(tmp) / "handoff.json"
