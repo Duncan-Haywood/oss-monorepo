@@ -27,7 +27,7 @@ from shootflow.production_status import (
     production_plan_fingerprint,
     write_production_status_manifest,
 )
-from shootflow.production_worker import plan_production_worker_actions
+from shootflow.production_worker import ProductionWorkerAction, plan_production_worker_actions
 
 
 class DryRunProductionAdapterTests(unittest.TestCase):
@@ -269,27 +269,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
 
     def test_analysis_adapter_writes_schema_compatible_asset_analysis(self) -> None:
-        trusted_plan = build_production_plan(
-            [MediaAsset(path="originals/A001.MOV", media_type="video", duration_seconds=12.0)],
-            shoot_slug="analysis-adapter",
-        )
-        ready_manifest = ProductionStatusManifest(
-            shoot_slug=trusted_plan.shoot_slug,
-            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
-            job_statuses=(
-                self._succeeded_status(trusted_plan.job_by_id("proxy_asset_00000")),
-            )
-            + tuple(
-                ProductionJobStatus(job_id=job.job_id, state="pending")
-                for job in trusted_plan.jobs[1:]
-            ),
-        )
-        action = plan_production_worker_actions(
-            trusted_plan,
-            ready_manifest,
-            worker_adapter="analysis-production-local",
-            eligible_output_kinds=("vlm_asset_analysis",),
-        ).actions[0]
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workspace = Path(tmpdir)
@@ -317,6 +297,190 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(analyses[0].media_type, "video")
         self.assertEqual(analyses[0].asset_path, "graded/grade_asset_00000/A001.MOV")
         self.assertEqual(loaded_manifest.job_statuses[1], result.final_status)
+
+    def test_analysis_adapter_rejects_wrong_output_kind_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="analysis-production-local",
+            attempt_number=action.attempt_number,
+            output_kind="proxy_media",
+            inputs=action.inputs,
+            outputs=action.outputs,
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "only materializes vlm_asset_analysis"):
+                run_analysis_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T14:06:00Z",
+                    completed_at="2026-05-10T14:06:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_analysis_adapter_rejects_malformed_output_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="analysis-production-local",
+            attempt_number=action.attempt_number,
+            output_kind=action.output_kind,
+            inputs=action.inputs,
+            outputs=("analysis/not-padded.json",),
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "analysis/00000.json-style output"):
+                run_analysis_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T14:07:00Z",
+                    completed_at="2026-05-10T14:07:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_analysis_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
+        job = ProductionJob(
+            job_id="analyze_bad_input",
+            output_kind="vlm_asset_analysis",
+            inputs=("originals/bad\x00.MOV",),
+            outputs=("analysis/00000.json",),
+        )
+        trusted_plan = ProductionPlan(
+            shoot_slug="analysis-bad-input",
+            jobs=(job,),
+            execution_waves=(ExecutionWave(wave_index=0, jobs=(job,)),),
+        )
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="analysis-production-local",
+            eligible_output_kinds=("vlm_asset_analysis",),
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_analysis_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T14:07:30Z",
+                completed_at="2026-05-10T14:07:35Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Unsafe analysis production input path", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
+
+    def test_analysis_adapter_rejects_symlinked_input_without_output(self) -> None:
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            outside_path = workspace / "outside.MOV"
+            outside_path.write_bytes(b"outside camera bytes")
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.symlink_to(outside_path)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_analysis_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T14:08:00Z",
+                completed_at="2026-05-10T14:08:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("analysis production input", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(outside_bytes, b"outside camera bytes")
+
+    def test_analysis_adapter_rejects_symlinked_output_without_modifying_target(self) -> None:
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted analysis source")
+            outside_path = workspace / "outside-analysis.json"
+            outside_path.write_bytes(b"do not overwrite")
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.symlink_to(outside_path)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_analysis_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T14:09:00Z",
+                completed_at="2026-05-10T14:09:05Z",
+            )
+            output_is_symlink = output_path.is_symlink()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("analysis production output", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertTrue(output_is_symlink)
+        self.assertEqual(outside_bytes, b"do not overwrite")
+
+    def test_analysis_adapter_preserves_existing_different_output_for_review(self) -> None:
+        trusted_plan, ready_manifest, action = self._analysis_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted analysis source")
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.write_bytes(b"manual analysis")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_analysis_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T14:10:00Z",
+                completed_at="2026-05-10T14:10:05Z",
+            )
+            preserved_bytes = output_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("analysis production output", result.final_status.error_message or "")
+        self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertEqual(preserved_bytes, b"manual analysis")
 
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
@@ -638,6 +802,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             preserved_bytes = output_path.read_bytes()
 
         self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("metadata production output", result.final_status.error_message or "")
         self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
         self.assertEqual(result.outputs_materialized, ())
         self.assertEqual(preserved_bytes, b"manual metadata")
@@ -731,6 +896,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             preserved_bytes = output_path.read_bytes()
 
         self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("proxy production output", result.final_status.error_message or "")
         self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
         self.assertEqual(result.outputs_materialized, ())
         self.assertEqual(preserved_bytes, b"manual proxy")
@@ -885,6 +1051,31 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             ),
             updated_at="2026-05-09T16:03:00Z",
         )
+
+    @classmethod
+    def _analysis_ready_context(cls):
+        trusted_plan = build_production_plan(
+            [MediaAsset(path="originals/A001.MOV", media_type="video", duration_seconds=12.0)],
+            shoot_slug="analysis-adapter",
+        )
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                cls._succeeded_status(trusted_plan.job_by_id("proxy_asset_00000")),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[1:]
+            ),
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="analysis-production-local",
+            eligible_output_kinds=("vlm_asset_analysis",),
+        ).actions[0]
+        return trusted_plan, ready_manifest, action
 
 
 if __name__ == "__main__":

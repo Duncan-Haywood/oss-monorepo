@@ -581,7 +581,12 @@ def _materialize_analysis_production_outputs(
     if trusted_plan is None:
         raise ProductionAdapterError("analysis production adapter requires a trusted plan")
     root = _workspace_root(workspace_root)
-    input_metadata = _metadata_for_input(root, action.inputs[0], allow_logical=False)
+    input_metadata = _metadata_for_input(
+        root,
+        action.inputs[0],
+        allow_logical=False,
+        label="analysis production input",
+    )
     media_type = _analysis_media_type_from_plan(action, trusted_plan=trusted_plan)
     materialized: list[str] = []
     for output in action.outputs:
@@ -841,7 +846,7 @@ def _copy_proxy_output(
             "Proxy production adapter does not materialize directory-style output: "
             f"{output}"
         )
-    input_path = _workspace_input_path(root, input_ref)
+    input_path = _workspace_input_path(root, input_ref, label="proxy production input")
     _reject_symlink_path(input_path.parent, root, "proxy production input directory")
     _reject_symlink_path(input_path, root, "proxy production input")
 
@@ -858,7 +863,12 @@ def _copy_proxy_output(
 
     if output_path.exists():
         expected_sha256 = _sha256_proxy_input(input_path, input_ref=input_ref)
-        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        _validate_existing_output(
+            output_path,
+            output=output,
+            expected_sha256=expected_sha256,
+            label="proxy production output",
+        )
         return
 
     temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
@@ -896,7 +906,12 @@ def _copy_proxy_output(
         try:
             os.link(temp_path, output_path)
         except FileExistsError:
-            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+            _validate_existing_output(
+                output_path,
+                output=output,
+                expected_sha256=expected_sha256,
+                label="proxy production output",
+            )
         except OSError as exc:
             raise ProductionAdapterError(f"Unable to commit proxy production output: {output}") from exc
     except OSError as exc:
@@ -929,7 +944,12 @@ def _write_production_output_bytes(
     _reject_symlink_path(output_path, root, f"{label} output")
 
     if output_path.exists():
-        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        _validate_existing_output(
+            output_path,
+            output=output,
+            expected_sha256=expected_sha256,
+            label=f"{label} output",
+        )
         return
 
     temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
@@ -950,7 +970,12 @@ def _write_production_output_bytes(
         try:
             os.link(temp_path, output_path)
         except FileExistsError:
-            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+            _validate_existing_output(
+                output_path,
+                output=output,
+                expected_sha256=expected_sha256,
+                label=f"{label} output",
+            )
         except OSError as exc:
             raise ProductionAdapterError(f"Unable to commit {label} output: {output}") from exc
     except OSError as exc:
@@ -1029,15 +1054,26 @@ def _analysis_score(sha256: str, *, offset: int) -> float:
 def _metadata_for_inputs(root: Path, action: ProductionWorkerAction) -> tuple[dict[str, object], ...]:
     allow_logical_inputs = action.output_kind == "look_development"
     return tuple(
-        _metadata_for_input(root, input_ref, allow_logical=allow_logical_inputs)
+        _metadata_for_input(
+            root,
+            input_ref,
+            allow_logical=allow_logical_inputs,
+            label="metadata production input",
+        )
         for input_ref in action.inputs
     )
 
 
-def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> dict[str, object]:
-    input_path = _workspace_input_path(root, input_ref)
-    _reject_symlink_path(input_path.parent, root, "metadata production input directory")
-    _reject_symlink_path(input_path, root, "metadata production input")
+def _metadata_for_input(
+    root: Path,
+    input_ref: str,
+    *,
+    allow_logical: bool,
+    label: str,
+) -> dict[str, object]:
+    input_path = _workspace_input_path(root, input_ref, label=label)
+    _reject_symlink_path(input_path.parent, root, f"{label} directory")
+    _reject_symlink_path(input_path, root, label)
     flags = os.O_RDONLY
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -1047,20 +1083,20 @@ def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> d
     except FileNotFoundError as exc:
         if allow_logical:
             return _logical_input_metadata(input_ref)
-        raise ProductionAdapterError(f"Missing metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Missing {label}: {input_ref}") from exc
     except OSError as exc:
-        raise ProductionAdapterError(f"Unable to open metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to open {label}: {input_ref}") from exc
 
     digest = hashlib.sha256()
     try:
         with os.fdopen(fd, "rb") as input_file:
             input_stat = os.fstat(input_file.fileno())
             if not stat.S_ISREG(input_stat.st_mode):
-                raise ProductionAdapterError(f"Refusing non-file metadata production input: {input_ref}")
+                raise ProductionAdapterError(f"Refusing non-file {label}: {input_ref}")
             for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
                 digest.update(chunk)
     except OSError as exc:
-        raise ProductionAdapterError(f"Unable to read metadata production input: {input_ref}") from exc
+        raise ProductionAdapterError(f"Unable to read {label}: {input_ref}") from exc
 
     return {
         "path": _workspace_display_path(root, input_path, fallback=input_ref),
@@ -1141,8 +1177,8 @@ def _workspace_output_path(root: Path, output: str) -> Path:
     return output_path
 
 
-def _workspace_input_path(root: Path, input_ref: str) -> Path:
-    _validate_production_input_path(input_ref)
+def _workspace_input_path(root: Path, input_ref: str, *, label: str = "metadata production input") -> Path:
+    _validate_production_input_path(input_ref, label=label)
     raw_input_path = Path(input_ref)
     root_absolute = root.absolute()
     if raw_input_path.is_absolute():
@@ -1154,7 +1190,7 @@ def _workspace_input_path(root: Path, input_ref: str) -> Path:
     try:
         input_path.absolute().relative_to(root_absolute)
     except ValueError as exc:
-        raise ProductionAdapterError(f"Metadata production input escapes workspace: {input_ref}") from exc
+        raise ProductionAdapterError(f"{label.capitalize()} escapes workspace: {input_ref}") from exc
     return input_path
 
 
@@ -1168,14 +1204,18 @@ def _validate_production_output_path(output: str) -> None:
         raise ProductionAdapterError(f"Unsafe dry-run production output path: {output}")
 
 
-def _validate_production_input_path(input_ref: str) -> None:
+def _validate_production_input_path(
+    input_ref: str,
+    *,
+    label: str = "metadata production input",
+) -> None:
     if not isinstance(input_ref, str) or not input_ref.strip():
-        raise ProductionAdapterError("metadata production input path cannot be empty")
+        raise ProductionAdapterError(f"{label} path cannot be empty")
     if _contains_invalid_path_character(input_ref):
-        raise ProductionAdapterError(f"Unsafe metadata production input path: {input_ref!r}")
+        raise ProductionAdapterError(f"Unsafe {label} path: {input_ref!r}")
     input_path = Path(input_ref)
     if ".." in input_path.parts:
-        raise ProductionAdapterError(f"Unsafe metadata production input path: {input_ref}")
+        raise ProductionAdapterError(f"Unsafe {label} path: {input_ref}")
 
 
 def _contains_invalid_path_character(value: str) -> bool:
@@ -1202,21 +1242,22 @@ def _validate_existing_output(
     *,
     output: str,
     expected_sha256: str,
+    label: str,
 ) -> None:
     if not output_path.is_file():
-        raise ProductionAdapterError(f"Refusing non-file dry-run production output: {output}")
-    if _sha256_file(output_path) != expected_sha256:
-        raise ProductionAdapterError(f"Refusing to overwrite existing different dry-run production output: {output}")
+        raise ProductionAdapterError(f"Refusing non-file {label}: {output}")
+    if _sha256_file(output_path, label=label) != expected_sha256:
+        raise ProductionAdapterError(f"Refusing to overwrite existing different {label}: {output}")
 
 
-def _sha256_file(path: Path) -> str:
+def _sha256_file(path: Path, *, label: str = "dry-run production output") -> str:
     digest = hashlib.sha256()
     try:
         with path.open("rb") as output_file:
             for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
                 digest.update(chunk)
     except OSError as exc:
-        raise ProductionAdapterError(f"Unable to checksum dry-run production output: {path}") from exc
+        raise ProductionAdapterError(f"Unable to checksum {label}: {path}") from exc
     return digest.hexdigest()
 
 

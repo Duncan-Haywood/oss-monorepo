@@ -2,6 +2,72 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 14:30 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-24db` at `5d86af0`, matching
+`origin/main` and `origin/cursor/repository-branch-consolidation-3d2e`. The
+assigned remote branch did not exist yet at session start.
+
+Branch reconciliation findings:
+
+- `git fetch --prune origin main` completed successfully.
+- No remote work branch was ahead of `origin/main`; all remote feature refs were
+  contained in main.
+- Local `main` and local `cursor/setup-dev-env-3ad0` were stale local refs only;
+  neither contained branch-only work ahead of `origin/main`.
+- Final local cleanup fast-forwarded local `main` to `origin/main` without
+  leaving the assigned branch and deleted stale local
+  `cursor/setup-dev-env-3ad0`.
+- Because the cloud branch contract for this session requires pushing only the
+  assigned branch, this run preserves the new hardening work on
+  `cursor/branch-reconciliation-and-merge-24db` for the platform's PR/merge flow
+  rather than pushing directly to `main`.
+
+This run completed the documented analysis-adapter hardening pass:
+
+- Added direct negative coverage for `analysis-production-local` wrong output
+  kind, malformed `analysis/00000.json` output shape, malformed input path,
+  symlinked input, symlinked output, and existing different analysis output.
+- The wrong-kind and malformed-output tests prove those invalid actions are
+  rejected before the adapter claims production status, leaving the trusted
+  manifest unchanged.
+- The symlink and existing-different-output tests prove the analysis adapter
+  preserves outside targets/manual outputs and returns retryable review states
+  without materializing declared analysis JSON.
+- Shared adapter path/output helpers now accept adapter-specific labels, so
+  retryable errors for analysis/proxy/metadata failures name the boundary that
+  actually failed instead of leaking generic dry-run or metadata wording,
+  including unsafe input-path validation.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_rejects_symlinked_input_without_output tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_preserves_existing_different_output_for_review`
+  failed because analysis failures still reported `metadata production input` and
+  `dry-run production output` labels.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_rejects_wrong_output_kind_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_rejects_malformed_output_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_malformed_input_becomes_retryable_after_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_rejects_symlinked_input_without_output tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_rejects_symlinked_output_without_modifying_target tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_preserves_existing_different_output_for_review`
+  -> 6 tests OK.
+- Related suite:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter`
+  -> 30 tests OK.
+- Final verification before commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 397 tests OK; compileall and diff-check exited 0; working tree had only
+  the intended docs, adapter, and adapter-test modifications.
+
+Good next test-first targets:
+
+- Register the next stage-specific adapter deliberately, likely scene grouping
+  or look/color decision proof, and prove it only schedules output kinds it can
+  materialize.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+- Add a small packaging consistency pass if desired: align `shootflow.__all__`
+  with the public-adjacent modules now documented in README and CLI workflows.
+
 ## Implementation continuation note - 2026-05-10 14:00 UTC
 
 This run started on assigned branch
