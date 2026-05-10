@@ -96,7 +96,10 @@ The repo currently contains a Python core package because it is quick to test an
   `plan_next_production_wave_from_status(...)`, treating succeeded jobs as
   completed, pending jobs as schedulable when dependencies are satisfied, and
   running/retryable/failed jobs as non-schedulable state that remains visible
-  for UI or agent review.
+  for UI or agent review. CLI production-plan and next-wave summaries are schema
+  v2 and include root observe-only `workflow_authority` so a native shell can
+  show candidate production work without granting claim, retry, materialization,
+  cleanup, overwrite, deletion, or arbitrary file-mutation authority.
 - `shootflow.card_workflow`: a product-facing orchestration layer for the first
   Mac/native-shell demo. It composes mounted-volume discovery, source-size
   estimation, capacity-gated route recommendation, checksum ingest preview,
@@ -236,9 +239,13 @@ The repo currently contains a Python core package because it is quick to test an
   outputs. Its JSON summary includes advisory `next_actions` for status
   initialization and scheduler execution, including trusted completed dependency
   IDs while keeping runtime timestamps and renderer choices explicit instead of
-  baking them into the manifest.
+  baking them into the manifest. The summary is schema v2 and includes the root
+  observe-only `workflow_authority` object; command arrays are review/display
+  aids, not permission to initialize, schedule, retry, materialize, overwrite,
+  clean up, or delete files.
   The inspection command reads those same handoffs and emits the current product state without initializing,
-  scheduling, retrying, deleting, or materializing outputs.
+  scheduling, retrying, deleting, or materializing outputs. Its schema v2
+  summary carries the same root `workflow_authority` contract.
   The `card-dump-workflow` command now exposes the first complete product
   handoff for local media operations: preview route + ingest plan by default,
   and copy + production summary only when the caller supplies `--confirm-ingest`.
@@ -246,7 +253,10 @@ The repo currently contains a Python core package because it is quick to test an
   preparation and render-task writing so native shells can guide the user without
   expanding file authority. The JSON also includes an `agent_handoff` block so
   launch agents and native shells can branch on route repair, preview review, or
-  production-plan review without interpreting prose notes.
+  production-plan review without interpreting prose notes. Schema v2 root
+  `workflow_authority` remains observe-only, so `agent_handoff` may describe a
+  reviewed next step but cannot authorize copy, retry, cleanup, overwrite,
+  materialization, deletion, or arbitrary file mutation.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `init-production-status`, `dry-run-production-scheduler`, production review

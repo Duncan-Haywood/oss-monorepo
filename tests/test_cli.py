@@ -26,6 +26,19 @@ from shootflow.render_status import (
 from shootflow.story import ContentSequence, StorylinePlan, write_storyline_artifact
 
 
+OBSERVE_ONLY_WORKFLOW_AUTHORITY = {
+    "mode": "observe_only",
+    "handoff_kind": "presentation_only",
+    "permits_file_mutation": False,
+    "permits_copy": False,
+    "permits_retry": False,
+    "permits_cleanup": False,
+    "permits_overwrite": False,
+    "permits_materialization": False,
+    "permits_deletion": False,
+}
+
+
 class ShootFlowCliTests(unittest.TestCase):
     def test_create_demo_workspace_command_outputs_scheduler_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -79,7 +92,8 @@ class ShootFlowCliTests(unittest.TestCase):
             scheduler_exit_code = main(scheduler_args, stdout=scheduler_stdout)
 
         scheduler_report = json.loads(scheduler_stdout.getvalue())
-        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["schema_version"], 2)
+        self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(report["workspace"], str(workspace))
         self.assertEqual(report["shoot_slug"], "launch-demo")
         self.assertEqual(report["render_task_count"], 4)
@@ -225,7 +239,8 @@ class ShootFlowCliTests(unittest.TestCase):
 
         init_summary = json.loads(init_stdout.getvalue())
         printed_scheduler_report = json.loads(scheduler_stdout.getvalue())
-        self.assertEqual(create_report["schema_version"], 1)
+        self.assertEqual(create_report["schema_version"], 2)
+        self.assertEqual(create_report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(create_report["card_dump"]["status"], "ingest_complete")
         self.assertTrue(create_report["card_dump"]["ingest_executed"])
         self.assertEqual(create_report["card_dump"]["asset_counts"], {"photo": 2, "video": 1, "total": 3})
@@ -272,7 +287,8 @@ class ShootFlowCliTests(unittest.TestCase):
             cohort_report_exists = cohort_report_path.exists()
 
         self.assertEqual(exit_code, 0)
-        self.assertEqual(summary["schema_version"], 1)
+        self.assertEqual(summary["schema_version"], 2)
+        self.assertEqual(summary["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(summary["workspace"], str(workspace))
         self.assertEqual(summary["workspace_count"], 2)
         self.assertEqual(len(summary["shoot_workspaces"]), 2)
@@ -675,7 +691,8 @@ class ShootFlowCliTests(unittest.TestCase):
 
         report = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(report["schema_version"], 1)
+        self.assertEqual(report["schema_version"], 2)
+        self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(report["status"], "needs_status_initialization")
         self.assertFalse(report["status_manifest_present"])
         self.assertFalse(report["scheduler_report_present"])
@@ -1896,7 +1913,8 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
             report = json.loads(plan_stdout.getvalue())
             self.assertEqual(ingest_exit_code, 0)
             self.assertEqual(plan_exit_code, 0)
-            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(report["manifest_path"], str(manifest_path))
             self.assertEqual(report["workspace"], str(shoot_folder))
             self.assertEqual(report["shoot_date"], "2026-05-08")
@@ -2022,7 +2040,8 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
 
             report = json.loads(stdout.getvalue())
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(report["status"], "ready")
             self.assertEqual(report["wave_index"], 1)
             self.assertEqual(report["manifest_path"], str(manifest_path))
@@ -2175,6 +2194,8 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             scheduler_report = json.loads(scheduler_stdout.getvalue())
 
         self.assertEqual(exit_code, 0)
+        self.assertEqual(summary["schema_version"], 2)
+        self.assertEqual(summary["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertTrue(summary["created"])
         self.assertEqual(summary["workspace"], str(workspace))
         self.assertEqual(summary["ingest_manifest_path"], str(manifest_path))
@@ -2594,7 +2615,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             shoot_folder = ssd / "ShootFlow" / "2026-05-08_desert-editorial"
 
             self.assertEqual(exit_code, 0)
-            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(report["status"], "ready_for_review")
             self.assertFalse(report["ingest_executed"])
             self.assertEqual(report["route"]["source"]["name"], "EOS_DIGITAL")
@@ -2674,6 +2696,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
             manifest_path = shoot_folder / "ingest_manifest.json"
 
             self.assertEqual(exit_code, 0)
+            self.assertEqual(report["schema_version"], 2)
+            self.assertEqual(report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(report["status"], "ingest_complete")
             self.assertTrue(report["ingest_executed"])
             self.assertEqual(report["preview"]["item_count"], 4)

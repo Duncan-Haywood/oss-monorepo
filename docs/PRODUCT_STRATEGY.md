@@ -119,13 +119,18 @@ The current core models a concrete promise for high-volume users:
     storyline/grading preparation and the subsequent render-task handoff. The
     schema-versioned report also carries an `agent_handoff` block that tells
     launch agents whether the next safe step is route repair, preview review,
-    or production-plan review, and whether the next step may copy bytes.
+    or production-plan review, and whether the next step may copy bytes. Schema
+    v2 report JSON carries root observe-only `workflow_authority`; agents should
+    treat `next_step_may_copy_bytes` as a prompt to request explicit user
+    confirmation, not as copy authority.
 23. Use `write-render-tasks` after trusted analysis/storyline/grading artifacts
     exist so production shoots can enter the same persisted init/status/scheduler
     flow that demos already exercise. Its summary points native shells at
     `init-render-status` and `dry-run-render-scheduler` with trusted completed
     dependency IDs included, while keeping runtime scheduler parameters outside
-    the static handoff.
+    the static handoff. The summary is schema v2 and observe-only at the root,
+    so command arrays remain display/review affordances rather than file
+    mutation permission.
 24. Initialize `production_status.json` from the verified ingest manifest when a
     Mac shell or production worker needs durable progress for proxy, analysis,
     grading, storyline, and packaging work before render tasks exist. The status
@@ -156,7 +161,11 @@ The current core models a concrete promise for high-volume users:
     jobs, expired leases, and lease conflicts without rerunning scheduler logic.
     These scheduler reports now include validated product metric counts for
     completed, retryable, failed, blocked, attempted, skipped, review-required,
-    lease, materialized-output, failure-message, and total work.
+    lease, materialized-output, failure-message, and total work. The read-only
+    `plan-production` and `next-production-wave` summaries are schema v2 and
+    carry the shared observe-only `workflow_authority` block so native shells can
+    render candidate work without granting claim, retry, materialization, or
+    cleanup authority.
 25. Create repeatable persisted-manifest smoke/demo workspaces through the core
     helper so Mac UI shells and GTM demos exercise the same init/status/scheduler
     handoff as real shoots. The card-dump demo helper now adds a synthetic
@@ -219,8 +228,8 @@ to automate.
 1. Desktop ingest assistant that turns detected SD cards, folders, and SSD destinations into a reviewed
    import route. The current core now includes portable mounted-volume discovery, a typed native macOS
    metadata adapter for Disk Arbitration/Swift handoff, capacity-gated route recommendation, safe ingest
-   commands, a read-only `plan-production` report after ingest, and a
-   `write-render-tasks` handoff once trusted storyline/graded artifacts exist;
+   commands, a read-only schema v2 `plan-production` report after ingest, and a
+   schema v2 `write-render-tasks` handoff once trusted storyline/graded artifacts exist;
    the next step is a SwiftUI/menu-bar approval screen around the
    `card-dump-workflow` contract before proxy/analysis/grading work begins.
 2. Color-look profile model that can learn from a reference edit or existing

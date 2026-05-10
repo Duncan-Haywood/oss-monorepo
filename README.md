@@ -193,12 +193,19 @@ This repo currently contains the first testable core utilities:
   shells and GTM demos. Its CLI JSON includes an `agent_handoff` block so
   native shells and launch agents can distinguish blocked routing,
   review-required previews, and post-ingest production-plan review without
-  parsing prose notes.
+  parsing prose notes. The root schema v2 handoff JSON also includes the shared
+  observe-only `workflow_authority` block so those shells cannot treat preview,
+  copy, retry, render, cleanup, overwrite, materialization, or deletion as
+  authorized by the report payload.
 - `shootflow.cli` also exposes `write-render-tasks`, a post-storyline
   handoff that rebuilds the manifest-backed production plan, verifies trusted
   storyline selections and graded artifacts through `shootflow.assembly`, then
   creates or reuses `deliverables/render_tasks.json` without rendering media or
-  creating deliverable outputs.
+  creating deliverable outputs. Its schema v2 summary, plus the
+  `plan-production`, `next-production-wave`, `inspect-render-workspace`, and
+  demo-workspace summaries, carries the same root observe-only
+  `workflow_authority` contract even when advisory next actions or command
+  arrays are present.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
   continuation runs. It summarizes trusted ingest, production-status,
@@ -224,7 +231,9 @@ The intended first workflow is:
    location, destination paths, file sizes, and checksums before production.
 5. Summarize the manifest-backed production plan with `plan-production` so a Mac
    UI can show asset counts, parallel waves, and planned IG deliverables before
-   starting AI/color work.
+   starting AI/color work. The schema v2 JSON is presentation-only and grants no
+   copy, retry, materialization, cleanup, overwrite, deletion, or general file
+   mutation authority.
 6. Build production waves from manifest-backed photo/video assets so proxies,
    VLM analysis, color decisions, graded masters, storyline choices, and
    Instagram packages all trace back to verified originals.
@@ -248,7 +257,9 @@ The intended first workflow is:
     succeeded in `production_status.json` instead of rebuilding progress from
     caller-reported command-line IDs. Retryable jobs remain visible as
     review-required IDs and are retried through the scheduler only after the
-    caller explicitly allow-lists them.
+    caller explicitly allow-lists them. The handoff JSON is observe-only; it
+    describes candidate work and does not authorize the agent to claim, retry, or
+    materialize jobs by itself.
 12. Use production-worker transition helpers to plan dependency-ready
     proxy/VLM/color/story jobs from trusted status, claim one matching attempt as
     running, verify every declared output before success, and report retry/failure
@@ -526,7 +537,10 @@ and invoking `write-render-tasks`, so native shells do not need to infer the
 next safe handoff from nested paths. The report also includes an `agent_handoff`
 block: the machine-readable launch-agent/UI contract (`fix_route` for blocked
 discovery, `review_preview` before any confirmed copy, `review_production_plan`
-after a verified ingest).
+after a verified ingest). Its root `workflow_authority` block is still
+observe-only; `agent_handoff.next_step_may_copy_bytes` is an instruction to
+present an explicit reviewed confirmation path, not permission for a background
+agent to copy bytes.
 
 For repeatable GTM or native-shell smoke demos that need to prove the full
 card-dump-to-render handoff without real media, create a synthetic demo tree:
@@ -603,7 +617,9 @@ does not render media, delete sources, or create deliverable outputs. Its JSON
 summary includes `next_actions` for `init-render-status` and the
 `dry-run-render-scheduler` command, including the trusted completed dependency
 IDs the scheduler needs. Runtime-only arguments are called out separately so app
-shells can ask for timestamps/render adapter settings at the right layer.
+shells can ask for timestamps/render adapter settings at the right layer. The
+root observe-only authority block remains the permission gate; the advisory
+commands are display/review aids, not authorization to mutate files.
 
 ## Run tests
 

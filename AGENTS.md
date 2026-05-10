@@ -80,6 +80,12 @@ derived workspace-health authority inside the `workspace_health` artifact
 summary; old schema v1 workspace indexes still load as observe-only. These
 fields are presentation/diagnostic contracts only and do not authorize copy,
 retry, cleanup, overwrite, materialization, deletion, or any file mutation.
+The `plan-production`, `next-production-wave`, `write-render-tasks`,
+`card-dump-workflow`, render-workspace inspection, and demo workspace CLI
+summary JSON surfaces are schema v2 and also carry root
+`workflow_authority`. Treat command arrays, `next_actions`, `next_steps`, and
+`agent_handoff` as review/presentation aids only unless a separate explicit
+command invocation supplies its required confirmation/runtime arguments.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before

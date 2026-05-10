@@ -90,6 +90,13 @@ Why this wedge wins:
   contract so native UI and agent layers can separate presentation/diagnostic
   state from permission to copy, retry, materialize, overwrite, clean up, or
   delete files.
+- Schema v2 CLI handoff summaries for `plan-production`,
+  `next-production-wave`, `write-render-tasks`, `card-dump-workflow`,
+  render-workspace inspection, and no-real-media demo creation. These payloads
+  may include next actions, command arrays, or `agent_handoff` review hints, but
+  the root `workflow_authority` object keeps them presentation-only until a
+  separate explicit command invocation supplies its confirmation/runtime
+  arguments.
 - A read-only pilot dashboard contract that consumes workspace health and
   validated scheduler product metrics to show activation, throughput, and manual
   intervention signals without parsing raw worker internals or granting copy,
@@ -111,12 +118,14 @@ Why this wedge wins:
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
   graded artifacts into `deliverables/render_tasks.json` from the manifest-backed
-  production plan, while refusing to overwrite a different existing handoff.
+  production plan, while refusing to overwrite a different existing handoff and
+  emitting observe-only root authority on its handoff summary.
 - Safe render-status initialization plus dry-run worker scheduler/status
   reporting for resumable pipelines.
 - Read-only render-workspace inspection that tells a Mac app, launch agent, or
   continuation automation whether to initialize, schedule, review blocked or
-  retryable work, or review deliverables without mutating files.
+  retryable work, or review deliverables without mutating files; the summary now
+  carries the same root no-authority contract as workspace health.
 
 ## Phase 2: productionized deliverables
 

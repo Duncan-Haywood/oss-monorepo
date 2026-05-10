@@ -112,8 +112,10 @@ from shootflow.workspace_index import (
     workspace_index_to_dict,
     write_workspace_index,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 2
+_CLI_HANDOFF_SCHEMA_VERSION = 2
 
 
 class ShootFlowCliError(ValueError):
@@ -1146,6 +1148,8 @@ def _import_route_json(
     if not isinstance(recommendation, ImportRouteRecommendation):
         raise ShootFlowCliError("recommendation must be an ImportRouteRecommendation")
     payload = {
+        "schema_version": 1,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "status": recommendation.status,
         "ready": recommendation.ready,
         "review_required": recommendation.review_required,
@@ -1304,6 +1308,8 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
     total_bytes = sum(item.size_bytes for item in plan.items)
     return json.dumps(
         {
+            "schema_version": 1,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "shoot_folder": str(plan.shoot_folder),
             "source_root": str(plan.source_root),
             "destination_root": str(plan.destination_root),
@@ -1365,7 +1371,8 @@ def _production_plan_report_json(report: ProductionPlanReport) -> str:
         raise ShootFlowCliError("report must be a ProductionPlanReport")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "manifest_path": str(report.manifest_path),
             "workspace": str(report.workspace),
             "shoot_date": report.shoot_date,
@@ -1418,7 +1425,8 @@ def _production_wave_handoff_json(handoff: ProductionWaveHandoff) -> str:
         raise ShootFlowCliError("handoff must be a ProductionWaveHandoff")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "manifest_path": str(handoff.manifest_path),
             "workspace": str(handoff.workspace),
             "shoot_slug": handoff.shoot_slug,
@@ -1464,7 +1472,8 @@ def _write_render_tasks_summary_json(
         raise ShootFlowCliError("plan must be an AssemblyPlan")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "created": created,
             "ingest_manifest_path": str(ingest_manifest_path),
             "workspace": str(workspace),
@@ -1542,7 +1551,8 @@ def _card_dump_workflow_report_json(report: CardDumpWorkflowReport) -> str:
         raise ShootFlowCliError("report must be a CardDumpWorkflowReport")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "status": report.status,
             "ingest_executed": report.ingest_executed,
             "agent_handoff": _card_dump_agent_handoff_json(report),
@@ -1632,7 +1642,8 @@ def _render_workspace_report_json(report: RenderWorkspaceReport) -> str:
         raise ShootFlowCliError("report must be a RenderWorkspaceReport")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "workspace": str(report.workspace_root),
             "shoot_slug": report.shoot_slug,
             "render_plan_fingerprint": report.render_plan_fingerprint,
@@ -1662,7 +1673,8 @@ def _demo_workspace_json(demo: PersistedCliDemoWorkspace) -> str:
         raise ShootFlowCliError("demo must be a PersistedCliDemoWorkspace")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "workspace": str(demo.workspace_root),
             "render_tasks_manifest_path": str(demo.render_tasks_manifest_path),
             "shoot_slug": demo.trusted_plan.shoot_slug,
@@ -1689,7 +1701,8 @@ def _card_dump_demo_workspace_json(demo: CardDumpCliDemoWorkspace) -> str:
         raise ShootFlowCliError("demo must include a production report")
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "workspace_root": str(demo.workspace_root),
             "volume_root": str(demo.volume_root),
             "source_volume": str(demo.source_volume),
@@ -1732,7 +1745,8 @@ def _pilot_cohort_demo_workspace_json(demo: PilotCohortCliDemoWorkspace) -> str:
     cohort_payload = pilot_cohort_report_to_dict(demo.cohort_report)
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "workspace": str(demo.workspace_root),
             "workspace_count": len(demo.shoot_workspaces),
             "shoot_workspaces": [str(path) for path in demo.shoot_workspaces],
