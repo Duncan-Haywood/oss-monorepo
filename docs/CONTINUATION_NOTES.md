@@ -2,6 +2,79 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 15:00 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-bb46` at `5d86af0`, matching
+`origin/main` before fetch. The assigned remote branch did not exist yet at
+session start.
+
+Branch reconciliation at session start:
+
+- Fetched `origin/main` plus the prior saved work branch
+  `origin/cursor/branch-reconciliation-and-merge-24db`.
+- The current checkout initially did not contain the 14:30 UTC hardening commit
+  `82feb27`; that prior branch was one commit ahead of `origin/main`.
+- Fast-forwarded the assigned branch to `82feb27` before starting new work, so
+  the analysis-adapter safety coverage and adapter-specific failure labels are
+  not stranded outside this branch.
+- Pushed the assigned branch after that fast-forward before the next
+  implementation/testing loop.
+
+This run completed the next test-first adapter capability target:
+
+- Registered `scene-production-local` in `shootflow.production_adapter` with
+  output-kind scope `("scene_grouping",)`.
+- Added `run_scene_production_action(...)` and
+  `run_scene_production_batch(...)` behind the shared `ProductionAdapter*`
+  result/batch/error boundary.
+- The scene adapter validates that it is offered only the serial
+  `scene_grouping` job with declared output `analysis/scene_groups.json` before
+  claim.
+- It consumes trusted per-asset analysis artifacts through
+  `load_asset_analyses(...)`, then writes a deterministic
+  `analysis/scene_groups.json` summary with scene labels, grouped graded asset
+  paths, asset/media counts, primary tags, and average score signals.
+- Missing or invalid analysis files become retryable review states after a
+  guarded claim, preserving the trusted status loop without deleting source,
+  analysis, graded, render, or deliverable files.
+- Scheduler capability routing now accepts `scene-production-local` for
+  dependency-ready scene grouping after analysis success, then leaves
+  look/color/grade/story/package jobs pending or blocked for compatible future
+  adapters.
+- CLI help plus AGENTS, README, product strategy, business plan, and design
+  decisions document this as a deterministic serial-stage contract probe, not
+  final creative scene clustering.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_writes_deterministic_grouping_from_trusted_analyses tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_missing_analysis_becomes_retryable_after_claim tests.test_production_scheduler.DryRunProductionSchedulerTests.test_scene_adapter_scheduler_leaves_downstream_jobs_pending`
+  failed because `run_scene_production_action` was missing and the scheduler
+  rejected unsupported adapter `scene-production-local`.
+- Focused green:
+  same command -> 4 tests OK.
+- Related suites from committed tree:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 66 tests OK.
+- Full committed-tree verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 400 tests OK; compileall and diff-check exited 0; working tree was clean
+  against the pushed assigned branch before this continuation-note update.
+
+Good next test-first targets:
+
+- Register the next stage-specific adapter deliberately, likely
+  `look-production-local` for `look_development` or a guarded grade-decision
+  proof, and prove it only schedules output kinds it can materialize.
+- Add direct negative coverage for `scene-production-local`: wrong output kind,
+  malformed output, symlinked `analysis/scene_groups.json`, existing different
+  scene-group output, and unplanned per-asset analysis file propagation from
+  `load_asset_analyses(...)`.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 14:30 UTC
 
 This run started on assigned branch
