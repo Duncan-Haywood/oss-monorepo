@@ -2347,6 +2347,82 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             brief["notes"],
         )
 
+    def test_package_handoff_brief_uses_final_status_after_noop_scheduler_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            self._write_package_ready_production_status(workspace, production_plan)
+            first_stdout = io.StringIO()
+            first_exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "package-production-local",
+                    "--started-at",
+                    "2026-05-10T22:36:00Z",
+                    "--completed-at",
+                    "2026-05-10T22:36:05Z",
+                    "--generated-at",
+                    "2026-05-10T22:36:06Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "2",
+                ],
+                stdout=first_stdout,
+            )
+            second_stdout = io.StringIO()
+            second_exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "package-production-local",
+                    "--started-at",
+                    "2026-05-10T22:37:00Z",
+                    "--completed-at",
+                    "2026-05-10T22:37:05Z",
+                    "--generated-at",
+                    "2026-05-10T22:37:06Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "1",
+                    "--print-report",
+                ],
+                stdout=second_stdout,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "package-handoff-brief",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=stdout,
+            )
+            noop_report = json.loads(second_stdout.getvalue())
+            brief = json.loads(stdout.getvalue())
+
+        self.assertEqual(first_exit_code, 0)
+        self.assertEqual(second_exit_code, 0)
+        self.assertEqual(noop_report["outputs_materialized"], [])
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(brief["package_readiness"]["status"], "ready")
+        self.assertEqual(
+            brief["package_readiness"]["materialized_package_outputs"],
+            [
+                "deliverables/instagram_reel.mp4",
+                "deliverables/instagram_carousel/",
+                "deliverables/instagram_photo_set/",
+            ],
+        )
+
     def test_write_render_tasks_command_persists_trusted_assembly_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

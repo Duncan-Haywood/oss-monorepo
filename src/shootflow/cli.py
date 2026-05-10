@@ -76,6 +76,7 @@ from shootflow.production_scheduler import (
 from shootflow.production_status import (
     ProductionStatusError,
     ProductionStatusInitializationResult,
+    ProductionStatusManifest,
     initialize_production_status_manifest,
     load_production_status_manifest,
 )
@@ -507,6 +508,7 @@ def _run_package_handoff_brief_command(args: argparse.Namespace, *, stdout: Text
         _package_handoff_brief_json(
             report,
             trusted_plan=trusted_plan,
+            final_manifest=final_manifest,
             ingest_manifest_path=manifest_path,
             workspace=workspace,
         )
@@ -1282,6 +1284,7 @@ def _package_handoff_brief_json(
     report: DryRunProductionSchedulerReport,
     *,
     trusted_plan: ProductionPlan,
+    final_manifest: ProductionStatusManifest,
     ingest_manifest_path: Path,
     workspace: Path,
 ) -> str:
@@ -1289,6 +1292,8 @@ def _package_handoff_brief_json(
         raise ShootFlowCliError("report must be a DryRunProductionSchedulerReport")
     if not isinstance(trusted_plan, ProductionPlan):
         raise ShootFlowCliError("trusted_plan must be a ProductionPlan")
+    if not isinstance(final_manifest, ProductionStatusManifest):
+        raise ShootFlowCliError("final_manifest must be a ProductionStatusManifest")
     if not isinstance(ingest_manifest_path, Path):
         raise ShootFlowCliError("ingest_manifest_path must be a Path")
     if not isinstance(workspace, Path):
@@ -1298,14 +1303,21 @@ def _package_handoff_brief_json(
     )
     package_job_ids = tuple(job.job_id for job in package_jobs)
     package_outputs = frozenset(output for job in package_jobs for output in job.outputs)
+    statuses_by_id = {status.job_id: status for status in final_manifest.job_statuses}
     completed_package_job_ids = tuple(
-        job_id for job_id in package_job_ids if job_id in report.completed_job_ids
+        job_id
+        for job_id in package_job_ids
+        if statuses_by_id[job_id].state == "succeeded"
     )
     review_required_package_job_ids = tuple(
         job_id for job_id in package_job_ids if job_id in report.review_required_job_ids
     )
     materialized_package_outputs = tuple(
-        output for output in report.outputs_materialized if output in package_outputs
+        checksum.path
+        for job_id in package_job_ids
+        if statuses_by_id[job_id].state == "succeeded"
+        for checksum in statuses_by_id[job_id].output_checksums
+        if checksum.path in package_outputs
     )
     controls = observe_only_handoff_controls_to_dict(
         {"workflow_authority": dict(report.workflow_authority)},
