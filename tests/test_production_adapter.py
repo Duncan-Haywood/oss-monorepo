@@ -1344,6 +1344,21 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "Grade production source_scene_groups analysis_count must be a non-negative integer",
             ),
             (
+                "source_scene_groups_signed_sha256",
+                lambda look_payload: look_payload.__setitem__(
+                    "source_scene_groups",
+                    {
+                        "path": "analysis/scene_groups.json",
+                        "sha256": "+" + ("a" * 63),
+                        "analysis_count": 2,
+                        "scene_count": 2,
+                        "scene_labels": ["ceremony", "portraits"],
+                        "primary_tags": ["dance", "portrait", "vows"],
+                    },
+                ),
+                "Grade production source_scene_groups sha256 must be a SHA-256 hex digest",
+            ),
+            (
                 "look_profile_empty_tone_curve",
                 set_look_profile_field("tone_curve", ""),
                 "Grade production look_profile tone_curve cannot be empty",

@@ -1842,12 +1842,8 @@ def _grade_look_source_scene_summary(raw_payload: dict[str, object]) -> None:
     sha256 = source_scene_groups.get("sha256")
     if not isinstance(sha256, str) or len(sha256) != 64:
         raise ProductionAdapterError("Grade production source_scene_groups sha256 must be a SHA-256 hex digest")
-    try:
-        int(sha256, 16)
-    except ValueError as exc:
-        raise ProductionAdapterError(
-            "Grade production source_scene_groups sha256 must be a SHA-256 hex digest"
-        ) from exc
+    if not all(character in "0123456789abcdefABCDEF" for character in sha256):
+        raise ProductionAdapterError("Grade production source_scene_groups sha256 must be a SHA-256 hex digest")
     for field_name in ("analysis_count", "scene_count"):
         _grade_look_non_negative_int(source_scene_groups, f"source_scene_groups {field_name}", field_name)
     for field_name in ("scene_labels", "primary_tags"):
