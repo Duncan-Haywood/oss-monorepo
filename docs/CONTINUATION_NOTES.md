@@ -69,9 +69,13 @@ Final branch reconciliation:
 - Fast-forwarded `origin/main` to the consolidated assigned-branch head so the
   metadata adapter, pilot blocker work, and this session's proxy adapter are not
   stranded outside main.
-- Final state intended for the next run: `origin/main` and
-  `origin/cursor/repository-branch-consolidation-7d3b` should both point at the
-  same consolidated head once this note is committed and pushed.
+- Deleted the redundant remote branches
+  `cursor/branch-consolidation-strategy-a88d` and
+  `cursor/repository-branch-consolidation-110c` after confirming both were
+  contained in `origin/main`.
+- Final state for the next run: only `origin/main` and the assigned
+  `origin/cursor/repository-branch-consolidation-7d3b` remain, and both point at
+  the same consolidated head once this note is committed and pushed.
 
 ## Branch reconciliation note - 2026-05-10 11:00 UTC
 
