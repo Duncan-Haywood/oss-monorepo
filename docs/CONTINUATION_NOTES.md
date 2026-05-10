@@ -14,6 +14,9 @@ This run consolidated the remaining useful branch work onto the assigned branch
   `origin/cursor/branch-consolidation-e152`.
 - Folded in the cleaner continuation-note resolution from
   `origin/cursor/branch-reconciliation-and-merge-5098`.
+- When `origin/cursor/branch-reconciliation-and-merge-5098` reappeared with a
+  new metadata scheduler CLI regression, preserved that fixture here while
+  keeping this branch's stricter adapter-batch validation.
 - Deleted the superseded remote branches after their useful work was present on
   `cursor/branch-consolidation-1ada`, removed the stale local
   `cursor/setup-dev-env-3ad0`, and reset local `main` to `origin/main`.
@@ -37,6 +40,9 @@ Verification in this session:
 - Final tree after adapter validation follow-up:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
   -> 360 tests OK; compileall and diff-check passed.
+- Final tree after preserving the reappeared metadata scheduler CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 361 tests OK; compileall and diff-check passed.
 
 ## Implementation continuation note - 2026-05-10 05:30 UTC
 
