@@ -2,6 +2,82 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 16:30 UTC
+
+This run started on assigned branch
+`cursor/repository-branch-consolidation-c627` at `8bec8d5`, matching
+`origin/main` and the previous consolidated look-adapter head. The assigned
+remote branch did not exist at session start.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main`; fetching the assigned remote branch failed because the
+  remote ref did not exist yet.
+- A follow-up `git fetch --prune origin main` showed the current branch and
+  `origin/main` were equal before implementation.
+- Compared all local and remote refs against `origin/main`. The only ref with
+  branch-only commits was `origin/cursor/branch-consolidation-d362`, one
+  docs-only commit (`48a7be4`) that adds a 16:00 branch-cleanup note from before
+  the look-adapter implementation. It remains ahead by one and behind by two; it
+  was intentionally not merged because its continuation note is stale and
+  superseded by the 16:00 implementation note plus this note.
+- Deleted the stale local-only `cursor/setup-dev-env-3ad0` branch after
+  confirming it is contained in `origin/main`.
+- Fast-forwarded local `main` to `origin/main` without leaving the assigned
+  branch.
+
+This run hardened the `look-production-local` trust boundary:
+
+- Added strict scene-summary schema validation inside the look adapter after the
+  scene-grouping output is checksum-verified and before `color/shoot_look.json`
+  is written.
+- The look adapter now rejects boolean `schema_version`, boolean `scene_count`,
+  malformed per-scene counts, non-list or wrong-length `asset_paths`, non-string
+  asset paths, malformed `primary_tags`, non-finite/NaN scores, out-of-range
+  scores, and `analysis_count` values that do not match the scene asset counts.
+- These validation failures become retryable review states after the look job is
+  claimed, preserving the no-delete/no-cleanup boundary and avoiding silent look
+  profiles from malformed upstream summaries.
+- Added direct look-adapter coverage for malformed scene summary payloads,
+  wrong output kind, malformed output path, scene checksum drift, symlinked look
+  output, existing different look output, and the custom scene dependency ID
+  path.
+- Updated design decisions to record that `look-production-local` validates
+  scene summary shape and aggregate counts, not just dependency checksums.
+
+Verification performed during this run:
+
+- Red regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_malformed_scene_summary_payload`
+  failed because a checksum-valid scene summary with malformed `asset_paths`
+  still produced a succeeded look output.
+- Focused green after parser hardening: the same test -> OK.
+- Review-found red: expanded malformed scene-summary subtests failed on the
+  boolean/NaN validation gaps before `schema_version`, `scene_count`, and score
+  validation were tightened.
+- Focused look coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_writes_deterministic_look_from_trusted_scene_groups tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_malformed_scene_dependency_becomes_retryable_after_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_malformed_scene_summary_payload tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_wrong_output_kind_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_malformed_output_before_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_scene_checksum_drift tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_rejects_symlinked_output_without_modifying_target tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_preserves_existing_different_output_for_review tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_accepts_custom_scene_dependency_id_from_trusted_plan`
+  -> 9 tests OK.
+- Related production suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 82 tests OK.
+- Full verification before this note:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 416 tests OK; compileall and diff-check exited 0 with only the intended
+  production-adapter, test, and docs files modified.
+
+Good next test-first targets:
+
+- Add scheduler-level checksum-drift/malformed-scene-summary coverage for
+  `look-production-local` so persisted scheduler reports surface the same
+  retryable review state through the end-to-end loop.
+- Register the first guarded grading adapter for `graded_video`/`graded_photo`
+  only after the strengthened look artifact remains stable enough for downstream
+  storyline assembly.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 16:00 UTC
 
 This run started on assigned branch

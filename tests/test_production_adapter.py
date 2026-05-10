@@ -865,6 +865,250 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(loaded_manifest.job_statuses[1], result.final_status)
         self.assertFalse(output_exists)
 
+    def test_look_adapter_rejects_malformed_scene_summary_payload(self) -> None:
+        trusted_plan, _ready_manifest, action = self._look_ready_context()
+
+        def set_scene_field(field_name: str, value: object):
+            def mutate(scene_payload: dict[str, object]) -> None:
+                scene_groups = scene_payload["scene_groups"]
+                assert isinstance(scene_groups, list)
+                first_group = scene_groups[0]
+                assert isinstance(first_group, dict)
+                first_group[field_name] = value
+
+            return mutate
+
+        def set_bool_scene_count(scene_payload: dict[str, object]) -> None:
+            scene_groups = scene_payload["scene_groups"]
+            assert isinstance(scene_groups, list)
+            scene_payload["scene_groups"] = scene_groups[:1]
+            scene_payload["scene_count"] = True
+            scene_payload["analysis_count"] = 1
+
+        def set_asset_count_mismatch(scene_payload: dict[str, object]) -> None:
+            scene_groups = scene_payload["scene_groups"]
+            assert isinstance(scene_groups, list)
+            first_group = scene_groups[0]
+            assert isinstance(first_group, dict)
+            first_group["asset_count"] = 2
+            first_group["video_count"] = 2
+
+        cases = (
+            (
+                "asset_paths_type",
+                set_scene_field("asset_paths", "originals/A001.MOV"),
+                "asset_paths must be a list",
+            ),
+            (
+                "media_count_mismatch",
+                set_scene_field("video_count", 0),
+                "scene media counts do not match asset_count",
+            ),
+            (
+                "asset_count_mismatch",
+                set_asset_count_mismatch,
+                "asset_count does not match asset_paths",
+            ),
+            (
+                "score_range",
+                set_scene_field("average_story_score", 1.2),
+                "average_story_score must be between 0 and 1",
+            ),
+            (
+                "nan_score",
+                set_scene_field("average_story_score", float("nan")),
+                "average_story_score must be finite",
+            ),
+            (
+                "primary_tags_content",
+                set_scene_field("primary_tags", ["vows", ""]),
+                "primary_tags must contain strings",
+            ),
+            (
+                "analysis_count_mismatch",
+                lambda scene_payload: scene_payload.__setitem__("analysis_count", 1),
+                "analysis_count does not match scene asset counts",
+            ),
+            (
+                "schema_version_bool",
+                lambda scene_payload: scene_payload.__setitem__("schema_version", True),
+                "requires scene grouping schema_version 1",
+            ),
+            (
+                "scene_count_bool",
+                set_bool_scene_count,
+                "scene_count does not match scene_groups",
+            ),
+        )
+
+        for case_name, mutate_payload, expected_message in cases:
+            with self.subTest(case_name=case_name), tempfile.TemporaryDirectory() as tmpdir:
+                workspace = Path(tmpdir)
+                self._write_scene_groups_with_manifest(trusted_plan, workspace)
+                scene_path = workspace / "analysis/scene_groups.json"
+                scene_payload = json.loads(scene_path.read_text(encoding="utf-8"))
+                mutate_payload(scene_payload)
+                scene_path.write_text(
+                    json.dumps(scene_payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                ready_manifest = self._look_ready_manifest_with_checksum(
+                    trusted_plan,
+                    scene_checksum=self._sha256_file(scene_path),
+                )
+                write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+                result = run_look_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=action,
+                    started_at="2026-05-10T16:08:00Z",
+                    completed_at="2026-05-10T16:08:05Z",
+                )
+                loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+                output_exists = (workspace / action.outputs[0]).exists()
+
+                self.assertEqual(result.final_status.state, "retryable")
+                self.assertIn(expected_message, result.final_status.error_message or "")
+                self.assertEqual(loaded_manifest.job_statuses[5], result.final_status)
+                self.assertFalse(output_exists)
+
+    def test_look_adapter_rejects_wrong_output_kind_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._look_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="look-production-local",
+            attempt_number=action.attempt_number,
+            output_kind="graded_video",
+            inputs=action.inputs,
+            outputs=action.outputs,
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "only materializes look_development"):
+                run_look_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T16:09:00Z",
+                    completed_at="2026-05-10T16:09:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_look_adapter_rejects_malformed_output_before_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._look_ready_context()
+        malformed_action = ProductionWorkerAction(
+            job_id=action.job_id,
+            worker_adapter="look-production-local",
+            attempt_number=action.attempt_number,
+            output_kind=action.output_kind,
+            inputs=action.inputs,
+            outputs=("color/not_shoot_look.json",),
+            depends_on=action.depends_on,
+            can_run_in_parallel=action.can_run_in_parallel,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            with self.assertRaisesRegex(ProductionAdapterError, "requires color/shoot_look.json output"):
+                run_look_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=malformed_action,
+                    started_at="2026-05-10T16:10:00Z",
+                    completed_at="2026-05-10T16:10:05Z",
+                )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(loaded_manifest, ready_manifest)
+
+    def test_look_adapter_rejects_scene_checksum_drift(self) -> None:
+        trusted_plan, _ready_manifest, action = self._look_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_groups_with_manifest(trusted_plan, workspace)
+            scene_path = workspace / "analysis/scene_groups.json"
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+            scene_path.write_text('{"schema_version": 1, "scene_groups": []}\n', encoding="utf-8")
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:11:00Z",
+                completed_at="2026-05-10T16:11:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Look production dependency checksum mismatch", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+
+    def test_look_adapter_rejects_symlinked_output_without_modifying_target(self) -> None:
+        trusted_plan, _ready_manifest, action = self._look_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_groups_with_manifest(trusted_plan, workspace)
+            outside_path = workspace / "outside-shoot-look.json"
+            outside_path.write_bytes(b"do not overwrite")
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.symlink_to(outside_path)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:12:00Z",
+                completed_at="2026-05-10T16:12:05Z",
+            )
+            output_is_symlink = output_path.is_symlink()
+            outside_bytes = outside_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("look production output", result.final_status.error_message or "")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertTrue(output_is_symlink)
+        self.assertEqual(outside_bytes, b"do not overwrite")
+
+    def test_look_adapter_preserves_existing_different_output_for_review(self) -> None:
+        trusted_plan, _ready_manifest, action = self._look_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_scene_groups_with_manifest(trusted_plan, workspace)
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.write_bytes(b"manual shoot look")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_look_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T16:13:00Z",
+                completed_at="2026-05-10T16:13:05Z",
+            )
+            preserved_bytes = output_path.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("look production output", result.final_status.error_message or "")
+        self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertEqual(preserved_bytes, b"manual shoot look")
+
     def test_look_adapter_accepts_custom_scene_dependency_id_from_trusted_plan(self) -> None:
         scene_job = ProductionJob(
             job_id="cluster_reception_scenes",

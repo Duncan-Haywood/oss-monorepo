@@ -90,7 +90,8 @@ The repo currently contains a Python core package because it is quick to test an
   summary for `scene_grouping` jobs only, proving the analysis-to-scene rejoin
   before real clustering workers are trusted. `look-production-local` is the next
   deterministic serial-stage probe: it verifies the succeeded scene-grouping
-  output against `production_status.json` checksums and writes one declared
+  output against `production_status.json` checksums, validates the scene summary
+  payload shape and aggregate counts, and writes one declared
   `color/shoot_look.json` profile for `look_development` jobs only, proving the
   scene-to-look handoff before real color science, reference-look learning, or
   grading workers are trusted. All adapters

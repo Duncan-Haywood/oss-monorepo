@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import stat
 import uuid
@@ -1434,16 +1435,22 @@ def _scene_group_summary(scene_output: tuple[str, str, bytes, ProductionJob]) ->
             raise ProductionAdapterError(
                 f"Look production scene grouping {field_name} does not match trusted plan"
             )
-    if raw_payload.get("schema_version") != 1:
+    schema_version = raw_payload.get("schema_version")
+    if not isinstance(schema_version, int) or isinstance(schema_version, bool) or schema_version != 1:
         raise ProductionAdapterError("Look production requires scene grouping schema_version 1")
     scene_groups = raw_payload.get("scene_groups")
     if not isinstance(scene_groups, list):
         raise ProductionAdapterError("Look production scene_groups must be a list")
     declared_scene_count = raw_payload.get("scene_count")
-    if not isinstance(declared_scene_count, int) or declared_scene_count != len(scene_groups):
+    if (
+        not isinstance(declared_scene_count, int)
+        or isinstance(declared_scene_count, bool)
+        or declared_scene_count != len(scene_groups)
+    ):
         raise ProductionAdapterError("Look production scene_count does not match scene_groups")
     primary_tags: set[str] = set()
     scene_labels: list[str] = []
+    total_asset_count = 0
     for scene_group in scene_groups:
         if not isinstance(scene_group, dict):
             raise ProductionAdapterError("Look production scene group must be an object")
@@ -1451,6 +1458,26 @@ def _scene_group_summary(scene_output: tuple[str, str, bytes, ProductionJob]) ->
         if not isinstance(scene_label, str) or not scene_label.strip():
             raise ProductionAdapterError("Look production scene_label cannot be empty")
         scene_labels.append(scene_label)
+        asset_count = _scene_group_non_negative_int(scene_group, "asset_count")
+        video_count = _scene_group_non_negative_int(scene_group, "video_count")
+        photo_count = _scene_group_non_negative_int(scene_group, "photo_count")
+        if video_count + photo_count != asset_count:
+            raise ProductionAdapterError("Look production scene media counts do not match asset_count")
+        asset_paths = scene_group.get("asset_paths")
+        if not isinstance(asset_paths, list):
+            raise ProductionAdapterError("Look production asset_paths must be a list")
+        if len(asset_paths) != asset_count:
+            raise ProductionAdapterError("Look production asset_count does not match asset_paths")
+        for asset_path in asset_paths:
+            if not isinstance(asset_path, str) or not asset_path.strip():
+                raise ProductionAdapterError("Look production asset_paths must contain strings")
+        for score_field in (
+            "average_aesthetic_score",
+            "average_story_score",
+            "average_technical_score",
+            "average_motion_score",
+        ):
+            _scene_group_score(scene_group, score_field)
         raw_tags = scene_group.get("primary_tags", [])
         if not isinstance(raw_tags, list):
             raise ProductionAdapterError("Look production primary_tags must be a list")
@@ -1458,9 +1485,14 @@ def _scene_group_summary(scene_output: tuple[str, str, bytes, ProductionJob]) ->
             if not isinstance(tag, str) or not tag.strip():
                 raise ProductionAdapterError("Look production primary_tags must contain strings")
             primary_tags.add(tag)
+        total_asset_count += asset_count
     analysis_count = raw_payload.get("analysis_count")
-    if not isinstance(analysis_count, int) or analysis_count < len(scene_groups):
-        raise ProductionAdapterError("Look production analysis_count is invalid")
+    if (
+        not isinstance(analysis_count, int)
+        or isinstance(analysis_count, bool)
+        or analysis_count != total_asset_count
+    ):
+        raise ProductionAdapterError("Look production analysis_count does not match scene asset counts")
     return {
         "path": output,
         "sha256": sha256,
@@ -1469,6 +1501,25 @@ def _scene_group_summary(scene_output: tuple[str, str, bytes, ProductionJob]) ->
         "scene_labels": sorted(scene_labels),
         "primary_tags": sorted(primary_tags),
     }
+
+
+def _scene_group_non_negative_int(scene_group: dict[str, object], field_name: str) -> int:
+    value = scene_group.get(field_name)
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise ProductionAdapterError(f"Look production {field_name} must be a non-negative integer")
+    return value
+
+
+def _scene_group_score(scene_group: dict[str, object], field_name: str) -> float:
+    value = scene_group.get(field_name)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ProductionAdapterError(f"Look production {field_name} must be a score")
+    score = float(value)
+    if not math.isfinite(score):
+        raise ProductionAdapterError(f"Look production {field_name} must be finite")
+    if score < 0.0 or score > 1.0:
+        raise ProductionAdapterError(f"Look production {field_name} must be between 0 and 1")
+    return score
 
 
 def _look_output_bytes(
