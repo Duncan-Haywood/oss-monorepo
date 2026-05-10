@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -7,6 +8,7 @@ from shootflow.production import build_production_plan
 from shootflow.production_adapter import (
     DryRunProductionAdapterResult,
     DryRunProductionError,
+    run_metadata_production_action,
     run_dry_run_production_action,
     supported_production_adapter_names,
 )
@@ -174,6 +176,120 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.outputs_materialized, ())
         self.assertFalse(package_path_exists)
         self.assertEqual(loaded_manifest.job_statuses[trusted_plan.jobs.index(trusted_plan.job_by_id(target_job_id))], result.final_status)
+
+    def test_metadata_adapter_writes_declared_output_metadata(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"metadata-source-bytes")
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T09:35:00Z",
+                completed_at="2026-05-10T09:35:05Z",
+            )
+            output_payload = (workspace / action.outputs[0]).read_text(encoding="utf-8")
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        metadata = json.loads(output_payload)
+        self.assertIn("metadata-production-local", supported_production_adapter_names())
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, action.outputs)
+        self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
+        self.assertEqual(metadata["schema_version"], 1)
+        self.assertEqual(metadata["adapter"], "shootflow-metadata-production-local")
+        self.assertEqual(metadata["job_id"], action.job_id)
+        self.assertEqual(metadata["output_kind"], action.output_kind)
+        self.assertEqual(metadata["selected_output"], action.outputs[0])
+        self.assertEqual(metadata["inputs"][0]["path"], action.inputs[0])
+        self.assertEqual(metadata["inputs"][0]["kind"], "file")
+        self.assertEqual(metadata["inputs"][0]["size_bytes"], len(b"metadata-source-bytes"))
+        self.assertRegex(metadata["inputs"][0]["sha256"], r"^[0-9a-f]{64}$")
+
+    def test_metadata_adapter_rejects_symlinked_input_without_writing_output(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            outside = workspace / "outside.mov"
+            outside.write_bytes(b"outside-media")
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.symlink_to(outside)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T09:36:00Z",
+                completed_at="2026-05-10T09:36:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            source_is_symlink = source_path.is_symlink()
+            outside_bytes = outside.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertFalse(output_exists)
+        self.assertTrue(source_is_symlink)
+        self.assertEqual(outside_bytes, b"outside-media")
+
+    def test_metadata_adapter_rejects_symlinked_output_without_modifying_target(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"metadata-source-bytes")
+            outside = workspace / "outside-output.json"
+            outside.write_bytes(b"do-not-touch")
+            output_path = workspace / action.outputs[0]
+            output_path.parent.mkdir(parents=True)
+            output_path.symlink_to(outside)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T09:37:00Z",
+                completed_at="2026-05-10T09:37:05Z",
+            )
+            output_is_symlink = output_path.is_symlink()
+            outside_bytes = outside.read_bytes()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("symlink", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertTrue(output_is_symlink)
+        self.assertEqual(outside_bytes, b"do-not-touch")
 
     @staticmethod
     def _trusted_plan():
