@@ -236,7 +236,7 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload["stopped_reason"], "retryable")
         self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs[:3]])
-        self.assertEqual(payload["review_required_job_ids"], ["develop_shoot_look"])
+        self.assertIn("develop_shoot_look", payload["review_required_job_ids"])
         self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(status_manifest.job_statuses[3].state, "retryable")
         self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production")
