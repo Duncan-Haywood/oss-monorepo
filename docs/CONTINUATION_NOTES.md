@@ -2,6 +2,50 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 12:00 UTC
+
+This run continued the production-adapter hardening thread from the 11:30 UTC
+proxy adapter work.
+
+- Added an output-kind eligibility filter to `plan_production_worker_actions(...)`
+  so scheduler callers can ask for only the stages a specific local adapter can
+  actually execute.
+- Wired the production scheduler to treat `proxy-production-local` as a
+  stage-specific proxy-wave worker. It now schedules only `proxy_media` jobs for
+  that adapter and leaves ready analysis/color/story/package jobs pending for
+  future adapters rather than attempting them through the proxy copy path.
+- Updated the proxy scheduler regression to assert the desired product behavior:
+  after proxy materialization, analysis remains pending with zero attempts,
+  retryable IDs stay empty, blocked IDs stay empty, and the scheduler stops as
+  `waiting` for another adapter.
+- Updated README/business/design documentation to make the stage-specific adapter
+  contract explicit.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters`
+  failed because the scheduler still stopped as `blocked`.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker.ProductionWorkerTests.test_filters_worker_actions_by_eligible_output_kind_without_blocking_other_stages tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters`
+  -> 2 tests OK.
+- Focused production/CLI regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_worker tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 127 tests OK.
+
+Good next test-first targets:
+
+- Move the adapter capability map out of the scheduler into an adapter registry
+  once additional local workers land, so VLM, color, storyline, and packaging
+  adapters can declare their supported `output_kind` values without growing
+  scheduler conditionals.
+- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
+  `ProductionAdapter*` names now that metadata and proxy adapters are real local
+  adapter proofs.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 11:30 UTC
 
 This run first reconciled stranded completed work, then added the next

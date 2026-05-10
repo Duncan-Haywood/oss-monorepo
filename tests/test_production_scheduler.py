@@ -66,7 +66,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         )
         self.assertEqual(attempted_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
 
-    def test_proxy_adapter_does_not_mark_analysis_jobs_retryable(self) -> None:
+    def test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters(self) -> None:
         trusted_plan = self._video_only_plan()
         initial_manifest = self._pending_manifest(trusted_plan)
 
@@ -88,16 +88,14 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             )
             loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
 
-        self.assertEqual(result.stopped_reason, "blocked")
+        self.assertEqual(result.stopped_reason, "waiting")
         self.assertEqual(loaded_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(loaded_manifest.job_statuses[1].state, "pending")
         self.assertEqual(loaded_manifest.job_statuses[1].attempts, 0)
         self.assertEqual(result.retryable_job_ids, ())
-        self.assertEqual(result.iterations[1].attempted_job_ids, ("analyze_asset_00000",))
-        self.assertIsNotNone(result.iterations[1].batch_result)
-        failure = result.iterations[1].batch_result.failures[0]
-        self.assertEqual(failure.job_id, "analyze_asset_00000")
-        self.assertIn("only materializes proxy_media", failure.error_message)
+        self.assertEqual(result.blocked_job_ids, ())
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertIsNone(result.iterations[1].batch_result)
 
     def test_scheduler_does_not_hammer_retryable_job_in_same_run(self) -> None:
         trusted_plan = self._video_only_plan()

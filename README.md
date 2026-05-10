@@ -452,6 +452,10 @@ stand-in that copies trusted input bytes into declared proxy outputs. Both follo
 the same scheduler/status contract, read only trusted workspace-bound inputs,
 write only declared outputs, and record retryable review states for symlinked
 inputs/outputs, directory-style outputs, missing inputs, or output conflicts.
+The production scheduler now treats `proxy-production-local` as a stage-specific
+adapter: it schedules only `proxy_media` jobs for that worker, then leaves later
+analysis, look, grading, storyline, and packaging jobs pending for their own
+future adapters instead of attempting them through the proxy copy path.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and

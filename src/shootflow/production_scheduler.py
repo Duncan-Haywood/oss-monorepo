@@ -199,6 +199,7 @@ def run_dry_run_production_scheduler(
             trusted_plan,
             status_manifest,
             worker_adapter=worker_adapter,
+            eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
         )
         ready_actions = tuple(
             action
@@ -274,6 +275,7 @@ def run_dry_run_production_scheduler(
         trusted_plan,
         final_manifest,
         worker_adapter=worker_adapter,
+        eligible_output_kinds=_eligible_output_kinds_for_adapter(worker_adapter),
     )
     ready_after_cap = tuple(
         action
@@ -425,6 +427,12 @@ def _reviewed_retryable_tuple(
         seen.add(job_id)
         reviewed.append(job_id)
     return tuple(reviewed)
+
+
+def _eligible_output_kinds_for_adapter(worker_adapter: str) -> tuple[str, ...] | None:
+    if worker_adapter == "proxy-production-local":
+        return ("proxy_media",)
+    return None
 
 
 def _expire_stale_leases(

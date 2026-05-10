@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 import hashlib
 import re
 from dataclasses import dataclass
@@ -93,8 +94,10 @@ def plan_production_worker_actions(
     status_manifest: ProductionStatusManifest,
     *,
     worker_adapter: str,
+    eligible_output_kinds: Iterable[str] | None = None,
 ) -> ProductionWorkerActionPlan:
     _validate_worker_adapter(worker_adapter)
+    eligible_output_kind_set = _eligible_output_kind_set(eligible_output_kinds)
     try:
         validate_production_status_manifest(status_manifest, trusted_plan=trusted_plan)
     except (ProductionStatusError, TypeError) as exc:
@@ -108,6 +111,8 @@ def plan_production_worker_actions(
     actions: list[ProductionWorkerAction] = []
     blocked_jobs: list[BlockedProductionJob] = []
     for job in trusted_plan.jobs:
+        if eligible_output_kind_set is not None and job.output_kind not in eligible_output_kind_set:
+            continue
         status = statuses_by_id[job.job_id]
         if status.state not in _RUNNABLE_STATES:
             continue
@@ -319,6 +324,26 @@ def report_production_worker_failure(
 def _validate_worker_adapter(worker_adapter: str) -> None:
     if not isinstance(worker_adapter, str) or not _WORKER_PATTERN.fullmatch(worker_adapter):
         raise ProductionWorkerError("Invalid production worker adapter")
+
+
+def _eligible_output_kind_set(eligible_output_kinds: Iterable[str] | None) -> frozenset[str] | None:
+    if eligible_output_kinds is None:
+        return None
+    if isinstance(eligible_output_kinds, str):
+        raise ProductionWorkerError("eligible_output_kinds must be an iterable of output kinds")
+    try:
+        iterator = iter(eligible_output_kinds)
+    except TypeError as exc:
+        raise ProductionWorkerError("eligible_output_kinds must be iterable") from exc
+    output_kinds: list[str] = []
+    seen: set[str] = set()
+    for output_kind in iterator:
+        _validate_non_empty_string(output_kind, "eligible output kind")
+        if output_kind in seen:
+            raise ProductionWorkerError(f"duplicate eligible output kind: {output_kind}")
+        seen.add(output_kind)
+        output_kinds.append(output_kind)
+    return frozenset(output_kinds)
 
 
 def _statuses_by_id(status_manifest: ProductionStatusManifest) -> dict[str, ProductionJobStatus]:
