@@ -65,7 +65,8 @@ This repo currently contains the first testable core utilities:
   It can also persist `deliverables/render_scheduler_report.json`, a strict
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
-  details plus derived product metrics without granting any new file authority.
+  details plus derived product metrics and root observe-only
+  `workflow_authority` without granting any new file authority.
 - `shootflow.render_workspace` gives a Mac app, launch agent, or continuation
   automation a read-only inspection surface over persisted render handoffs. It
   loads the strict render-task manifest, optionally validates the matching
@@ -186,7 +187,9 @@ This repo currently contains the first testable core utilities:
   completed, retryable, failed, blocked, attempted, skipped retryable,
   expired-lease, conflicted-lease, review-required, materialized output, and
   failure-message details plus derived product metrics bound to the final
-  production status.
+  production status. The persisted report also carries root observe-only
+  `workflow_authority`, so post-operation evidence cannot unlock retry, cleanup,
+  overwrite, materialization, deletion, or other file-changing controls.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app

@@ -29,6 +29,11 @@ from shootflow.render_worker import (
     plan_render_worker_actions,
     plan_stale_render_leases,
 )
+from shootflow.workflow_authority import (
+    WorkflowAuthorityError,
+    observe_only_workflow_authority_to_dict,
+    validate_observe_only_workflow_authority,
+)
 
 _RENDERER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 RENDER_SCHEDULER_REPORT_PATH = "deliverables/render_scheduler_report.json"
@@ -56,6 +61,7 @@ _REPORT_KEYS = frozenset(
         "outputs_materialized",
         "failure_messages",
         "product_metrics",
+        "workflow_authority",
     }
 )
 _MESSAGE_KEYS = frozenset({"task_id", "message"})
@@ -617,6 +623,7 @@ def _report_to_json(report: DryRunRenderSchedulerReport) -> dict[str, object]:
         "schema_version": _REPORT_SCHEMA_VERSION,
         "generated_at": report.generated_at,
         "shoot_slug": report.shoot_slug,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "render_plan_fingerprint": report.render_plan_fingerprint,
         "renderer_adapter": report.renderer_adapter,
         "stopped_reason": report.stopped_reason,
@@ -645,9 +652,10 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
     raw_schema_version = raw_report.get("schema_version")
     if raw_schema_version not in _SUPPORTED_REPORT_SCHEMA_VERSIONS:
         raise DryRunRenderSchedulerError("Render scheduler report schema_version is unsupported")
-    required_keys = _REPORT_KEYS
+    required_keys = _REPORT_KEYS - {"workflow_authority"}
     if raw_schema_version == 1:
         required_keys = _REPORT_KEYS - {"product_metrics"}
+        required_keys = required_keys - {"workflow_authority"}
     missing_keys = required_keys - set(raw_report)
     if unknown_keys:
         raise DryRunRenderSchedulerError(
@@ -657,6 +665,14 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
         raise DryRunRenderSchedulerError(
             f"Render scheduler report is missing fields: {sorted(missing_keys)}"
         )
+    if "workflow_authority" in raw_report:
+        try:
+            validate_observe_only_workflow_authority(
+                raw_report["workflow_authority"],
+                field_label="workflow_authority",
+            )
+        except WorkflowAuthorityError as exc:
+            raise DryRunRenderSchedulerError(str(exc)) from exc
     iteration_count = _json_non_negative_int(raw_report["iteration_count"], "iteration_count")
     total_task_count = _json_non_negative_int(raw_report["total_task_count"], "total_task_count")
     completed_task_ids = _json_string_tuple(raw_report["completed_task_ids"], "completed_task_ids")

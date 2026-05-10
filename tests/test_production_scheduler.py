@@ -375,6 +375,20 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
 
         self.assertEqual(report_path.name, PRODUCTION_SCHEDULER_REPORT_PATH)
         self.assertEqual(raw_report["schema_version"], 2)
+        self.assertEqual(
+            raw_report["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertIsInstance(loaded_report, DryRunProductionSchedulerReport)
         self.assertEqual(loaded_report.generated_at, "2026-05-09T17:00:06Z")
         self.assertEqual(loaded_report.shoot_slug, trusted_plan.shoot_slug)
@@ -410,6 +424,41 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.product_metrics["completed_job_count"], len(trusted_plan.jobs))
         with self.assertRaises(TypeError):
             loaded_report.product_metrics["completed_job_count"] = 0
+
+    def test_scheduler_report_rejects_authorizing_workflow_authority(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:20Z",
+                completed_at="2026-05-09T17:00:25Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:26Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["workflow_authority"]["permits_retry"] = True
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunProductionSchedulerError, "workflow_authority"):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
 
     def test_scheduler_report_rejects_forged_product_metrics(self) -> None:
         trusted_plan = self._video_only_plan()

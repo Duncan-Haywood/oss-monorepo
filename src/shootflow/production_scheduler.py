@@ -31,6 +31,11 @@ from shootflow.production_worker import (
     plan_production_worker_actions,
     plan_stale_production_leases,
 )
+from shootflow.workflow_authority import (
+    WorkflowAuthorityError,
+    observe_only_workflow_authority_to_dict,
+    validate_observe_only_workflow_authority,
+)
 
 _WORKER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 PRODUCTION_SCHEDULER_REPORT_PATH = "production_scheduler_report.json"
@@ -59,10 +64,13 @@ _REPORT_KEYS = frozenset(
         "outputs_materialized",
         "failure_messages",
         "product_metrics",
+        "workflow_authority",
     }
 )
 _MESSAGE_KEYS = frozenset({"job_id", "message"})
-_OPTIONAL_REPORT_KEYS = frozenset({"expired_lease_job_ids", "conflicted_lease_job_ids"})
+_OPTIONAL_REPORT_KEYS = frozenset(
+    {"expired_lease_job_ids", "conflicted_lease_job_ids", "workflow_authority"}
+)
 _PRODUCT_METRIC_NAMES = frozenset(
     {
         "total_job_count",
@@ -670,6 +678,7 @@ def _report_to_json(report: DryRunProductionSchedulerReport) -> dict[str, object
         "schema_version": _REPORT_SCHEMA_VERSION,
         "generated_at": report.generated_at,
         "shoot_slug": report.shoot_slug,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "production_plan_fingerprint": report.production_plan_fingerprint,
         "production_status_fingerprint": report.production_status_fingerprint,
         "worker_adapter": report.worker_adapter,
@@ -711,6 +720,14 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
         raise DryRunProductionSchedulerError(
             f"Production scheduler report is missing fields: {sorted(missing_keys)}"
         )
+    if "workflow_authority" in raw_report:
+        try:
+            validate_observe_only_workflow_authority(
+                raw_report["workflow_authority"],
+                field_label="workflow_authority",
+            )
+        except WorkflowAuthorityError as exc:
+            raise DryRunProductionSchedulerError(str(exc)) from exc
     iteration_count = _json_non_negative_int(raw_report["iteration_count"], "iteration_count")
     total_job_count = _json_non_negative_int(raw_report["total_job_count"], "total_job_count")
     completed_job_ids = _json_string_tuple(raw_report["completed_job_ids"], "completed_job_ids")

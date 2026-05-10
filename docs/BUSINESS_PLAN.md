@@ -79,7 +79,10 @@ Why this wedge wins:
   UI/agent layers can show completed outputs, retry conflicts, blocked work,
   expired leases, lease conflicts, and failure messages without rerunning
   orchestration. The report now also carries derived product metrics so pilot
-  analytics can track throughput and intervention rate from the trusted handoff.
+  analytics can track throughput and intervention rate from the trusted handoff,
+  plus root observe-only `workflow_authority` so the saved post-operation report
+  cannot be interpreted as permission to retry, clean up, overwrite,
+  materialize, delete, or otherwise mutate files.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
@@ -122,7 +125,9 @@ Why this wedge wins:
   production plan, while refusing to overwrite a different existing handoff and
   emitting observe-only root authority on its handoff summary.
 - Safe render-status initialization plus dry-run worker scheduler/status
-  reporting for resumable pipelines.
+  reporting for resumable pipelines. Persisted render scheduler reports now carry
+  observe-only `workflow_authority` alongside validated product metrics, keeping
+  scheduler evidence separate from any future retry/materialization authority.
 - Read-only render-workspace inspection that tells a Mac app, launch agent, or
   continuation automation whether to initialize, schedule, review blocked or
   retryable work, or review deliverables without mutating files; the summary now

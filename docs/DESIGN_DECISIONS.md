@@ -161,7 +161,9 @@ The repo currently contains a Python core package because it is quick to test an
   preserved for review instead of being hammered repeatedly. It can persist a strict
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
-  blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+  blocked, review-required, materialized-output, lease-conflict, failure-message details, validated product metrics,
+  and root observe-only `workflow_authority` without granting new renderer, retry, cleanup, overwrite, or deletion
+  authority.
 - `shootflow.workspace_health`: a read-only continuation diagnostic for native
   shells, launch agents, and future agents. It validates production status plus
   production scheduler reports from the trusted ingest manifest, then validates
@@ -449,7 +451,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   failed, blocked, review-required, materialized-output, and failure-message
   details for UI/continuation review. It also emits validated product metric
   counts derived from those same fields, so metrics cannot be forged into product
-  truth without matching the final trusted status.
+  truth without matching the final trusted status. Its root observe-only
+  `workflow_authority` makes the saved post-operation report presentation-only;
+  retry, cleanup, materialization, overwrite, and deletion still require a
+  separate reviewed action path.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -539,7 +544,9 @@ High quality depends on scene-level consistency and reversible edits. The system
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
   state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 adds
   derived product metrics to the report and validates them against the task/status fields instead of trusting caller
-  supplied analytics.
+  supplied analytics; current writes also include root observe-only
+  `workflow_authority`, and the loader rejects any present authority block that
+  attempts to grant file mutation.
 - `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
