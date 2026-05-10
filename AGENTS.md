@@ -29,6 +29,7 @@ PYTHONPATH=src python3 -m shootflow.cli --help
 PYTHONPATH=src python3 -m shootflow.cli init-render-status --workspace <dir>
 PYTHONPATH=src python3 -m shootflow.cli plan-import-route --volume-root <dir> ...
 PYTHONPATH=src python3 -m shootflow.cli workspace-health --workspace <dir>
+PYTHONPATH=src python3 -m shootflow.cli handoff-controls --handoff-json <path>
 PYTHONPATH=src python3 -m shootflow.cli index-workspace --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli pilot-dashboard --workspace <dir> --generated-at <timestamp>
 PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-report --dashboard-json <path> ... --generated-at <timestamp>
@@ -91,7 +92,9 @@ supplies its required confirmation/runtime arguments. Consumers that need native
 control state should call
 `shootflow.workflow_authority.observe_only_handoff_controls_to_dict(...)` and
 bind file-operation controls to its all-disabled output rather than parsing
-presentation fields.
+presentation fields. The `handoff-controls` CLI command is a read-only wrapper
+around that same reader for shell/native integrations that validate saved
+handoff JSON files before enabling adjacent UI controls.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before

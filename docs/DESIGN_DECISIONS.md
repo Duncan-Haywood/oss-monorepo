@@ -267,6 +267,11 @@ The repo currently contains a Python core package because it is quick to test an
   `plan-import-route`, `preview-ingest`, and the confirmed `execute-ingest`
   receipt also use schema v2 observe-only payloads; the receipt reports an
   already-confirmed copy result and grants no further copy or deletion authority.
+  The read-only `handoff-controls` command wraps the shared authority reader for
+  saved handoff JSON files, returning disabled native file-operation controls
+  only after validating the root observe-only authority object. This gives
+  SwiftUI/menu-bar shells a CLI bridge for fail-closed control binding without
+  parsing `next_actions`, `next_steps`, `agent_handoff`, or prose.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `init-production-status`, `dry-run-production-scheduler`, production review

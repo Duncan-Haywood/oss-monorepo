@@ -416,6 +416,8 @@ PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
 PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
   --cohort-report <pilot_cohort_report.json> \
   --format text
+PYTHONPATH=src python3 -m shootflow.cli handoff-controls \
+  --handoff-json <saved-handoff.json>
 PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
   --workspace <demo-dir> \
   --workspace-count 2 \
@@ -631,7 +633,10 @@ observe-only authority object and returns disabled file-operation controls, so
 UIs do not infer copy, retry, materialization, cleanup, overwrite, deletion, or
 general file-mutation permission from `next_actions`, `next_steps`,
 `writes_files`, `agent_handoff`, or prose. See `docs/WORKFLOW_AUTHORITY.md` for
-the consumer contract.
+the consumer contract. Shell integrations can use
+`python -m shootflow.cli handoff-controls --handoff-json <path>` to run the same
+fail-closed validation over a saved handoff file and print the disabled native
+control map as observe-only JSON.
 
 ## Run tests
 

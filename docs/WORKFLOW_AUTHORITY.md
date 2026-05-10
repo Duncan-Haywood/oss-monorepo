@@ -56,6 +56,22 @@ the observe-only object or attempts to set one of the authority booleans to
 `true`, the reader raises `WorkflowAuthorityError` and the UI should fail
 closed.
 
+## CLI validation bridge
+
+Shell/native integrations can validate a saved handoff without reimplementing
+the Python reader:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli handoff-controls \
+  --handoff-json <saved-handoff.json>
+```
+
+The command is read-only. It loads the saved JSON, rejects missing or
+authorizing root authority, and prints schema v2 observe-only JSON containing
+the disabled `handoff_controls` map. Its output is still a presentation
+surface; it does not authorize copy, retry, cleanup, overwrite,
+materialization, deletion, or any other file mutation.
+
 ## Future action contracts
 
 Write-capable actions require a separate explicit invocation or a future

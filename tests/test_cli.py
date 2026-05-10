@@ -38,8 +38,89 @@ OBSERVE_ONLY_WORKFLOW_AUTHORITY = {
     "permits_deletion": False,
 }
 
+DISABLED_NATIVE_CONTROLS = {
+    "file_mutation_enabled": False,
+    "copy_enabled": False,
+    "retry_enabled": False,
+    "cleanup_enabled": False,
+    "overwrite_enabled": False,
+    "materialization_enabled": False,
+    "deletion_enabled": False,
+}
+
 
 class ShootFlowCliTests(unittest.TestCase):
+    def test_handoff_controls_command_derives_disabled_controls(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "handoff.json"
+            handoff_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 2,
+                        "workflow_authority": OBSERVE_ONLY_WORKFLOW_AUTHORITY,
+                        "next_actions": [
+                            {
+                                "name": "dry-run-render-scheduler",
+                                "writes_files": True,
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "handoff-controls",
+                    "--handoff-json",
+                    str(handoff_path),
+                ],
+                stdout=stdout,
+            )
+
+        self.assertEqual(exit_code, 0)
+        controls = json.loads(stdout.getvalue())
+        self.assertEqual(controls["schema_version"], 2)
+        self.assertEqual(controls["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
+        self.assertEqual(controls["handoff_controls"], DISABLED_NATIVE_CONTROLS)
+        self.assertEqual(controls["handoff_path"], str(handoff_path))
+
+    def test_handoff_controls_command_rejects_authorizing_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "handoff.json"
+            handoff_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 2,
+                        "workflow_authority": {
+                            **OBSERVE_ONLY_WORKFLOW_AUTHORITY,
+                            "permits_retry": True,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "handoff-controls",
+                    "--handoff-json",
+                    str(handoff_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn(
+            "handoff.workflow_authority.permits_retry must be False",
+            stderr.getvalue(),
+        )
+
     def test_create_demo_workspace_command_outputs_scheduler_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)

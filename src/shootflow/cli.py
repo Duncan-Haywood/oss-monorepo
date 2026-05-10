@@ -112,7 +112,11 @@ from shootflow.workspace_index import (
     workspace_index_to_dict,
     write_workspace_index,
 )
-from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
+from shootflow.workflow_authority import (
+    WorkflowAuthorityError,
+    observe_only_handoff_controls_to_dict,
+    observe_only_workflow_authority_to_dict,
+)
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 2
 _CLI_HANDOFF_SCHEMA_VERSION = 2
@@ -168,6 +172,8 @@ def main(
             _run_next_production_wave_command(args, stdout=out)
         elif args.command == "card-dump-workflow":
             _run_card_dump_workflow_command(args, stdout=out)
+        elif args.command == "handoff-controls":
+            _run_handoff_controls_command(args, stdout=out)
         elif args.command == "workspace-health":
             _run_workspace_health_command(args, stdout=out)
         elif args.command == "index-workspace":
@@ -210,6 +216,7 @@ def main(
         RenderWorkspaceError,
         DemoWorkspaceError,
         StorageDiscoveryError,
+        WorkflowAuthorityError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -467,6 +474,13 @@ def _run_card_dump_workflow_command(args: argparse.Namespace, *, stdout: TextIO)
         volume_hints=_load_volume_metadata_json(args.volume_metadata_json),
     )
     stdout.write(_card_dump_workflow_report_json(report))
+
+
+def _run_handoff_controls_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    handoff_path = Path(args.handoff_json)
+    payload = _load_handoff_controls_payload(handoff_path)
+    controls = observe_only_handoff_controls_to_dict(payload, field_label=args.field_label)
+    stdout.write(_handoff_controls_json(handoff_path=handoff_path, controls=controls))
 
 
 def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -771,6 +785,21 @@ def _build_parser() -> argparse.ArgumentParser:
     card_dump.add_argument(
         "--volume-metadata-json",
         help="Optional strict JSON file from native volume discovery with per-volume metadata overrides.",
+    )
+
+    handoff_controls = subparsers.add_parser(
+        "handoff-controls",
+        help="Validate observe-only handoff JSON and print disabled native controls.",
+    )
+    handoff_controls.add_argument(
+        "--handoff-json",
+        required=True,
+        help="Path to a saved ShootFlow JSON handoff containing root workflow_authority.",
+    )
+    handoff_controls.add_argument(
+        "--field-label",
+        default="handoff",
+        help="Label used in validation errors. Defaults to handoff.",
     )
 
     workspace_health = subparsers.add_parser(
@@ -1171,6 +1200,30 @@ def _import_route_json(
         "discovered_candidates": [_storage_candidate_json(candidate) for candidate in discovered_candidates],
     }
     return json.dumps(payload, ensure_ascii=True, sort_keys=True)
+
+
+def _load_handoff_controls_payload(path: Path) -> dict[object, object]:
+    if path.is_symlink():
+        raise ShootFlowCliError(f"Refusing handoff JSON symlink: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    try:
+        raw_data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ShootFlowCliError(f"Invalid handoff JSON: {path}") from exc
+    if not isinstance(raw_data, dict):
+        raise ShootFlowCliError("Handoff JSON root must be an object")
+    return raw_data
+
+
+def _handoff_controls_json(*, handoff_path: Path, controls: dict[str, bool]) -> str:
+    payload = {
+        "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
+        "handoff_path": str(handoff_path),
+        "handoff_controls": dict(controls),
+    }
+    return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
 
 
 def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:
