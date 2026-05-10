@@ -11,6 +11,7 @@ from shootflow.production_adapter import (
     MetadataProductionAdapterResult,
     run_metadata_production_action,
     run_dry_run_production_action,
+    run_production_adapter_batch,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -254,6 +255,47 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.outputs_materialized, ())
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
+
+    def test_generic_batch_dispatch_runs_metadata_adapter(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action_plan = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            for action in action_plan.actions:
+                input_path = workspace / action.inputs[0]
+                input_path.parent.mkdir(parents=True, exist_ok=True)
+                input_path.write_bytes(f"input for {action.job_id}".encode("utf-8"))
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_production_adapter_batch(
+                workspace,
+                trusted_plan=trusted_plan,
+                action_plan=action_plan,
+                started_at="2026-05-10T10:07:00Z",
+                completed_at="2026-05-10T10:07:05Z",
+                max_concurrency=2,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            materialized_outputs = tuple(
+                output
+                for action_result in result.results
+                for output in action_result.outputs_materialized
+            )
+
+        self.assertEqual(result.worker_adapter, "metadata-production-local")
+        self.assertEqual(result.failures, ())
+        self.assertEqual(len(result.results), 2)
+        self.assertEqual(materialized_outputs, tuple(action.outputs[0] for action in action_plan.actions))
+        self.assertEqual(
+            tuple(status.state for status in loaded_manifest.job_statuses[:2]),
+            ("succeeded", "succeeded"),
+        )
 
     @staticmethod
     def _trusted_plan():
