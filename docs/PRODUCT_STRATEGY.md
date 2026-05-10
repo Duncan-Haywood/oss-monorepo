@@ -177,8 +177,11 @@ The current core models a concrete promise for high-volume users:
     scheduler product metrics as observational UI/analytics fields, letting a
     future Mac app or pilot dashboard show throughput and intervention-rate
     signals without parsing worker internals or treating metrics as file
-    authority. The first `pilot-dashboard` contract now consumes that health
-    layer directly and reports activation flags, metric-source availability,
+    authority. Workspace health schema v4 and workspace index schema v2 now also
+    expose the shared observe-only `workflow_authority` contract, so native
+    shells and agents can fail closed before presenting adjacent write-capable
+    controls. The first `pilot-dashboard` contract now consumes that health layer
+    directly and reports activation flags, metric-source availability,
     throughput, manual-intervention counts, and schema v2 pilot acceptance
     thresholds as read-only product signals. Default readiness is intentionally
     conservative: at least 90% trusted completion, at most 20% manual

@@ -38,13 +38,20 @@ from shootflow.render_status import (
     render_plan_fingerprint,
 )
 from shootflow.story import STORYLINE_ARTIFACT_PATH
+from shootflow.workflow_authority import (
+    WorkflowAuthorityError,
+    observe_only_workflow_authority_to_dict,
+    validate_observe_only_workflow_authority,
+)
 from shootflow.workspace_health import build_workspace_health_summary, workspace_health_summary_to_dict
 
 WORKSPACE_INDEX_PATH = "shootflow_workspace_index.json"
-_WORKSPACE_INDEX_SCHEMA_VERSION = 1
+_WORKSPACE_INDEX_SCHEMA_VERSION = 2
+_WORKSPACE_INDEX_LEGACY_SCHEMA_VERSION = 1
 _INDEX_KEYS = frozenset(
     {
         "schema_version",
+        "workflow_authority",
         "generated_at",
         "workspace_root",
         "index_path",
@@ -53,6 +60,7 @@ _INDEX_KEYS = frozenset(
         "notes",
     }
 )
+_LEGACY_INDEX_KEYS = _INDEX_KEYS - {"workflow_authority"}
 _ARTIFACT_KEYS = frozenset({"name", "path", "present", "trusted", "status", "summary"})
 
 
@@ -73,6 +81,7 @@ class WorkspaceArtifactSummary:
 @dataclass(frozen=True)
 class WorkspaceIndex:
     schema_version: int
+    workflow_authority: Mapping[str, object]
     generated_at: str
     workspace_root: Path
     index_path: Path
@@ -125,6 +134,7 @@ def build_workspace_index(
 
     index = WorkspaceIndex(
         schema_version=_WORKSPACE_INDEX_SCHEMA_VERSION,
+        workflow_authority=observe_only_workflow_authority_to_dict(),
         generated_at=generated_at,
         workspace_root=root,
         index_path=root / WORKSPACE_INDEX_PATH,
@@ -204,6 +214,7 @@ def workspace_index_to_dict(index: WorkspaceIndex) -> dict[str, object]:
     _validate_workspace_index(index)
     return {
         "schema_version": index.schema_version,
+        "workflow_authority": dict(index.workflow_authority),
         "generated_at": index.generated_at,
         "workspace_root": str(index.workspace_root),
         "index_path": str(index.index_path),
@@ -448,6 +459,7 @@ def _workspace_health_artifact(root: Path) -> WorkspaceArtifactSummary:
                 "render_scheduler_product_metrics"
             ],
             "task_count": health["task_count"],
+            "workflow_authority": health["workflow_authority"],
             "status_counts": health["status_counts"],
             "next_action": health["next_action"],
         },
@@ -737,8 +749,17 @@ def _workspace_index_json(index: WorkspaceIndex) -> str:
 
 
 def _workspace_index_from_json(raw_index: dict[str, object]) -> WorkspaceIndex:
-    _validate_exact_keys(raw_index, allowed_keys=_INDEX_KEYS, label="workspace index")
-    if raw_index["schema_version"] != _WORKSPACE_INDEX_SCHEMA_VERSION:
+    raw_schema_version = raw_index.get("schema_version")
+    if raw_schema_version == _WORKSPACE_INDEX_SCHEMA_VERSION:
+        _validate_exact_keys(raw_index, allowed_keys=_INDEX_KEYS, label="workspace index")
+        workflow_authority = _validated_workflow_authority(
+            raw_index["workflow_authority"],
+            field_label="workflow_authority",
+        )
+    elif raw_schema_version == _WORKSPACE_INDEX_LEGACY_SCHEMA_VERSION:
+        _validate_exact_keys(raw_index, allowed_keys=_LEGACY_INDEX_KEYS, label="workspace index")
+        workflow_authority = observe_only_workflow_authority_to_dict()
+    else:
         raise WorkspaceIndexError("Workspace index schema_version is unsupported")
     raw_artifacts = raw_index["artifacts"]
     if not isinstance(raw_artifacts, list):
@@ -749,6 +770,7 @@ def _workspace_index_from_json(raw_index: dict[str, object]) -> WorkspaceIndex:
         raise WorkspaceIndexError("workspace index notes must be a list")
     return WorkspaceIndex(
         schema_version=_WORKSPACE_INDEX_SCHEMA_VERSION,
+        workflow_authority=workflow_authority,
         generated_at=_json_string(raw_index["generated_at"], "generated_at"),
         workspace_root=Path(_json_string(raw_index["workspace_root"], "workspace_root")),
         index_path=Path(_json_string(raw_index["index_path"], "index_path")),
@@ -797,6 +819,7 @@ def _validate_workspace_index(index: WorkspaceIndex) -> None:
         raise WorkspaceIndexError("index must be a WorkspaceIndex")
     if index.schema_version != _WORKSPACE_INDEX_SCHEMA_VERSION:
         raise WorkspaceIndexError("workspace index schema_version is unsupported")
+    _validated_workflow_authority(index.workflow_authority, field_label="workflow_authority")
     _validate_timestamp(index.generated_at)
     if not isinstance(index.workspace_root, Path):
         raise WorkspaceIndexError("workspace_root must be a Path")
@@ -813,6 +836,14 @@ def _validate_workspace_index(index: WorkspaceIndex) -> None:
     for note in index.notes:
         if not isinstance(note, str) or not note.strip():
             raise WorkspaceIndexError("notes must contain non-empty strings")
+
+
+def _validated_workflow_authority(value: object, *, field_label: str) -> dict[str, object]:
+    try:
+        validate_observe_only_workflow_authority(value, field_label=field_label)
+    except WorkflowAuthorityError as exc:
+        raise WorkspaceIndexError(str(exc)) from exc
+    return dict(cast(Mapping[str, object], value))
 
 
 def _validate_index_binding(index: WorkspaceIndex, root: Path) -> None:

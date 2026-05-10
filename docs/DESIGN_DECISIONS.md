@@ -108,7 +108,9 @@ The repo currently contains a Python core package because it is quick to test an
   status, and report artifacts through their existing trust boundaries, marks
   standalone storyline JSON as untrusted until rebound to a production plan, and
   can persist `shootflow_workspace_index.json` without creating or deleting any
-  media pipeline artifacts.
+  media pipeline artifacts. Schema v2 includes a root `workflow_authority`
+  object and carries the derived workspace-health authority in the
+  `workspace_health` artifact; legacy schema v1 indexes load as observe-only.
 - `shootflow.story`: VLM-score-driven selection planning for first-cut reels, named reel variants,
   carousels, and ranked photo-set exports, plus a deterministic storyline artifact contract for
   downstream assemblers.
@@ -167,7 +169,9 @@ The repo currently contains a Python core package because it is quick to test an
   treated as workflow state, while invalid files are surfaced for review instead
   of being reset, repaired, or overwritten. Metrics are observational UI/analytics
   state only; scheduling and file authority stay bound to the underlying trusted
-  manifests and reports.
+  manifests and reports. Schema v4 includes the shared observe-only
+  `workflow_authority` object so consumers do not have to infer no-authority
+  semantics from `writes_files` flags or safety-note prose.
 - `shootflow.pilot_dashboard`: the first read-only product analytics contract
   above workspace health. It consumes validated health/report metrics to expose
   activation flags, metric-source availability, aggregate throughput, manual

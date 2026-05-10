@@ -32,6 +32,29 @@ from shootflow.workspace_health import build_workspace_health_summary, workspace
 
 
 class WorkspaceHealthTests(unittest.TestCase):
+    def test_workspace_health_json_exposes_observe_only_workflow_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_persisted_cli_demo_workspace(workspace)
+
+            payload = workspace_health_summary_to_dict(build_workspace_health_summary(workspace))
+
+        self.assertEqual(payload["schema_version"], 4)
+        self.assertEqual(
+            payload["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
+
     def test_task_manifest_without_status_points_to_status_initialization(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
@@ -391,7 +414,9 @@ class WorkspaceHealthTests(unittest.TestCase):
 
         summary = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(summary["schema_version"], 3)
+        self.assertEqual(summary["schema_version"], 4)
+        self.assertEqual(summary["workflow_authority"]["mode"], "observe_only")
+        self.assertFalse(summary["workflow_authority"]["permits_file_mutation"])
         self.assertEqual(summary["workspace"], str(workspace))
         self.assertEqual(summary["render_input_count"], 5)
         self.assertIsInstance(summary["render_inputs_fingerprint"], str)

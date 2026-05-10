@@ -37,9 +37,10 @@ from shootflow.render_status import (
     load_render_status_manifest,
     render_plan_fingerprint,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 
-_WORKSPACE_HEALTH_SCHEMA_VERSION = 3
+_WORKSPACE_HEALTH_SCHEMA_VERSION = 4
 _SCHEDULER_RUNTIME_ARGS = ("--renderer", "--started-at", "--completed-at", "--generated-at")
 _PRODUCTION_SCHEDULER_RUNTIME_ARGS = ("--worker", "--started-at", "--completed-at", "--generated-at")
 
@@ -364,6 +365,7 @@ def workspace_health_summary_to_dict(summary: WorkspaceHealthSummary) -> dict[st
         raise WorkspaceHealthError("summary must be a WorkspaceHealthSummary")
     return {
         "schema_version": _WORKSPACE_HEALTH_SCHEMA_VERSION,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "workspace": str(summary.workspace_root),
         "shoot_slug": summary.shoot_slug,
         "production_plan_fingerprint": summary.production_plan_fingerprint,

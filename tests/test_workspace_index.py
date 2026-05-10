@@ -51,7 +51,7 @@ class WorkspaceIndexTests(unittest.TestCase):
         storyline = self._artifact(index, "storyline_artifact")
         ingest_manifest = self._artifact(index, "ingest_manifest")
 
-        self.assertEqual(index.schema_version, 1)
+        self.assertEqual(index.schema_version, 2)
         self.assertEqual(index.generated_at, "2026-05-09T00:00:00Z")
         self.assertEqual(index.shoot_slug, "cli-demo-shoot")
         self.assertTrue(render_tasks.present)
@@ -78,8 +78,22 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertEqual(ingest_manifest.status, "missing")
 
         payload = workspace_index_to_dict(index)
-        self.assertEqual(payload["schema_version"], 1)
+        self.assertEqual(payload["schema_version"], 2)
         self.assertEqual(payload["shoot_slug"], "cli-demo-shoot")
+        self.assertEqual(
+            payload["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertIn("metadata only", payload["notes"])
 
     def test_workspace_index_includes_derived_next_safe_action(self) -> None:
@@ -97,6 +111,20 @@ class WorkspaceIndexTests(unittest.TestCase):
         self.assertFalse(workspace_health.present)
         self.assertTrue(workspace_health.trusted)
         self.assertEqual(workspace_health.status, "derived")
+        self.assertEqual(
+            workspace_health.summary["workflow_authority"],
+            {
+                "mode": "observe_only",
+                "handoff_kind": "presentation_only",
+                "permits_file_mutation": False,
+                "permits_copy": False,
+                "permits_retry": False,
+                "permits_cleanup": False,
+                "permits_overwrite": False,
+                "permits_materialization": False,
+                "permits_deletion": False,
+            },
+        )
         self.assertEqual(workspace_health.summary["next_action"]["name"], "init_render_status")
         self.assertEqual(
             workspace_health.summary["next_action"]["command"],

@@ -25,6 +25,7 @@ __all__ = [
     "storage",
     "storage_discovery",
     "story",
+    "workflow_authority",
     "workspace_health",
     "workspace_index",
 ]

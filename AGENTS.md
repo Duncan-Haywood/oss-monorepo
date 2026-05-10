@@ -73,6 +73,13 @@ observe-only and command-free. JSON remains the default for agents; `--format
 text` emits the same validated brief as a deterministic text-mode demo/readout
 without executable workflow commands. Brief JSON also carries the shared
 observe-only `workflow_authority` object.
+`workspace-health` JSON now uses schema v4 and includes the same structured
+observe-only `workflow_authority` object. `index-workspace` JSON now uses schema
+v2, includes the shared authority object at the index root, and embeds the
+derived workspace-health authority inside the `workspace_health` artifact
+summary; old schema v1 workspace indexes still load as observe-only. These
+fields are presentation/diagnostic contracts only and do not authorize copy,
+retry, cleanup, overwrite, materialization, deletion, or any file mutation.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before

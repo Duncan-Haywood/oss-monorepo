@@ -114,7 +114,9 @@ This repo currently contains the first testable core utilities:
   status, and render scheduler reports exist and validate, summarizes production
   and render status counts, surfaces validated scheduler product metrics when
   trusted reports are present, and suggests the next safe CLI action without
-  creating, resetting, deleting, or repairing any files.
+  creating, resetting, deleting, or repairing any files. Its schema v4 JSON
+  includes the shared observe-only `workflow_authority` contract so native UIs
+  and agents can fail closed before interpreting suggested next actions.
 - `shootflow.pilot_dashboard` turns that trusted workspace-health state into the
   first read-only pilot analytics contract: activation signals, throughput
   counts, manual-intervention counts, metric-source availability, default pilot
@@ -203,8 +205,11 @@ This repo currently contains the first testable core utilities:
   production-scheduler-report, render-task, render-status, and scheduler-report
   artifacts through their existing validators, marks model-authored storyline
   JSON as untrusted until rebound to a production plan, includes the
-  health-derived next safe action, and never creates analysis, graded, render,
-  deliverable, or deletion files.
+  health-derived next safe action plus the shared observe-only authority
+  contract, and never creates analysis, graded, render, deliverable, or deletion
+  files. Persisted index schema v2 carries `workflow_authority` at the root and
+  inside the derived workspace-health artifact; schema v1 indexes still load as
+  observe-only.
 
 The intended first workflow is:
 

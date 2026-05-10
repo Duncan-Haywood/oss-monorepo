@@ -2,6 +2,51 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 00:00 UTC
+
+This run broadened the structured observe-only authority contract beyond the
+pilot analytics layer into the read-only workspace state surfaces:
+
+- Added `shootflow.workflow_authority`, the shared no-authority helper for
+  UI/agent contracts. `shootflow.pilot_authority` remains as a compatibility
+  wrapper over the shared module, so existing pilot consumers keep the same API.
+- `workspace-health` JSON now uses schema v4 and includes
+  `workflow_authority` at the top level. The payload still may name suggested
+  next actions, including write-capable commands for human review, but the
+  serialized contract explicitly grants no copy, retry, cleanup, overwrite,
+  materialization, deletion, or file-mutation authority.
+- `index-workspace` JSON now uses schema v2, includes the same
+  `workflow_authority` at the root, and embeds the derived workspace-health
+  authority inside the `workspace_health` artifact summary. Persisted schema v1
+  indexes still load as observe-only for backward compatibility.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future native shells treat `workflow_authority` as the first safety gate
+  across workspace health, workspace index, pilot dashboard, cohort report, and
+  cohort brief payloads.
+
+Verification during implementation:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workspace_health tests.test_workspace_index`
+  failed on missing workspace-health/index authority fields and old schema
+  versions.
+- Green focused run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workspace_health tests.test_workspace_index`
+  -> 25 tests OK.
+- Pilot authority regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_dashboard tests.test_pilot_cohort_report tests.test_pilot_cohort_brief`
+  -> 25 tests OK.
+
+Good next test-first targets:
+
+- Bind `workflow_authority` into any future native SwiftUI/menu-bar readout or
+  shell wrapper before exposing retry/copy/materialization controls.
+- Add agent/UI contract coverage around `card-dump-workflow` `agent_handoff` so
+  copy-capable next steps are never inferred from prose or command strings.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Implementation continuation note - 2026-05-09 23:30 UTC
 
 This run hardened the observe-only pilot analytics/UI contract for future native

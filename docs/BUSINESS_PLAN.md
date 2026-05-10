@@ -85,7 +85,11 @@ Why this wedge wins:
   granting new media-write or deletion authority. It now covers production
   status and production scheduler reports as well as render handoffs, so
   pre-render progress, retryable conflicts, blocked jobs, and next safe actions
-  are visible without custom manifest parsing.
+  are visible without custom manifest parsing. Workspace health schema v4 and
+  workspace index schema v2 carry the shared observe-only `workflow_authority`
+  contract so native UI and agent layers can separate presentation/diagnostic
+  state from permission to copy, retry, materialize, overwrite, clean up, or
+  delete files.
 - A read-only pilot dashboard contract that consumes workspace health and
   validated scheduler product metrics to show activation, throughput, and manual
   intervention signals without parsing raw worker internals or granting copy,
