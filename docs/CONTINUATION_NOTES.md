@@ -18,7 +18,8 @@ fingerprinting:
   behind the production-worker action contract. It:
   - claims exactly one trusted `ProductionWorkerAction` through
     `production_status.json`;
-  - opens only trusted workspace-relative inputs with no-follow path checks;
+  - opens only trusted workspace-relative inputs, or absolute manifest inputs
+    that remain under the shoot workspace, with no-follow path checks;
   - records size and SHA-256 metadata into deterministic JSON at declared output
     paths;
   - persists success checksums through the existing guarded status boundary;
@@ -30,14 +31,10 @@ fingerprinting:
   scheduler/CLI worker argument.
 - Focused verification so far:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
-  -> 31 tests OK.
+  -> 33 tests OK.
 
 Good next test-first targets:
 
-- Add CLI-level coverage for `dry-run-production-scheduler --worker
-  metadata-production-local` over a tiny persisted ingest workspace, including
-  retryable behavior once the scheduler reaches logical/package outputs that are
-  not real media files.
 - Add focused symlink/conflict coverage for metadata inputs and outputs if future
   native shells expose this adapter in demos.
 - Decide whether to split `DryRunProductionBatchResult` into a neutral

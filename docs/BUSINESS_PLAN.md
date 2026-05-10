@@ -66,10 +66,11 @@ Why this wedge wins:
   through `production_status.json` before real proxy/VLM/color/story workers are
   introduced. The deterministic dry-run adapter writes only declared placeholder
   file outputs. The `metadata-production-local` adapter is the first real
-  input-reading worker: it opens trusted workspace-relative inputs, records
-  size/SHA-256 metadata as deterministic JSON at declared outputs, and preserves
-  missing inputs, unsafe paths, directory-style package outputs, or output
-  conflicts as retryable review states.
+  input-reading worker: it opens trusted workspace inputs, including absolute
+  ingest-manifest paths under the shoot workspace, records size/SHA-256 metadata
+  as deterministic JSON at declared outputs, and preserves missing inputs,
+  unsafe paths, directory-style package outputs, or output conflicts as
+  retryable review states.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion

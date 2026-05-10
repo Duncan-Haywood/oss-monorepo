@@ -176,7 +176,8 @@ This repo currently contains the first testable core utilities:
   symlinked, directory-style, or different existing files, and reports retryable
   status without deleting source, graded, render, or deliverable media. The
   `metadata-production-local` adapter is the first real input-reading local
-  worker: it opens only trusted workspace-relative inputs, records size/SHA-256
+  worker: it opens only trusted workspace inputs (including absolute ingest
+  manifest paths that remain under the shoot workspace), records size/SHA-256
   metadata into deterministic JSON at declared outputs, and turns missing,
   unsafe, symlinked, or conflicting paths into retryable review states. Adapter
   batches are dispatched only by supported adapter name while preserving
@@ -275,9 +276,10 @@ The intended first workflow is:
     before real proxy, VLM, look-development, grading, or storyline runners are
     wired in. The dry-run adapter writes only declared placeholder file
     artifacts. The metadata adapter proves the input-reading path by hashing
-    trusted workspace inputs and writing deterministic metadata JSON only to
-    declared outputs. Both keep stale claims, missing inputs, directory-style
-    package outputs, or output conflicts visible in production status.
+    trusted workspace inputs, including absolute ingest-manifest paths under the
+    shoot workspace, and writing deterministic metadata JSON only to declared
+    outputs. Both keep stale claims, missing inputs, directory-style package
+    outputs, or output conflicts visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
     shell or background agent should advance trusted pre-render work from
     persisted status. The scheduler loops over status reload, ready-action

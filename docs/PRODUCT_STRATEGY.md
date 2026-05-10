@@ -150,7 +150,8 @@ The current core models a concrete promise for high-volume users:
     declared placeholder file outputs, and refusing directory-style package
     outputs or existing different files without cleanup authority. The
     `metadata-production-local` adapter adds the first real input-reading local
-    worker behind the same boundary: it hashes trusted workspace inputs and
+    worker behind the same boundary: it hashes trusted workspace inputs,
+    including absolute ingest-manifest paths under the shoot workspace, and
     writes deterministic metadata JSON only to declared outputs, while missing or
     unsafe inputs remain retryable review states. The dry-run production
     scheduler now gives Mac shells a single command to advance those

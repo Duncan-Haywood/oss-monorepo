@@ -75,9 +75,10 @@ The repo currently contains a Python core package because it is quick to test an
   helper, writes only the action's declared file artifacts as non-overwriting
   placeholder files, then persists success checksums or retryable errors through
   the same status boundary. The `metadata-production-local` adapter is the first
-  real input-reading worker: it opens only trusted workspace-relative inputs,
-  writes deterministic size/SHA-256 metadata JSON only to declared outputs, and
-  routes missing inputs, symlinked paths, unsafe paths, directory-style package
+  real input-reading worker: it opens only trusted workspace inputs, including
+  absolute ingest-manifest paths that remain under the shoot workspace, writes
+  deterministic size/SHA-256 metadata JSON only to declared outputs, and routes
+  missing inputs, symlinked paths, unsafe paths, directory-style package
   outputs, or output conflicts to retryable review states. Neither adapter
   deletes media, cleans up user outputs, or grants authority beyond the trusted
   production job. The batch runner dispatches only registered adapter names,
@@ -356,7 +357,8 @@ The desired high-quality pipeline is:
 25. Exercise those helpers through registered local production adapters before
     real proxy, VLM, color, or storyline runners are trusted. The dry-run adapter
     materializes only declared placeholder file artifacts; the metadata adapter
-    reads trusted workspace inputs, records size/SHA-256 metadata, and persists
+    reads trusted workspace inputs, including absolute ingest-manifest paths
+    under the shoot workspace, records size/SHA-256 metadata, and persists
     success or retryable state through `production_status.json`.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
