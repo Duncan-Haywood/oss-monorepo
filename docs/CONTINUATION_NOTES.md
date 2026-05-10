@@ -2,6 +2,49 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 10:00 UTC
+
+This run first reconciled live remote branches, then advanced the production
+adapter boundary from dry-run-only output proofs toward real local input
+fingerprinting:
+
+- Fast-forwarded the assigned branch `cursor/repository-branch-consolidation-7e94`
+  to `origin/cursor/repository-branch-consolidation-f53c`, preserving the
+  scheduler-report `workflow_authority` work that was ahead of `origin/main`.
+- Deliberately did not merge `origin/cursor/branch-consolidation-f0b0`: it only
+  adds a stale continuation note claiming the remote set had been reduced to
+  main plus that assigned branch, which is false in the current repository state.
+- Added `metadata-production-local`, the first real local production adapter
+  behind the production-worker action contract. It:
+  - claims exactly one trusted `ProductionWorkerAction` through
+    `production_status.json`;
+  - opens only trusted workspace-relative inputs with no-follow path checks;
+  - records size and SHA-256 metadata into deterministic JSON at declared output
+    paths;
+  - persists success checksums through the existing guarded status boundary;
+  - turns missing inputs, unsafe/symlinked inputs, directory-style outputs, and
+    output conflicts into retryable review states without cleanup or deletion.
+- Added `run_production_adapter_batch(...)` so the scheduler dispatches only
+  registered adapter names. Existing `dry-run-production-local` behavior remains
+  covered, and `metadata-production-local` can now be selected by the same
+  scheduler/CLI worker argument.
+- Focused verification so far:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 31 tests OK.
+
+Good next test-first targets:
+
+- Add CLI-level coverage for `dry-run-production-scheduler --worker
+  metadata-production-local` over a tiny persisted ingest workspace, including
+  retryable behavior once the scheduler reaches logical/package outputs that are
+  not real media files.
+- Add focused symlink/conflict coverage for metadata inputs and outputs if future
+  native shells expose this adapter in demos.
+- Decide whether to split `DryRunProductionBatchResult` into a neutral
+  `ProductionAdapterBatchResult` name before more real adapters land.
+- Start a real proxy-generation adapter or ffmpeg/Core Image renderer only after
+  the metadata adapter's input-fingerprint safety pattern is stable.
+
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
 This run resolved the open scheduler-authority question for persisted scheduler

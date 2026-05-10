@@ -62,11 +62,14 @@ Why this wedge wins:
 - Production-worker action/status helpers that plan dependency-ready jobs from
   trusted status, claim a matching attempt, verify declared outputs before
   success, and report retry/failure without cleanup or deletion authority.
-- A deterministic dry-run production adapter that persists claim and result
-  transitions through `production_status.json`, writes only declared placeholder
-  file outputs, and preserves directory-style package outputs or output
-  conflicts as retryable review states before real proxy/VLM/color/story workers
-  are introduced.
+- Registered local production adapters that persist claim and result transitions
+  through `production_status.json` before real proxy/VLM/color/story workers are
+  introduced. The deterministic dry-run adapter writes only declared placeholder
+  file outputs. The `metadata-production-local` adapter is the first real
+  input-reading worker: it opens trusted workspace-relative inputs, records
+  size/SHA-256 metadata as deterministic JSON at declared outputs, and preserves
+  missing inputs, unsafe paths, directory-style package outputs, or output
+  conflicts as retryable review states.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion

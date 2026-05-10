@@ -50,8 +50,12 @@ writes a trusted `production_scheduler_report.json` bound to the final status.
 It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
-being clobbered. Production and render scheduler reports are schema v3 and
-include root observe-only `workflow_authority` plus validated product metric
+being clobbered. Production scheduling can dispatch registered local adapters:
+`dry-run-production-local` writes deterministic placeholders, and
+`metadata-production-local` hashes trusted workspace inputs into deterministic
+metadata JSON at declared outputs while preserving missing/unsafe inputs as
+retryable review states. Production and render scheduler reports are schema v3
+and include root observe-only `workflow_authority` plus validated product metric
 counts derived from the report state. Legacy schema v1/v2 scheduler reports
 still load as observe-only for existing saved workspaces.
 `workspace-health`, `index-workspace`, and `pilot-dashboard` expose production

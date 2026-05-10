@@ -168,15 +168,19 @@ This repo currently contains the first testable core utilities:
   running job's `updated_at` as a compare/write lease token so active heartbeat
   refreshes win without deleting source, analysis, graded, render, or deliverable
   files.
-- `shootflow.production_adapter` proves that pre-render worker handoff with a
-  deterministic dry-run adapter. It consumes only trusted production-worker
-  actions, persists each claim and final result through the guarded
-  `production_status.json` compare/write boundary, materializes only declared
-  file outputs, refuses symlinked, directory-style, or different existing files,
-  and reports retryable status without deleting source, graded, render, or
-  deliverable media. It can also execute trusted action plans in bounded
-  parallel batches while preserving serial-only production jobs and blocked-job
-  visibility for UI/scheduler review.
+- `shootflow.production_adapter` proves pre-render worker handoff with explicit
+  local adapters behind the same production-worker action contract. The
+  deterministic dry-run adapter consumes only trusted actions, persists each
+  claim and final result through the guarded `production_status.json`
+  compare/write boundary, materializes only declared file outputs, refuses
+  symlinked, directory-style, or different existing files, and reports retryable
+  status without deleting source, graded, render, or deliverable media. The
+  `metadata-production-local` adapter is the first real input-reading local
+  worker: it opens only trusted workspace-relative inputs, records size/SHA-256
+  metadata into deterministic JSON at declared outputs, and turns missing,
+  unsafe, symlinked, or conflicting paths into retryable review states. Adapter
+  batches are dispatched only by supported adapter name while preserving
+  serial-only production jobs and blocked-job visibility for UI/scheduler review.
 - `shootflow.production_scheduler` runs the dry-run production adapter in an
   iterative local loop: each pass reloads trusted `production_status.json`,
   optionally expires stale-running leases through the guarded production-worker
@@ -267,11 +271,13 @@ The intended first workflow is:
     proxy/VLM/color/story jobs from trusted status, claim one matching attempt as
     running, verify every declared output before success, and report retry/failure
     states without deleting source, graded, or deliverable media.
-13. Exercise those pre-render transitions with the dry-run production adapter
+13. Exercise those pre-render transitions with the local production adapters
     before real proxy, VLM, look-development, grading, or storyline runners are
-    wired in. The adapter writes only declared placeholder file artifacts and
-    keeps stale claims, directory-style package outputs, or output conflicts
-    visible in production status.
+    wired in. The dry-run adapter writes only declared placeholder file
+    artifacts. The metadata adapter proves the input-reading path by hashing
+    trusted workspace inputs and writing deterministic metadata JSON only to
+    declared outputs. Both keep stale claims, missing inputs, directory-style
+    package outputs, or output conflicts visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
     shell or background agent should advance trusted pre-render work from
     persisted status. The scheduler loops over status reload, ready-action

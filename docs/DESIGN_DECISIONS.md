@@ -69,17 +69,20 @@ The repo currently contains a Python core package because it is quick to test an
   lease expirations as retryable statuses through the same compare/write status
   helper, using the running status timestamp as the lease token so active workers
   that refresh their heartbeat are not clobbered.
-- `shootflow.production_adapter`: the first pre-render adapter proof. Its
+- `shootflow.production_adapter`: the pre-render local adapter boundary. Its
   deterministic dry-run adapter consumes a trusted `ProductionWorkerAction`,
   persists the claim through the single-job production-status compare/write
   helper, writes only the action's declared file artifacts as non-overwriting
   placeholder files, then persists success checksums or retryable errors through
-  the same status boundary. Directory-style package outputs become retryable
-  review states instead of files that would block later render directories. It
-  does not open arbitrary media, delete files, clean up user outputs, or grant
-  workers authority beyond the trusted production job. Its batch runner executes
-  only trusted action plans, preserves serial production jobs, bounds parallel
-  local work, and keeps blocked jobs visible rather than mutating them.
+  the same status boundary. The `metadata-production-local` adapter is the first
+  real input-reading worker: it opens only trusted workspace-relative inputs,
+  writes deterministic size/SHA-256 metadata JSON only to declared outputs, and
+  routes missing inputs, symlinked paths, unsafe paths, directory-style package
+  outputs, or output conflicts to retryable review states. Neither adapter
+  deletes media, cleans up user outputs, or grants authority beyond the trusted
+  production job. The batch runner dispatches only registered adapter names,
+  preserves serial production jobs, bounds parallel local work, and keeps blocked
+  jobs visible rather than mutating them.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
   reloads the trusted production status manifest each pass, optionally expires
   stale running leases through guarded compare/write updates, plans
@@ -350,10 +353,11 @@ The desired high-quality pipeline is:
     jobs from trusted status, checksum declared outputs before success, and
     report retry/failure without giving workers file cleanup or deletion
     authority.
-25. Exercise those helpers through the dry-run production adapter, which
-    materializes only declared placeholder file artifacts and persists success
-    or retryable state through `production_status.json` before real proxy, VLM,
-    color, or storyline runners are trusted.
+25. Exercise those helpers through registered local production adapters before
+    real proxy, VLM, color, or storyline runners are trusted. The dry-run adapter
+    materializes only declared placeholder file artifacts; the metadata adapter
+    reads trusted workspace inputs, records size/SHA-256 metadata, and persists
+    success or retryable state through `production_status.json`.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,
@@ -427,18 +431,21 @@ High quality depends on scene-level consistency and reversible edits. The system
   lock. Stale lease persistence uses that same precondition so an interrupted
   worker can be marked retryable without overwriting a same-attempt heartbeat
   refresh from an active worker.
-- `shootflow.production_adapter` now proves that persistence path without real
-  media or model execution. The dry-run adapter rebinds each action to the
-  trusted production job before any status mutation, persists a running claim
-  with the observed prior state/attempt/timestamp, writes deterministic
-  placeholder bytes only to declared file output paths, refuses symlinked,
-  directory-style, or existing different outputs, and records retryable errors
-  that explicitly preserve the no-delete/no-cleanup boundary.
+- `shootflow.production_adapter` now proves both output materialization and
+  input-reading persistence paths without model execution. The dry-run adapter
+  rebinds each action to the trusted production job before any status mutation,
+  persists a running claim with the observed prior state/attempt/timestamp,
+  writes deterministic placeholder bytes only to declared file output paths,
+  refuses symlinked, directory-style, or existing different outputs, and records
+  retryable errors that explicitly preserve the no-delete/no-cleanup boundary.
+  The `metadata-production-local` adapter uses the same claim/result boundary
+  while hashing only trusted workspace inputs and writing deterministic metadata
+  JSON to declared outputs.
 - `shootflow.production_scheduler` composes that adapter into a bounded local
   loop. It does not invent job progress from command-line IDs; each iteration
   reloads `production_status.json`, plans ready pending/retryable work from the
-  trusted `ProductionPlan`, dispatches a dry-run batch with a caller-supplied
-  concurrency cap, and stops when the status is complete, blocked, failed,
+  trusted `ProductionPlan`, dispatches a registered local adapter batch with a
+  caller-supplied concurrency cap, and stops when the status is complete, blocked, failed,
   waiting, or retryable work needs review. Previously retryable jobs are skipped
   unless their IDs are explicitly supplied as reviewed retry candidates. When a
   lease cutoff is supplied, stale running jobs are first expired into retryable

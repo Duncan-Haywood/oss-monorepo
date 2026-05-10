@@ -124,74 +124,16 @@ def run_dry_run_production_batch(
 ) -> DryRunProductionBatchResult:
     """Run trusted dry-run production actions while respecting per-job parallelism."""
 
-    _validate_action_plan(
-        action_plan,
+    return _run_adapter_batch(
+        workspace_root,
         trusted_plan=trusted_plan,
-        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
-    )
-    _validate_timestamp(started_at, "started_at")
-    _validate_timestamp(completed_at, "completed_at")
-    _validate_max_concurrency(max_concurrency)
-
-    ordered_results: dict[int, DryRunProductionAdapterResult] = {}
-    ordered_failures: dict[int, DryRunProductionFailure] = {}
-    action_index = 0
-    actions = action_plan.actions
-
-    while action_index < len(actions):
-        current_action = actions[action_index]
-        if not current_action.can_run_in_parallel or max_concurrency == 1:
-            result, failure = _run_batch_action(
-                workspace_root,
-                trusted_plan=trusted_plan,
-                action=current_action,
-                started_at=started_at,
-                completed_at=completed_at,
-                run_action=run_dry_run_production_action,
-            )
-            if result is not None:
-                ordered_results[action_index] = result
-            if failure is not None:
-                ordered_failures[action_index] = failure
-            action_index += 1
-            continue
-
-        group_start = action_index
-        group_end = group_start
-        while group_end < len(actions) and actions[group_end].can_run_in_parallel:
-            group_end += 1
-        with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
-            futures = {
-                executor.submit(
-                    _run_batch_action,
-                    workspace_root,
-                    trusted_plan=trusted_plan,
-                    action=action,
-                    started_at=started_at,
-                    completed_at=completed_at,
-                    run_action=run_dry_run_production_action,
-                ): index
-                for index, action in enumerate(actions[group_start:group_end], start=group_start)
-            }
-            for future in as_completed(futures):
-                index = futures[future]
-                result, failure = future.result()
-                if result is not None:
-                    ordered_results[index] = result
-                if failure is not None:
-                    ordered_failures[index] = failure
-        action_index = group_end
-
-    batch_result = DryRunProductionBatchResult(
-        shoot_slug=action_plan.shoot_slug,
-        worker_adapter=action_plan.worker_adapter,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
         max_concurrency=max_concurrency,
-        results=tuple(ordered_results[index] for index in sorted(ordered_results)),
-        failures=tuple(ordered_failures[index] for index in sorted(ordered_failures)),
-        blocked_job_ids=tuple(blocked.job_id for blocked in action_plan.blocked_jobs),
+        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+        run_action=run_dry_run_production_action,
     )
-    _validate_batch_result(batch_result)
-    return batch_result
 
 
 def run_metadata_production_batch(
@@ -205,10 +147,33 @@ def run_metadata_production_batch(
 ) -> DryRunProductionBatchResult:
     """Run trusted metadata production actions while respecting parallelism."""
 
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_METADATA_PRODUCTION_ADAPTER,
+        run_action=run_metadata_production_action,
+    )
+
+
+def _run_adapter_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+    expected_adapter: str,
+    run_action,
+) -> DryRunProductionBatchResult:
     _validate_action_plan(
         action_plan,
         trusted_plan=trusted_plan,
-        expected_adapter=_METADATA_PRODUCTION_ADAPTER,
+        expected_adapter=expected_adapter,
     )
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
@@ -228,7 +193,7 @@ def run_metadata_production_batch(
                 action=current_action,
                 started_at=started_at,
                 completed_at=completed_at,
-                run_action=run_metadata_production_action,
+                run_action=run_action,
             )
             if result is not None:
                 ordered_results[action_index] = result
@@ -250,7 +215,7 @@ def run_metadata_production_batch(
                     action=action,
                     started_at=started_at,
                     completed_at=completed_at,
-                    run_action=run_metadata_production_action,
+                    run_action=run_action,
                 ): index
                 for index, action in enumerate(actions[group_start:group_end], start=group_start)
             }
