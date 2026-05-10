@@ -2,6 +2,31 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-10 11:00 UTC
+
+Final branch cleanup for this session:
+
+- The assigned branch `cursor/branch-consolidation-strategy-a88d` started at
+  `origin/main`/`2ae8935` and fast-forwarded to the strongest remaining branch,
+  `origin/cursor/repository-branch-consolidation-7e94`.
+- `origin/cursor/repository-branch-consolidation-7e94` was a strict superset of
+  `origin/cursor/branch-consolidation-c072`, adding the relative/logical
+  metadata input handling and expanded production adapter tests on top of the
+  earlier scheduler authority, metadata adapter, and pilot blocker work.
+- After pushing the assigned branch, the superseded remote branches
+  `cursor/branch-consolidation-c072` and
+  `cursor/repository-branch-consolidation-7e94` were deleted.
+- The stale local `cursor/setup-dev-env-3ad0` branch was deleted after
+  confirming it was already contained, and local `main` was moved to
+  `origin/main` without checking it out.
+- A newly surfaced `origin/cursor/repository-branch-consolidation-110c` branch
+  was rejected and deleted because its only unique diff was an obsolete
+  continuation-note block describing branch state that had already been
+  superseded by this cleanup.
+- Final branch count after pruning: local branches are `main` and
+  `cursor/branch-consolidation-strategy-a88d`; remote branches are
+  `origin/main` and `origin/cursor/branch-consolidation-strategy-a88d`.
+
 ## Branch reconciliation note - 2026-05-10 10:00 UTC
 
 Final reconciliation for this session:
