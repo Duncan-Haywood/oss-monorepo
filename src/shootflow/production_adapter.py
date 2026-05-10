@@ -597,14 +597,14 @@ def _metadata_input_record(root: Path, input_value: str) -> dict[str, object]:
             "kind": "token",
         }
 
-    input_path = _workspace_input_path(root, input_value)
+    input_path, display_path = _workspace_input_path(root, input_value)
     _reject_symlink_path(input_path, root, "metadata production input")
     if not input_path.exists():
         raise DryRunProductionError(f"Missing metadata production input: {input_value}")
     if not input_path.is_file():
         raise DryRunProductionError(f"Metadata production input is not a file: {input_value}")
     return {
-        "path": input_value,
+        "path": display_path,
         "kind": "file",
         "size_bytes": input_path.stat().st_size,
         "sha256": _sha256_file(input_path),
@@ -621,16 +621,22 @@ def _metadata_input_is_token(root: Path, input_value: str) -> bool:
     return "/" not in input_value and "." not in input_path.name
 
 
-def _workspace_input_path(root: Path, input_value: str) -> Path:
+def _workspace_input_path(root: Path, input_value: str) -> tuple[Path, str]:
     input_path = Path(input_value)
-    if input_path.is_absolute() or ".." in input_path.parts:
+    if input_path.is_absolute():
+        try:
+            relative_input_path = input_path.relative_to(root)
+        except ValueError as exc:
+            raise DryRunProductionError(f"Metadata production input escapes workspace: {input_value}") from exc
+        return input_path, relative_input_path.as_posix()
+    if ".." in input_path.parts:
         raise DryRunProductionError(f"Unsafe metadata production input path: {input_value}")
     workspace_input_path = root / input_value
     try:
         workspace_input_path.relative_to(root)
     except ValueError as exc:
         raise DryRunProductionError(f"Metadata production input escapes workspace: {input_value}") from exc
-    return workspace_input_path
+    return workspace_input_path, input_path.as_posix()
 
 
 def _workspace_output_path(root: Path, output: str) -> Path:

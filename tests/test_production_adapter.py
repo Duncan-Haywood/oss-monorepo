@@ -48,7 +48,10 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             output_path = workspace / action.outputs[0]
             output_exists = output_path.exists()
 
-        self.assertEqual(supported_production_adapter_names(), ("dry-run-production-local",))
+        self.assertEqual(
+            supported_production_adapter_names(),
+            ("dry-run-production-local", "metadata-production-local"),
+        )
         self.assertIsInstance(result, DryRunProductionAdapterResult)
         self.assertEqual(result.job_id, action.job_id)
         self.assertEqual(result.claimed_status.state, "running")
