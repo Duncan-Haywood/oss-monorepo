@@ -118,7 +118,7 @@ from shootflow.workflow_authority import (
     observe_only_workflow_authority_to_dict,
 )
 
-_SCHEDULER_REPORT_SCHEMA_VERSION = 2
+_SCHEDULER_REPORT_SCHEMA_VERSION = 3
 _CLI_HANDOFF_SCHEMA_VERSION = 2
 
 
@@ -1100,6 +1100,7 @@ def _production_scheduler_report_json(report: DryRunProductionSchedulerReport) -
     return json.dumps(
         {
             "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
+            "workflow_authority": dict(report.workflow_authority),
             "generated_at": report.generated_at,
             "shoot_slug": report.shoot_slug,
             "production_plan_fingerprint": report.production_plan_fingerprint,
@@ -1136,6 +1137,7 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
     return json.dumps(
         {
             "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
+            "workflow_authority": dict(report.workflow_authority),
             "generated_at": report.generated_at,
             "shoot_slug": report.shoot_slug,
             "render_plan_fingerprint": report.render_plan_fingerprint,

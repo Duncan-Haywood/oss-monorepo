@@ -54,8 +54,10 @@ being clobbered. The scheduler dispatches trusted local production adapters:
 `dry-run-production-local` writes placeholders, while `metadata-production-local`
 fingerprints real local inputs and writes deterministic metadata JSON only to
 declared output files without copying, deleting, or inventing media paths.
-Production and render scheduler reports are schema v2 and
-include validated product metric counts derived from the report state.
+Production and render scheduler reports are schema v3 and include root
+observe-only `workflow_authority` plus validated product metric counts derived
+from the report state. Legacy schema v1/v2 scheduler reports still load as
+observe-only for existing saved workspaces.
 `workspace-health`, `index-workspace`, and `pilot-dashboard` expose production
 status/report summaries and validated scheduler product metrics read-only before
 falling through to render handoffs. `pilot-dashboard` is the first stable

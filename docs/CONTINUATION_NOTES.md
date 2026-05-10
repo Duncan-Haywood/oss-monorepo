@@ -2,6 +2,68 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 04:00 UTC
+
+This run resolved the open scheduler-authority question for persisted scheduler
+reports:
+
+- Production and render scheduler reports now write schema version 3 with a root
+  observe-only `workflow_authority` object alongside the existing validated
+  `product_metrics`.
+- `DryRunProductionSchedulerReport` and `DryRunRenderSchedulerReport` now carry
+  the validated authority payload in memory. Loaders synthesize observe-only
+  authority for legacy schema v1/v2 reports so existing saved demo/pilot
+  workspaces remain readable without granting file-operation authority.
+- CLI `--print-report` output for both dry-run schedulers now emits the same
+  schema v3 authority-bearing report JSON as the persisted report. Higher-level
+  UI handoff summaries remain schema v2 unless their own contract changes.
+- Added scheduler-loader regressions proving authorizing
+  `workflow_authority` in persisted production/render scheduler reports is
+  rejected with the same fail-closed authority validation used by UI handoffs.
+- Updated `docs/WORKFLOW_AUTHORITY.md`, README, strategy, design notes, and
+  AGENTS guidance to make the decision durable for future native-shell work.
+
+Verification in this session:
+
+- Red run proved scheduler report writers still emitted schema v2 and loaded
+  report objects lacked `workflow_authority`.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_cli.ShootFlowCliTests.test_persisted_cli_demo_workspace_runs_init_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_dry_run_scheduler_command_writes_and_prints_report tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_dry_run_production_scheduler_command_can_print_persisted_report`
+  -> 38 tests OK.
+- Independent code review found no blocking issues and suggested the
+  scheduler-specific malformed-authority regression tests added in
+  `5e25427 test(scheduler): reject authorizing report authority`.
+- Full verification after final test commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 348 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 04:00 UTC
+
+Final reconciliation for this session:
+
+- `git fetch --prune origin main cursor/repository-branch-consolidation-f53c`
+  succeeded after the assigned branch was first pushed.
+- Remote comparison against `origin/main` found exactly one branch with unique
+  commits: `origin/cursor/repository-branch-consolidation-f53c`, ahead by this
+  session's scheduler authority commits.
+- No other remote branch had unique work versus `origin/main`; historical
+  branches are either contained in main or behind it.
+- Local `main` was fast-forwarded in place to `origin/main` without checking it
+  out, and the stale local `cursor/setup-dev-env-3ad0` branch was deleted after
+  confirming it was contained.
+- Useful completed work remains on the assigned branch and was not pushed
+  directly to `main` because the Cloud branch instructions for this automation
+  require final pushes only to `cursor/repository-branch-consolidation-f53c`.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Branch reconciliation note - 2026-05-10 03:30 UTC
 
 Final reconciliation for this session:

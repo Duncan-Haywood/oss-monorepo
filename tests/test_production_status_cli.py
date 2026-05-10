@@ -16,6 +16,7 @@ from shootflow.production_status import (
     production_plan_fingerprint,
     write_production_status_manifest,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 
 class ShootFlowProductionStatusCliTests(unittest.TestCase):
@@ -160,7 +161,8 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
 
         payload = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(payload["schema_version"], 2)
+        self.assertEqual(payload["schema_version"], 3)
+        self.assertEqual(payload["workflow_authority"], observe_only_workflow_authority_to_dict())
         self.assertEqual(payload["generated_at"], "2026-05-09T17:02:06Z")
         self.assertEqual(payload["shoot_slug"], "production-report")
         self.assertRegex(payload["production_plan_fingerprint"], r"^[0-9a-f]{64}$")
