@@ -17,6 +17,9 @@ reports:
 - CLI `--print-report` output for both dry-run schedulers now emits the same
   schema v3 authority-bearing report JSON as the persisted report. Higher-level
   UI handoff summaries remain schema v2 unless their own contract changes.
+- Added scheduler-loader regressions proving authorizing
+  `workflow_authority` in persisted production/render scheduler reports is
+  rejected with the same fail-closed authority validation used by UI handoffs.
 - Updated `docs/WORKFLOW_AUTHORITY.md`, README, strategy, design notes, and
   AGENTS guidance to make the decision durable for future native-shell work.
 
@@ -27,9 +30,12 @@ Verification in this session:
 - Focused green run:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_cli.ShootFlowCliTests.test_persisted_cli_demo_workspace_runs_init_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_dry_run_scheduler_command_writes_and_prints_report tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_dry_run_production_scheduler_command_can_print_persisted_report`
   -> 38 tests OK.
-- Full verification after commit:
+- Independent code review found no blocking issues and suggested the
+  scheduler-specific malformed-authority regression tests added in
+  `5e25427 test(scheduler): reject authorizing report authority`.
+- Full verification after final test commit:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
-  -> 346 tests OK; compileall and diff-check passed.
+  -> 348 tests OK; compileall and diff-check passed.
 
 ## Branch reconciliation note - 2026-05-10 04:00 UTC
 
@@ -39,7 +45,7 @@ Final reconciliation for this session:
   succeeded after the assigned branch was first pushed.
 - Remote comparison against `origin/main` found exactly one branch with unique
   commits: `origin/cursor/repository-branch-consolidation-f53c`, ahead by this
-  session's `34adc2f feat(scheduler): add authority to persisted reports`.
+  session's scheduler authority commits.
 - No other remote branch had unique work versus `origin/main`; historical
   branches are either contained in main or behind it.
 - Local `main` was fast-forwarded in place to `origin/main` without checking it
