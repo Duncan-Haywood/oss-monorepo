@@ -2,6 +2,50 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 08:30 UTC
+
+This run tightened the pilot cohort analytics trust boundary:
+
+- `pilot-cohort-report` now derives structured readiness blockers for each
+  workspace and the cohort aggregate:
+  `metrics_unavailable`, `completion_below_threshold`,
+  `intervention_above_threshold`, and `materialized_outputs_missing`.
+- For metrics-available dashboards, the cohort report validates
+  `meets_completion_threshold`, `meets_intervention_threshold`, and
+  `meets_output_threshold` against the dashboard's reported rates/output count
+  and the product's default pilot acceptance thresholds before trusting
+  `ready_for_pilot_review`; dashboard-supplied threshold values must match those
+  defaults and cannot relax the policy.
+- Forged saved dashboard JSON that claims pilot readiness while a component
+  threshold flag fails is rejected at report-build time instead of being
+  aggregated into GTM/pilot readiness metrics.
+- README, AGENTS, product strategy, business plan, and design decisions now
+  record the structured readiness-blocker contract so future Mac UI/GTM work can
+  show why a cohort is not ready without parsing free-form threshold notes.
+
+Verification for this focused slice:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_report`
+  failed on missing `readiness_blockers` fields and accepted a forged ready
+  dashboard with a failed threshold flag.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_report`
+  -> 11 tests OK after review-driven coverage for repeated blocker counts,
+  forged readiness flags, relaxed threshold values, and missing threshold flags.
+
+Good next test-first targets:
+
+- Bind the new cohort `readiness_blockers` fields into `pilot-cohort-brief`
+  summary/card JSON if native shells need blocker labels without opening the raw
+  cohort report.
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Branch reconciliation note - 2026-05-10 03:30 UTC
 
 Final reconciliation for this session:

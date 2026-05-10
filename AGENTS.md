@@ -65,9 +65,11 @@ structured `workflow_authority` object marking the payload observe-only,
 presentation-only, and false for copy, retry, cleanup, overwrite,
 materialization, deletion, and any file mutation.
 `pilot-cohort-report` aggregates saved schema v2 dashboard JSON payloads into
-pilot-ready workspace rate, median intervention rate, and first-draft output
-count without reading raw worker internals or granting workflow authority; its
-JSON emits the same observe-only `workflow_authority` contract.
+pilot-ready workspace rate, median intervention rate, first-draft output count,
+and structured readiness blocker counts without reading raw worker internals or
+granting workflow authority. It validates component dashboard threshold flags
+against reported metrics before trusting readiness; its JSON emits the same
+observe-only `workflow_authority` contract.
 `pilot-cohort-brief` reads one saved cohort report and emits presentation-ready
 status/headline/card labels for native shells and GTM demos while remaining
 observe-only and command-free. JSON remains the default for agents; `--format

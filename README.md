@@ -129,9 +129,11 @@ This repo currently contains the first testable core utilities:
 - `shootflow.pilot_cohort_report` aggregates saved schema v2
   `pilot-dashboard` JSON payloads into cross-workspace pilot analytics. It
   reports pilot-ready workspace rate, median intervention rate, first-draft
-  output count, and per-workspace readiness evidence without reading raw worker
-  internals or granting workflow authority. Its JSON also carries the same
-  observe-only `workflow_authority` contract.
+  output count, structured readiness-blocker counts, and per-workspace readiness
+  evidence without reading raw worker internals or granting workflow authority.
+  It validates the dashboard's component threshold flags against the reported
+  metrics before trusting readiness. Its JSON also carries the same observe-only
+  `workflow_authority` contract.
 - `shootflow.pilot_cohort_brief` reads one saved cohort report and converts it
   into presentation-ready observe-only labels for native shells and GTM demos:
   status, headline, summary percentages, and per-workspace readiness cards. It
@@ -332,11 +334,13 @@ The intended first workflow is:
     `presentation_only`, and false for copy, retry, cleanup, overwrite,
     materialization, deletion, and all file mutation.
 27. Aggregate saved dashboard JSON files with `pilot-cohort-report` when pilot
-    operations need cohort-level ready rate, median intervention rate, and
-    first-draft output count. The report consumes only dashboard payloads, never
-    raw workspace manifests, and cannot copy, retry, materialize, clean up,
-    overwrite, or delete files; the same `workflow_authority` object is emitted
-    for agent-native consumers.
+    operations need cohort-level ready rate, median intervention rate,
+    first-draft output count, and structured blocker counts for missing metrics,
+    low completion, high intervention, or missing materialized outputs. The
+    report consumes only dashboard payloads, validates component threshold flags
+    against dashboard metrics, never reads raw workspace manifests, and cannot
+    copy, retry, materialize, clean up, overwrite, or delete files; the same
+    `workflow_authority` object is emitted for agent-native consumers.
 28. Convert a saved cohort report into native-shell display state with
     `pilot-cohort-brief` when a Mac shell, GTM demo, or continuation agent needs
     human-readable readiness labels and workspace cards without parsing raw
@@ -474,7 +478,10 @@ JSON payloads rather than shoot folders, then calculates cohort-level pilot-read
 workspace rate, median intervention rate, and first-draft output count from the
 trusted dashboard acceptance fields. Dashboards without trusted metrics are
 counted as unavailable instead of being treated as failures or successes, and
-the cohort report does not emit workflow commands.
+the cohort report does not emit workflow commands. It also derives structured
+readiness blocker counts from validated dashboard threshold flags so pilot ops
+can see whether the bottleneck is missing metrics, completion rate, intervention
+rate, or absent first-draft outputs without parsing free-form notes.
 The pilot cohort brief command reads one saved cohort report and writes nothing.
 It turns the trusted cohort metrics into a native-shell-friendly status,
 headline, summary labels, and per-workspace readiness cards so demos can show

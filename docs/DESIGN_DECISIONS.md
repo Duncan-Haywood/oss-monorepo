@@ -193,9 +193,13 @@ The repo currently contains a Python core package because it is quick to test an
   schema v2 pilot-dashboard JSON payloads. It never opens shoot workspaces or
   raw worker manifests; instead it validates each dashboard payload and derives
   cohort-level pilot-ready workspace rate, median intervention rate, first-draft
-  output count, and per-workspace readiness evidence. Missing dashboard metrics
-  remain unavailable rather than becoming false successes or failures, and the
-  cohort report emits no workflow commands. It emits the same
+  output count, structured readiness-blocker counts, and per-workspace readiness
+  evidence. For metrics-available dashboards, it validates threshold booleans
+  against the reported rates/output count before trusting `ready_for_pilot_review`,
+  so a saved dashboard cannot claim pilot readiness while one component threshold
+  is failing. Missing dashboard metrics remain unavailable rather than becoming
+  false successes or failures, and the cohort report emits no workflow commands.
+  It emits the same
   `workflow_authority` observe-only object as the dashboard rather than trusting
   any authority claim inside saved dashboard inputs.
 - `shootflow.pilot_cohort_brief`: a read-only presentation contract above a

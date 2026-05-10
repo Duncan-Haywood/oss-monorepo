@@ -190,6 +190,9 @@ Track product and business metrics together:
 - manual intervention rate per 100 tasks,
 - pilot-ready workspace rate from trusted dashboard thresholds (default: >=90%
   completion, <=20% manual intervention, and >=1 materialized output),
+- pilot readiness blocker mix from cohort reports: missing trusted metrics,
+  completion below threshold, intervention above threshold, or missing
+  first-draft outputs,
 - paid conversion from trial,
 - retention at 30/90 days,
 - expansion (seat upgrades or usage add-ons).
