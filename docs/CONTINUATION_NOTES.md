@@ -23,7 +23,16 @@ remote branches with unique work:
   `workflow_authority` is synthesized as observe-only while preserving product
   metrics.
 - Pushed the reconciled assigned branch to
-  `origin/cursor/repository-branch-consolidation-110c`.
+  `origin/cursor/repository-branch-consolidation-110c`, then pushed the same
+  consolidated head to `origin/main` so useful completed work is no longer
+  stranded on an automation branch.
+- Final remote comparison after the main push showed
+  `origin/cursor/repository-branch-consolidation-110c` exactly matches
+  `origin/main`; `origin/cursor/repository-branch-consolidation-f53c` is now
+  contained in main; historical branches are behind main; and
+  `origin/cursor/branch-consolidation-f0b0` remains intentionally unmerged
+  because its only unique commit is the stale documentation note described
+  above.
 
 Verification performed after reconciliation:
 
