@@ -20,6 +20,9 @@ Branch reconciliation findings:
 - Local `main` was fast-forwarded to `origin/main` without leaving the assigned
   branch, and the stale local-only `cursor/setup-dev-env-3ad0` branch was
   deleted after confirming it was fully contained in main.
+- After verification and commit, pushed `94f21fe` to both the assigned branch
+  `origin/cursor/branch-reconciliation-and-merge-17ff` and `origin/main`, so the
+  new scene-adapter coverage is not stranded outside main.
 
 This run converted the previous scene-adapter residual risk list into direct
 coverage:
