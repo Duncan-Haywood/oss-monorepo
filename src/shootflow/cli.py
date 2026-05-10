@@ -1208,7 +1208,11 @@ def _load_handoff_controls_payload(path: Path) -> dict[object, object]:
     if not path.is_file():
         raise FileNotFoundError(path)
     try:
-        raw_data = json.loads(path.read_text(encoding="utf-8"))
+        raw_text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise ShootFlowCliError(f"Unable to read handoff JSON: {path}") from exc
+    try:
+        raw_data = json.loads(raw_text)
     except json.JSONDecodeError as exc:
         raise ShootFlowCliError(f"Invalid handoff JSON: {path}") from exc
     if not isinstance(raw_data, dict):

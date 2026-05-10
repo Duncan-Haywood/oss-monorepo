@@ -41,14 +41,23 @@ This run reconciled and shipped the completed authority-control integration:
   shell/native integrations can validate saved handoff JSON without parsing
   `next_actions`, `next_steps`, `writes_files`, `agent_handoff`, or prose as
   permission.
+- Fixed a review-found fail-closed gap in the CLI bridge: invalid UTF-8 or
+  unreadable handoff JSON now returns the normal CLI error path instead of
+  escaping as `UnicodeDecodeError`, `PermissionError`, or another `OSError`.
 - Preserved the new `docs/WORKFLOW_AUTHORITY.md` contract and README/AGENTS/
   design-decision references as the canonical guidance for future SwiftUI,
   menu-bar, or automation consumers.
 
 Verification in this session:
 
+- Red review follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_invalid_utf8_json tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_unreadable_json`
+  reproduced uncaught `UnicodeDecodeError` and `PermissionError`.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_invalid_utf8_json tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_unreadable_json tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_derives_disabled_controls tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_authorizing_payload`
+  -> 4 tests OK.
 - `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests`
-  -> 344 tests OK.
+  -> 346 tests OK.
 - `PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests`
   -> passed.
 - `git diff --check` -> passed.

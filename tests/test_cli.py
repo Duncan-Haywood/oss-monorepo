@@ -121,6 +121,49 @@ class ShootFlowCliTests(unittest.TestCase):
             stderr.getvalue(),
         )
 
+    def test_handoff_controls_command_rejects_invalid_utf8_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "handoff.json"
+            handoff_path.write_bytes(b"\xff")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            exit_code = main(
+                [
+                    "handoff-controls",
+                    "--handoff-json",
+                    str(handoff_path),
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("Unable to read handoff JSON", stderr.getvalue())
+
+    def test_handoff_controls_command_rejects_unreadable_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "handoff.json"
+            handoff_path.write_text("{}", encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with patch.object(Path, "read_text", side_effect=PermissionError("denied")):
+                exit_code = main(
+                    [
+                        "handoff-controls",
+                        "--handoff-json",
+                        str(handoff_path),
+                    ],
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("Unable to read handoff JSON", stderr.getvalue())
+
     def test_create_demo_workspace_command_outputs_scheduler_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp)
