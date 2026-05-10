@@ -67,6 +67,12 @@ Why this wedge wins:
   file outputs, and preserves directory-style package outputs or output
   conflicts as retryable review states before real proxy/VLM/color/story workers
   are introduced.
+- A local metadata production adapter that uses the same claim/result boundary
+  but reads trusted local inputs, records file size and SHA-256 metadata, and
+  writes deterministic JSON only to declared output files. This creates a first
+  real input-fingerprint path for proxy/analysis/color/story work without
+  granting copy, overwrite, cleanup, deletion, or arbitrary materialization
+  authority.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
@@ -78,11 +84,10 @@ Why this wedge wins:
   `production_scheduler_report.json` bound to the final production status so
   UI/agent layers can show completed outputs, retry conflicts, blocked work,
   expired leases, lease conflicts, and failure messages without rerunning
-  orchestration. The report now also carries derived product metrics so pilot
-  analytics can track throughput and intervention rate from the trusted handoff,
-  plus root observe-only `workflow_authority` so the saved post-operation report
-  cannot be interpreted as permission to retry, clean up, overwrite,
-  materialize, delete, or otherwise mutate files.
+  orchestration. Schema v3 reports now also carry observe-only
+  `workflow_authority` plus derived product metrics so pilot analytics can track
+  throughput and intervention rate from the trusted handoff without turning the
+  handoff into file-operation authority.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

@@ -78,6 +78,21 @@ the disabled `handoff_controls` map. Its output is still a presentation
 surface; it does not authorize copy, retry, cleanup, overwrite,
 materialization, deletion, or any other file mutation.
 
+## Persisted scheduler reports
+
+Production and render scheduler reports are trusted run records because they are
+validated against the final status manifests they summarize. They still do not
+grant workflow authority. Newly written scheduler reports use schema v3 and
+include the same root observe-only `workflow_authority` object as UI summaries.
+Loaders synthesize observe-only authority for legacy schema v1/v2 scheduler
+reports so saved demo and pilot workspaces remain readable without becoming
+file-operation authority.
+
+Native shells may display scheduler report state after validation, but copy,
+retry, cleanup, overwrite, materialization, deletion, and other file-changing
+controls still require a separate explicit invocation or future reviewed action
+contract.
+
 ## Future action contracts
 
 Write-capable actions require a separate explicit invocation or a future

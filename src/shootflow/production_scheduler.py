@@ -14,7 +14,7 @@ from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
     DryRunProductionBatchResult,
     DryRunProductionError,
-    run_dry_run_production_batch,
+    run_production_adapter_batch,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -39,11 +39,12 @@ from shootflow.workflow_authority import (
 
 _WORKER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 PRODUCTION_SCHEDULER_REPORT_PATH = "production_scheduler_report.json"
-_REPORT_SCHEMA_VERSION = 2
-_SUPPORTED_REPORT_SCHEMA_VERSIONS = frozenset({1, 2})
+_REPORT_SCHEMA_VERSION = 3
+_SUPPORTED_REPORT_SCHEMA_VERSIONS = frozenset({1, 2, 3})
 _REPORT_KEYS = frozenset(
     {
         "schema_version",
+        "workflow_authority",
         "generated_at",
         "shoot_slug",
         "production_plan_fingerprint",
@@ -64,13 +65,10 @@ _REPORT_KEYS = frozenset(
         "outputs_materialized",
         "failure_messages",
         "product_metrics",
-        "workflow_authority",
     }
 )
 _MESSAGE_KEYS = frozenset({"job_id", "message"})
-_OPTIONAL_REPORT_KEYS = frozenset(
-    {"expired_lease_job_ids", "conflicted_lease_job_ids", "workflow_authority"}
-)
+_OPTIONAL_REPORT_KEYS = frozenset({"expired_lease_job_ids", "conflicted_lease_job_ids"})
 _PRODUCT_METRIC_NAMES = frozenset(
     {
         "total_job_count",
@@ -126,6 +124,7 @@ class DryRunProductionSchedulerResult:
 
 @dataclass(frozen=True)
 class DryRunProductionSchedulerReport:
+    workflow_authority: Mapping[str, object]
     generated_at: str
     shoot_slug: str
     production_plan_fingerprint: str
@@ -226,7 +225,7 @@ def run_dry_run_production_scheduler(
         if ready_actions:
             attempted_job_ids.update(action.job_id for action in ready_actions)
             try:
-                batch_result = run_dry_run_production_batch(
+                batch_result = run_production_adapter_batch(
                     workspace_root,
                     trusted_plan=trusted_plan,
                     action_plan=ProductionWorkerActionPlan(
@@ -547,6 +546,7 @@ def _scheduler_report(
     outputs_materialized = _outputs_materialized(result.iterations)
     failure_messages = _failure_messages(result.iterations, final_manifest)
     report = DryRunProductionSchedulerReport(
+        workflow_authority=observe_only_workflow_authority_to_dict(),
         generated_at=generated_at,
         shoot_slug=trusted_plan.shoot_slug,
         production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
@@ -676,9 +676,9 @@ def _report_json(report: DryRunProductionSchedulerReport) -> str:
 def _report_to_json(report: DryRunProductionSchedulerReport) -> dict[str, object]:
     return {
         "schema_version": _REPORT_SCHEMA_VERSION,
+        "workflow_authority": dict(report.workflow_authority),
         "generated_at": report.generated_at,
         "shoot_slug": report.shoot_slug,
-        "workflow_authority": observe_only_workflow_authority_to_dict(),
         "production_plan_fingerprint": report.production_plan_fingerprint,
         "production_status_fingerprint": report.production_status_fingerprint,
         "worker_adapter": report.worker_adapter,
@@ -710,7 +710,9 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
         raise DryRunProductionSchedulerError("Production scheduler report schema_version is unsupported")
     required_keys = _REPORT_KEYS - _OPTIONAL_REPORT_KEYS
     if raw_schema_version == 1:
-        required_keys = required_keys - {"product_metrics"}
+        required_keys = required_keys - {"product_metrics", "workflow_authority"}
+    elif raw_schema_version == 2:
+        required_keys = required_keys - {"workflow_authority"}
     missing_keys = required_keys - set(raw_report)
     if unknown_keys:
         raise DryRunProductionSchedulerError(
@@ -720,14 +722,6 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
         raise DryRunProductionSchedulerError(
             f"Production scheduler report is missing fields: {sorted(missing_keys)}"
         )
-    if "workflow_authority" in raw_report:
-        try:
-            validate_observe_only_workflow_authority(
-                raw_report["workflow_authority"],
-                field_label="workflow_authority",
-            )
-        except WorkflowAuthorityError as exc:
-            raise DryRunProductionSchedulerError(str(exc)) from exc
     iteration_count = _json_non_negative_int(raw_report["iteration_count"], "iteration_count")
     total_job_count = _json_non_negative_int(raw_report["total_job_count"], "total_job_count")
     completed_job_ids = _json_string_tuple(raw_report["completed_job_ids"], "completed_job_ids")
@@ -772,7 +766,9 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunProductionSchedule
             failure_messages=failure_messages,
         )
     )
+    workflow_authority = _report_workflow_authority(raw_report)
     return DryRunProductionSchedulerReport(
+        workflow_authority=workflow_authority,
         generated_at=_json_string(raw_report["generated_at"], "generated_at"),
         shoot_slug=_json_string(raw_report["shoot_slug"], "shoot_slug"),
         production_plan_fingerprint=_json_string(
@@ -1073,6 +1069,7 @@ def _ordered_unique(job_ids: tuple[str, ...]) -> tuple[str, ...]:
 def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
     if not isinstance(report, DryRunProductionSchedulerReport):
         raise DryRunProductionSchedulerError("report must be a DryRunProductionSchedulerReport")
+    _validate_report_workflow_authority(report.workflow_authority)
     _validate_timestamp(report.generated_at, "generated_at")
     if not isinstance(report.shoot_slug, str) or not report.shoot_slug.strip():
         raise DryRunProductionSchedulerError("report shoot_slug cannot be empty")
@@ -1127,6 +1124,24 @@ def _validate_report_shape(report: DryRunProductionSchedulerReport) -> None:
             raise DryRunProductionSchedulerError("report failure_messages contains duplicate messages")
         seen_failure_message_job_ids.add(message.job_id)
     _validate_product_metrics(report.product_metrics)
+
+
+def _report_workflow_authority(raw_report: Mapping[str, object]) -> dict[str, object]:
+    if "workflow_authority" not in raw_report:
+        return observe_only_workflow_authority_to_dict()
+    authority = raw_report["workflow_authority"]
+    _validate_report_workflow_authority(authority)
+    return dict(authority)
+
+
+def _validate_report_workflow_authority(authority: object) -> None:
+    try:
+        validate_observe_only_workflow_authority(
+            authority,
+            field_label="Production scheduler report workflow_authority",
+        )
+    except WorkflowAuthorityError as exc:
+        raise DryRunProductionSchedulerError(str(exc)) from exc
 
 
 def _validate_product_metrics(metrics: Mapping[str, int]) -> None:

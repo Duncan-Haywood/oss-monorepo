@@ -19,6 +19,7 @@ from shootflow.render_status import (
     render_plan_fingerprint,
     write_render_status_manifest,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 
 class DryRunRenderSchedulerTests(unittest.TestCase):
@@ -351,22 +352,13 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(report_path, Path(tmpdir) / "deliverables" / "render_scheduler_report.json")
-        self.assertEqual(raw_report["schema_version"], 2)
-        self.assertEqual(
-            raw_report["workflow_authority"],
-            {
-                "mode": "observe_only",
-                "handoff_kind": "presentation_only",
-                "permits_file_mutation": False,
-                "permits_copy": False,
-                "permits_retry": False,
-                "permits_cleanup": False,
-                "permits_overwrite": False,
-                "permits_materialization": False,
-                "permits_deletion": False,
-            },
-        )
+        self.assertEqual(raw_report["schema_version"], 3)
+        self.assertEqual(raw_report["workflow_authority"], observe_only_workflow_authority_to_dict())
         self.assertIsInstance(loaded_report, DryRunRenderSchedulerReport)
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.total_task_count, 2)
         self.assertEqual(loaded_report.completed_task_ids, result.completed_task_ids)
@@ -400,42 +392,6 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.product_metrics["completed_task_count"], 2)
         with self.assertRaises(TypeError):
             loaded_report.product_metrics["completed_task_count"] = 0
-
-    def test_scheduler_report_rejects_authorizing_workflow_authority(self) -> None:
-        trusted_plan = self._single_task_plan()
-        initial_manifest = self._pending_manifest(trusted_plan)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            workspace = Path(tmpdir)
-            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
-            result = run_dry_run_render_scheduler(
-                workspace,
-                trusted_plan=trusted_plan,
-                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
-                renderer_adapter="dry-run-local",
-                started_at="2026-05-07T15:04:30Z",
-                completed_at="2026-05-07T15:04:35Z",
-                max_concurrency=1,
-                max_iterations=3,
-            )
-            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
-            report_path = write_dry_run_render_scheduler_report(
-                result,
-                workspace,
-                trusted_plan=trusted_plan,
-                final_manifest=final_manifest,
-                generated_at="2026-05-07T15:04:36Z",
-            )
-            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
-            raw_report["workflow_authority"]["permits_materialization"] = True
-            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
-
-            with self.assertRaisesRegex(DryRunRenderSchedulerError, "workflow_authority"):
-                load_dry_run_render_scheduler_report(
-                    workspace,
-                    trusted_plan=trusted_plan,
-                    final_manifest=final_manifest,
-                )
 
     def test_scheduler_report_marks_retryable_tasks_for_review_without_overwriting_outputs(self) -> None:
         trusted_plan = self._single_task_plan()
@@ -743,6 +699,7 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             raw_report = json.loads(report_path.read_text(encoding="utf-8"))
             raw_report["schema_version"] = 1
             del raw_report["product_metrics"]
+            raw_report.pop("workflow_authority", None)
             report_path.write_text(json.dumps(raw_report), encoding="utf-8")
 
             loaded_report = load_dry_run_render_scheduler_report(
@@ -752,6 +709,129 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(loaded_report.product_metrics["completed_task_count"], 1)
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
+
+    def test_schema_v2_scheduler_report_loads_with_observe_only_authority(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:54Z",
+                completed_at="2026-05-07T15:07:55Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:56Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["schema_version"] = 2
+            raw_report.pop("workflow_authority", None)
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            loaded_report = load_dry_run_render_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
+
+    def test_schema_v3_scheduler_report_rejects_missing_workflow_authority(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:56Z",
+                completed_at="2026-05-07T15:07:57Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:58Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report.pop("workflow_authority", None)
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "workflow_authority"):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
+    def test_scheduler_report_rejects_authorizing_workflow_authority(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:57Z",
+                completed_at="2026-05-07T15:07:58Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:59Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["workflow_authority"]["permits_retry"] = True
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(
+                DryRunRenderSchedulerError,
+                "workflow_authority.permits_retry must be False",
+            ):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
 
     def test_scheduler_report_rejects_forged_complete_stop_for_retryable_status(self) -> None:
         trusted_plan = self._single_task_plan()

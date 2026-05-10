@@ -50,11 +50,16 @@ writes a trusted `production_scheduler_report.json` bound to the final status.
 It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
-being clobbered. Production and render scheduler reports are schema v2, include
-validated product metric counts derived from the report state, and emit the same
-observe-only `workflow_authority` object so persisted post-operation reports
-cannot be mistaken for retry, cleanup, materialization, overwrite, deletion, or
-other file-mutation authority.
+being clobbered. The scheduler dispatches trusted local production adapters:
+`dry-run-production-local` writes placeholders, while `metadata-production-local`
+fingerprints real local inputs and writes deterministic metadata JSON only to
+declared output files without copying, deleting, or inventing media paths.
+Production and render scheduler reports are schema v3 and include root
+observe-only `workflow_authority` plus validated product metric counts derived
+from the report state, so persisted post-operation reports cannot be mistaken
+for retry, cleanup, materialization, overwrite, deletion, or other file-mutation
+authority. Legacy schema v1/v2 scheduler reports still load as observe-only for
+existing saved workspaces.
 `workspace-health`, `index-workspace`, and `pilot-dashboard` expose production
 status/report summaries and validated scheduler product metrics read-only before
 falling through to render handoffs. `pilot-dashboard` is the first stable
