@@ -256,65 +256,17 @@ def run_dry_run_production_action(
     the guarded production-status compare/write boundary.
     """
 
-    _validate_action(action, expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER)
-    _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
-    _validate_timestamp(started_at, "started_at")
-    _validate_timestamp(completed_at, "completed_at")
-    root = _workspace_root(workspace_root)
-
-    current_manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
-    current_status = _status_for_action(current_manifest, action)
-    try:
-        running_status = claim_production_worker_action(
-            current_status,
-            action,
-            updated_at=started_at,
-        )
-    except ProductionWorkerError as exc:
-        raise DryRunProductionError(str(exc)) from exc
-    compare_and_write_production_job_status(
-        root,
+    return _run_production_action(
+        workspace_root,
         trusted_plan=trusted_plan,
-        updated_status=running_status,
-        expected_state=current_status.state,
-        expected_attempts=current_status.attempts,
-        expected_updated_at=current_status.updated_at,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_dry_run_production_outputs,
+        retryable_error_message=_retryable_error_message,
+        result_type=DryRunProductionAdapterResult,
     )
-
-    try:
-        outputs_materialized = _materialize_dry_run_production_outputs(action, root)
-        final_status = report_production_worker_success(
-            running_status,
-            action,
-            root,
-            updated_at=completed_at,
-        )
-    except (DryRunProductionError, ProductionWorkerError) as exc:
-        outputs_materialized = ()
-        final_status = report_production_worker_retryable(
-            running_status,
-            action,
-            error_message=_retryable_error_message(exc),
-            updated_at=completed_at,
-        )
-
-    final_manifest = compare_and_write_production_job_status(
-        root,
-        trusted_plan=trusted_plan,
-        updated_status=final_status,
-        expected_state="running",
-        expected_attempts=action.attempt_number,
-        expected_updated_at=started_at,
-    )
-    result = DryRunProductionAdapterResult(
-        job_id=action.job_id,
-        claimed_status=running_status,
-        final_status=final_status,
-        manifest=final_manifest,
-        outputs_materialized=outputs_materialized,
-    )
-    _validate_result(result)
-    return result
 
 
 def run_metadata_production_action(
@@ -327,12 +279,36 @@ def run_metadata_production_action(
 ) -> MetadataProductionAdapterResult:
     """Persist one trusted metadata action through claim, output JSON, and result."""
 
-    _validate_action(action, expected_adapter=_METADATA_PRODUCTION_ADAPTER)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_METADATA_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_metadata_production_outputs,
+        retryable_error_message=_metadata_retryable_error_message,
+        result_type=MetadataProductionAdapterResult,
+    )
+
+
+def _run_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+    expected_adapter: str,
+    materialize_outputs,
+    retryable_error_message,
+    result_type,
+) -> DryRunProductionAdapterResult:
+    _validate_action(action, expected_adapter=expected_adapter)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     root = _workspace_root(workspace_root)
-
     current_manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
     current_status = _status_for_action(current_manifest, action)
     try:
@@ -353,7 +329,7 @@ def run_metadata_production_action(
     )
 
     try:
-        outputs_materialized = _materialize_metadata_production_outputs(action, root)
+        outputs_materialized = materialize_outputs(action, root)
         final_status = report_production_worker_success(
             running_status,
             action,
@@ -365,7 +341,7 @@ def run_metadata_production_action(
         final_status = report_production_worker_retryable(
             running_status,
             action,
-            error_message=_metadata_retryable_error_message(exc),
+            error_message=retryable_error_message(exc),
             updated_at=completed_at,
         )
 
@@ -377,7 +353,7 @@ def run_metadata_production_action(
         expected_attempts=action.attempt_number,
         expected_updated_at=started_at,
     )
-    result = MetadataProductionAdapterResult(
+    result = result_type(
         job_id=action.job_id,
         claimed_status=running_status,
         final_status=final_status,
@@ -566,51 +542,7 @@ def _write_dry_run_output(
             f"{output}"
         )
     content = _dry_run_output_bytes(action, output=output)
-    expected_sha256 = hashlib.sha256(content).hexdigest()
-    output_path = _workspace_output_path(root, output)
-
-    _reject_symlink_path(output_path.parent, root, "dry-run production output directory")
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        raise DryRunProductionError(
-            f"Unable to create dry-run production output directory: {output_path.parent}"
-        ) from exc
-    _reject_symlink_path(output_path.parent, root, "dry-run production output directory")
-    _reject_symlink_path(output_path, root, "dry-run production output")
-
-    if output_path.exists():
-        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
-        return
-
-    temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
-    _reject_symlink_path(temp_path, root, "temporary dry-run production output")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
-
-    try:
-        fd = os.open(temp_path, flags, 0o600)
-    except OSError as exc:
-        raise DryRunProductionError(f"Unable to create temporary dry-run production output: {temp_path}") from exc
-
-    try:
-        with os.fdopen(fd, "wb") as temp_file:
-            temp_file.write(content)
-        _reject_symlink_path(temp_path, root, "temporary dry-run production output")
-        try:
-            os.link(temp_path, output_path)
-        except FileExistsError:
-            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
-        except OSError as exc:
-            raise DryRunProductionError(f"Unable to commit dry-run production output: {output}") from exc
-    except OSError as exc:
-        raise DryRunProductionError(f"Unable to write dry-run production output: {output}") from exc
-    finally:
-        try:
-            temp_path.unlink()
-        except FileNotFoundError:
-            pass
+    _write_production_output_bytes(root, output=output, content=content, label="dry-run production")
 
 
 def _dry_run_output_bytes(action: ProductionWorkerAction, *, output: str) -> bytes:
@@ -641,25 +573,35 @@ def _write_metadata_output(
             f"{output}"
         )
     content = _metadata_output_bytes(action, output=output, input_metadata=input_metadata)
+    _write_production_output_bytes(root, output=output, content=content, label="metadata production")
+
+
+def _write_production_output_bytes(
+    root: Path,
+    *,
+    output: str,
+    content: bytes,
+    label: str,
+) -> None:
     expected_sha256 = hashlib.sha256(content).hexdigest()
     output_path = _workspace_output_path(root, output)
 
-    _reject_symlink_path(output_path.parent, root, "metadata production output directory")
+    _reject_symlink_path(output_path.parent, root, f"{label} output directory")
     try:
         output_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         raise DryRunProductionError(
-            f"Unable to create metadata production output directory: {output_path.parent}"
+            f"Unable to create {label} output directory: {output_path.parent}"
         ) from exc
-    _reject_symlink_path(output_path.parent, root, "metadata production output directory")
-    _reject_symlink_path(output_path, root, "metadata production output")
+    _reject_symlink_path(output_path.parent, root, f"{label} output directory")
+    _reject_symlink_path(output_path, root, f"{label} output")
 
     if output_path.exists():
         _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
         return
 
     temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
-    _reject_symlink_path(temp_path, root, "temporary metadata production output")
+    _reject_symlink_path(temp_path, root, f"temporary {label} output")
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -667,20 +609,20 @@ def _write_metadata_output(
     try:
         fd = os.open(temp_path, flags, 0o600)
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to create temporary metadata production output: {temp_path}") from exc
+        raise DryRunProductionError(f"Unable to create temporary {label} output: {temp_path}") from exc
 
     try:
         with os.fdopen(fd, "wb") as temp_file:
             temp_file.write(content)
-        _reject_symlink_path(temp_path, root, "temporary metadata production output")
+        _reject_symlink_path(temp_path, root, f"temporary {label} output")
         try:
             os.link(temp_path, output_path)
         except FileExistsError:
             _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
         except OSError as exc:
-            raise DryRunProductionError(f"Unable to commit metadata production output: {output}") from exc
+            raise DryRunProductionError(f"Unable to commit {label} output: {output}") from exc
     except OSError as exc:
-        raise DryRunProductionError(f"Unable to write metadata production output: {output}") from exc
+        raise DryRunProductionError(f"Unable to write {label} output: {output}") from exc
     finally:
         try:
             temp_path.unlink()
