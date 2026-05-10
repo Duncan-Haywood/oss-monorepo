@@ -1743,6 +1743,27 @@ def _grade_analysis_summary(
         raise ProductionAdapterError(f"Invalid grade production analysis JSON: {output}") from exc
     if not isinstance(raw_payload, dict):
         raise ProductionAdapterError(f"Invalid grade production analysis payload: {output}")
+    schema_version = raw_payload.get("schema_version")
+    if not isinstance(schema_version, int) or isinstance(schema_version, bool) or schema_version != 1:
+        raise ProductionAdapterError("Grade production requires analysis schema_version 1")
+    if raw_payload.get("adapter") != "shootflow-analysis-production-local":
+        raise ProductionAdapterError("Grade production analysis adapter does not match trusted local adapter")
+    adapter_metadata = raw_payload.get("adapter_metadata")
+    if not isinstance(adapter_metadata, dict):
+        raise ProductionAdapterError("Grade production analysis adapter_metadata must be an object")
+    expected_metadata: tuple[tuple[str, object], ...] = (
+        ("job_id", dependency_job.job_id),
+        ("output_kind", "vlm_asset_analysis"),
+        ("outputs", list(dependency_job.outputs)),
+        ("selected_output", output),
+        ("depends_on", list(dependency_job.depends_on)),
+        ("can_run_in_parallel", dependency_job.can_run_in_parallel),
+    )
+    for field_name, expected_value in expected_metadata:
+        if adapter_metadata.get(field_name) != expected_value:
+            raise ProductionAdapterError(
+                f"Grade production analysis {field_name} does not match trusted plan"
+            )
     source_asset_path = raw_payload.get("source_asset_path")
     if source_asset_path != action.inputs[0] or dependency_job.inputs != action.inputs:
         raise ProductionAdapterError("Grade production analysis source does not match trusted job")

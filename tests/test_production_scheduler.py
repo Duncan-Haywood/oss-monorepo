@@ -463,6 +463,119 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(loaded_report.failure_messages[0].job_id, "develop_shoot_look")
         self.assertIn("asset_paths must be a list", loaded_report.failure_messages[0].message)
 
+    def test_grade_adapter_scheduler_materializes_grade_and_reports_output(self) -> None:
+        trusted_plan = self._video_only_plan()
+        grade_job = trusted_plan.job_by_id("grade_asset_00000")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / grade_job.inputs[0]
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_bytes(b"trusted scheduler grade source")
+            dependency_manifest = self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="grade-production-local",
+                started_at="2026-05-10T18:05:00Z",
+                completed_at="2026-05-10T18:05:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T18:05:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            grade_payload = json.loads((workspace / grade_job.outputs[0]).read_text(encoding="utf-8"))
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("grade_asset_00000",))
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertEqual(final_manifest.job_statuses[4].state, "succeeded")
+        self.assertEqual(final_manifest.job_statuses[5].state, "pending")
+        self.assertEqual(final_manifest.job_statuses[5].attempts, 0)
+        self.assertEqual(grade_payload["adapter"], "shootflow-grade-production-local")
+        self.assertEqual(grade_payload["source_analysis"]["path"], "analysis/00000.json")
+        self.assertEqual(grade_payload["source_look"]["path"], "color/shoot_look.json")
+        self.assertEqual(loaded_report.completed_job_ids, tuple(job.job_id for job in trusted_plan.jobs[:5]))
+        self.assertEqual(loaded_report.outputs_materialized, ("graded/grade_asset_00000/A001.MOV",))
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 5)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["review_required_job_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 1)
+
+    def test_grade_adapter_scheduler_reports_analysis_checksum_drift_as_retryable(self) -> None:
+        trusted_plan = self._video_only_plan()
+        grade_job = trusted_plan.job_by_id("grade_asset_00000")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / grade_job.inputs[0]
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_bytes(b"trusted scheduler grade source")
+            dependency_manifest = self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+            (workspace / "analysis/00000.json").write_text(
+                '{"schema_version": 1, "source_asset_path": "originals/A001.MOV"}\n',
+                encoding="utf-8",
+            )
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="grade-production-local",
+                started_at="2026-05-10T18:06:00Z",
+                completed_at="2026-05-10T18:06:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T18:06:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            output_exists = (workspace / grade_job.outputs[0]).exists()
+
+        grade_status = final_manifest.job_statuses[4]
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.retryable_job_ids, ("grade_asset_00000",))
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("grade_asset_00000",))
+        self.assertEqual(result.iterations[-1].skipped_retryable_job_ids, ("grade_asset_00000",))
+        self.assertEqual(grade_status.state, "retryable")
+        self.assertIn("Grade production dependency checksum mismatch", grade_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_report.retryable_job_ids, ("grade_asset_00000",))
+        self.assertEqual(loaded_report.review_required_job_ids, ("grade_asset_00000",))
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 4)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 1)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["failure_message_count"], 1)
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "grade_asset_00000")
+        self.assertIn(
+            "Grade production dependency checksum mismatch",
+            loaded_report.failure_messages[0].message,
+        )
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
@@ -1343,6 +1456,154 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             encoding="utf-8",
         )
         return scene_path
+
+    @classmethod
+    def _write_grade_dependencies_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        analysis_path = workspace / "analysis/00000.json"
+        analysis_path.parent.mkdir(parents=True, exist_ok=True)
+        analysis_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-analysis-production-local",
+                    "source_asset_path": "originals/A001.MOV",
+                    "media_type": "video",
+                    "scene_label": "ceremony",
+                    "aesthetic_score": 0.8,
+                    "story_score": 0.9,
+                    "technical_score": 0.7,
+                    "motion_score": 0.6,
+                    "duration_seconds": 12.0,
+                    "tags": ["vows"],
+                    "adapter_metadata": {
+                        "job_id": "analyze_asset_00000",
+                        "output_kind": "vlm_asset_analysis",
+                        "outputs": ["analysis/00000.json"],
+                        "selected_output": "analysis/00000.json",
+                        "depends_on": ["proxy_asset_00000"],
+                        "can_run_in_parallel": True,
+                    },
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        look_path = workspace / "color/shoot_look.json"
+        look_path.parent.mkdir(parents=True, exist_ok=True)
+        look_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-look-production-local",
+                    "job_id": "develop_shoot_look",
+                    "output_kind": "look_development",
+                    "inputs": ["production-scheduler"],
+                    "outputs": ["color/shoot_look.json"],
+                    "selected_output": "color/shoot_look.json",
+                    "depends_on": ["group_scene_sets"],
+                    "can_run_in_parallel": False,
+                    "source_scene_groups": {
+                        "path": "analysis/scene_groups.json",
+                        "sha256": "a" * 64,
+                        "analysis_count": 1,
+                        "scene_count": 1,
+                        "scene_labels": ["ceremony"],
+                        "primary_tags": ["vows"],
+                    },
+                    "look_profile": {
+                        "name": "local-documentary-neutral",
+                        "tone_curve": "soft_contrast",
+                        "color_bias": "warm_highlight_protection",
+                        "warmth": 0.6,
+                        "saturation": 0.7,
+                        "contrast": 0.8,
+                    },
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return cls._grade_ready_manifest(
+            trusted_plan,
+            analysis_checksum=cls._sha256_file(analysis_path),
+            look_checksum=cls._sha256_file(look_path),
+        )
+
+    @staticmethod
+    def _grade_ready_manifest(
+        trusted_plan,
+        *,
+        analysis_checksum: str,
+        look_checksum: str,
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="look-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=job.outputs[0], sha256=look_checksum),
+                    ),
+                    updated_at="2026-05-10T16:05:00Z",
+                )
+                if job.output_kind == "look_development"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(
+                            path=output,
+                            sha256=analysis_checksum if output == "analysis/00000.json" else "b" * 64,
+                        )
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:20:00Z",
+                )
+                if job.output_kind == "scene_grouping"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
 
 
 if __name__ == "__main__":

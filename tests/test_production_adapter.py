@@ -1273,6 +1273,44 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
 
+    def test_grade_adapter_marks_malformed_analysis_dependency_retryable(self) -> None:
+        trusted_plan, _ready_manifest, action = self._grade_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_bytes(b"trusted camera original")
+            analysis_path = workspace / "analysis/00000.json"
+            analysis_payload = json.loads(analysis_path.read_text(encoding="utf-8"))
+            analysis_payload["schema_version"] = 2
+            analysis_path.write_text(
+                json.dumps(analysis_payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            ready_manifest = self._grade_ready_manifest_with_checksums(
+                trusted_plan,
+                analysis_checksum=self._sha256_file(analysis_path),
+                look_checksum=self._sha256_file(workspace / "color/shoot_look.json"),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_grade_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T17:37:00Z",
+                completed_at="2026-05-10T17:37:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Grade production requires analysis schema_version 1", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",
