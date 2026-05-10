@@ -55,8 +55,11 @@ being clobbered. The scheduler dispatches trusted local production adapters:
 fingerprints real local inputs and writes deterministic metadata JSON only to
 declared output files, and `proxy-production-local` byte-copies trusted local
 inputs into declared proxy outputs as a conservative stand-in before real
-ffmpeg/Metal proxy generation. None of these adapters may delete, clean up,
-overwrite different bytes, or invent media paths.
+ffmpeg/Metal proxy generation. Scheduler dispatch is adapter-capability aware,
+so `proxy-production-local` receives only proxy jobs and leaves downstream
+analysis/color/story/package jobs pending or blocked for a compatible worker.
+None of these adapters may delete, clean up, overwrite different bytes, or invent
+media paths.
 Production and render scheduler reports are schema v3 and include root
 observe-only `workflow_authority` plus validated product metric counts derived
 from the report state, so persisted post-operation reports cannot be mistaken

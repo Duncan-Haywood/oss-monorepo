@@ -95,7 +95,11 @@ The repo currently contains a Python core package because it is quick to test an
   already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
   again in the same run. This protects manual outputs, active workers, and future
-  review loops from repeated overwrite attempts.
+  review loops from repeated overwrite attempts. The scheduler also filters
+  ready work through adapter capability checks, so the proxy-local adapter is run
+  as a proxy-wave worker only; later dependency-ready analysis/color/story/package
+  jobs stay pending or blocked for a compatible adapter instead of being recorded
+  as proxy failures.
 - `shootflow.production_handoff`: the read-only bridge between plan review and
   actual proxy/VLM/color/story workers. It can still derive a next wave from
   caller-reported completed IDs for simple demos, but the product path now reads

@@ -81,6 +81,26 @@ def supported_production_adapter_names() -> tuple[str, ...]:
     return (_DRY_RUN_PRODUCTION_ADAPTER, _METADATA_PRODUCTION_ADAPTER, _PROXY_PRODUCTION_ADAPTER)
 
 
+def production_adapter_supports_output_kind(adapter_name: str, output_kind: str) -> bool:
+    """Return whether a local production adapter can safely handle an output kind."""
+
+    if not isinstance(adapter_name, str) or not adapter_name.strip():
+        raise DryRunProductionError("production adapter name cannot be empty")
+    if not isinstance(output_kind, str) or not output_kind.strip():
+        raise DryRunProductionError("production adapter output_kind cannot be empty")
+    if adapter_name == _DRY_RUN_PRODUCTION_ADAPTER:
+        return True
+    if adapter_name == _METADATA_PRODUCTION_ADAPTER:
+        return True
+    if adapter_name == _PROXY_PRODUCTION_ADAPTER:
+        return output_kind == "proxy_media"
+    supported_adapters = ", ".join(supported_production_adapter_names())
+    raise DryRunProductionError(
+        f"Unsupported production adapter: {adapter_name}. "
+        f"Supported adapters: {supported_adapters}"
+    )
+
+
 def run_production_adapter_batch(
     workspace_root: Path | str,
     *,

@@ -306,7 +306,11 @@ to automate.
    loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
-   or clobbering heartbeat-refreshed workers in a tight loop. The first local
+   or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
+   is adapter-capability aware: `proxy-production-local` receives only
+   dependency-ready proxy jobs, while later analysis/color/story/package jobs
+   remain pending or blocked for a compatible worker rather than becoming
+   expected proxy failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
    writes deterministic metadata JSON only to declared output files, while

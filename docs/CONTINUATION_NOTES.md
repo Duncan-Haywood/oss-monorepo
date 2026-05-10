@@ -2,6 +2,52 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 13:00 UTC
+
+This run tightened the production scheduler boundary for stage-specific local
+adapters:
+
+- Added adapter capability filtering before scheduler batch dispatch. The
+  `proxy-production-local` adapter now receives only `proxy_media` actions from
+  `run_dry_run_production_scheduler(...)`; dependency-ready analysis, color,
+  storyline, or package jobs remain pending/blocked for a later compatible
+  worker instead of being offered to proxy and recorded as expected adapter
+  failures.
+- Kept the direct proxy adapter validation from the prior run intact:
+  forged/non-proxy actions still fail before claim if a caller bypasses the
+  scheduler and invokes the proxy batch/action path directly.
+- Added a scheduler regression proving a proxy-only run completes the proxy wave,
+  leaves `analyze_asset_00000` pending with zero attempts, records no second-batch
+  adapter failure, and stops with downstream work still blocked.
+
+Verification performed for this increment:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_stops_after_proxy_wave_without_offering_analysis_jobs`
+  failed because the scheduler still attempted `analyze_asset_00000`.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_stops_after_proxy_wave_without_offering_analysis_jobs`
+  -> 1 test OK.
+- Related production regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler`
+  -> 40 tests OK.
+- Full repository verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 384 tests OK; compileall and diff-check exited 0.
+
+Good next test-first targets:
+
+- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
+  `ProductionAdapter*` names now that metadata/proxy adapters are real local
+  adapter proofs.
+- Add an explicit multi-adapter production orchestration plan that can run proxy,
+  metadata/VLM, look, grade, storyline, and package stages with distinct
+  compatible workers while keeping retry/review state in one
+  `production_status.json`.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 11:30 UTC
 
 This run first reconciled stranded completed work, then added the next

@@ -14,6 +14,7 @@ from shootflow.production import ProductionPlan
 from shootflow.production_adapter import (
     DryRunProductionBatchResult,
     DryRunProductionError,
+    production_adapter_supports_output_kind,
     run_production_adapter_batch,
     supported_production_adapter_names,
 )
@@ -203,7 +204,8 @@ def run_dry_run_production_scheduler(
         ready_actions = tuple(
             action
             for action in action_plan.actions
-            if action.job_id not in attempted_job_ids
+            if production_adapter_supports_output_kind(worker_adapter, action.output_kind)
+            and action.job_id not in attempted_job_ids
             and action.job_id not in expired_this_run_job_ids
             and (
                 statuses_by_id[action.job_id].state != "retryable"
@@ -278,7 +280,8 @@ def run_dry_run_production_scheduler(
     ready_after_cap = tuple(
         action
         for action in final_action_plan.actions
-        if action.job_id not in attempted_job_ids
+        if production_adapter_supports_output_kind(worker_adapter, action.output_kind)
+        and action.job_id not in attempted_job_ids
         and action.job_id not in expired_this_run_job_ids
         and (
             final_statuses_by_id[action.job_id].state != "retryable"
