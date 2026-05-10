@@ -2,6 +2,82 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 09:00 UTC
+
+Final reconciliation for this session:
+
+- Started on assigned branch `cursor/repository-branch-consolidation-8b6e`,
+  which initially matched `origin/main` at `2ae8935`.
+- `git fetch --prune origin` removed historical remote-tracking refs and surfaced
+  three live remote branches with useful work:
+  `origin/cursor/branch-consolidation-strategy-90f2`,
+  `origin/cursor/branch-reconciliation-and-merge-4808`, and
+  `origin/cursor/repository-branch-consolidation-3fe2`.
+- `origin/cursor/repository-branch-consolidation-3fe2` was the current superset:
+  it contained the branch-consolidation strategy work, scheduler report authority
+  reconciliation, the `metadata-production-local` adapter, and structured pilot
+  cohort readiness blockers. The assigned branch fast-forwarded to that branch's
+  `457643c docs: record branch reconciliation` state and was pushed to
+  `origin/cursor/repository-branch-consolidation-8b6e`.
+- This session then implemented the next documented test-first target on the
+  assigned branch: binding cohort readiness blockers into `pilot-cohort-brief`
+  JSON/text output for native-shell and GTM presentation.
+- `origin/main` was not checked out or pushed because the Cloud branch
+  requirements for this automation require final pushes to
+  `cursor/repository-branch-consolidation-8b6e`. Once this branch is merged by
+  normal PR automation, the three reconciled remote feature branches should be
+  considered redundant because their useful work is contained here.
+
+## Implementation continuation note - 2026-05-10 09:00 UTC
+
+This run closed the prior cohort-brief blocker-label target:
+
+- `pilot-cohort-brief` summary JSON now exposes structured readiness blocker
+  counts for `metrics_unavailable`, `completion_below_threshold`,
+  `intervention_above_threshold`, and `materialized_outputs_missing`.
+- Each workspace card now exposes validated blocker codes plus controlled human
+  labels such as `Completion below threshold` and
+  `Manual intervention above threshold`. The labels are generated from an
+  internal allowlist, not copied from free-form saved report notes.
+- The brief validates any saved cohort-level `readiness_blockers` counts against
+  per-workspace evidence and validates per-workspace blocker codes against the
+  product's default pilot thresholds before presenting them.
+- Text-mode briefs now print controlled blocker labels while continuing to omit
+  saved paths, timestamps, workspace titles, free-form threshold notes, and any
+  executable workflow commands.
+- README, AGENTS, product strategy, business plan, and design decisions now
+  record that the brief is the presentation layer for structured blocker counts
+  and controlled blocker labels.
+
+Verification for this focused slice:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief`
+  failed on missing `summary.readiness_blockers`, missing per-card blocker
+  fields, missing text blocker labels, and accepted a forged aggregate blocker
+  count.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief`
+  -> 18 tests OK, including legacy reports without blocker fields and the
+  `materialized_outputs_missing` label path.
+- Related pilot/CLI run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_pilot_dashboard tests.test_cli`
+  -> 98 tests OK.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy adapter behind the production-worker action contract,
+  using the `metadata-production-local` adapter as the declared-output-only
+  pattern and preserving stale lease recovery semantics.
+- Add symlink input/output-parent and existing-output conflict coverage around
+  `metadata-production-local` before wiring additional media-producing adapters.
+
 ## Branch reconciliation note - 2026-05-10 08:30 UTC
 
 Final reconciliation for this session:

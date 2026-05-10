@@ -353,10 +353,11 @@ The intended first workflow is:
     `workflow_authority` object is emitted for agent-native consumers.
 28. Convert a saved cohort report into native-shell display state with
     `pilot-cohort-brief` when a Mac shell, GTM demo, or continuation agent needs
-    human-readable readiness labels and workspace cards without parsing raw
-    report metrics or receiving executable commands. JSON consumers should
-    respect its observe-only `workflow_authority` before presenting any
-    adjacent retry or materialization controls.
+    human-readable readiness labels, structured readiness blocker counts,
+    controlled blocker labels, and workspace cards without parsing raw report
+    metrics or receiving executable commands. JSON consumers should respect its
+    observe-only `workflow_authority` before presenting any adjacent retry or
+    materialization controls.
 29. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
@@ -494,13 +495,15 @@ can see whether the bottleneck is missing metrics, completion rate, intervention
 rate, or absent first-draft outputs without parsing free-form notes.
 The pilot cohort brief command reads one saved cohort report and writes nothing.
 It turns the trusted cohort metrics into a native-shell-friendly status,
-headline, summary labels, and per-workspace readiness cards so demos can show
-readiness, intervention, and first-draft output evidence without parsing raw
-worker internals. JSON remains the default output for integrations; `--format
-text` prints a deterministic command-free native-shell view for demos and
-operator readouts, omitting saved paths, timestamps, workspace titles, and
-free-form report notes so text output cannot become a shell handoff. It remains
-observe-only and does not emit executable workflow commands.
+headline, summary labels, structured readiness blocker counts, and
+per-workspace readiness cards so demos can show readiness, intervention,
+first-draft output evidence, and the specific blocker category without parsing
+raw worker internals. JSON remains the default output for integrations;
+`--format text` prints a deterministic command-free native-shell view for demos
+and operator readouts, using controlled blocker labels while omitting saved
+paths, timestamps, workspace titles, and free-form report notes so text output
+cannot become a shell handoff. It remains observe-only and does not emit
+executable workflow commands.
 The pilot cohort demo command writes a controlled fixture for demos: multiple
 trusted persisted render demo workspaces under `workspaces/`, saved schema v2
 dashboard JSON under `pilot_dashboards/`, and one saved

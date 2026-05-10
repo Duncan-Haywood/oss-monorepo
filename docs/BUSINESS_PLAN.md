@@ -119,10 +119,11 @@ Why this wedge wins:
   saved `pilot_cohort_report.json` so GTM demos can show cohort readiness without
   spreadsheets, real customer media, or raw worker-log parsing.
 - A pilot cohort brief contract that reads the saved cohort report and emits
-  presentation-ready readiness/intervention/throughput labels for native shells
-  and GTM demos without exposing workflow commands. Its optional text output gives
-  demo shells a readable cohort view while JSON remains the default integration
-  contract.
+  presentation-ready readiness/intervention/throughput labels, structured
+  blocker counts, and controlled per-workspace blocker labels for native shells
+  and GTM demos without exposing workflow commands. Its optional text output
+  gives demo shells a readable cohort view while JSON remains the default
+  integration contract.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and

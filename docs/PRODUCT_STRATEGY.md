@@ -210,9 +210,9 @@ The current core models a concrete promise for high-volume users:
     workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
     demos can show the measurement loop without real media or spreadsheets.
     `pilot-cohort-brief` turns that saved report into native-shell presentation
-    state--status, headline, summary labels, per-workspace cards, and an optional
-    deterministic text-mode readout--without emitting workflow commands or
-    widening authority.
+    state--status, headline, summary labels, structured blocker counts,
+    controlled per-workspace blocker labels, cards, and an optional deterministic
+    text-mode readout--without emitting workflow commands or widening authority.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

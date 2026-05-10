@@ -206,14 +206,16 @@ The repo currently contains a Python core package because it is quick to test an
   any authority claim inside saved dashboard inputs.
 - `shootflow.pilot_cohort_brief`: a read-only presentation contract above a
   saved schema v1 pilot cohort report. It validates and reads one saved report,
-  then emits status, headline, summary percentage labels, and per-workspace cards
-  for native shells and GTM demos. Its CLI defaults to JSON for agents and can
-  render a deterministic command-free text view for native-shell demos, omitting
-  saved paths, timestamps, workspace titles, and free-form report notes from that
-  text surface. It does not read raw worker internals, write files, or emit
-  workflow commands. Its JSON representation includes the shared
-  `workflow_authority` object; the text representation keeps authority as plain
-  safety copy and continues omitting free-form saved report fields.
+  then emits status, headline, summary percentage labels, structured readiness
+  blocker counts, controlled blocker labels, and per-workspace cards for native
+  shells and GTM demos. Its CLI defaults to JSON for agents and can render a
+  deterministic command-free text view for native-shell demos, omitting saved
+  paths, timestamps, workspace titles, and free-form report notes from that text
+  surface while still showing controlled blocker labels. It does not read raw
+  worker internals, write files, or emit workflow commands. Its JSON
+  representation includes the shared `workflow_authority` object; the text
+  representation keeps authority as plain safety copy and continues omitting
+  free-form saved report fields.
 - `shootflow.workflow_authority`: the shared no-authority contract reader for
   UI/agent JSON. It emits and validates the root observe-only
   `workflow_authority` object, and `observe_only_handoff_controls_to_dict(...)`

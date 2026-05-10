@@ -79,11 +79,12 @@ granting workflow authority. It validates component dashboard threshold flags
 against reported metrics before trusting readiness; its JSON emits the same
 observe-only `workflow_authority` contract.
 `pilot-cohort-brief` reads one saved cohort report and emits presentation-ready
-status/headline/card labels for native shells and GTM demos while remaining
+status/headline/card labels, structured blocker counts, and controlled
+per-workspace blocker labels for native shells and GTM demos while remaining
 observe-only and command-free. JSON remains the default for agents; `--format
 text` emits the same validated brief as a deterministic text-mode demo/readout
-without executable workflow commands. Brief JSON also carries the shared
-observe-only `workflow_authority` object.
+without executable workflow commands or free-form saved report fields. Brief JSON
+also carries the shared observe-only `workflow_authority` object.
 `workspace-health` JSON now uses schema v4 and includes the same structured
 observe-only `workflow_authority` object. `index-workspace` JSON now uses schema
 v2, includes the shared authority object at the index root, and embeds the
