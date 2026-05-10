@@ -19,6 +19,10 @@ Branch reconciliation findings:
 - Deleted the merged local `cursor/setup-dev-env-3ad0` branch. Remote historical
   branches were left untouched; this automation's safe writable target remains
   the assigned branch plus the explicit main reconciliation target.
+- Final reconciliation pushed the completed branch and fast-forwarded
+  `origin/main`; `HEAD`, local `main`, `origin/main`, and
+  `origin/cursor/repository-branch-consolidation-bce1` all pointed at `cedcd2f`
+  before this final documentation update.
 
 This run closed the next adapter-sequence target:
 
