@@ -2,6 +2,70 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 02:30 UTC
+
+Final reconciliation for this session:
+
+- Current assigned branch `cursor/branch-reconciliation-and-merge-9840` contains
+  the new authority-reader work and is one commit ahead of `origin/main` after
+  commit `916d40c feat(authority): add observe-only handoff control reader`.
+- Remote branch comparison after `git fetch origin main
+  cursor/branch-reconciliation-and-merge-9840` showed every remote branch except
+  `origin/cursor/branch-reconciliation-and-merge-9840` has `ahead=0` relative to
+  `origin/main`; those branches contain no unique unmerged work to reconcile in
+  this session. `origin/cursor/branch-consolidation-08bd` remains behind main
+  with no unique commits.
+- Local `main` was reset in place to `origin/main` without checking it out, and
+  the merged local `cursor/setup-dev-env-3ad0` branch was deleted.
+- The useful completed work is pushed to the assigned branch. It was not pushed
+  directly to `main` because the Cloud branch instructions for this run require
+  all final pushes to target `cursor/branch-reconciliation-and-merge-9840` and
+  prohibit pushing a different branch without explicit override.
+
+## Implementation continuation note - 2026-05-10 02:30 UTC
+
+This run implemented the first consumer-side authority reader for native shells
+and agents:
+
+- Added `observe_only_handoff_controls_to_dict(...)` in
+  `shootflow.workflow_authority`. The helper validates a handoff's root
+  observe-only `workflow_authority` object and returns all-disabled native
+  file-operation controls for file mutation, copy, retry, cleanup, overwrite,
+  materialization, and deletion.
+- Added focused tests in `tests/test_workflow_authority.py` proving that
+  `next_actions`, `next_steps`, `writes_files`, `agent_handoff`, and prose do
+  not enable native controls, and that missing or authorizing root authority
+  fails closed with `WorkflowAuthorityError`.
+- Added `docs/WORKFLOW_AUTHORITY.md` plus README, AGENTS, and design-decision
+  references so future SwiftUI/menu-bar shells bind controls to the helper's
+  disabled output rather than parsing presentation fields.
+
+Verification and review:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workflow_authority`
+  failed on the missing `observe_only_handoff_controls_to_dict` API.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workflow_authority tests.test_pilot_dashboard tests.test_pilot_cohort_report tests.test_pilot_cohort_brief tests.test_workspace_health tests.test_workspace_index`
+  -> 54 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 342 tests OK; compileall and diff-check passed.
+- Review pass found no blocking issues. Residual risk: the reader is intentionally
+  exact-shape observe-only; a future non-observe action contract will need a new
+  explicit schema/helper rather than adding permissions to this one.
+
+Good next test-first targets:
+
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- Bind the new authority reader into any future native SwiftUI/menu-bar readout
+  before exposing retry/copy/materialization controls.
+
 ## Branch reconciliation note - 2026-05-10 02:00 UTC
 
 Final reconciliation for this session:

@@ -87,7 +87,11 @@ summary/receipt JSON surfaces are schema v2 and also carry root
 `workflow_authority`. Write-capable `next_actions` are descriptive and
 command-free; treat `next_actions`, `next_steps`, and `agent_handoff` as
 review/presentation aids only unless a separate explicit command invocation
-supplies its required confirmation/runtime arguments.
+supplies its required confirmation/runtime arguments. Consumers that need native
+control state should call
+`shootflow.workflow_authority.observe_only_handoff_controls_to_dict(...)` and
+bind file-operation controls to its all-disabled output rather than parsing
+presentation fields.
 `create-pilot-cohort-demo` writes a controlled no-real-media fixture: trusted
 demo render workspaces, saved schema v2 dashboard JSON files, and a saved
 `pilot_cohort_report.json`. It preflights the saved dashboard/report paths before

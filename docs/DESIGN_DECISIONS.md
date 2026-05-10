@@ -208,6 +208,13 @@ The repo currently contains a Python core package because it is quick to test an
   workflow commands. Its JSON representation includes the shared
   `workflow_authority` object; the text representation keeps authority as plain
   safety copy and continues omitting free-form saved report fields.
+- `shootflow.workflow_authority`: the shared no-authority contract reader for
+  UI/agent JSON. It emits and validates the root observe-only
+  `workflow_authority` object, and `observe_only_handoff_controls_to_dict(...)`
+  turns any valid observe-only handoff into an all-disabled native control state.
+  Native shells should use that control state instead of deriving copy, retry,
+  cleanup, overwrite, materialization, deletion, or file-mutation affordances
+  from `next_actions`, `next_steps`, `writes_files`, `agent_handoff`, or prose.
 - `shootflow.demo_workspace.create_pilot_cohort_cli_demo_workspace`: a controlled
   no-real-media fixture for pilot/GTM demos. It creates trusted persisted render
   demo workspaces, runs the same render init/scheduler path those demos already
