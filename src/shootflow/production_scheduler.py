@@ -15,6 +15,7 @@ from shootflow.production_adapter import (
     DryRunProductionBatchResult,
     DryRunProductionError,
     run_production_adapter_batch,
+    supported_production_adapter_output_kinds,
     supported_production_adapter_names,
 )
 from shootflow.production_status import (
@@ -431,9 +432,10 @@ def _reviewed_retryable_tuple(
 
 
 def _eligible_output_kinds_for_adapter(worker_adapter: str) -> tuple[str, ...] | None:
-    if worker_adapter == "proxy-production-local":
-        return ("proxy_media",)
-    return None
+    try:
+        return supported_production_adapter_output_kinds(worker_adapter)
+    except DryRunProductionError as exc:
+        raise DryRunProductionSchedulerError(str(exc)) from exc
 
 
 def _expire_stale_leases(

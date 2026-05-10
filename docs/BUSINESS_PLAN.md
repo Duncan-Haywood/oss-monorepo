@@ -93,8 +93,9 @@ Why this wedge wins:
   orchestration. Schema v3 reports now also carry observe-only
   `workflow_authority` plus derived product metrics so pilot analytics can track
   throughput and intervention rate from the trusted handoff without turning the
-  handoff into file-operation authority. Stage-specific local adapters can now
-  narrow worker planning and stale-lease expiration by output kind:
+  handoff into file-operation authority. Stage-specific local adapters now
+  declare output-kind capabilities in the adapter registry, and the scheduler
+  uses that registry for both worker planning and stale-lease expiration:
   `proxy-production-local` receives only `proxy_media` jobs, then leaves later
   analysis/color/story/package work pending or running for future adapters
   instead of reporting proxy-adapter failures for incompatible stages.

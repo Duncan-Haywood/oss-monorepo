@@ -29,6 +29,11 @@ from shootflow.production_worker import (
 _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
 _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
 _PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
+_PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
+    _DRY_RUN_PRODUCTION_ADAPTER: None,
+    _METADATA_PRODUCTION_ADAPTER: None,
+    _PROXY_PRODUCTION_ADAPTER: ("proxy_media",),
+}
 
 
 class DryRunProductionError(ValueError):
@@ -78,7 +83,25 @@ class DryRunProductionBatchResult:
 def supported_production_adapter_names() -> tuple[str, ...]:
     """Return production adapter names that this build can execute locally."""
 
-    return (_DRY_RUN_PRODUCTION_ADAPTER, _METADATA_PRODUCTION_ADAPTER, _PROXY_PRODUCTION_ADAPTER)
+    return tuple(_PRODUCTION_ADAPTER_OUTPUT_KINDS)
+
+
+def supported_production_adapter_output_kinds(adapter_name: str) -> tuple[str, ...] | None:
+    """Return the output kinds an adapter may schedule, or None for all kinds."""
+
+    if not isinstance(adapter_name, str) or not adapter_name.strip():
+        raise DryRunProductionError("adapter_name must be a non-empty string")
+    try:
+        output_kinds = _PRODUCTION_ADAPTER_OUTPUT_KINDS[adapter_name]
+    except KeyError as exc:
+        supported_adapters = ", ".join(supported_production_adapter_names()) or "none"
+        raise DryRunProductionError(
+            f"Unsupported production adapter: {adapter_name}. "
+            f"Supported adapters: {supported_adapters}"
+        ) from exc
+    if output_kinds is None:
+        return None
+    return tuple(output_kinds)
 
 
 def run_production_adapter_batch(

@@ -86,7 +86,10 @@ The repo currently contains a Python core package because it is quick to test an
   files, clean up user outputs, or grant workers authority beyond the trusted
   production job. The batch runner executes only trusted action plans, preserves
   serial production jobs, bounds parallel local work, and keeps blocked jobs
-  visible rather than mutating them.
+  visible rather than mutating them. The adapter registry also declares
+  output-kind scope for each worker: dry-run and metadata adapters can currently
+  accept all planned kinds, while `proxy-production-local` is explicitly limited
+  to `proxy_media`.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
   reloads the trusted production status manifest each pass, optionally expires
   stale running leases through guarded compare/write updates, plans
@@ -94,8 +97,9 @@ The repo currently contains a Python core package because it is quick to test an
   and stops with explicit complete/blocked/retryable/failed/waiting state. A job that is
   already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
-  again in the same run. Stage-specific adapters can now narrow planning and
-  stale-lease expiration by output kind; the proxy adapter is offered only
+  again in the same run. Stage-specific adapters now narrow planning and
+  stale-lease expiration via the capability registry in
+  `shootflow.production_adapter`; the proxy adapter is offered only
   `proxy_media` jobs and leaves downstream analysis/color/story/package stages
   pending or running for later adapters rather than converting incompatibility
   into retryable or blocked state. This protects manual outputs, active workers,
@@ -456,7 +460,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   with the observed prior state/attempt/timestamp, writes deterministic
   placeholder bytes only to declared file output paths, refuses symlinked,
   directory-style, or existing different outputs, and records retryable errors
-  that explicitly preserve the no-delete/no-cleanup boundary.
+  that explicitly preserve the no-delete/no-cleanup boundary. Adapter capability
+  metadata lives here rather than in the scheduler, so future VLM, color,
+  storyline, and packaging workers can declare supported `output_kind` values
+  behind the adapter contract before the scheduler offers them work.
 - `shootflow.production_scheduler` composes that adapter into a bounded local
   loop. It does not invent job progress from command-line IDs; each iteration
   reloads `production_status.json`, plans ready pending/retryable work from the

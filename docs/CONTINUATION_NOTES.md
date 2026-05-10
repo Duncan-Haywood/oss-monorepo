@@ -2,6 +2,48 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 12:30 UTC
+
+This run first reconciled the prior 12:00 UTC scheduler-routing branch into the
+assigned branch, then removed the scheduler-owned adapter capability conditional:
+
+- Fast-forwarded assigned branch `cursor/repository-branch-consolidation-1804`
+  to `origin/cursor/repository-branch-consolidation-1bd5`, preserving the
+  stage-specific `proxy-production-local` scheduler routing and stale-lease
+  scoping work.
+- Added `supported_production_adapter_output_kinds(...)` in
+  `shootflow.production_adapter` and backed it with the local adapter registry.
+  Today dry-run and metadata adapters return `None` for all output kinds, while
+  `proxy-production-local` returns `("proxy_media",)`.
+- Updated `shootflow.production_scheduler` to read output-kind eligibility from
+  the adapter layer instead of hard-coding a proxy adapter special case. Future
+  VLM, color, storyline, and packaging workers can now declare their supported
+  `output_kind` values with their adapter registration before the scheduler
+  offers them jobs or expires their stale leases.
+- Updated README, business plan, and design decisions to describe the adapter
+  registry as the source of stage capability metadata.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters`
+  failed because `supported_production_adapter_output_kinds` was missing.
+- Focused green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
+  -> 3 tests OK.
+
+Good next test-first targets:
+
+- Rename the shared `DryRunProduction*` result/failure/batch types to neutral
+  `ProductionAdapter*` names now that the adapter registry is adapter-neutral
+  and metadata/proxy adapters are real local adapter proofs.
+- Register the next local adapter capability deliberately, likely a metadata/VLM
+  or real proxy-rendering worker, and prove it only schedules the output kinds it
+  can materialize.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 12:00 UTC
 
 This run continued the production-adapter hardening thread from the 11:30 UTC
