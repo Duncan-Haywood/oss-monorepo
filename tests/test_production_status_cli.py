@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -239,6 +240,74 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertIn("develop_shoot_look", payload["review_required_job_ids"])
         self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(status_manifest.job_statuses[3].state, "retryable")
+        self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production")
+        self.assertEqual(proxy_payload["input_metadata"][0]["path"], production_plan.jobs[0].inputs[0])
+
+    def test_metadata_scheduler_accepts_relative_ingest_manifest_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            clip = card / "DCIM" / "A001.MOV"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            previous_cwd = Path.cwd()
+            try:
+                os.chdir(root)
+                main(
+                    [
+                        "execute-ingest",
+                        "--source",
+                        "card",
+                        "--destination",
+                        "library",
+                        "--shoot-date",
+                        "2026-05-10",
+                        "--shoot-slug",
+                        "relative-metadata",
+                        "--confirm",
+                    ],
+                    stdout=io.StringIO(),
+                )
+                shoot_folder = (root / "library" / "2026-05-10_relative-metadata").resolve()
+                manifest_path = shoot_folder / "ingest_manifest.json"
+                production_plan = self._production_plan(manifest_path)
+                main(
+                    [
+                        "init-production-status",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                    ],
+                    stdout=io.StringIO(),
+                )
+                stdout = io.StringIO()
+
+                exit_code = main(
+                    [
+                        "dry-run-production-scheduler",
+                        "--ingest-manifest",
+                        str(manifest_path),
+                        "--worker",
+                        "metadata-production-local",
+                        "--started-at",
+                        "2026-05-10T10:12:00Z",
+                        "--completed-at",
+                        "2026-05-10T10:12:05Z",
+                        "--generated-at",
+                        "2026-05-10T10:12:06Z",
+                        "--max-concurrency",
+                        "1",
+                        "--max-iterations",
+                        "1",
+                    ],
+                    stdout=stdout,
+                )
+                status_manifest = load_production_status_manifest(shoot_folder, trusted_plan=production_plan)
+                proxy_payload = json.loads((shoot_folder / production_plan.jobs[0].outputs[0]).read_text(encoding="utf-8"))
+            finally:
+                os.chdir(previous_cwd)
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production")
         self.assertEqual(proxy_payload["input_metadata"][0]["path"], production_plan.jobs[0].inputs[0])
 
