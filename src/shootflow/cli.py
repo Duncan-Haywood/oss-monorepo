@@ -1148,7 +1148,7 @@ def _import_route_json(
     if not isinstance(recommendation, ImportRouteRecommendation):
         raise ShootFlowCliError("recommendation must be an ImportRouteRecommendation")
     payload = {
-        "schema_version": 1,
+        "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
         "workflow_authority": observe_only_workflow_authority_to_dict(),
         "status": recommendation.status,
         "ready": recommendation.ready,
@@ -1308,7 +1308,7 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
     total_bytes = sum(item.size_bytes for item in plan.items)
     return json.dumps(
         {
-            "schema_version": 1,
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
             "workflow_authority": observe_only_workflow_authority_to_dict(),
             "shoot_folder": str(plan.shoot_folder),
             "source_root": str(plan.source_root),
@@ -1346,6 +1346,8 @@ def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
     total_bytes = sum(item.size_bytes for item in plan.items)
     return json.dumps(
         {
+            "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+            "workflow_authority": observe_only_workflow_authority_to_dict(),
             "shoot_folder": str(plan.shoot_folder),
             "manifest_path": str(report.manifest_path),
             "shoot_date": plan.shoot_date,
@@ -1500,27 +1502,16 @@ def _write_render_tasks_summary_json(
 
 
 def _write_render_tasks_next_actions(plan: AssemblyPlan, workspace: Path) -> list[dict[str, object]]:
-    scheduler_command = [
-        "dry-run-render-scheduler",
-        "--workspace",
-        str(workspace),
-    ]
-    for dependency_id in _non_render_dependency_ids(plan):
-        scheduler_command.extend(["--completed-dependency", dependency_id])
-
     return [
         {
             "name": "init_render_status",
-            "command": [
-                "init-render-status",
-                "--workspace",
-                str(workspace),
-            ],
+            "workspace": str(workspace),
             "writes_files": True,
         },
         {
             "name": "run_dry_run_render_scheduler",
-            "command": scheduler_command,
+            "workspace": str(workspace),
+            "completed_dependency_ids": _non_render_dependency_ids(plan),
             "requires_runtime_args": [
                 "--renderer",
                 "--started-at",
@@ -1844,11 +1835,7 @@ def _card_dump_next_actions(report: CardDumpWorkflowReport) -> list[dict[str, ob
             },
             {
                 "name": "write_render_tasks",
-                "command": [
-                    "write-render-tasks",
-                    "--ingest-manifest",
-                    manifest_path,
-                ],
+                "ingest_manifest_path": manifest_path,
                 "requires": storyline_requirements,
                 "writes_files": True,
             },

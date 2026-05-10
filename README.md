@@ -202,10 +202,11 @@ This repo currently contains the first testable core utilities:
   storyline selections and graded artifacts through `shootflow.assembly`, then
   creates or reuses `deliverables/render_tasks.json` without rendering media or
   creating deliverable outputs. Its schema v2 summary, plus the
-  `plan-production`, `next-production-wave`, `inspect-render-workspace`, and
-  demo-workspace summaries, carries the same root observe-only
-  `workflow_authority` contract even when advisory next actions or command
-  arrays are present.
+  `plan-import-route`, `preview-ingest`, `execute-ingest`, `plan-production`,
+  `next-production-wave`, `inspect-render-workspace`, and demo-workspace
+  summaries/receipts, carries the same root observe-only `workflow_authority`
+  contract. Write-capable next actions are command-free descriptors so JSON
+  payloads cannot double as executable workflow plans.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
   continuation runs. It summarizes trusted ingest, production-status,

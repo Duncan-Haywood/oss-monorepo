@@ -110,7 +110,9 @@ The current core models a concrete promise for high-volume users:
     manifest contract (no source deletion, no overwriting different bytes,
     SHA-256-verified, deterministic `ingest_manifest.json`). The explicit
     `--confirm` requirement keeps background-agent automation from triggering
-    a card copy by accident.
+    a card copy by accident. Both preview and confirmed-copy receipt JSON use
+    schema v2 root `workflow_authority` so the payloads do not grant additional
+    copy, retry, cleanup, overwrite, materialization, or deletion authority.
 22. Offer a unified `card-dump-workflow` command for native-shell demos and the
     first Mac UI integration. It discovers a reviewed route, estimates source
     media size, capacity-gates the destination, previews the checksum copy, and
@@ -129,8 +131,8 @@ The current core models a concrete promise for high-volume users:
     `init-render-status` and `dry-run-render-scheduler` with trusted completed
     dependency IDs included, while keeping runtime scheduler parameters outside
     the static handoff. The summary is schema v2 and observe-only at the root,
-    so command arrays remain display/review affordances rather than file
-    mutation permission.
+    and write-capable next actions remain command-free descriptors rather than
+    file mutation permission.
 24. Initialize `production_status.json` from the verified ingest manifest when a
     Mac shell or production worker needs durable progress for proxy, analysis,
     grading, storyline, and packaging work before render tasks exist. The status

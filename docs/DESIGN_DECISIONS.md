@@ -240,9 +240,9 @@ The repo currently contains a Python core package because it is quick to test an
   initialization and scheduler execution, including trusted completed dependency
   IDs while keeping runtime timestamps and renderer choices explicit instead of
   baking them into the manifest. The summary is schema v2 and includes the root
-  observe-only `workflow_authority` object; command arrays are review/display
-  aids, not permission to initialize, schedule, retry, materialize, overwrite,
-  clean up, or delete files.
+  observe-only `workflow_authority` object; write-capable next actions are
+  command-free descriptors, not permission to initialize, schedule, retry,
+  materialize, overwrite, clean up, or delete files.
   The inspection command reads those same handoffs and emits the current product state without initializing,
   scheduling, retrying, deleting, or materializing outputs. Its schema v2
   summary carries the same root `workflow_authority` contract.
@@ -257,6 +257,9 @@ The repo currently contains a Python core package because it is quick to test an
   `workflow_authority` remains observe-only, so `agent_handoff` may describe a
   reviewed next step but cannot authorize copy, retry, cleanup, overwrite,
   materialization, deletion, or arbitrary file mutation.
+  `plan-import-route`, `preview-ingest`, and the confirmed `execute-ingest`
+  receipt also use schema v2 observe-only payloads; the receipt reports an
+  already-confirmed copy result and grants no further copy or deletion authority.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `init-production-status`, `dry-run-production-scheduler`, production review

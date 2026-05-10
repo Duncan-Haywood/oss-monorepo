@@ -1262,7 +1262,7 @@ class ShootFlowCliTests(unittest.TestCase):
 
         printed_summary = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)
-        self.assertEqual(printed_summary["schema_version"], 1)
+        self.assertEqual(printed_summary["schema_version"], 2)
         self.assertEqual(printed_summary["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(printed_summary["status"], "ready_for_review")
         self.assertTrue(printed_summary["ready"])
@@ -1686,7 +1686,7 @@ class ShootFlowIngestCliTests(unittest.TestCase):
             preview = json.loads(stdout.getvalue())
 
             self.assertEqual(exit_code, 0)
-            self.assertEqual(preview["schema_version"], 1)
+            self.assertEqual(preview["schema_version"], 2)
             self.assertEqual(preview["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(preview["item_count"], 2)
             self.assertEqual(
@@ -1777,6 +1777,8 @@ class ShootFlowIngestCliTests(unittest.TestCase):
             manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
 
             self.assertEqual(exit_code, 0)
+            self.assertEqual(response["schema_version"], 2)
+            self.assertEqual(response["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
             self.assertEqual(response["copied"], 2)
             self.assertEqual(response["skipped"], 0)
             self.assertEqual(response["item_count"], 2)
@@ -2173,12 +2175,26 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             init_stdout = io.StringIO()
             scheduler_stdout = io.StringIO()
             init_exit_code = main(
-                summary["next_actions"][0]["command"],
+                [
+                    "init-render-status",
+                    "--workspace",
+                    str(workspace),
+                ],
                 stdout=init_stdout,
             )
             scheduler_exit_code = main(
                 [
-                    *summary["next_actions"][1]["command"],
+                    "dry-run-render-scheduler",
+                    "--workspace",
+                    str(workspace),
+                    "--completed-dependency",
+                    "rank_instagram_storylines",
+                    "--completed-dependency",
+                    "grade_asset_00002",
+                    "--completed-dependency",
+                    "grade_asset_00000",
+                    "--completed-dependency",
+                    "grade_asset_00001",
                     "--renderer",
                     "dry-run-local",
                     "--started-at",
@@ -2220,26 +2236,16 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             [
                 {
                     "name": "init_render_status",
-                    "command": [
-                        "init-render-status",
-                        "--workspace",
-                        str(workspace),
-                    ],
+                    "workspace": str(workspace),
                     "writes_files": True,
                 },
                 {
                     "name": "run_dry_run_render_scheduler",
-                    "command": [
-                        "dry-run-render-scheduler",
-                        "--workspace",
-                        str(workspace),
-                        "--completed-dependency",
+                    "workspace": str(workspace),
+                    "completed_dependency_ids": [
                         "rank_instagram_storylines",
-                        "--completed-dependency",
                         "grade_asset_00002",
-                        "--completed-dependency",
                         "grade_asset_00000",
-                        "--completed-dependency",
                         "grade_asset_00001",
                     ],
                     "requires_runtime_args": [
@@ -2252,6 +2258,8 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
                 },
             ],
         )
+        for action in summary["next_actions"]:
+            self.assertNotIn("command", action)
         self.assertEqual(
             [task["task_id"] for task in manifest_data["render_tasks"]],
             summary["task_ids"],
@@ -2724,11 +2732,7 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     },
                     {
                         "name": "write_render_tasks",
-                        "command": [
-                            "write-render-tasks",
-                            "--ingest-manifest",
-                            str(manifest_path),
-                        ],
+                        "ingest_manifest_path": str(manifest_path),
                         "requires": [
                             "analysis/instagram_storylines.json",
                             "graded outputs for selected storyline assets",
@@ -2737,6 +2741,8 @@ class ShootFlowCardDumpWorkflowCliTests(unittest.TestCase):
                     },
                 ],
             )
+            for action in report["next_actions"]:
+                self.assertNotIn("command", action)
             self.assertEqual(
                 report["agent_handoff"],
                 {
