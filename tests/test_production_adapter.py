@@ -1991,6 +1991,36 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(tuple(action_result.final_status.state for action_result in result.results), ("succeeded", "succeeded"))
         self.assertEqual(tuple(status.state for status in loaded_manifest.job_statuses[:2]), ("succeeded", "succeeded"))
 
+    def test_story_adapter_batch_runs_ready_action_through_same_contract(self) -> None:
+        trusted_plan, _ready_manifest, _action = self._story_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_story_dependencies_with_manifest(trusted_plan, workspace)
+            action_plan = plan_production_worker_actions(
+                trusted_plan,
+                ready_manifest,
+                worker_adapter="story-production-local",
+                eligible_output_kinds=("storyline_selection",),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_production_adapter_batch(
+                workspace,
+                trusted_plan=trusted_plan,
+                action_plan=action_plan,
+                started_at="2026-05-10T19:12:00Z",
+                completed_at="2026-05-10T19:12:05Z",
+                max_concurrency=1,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertIsInstance(result, ProductionAdapterBatchResult)
+        self.assertEqual(result.worker_adapter, "story-production-local")
+        self.assertEqual(tuple(action.job_id for action in action_plan.actions), ("rank_instagram_storylines",))
+        self.assertEqual(tuple(action_result.final_status.state for action_result in result.results), ("succeeded",))
+        self.assertEqual(loaded_manifest.job_statuses[8], result.results[0].final_status)
+
     def test_adapter_batch_rejects_invalid_action_plan_before_dispatch(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaisesRegex(ProductionAdapterError, "action_plan"):
