@@ -106,9 +106,12 @@ Why this wedge wins:
   `scene-production-local` receives only `scene_grouping` jobs and writes the
   first deterministic serial rejoin artifact from trusted analysis outputs.
   `look-production-local` receives only `look_development` jobs and writes a
-  deterministic shoot-look profile from the verified scene summary, then leaves
-  later grading/story/package work pending or running for future adapters
-  instead of reporting stage-mismatch failures for incompatible stages.
+  deterministic shoot-look profile from the verified scene summary.
+  `grade-production-local` receives only `graded_photo`/`graded_video` jobs and
+  writes deterministic stand-in graded artifacts from one trusted original plus
+  checksum-verified analysis/look dependencies, then leaves later story/package
+  work pending or running for future adapters instead of reporting
+  stage-mismatch failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
@@ -162,7 +165,8 @@ Why this wedge wins:
 
 ## Phase 2: productionized deliverables
 
-- Real renderer adapters (ffmpeg/Core Image/Metal/Resolve workflows).
+- Real renderer adapters (ffmpeg/Core Image/Metal/Resolve workflows), including
+  replacing the deterministic grade stand-in with real color-rendered media.
 - Visual review UI for selects, grade feedback, and retry controls.
 - Better look transfer and style consistency controls.
 
@@ -293,7 +297,8 @@ Run practical experiments tied to this ICP-first plan:
    the proxy stand-in with ffmpeg/Core Image/Metal downsampled proxy generation,
    replace `analysis-production-local` with a local or hosted VLM adapter, and
    replace `scene-production-local`/`look-production-local` with real scene
-   clustering and color-look context behind the same no-delete/no-overwrite,
+   clustering and color-look context, and replace `grade-production-local` with
+   ffmpeg/Core Image/Metal grading behind the same no-delete/no-overwrite,
    declared-output-only rules.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation

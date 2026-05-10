@@ -161,7 +161,12 @@ The current core models a concrete promise for high-volume users:
     real clustering is trusted. `look-production-local` consumes the verified
     scene summary and writes deterministic `color/shoot_look.json` for
     `look_development` jobs only, proving the shoot-level look handoff before
-    real color science or creator style learning is trusted. All refuse
+    real color science or creator style learning is trusted.
+    `grade-production-local` now applies that verified look plus
+    checksum-verified per-asset analysis to one trusted source original at a
+    time, writing deterministic stand-in graded outputs only for
+    `graded_photo`/`graded_video` jobs before real ffmpeg/Core Image/Metal
+    grading is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
     different files without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
@@ -319,10 +324,10 @@ to automate.
    without embedding scheduling logic or retrying prior/newly retryable conflicts
    or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
    is adapter-capability aware: `proxy-production-local`,
-   `analysis-production-local`, `scene-production-local`, and
-   `look-production-local` receive only dependency-ready jobs for their declared
-   output kinds, while later grading/story/package jobs remain pending or
-   blocked for a compatible worker
+   `analysis-production-local`, `scene-production-local`,
+   `look-production-local`, and `grade-production-local` receive only
+   dependency-ready jobs for their declared output kinds, while later
+   story/package jobs remain pending or blocked for a compatible worker
    rather than becoming expected stage-mismatch failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
@@ -336,8 +341,10 @@ to automate.
    `vlm_asset_analysis` jobs. `scene-production-local` extends the path across
    the first serial rejoin by materializing deterministic scene-group summaries
    from trusted analysis artifacts; `look-production-local` extends the path to
-   a deterministic shoot-look profile from the trusted scene summary; grading,
-   storyline, and package work still waits for compatible future adapters. The persisted
+   a deterministic shoot-look profile from the trusted scene summary; and
+   `grade-production-local` extends the path into deterministic per-asset graded
+   stand-ins from trusted originals, analysis, and look dependencies. Storyline
+   and package work still waits for compatible future adapters. The persisted
    production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future
    Mac app and pilot analytics a

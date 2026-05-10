@@ -15,6 +15,7 @@ from shootflow.production_adapter import (
     run_production_adapter_batch,
     run_analysis_production_action,
     run_dry_run_production_action,
+    run_grade_production_action,
     run_metadata_production_action,
     run_proxy_production_action,
     run_look_production_action,
@@ -44,6 +45,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "analysis-production-local",
                 "scene-production-local",
                 "look-production-local",
+                "grade-production-local",
             ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
@@ -63,6 +65,10 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(
             supported_production_adapter_output_kinds("look-production-local"),
             ("look_development",),
+        )
+        self.assertEqual(
+            supported_production_adapter_output_kinds("grade-production-local"),
+            ("graded_photo", "graded_video"),
         )
         with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
@@ -1211,6 +1217,62 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.final_status.state, "succeeded")
         self.assertEqual(output_payload["source_scene_groups"]["scene_labels"], ["reception"])
 
+    def test_grade_adapter_writes_deterministic_grade_from_trusted_dependencies(self) -> None:
+        trusted_plan, _ready_manifest, action = self._grade_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_bytes(b"trusted camera original")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_grade_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T17:35:00Z",
+                completed_at="2026-05-10T17:35:05Z",
+            )
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, ("graded/grade_asset_00000/A001.MOV",))
+        self.assertEqual(output_payload["adapter"], "shootflow-grade-production-local")
+        self.assertEqual(output_payload["job_id"], "grade_asset_00000")
+        self.assertEqual(output_payload["output_kind"], "graded_video")
+        self.assertEqual(output_payload["source_asset"]["path"], "originals/A001.MOV")
+        self.assertEqual(output_payload["source_analysis"]["path"], "analysis/00000.json")
+        self.assertEqual(output_payload["source_look"]["path"], "color/shoot_look.json")
+        self.assertEqual(output_payload["grade_profile"]["name"], "local-look-application-proof")
+        self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
+
+    def test_grade_adapter_marks_missing_source_retryable_without_output(self) -> None:
+        trusted_plan, _ready_manifest, action = self._grade_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_grade_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T17:36:00Z",
+                completed_at="2026-05-10T17:36:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Grade production adapter", result.final_status.error_message or "")
+        self.assertIn("Missing grade production source input", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",
@@ -1843,6 +1905,22 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         return trusted_plan, ready_manifest, action
 
     @classmethod
+    def _grade_ready_context(cls):
+        trusted_plan = cls._trusted_plan()
+        ready_manifest = cls._grade_ready_manifest_with_checksums(
+            trusted_plan,
+            analysis_checksum="b" * 64,
+            look_checksum="c" * 64,
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="grade-production-local",
+            eligible_output_kinds=("graded_photo", "graded_video"),
+        ).actions[0]
+        return trusted_plan, ready_manifest, action
+
+    @classmethod
     def _write_scene_analyses_with_manifest(
         cls,
         trusted_plan,
@@ -1942,6 +2020,69 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             scene_checksum=cls._sha256_file(scene_path),
         )
 
+    @classmethod
+    def _write_grade_dependencies_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        cls._write_analysis_payload(
+            workspace,
+            "analysis/00000.json",
+            source_asset_path="originals/A001.MOV",
+            media_type="video",
+            scene_label="ceremony",
+            aesthetic_score=0.8,
+            story_score=0.9,
+            technical_score=0.7,
+            motion_score=0.6,
+            duration_seconds=12.0,
+            tags=("vows",),
+        )
+        look_path = workspace / "color/shoot_look.json"
+        look_path.parent.mkdir(parents=True, exist_ok=True)
+        look_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "adapter": "shootflow-look-production-local",
+                    "job_id": "develop_shoot_look",
+                    "output_kind": "look_development",
+                    "inputs": ["production-adapter"],
+                    "outputs": ["color/shoot_look.json"],
+                    "selected_output": "color/shoot_look.json",
+                    "depends_on": ["group_scene_sets"],
+                    "can_run_in_parallel": False,
+                    "source_scene_groups": {
+                        "path": "analysis/scene_groups.json",
+                        "sha256": "a" * 64,
+                        "analysis_count": 2,
+                        "scene_count": 2,
+                        "scene_labels": ["ceremony", "portraits"],
+                        "primary_tags": ["dance", "portrait", "vows"],
+                    },
+                    "look_profile": {
+                        "name": "local-documentary-neutral",
+                        "tone_curve": "soft_contrast",
+                        "color_bias": "warm_highlight_protection",
+                        "warmth": 0.6,
+                        "saturation": 0.7,
+                        "contrast": 0.8,
+                    },
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        return cls._grade_ready_manifest_with_checksums(
+            trusted_plan,
+            analysis_checksum=cls._sha256_file(workspace / "analysis/00000.json"),
+            look_checksum=cls._sha256_file(look_path),
+        )
+
     @staticmethod
     def _look_ready_manifest_with_checksum(
         trusted_plan,
@@ -1975,6 +2116,72 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                     updated_at="2026-05-10T15:10:00Z",
                 )
                 if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+
+    @staticmethod
+    def _grade_ready_manifest_with_checksums(
+        trusted_plan,
+        *,
+        analysis_checksum: str,
+        look_checksum: str,
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="look-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=job.outputs[0], sha256=look_checksum),
+                    ),
+                    updated_at="2026-05-10T16:05:00Z",
+                )
+                if job.output_kind == "look_development"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(
+                            path=output,
+                            sha256=analysis_checksum if output == "analysis/00000.json" else "b" * 64,
+                        )
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:20:00Z",
+                )
+                if job.output_kind == "scene_grouping"
                 else ProductionJobStatus(
                     job_id=job.job_id,
                     state="succeeded",

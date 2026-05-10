@@ -93,8 +93,13 @@ The repo currently contains a Python core package because it is quick to test an
   output against `production_status.json` checksums, validates the scene summary
   payload shape and aggregate counts, and writes one declared
   `color/shoot_look.json` profile for `look_development` jobs only, proving the
-  scene-to-look handoff before real color science, reference-look learning, or
-  grading workers are trusted. All adapters
+  scene-to-look handoff before real color science or reference-look learning is
+  trusted. `grade-production-local` is the first per-asset color-stage probe: it
+  verifies the trusted original, checksum-verified analysis dependency, and
+  checksum-verified look dependency, then writes one deterministic stand-in
+  graded artifact for `graded_photo`/`graded_video` jobs only. It proves the
+  look-to-grade handoff before ffmpeg/Core Image/Metal grading workers are
+  trusted. All adapters
   persist claims through the
   single-job production-status compare/write helper, then persist success
   checksums or retryable errors through the same status boundary. Directory-style
@@ -106,10 +111,11 @@ The repo currently contains a Python core package because it is quick to test an
   parallel local work, and keeps blocked jobs visible rather than mutating them.
   The adapter registry also declares output-kind scope for each worker: dry-run
   and metadata adapters can currently accept all planned kinds, while
-  `proxy-production-local` is explicitly limited to `proxy_media` and
-  `analysis-production-local` to `vlm_asset_analysis`, and
-  `scene-production-local` to `scene_grouping`, and `look-production-local` to
-  `look_development`. Shared result, failure, batch, and error types are named
+  `proxy-production-local` is explicitly limited to `proxy_media`,
+  `analysis-production-local` to `vlm_asset_analysis`,
+  `scene-production-local` to `scene_grouping`, `look-production-local` to
+  `look_development`, and `grade-production-local` to
+  `graded_photo`/`graded_video`. Shared result, failure, batch, and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.
@@ -122,8 +128,8 @@ The repo currently contains a Python core package because it is quick to test an
   reviewed job ID, and a job that becomes retryable during a run is not hammered
   again in the same run. Stage-specific adapters now narrow planning and
   stale-lease expiration via the capability registry in
-  `shootflow.production_adapter`; the proxy adapter is offered only
-  `proxy_media` jobs and leaves downstream analysis/color/story/package stages
+  `shootflow.production_adapter`; stage-specific adapters are offered only jobs
+  matching their declared capabilities and leave downstream story/package stages
   pending or running for later adapters rather than converting incompatibility
   into retryable or blocked state. This protects manual outputs, active workers,
   and future review loops from repeated overwrite attempts.
@@ -408,9 +414,11 @@ The desired high-quality pipeline is:
     materializes the first deterministic serial rejoin artifact,
     `analysis/scene_groups.json`, from checksum-verified trusted analysis
     outputs. `look-production-local` materializes the next deterministic serial
-    handoff, `color/shoot_look.json`, from the checksum-verified scene summary
-    while leaving grading, storyline, and package jobs for compatible future
-    adapters.
+    handoff, `color/shoot_look.json`, from the checksum-verified scene summary.
+    `grade-production-local` materializes deterministic per-asset graded
+    stand-ins from the trusted original, checksum-verified analysis, and
+    checksum-verified look artifact while leaving storyline and package jobs for
+    compatible future adapters.
     All adapters persist success or retryable state through
     `production_status.json` before real VLM, color, or storyline runners are
     trusted.

@@ -34,6 +34,7 @@ _PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
 _ANALYSIS_PRODUCTION_ADAPTER = "analysis-production-local"
 _SCENE_PRODUCTION_ADAPTER = "scene-production-local"
 _LOOK_PRODUCTION_ADAPTER = "look-production-local"
+_GRADE_PRODUCTION_ADAPTER = "grade-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -41,6 +42,7 @@ _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _ANALYSIS_PRODUCTION_ADAPTER: ("vlm_asset_analysis",),
     _SCENE_PRODUCTION_ADAPTER: ("scene_grouping",),
     _LOOK_PRODUCTION_ADAPTER: ("look_development",),
+    _GRADE_PRODUCTION_ADAPTER: ("graded_photo", "graded_video"),
 }
 
 
@@ -85,6 +87,11 @@ class SceneProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class LookProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local shoot-look adapter."""
+
+
+@dataclass(frozen=True)
+class GradeProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local grading adapter."""
 
 
 @dataclass(frozen=True)
@@ -187,6 +194,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _LOOK_PRODUCTION_ADAPTER:
         return run_look_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _GRADE_PRODUCTION_ADAPTER:
+        return run_grade_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -336,6 +352,29 @@ def run_look_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_LOOK_PRODUCTION_ADAPTER,
         run_action=run_look_production_action,
+    )
+
+
+def run_grade_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local grading actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_GRADE_PRODUCTION_ADAPTER,
+        run_action=run_grade_production_action,
     )
 
 
@@ -583,6 +622,34 @@ def run_look_production_action(
     )
 
 
+def run_grade_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> GradeProductionAdapterResult:
+    """Persist one trusted grading action through deterministic local output.
+
+    This adapter applies the verified look-development handoff to one trusted
+    asset as a contract probe. It is not final color science or media rendering.
+    """
+
+    _validate_grade_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_GRADE_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_grade_production_outputs,
+        retryable_error_message=_grade_retryable_error_message,
+        result_type=GradeProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -786,6 +853,37 @@ def _materialize_look_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_grade_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic graded-output stand-ins from trusted dependencies."""
+
+    _validate_grade_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("grade production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    source_metadata = _metadata_for_input(
+        root,
+        action.inputs[0],
+        allow_logical=False,
+        label="grade production source input",
+    )
+    dependency_summary = _verify_grade_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
+    content = _grade_output_bytes(
+        action,
+        source_metadata=source_metadata,
+        dependency_summary=dependency_summary,
+    )
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_production_output_bytes(root, output=output, content=content, label="grade production")
+        materialized.append(output)
+    return tuple(materialized)
+
+
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
@@ -851,6 +949,31 @@ def _validate_look_action_shape(action: ProductionWorkerAction) -> None:
     if len(action.outputs) != 1 or action.outputs[0] != "color/shoot_look.json":
         raise ProductionAdapterError(
             "Look production adapter requires color/shoot_look.json output"
+        )
+
+
+def _validate_grade_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_GRADE_PRODUCTION_ADAPTER)
+    if action.output_kind not in {"graded_photo", "graded_video"}:
+        raise ProductionAdapterError(
+            "Grade production adapter only materializes graded_photo or graded_video jobs: "
+            f"{action.output_kind}"
+        )
+    if len(action.inputs) != 1:
+        raise ProductionAdapterError("Grade production adapter requires exactly one source input")
+    if len(action.outputs) != 1:
+        raise ProductionAdapterError("Grade production adapter requires exactly one graded output")
+    output_path = Path(action.outputs[0])
+    expected_name = Path(action.inputs[0]).name
+    if (
+        len(output_path.parts) != 3
+        or output_path.parts[0] != "graded"
+        or output_path.parts[1] != action.job_id
+        or output_path.name != expected_name
+    ):
+        raise ProductionAdapterError(
+            "Grade production adapter requires graded/<job_id>/<source-name> output: "
+            f"{action.outputs[0]}"
         )
 
 
@@ -954,6 +1077,90 @@ def _verify_look_dependency_outputs(
     if actual_sha256 != expected_checksums[output]:
         raise ProductionAdapterError(f"Look production dependency checksum mismatch: {output}")
     return output, actual_sha256, content, dependency_job
+
+
+def _verify_grade_dependency_outputs(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    trusted_plan: ProductionPlan,
+) -> dict[str, dict[str, object]]:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    if len(action.depends_on) != 2:
+        raise ProductionAdapterError("Grade production adapter requires analysis and look dependencies")
+
+    analysis_summary: dict[str, object] | None = None
+    look_summary: dict[str, object] | None = None
+    for dependency_id in action.depends_on:
+        try:
+            dependency_job = jobs[dependency_id]
+            dependency_status = statuses[dependency_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Grade production dependency is missing from trusted status: {dependency_id}"
+            ) from exc
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Grade production dependency is not succeeded: {dependency_id}"
+            )
+        output, actual_sha256, content = _verified_dependency_output(
+            root,
+            dependency_job=dependency_job,
+            dependency_status=dependency_status,
+            label="grade production dependency output",
+        )
+        if dependency_job.output_kind == "vlm_asset_analysis":
+            analysis_summary = _grade_analysis_summary(
+                action,
+                output=output,
+                sha256=actual_sha256,
+                content=content,
+                dependency_job=dependency_job,
+            )
+        elif dependency_job.output_kind == "look_development":
+            look_summary = _grade_look_summary(
+                output=output,
+                sha256=actual_sha256,
+                content=content,
+                dependency_job=dependency_job,
+            )
+        else:
+            raise ProductionAdapterError(
+                "Grade production adapter only consumes analysis and look dependencies: "
+                f"{dependency_job.output_kind}"
+            )
+
+    if analysis_summary is None or look_summary is None:
+        raise ProductionAdapterError("Grade production adapter requires one analysis and one look dependency")
+    return {"analysis": analysis_summary, "look": look_summary}
+
+
+def _verified_dependency_output(
+    root: Path,
+    *,
+    dependency_job: ProductionJob,
+    dependency_status: ProductionJobStatus,
+    label: str,
+) -> tuple[str, str, bytes]:
+    expected_checksums = {
+        checksum.path: checksum.sha256 for checksum in dependency_status.output_checksums
+    }
+    if len(dependency_job.outputs) != 1 or set(expected_checksums) != set(dependency_job.outputs):
+        raise ProductionAdapterError(
+            f"Grade production dependency checksums do not match planned outputs: {dependency_job.job_id}"
+        )
+    output = dependency_job.outputs[0]
+    output_path = _workspace_output_path(root, output)
+    _reject_symlink_path(output_path.parent, root, f"{label} directory")
+    _reject_symlink_path(output_path, root, label)
+    if not output_path.is_file():
+        raise ProductionAdapterError(f"Missing grade production dependency output: {output}")
+    content, actual_sha256 = _read_file_bytes_and_sha256(output_path, label=label)
+    if actual_sha256 != expected_checksums[output]:
+        raise ProductionAdapterError(f"Grade production dependency checksum mismatch: {output}")
+    return output, actual_sha256, content
 
 
 def _validate_action(
@@ -1522,6 +1729,95 @@ def _scene_group_score(scene_group: dict[str, object], field_name: str) -> float
     return score
 
 
+def _grade_analysis_summary(
+    action: ProductionWorkerAction,
+    *,
+    output: str,
+    sha256: str,
+    content: bytes,
+    dependency_job: ProductionJob,
+) -> dict[str, object]:
+    try:
+        raw_payload = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ProductionAdapterError(f"Invalid grade production analysis JSON: {output}") from exc
+    if not isinstance(raw_payload, dict):
+        raise ProductionAdapterError(f"Invalid grade production analysis payload: {output}")
+    source_asset_path = raw_payload.get("source_asset_path")
+    if source_asset_path != action.inputs[0] or dependency_job.inputs != action.inputs:
+        raise ProductionAdapterError("Grade production analysis source does not match trusted job")
+    media_type = raw_payload.get("media_type")
+    expected_media_type = action.output_kind.removeprefix("graded_")
+    if media_type != expected_media_type:
+        raise ProductionAdapterError("Grade production analysis media_type does not match graded output")
+    return {
+        "path": output,
+        "sha256": sha256,
+        "media_type": media_type,
+        "scene_label": raw_payload.get("scene_label", ""),
+        "aesthetic_score": _grade_score(raw_payload, "aesthetic_score"),
+        "story_score": _grade_score(raw_payload, "story_score"),
+        "technical_score": _grade_score(raw_payload, "technical_score"),
+        "motion_score": _grade_score(raw_payload, "motion_score"),
+    }
+
+
+def _grade_look_summary(
+    *,
+    output: str,
+    sha256: str,
+    content: bytes,
+    dependency_job: ProductionJob,
+) -> dict[str, object]:
+    try:
+        raw_payload = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ProductionAdapterError(f"Invalid grade production look JSON: {output}") from exc
+    if not isinstance(raw_payload, dict):
+        raise ProductionAdapterError(f"Invalid grade production look payload: {output}")
+    schema_version = raw_payload.get("schema_version")
+    if not isinstance(schema_version, int) or isinstance(schema_version, bool) or schema_version != 1:
+        raise ProductionAdapterError("Grade production requires look schema_version 1")
+    expected_fields: tuple[tuple[str, object], ...] = (
+        ("adapter", "shootflow-look-production-local"),
+        ("job_id", dependency_job.job_id),
+        ("output_kind", "look_development"),
+        ("inputs", list(dependency_job.inputs)),
+        ("outputs", list(dependency_job.outputs)),
+        ("selected_output", dependency_job.outputs[0]),
+        ("depends_on", list(dependency_job.depends_on)),
+        ("can_run_in_parallel", dependency_job.can_run_in_parallel),
+    )
+    for field_name, expected_value in expected_fields:
+        if raw_payload.get(field_name) != expected_value:
+            raise ProductionAdapterError(
+                f"Grade production look {field_name} does not match trusted plan"
+            )
+    look_profile = raw_payload.get("look_profile")
+    if not isinstance(look_profile, dict):
+        raise ProductionAdapterError("Grade production look_profile must be an object")
+    look_name = look_profile.get("name")
+    if not isinstance(look_name, str) or not look_name.strip():
+        raise ProductionAdapterError("Grade production look_profile name cannot be empty")
+    return {
+        "path": output,
+        "sha256": sha256,
+        "look_profile_name": look_name,
+    }
+
+
+def _grade_score(raw_payload: dict[str, object], field_name: str) -> float:
+    value = raw_payload.get(field_name)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ProductionAdapterError(f"Grade production {field_name} must be a score")
+    score = float(value)
+    if not math.isfinite(score):
+        raise ProductionAdapterError(f"Grade production {field_name} must be finite")
+    if score < 0.0 or score > 1.0:
+        raise ProductionAdapterError(f"Grade production {field_name} must be between 0 and 1")
+    return score
+
+
 def _look_output_bytes(
     action: ProductionWorkerAction,
     *,
@@ -1553,6 +1849,41 @@ def _look_output_bytes(
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _grade_output_bytes(
+    action: ProductionWorkerAction,
+    *,
+    source_metadata: dict[str, object],
+    dependency_summary: dict[str, dict[str, object]],
+) -> bytes:
+    source_sha256 = source_metadata["sha256"]
+    if not isinstance(source_sha256, str):
+        raise ProductionAdapterError("grade production source metadata is missing sha256")
+    analysis_summary = dependency_summary["analysis"]
+    look_summary = dependency_summary["look"]
+    payload = {
+        "schema_version": 1,
+        "adapter": "shootflow-grade-production-local",
+        "job_id": action.job_id,
+        "output_kind": action.output_kind,
+        "inputs": list(action.inputs),
+        "outputs": list(action.outputs),
+        "selected_output": action.outputs[0],
+        "depends_on": list(action.depends_on),
+        "can_run_in_parallel": action.can_run_in_parallel,
+        "source_asset": source_metadata,
+        "source_analysis": analysis_summary,
+        "source_look": look_summary,
+        "grade_profile": {
+            "name": "local-look-application-proof",
+            "look_profile_name": look_summary["look_profile_name"],
+            "exposure_compensation": _signed_adjustment(source_sha256, offset=0),
+            "contrast_compensation": _signed_adjustment(source_sha256, offset=4),
+            "saturation_compensation": _signed_adjustment(source_sha256, offset=8),
+        },
+    }
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
 def _average_score(scores) -> float:
     values = tuple(float(score) for score in scores)
     if not values:
@@ -1565,6 +1896,13 @@ def _analysis_score(sha256: str, *, offset: int) -> float:
     if len(sample) != 4:
         raise ProductionAdapterError("analysis production input sha256 is invalid")
     return round(0.5 + (int(sample, 16) / 0xFFFF) * 0.5, 6)
+
+
+def _signed_adjustment(sha256: str, *, offset: int) -> float:
+    sample = sha256[offset : offset + 4]
+    if len(sample) != 4:
+        raise ProductionAdapterError("grade production input sha256 is invalid")
+    return round((int(sample, 16) / 0xFFFF) - 0.5, 6)
 
 
 def _metadata_for_inputs(root: Path, action: ProductionWorkerAction) -> tuple[dict[str, object], ...]:
@@ -1875,6 +2213,16 @@ def _look_retryable_error_message(exc: Exception) -> str:
         detail = detail[:1497] + "..."
     return (
         "Look production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
+    )
+
+
+def _grade_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Grade production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
     )
 
