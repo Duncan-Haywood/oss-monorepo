@@ -20,9 +20,12 @@ Branch reconciliation findings:
 - Historical remote automation branches were all behind `origin/main` and had no
   commits ahead to merge. The stale local `cursor/setup-dev-env-3ad0` branch was
   also fully behind current main.
-- This work is intended to be fast-forwarded into `main` during final
-  reconciliation so the grade safety checks are not stranded on the assigned
-  branch.
+- Final reconciliation fast-forwarded local `main` from `origin/main` to the
+  assigned branch, reran full verification on `main`, pushed `origin/main`, and
+  confirmed `origin/main`, local `main`,
+  `cursor/branch-reconciliation-and-merge-acbe`, and
+  `origin/cursor/branch-reconciliation-and-merge-acbe` all carry the completed
+  grade safety checks.
 
 This run closed two high-priority grading follow-ups from the prior note:
 
