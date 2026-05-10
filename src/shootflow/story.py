@@ -157,9 +157,23 @@ def write_storyline_artifact(
 
     temp_path = artifact_path.with_suffix(".json.tmp")
     _reject_symlink(temp_path, "temporary storyline artifact")
-    temp_path.write_text(_storyline_plan_json(plan), encoding="utf-8")
+    temp_path.write_bytes(
+        storyline_artifact_bytes(plan, allowed_asset_paths=allowed_asset_paths)
+    )
     temp_path.replace(artifact_path)
     return artifact_path
+
+
+def storyline_artifact_bytes(
+    plan: StorylinePlan,
+    *,
+    allowed_asset_paths: set[str] | frozenset[str],
+) -> bytes:
+    if not isinstance(plan, StorylinePlan):
+        raise TypeError("plan must be a StorylinePlan")
+    allowed_paths = _validate_allowed_asset_paths(allowed_asset_paths)
+    _validate_storyline_plan(plan, allowed_paths=allowed_paths)
+    return _storyline_plan_json(plan).encode("utf-8")
 
 
 def load_storyline_artifact(

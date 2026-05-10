@@ -27,6 +27,7 @@ from shootflow.production_worker import (
     report_production_worker_retryable,
     report_production_worker_success,
 )
+from shootflow.story import StoryPlanError, build_storyline_plan, storyline_artifact_bytes
 
 _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
 _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
@@ -35,6 +36,7 @@ _ANALYSIS_PRODUCTION_ADAPTER = "analysis-production-local"
 _SCENE_PRODUCTION_ADAPTER = "scene-production-local"
 _LOOK_PRODUCTION_ADAPTER = "look-production-local"
 _GRADE_PRODUCTION_ADAPTER = "grade-production-local"
+_STORY_PRODUCTION_ADAPTER = "story-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -43,6 +45,7 @@ _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _SCENE_PRODUCTION_ADAPTER: ("scene_grouping",),
     _LOOK_PRODUCTION_ADAPTER: ("look_development",),
     _GRADE_PRODUCTION_ADAPTER: ("graded_photo", "graded_video"),
+    _STORY_PRODUCTION_ADAPTER: ("storyline_selection",),
 }
 
 
@@ -92,6 +95,11 @@ class LookProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class GradeProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local grading adapter."""
+
+
+@dataclass(frozen=True)
+class StoryProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local storyline adapter."""
 
 
 @dataclass(frozen=True)
@@ -203,6 +211,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _GRADE_PRODUCTION_ADAPTER:
         return run_grade_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _STORY_PRODUCTION_ADAPTER:
+        return run_story_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -375,6 +392,29 @@ def run_grade_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_GRADE_PRODUCTION_ADAPTER,
         run_action=run_grade_production_action,
+    )
+
+
+def run_story_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local storyline actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_STORY_PRODUCTION_ADAPTER,
+        run_action=run_story_production_action,
     )
 
 
@@ -650,6 +690,34 @@ def run_grade_production_action(
     )
 
 
+def run_story_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> StoryProductionAdapterResult:
+    """Persist one trusted storyline-selection action through deterministic JSON.
+
+    This adapter ranks from verified analysis and graded artifacts as a contract
+    probe. It does not render, publish, delete, overwrite, or invent media paths.
+    """
+
+    _validate_story_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_STORY_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_story_production_outputs,
+        retryable_error_message=_story_retryable_error_message,
+        result_type=StoryProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -884,6 +952,35 @@ def _materialize_grade_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_story_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic storyline JSON from trusted analysis and grades."""
+
+    _validate_story_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("story production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    _verify_story_input_outputs(root, action=action, trusted_plan=trusted_plan)
+    try:
+        analyses = load_asset_analyses(trusted_plan, root)
+        storyline_plan = build_storyline_plan(analyses)
+        content = storyline_artifact_bytes(
+            storyline_plan,
+            allowed_asset_paths=_planned_graded_outputs(trusted_plan),
+        )
+    except (AnalysisLoaderError, StoryPlanError) as exc:
+        raise ProductionAdapterError(str(exc)) from exc
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_production_output_bytes(root, output=output, content=content, label="story production")
+        materialized.append(output)
+    return tuple(materialized)
+
+
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
@@ -974,6 +1071,21 @@ def _validate_grade_action_shape(action: ProductionWorkerAction) -> None:
         raise ProductionAdapterError(
             "Grade production adapter requires graded/<job_id>/<source-name> output: "
             f"{action.outputs[0]}"
+        )
+
+
+def _validate_story_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_STORY_PRODUCTION_ADAPTER)
+    if action.output_kind != "storyline_selection":
+        raise ProductionAdapterError(
+            "Story production adapter only materializes storyline_selection jobs: "
+            f"{action.output_kind}"
+        )
+    if action.can_run_in_parallel:
+        raise ProductionAdapterError("Story production adapter requires a serial action")
+    if len(action.outputs) != 1 or action.outputs[0] != "analysis/instagram_storylines.json":
+        raise ProductionAdapterError(
+            "Story production adapter requires analysis/instagram_storylines.json output"
         )
 
 
@@ -1143,24 +1255,103 @@ def _verified_dependency_output(
     dependency_job: ProductionJob,
     dependency_status: ProductionJobStatus,
     label: str,
+    stage_label: str = "Grade production",
 ) -> tuple[str, str, bytes]:
     expected_checksums = {
         checksum.path: checksum.sha256 for checksum in dependency_status.output_checksums
     }
     if len(dependency_job.outputs) != 1 or set(expected_checksums) != set(dependency_job.outputs):
         raise ProductionAdapterError(
-            f"Grade production dependency checksums do not match planned outputs: {dependency_job.job_id}"
+            f"{stage_label} dependency checksums do not match planned outputs: {dependency_job.job_id}"
         )
     output = dependency_job.outputs[0]
     output_path = _workspace_output_path(root, output)
     _reject_symlink_path(output_path.parent, root, f"{label} directory")
     _reject_symlink_path(output_path, root, label)
     if not output_path.is_file():
-        raise ProductionAdapterError(f"Missing grade production dependency output: {output}")
+        raise ProductionAdapterError(f"Missing {stage_label.lower()} dependency output: {output}")
     content, actual_sha256 = _read_file_bytes_and_sha256(output_path, label=label)
     if actual_sha256 != expected_checksums[output]:
-        raise ProductionAdapterError(f"Grade production dependency checksum mismatch: {output}")
+        raise ProductionAdapterError(f"{stage_label} dependency checksum mismatch: {output}")
     return output, actual_sha256, content
+
+
+def _verify_story_input_outputs(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    trusted_plan: ProductionPlan,
+) -> None:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    output_jobs: dict[str, ProductionJob] = {}
+    for job in trusted_plan.jobs:
+        for output in job.outputs:
+            if output in output_jobs:
+                raise ProductionAdapterError(
+                    f"Story production found duplicate planned output: {output}"
+                )
+            output_jobs[output] = job
+
+    for dependency_id in action.depends_on:
+        try:
+            dependency_job = jobs[dependency_id]
+            dependency_status = statuses[dependency_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Story production dependency is missing from trusted status: {dependency_id}"
+            ) from exc
+        if dependency_job.output_kind not in {
+            "scene_grouping",
+            "look_development",
+            "graded_photo",
+            "graded_video",
+        }:
+            raise ProductionAdapterError(
+                "Story production adapter only consumes scene, look, and graded dependencies: "
+                f"{dependency_job.output_kind}"
+            )
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Story production dependency is not succeeded: {dependency_id}"
+            )
+        for output in dependency_job.outputs:
+            if output not in action.inputs:
+                raise ProductionAdapterError(
+                    f"Story production dependency output is missing from action inputs: {output}"
+                )
+
+    for input_ref in action.inputs:
+        try:
+            dependency_job = output_jobs[input_ref]
+            dependency_status = statuses[dependency_job.job_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Story production input is not produced by trusted status: {input_ref}"
+            ) from exc
+        if dependency_job.output_kind not in {
+            "vlm_asset_analysis",
+            "scene_grouping",
+            "look_development",
+            "graded_photo",
+            "graded_video",
+        }:
+            raise ProductionAdapterError(
+                "Story production input has unsupported output kind: "
+                f"{dependency_job.output_kind}"
+            )
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Story production input dependency is not succeeded: {dependency_job.job_id}"
+            )
+        _verified_dependency_output(
+            root,
+            dependency_job=dependency_job,
+            dependency_status=dependency_status,
+            label="story production dependency output",
+            stage_label="Story production",
+        )
 
 
 def _validate_action(
@@ -2103,6 +2294,21 @@ def _analysis_media_type_from_plan(
     return media_type
 
 
+def _planned_graded_outputs(trusted_plan: ProductionPlan) -> frozenset[str]:
+    outputs: list[str] = []
+    for job in trusted_plan.jobs:
+        if not job.output_kind.startswith("graded_"):
+            continue
+        if len(job.outputs) != 1:
+            raise ProductionAdapterError(
+                f"Story production requires one graded output per job: {job.job_id}"
+            )
+        outputs.append(job.outputs[0])
+    if not outputs:
+        raise ProductionAdapterError("Story production requires graded outputs")
+    return frozenset(outputs)
+
+
 def _workspace_output_path(root: Path, output: str) -> Path:
     _validate_production_output_path(output)
     output_path = root / output
@@ -2305,6 +2511,16 @@ def _grade_retryable_error_message(exc: Exception) -> str:
         detail = detail[:1497] + "..."
     return (
         "Grade production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
+    )
+
+
+def _story_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Story production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
     )
 
