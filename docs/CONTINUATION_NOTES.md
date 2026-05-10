@@ -2,6 +2,87 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 05:30 UTC
+
+This run shipped the first local metadata production adapter and reconciled the
+outstanding scheduler-authority branch into the assigned branch:
+
+- Added `metadata-production-local`, a local production adapter that consumes the
+  existing trusted production-worker action contract, claims jobs through
+  `production_status.json`, fingerprints real local input files, writes
+  deterministic metadata JSON only to declared output files, and reports success
+  or retryable status through the guarded compare/write boundary.
+- Added `run_production_adapter_batch(...)` so the scheduler can dispatch local
+  production adapters by name. `dry-run-production-local` remains the placeholder
+  adapter; `metadata-production-local` is now discoverable through
+  `supported_production_adapter_names()` and batch-runnable by the scheduler.
+- Hardened metadata input handling after review: absolute inputs must stay under
+  the workspace, manifest-relative inputs that already include the workspace
+  prefix are normalized, ordinary workspace-relative inputs win over colliding
+  process-cwd files, missing extensionless file inputs become retryable instead
+  of being mistaken for literals, and file metadata is read from one no-follow
+  descriptor with the same `fstat` size used for the output.
+- Merged `origin/cursor/repository-branch-consolidation-f53c`, preserving its
+  schema v3 observe-only `workflow_authority` work for persisted production and
+  render scheduler reports. The metadata-adapter docs and the scheduler-authority
+  docs were reconciled in AGENTS and product strategy.
+- Updated README, AGENTS, business plan, product strategy, and design decisions
+  to describe the new local adapter boundary without implying copy, overwrite,
+  cleanup, deletion, or arbitrary materialization authority.
+
+Verification in this session:
+
+- Red metadata-adapter tests first failed because the API did not exist.
+- Review-found regression tests first failed for missing extensionless inputs,
+  trusted absolute inputs, relative manifest inputs, and cwd-collision
+  workspace-relative inputs.
+- Focused green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 35 tests OK.
+- Full green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 354 tests OK; compileall and diff-check passed.
+- Post-merge focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_render_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 122 tests OK.
+- Post-merge full green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 356 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 05:30 UTC
+
+Final reconciliation for this session:
+
+- The assigned branch `cursor/repository-branch-consolidation-e334` started at
+  `2ae8935`, matching `origin/main`.
+- `git fetch --prune origin main` showed exactly two remote branches with unique
+  commits versus `origin/main`: `origin/cursor/repository-branch-consolidation-f53c`
+  and `origin/cursor/branch-consolidation-f0b0`.
+- `origin/cursor/repository-branch-consolidation-f53c` contained useful
+  scheduler-authority code/tests/docs. It was merged into the assigned branch via
+  `e68c339 merge: reconcile scheduler authority branch`; conflicts in AGENTS and
+  product strategy were resolved by keeping both the schema v3 report authority
+  decision and this session's metadata-adapter boundary.
+- `origin/cursor/branch-consolidation-f0b0` was reviewed and not merged. Its
+  unique diff is only a stale continuation note claiming the remote branch set
+  contains only main plus that assigned branch; the live remote now contains many
+  historical branches plus this assigned branch, so merging it would make the
+  continuity log inaccurate.
+- Useful completed work is now consolidated on the assigned branch. `main` was
+  not checked out, modified, or pushed because the Cloud branch instructions for
+  this automation require final pushes only to
+  `cursor/repository-branch-consolidation-e334`.
+
+Good next test-first targets:
+
+- Add a CLI-level metadata production scheduler fixture that runs from a real
+  saved ingest manifest through `init-production-status` and
+  `dry-run-production-scheduler --worker metadata-production-local`.
+- Add direct metadata-adapter coverage for symlinked input files, symlinked
+  output parents, matching existing outputs, and different existing outputs.
+- Decide the first real media-producing adapter boundary after metadata:
+  ffmpeg proxy generation, Core Image/Metal look preview, or Resolve handoff.
+
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
 This run resolved the open scheduler-authority question for persisted scheduler
