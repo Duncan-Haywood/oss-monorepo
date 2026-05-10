@@ -2,6 +2,39 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 08:30 UTC
+
+Final reconciliation for this session:
+
+- Started on assigned branch `cursor/repository-branch-consolidation-3fe2`,
+  which had no committed work ahead of `origin/main` before this session's
+  cohort-readiness change.
+- `git fetch --prune origin` removed the historical remote-tracking refs and
+  left two remote branches with unique work versus `origin/main`:
+  `origin/cursor/branch-consolidation-strategy-90f2` (20 commits ahead) and
+  `origin/cursor/branch-reconciliation-and-merge-4808` (22 commits ahead).
+- `origin/cursor/branch-reconciliation-and-merge-4808` was the superset branch:
+  it contained the branch-consolidation strategy work plus the scheduler report
+  observe-only authority commit.
+- This assigned branch first committed the pilot cohort readiness-blocker work
+  as `5d39598 feat(pilot): add cohort readiness blockers`, then merged the
+  superset branch with `2932916 Merge remote-tracking branch
+  'origin/cursor/branch-reconciliation-and-merge-4808' into
+  cursor/repository-branch-consolidation-3fe2`.
+- The only merge conflict was `docs/CONTINUATION_NOTES.md`; it was resolved by
+  keeping the 08:30 cohort-readiness note, preserving the 08:00/08:05
+  reconciliation history from the superset branch, and consolidating the next
+  test-first targets.
+- Full verification on the merged tree passed:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check --cached && git diff --check`
+  -> 369 tests OK; compileall and diff-check passed.
+- `origin/main` was not checked out or pushed because the Cloud branch
+  requirements for this automation require final pushes to
+  `cursor/repository-branch-consolidation-3fe2`. Once this branch is merged by
+  normal PR automation, `origin/cursor/branch-consolidation-strategy-90f2` and
+  `origin/cursor/branch-reconciliation-and-merge-4808` should be considered
+  redundant because their useful work is contained here.
+
 ## Implementation continuation note - 2026-05-10 08:30 UTC
 
 This run tightened the pilot cohort analytics trust boundary:
