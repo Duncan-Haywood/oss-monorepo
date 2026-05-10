@@ -9,6 +9,21 @@ This run started on assigned branch
 `origin/main` and the previous consolidated scene-coverage head. The assigned
 remote branch did not exist at session start.
 
+Branch reconciliation findings:
+
+- Ran `git fetch --prune origin`; historical remote-tracking refs from prior
+  automation runs were pruned.
+- After pruning, the only live non-main remote refs were this assigned branch
+  and `origin/cursor/branch-consolidation-d362`.
+- `origin/cursor/branch-consolidation-d362` has one branch-only commit,
+  `48a7be4 docs: record branch consolidation cleanup`, changing only
+  `docs/CONTINUATION_NOTES.md`. Its content records the repository state before
+  this look-adapter run and is now superseded by this implementation note and
+  final reconciliation, so it was intentionally not merged.
+- The useful completed work from this run is consolidated on the assigned branch
+  and intended to fast-forward `origin/main` after the final verification and
+  documentation commit.
+
 This run advanced the next stage-specific production adapter proof:
 
 - Registered `look-production-local` in `shootflow.production_adapter` with
@@ -35,7 +50,7 @@ This run advanced the next stage-specific production adapter proof:
   scene-to-shoot-look handoff before real reference-look learning, LUT/Metal
   color processing, or per-asset grading materialization is trusted.
 
-Verification performed during this run so far:
+Verification performed during this run:
 
 - Red focused look coverage:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_look_adapter_writes_deterministic_look_from_trusted_scene_groups tests.test_production_scheduler.DryRunProductionSchedulerTests.test_look_adapter_scheduler_leaves_grading_jobs_pending`
@@ -50,6 +65,10 @@ Verification performed during this run so far:
 - Related production suites:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
   -> 76 tests OK.
+- Full committed-tree verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 410 tests OK; compileall and diff-check exited 0; working tree was clean
+  against `origin/cursor/branch-reconciliation-and-merge-2473`.
 
 Good next test-first targets:
 
