@@ -161,9 +161,10 @@ The current core models a concrete promise for high-volume users:
     production-plan fingerprint and final `production_status.json`, so the next
     UI or background agent can inspect materialized outputs, review-required
     jobs, expired leases, and lease conflicts without rerunning scheduler logic.
-    These scheduler reports now include validated product metric counts for
-    completed, retryable, failed, blocked, attempted, skipped, review-required,
-    lease, materialized-output, failure-message, and total work. The read-only
+    These schema v3 scheduler reports now include root observe-only
+    `workflow_authority` plus validated product metric counts for completed,
+    retryable, failed, blocked, attempted, skipped, review-required, lease,
+    materialized-output, failure-message, and total work. The read-only
     `plan-production` and `next-production-wave` summaries are schema v2 and
     carry the shared observe-only `workflow_authority` block so native shells can
     render candidate work without granting claim, retry, materialization, or
@@ -269,10 +270,14 @@ to automate.
    task again in the same run after that task becomes retryable, which protects
    manual editor exports and other persistent output conflicts from tight-loop
    overwrite attempts.
-   Scheduler runs can now persist `deliverables/render_scheduler_report.json` as
+   Scheduler runs can now persist schema v3
+   `deliverables/render_scheduler_report.json` as
    the product-facing summary for UI/retry/agent handoff, bound to the trusted
    render-plan fingerprint and final status manifest so stale or model-authored
-   reports cannot invent tasks, outputs, or review state.
+   reports cannot invent tasks, outputs, or review state. New persisted
+   scheduler reports carry root observe-only `workflow_authority`, while legacy
+   schema v1/v2 reports load as observe-only for existing demo and pilot
+   workspaces.
    The first CLI commands now start from persisted render-task manifests,
    safely initialize the matching render-status manifest when it is missing,
    preserve existing progress on repeated launches, run the trusted dry-run
@@ -293,11 +298,17 @@ to automate.
    adapter in the same persisted-status loop the render side uses, including
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
-   or clobbering heartbeat-refreshed workers in a tight loop. The persisted
-   production and render scheduler reports now emit derived product metrics,
-   giving the future Mac app and pilot analytics a trusted way to measure
-   automation throughput, intervention rate, and reliability without parsing raw
-   worker internals. `pilot-dashboard` is the first stable pilot-facing summary
+   or clobbering heartbeat-refreshed workers in a tight loop. The first local
+   metadata production adapter now extends the same worker contract beyond pure
+   placeholders: it reads trusted local inputs, fingerprints their bytes, and
+   writes deterministic metadata JSON only to declared output files, while
+   preserving missing-input, directory-output, stale-claim, and output-conflict
+   review states. The persisted production and render scheduler reports now emit
+   root observe-only authority plus derived product metrics, giving the future
+   Mac app and pilot analytics a
+   trusted way to measure automation throughput, intervention rate, and
+   reliability without parsing raw worker internals. `pilot-dashboard` is the
+   first stable pilot-facing summary
    on top of those metrics: unavailable reports remain unavailable rather than
    silently becoming zeroes, and write-capable next actions are named without
    re-emitting executable scheduler commands. Pilot dashboard, cohort report,

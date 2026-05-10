@@ -2,6 +2,149 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 05:30 UTC
+
+This run shipped the first local metadata production adapter and reconciled the
+outstanding scheduler-authority branch into the assigned branch:
+
+- Added `metadata-production-local`, a local production adapter that consumes the
+  existing trusted production-worker action contract, claims jobs through
+  `production_status.json`, fingerprints real local input files, writes
+  deterministic metadata JSON only to declared output files, and reports success
+  or retryable status through the guarded compare/write boundary.
+- Added `run_production_adapter_batch(...)` so the scheduler can dispatch local
+  production adapters by name. `dry-run-production-local` remains the placeholder
+  adapter; `metadata-production-local` is now discoverable through
+  `supported_production_adapter_names()` and batch-runnable by the scheduler.
+- Hardened metadata input handling after review: absolute inputs must stay under
+  the workspace, manifest-relative inputs that already include the workspace
+  prefix are normalized, ordinary workspace-relative inputs win over colliding
+  process-cwd files, missing extensionless file inputs become retryable instead
+  of being mistaken for literals, and file metadata is read from one no-follow
+  descriptor with the same `fstat` size used for the output.
+- Merged `origin/cursor/repository-branch-consolidation-f53c`, preserving its
+  schema v3 observe-only `workflow_authority` work for persisted production and
+  render scheduler reports. The metadata-adapter docs and the scheduler-authority
+  docs were reconciled in AGENTS and product strategy.
+- Updated README, AGENTS, business plan, product strategy, and design decisions
+  to describe the new local adapter boundary without implying copy, overwrite,
+  cleanup, deletion, or arbitrary materialization authority.
+
+Verification in this session:
+
+- Red metadata-adapter tests first failed because the API did not exist.
+- Review-found regression tests first failed for missing extensionless inputs,
+  trusted absolute inputs, relative manifest inputs, and cwd-collision
+  workspace-relative inputs.
+- Focused green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 35 tests OK.
+- Full green run before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 354 tests OK; compileall and diff-check passed.
+- Post-merge focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_render_scheduler tests.test_production_status_cli tests.test_cli`
+  -> 122 tests OK.
+- Post-merge full green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 356 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 05:30 UTC
+
+Final reconciliation for this session:
+
+- The assigned branch `cursor/repository-branch-consolidation-e334` started at
+  `2ae8935`, matching `origin/main`.
+- `git fetch --prune origin main` showed exactly two remote branches with unique
+  commits versus `origin/main`: `origin/cursor/repository-branch-consolidation-f53c`
+  and `origin/cursor/branch-consolidation-f0b0`.
+- `origin/cursor/repository-branch-consolidation-f53c` contained useful
+  scheduler-authority code/tests/docs. It was merged into the assigned branch via
+  `e68c339 merge: reconcile scheduler authority branch`; conflicts in AGENTS and
+  product strategy were resolved by keeping both the schema v3 report authority
+  decision and this session's metadata-adapter boundary.
+- `origin/cursor/branch-consolidation-f0b0` was reviewed and not merged. Its
+  unique diff is only a stale continuation note claiming the remote branch set
+  contains only main plus that assigned branch; the live remote now contains many
+  historical branches plus this assigned branch, so merging it would make the
+  continuity log inaccurate.
+- Useful completed work is now consolidated on the assigned branch. `main` was
+  not checked out, modified, or pushed because the Cloud branch instructions for
+  this automation require final pushes only to
+  `cursor/repository-branch-consolidation-e334`.
+
+Good next test-first targets:
+
+- Add a CLI-level metadata production scheduler fixture that runs from a real
+  saved ingest manifest through `init-production-status` and
+  `dry-run-production-scheduler --worker metadata-production-local`.
+- Add direct metadata-adapter coverage for symlinked input files, symlinked
+  output parents, matching existing outputs, and different existing outputs.
+- Decide the first real media-producing adapter boundary after metadata:
+  ffmpeg proxy generation, Core Image/Metal look preview, or Resolve handoff.
+
+## Implementation continuation note - 2026-05-10 04:00 UTC
+
+This run resolved the open scheduler-authority question for persisted scheduler
+reports:
+
+- Production and render scheduler reports now write schema version 3 with a root
+  observe-only `workflow_authority` object alongside the existing validated
+  `product_metrics`.
+- `DryRunProductionSchedulerReport` and `DryRunRenderSchedulerReport` now carry
+  the validated authority payload in memory. Loaders synthesize observe-only
+  authority for legacy schema v1/v2 reports so existing saved demo/pilot
+  workspaces remain readable without granting file-operation authority.
+- CLI `--print-report` output for both dry-run schedulers now emits the same
+  schema v3 authority-bearing report JSON as the persisted report. Higher-level
+  UI handoff summaries remain schema v2 unless their own contract changes.
+- Added scheduler-loader regressions proving authorizing
+  `workflow_authority` in persisted production/render scheduler reports is
+  rejected with the same fail-closed authority validation used by UI handoffs.
+- Updated `docs/WORKFLOW_AUTHORITY.md`, README, strategy, design notes, and
+  AGENTS guidance to make the decision durable for future native-shell work.
+
+Verification in this session:
+
+- Red run proved scheduler report writers still emitted schema v2 and loaded
+  report objects lacked `workflow_authority`.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_cli.ShootFlowCliTests.test_persisted_cli_demo_workspace_runs_init_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_dry_run_scheduler_command_writes_and_prints_report tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_dry_run_production_scheduler_command_can_print_persisted_report`
+  -> 38 tests OK.
+- Independent code review found no blocking issues and suggested the
+  scheduler-specific malformed-authority regression tests added in
+  `5e25427 test(scheduler): reject authorizing report authority`.
+- Full verification after final test commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 348 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 04:00 UTC
+
+Final reconciliation for this session:
+
+- `git fetch --prune origin main cursor/repository-branch-consolidation-f53c`
+  succeeded after the assigned branch was first pushed.
+- Remote comparison against `origin/main` found exactly one branch with unique
+  commits: `origin/cursor/repository-branch-consolidation-f53c`, ahead by this
+  session's scheduler authority commits.
+- No other remote branch had unique work versus `origin/main`; historical
+  branches are either contained in main or behind it.
+- Local `main` was fast-forwarded in place to `origin/main` without checking it
+  out, and the stale local `cursor/setup-dev-env-3ad0` branch was deleted after
+  confirming it was contained.
+- Useful completed work remains on the assigned branch and was not pushed
+  directly to `main` because the Cloud branch instructions for this automation
+  require final pushes only to `cursor/repository-branch-consolidation-f53c`.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Branch reconciliation note - 2026-05-10 03:30 UTC
 
 Final reconciliation for this session:

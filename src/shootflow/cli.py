@@ -118,7 +118,7 @@ from shootflow.workflow_authority import (
     observe_only_workflow_authority_to_dict,
 )
 
-_SCHEDULER_REPORT_SCHEMA_VERSION = 2
+_SCHEDULER_REPORT_SCHEMA_VERSION = 3
 _CLI_HANDOFF_SCHEMA_VERSION = 2
 
 
@@ -679,7 +679,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     production_scheduler = subparsers.add_parser(
         "dry-run-production-scheduler",
-        help="Run the trusted dry-run production scheduler against production_status.json.",
+        help="Run trusted local production adapters against production_status.json.",
     )
     production_scheduler.add_argument(
         "--ingest-manifest",
@@ -689,7 +689,7 @@ def _build_parser() -> argparse.ArgumentParser:
     production_scheduler.add_argument(
         "--worker",
         required=True,
-        help="Production worker adapter name, such as dry-run-production-local.",
+        help="Production worker adapter name, such as dry-run-production-local or metadata-production-local.",
     )
     production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")
     production_scheduler.add_argument("--completed-at", required=True, help="ISO-like timestamp for worker results.")
@@ -1100,6 +1100,7 @@ def _production_scheduler_report_json(report: DryRunProductionSchedulerReport) -
     return json.dumps(
         {
             "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
+            "workflow_authority": dict(report.workflow_authority),
             "generated_at": report.generated_at,
             "shoot_slug": report.shoot_slug,
             "production_plan_fingerprint": report.production_plan_fingerprint,
@@ -1136,6 +1137,7 @@ def _scheduler_report_json(report: DryRunRenderSchedulerReport) -> str:
     return json.dumps(
         {
             "schema_version": _SCHEDULER_REPORT_SCHEMA_VERSION,
+            "workflow_authority": dict(report.workflow_authority),
             "generated_at": report.generated_at,
             "shoot_slug": report.shoot_slug,
             "render_plan_fingerprint": report.render_plan_fingerprint,
