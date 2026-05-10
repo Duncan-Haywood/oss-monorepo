@@ -26,7 +26,7 @@ Final reconciliation for this session:
 - `origin/main` was not checked out or pushed because the Cloud branch
   requirements for this automation require pushes to the assigned branch only.
 - Final live branch comparison after verification: assigned branch
-  `origin/cursor/repository-branch-consolidation-7e94` is 54 commits ahead of
+  `origin/cursor/repository-branch-consolidation-7e94` is ahead of
   `origin/main`; `origin/cursor/branch-consolidation-c072` remains visible but is
   fully contained in the assigned branch.
 
