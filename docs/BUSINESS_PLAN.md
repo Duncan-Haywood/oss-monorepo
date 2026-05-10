@@ -78,8 +78,10 @@ Why this wedge wins:
   `production_scheduler_report.json` bound to the final production status so
   UI/agent layers can show completed outputs, retry conflicts, blocked work,
   expired leases, lease conflicts, and failure messages without rerunning
-  orchestration. The report now also carries derived product metrics so pilot
-  analytics can track throughput and intervention rate from the trusted handoff.
+  orchestration. Schema v3 reports now also carry observe-only
+  `workflow_authority` plus derived product metrics so pilot analytics can track
+  throughput and intervention rate from the trusted handoff without turning the
+  handoff into file-operation authority.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

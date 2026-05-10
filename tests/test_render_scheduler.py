@@ -19,6 +19,7 @@ from shootflow.render_status import (
     render_plan_fingerprint,
     write_render_status_manifest,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 
 class DryRunRenderSchedulerTests(unittest.TestCase):
@@ -351,8 +352,13 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(report_path, Path(tmpdir) / "deliverables" / "render_scheduler_report.json")
-        self.assertEqual(raw_report["schema_version"], 2)
+        self.assertEqual(raw_report["schema_version"], 3)
+        self.assertEqual(raw_report["workflow_authority"], observe_only_workflow_authority_to_dict())
         self.assertIsInstance(loaded_report, DryRunRenderSchedulerReport)
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.total_task_count, 2)
         self.assertEqual(loaded_report.completed_task_ids, result.completed_task_ids)
@@ -693,6 +699,7 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             raw_report = json.loads(report_path.read_text(encoding="utf-8"))
             raw_report["schema_version"] = 1
             del raw_report["product_metrics"]
+            raw_report.pop("workflow_authority", None)
             report_path.write_text(json.dumps(raw_report), encoding="utf-8")
 
             loaded_report = load_dry_run_render_scheduler_report(
@@ -702,6 +709,10 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(loaded_report.product_metrics["completed_task_count"], 1)
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
 
     def test_scheduler_report_rejects_forged_complete_stop_for_retryable_status(self) -> None:
         trusted_plan = self._single_task_plan()

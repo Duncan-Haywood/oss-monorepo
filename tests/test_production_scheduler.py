@@ -26,6 +26,7 @@ from shootflow.production_worker import (
     ConflictedProductionLease,
     ProductionLeasePersistenceResult,
 )
+from shootflow.workflow_authority import observe_only_workflow_authority_to_dict
 
 
 class DryRunProductionSchedulerTests(unittest.TestCase):
@@ -374,8 +375,13 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(report_path.name, PRODUCTION_SCHEDULER_REPORT_PATH)
-        self.assertEqual(raw_report["schema_version"], 2)
+        self.assertEqual(raw_report["schema_version"], 3)
+        self.assertEqual(raw_report["workflow_authority"], observe_only_workflow_authority_to_dict())
         self.assertIsInstance(loaded_report, DryRunProductionSchedulerReport)
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
         self.assertEqual(loaded_report.generated_at, "2026-05-09T17:00:06Z")
         self.assertEqual(loaded_report.shoot_slug, trusted_plan.shoot_slug)
         self.assertEqual(
@@ -591,6 +597,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             raw_report = json.loads(report_path.read_text(encoding="utf-8"))
             raw_report["schema_version"] = 1
             del raw_report["product_metrics"]
+            raw_report.pop("workflow_authority", None)
             report_path.write_text(json.dumps(raw_report), encoding="utf-8")
 
             loaded_report = load_dry_run_production_scheduler_report(
@@ -600,6 +607,10 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             )
 
         self.assertEqual(loaded_report.product_metrics["completed_job_count"], len(trusted_plan.jobs))
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
 
     def test_scheduler_report_rejects_final_status_drift(self) -> None:
         trusted_plan = self._video_only_plan()

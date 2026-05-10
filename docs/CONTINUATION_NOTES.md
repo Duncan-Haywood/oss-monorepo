@@ -2,6 +2,41 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 04:00 UTC
+
+This run resolved the open scheduler-authority question for persisted scheduler
+reports:
+
+- Production and render scheduler reports now write schema version 3 with a root
+  observe-only `workflow_authority` object alongside the existing validated
+  `product_metrics`.
+- `DryRunProductionSchedulerReport` and `DryRunRenderSchedulerReport` now carry
+  the validated authority payload in memory. Loaders synthesize observe-only
+  authority for legacy schema v1/v2 reports so existing saved demo/pilot
+  workspaces remain readable without granting file-operation authority.
+- CLI `--print-report` output for both dry-run schedulers now emits the same
+  schema v3 authority-bearing report JSON as the persisted report. Higher-level
+  UI handoff summaries remain schema v2 unless their own contract changes.
+- Updated `docs/WORKFLOW_AUTHORITY.md`, README, strategy, design notes, and
+  AGENTS guidance to make the decision durable for future native-shell work.
+
+Verification in this session:
+
+- Red run proved scheduler report writers still emitted schema v2 and loaded
+  report objects lacked `workflow_authority`.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_cli.ShootFlowCliTests.test_persisted_cli_demo_workspace_runs_init_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_dry_run_scheduler_command_writes_and_prints_report tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_dry_run_production_scheduler_command_can_print_persisted_report`
+  -> 38 tests OK.
+
+Good next test-first targets:
+
+- Bind the authority-bearing scheduler reports into a minimal native-shell or
+  CLI fixture that runs `workspace-health`, opens the saved scheduler report,
+  then validates controls through `handoff-controls`.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Branch reconciliation note - 2026-05-10 03:30 UTC
 
 Final reconciliation for this session:

@@ -537,9 +537,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   `write_dry_run_render_scheduler_report(...)` turns the in-memory result plus the final trusted status manifest into
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
-  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 adds
+  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 added
   derived product metrics to the report and validates them against the task/status fields instead of trusting caller
-  supplied analytics.
+  supplied analytics. Schema v3 adds root observe-only `workflow_authority` so native shells and continuation agents can
+  fail closed when opening the persisted scheduler report directly; legacy v1/v2 reports are loaded as observe-only.
 - `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.

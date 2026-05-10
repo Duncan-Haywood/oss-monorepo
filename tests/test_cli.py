@@ -788,8 +788,11 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(scheduler_exit_code, 0)
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.total_task_count, 4)
+        self.assertEqual(printed_report["schema_version"], 3)
+        self.assertEqual(printed_report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(tuple(printed_report["completed_task_ids"]), loaded_report.completed_task_ids)
         self.assertEqual(tuple(printed_report["outputs_materialized"]), demo.expected_output_paths)
+        self.assertEqual(loaded_report.workflow_authority, OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(loaded_report.review_required_task_ids, ())
 
     def test_inspect_render_workspace_reports_missing_status_without_writes(self) -> None:
@@ -1692,7 +1695,8 @@ class ShootFlowCliTests(unittest.TestCase):
         self.assertEqual(loaded_report.stopped_reason, "complete")
         self.assertEqual(loaded_report.completed_task_ids, ("render_instagram_reel",))
         self.assertEqual(printed_report["stopped_reason"], "complete")
-        self.assertEqual(printed_report["schema_version"], 2)
+        self.assertEqual(printed_report["schema_version"], 3)
+        self.assertEqual(printed_report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(printed_report["completed_task_ids"], ["render_instagram_reel"])
         self.assertEqual(printed_report["outputs_materialized"], ["deliverables/instagram_reel.mp4"])
         self.assertEqual(printed_report["product_metrics"]["completed_task_count"], 1)
@@ -2391,6 +2395,8 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
         self.assertFalse(reel_output_exists_before_scheduler)
         self.assertEqual(init_exit_code, 0)
         self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(scheduler_report["schema_version"], 3)
+        self.assertEqual(scheduler_report["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
         self.assertEqual(scheduler_report["stopped_reason"], "complete")
         self.assertEqual(scheduler_report["completed_task_ids"], summary["task_ids"])
 
