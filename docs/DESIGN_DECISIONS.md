@@ -70,21 +70,25 @@ The repo currently contains a Python core package because it is quick to test an
   helper, using the running status timestamp as the lease token so active workers
   that refresh their heartbeat are not clobbered.
 - `shootflow.production_adapter`: the first pre-render adapter proof. Its
-  deterministic dry-run adapter consumes a trusted `ProductionWorkerAction`,
-  persists the claim through the single-job production-status compare/write
-  helper, writes only the action's declared file artifacts as non-overwriting
-  placeholder files, then persists success checksums or retryable errors through
-  the same status boundary. Directory-style package outputs become retryable
-  review states instead of files that would block later render directories. It
-  does not open arbitrary media, delete files, clean up user outputs, or grant
-  workers authority beyond the trusted production job. Its batch runner executes
-  only trusted action plans, preserves serial production jobs, bounds parallel
-  local work, and keeps blocked jobs visible rather than mutating them.
+  deterministic dry-run adapter consumes a trusted `ProductionWorkerAction` and
+  writes only the action's declared file artifacts as non-overwriting placeholder
+  files. `metadata-production-local` uses the same action/status boundary to read
+  only workspace-bound trusted inputs and write deterministic metadata JSON to
+  declared outputs, giving future proxy/VLM/color workers a safer local probe
+  shape. Both adapters persist claims through the single-job production-status
+  compare/write helper, then persist success checksums or retryable errors
+  through the same status boundary. Directory-style package outputs, symlinked
+  inputs or outputs, and different existing files become retryable review states
+  instead of cleanup instructions. They do not open arbitrary paths, delete
+  files, clean up user outputs, or grant workers authority beyond the trusted
+  production job. The batch runner executes only trusted action plans, preserves
+  serial production jobs, bounds parallel local work, and keeps blocked jobs
+  visible rather than mutating them.
 - `shootflow.production_scheduler`: the first iterative pre-render scheduler. It
   reloads the trusted production status manifest each pass, optionally expires
   stale running leases through guarded compare/write updates, plans
-  dependency-ready actions, runs the dry-run production batch adapter, and stops
-  with explicit complete/blocked/retryable/failed/waiting state. A job that is
+  dependency-ready actions, runs the registered local production batch adapter,
+  and stops with explicit complete/blocked/retryable/failed/waiting state. A job that is
   already retryable is skipped until the caller explicitly allow-lists that
   reviewed job ID, and a job that becomes retryable during a run is not hammered
   again in the same run. This protects manual outputs, active workers, and future
@@ -161,7 +165,9 @@ The repo currently contains a Python core package because it is quick to test an
   preserved for review instead of being hammered repeatedly. It can persist a strict
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
-  blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+  blocked, review-required, materialized-output, lease-conflict, failure-message details, validated product metrics,
+  and root observe-only `workflow_authority` without granting new renderer, retry, cleanup, overwrite, or deletion
+  authority.
 - `shootflow.workspace_health`: a read-only continuation diagnostic for native
   shells, launch agents, and future agents. It validates production status plus
   production scheduler reports from the trusted ingest manifest, then validates
@@ -193,21 +199,27 @@ The repo currently contains a Python core package because it is quick to test an
   schema v2 pilot-dashboard JSON payloads. It never opens shoot workspaces or
   raw worker manifests; instead it validates each dashboard payload and derives
   cohort-level pilot-ready workspace rate, median intervention rate, first-draft
-  output count, and per-workspace readiness evidence. Missing dashboard metrics
-  remain unavailable rather than becoming false successes or failures, and the
-  cohort report emits no workflow commands. It emits the same
+  output count, structured readiness-blocker counts, and per-workspace readiness
+  evidence. For metrics-available dashboards, it validates threshold booleans
+  against the reported rates/output count before trusting `ready_for_pilot_review`,
+  so a saved dashboard cannot claim pilot readiness while one component threshold
+  is failing. Missing dashboard metrics remain unavailable rather than becoming
+  false successes or failures, and the cohort report emits no workflow commands.
+  It emits the same
   `workflow_authority` observe-only object as the dashboard rather than trusting
   any authority claim inside saved dashboard inputs.
 - `shootflow.pilot_cohort_brief`: a read-only presentation contract above a
   saved schema v1 pilot cohort report. It validates and reads one saved report,
-  then emits status, headline, summary percentage labels, and per-workspace cards
-  for native shells and GTM demos. Its CLI defaults to JSON for agents and can
-  render a deterministic command-free text view for native-shell demos, omitting
-  saved paths, timestamps, workspace titles, and free-form report notes from that
-  text surface. It does not read raw worker internals, write files, or emit
-  workflow commands. Its JSON representation includes the shared
-  `workflow_authority` object; the text representation keeps authority as plain
-  safety copy and continues omitting free-form saved report fields.
+  then emits status, headline, summary percentage labels, structured readiness
+  blocker counts, controlled blocker labels, and per-workspace cards for native
+  shells and GTM demos. Its CLI defaults to JSON for agents and can render a
+  deterministic command-free text view for native-shell demos, omitting saved
+  paths, timestamps, workspace titles, and free-form report notes from that text
+  surface while still showing controlled blocker labels. It does not read raw
+  worker internals, write files, or emit workflow commands. Its JSON
+  representation includes the shared `workflow_authority` object; the text
+  representation keeps authority as plain safety copy and continues omitting
+  free-form saved report fields.
 - `shootflow.workflow_authority`: the shared no-authority contract reader for
   UI/agent JSON. It emits and validates the root observe-only
   `workflow_authority` object, and `observe_only_handoff_controls_to_dict(...)`
@@ -350,10 +362,12 @@ The desired high-quality pipeline is:
     jobs from trusted status, checksum declared outputs before success, and
     report retry/failure without giving workers file cleanup or deletion
     authority.
-25. Exercise those helpers through the dry-run production adapter, which
-    materializes only declared placeholder file artifacts and persists success
-    or retryable state through `production_status.json` before real proxy, VLM,
-    color, or storyline runners are trusted.
+25. Exercise those helpers through the registered local production adapters:
+    the dry-run adapter materializes only declared placeholder file artifacts,
+    while `metadata-production-local` writes deterministic metadata JSON from
+    workspace-bound trusted inputs. Both persist success or retryable state
+    through `production_status.json` before real proxy, VLM, color, or storyline
+    runners are trusted.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,
@@ -449,7 +463,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   failed, blocked, review-required, materialized-output, and failure-message
   details for UI/continuation review. It also emits validated product metric
   counts derived from those same fields, so metrics cannot be forged into product
-  truth without matching the final trusted status.
+  truth without matching the final trusted status. Its root observe-only
+  `workflow_authority` makes the saved post-operation report presentation-only;
+  retry, cleanup, materialization, overwrite, and deletion still require a
+  separate reviewed action path.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -537,13 +554,21 @@ High quality depends on scene-level consistency and reversible edits. The system
   `write_dry_run_render_scheduler_report(...)` turns the in-memory result plus the final trusted status manifest into
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
-  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 adds
+  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 added
   derived product metrics to the report and validates them against the task/status fields instead of trusting caller
-  supplied analytics.
+  supplied analytics. Schema v3 adds root observe-only `workflow_authority` so native shells and continuation agents can
+  fail closed when opening the persisted scheduler report directly; legacy v1/v2 reports are loaded as observe-only.
 - `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
   It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
+- `shootflow.production_adapter` now has a second local adapter,
+  `metadata-production-local`, behind the same production-worker action/status
+  contract as the dry-run adapter. It reads only trusted local inputs, records
+  file size and SHA-256 metadata, writes deterministic JSON only to declared
+  output files, and routes missing inputs, directory-style outputs, stale claims,
+  or output conflicts back to retry/review status without deleting or cleaning
+  up media.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

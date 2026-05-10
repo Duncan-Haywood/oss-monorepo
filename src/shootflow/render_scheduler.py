@@ -29,14 +29,20 @@ from shootflow.render_worker import (
     plan_render_worker_actions,
     plan_stale_render_leases,
 )
+from shootflow.workflow_authority import (
+    WorkflowAuthorityError,
+    observe_only_workflow_authority_to_dict,
+    validate_observe_only_workflow_authority,
+)
 
 _RENDERER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
 RENDER_SCHEDULER_REPORT_PATH = "deliverables/render_scheduler_report.json"
-_REPORT_SCHEMA_VERSION = 2
-_SUPPORTED_REPORT_SCHEMA_VERSIONS = frozenset({1, 2})
+_REPORT_SCHEMA_VERSION = 3
+_SUPPORTED_REPORT_SCHEMA_VERSIONS = frozenset({1, 2, 3})
 _REPORT_KEYS = frozenset(
     {
         "schema_version",
+        "workflow_authority",
         "generated_at",
         "shoot_slug",
         "render_plan_fingerprint",
@@ -113,6 +119,7 @@ class SchedulerTaskMessage:
 
 @dataclass(frozen=True)
 class DryRunRenderSchedulerReport:
+    workflow_authority: Mapping[str, object]
     generated_at: str
     shoot_slug: str
     render_plan_fingerprint: str
@@ -491,6 +498,7 @@ def _scheduler_report(
     outputs_materialized = _outputs_materialized(result.iterations)
     failure_messages = _failure_messages(result.iterations, final_manifest)
     report = DryRunRenderSchedulerReport(
+        workflow_authority=observe_only_workflow_authority_to_dict(),
         generated_at=generated_at,
         shoot_slug=trusted_plan.shoot_slug,
         render_plan_fingerprint=render_plan_fingerprint(trusted_plan),
@@ -615,6 +623,7 @@ def _report_json(report: DryRunRenderSchedulerReport) -> str:
 def _report_to_json(report: DryRunRenderSchedulerReport) -> dict[str, object]:
     return {
         "schema_version": _REPORT_SCHEMA_VERSION,
+        "workflow_authority": dict(report.workflow_authority),
         "generated_at": report.generated_at,
         "shoot_slug": report.shoot_slug,
         "render_plan_fingerprint": report.render_plan_fingerprint,
@@ -647,7 +656,9 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
         raise DryRunRenderSchedulerError("Render scheduler report schema_version is unsupported")
     required_keys = _REPORT_KEYS
     if raw_schema_version == 1:
-        required_keys = _REPORT_KEYS - {"product_metrics"}
+        required_keys = _REPORT_KEYS - {"product_metrics", "workflow_authority"}
+    elif raw_schema_version == 2:
+        required_keys = _REPORT_KEYS - {"workflow_authority"}
     missing_keys = required_keys - set(raw_report)
     if unknown_keys:
         raise DryRunRenderSchedulerError(
@@ -704,7 +715,9 @@ def _report_from_json(raw_report: dict[str, object]) -> DryRunRenderSchedulerRep
             failure_messages=failure_messages,
         )
     )
+    workflow_authority = _report_workflow_authority(raw_report)
     return DryRunRenderSchedulerReport(
+        workflow_authority=workflow_authority,
         generated_at=_json_string(raw_report["generated_at"], "generated_at"),
         shoot_slug=_json_string(raw_report["shoot_slug"], "shoot_slug"),
         render_plan_fingerprint=_json_string(
@@ -957,6 +970,7 @@ def _ordered_unique(task_ids: tuple[str, ...]) -> tuple[str, ...]:
 def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
     if not isinstance(report, DryRunRenderSchedulerReport):
         raise DryRunRenderSchedulerError("report must be a DryRunRenderSchedulerReport")
+    _validate_report_workflow_authority(report.workflow_authority)
     _validate_timestamp(report.generated_at, "generated_at")
     if not isinstance(report.shoot_slug, str) or not report.shoot_slug.strip():
         raise DryRunRenderSchedulerError("report shoot_slug cannot be empty")
@@ -1003,6 +1017,24 @@ def _validate_report_shape(report: DryRunRenderSchedulerReport) -> None:
             raise DryRunRenderSchedulerError("report failure_messages contains duplicate messages")
         seen_failure_message_task_ids.add(message.task_id)
     _validate_product_metrics(report.product_metrics)
+
+
+def _report_workflow_authority(raw_report: Mapping[str, object]) -> dict[str, object]:
+    if "workflow_authority" not in raw_report:
+        return observe_only_workflow_authority_to_dict()
+    authority = raw_report["workflow_authority"]
+    _validate_report_workflow_authority(authority)
+    return dict(authority)
+
+
+def _validate_report_workflow_authority(authority: object) -> None:
+    try:
+        validate_observe_only_workflow_authority(
+            authority,
+            field_label="Render scheduler report workflow_authority",
+        )
+    except WorkflowAuthorityError as exc:
+        raise DryRunRenderSchedulerError(str(exc)) from exc
 
 
 def _validate_product_metrics(metrics: Mapping[str, int]) -> None:
