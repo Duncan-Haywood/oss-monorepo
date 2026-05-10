@@ -2,6 +2,69 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 03:30 UTC
+
+Final reconciliation for this session:
+
+- The assigned branch `cursor/branch-reconciliation-and-merge-21b0` started at
+  `8bd511f`, matching `origin/main`.
+- `git fetch --prune origin` removed the historical automation branches and
+  surfaced two remaining branches with unique work:
+  `origin/cursor/branch-consolidation-e6be` and
+  `origin/cursor/repository-branch-consolidation-11b5`.
+- `origin/cursor/repository-branch-consolidation-11b5` was the superset branch,
+  containing the authority-reader work from `e6be` plus the read-only
+  `handoff-controls` CLI bridge. The assigned branch fast-forwarded to
+  `51bb05b docs: record handoff controls reconciliation` and was pushed.
+- After fresh verification, local `main` was reset to `origin/main`,
+  fast-forwarded to the same `51bb05b` tree, and pushed to `origin/main`.
+  Useful completed work is no longer stranded outside main.
+- Final remote reconciliation after the main push showed no remote branch with
+  unique work versus `origin/main`: `origin/cursor/branch-reconciliation-and-merge-21b0`
+  and `origin/cursor/repository-branch-consolidation-11b5` match main, while
+  `origin/cursor/branch-consolidation-e6be` is contained and behind by the CLI
+  bridge commits.
+- Deleted stale local branch `cursor/setup-dev-env-3ad0` after its upstream had
+  been pruned.
+
+## Implementation continuation note - 2026-05-10 03:30 UTC
+
+This run reconciled and shipped the completed authority-control integration:
+
+- Imported the fail-closed native-shell handoff reader
+  `observe_only_handoff_controls_to_dict(...)`, which validates root
+  observe-only `workflow_authority` before returning disabled file-operation
+  controls for mutation, copy, retry, cleanup, overwrite, materialization, and
+  deletion.
+- Imported the read-only
+  `python -m shootflow.cli handoff-controls --handoff-json <path>` bridge so
+  shell/native integrations can validate saved handoff JSON without parsing
+  `next_actions`, `next_steps`, `writes_files`, `agent_handoff`, or prose as
+  permission.
+- Preserved the new `docs/WORKFLOW_AUTHORITY.md` contract and README/AGENTS/
+  design-decision references as the canonical guidance for future SwiftUI,
+  menu-bar, or automation consumers.
+
+Verification in this session:
+
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests`
+  -> 344 tests OK.
+- `PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests`
+  -> passed.
+- `git diff --check` -> passed.
+
+Good next test-first targets:
+
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- When native SwiftUI/menu-bar code appears, make its file-operation controls
+  consume either `observe_only_handoff_controls_to_dict(...)` directly or the
+  `handoff-controls` CLI output before exposing retry/copy/materialization UI.
+
 ## Branch reconciliation note - 2026-05-10 03:00 UTC
 
 Final reconciliation for this session:
