@@ -54,6 +54,25 @@ Good next test-first targets:
   Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
   declared-output-only boundary.
 
+Final branch reconciliation:
+
+- `git fetch --prune origin` removed historical remote-tracking branches. The
+  remaining remote work branches were `origin/cursor/branch-consolidation-strategy-a88d`,
+  `origin/cursor/repository-branch-consolidation-110c`,
+  `origin/cursor/repository-branch-consolidation-7d3b`, and `origin/main`.
+- The assigned branch contains both remaining historical branches:
+  `branch-consolidation-strategy-a88d` contributed the metadata adapter and
+  pilot blocker work, while `repository-branch-consolidation-110c` matches the
+  scheduler-authority baseline that had already been pushed to main.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after confirming it was merged
+  into `origin/main`, and reset the local `main` ref without checking it out.
+- Fast-forwarded `origin/main` to the consolidated assigned-branch head so the
+  metadata adapter, pilot blocker work, and this session's proxy adapter are not
+  stranded outside main.
+- Final state intended for the next run: `origin/main` and
+  `origin/cursor/repository-branch-consolidation-7d3b` should both point at the
+  same consolidated head once this note is committed and pushed.
+
 ## Branch reconciliation note - 2026-05-10 11:00 UTC
 
 This automation run continued from `origin/main`/`2ae8935` on the assigned
