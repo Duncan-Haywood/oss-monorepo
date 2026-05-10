@@ -17,6 +17,11 @@ remote branches with unique work:
   diff was only a continuation-note section that described a remote branch state
   that is no longer true after this session's fetch; no implementation, tests,
   product strategy, or architecture work was stranded there.
+- Followed up on independent review by adding explicit schema v2 legacy-report
+  regressions for both scheduler loaders. Schema v1 fallback already had derived
+  metric coverage; schema v2 fallback now also proves missing
+  `workflow_authority` is synthesized as observe-only while preserving product
+  metrics.
 - Pushed the reconciled assigned branch to
   `origin/cursor/repository-branch-consolidation-110c`.
 
@@ -25,6 +30,9 @@ Verification performed after reconciliation:
 - Focused scheduler/CLI authority suite:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_production_status_cli tests.test_cli`
   -> 110 tests OK.
+- Focused legacy authority follow-up:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler`
+  -> 38 tests OK.
 - Full repository verification:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
   -> 348 tests OK; compileall and diff-check exited 0.
