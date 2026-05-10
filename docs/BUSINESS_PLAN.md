@@ -67,6 +67,12 @@ Why this wedge wins:
   file outputs, and preserves directory-style package outputs or output
   conflicts as retryable review states before real proxy/VLM/color/story workers
   are introduced.
+- A local metadata production adapter that uses the same claim/result boundary
+  but reads trusted local inputs, records file size and SHA-256 metadata, and
+  writes deterministic JSON only to declared output files. This creates a first
+  real input-fingerprint path for proxy/analysis/color/story work without
+  granting copy, overwrite, cleanup, deletion, or arbitrary materialization
+  authority.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
@@ -113,10 +119,11 @@ Why this wedge wins:
   saved `pilot_cohort_report.json` so GTM demos can show cohort readiness without
   spreadsheets, real customer media, or raw worker-log parsing.
 - A pilot cohort brief contract that reads the saved cohort report and emits
-  presentation-ready readiness/intervention/throughput labels for native shells
-  and GTM demos without exposing workflow commands. Its optional text output gives
-  demo shells a readable cohort view while JSON remains the default integration
-  contract.
+  presentation-ready readiness/intervention/throughput labels, structured
+  blocker counts, and controlled per-workspace blocker labels for native shells
+  and GTM demos without exposing workflow commands. Its optional text output
+  gives demo shells a readable cohort view while JSON remains the default
+  integration contract.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and
@@ -124,7 +131,9 @@ Why this wedge wins:
   production plan, while refusing to overwrite a different existing handoff and
   emitting observe-only root authority on its handoff summary.
 - Safe render-status initialization plus dry-run worker scheduler/status
-  reporting for resumable pipelines.
+  reporting for resumable pipelines. Persisted render scheduler reports now carry
+  observe-only `workflow_authority` alongside validated product metrics, keeping
+  scheduler evidence separate from any future retry/materialization authority.
 - Read-only render-workspace inspection that tells a Mac app, launch agent, or
   continuation automation whether to initialize, schedule, review blocked or
   retryable work, or review deliverables without mutating files; the summary now
@@ -192,6 +201,9 @@ Track product and business metrics together:
 - manual intervention rate per 100 tasks,
 - pilot-ready workspace rate from trusted dashboard thresholds (default: >=90%
   completion, <=20% manual intervention, and >=1 materialized output),
+- pilot readiness blocker mix from cohort reports: missing trusted metrics,
+  completion below threshold, intervention above threshold, or missing
+  first-draft outputs,
 - paid conversion from trial,
 - retention at 30/90 days,
 - expansion (seat upgrades or usage add-ons).
@@ -256,7 +268,8 @@ Run practical experiments tied to this ICP-first plan:
    initialization, scheduler report, and reviewable outputs. `index-workspace`
    provides the UI/agent state snapshot and `inspect-render-workspace` provides
    the safe read-only state probe before initialization and after scheduler runs.
-3. Add real renderer adapter shape (still honoring no-delete/no-overwrite rules).
+3. Extend the local metadata adapter toward real media probes or add the first
+   real renderer adapter shape while still honoring no-delete/no-overwrite rules.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,

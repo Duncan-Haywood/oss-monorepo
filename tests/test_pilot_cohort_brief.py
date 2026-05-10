@@ -39,6 +39,15 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["median_intervention_rate_label"], "12.5%")
         self.assertEqual(payload["summary"]["first_draft_output_count"], 5)
         self.assertEqual(
+            payload["summary"]["readiness_blockers"],
+            {
+                "metrics_unavailable": 0,
+                "completion_below_threshold": 1,
+                "intervention_above_threshold": 1,
+                "materialized_outputs_missing": 0,
+            },
+        )
+        self.assertEqual(
             payload["workflow_authority"],
             {
                 "mode": "observe_only",
@@ -55,8 +64,18 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["workspace_cards"][0]["title"], "ready-shoot")
         self.assertEqual(payload["workspace_cards"][0]["readiness_label"], "Ready for pilot review")
         self.assertEqual(payload["workspace_cards"][0]["completion_rate_label"], "100.0%")
+        self.assertEqual(payload["workspace_cards"][0]["readiness_blockers"], [])
+        self.assertEqual(payload["workspace_cards"][0]["readiness_blocker_labels"], [])
         self.assertEqual(payload["workspace_cards"][1]["title"], "review-shoot")
         self.assertEqual(payload["workspace_cards"][1]["readiness_label"], "Needs operator review")
+        self.assertEqual(
+            payload["workspace_cards"][1]["readiness_blockers"],
+            ["completion_below_threshold", "intervention_above_threshold"],
+        )
+        self.assertEqual(
+            payload["workspace_cards"][1]["readiness_blocker_labels"],
+            ["Completion below threshold", "Manual intervention above threshold"],
+        )
         self.assertIn("observe-only", " ".join(payload["safety_notes"]))
         self.assertNotIn("command", json.dumps(payload, sort_keys=True))
 
@@ -82,6 +101,75 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertEqual(payload["summary"]["median_intervention_rate_label"], "unavailable")
         self.assertEqual(payload["workspace_cards"][0]["readiness_label"], "Metrics unavailable")
         self.assertFalse(payload["summary"]["ready_for_pilot_review"])
+
+    def test_brief_derives_blocker_labels_when_saved_report_lacks_blocker_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "legacy_pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            del payload["cohort"]["readiness_blockers"]
+            for workspace in payload["workspaces"]:
+                del workspace["readiness_blockers"]
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            brief_payload = pilot_cohort_brief_to_dict(
+                build_pilot_cohort_brief_from_report_path(report_path)
+            )
+
+        self.assertEqual(
+            brief_payload["summary"]["readiness_blockers"],
+            {
+                "metrics_unavailable": 0,
+                "completion_below_threshold": 1,
+                "intervention_above_threshold": 1,
+                "materialized_outputs_missing": 0,
+            },
+        )
+        self.assertEqual(
+            brief_payload["workspace_cards"][1]["readiness_blocker_labels"],
+            ["Completion below threshold", "Manual intervention above threshold"],
+        )
+
+    def test_brief_labels_missing_materialized_output_blocker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["workspaces"][1]["completion_rate_basis_points"] = 10000
+            payload["workspaces"][1]["intervention_rate_basis_points"] = 0
+            payload["workspaces"][1]["materialized_output_count"] = 0
+            payload["workspaces"][1]["readiness_blockers"] = ["materialized_outputs_missing"]
+            payload["cohort"]["readiness_blockers"] = {
+                "metrics_unavailable": 0,
+                "completion_below_threshold": 0,
+                "intervention_above_threshold": 0,
+                "materialized_outputs_missing": 1,
+            }
+            payload["cohort"]["median_intervention_rate_basis_points"] = 0
+            payload["cohort"]["first_draft_output_count"] = 4
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            brief = build_pilot_cohort_brief_from_report_path(report_path)
+            brief_payload = pilot_cohort_brief_to_dict(brief)
+            text = pilot_cohort_brief_module.pilot_cohort_brief_to_text(brief)
+
+        self.assertEqual(
+            brief_payload["workspace_cards"][1]["readiness_blocker_labels"],
+            ["Materialized outputs missing"],
+        )
+        self.assertIn("Blockers: Materialized outputs missing", text)
 
     def test_cli_prints_pilot_cohort_brief_without_rewriting_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -143,6 +231,8 @@ class PilotCohortBriefTests(unittest.TestCase):
         self.assertIn("[1] Workspace 1", text)
         self.assertIn("Readiness: Ready for pilot review", text)
         self.assertIn("First-draft outputs: 4", text)
+        self.assertIn("Blockers: none", text)
+        self.assertIn("Blockers: Completion below threshold; Manual intervention above threshold", text)
         self.assertIn("Safety:", text)
         self.assertIn("observe-only", text)
         self.assertNotIn("python -m", text)
@@ -365,6 +455,23 @@ class PilotCohortBriefTests(unittest.TestCase):
             with self.assertRaises(PilotCohortBriefError):
                 build_pilot_cohort_brief_from_report_path(report_path)
 
+    def test_brief_rejects_forged_aggregate_readiness_blocker_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            report_path = self._write_cohort_report(
+                root,
+                "pilot_cohort_report.json",
+                ready_count=1,
+                ready_for_review=False,
+                unavailable_count=0,
+            )
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload["cohort"]["readiness_blockers"]["completion_below_threshold"] = 0
+            report_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+
+            with self.assertRaisesRegex(PilotCohortBriefError, "readiness blocker"):
+                build_pilot_cohort_brief_from_report_path(report_path)
+
     def test_to_dict_revalidates_nested_summary_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -429,6 +536,7 @@ class PilotCohortBriefTests(unittest.TestCase):
                 "intervention_rate_basis_points": 0 if intervention_rate is not None else None,
                 "materialized_output_count": 4 if ready_rate is not None else None,
                 "threshold_notes": ["trusted dashboard metrics meet the default pilot acceptance thresholds"],
+                "readiness_blockers": [] if ready_rate is not None else ["metrics_unavailable"],
             },
             {
                 "dashboard_path": str(root / "review.json"),
@@ -456,6 +564,16 @@ class PilotCohortBriefTests(unittest.TestCase):
                     if ready_count > 1 and unavailable_count == 0
                     else ["completion rate is below the pilot acceptance threshold"]
                 ),
+                "readiness_blockers": (
+                    []
+                    if ready_count > 1 and unavailable_count == 0
+                    else [
+                        "completion_below_threshold",
+                        "intervention_above_threshold",
+                    ]
+                    if unavailable_count == 0
+                    else ["metrics_unavailable"]
+                ),
             },
         ]
         payload = {
@@ -471,6 +589,12 @@ class PilotCohortBriefTests(unittest.TestCase):
                 "first_draft_output_count": 5 if ready_rate is not None else 0,
                 "ready_for_pilot_review": ready_for_review,
                 "cohort_notes": ["not every metrics-available workspace meets pilot acceptance thresholds"],
+                "readiness_blockers": {
+                    "metrics_unavailable": unavailable_count,
+                    "completion_below_threshold": 0 if ready_count > 1 or unavailable_count else 1,
+                    "intervention_above_threshold": 0 if ready_count > 1 or unavailable_count else 1,
+                    "materialized_outputs_missing": 0,
+                },
             },
             "workspaces": workspaces,
             "safety_notes": [

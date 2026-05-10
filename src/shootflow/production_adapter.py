@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -26,6 +27,7 @@ from shootflow.production_worker import (
 )
 
 _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
+_METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
 
 
 class DryRunProductionError(ValueError):
@@ -39,6 +41,16 @@ class DryRunProductionAdapterResult:
     final_status: ProductionJobStatus
     manifest: ProductionStatusManifest
     outputs_materialized: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class MetadataProductionAdapterResult(DryRunProductionAdapterResult):
+    """Result from the local metadata adapter.
+
+    It intentionally shares the dry-run result shape so scheduler reports and
+    status transitions remain adapter-neutral while a real local worker proves
+    input-reading behavior.
+    """
 
 
 @dataclass(frozen=True)
@@ -60,7 +72,45 @@ class DryRunProductionBatchResult:
 def supported_production_adapter_names() -> tuple[str, ...]:
     """Return production adapter names that this build can execute locally."""
 
-    return (_DRY_RUN_PRODUCTION_ADAPTER,)
+    return (_DRY_RUN_PRODUCTION_ADAPTER, _METADATA_PRODUCTION_ADAPTER)
+
+
+def run_production_adapter_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunProductionBatchResult:
+    """Run a supported production adapter batch by explicit adapter name."""
+
+    if not isinstance(action_plan, ProductionWorkerActionPlan):
+        raise DryRunProductionError("action_plan must be a ProductionWorkerActionPlan")
+    if action_plan.worker_adapter == _DRY_RUN_PRODUCTION_ADAPTER:
+        return run_dry_run_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _METADATA_PRODUCTION_ADAPTER:
+        return run_metadata_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    supported_adapters = ", ".join(supported_production_adapter_names())
+    raise DryRunProductionError(
+        f"Unsupported production adapter: {action_plan.worker_adapter}. "
+        f"Supported adapters: {supported_adapters}"
+    )
 
 
 def run_dry_run_production_batch(
@@ -74,10 +124,56 @@ def run_dry_run_production_batch(
 ) -> DryRunProductionBatchResult:
     """Run trusted dry-run production actions while respecting per-job parallelism."""
 
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+        run_action=run_dry_run_production_action,
+    )
+
+
+def run_metadata_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> DryRunProductionBatchResult:
+    """Run trusted metadata production actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_METADATA_PRODUCTION_ADAPTER,
+        run_action=run_metadata_production_action,
+    )
+
+
+def _run_adapter_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+    expected_adapter: str,
+    run_action,
+) -> DryRunProductionBatchResult:
     _validate_action_plan(
         action_plan,
         trusted_plan=trusted_plan,
-        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+        expected_adapter=expected_adapter,
     )
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
@@ -97,6 +193,7 @@ def run_dry_run_production_batch(
                 action=current_action,
                 started_at=started_at,
                 completed_at=completed_at,
+                run_action=run_action,
             )
             if result is not None:
                 ordered_results[action_index] = result
@@ -118,6 +215,7 @@ def run_dry_run_production_batch(
                     action=action,
                     started_at=started_at,
                     completed_at=completed_at,
+                    run_action=run_action,
                 ): index
                 for index, action in enumerate(actions[group_start:group_end], start=group_start)
             }
@@ -158,12 +256,59 @@ def run_dry_run_production_action(
     the guarded production-status compare/write boundary.
     """
 
-    _validate_action(action, expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_DRY_RUN_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_dry_run_production_outputs,
+        retryable_error_message=_retryable_error_message,
+        result_type=DryRunProductionAdapterResult,
+    )
+
+
+def run_metadata_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> MetadataProductionAdapterResult:
+    """Persist one trusted metadata action through claim, output JSON, and result."""
+
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_METADATA_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_metadata_production_outputs,
+        retryable_error_message=_metadata_retryable_error_message,
+        result_type=MetadataProductionAdapterResult,
+    )
+
+
+def _run_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+    expected_adapter: str,
+    materialize_outputs,
+    retryable_error_message,
+    result_type,
+) -> DryRunProductionAdapterResult:
+    _validate_action(action, expected_adapter=expected_adapter)
     _validate_action_matches_trusted_plan(action, trusted_plan=trusted_plan)
     _validate_timestamp(started_at, "started_at")
     _validate_timestamp(completed_at, "completed_at")
     root = _workspace_root(workspace_root)
-
     current_manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
     current_status = _status_for_action(current_manifest, action)
     try:
@@ -184,7 +329,7 @@ def run_dry_run_production_action(
     )
 
     try:
-        outputs_materialized = _materialize_dry_run_production_outputs(action, root)
+        outputs_materialized = materialize_outputs(action, root)
         final_status = report_production_worker_success(
             running_status,
             action,
@@ -196,7 +341,7 @@ def run_dry_run_production_action(
         final_status = report_production_worker_retryable(
             running_status,
             action,
-            error_message=_retryable_error_message(exc),
+            error_message=retryable_error_message(exc),
             updated_at=completed_at,
         )
 
@@ -208,7 +353,7 @@ def run_dry_run_production_action(
         expected_attempts=action.attempt_number,
         expected_updated_at=started_at,
     )
-    result = DryRunProductionAdapterResult(
+    result = result_type(
         job_id=action.job_id,
         claimed_status=running_status,
         final_status=final_status,
@@ -230,6 +375,22 @@ def _materialize_dry_run_production_outputs(
     materialized: list[str] = []
     for output in action.outputs:
         _write_dry_run_output(root, action=action, output=output)
+        materialized.append(output)
+    return tuple(materialized)
+
+
+def _materialize_metadata_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+) -> tuple[str, ...]:
+    """Create deterministic metadata JSON from trusted workspace inputs."""
+
+    _validate_action(action, expected_adapter=_METADATA_PRODUCTION_ADAPTER)
+    root = _workspace_root(workspace_root)
+    input_metadata = _metadata_for_inputs(root, action)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_metadata_output(root, action=action, output=output, input_metadata=input_metadata)
         materialized.append(output)
     return tuple(materialized)
 
@@ -381,51 +542,7 @@ def _write_dry_run_output(
             f"{output}"
         )
     content = _dry_run_output_bytes(action, output=output)
-    expected_sha256 = hashlib.sha256(content).hexdigest()
-    output_path = _workspace_output_path(root, output)
-
-    _reject_symlink_path(output_path.parent, root, "dry-run production output directory")
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        raise DryRunProductionError(
-            f"Unable to create dry-run production output directory: {output_path.parent}"
-        ) from exc
-    _reject_symlink_path(output_path.parent, root, "dry-run production output directory")
-    _reject_symlink_path(output_path, root, "dry-run production output")
-
-    if output_path.exists():
-        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
-        return
-
-    temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
-    _reject_symlink_path(temp_path, root, "temporary dry-run production output")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
-
-    try:
-        fd = os.open(temp_path, flags, 0o600)
-    except OSError as exc:
-        raise DryRunProductionError(f"Unable to create temporary dry-run production output: {temp_path}") from exc
-
-    try:
-        with os.fdopen(fd, "wb") as temp_file:
-            temp_file.write(content)
-        _reject_symlink_path(temp_path, root, "temporary dry-run production output")
-        try:
-            os.link(temp_path, output_path)
-        except FileExistsError:
-            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
-        except OSError as exc:
-            raise DryRunProductionError(f"Unable to commit dry-run production output: {output}") from exc
-    except OSError as exc:
-        raise DryRunProductionError(f"Unable to write dry-run production output: {output}") from exc
-    finally:
-        try:
-            temp_path.unlink()
-        except FileNotFoundError:
-            pass
+    _write_production_output_bytes(root, output=output, content=content, label="dry-run production")
 
 
 def _dry_run_output_bytes(action: ProductionWorkerAction, *, output: str) -> bytes:
@@ -443,6 +560,150 @@ def _dry_run_output_bytes(action: ProductionWorkerAction, *, output: str) -> byt
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _write_metadata_output(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    output: str,
+    input_metadata: tuple[dict[str, object], ...],
+) -> None:
+    if output.endswith("/"):
+        raise DryRunProductionError(
+            "Metadata production adapter does not materialize directory-style output: "
+            f"{output}"
+        )
+    content = _metadata_output_bytes(action, output=output, input_metadata=input_metadata)
+    _write_production_output_bytes(root, output=output, content=content, label="metadata production")
+
+
+def _write_production_output_bytes(
+    root: Path,
+    *,
+    output: str,
+    content: bytes,
+    label: str,
+) -> None:
+    expected_sha256 = hashlib.sha256(content).hexdigest()
+    output_path = _workspace_output_path(root, output)
+
+    _reject_symlink_path(output_path.parent, root, f"{label} output directory")
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise DryRunProductionError(
+            f"Unable to create {label} output directory: {output_path.parent}"
+        ) from exc
+    _reject_symlink_path(output_path.parent, root, f"{label} output directory")
+    _reject_symlink_path(output_path, root, f"{label} output")
+
+    if output_path.exists():
+        _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        return
+
+    temp_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
+    _reject_symlink_path(temp_path, root, f"temporary {label} output")
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+
+    try:
+        fd = os.open(temp_path, flags, 0o600)
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to create temporary {label} output: {temp_path}") from exc
+
+    try:
+        with os.fdopen(fd, "wb") as temp_file:
+            temp_file.write(content)
+        _reject_symlink_path(temp_path, root, f"temporary {label} output")
+        try:
+            os.link(temp_path, output_path)
+        except FileExistsError:
+            _validate_existing_output(output_path, output=output, expected_sha256=expected_sha256)
+        except OSError as exc:
+            raise DryRunProductionError(f"Unable to commit {label} output: {output}") from exc
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to write {label} output: {output}") from exc
+    finally:
+        try:
+            temp_path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _metadata_output_bytes(
+    action: ProductionWorkerAction,
+    *,
+    output: str,
+    input_metadata: tuple[dict[str, object], ...],
+) -> bytes:
+    payload = {
+        "schema_version": 1,
+        "adapter": "shootflow-metadata-production-local",
+        "job_id": action.job_id,
+        "output_kind": action.output_kind,
+        "inputs": list(action.inputs),
+        "input_metadata": list(input_metadata),
+        "outputs": list(action.outputs),
+        "selected_output": output,
+        "depends_on": list(action.depends_on),
+        "can_run_in_parallel": action.can_run_in_parallel,
+    }
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _metadata_for_inputs(root: Path, action: ProductionWorkerAction) -> tuple[dict[str, object], ...]:
+    allow_logical_inputs = action.output_kind == "look_development"
+    return tuple(
+        _metadata_for_input(root, input_ref, allow_logical=allow_logical_inputs)
+        for input_ref in action.inputs
+    )
+
+
+def _metadata_for_input(root: Path, input_ref: str, *, allow_logical: bool) -> dict[str, object]:
+    input_path = _workspace_input_path(root, input_ref)
+    _reject_symlink_path(input_path.parent, root, "metadata production input directory")
+    _reject_symlink_path(input_path, root, "metadata production input")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+
+    try:
+        fd = os.open(input_path, flags)
+    except FileNotFoundError as exc:
+        if allow_logical:
+            return _logical_input_metadata(input_ref)
+        raise DryRunProductionError(f"Missing metadata production input: {input_ref}") from exc
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to open metadata production input: {input_ref}") from exc
+
+    digest = hashlib.sha256()
+    try:
+        with os.fdopen(fd, "rb") as input_file:
+            input_stat = os.fstat(input_file.fileno())
+            if not stat.S_ISREG(input_stat.st_mode):
+                raise DryRunProductionError(f"Refusing non-file metadata production input: {input_ref}")
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        raise DryRunProductionError(f"Unable to read metadata production input: {input_ref}") from exc
+
+    return {
+        "path": _workspace_display_path(root, input_path, fallback=input_ref),
+        "sha256": digest.hexdigest(),
+        "size_bytes": input_stat.st_size,
+    }
+
+
+def _logical_input_metadata(input_ref: str) -> dict[str, object]:
+    encoded = input_ref.encode("utf-8")
+    return {
+        "path": input_ref,
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+        "size_bytes": len(encoded),
+        "logical": True,
+    }
+
+
 def _workspace_output_path(root: Path, output: str) -> Path:
     _validate_production_output_path(output)
     output_path = root / output
@@ -453,12 +714,60 @@ def _workspace_output_path(root: Path, output: str) -> Path:
     return output_path
 
 
+def _workspace_input_path(root: Path, input_ref: str) -> Path:
+    _validate_production_input_path(input_ref)
+    raw_input_path = Path(input_ref)
+    root_absolute = root.absolute()
+    if raw_input_path.is_absolute():
+        input_path = raw_input_path
+    elif _path_is_relative_to(raw_input_path.absolute(), root_absolute):
+        input_path = raw_input_path.absolute()
+    else:
+        input_path = (root / raw_input_path).absolute()
+    try:
+        input_path.absolute().relative_to(root_absolute)
+    except ValueError as exc:
+        raise DryRunProductionError(f"Metadata production input escapes workspace: {input_ref}") from exc
+    return input_path
+
+
 def _validate_production_output_path(output: str) -> None:
     if not isinstance(output, str) or not output.strip():
         raise DryRunProductionError("dry-run production output path cannot be empty")
+    if _contains_invalid_path_character(output):
+        raise DryRunProductionError(f"Unsafe dry-run production output path: {output!r}")
     output_path = Path(output)
     if output_path.is_absolute() or ".." in output_path.parts:
         raise DryRunProductionError(f"Unsafe dry-run production output path: {output}")
+
+
+def _validate_production_input_path(input_ref: str) -> None:
+    if not isinstance(input_ref, str) or not input_ref.strip():
+        raise DryRunProductionError("metadata production input path cannot be empty")
+    if _contains_invalid_path_character(input_ref):
+        raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref!r}")
+    input_path = Path(input_ref)
+    if ".." in input_path.parts:
+        raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref}")
+
+
+def _contains_invalid_path_character(value: str) -> bool:
+    return "\x00" in value or "\n" in value or "\r" in value
+
+
+def _path_is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _workspace_display_path(root: Path, path: Path, *, fallback: str) -> str:
+    try:
+        return path.absolute().relative_to(root.absolute()).as_posix()
+    except ValueError:
+        return fallback
 
 
 def _validate_existing_output(
@@ -506,6 +815,16 @@ def _retryable_error_message(exc: Exception) -> str:
     )
 
 
+def _metadata_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Metadata production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
+    )
+
+
 def _validate_result(result: DryRunProductionAdapterResult) -> None:
     if not isinstance(result, DryRunProductionAdapterResult):
         raise DryRunProductionError("dry-run production adapter returned an invalid result")
@@ -530,9 +849,10 @@ def _run_batch_action(
     action: ProductionWorkerAction,
     started_at: str,
     completed_at: str,
+    run_action,
 ) -> tuple[DryRunProductionAdapterResult | None, DryRunProductionFailure | None]:
     try:
-        result = run_dry_run_production_action(
+        result = run_action(
             workspace_root,
             trusted_plan=trusted_plan,
             action=action,

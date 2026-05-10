@@ -757,6 +757,43 @@ class DryRunRenderSchedulerTests(unittest.TestCase):
             observe_only_workflow_authority_to_dict(),
         )
 
+    def test_schema_v3_scheduler_report_rejects_missing_workflow_authority(self) -> None:
+        trusted_plan = self._single_task_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_render_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_render_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                completed_dependency_ids={"rank_instagram_storylines", "grade_asset_00000"},
+                renderer_adapter="dry-run-local",
+                started_at="2026-05-07T15:07:56Z",
+                completed_at="2026-05-07T15:07:57Z",
+                max_concurrency=1,
+                max_iterations=1,
+            )
+            final_manifest = load_render_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_render_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-07T15:07:58Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report.pop("workflow_authority", None)
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunRenderSchedulerError, "workflow_authority"):
+                load_dry_run_render_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
     def test_scheduler_report_rejects_authorizing_workflow_authority(self) -> None:
         trusted_plan = self._single_task_plan()
         initial_manifest = self._pending_manifest(trusted_plan)

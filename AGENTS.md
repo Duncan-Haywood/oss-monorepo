@@ -50,10 +50,16 @@ writes a trusted `production_scheduler_report.json` bound to the final status.
 It can expire stale running production leases when both `--stale-before` and
 `--lease-updated-at` are provided; expired jobs become retryable review states,
 and same-attempt heartbeat refreshes are reported as conflicts rather than
-being clobbered. Production and render scheduler reports are schema v3 and
-include root observe-only `workflow_authority` plus validated product metric
-counts derived from the report state. Legacy schema v1/v2 scheduler reports
-still load as observe-only for existing saved workspaces.
+being clobbered. The scheduler dispatches trusted local production adapters:
+`dry-run-production-local` writes placeholders, while `metadata-production-local`
+fingerprints real local inputs and writes deterministic metadata JSON only to
+declared output files without copying, deleting, or inventing media paths.
+Production and render scheduler reports are schema v3 and include root
+observe-only `workflow_authority` plus validated product metric counts derived
+from the report state, so persisted post-operation reports cannot be mistaken
+for retry, cleanup, materialization, overwrite, deletion, or other file-mutation
+authority. Legacy schema v1/v2 scheduler reports still load as observe-only for
+existing saved workspaces.
 `workspace-health`, `index-workspace`, and `pilot-dashboard` expose production
 status/report summaries and validated scheduler product metrics read-only before
 falling through to render handoffs. `pilot-dashboard` is the first stable
@@ -67,15 +73,18 @@ structured `workflow_authority` object marking the payload observe-only,
 presentation-only, and false for copy, retry, cleanup, overwrite,
 materialization, deletion, and any file mutation.
 `pilot-cohort-report` aggregates saved schema v2 dashboard JSON payloads into
-pilot-ready workspace rate, median intervention rate, and first-draft output
-count without reading raw worker internals or granting workflow authority; its
-JSON emits the same observe-only `workflow_authority` contract.
+pilot-ready workspace rate, median intervention rate, first-draft output count,
+and structured readiness blocker counts without reading raw worker internals or
+granting workflow authority. It validates component dashboard threshold flags
+against reported metrics before trusting readiness; its JSON emits the same
+observe-only `workflow_authority` contract.
 `pilot-cohort-brief` reads one saved cohort report and emits presentation-ready
-status/headline/card labels for native shells and GTM demos while remaining
+status/headline/card labels, structured blocker counts, and controlled
+per-workspace blocker labels for native shells and GTM demos while remaining
 observe-only and command-free. JSON remains the default for agents; `--format
 text` emits the same validated brief as a deterministic text-mode demo/readout
-without executable workflow commands. Brief JSON also carries the shared
-observe-only `workflow_authority` object.
+without executable workflow commands or free-form saved report fields. Brief JSON
+also carries the shared observe-only `workflow_authority` object.
 `workspace-health` JSON now uses schema v4 and includes the same structured
 observe-only `workflow_authority` object. `index-workspace` JSON now uses schema
 v2, includes the shared authority object at the index root, and embeds the
