@@ -2,6 +2,73 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 03:00 UTC
+
+Final reconciliation for this session:
+
+- Current assigned branch `cursor/repository-branch-consolidation-11b5` first
+  merged the only remote branch with useful unmerged work,
+  `origin/cursor/branch-reconciliation-and-merge-9840`, via merge commit
+  `ceeae16 merge: reconcile authority reader branch`.
+- This session then added `0b277f1 feat(cli): add handoff control validator`,
+  bringing the assigned branch to four commits ahead of `origin/main`: the two
+  authority-reader commits from `9840`, the merge commit, and the new CLI bridge.
+- After `git fetch --prune origin`, remaining remote branch comparison was:
+  `origin/cursor/branch-consolidation-08bd` is behind `origin/main` with no
+  unique work, `origin/cursor/branch-reconciliation-and-merge-e71e` matches
+  `origin/main`, `origin/cursor/branch-reconciliation-and-merge-9840` has the two
+  authority-reader commits now merged into this assigned branch, and
+  `origin/cursor/repository-branch-consolidation-11b5` is the only branch with
+  this session's new unique work.
+- Local `main` was reset in place to `origin/main`, and stale local
+  `cursor/setup-dev-env-3ad0` was deleted. Remote branch deletion/main pushing
+  was not performed because the Cloud branch instructions for this automation
+  require final pushes only to `cursor/repository-branch-consolidation-11b5`.
+
+## Implementation continuation note - 2026-05-10 03:00 UTC
+
+This run converted the new authority reader into a shell/native integration
+bridge:
+
+- Added `python -m shootflow.cli handoff-controls --handoff-json <path>`.
+  The command is read-only: it refuses symlinked handoff JSON, loads a saved
+  object payload, validates the root observe-only `workflow_authority` through
+  `observe_only_handoff_controls_to_dict(...)`, and prints schema v2 JSON with
+  the shared observe-only authority plus all-disabled `handoff_controls`.
+- Added CLI tests proving saved handoff JSON with write-capable presentation
+  fields still yields disabled controls, and authorizing root authority fails
+  closed with the shared `WorkflowAuthorityError` message.
+- Updated README, AGENTS, `docs/WORKFLOW_AUTHORITY.md`, and design decisions so
+  future SwiftUI/menu-bar shells can use the CLI bridge when they have a saved
+  handoff file instead of importing Python directly.
+
+Verification and review:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_derives_disabled_controls tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_authorizing_payload`
+  failed because `handoff-controls` was not an argparse choice.
+- Focused green run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_workflow_authority tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_derives_disabled_controls tests.test_cli.ShootFlowCliTests.test_handoff_controls_command_rejects_authorizing_payload`
+  -> 5 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 344 tests OK; compileall and diff-check passed.
+- Code-review subagent found no blocking or non-blocking issues. Residual test
+  gap accepted: missing-root/prose ignoring behavior is covered at the shared
+  helper level rather than duplicated through the CLI wrapper.
+
+Good next test-first targets:
+
+- Decide whether scheduler run summaries and persisted scheduler reports need a
+  distinct post-operation authority block rather than the presentation-only
+  observe-only contract already used by CLI receipts and summaries.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+- When native SwiftUI/menu-bar code appears, make its file-operation controls
+  consume either `observe_only_handoff_controls_to_dict(...)` directly or the
+  `handoff-controls` CLI output before exposing retry/copy/materialization UI.
+
 ## Branch reconciliation note - 2026-05-10 02:30 UTC
 
 Final reconciliation for this session:
