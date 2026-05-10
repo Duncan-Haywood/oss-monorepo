@@ -244,6 +244,11 @@ The current core models a concrete promise for high-volume users:
     state--status, headline, summary labels, structured blocker counts,
     controlled per-workspace blocker labels, cards, and an optional deterministic
     text-mode readout--without emitting workflow commands or widening authority.
+    `package-handoff-brief` gives native shells the corresponding package-level
+    production readout: it validates trusted production status/report state from
+    the ingest manifest, summarizes completed/review-required package jobs and
+    materialized package outputs, and binds copy/retry/materialization controls
+    to the same fail-closed workflow authority contract.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is

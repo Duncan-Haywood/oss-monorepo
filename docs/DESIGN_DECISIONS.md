@@ -341,6 +341,12 @@ The repo currently contains a Python core package because it is quick to test an
   only after validating the root observe-only authority object. This gives
   SwiftUI/menu-bar shells a CLI bridge for fail-closed control binding without
   parsing `next_actions`, `next_steps`, `agent_handoff`, or prose.
+  The read-only `package-handoff-brief` command applies that same control
+  binding to package production reports: it reloads the trusted production plan
+  from `ingest_manifest.json`, validates matching production status/report
+  files, summarizes completed/review-required package jobs and materialized
+  package outputs, and returns disabled copy/retry/materialization controls from
+  the scheduler report authority.
   The `workspace-health` command exposes the read-only continuation diagnostic as
   schema-versioned JSON. It is intentionally non-advancing: it may recommend
   `init-production-status`, `dry-run-production-scheduler`, production review

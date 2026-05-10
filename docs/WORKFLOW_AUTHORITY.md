@@ -78,6 +78,23 @@ the disabled `handoff_controls` map. Its output is still a presentation
 surface; it does not authorize copy, retry, cleanup, overwrite,
 materialization, deletion, or any other file mutation.
 
+## Package handoff bridge
+
+Native shells that need a package-specific readout can call:
+
+```bash
+PYTHONPATH=src python3 -m shootflow.cli package-handoff-brief \
+  --ingest-manifest <shoot>/ingest_manifest.json
+```
+
+The command is read-only. It rebuilds the trusted production plan from the
+ingest manifest, validates `production_status.json`, loads the matching
+`production_scheduler_report.json`, summarizes package job readiness and
+materialized package outputs, and derives disabled copy/retry/materialization
+controls from the scheduler report's observe-only authority. It is a UI bridge,
+not a retry, render, export, cleanup, overwrite, publication, or deletion
+contract.
+
 ## Persisted scheduler reports
 
 Production and render scheduler reports are trusted run records because they are

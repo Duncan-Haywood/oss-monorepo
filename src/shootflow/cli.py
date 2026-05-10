@@ -38,7 +38,7 @@ from shootflow.ingest import (
     execute_copy_plan,
     plan_import,
 )
-from shootflow.production import ProductionPlanError, build_production_plan
+from shootflow.production import ProductionPlan, ProductionPlanError, build_production_plan
 from shootflow.production_handoff import (
     ProductionHandoffError,
     ProductionWaveHandoff,
@@ -66,6 +66,7 @@ from shootflow.pilot_cohort_brief import (
 )
 from shootflow.production_report import ProductionPlanReport, build_production_plan_report
 from shootflow.production_scheduler import (
+    PRODUCTION_SCHEDULER_REPORT_PATH,
     DryRunProductionSchedulerReport,
     DryRunProductionSchedulerError,
     load_dry_run_production_scheduler_report,
@@ -120,6 +121,9 @@ from shootflow.workflow_authority import (
 
 _SCHEDULER_REPORT_SCHEMA_VERSION = 3
 _CLI_HANDOFF_SCHEMA_VERSION = 2
+_PACKAGE_OUTPUT_KINDS = frozenset(
+    {"instagram_reel", "instagram_carousel", "instagram_photo_set"}
+)
 
 
 class ShootFlowCliError(ValueError):
@@ -174,6 +178,8 @@ def main(
             _run_card_dump_workflow_command(args, stdout=out)
         elif args.command == "handoff-controls":
             _run_handoff_controls_command(args, stdout=out)
+        elif args.command == "package-handoff-brief":
+            _run_package_handoff_brief_command(args, stdout=out)
         elif args.command == "workspace-health":
             _run_workspace_health_command(args, stdout=out)
         elif args.command == "index-workspace":
@@ -481,6 +487,30 @@ def _run_handoff_controls_command(args: argparse.Namespace, *, stdout: TextIO) -
     payload = _load_handoff_controls_payload(handoff_path)
     controls = observe_only_handoff_controls_to_dict(payload, field_label=args.field_label)
     stdout.write(_handoff_controls_json(handoff_path=handoff_path, controls=controls))
+
+
+def _run_package_handoff_brief_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    manifest_path = Path(args.ingest_manifest)
+    catalog = load_ingest_manifest(manifest_path)
+    trusted_plan = build_production_plan(
+        production_assets_from_manifest(catalog),
+        shoot_slug=catalog.shoot_slug,
+    )
+    workspace = manifest_path.parent
+    final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+    report = load_dry_run_production_scheduler_report(
+        workspace,
+        trusted_plan=trusted_plan,
+        final_manifest=final_manifest,
+    )
+    stdout.write(
+        _package_handoff_brief_json(
+            report,
+            trusted_plan=trusted_plan,
+            ingest_manifest_path=manifest_path,
+            workspace=workspace,
+        )
+    )
 
 
 def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -806,6 +836,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--field-label",
         default="handoff",
         help="Label used in validation errors. Defaults to handoff.",
+    )
+
+    package_brief = subparsers.add_parser(
+        "package-handoff-brief",
+        help="Summarize package scheduler readiness and disabled native controls.",
+    )
+    package_brief.add_argument(
+        "--ingest-manifest",
+        required=True,
+        help="Trusted ingest_manifest.json whose workspace contains production status/report files.",
     )
 
     workspace_health = subparsers.add_parser(
@@ -1236,6 +1276,91 @@ def _handoff_controls_json(*, handoff_path: Path, controls: dict[str, bool]) -> 
         "handoff_controls": dict(controls),
     }
     return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
+
+
+def _package_handoff_brief_json(
+    report: DryRunProductionSchedulerReport,
+    *,
+    trusted_plan: ProductionPlan,
+    ingest_manifest_path: Path,
+    workspace: Path,
+) -> str:
+    if not isinstance(report, DryRunProductionSchedulerReport):
+        raise ShootFlowCliError("report must be a DryRunProductionSchedulerReport")
+    if not isinstance(trusted_plan, ProductionPlan):
+        raise ShootFlowCliError("trusted_plan must be a ProductionPlan")
+    if not isinstance(ingest_manifest_path, Path):
+        raise ShootFlowCliError("ingest_manifest_path must be a Path")
+    if not isinstance(workspace, Path):
+        raise ShootFlowCliError("workspace must be a Path")
+    package_jobs = tuple(
+        job for job in trusted_plan.jobs if job.output_kind in _PACKAGE_OUTPUT_KINDS
+    )
+    package_job_ids = tuple(job.job_id for job in package_jobs)
+    package_outputs = frozenset(output for job in package_jobs for output in job.outputs)
+    completed_package_job_ids = tuple(
+        job_id for job_id in package_job_ids if job_id in report.completed_job_ids
+    )
+    review_required_package_job_ids = tuple(
+        job_id for job_id in package_job_ids if job_id in report.review_required_job_ids
+    )
+    materialized_package_outputs = tuple(
+        output for output in report.outputs_materialized if output in package_outputs
+    )
+    controls = observe_only_handoff_controls_to_dict(
+        {"workflow_authority": dict(report.workflow_authority)},
+        field_label="production_scheduler_report",
+    )
+    payload = {
+        "schema_version": _CLI_HANDOFF_SCHEMA_VERSION,
+        "workflow_authority": observe_only_workflow_authority_to_dict(),
+        "workspace": str(workspace),
+        "ingest_manifest_path": str(ingest_manifest_path),
+        "production_scheduler_report_path": str(
+            workspace / PRODUCTION_SCHEDULER_REPORT_PATH
+        ),
+        "shoot_slug": report.shoot_slug,
+        "worker_adapter": report.worker_adapter,
+        "stopped_reason": report.stopped_reason,
+        "handoff_controls": controls,
+        "package_readiness": {
+            "status": _package_readiness_status(
+                package_job_count=len(package_job_ids),
+                completed_package_count=len(completed_package_job_ids),
+                review_required_package_count=len(review_required_package_job_ids),
+                materialized_package_count=len(materialized_package_outputs),
+            ),
+            "package_job_count": len(package_job_ids),
+            "completed_package_job_ids": list(completed_package_job_ids),
+            "review_required_package_job_ids": list(review_required_package_job_ids),
+            "materialized_package_outputs": list(materialized_package_outputs),
+        },
+        "notes": (
+            "read-only package handoff brief; workflow_authority from the trusted "
+            "scheduler report is used to keep native copy/retry/materialization "
+            "controls disabled"
+        ),
+    }
+    return json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
+
+
+def _package_readiness_status(
+    *,
+    package_job_count: int,
+    completed_package_count: int,
+    review_required_package_count: int,
+    materialized_package_count: int,
+) -> str:
+    if package_job_count == 0:
+        return "not_applicable"
+    if review_required_package_count:
+        return "review_required"
+    if (
+        completed_package_count == package_job_count
+        and materialized_package_count > 0
+    ):
+        return "ready"
+    return "not_ready"
 
 
 def _parse_volume_roots(raw_roots: Sequence[str]) -> list[Path]:

@@ -14,6 +14,13 @@ from shootflow.demo_workspace import (
     create_persisted_cli_demo_workspace,
 )
 from shootflow.production import ProductionPlan, build_production_plan
+from shootflow.production_status import (
+    OutputChecksum as ProductionOutputChecksum,
+    ProductionJobStatus,
+    ProductionStatusManifest,
+    production_plan_fingerprint,
+    write_production_status_manifest,
+)
 from shootflow.render_scheduler import load_dry_run_render_scheduler_report
 from shootflow.render_status import (
     OutputChecksum,
@@ -2267,6 +2274,79 @@ class ShootFlowProductionPlanCliTests(unittest.TestCase):
 
 
 class ShootFlowRenderTaskCliTests(unittest.TestCase):
+    def test_package_handoff_brief_reads_scheduler_report_and_disables_controls(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            self._write_package_ready_production_status(workspace, production_plan)
+            scheduler_stdout = io.StringIO()
+            scheduler_exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "package-production-local",
+                    "--started-at",
+                    "2026-05-10T22:35:00Z",
+                    "--completed-at",
+                    "2026-05-10T22:35:05Z",
+                    "--generated-at",
+                    "2026-05-10T22:35:06Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "2",
+                ],
+                stdout=scheduler_stdout,
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "package-handoff-brief",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=stdout,
+            )
+            brief = json.loads(stdout.getvalue())
+
+        package_job_ids = [
+            job.job_id
+            for job in production_plan.jobs
+            if job.output_kind
+            in {"instagram_reel", "instagram_carousel", "instagram_photo_set"}
+        ]
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(brief["schema_version"], 2)
+        self.assertEqual(brief["workflow_authority"], OBSERVE_ONLY_WORKFLOW_AUTHORITY)
+        self.assertEqual(brief["handoff_controls"], DISABLED_NATIVE_CONTROLS)
+        self.assertEqual(brief["workspace"], str(workspace))
+        self.assertEqual(brief["ingest_manifest_path"], str(manifest_path))
+        self.assertEqual(
+            brief["production_scheduler_report_path"],
+            str(workspace / "production_scheduler_report.json"),
+        )
+        self.assertEqual(brief["package_readiness"]["status"], "ready")
+        self.assertEqual(brief["package_readiness"]["package_job_count"], len(package_job_ids))
+        self.assertEqual(brief["package_readiness"]["completed_package_job_ids"], package_job_ids)
+        self.assertEqual(brief["package_readiness"]["review_required_package_job_ids"], [])
+        self.assertEqual(
+            brief["package_readiness"]["materialized_package_outputs"],
+            [
+                "deliverables/instagram_reel.mp4",
+                "deliverables/instagram_carousel/",
+                "deliverables/instagram_photo_set/",
+            ],
+        )
+        self.assertIn(
+            "read-only package handoff brief",
+            brief["notes"],
+        )
+
     def test_write_render_tasks_command_persists_trusted_assembly_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2611,12 +2691,105 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"graded media")
 
+    @staticmethod
+    def _sha256_file(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+
     def _graded_outputs(self, production_plan: ProductionPlan, output_kind: str) -> tuple[str, ...]:
         return tuple(
             job.outputs[0]
             for job in production_plan.jobs
             if job.output_kind == output_kind
         )
+
+    def _write_package_ready_production_status(
+        self,
+        workspace: Path,
+        production_plan: ProductionPlan,
+    ) -> None:
+        story_path = workspace / "analysis/instagram_storylines.json"
+        story_path.parent.mkdir(parents=True, exist_ok=True)
+        story_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 2,
+                    "sequences": [
+                        {
+                            "sequence_id": "reel_main",
+                            "deliverable_type": "instagram_reel",
+                            "asset_paths": list(self._graded_outputs(production_plan, "graded_video")),
+                        },
+                        {
+                            "sequence_id": "carousel_main",
+                            "deliverable_type": "instagram_carousel",
+                            "asset_paths": list(self._graded_outputs(production_plan, "graded_photo")[:1]),
+                        },
+                        {
+                            "sequence_id": "photo_set_main",
+                            "deliverable_type": "instagram_photo_set",
+                            "asset_paths": list(self._graded_outputs(production_plan, "graded_photo")),
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        grade_checksums: dict[str, str] = {}
+        for job in production_plan.jobs:
+            if job.output_kind not in {"graded_photo", "graded_video"}:
+                continue
+            grade_path = workspace / job.outputs[0]
+            grade_path.parent.mkdir(parents=True, exist_ok=True)
+            grade_path.write_bytes(f"trusted package grade for {job.job_id}".encode("utf-8"))
+            grade_checksums[job.job_id] = self._sha256_file(grade_path)
+        story_checksum = self._sha256_file(story_path)
+        status_manifest = ProductionStatusManifest(
+            shoot_slug=production_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(production_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="pending",
+                )
+                if job.output_kind in {"instagram_reel", "instagram_carousel", "instagram_photo_set"}
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter=(
+                        "story-production-local"
+                        if job.output_kind == "storyline_selection"
+                        else "grade-production-local"
+                        if job.output_kind in {"graded_photo", "graded_video"}
+                        else "dry-run-production-local"
+                    ),
+                    attempts=1,
+                    output_checksums=tuple(
+                        ProductionOutputChecksum(
+                            path=output,
+                            sha256=(
+                                story_checksum
+                                if job.output_kind == "storyline_selection"
+                                else grade_checksums[job.job_id]
+                                if job.output_kind in {"graded_photo", "graded_video"}
+                                else "a" * 64
+                            ),
+                        )
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T22:34:00Z",
+                )
+                for job in production_plan.jobs
+            ),
+        )
+        write_production_status_manifest(status_manifest, workspace, trusted_plan=production_plan)
 
     def _single_task_plan(self) -> AssemblyPlan:
         return AssemblyPlan(

@@ -160,6 +160,11 @@ Why this wedge wins:
   and GTM demos without exposing workflow commands. Its optional text output
   gives demo shells a readable cohort view while JSON remains the default
   integration contract.
+- A package handoff brief contract that reads the trusted production status and
+  scheduler report from an ingest manifest, summarizes package job readiness and
+  materialized package outputs for native shells, and returns disabled
+  copy/retry/materialization controls from the report authority rather than
+  report prose.
 - Parallelized analysis and grading plan contracts.
 - Deterministic reel/carousel/photo-set assembly contracts.
 - A `write-render-tasks` CLI handoff that turns trusted storyline selections and

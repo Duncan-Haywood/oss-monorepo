@@ -469,6 +469,8 @@ PYTHONPATH=src python3 -m shootflow.cli pilot-cohort-brief \
   --format text
 PYTHONPATH=src python3 -m shootflow.cli handoff-controls \
   --handoff-json <saved-handoff.json>
+PYTHONPATH=src python3 -m shootflow.cli package-handoff-brief \
+  --ingest-manifest <dir>/ingest_manifest.json
 PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
   --workspace <demo-dir> \
   --workspace-count 2 \
@@ -707,7 +709,11 @@ general file-mutation permission from `next_actions`, `next_steps`,
 the consumer contract. Shell integrations can use
 `python -m shootflow.cli handoff-controls --handoff-json <path>` to run the same
 fail-closed validation over a saved handoff file and print the disabled native
-control map as observe-only JSON.
+control map as observe-only JSON. When a native shell needs package-specific
+state, `python -m shootflow.cli package-handoff-brief --ingest-manifest <path>`
+loads the trusted production status and scheduler report, summarizes package
+readiness/materialized package outputs, and returns disabled copy/retry/
+materialization controls derived from the report authority.
 
 ## Run tests
 
