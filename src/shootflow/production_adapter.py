@@ -758,9 +758,10 @@ def _workspace_output_path(root: Path, output: str) -> Path:
 
 def _workspace_input_path(root: Path, input_ref: str) -> Path:
     _validate_production_input_path(input_ref)
-    input_path = root / input_ref
+    raw_input_path = Path(input_ref)
+    input_path = raw_input_path if raw_input_path.is_absolute() else root / raw_input_path
     try:
-        input_path.relative_to(root)
+        input_path.absolute().relative_to(root.absolute())
     except ValueError as exc:
         raise DryRunProductionError(f"Metadata production input escapes workspace: {input_ref}") from exc
     return input_path
@@ -769,6 +770,8 @@ def _workspace_input_path(root: Path, input_ref: str) -> Path:
 def _validate_production_output_path(output: str) -> None:
     if not isinstance(output, str) or not output.strip():
         raise DryRunProductionError("dry-run production output path cannot be empty")
+    if _contains_invalid_path_character(output):
+        raise DryRunProductionError(f"Unsafe dry-run production output path: {output!r}")
     output_path = Path(output)
     if output_path.is_absolute() or ".." in output_path.parts:
         raise DryRunProductionError(f"Unsafe dry-run production output path: {output}")
@@ -777,9 +780,15 @@ def _validate_production_output_path(output: str) -> None:
 def _validate_production_input_path(input_ref: str) -> None:
     if not isinstance(input_ref, str) or not input_ref.strip():
         raise DryRunProductionError("metadata production input path cannot be empty")
+    if _contains_invalid_path_character(input_ref):
+        raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref!r}")
     input_path = Path(input_ref)
-    if input_path.is_absolute() or ".." in input_path.parts:
+    if ".." in input_path.parts:
         raise DryRunProductionError(f"Unsafe metadata production input path: {input_ref}")
+
+
+def _contains_invalid_path_character(value: str) -> bool:
+    return "\x00" in value or "\n" in value or "\r" in value
 
 
 def _validate_existing_output(
