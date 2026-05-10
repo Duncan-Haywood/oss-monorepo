@@ -34,8 +34,9 @@ Verification in this session:
 - Initial consolidated scheduler-authority tree:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
   -> 348 tests OK; compileall and diff-check passed.
-- Re-run final verification after the added regression commits before handing
-  off the branch.
+- Final consolidated tree after preserving the newer regression coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 351 tests OK; compileall and diff-check passed.
 
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
