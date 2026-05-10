@@ -82,7 +82,12 @@ The repo currently contains a Python core package because it is quick to test an
   loader-compatible `analysis/00000.json` outputs only for `vlm_asset_analysis`
   jobs, deriving conservative scores from trusted input bytes so the status,
   checksum, and downstream analysis-reader contracts can be exercised before
-  real VLM execution is trusted. All adapters persist claims through the
+  real VLM execution is trusted. `scene-production-local` is the next
+  deterministic serial-stage probe. It reads the trusted plan's validated
+  per-asset analysis artifacts through `load_asset_analyses(...)` and writes one
+  declared `analysis/scene_groups.json` summary for `scene_grouping` jobs only,
+  proving the analysis-to-scene rejoin before real clustering or look-development
+  workers are trusted. All adapters persist claims through the
   single-job production-status compare/write helper, then persist success
   checksums or retryable errors through the same status boundary. Directory-style
   package outputs, symlinked inputs or outputs, missing inputs, and different
@@ -94,8 +99,9 @@ The repo currently contains a Python core package because it is quick to test an
   The adapter registry also declares output-kind scope for each worker: dry-run
   and metadata adapters can currently accept all planned kinds, while
   `proxy-production-local` is explicitly limited to `proxy_media` and
-  `analysis-production-local` to `vlm_asset_analysis`. Shared result, failure,
-  batch, and error types are named
+  `analysis-production-local` to `vlm_asset_analysis`, and
+  `scene-production-local` to `scene_grouping`. Shared result, failure, batch,
+  and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.
@@ -390,9 +396,13 @@ The desired high-quality pipeline is:
     before a real proxy renderer is trusted. `analysis-production-local` writes
     deterministic, schema-compatible per-asset analysis JSON for
     `vlm_asset_analysis` jobs only, proving the analysis output/status handoff
-    before real local or hosted VLM runners are trusted. All adapters persist
-    success or retryable state through `production_status.json` before real VLM,
-    color, or storyline runners are trusted.
+    before real local or hosted VLM runners are trusted. `scene-production-local`
+    materializes the first deterministic serial rejoin artifact,
+    `analysis/scene_groups.json`, from trusted analysis outputs while leaving
+    look, grading, storyline, and package jobs for compatible future adapters.
+    All adapters persist success or retryable state through
+    `production_status.json` before real VLM, color, or storyline runners are
+    trusted.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,

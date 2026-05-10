@@ -102,9 +102,11 @@ Why this wedge wins:
   declare output-kind capabilities in the adapter registry, and the scheduler
   uses that registry for both worker planning and stale-lease expiration:
   `proxy-production-local` receives only `proxy_media` jobs and
-  `analysis-production-local` receives only `vlm_asset_analysis` jobs, then
-  leaves later scene/color/story/package work pending or running for future
-  adapters instead of reporting stage-mismatch failures for incompatible stages.
+  `analysis-production-local` receives only `vlm_asset_analysis` jobs.
+  `scene-production-local` receives only `scene_grouping` jobs and writes the
+  first deterministic serial rejoin artifact from trusted analysis outputs, then
+  leaves later color/story/package work pending or running for future adapters
+  instead of reporting stage-mismatch failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
@@ -287,7 +289,8 @@ Run practical experiments tied to this ICP-first plan:
    the safe read-only state probe before initialization and after scheduler runs.
 3. Extend deterministic production probes toward real quality workers: replace
    the proxy stand-in with ffmpeg/Core Image/Metal downsampled proxy generation,
-   then replace `analysis-production-local` with a local or hosted VLM adapter
+   replace `analysis-production-local` with a local or hosted VLM adapter, and
+   replace `scene-production-local` with real scene clustering/look context
    behind the same no-delete/no-overwrite, declared-output-only rules.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation

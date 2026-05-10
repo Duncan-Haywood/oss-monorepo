@@ -179,6 +179,86 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.retryable_job_ids, ())
         self.assertEqual(result.blocked_job_ids, ())
 
+    def test_scene_adapter_scheduler_leaves_downstream_jobs_pending(self) -> None:
+        trusted_plan = self._video_only_plan()
+        proxy_job = trusted_plan.job_by_id("proxy_asset_00000")
+        analysis_job = trusted_plan.job_by_id("analyze_asset_00000")
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id=proxy_job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),),
+                    updated_at="2026-05-10T14:10:00Z",
+                ),
+                ProductionJobStatus(
+                    job_id=analysis_job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=analysis_job.outputs[0], sha256="b" * 64),),
+                    updated_at="2026-05-10T15:10:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[2:]
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            analysis_path = workspace / analysis_job.outputs[0]
+            analysis_path.parent.mkdir(parents=True)
+            analysis_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "source_asset_path": analysis_job.inputs[0],
+                        "media_type": "video",
+                        "scene_label": "local_scene_00000",
+                        "aesthetic_score": 0.8,
+                        "story_score": 0.7,
+                        "technical_score": 0.9,
+                        "motion_score": 0.6,
+                        "duration_seconds": 12.0,
+                        "tags": ["ceremony"],
+                    },
+                    ensure_ascii=True,
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="scene-production-local",
+                started_at="2026-05-10T15:17:00Z",
+                completed_at="2026-05-10T15:17:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            scene_payload = json.loads((workspace / "analysis/scene_groups.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("group_scene_sets",))
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertEqual(loaded_manifest.job_statuses[2].state, "succeeded")
+        self.assertEqual(loaded_manifest.job_statuses[3].state, "pending")
+        self.assertEqual(loaded_manifest.job_statuses[3].attempts, 0)
+        self.assertEqual(scene_payload["adapter"], "shootflow-scene-production-local")
+        self.assertEqual(result.retryable_job_ids, ())
+        self.assertEqual(result.blocked_job_ids, ())
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(

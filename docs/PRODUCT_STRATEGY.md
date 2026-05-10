@@ -155,7 +155,10 @@ The current core models a concrete promise for high-volume users:
     `vlm_asset_analysis` JSON only for analysis jobs. This analysis adapter is a
     contract probe, not final creative understanding: it proves scheduler
     routing, checksum reporting, and downstream analysis loading before real VLM
-    execution is trusted. All refuse
+    execution is trusted. `scene-production-local` now consumes those trusted
+    analysis artifacts and writes deterministic `analysis/scene_groups.json` for
+    `scene_grouping` jobs only, proving the serial scene-rejoin handoff before
+    real clustering or look development is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
     different files without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
@@ -312,10 +315,11 @@ to automate.
    guarded stale-lease expiration, so native shells can advance pre-render jobs
    without embedding scheduling logic or retrying prior/newly retryable conflicts
    or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
-   is adapter-capability aware: `proxy-production-local` receives only
-   dependency-ready proxy jobs, while later analysis/color/story/package jobs
-   remain pending or blocked for a compatible worker rather than becoming
-   expected proxy failures. The first local
+   is adapter-capability aware: `proxy-production-local`,
+   `analysis-production-local`, and `scene-production-local` receive only
+   dependency-ready jobs for their declared output kinds, while later
+   color/story/package jobs remain pending or blocked for a compatible worker
+   rather than becoming expected stage-mismatch failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
    writes deterministic metadata JSON only to declared output files, while
@@ -325,7 +329,9 @@ to automate.
    while preserving the same no-overwrite/no-cleanup review states.
    `analysis-production-local` extends the stage-specific adapter path into the
    next wave by materializing deterministic per-asset analysis JSON only for
-   `vlm_asset_analysis` jobs; color, scene, storyline, and package work still
+   `vlm_asset_analysis` jobs. `scene-production-local` extends the path across
+   the first serial rejoin by materializing deterministic scene-group summaries
+   from trusted analysis artifacts; color, storyline, and package work still
    waits for compatible future adapters. The persisted
    production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future

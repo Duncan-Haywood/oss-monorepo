@@ -16,6 +16,7 @@ from shootflow.production_adapter import (
     run_dry_run_production_action,
     run_metadata_production_action,
     run_proxy_production_action,
+    run_scene_production_action,
     supported_production_adapter_output_kinds,
     supported_production_adapter_names,
 )
@@ -39,6 +40,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "metadata-production-local",
                 "proxy-production-local",
                 "analysis-production-local",
+                "scene-production-local",
             ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
@@ -50,6 +52,10 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(
             supported_production_adapter_output_kinds("analysis-production-local"),
             ("vlm_asset_analysis",),
+        )
+        self.assertEqual(
+            supported_production_adapter_output_kinds("scene-production-local"),
+            ("scene_grouping",),
         )
         with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
@@ -481,6 +487,86 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertIn("Refusing to overwrite", result.final_status.error_message or "")
         self.assertEqual(result.outputs_materialized, ())
         self.assertEqual(preserved_bytes, b"manual analysis")
+
+    def test_scene_adapter_writes_deterministic_grouping_from_trusted_analyses(self) -> None:
+        trusted_plan, ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            self._write_analysis_payload(
+                workspace,
+                "analysis/00000.json",
+                source_asset_path="originals/A001.MOV",
+                media_type="video",
+                scene_label="ceremony",
+                aesthetic_score=0.8,
+                story_score=0.9,
+                technical_score=0.7,
+                motion_score=0.6,
+                duration_seconds=12.0,
+                tags=("vows", "wide"),
+            )
+            self._write_analysis_payload(
+                workspace,
+                "analysis/00001.json",
+                source_asset_path="originals/IMG_0001.CR3",
+                media_type="photo",
+                scene_label="ceremony",
+                aesthetic_score=0.7,
+                story_score=0.6,
+                technical_score=0.8,
+                motion_score=0.5,
+                tags=("vows", "portrait"),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:15:00Z",
+                completed_at="2026-05-10T15:15:05Z",
+            )
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, ("analysis/scene_groups.json",))
+        self.assertEqual(output_payload["adapter"], "shootflow-scene-production-local")
+        self.assertEqual(output_payload["analysis_count"], 2)
+        self.assertEqual(output_payload["scene_groups"][0]["scene_label"], "ceremony")
+        self.assertEqual(output_payload["scene_groups"][0]["asset_count"], 2)
+        self.assertEqual(output_payload["scene_groups"][0]["video_count"], 1)
+        self.assertEqual(output_payload["scene_groups"][0]["photo_count"], 1)
+        self.assertEqual(
+            output_payload["scene_groups"][0]["asset_paths"],
+            ["graded/grade_asset_00000/A001.MOV", "graded/grade_asset_00001/IMG_0001.CR3"],
+        )
+        self.assertEqual(output_payload["scene_groups"][0]["primary_tags"], ["portrait", "vows", "wide"])
+        self.assertEqual(loaded_manifest.job_statuses[4], result.final_status)
+
+    def test_scene_adapter_missing_analysis_becomes_retryable_after_claim(self) -> None:
+        trusted_plan, ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:16:00Z",
+                completed_at="2026-05-10T15:16:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Scene production adapter", result.final_status.error_message or "")
+        self.assertIn("Missing planned analysis file", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[4], result.final_status)
 
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
@@ -1076,6 +1162,62 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             eligible_output_kinds=("vlm_asset_analysis",),
         ).actions[0]
         return trusted_plan, ready_manifest, action
+
+    @classmethod
+    def _scene_ready_context(cls):
+        trusted_plan = cls._trusted_plan()
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                cls._succeeded_status(job)
+                if job.output_kind in {"proxy_media", "vlm_asset_analysis"}
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="scene-production-local",
+            eligible_output_kinds=("scene_grouping",),
+        ).actions[0]
+        return trusted_plan, ready_manifest, action
+
+    @staticmethod
+    def _write_analysis_payload(
+        workspace: Path,
+        output: str,
+        *,
+        source_asset_path: str,
+        media_type: str,
+        scene_label: str,
+        aesthetic_score: float,
+        story_score: float,
+        technical_score: float,
+        motion_score: float,
+        duration_seconds: float | None = None,
+        tags: tuple[str, ...] = (),
+    ) -> None:
+        payload: dict[str, object] = {
+            "schema_version": 1,
+            "source_asset_path": source_asset_path,
+            "media_type": media_type,
+            "scene_label": scene_label,
+            "aesthetic_score": aesthetic_score,
+            "story_score": story_score,
+            "technical_score": technical_score,
+            "motion_score": motion_score,
+            "tags": tags,
+        }
+        if duration_seconds is not None:
+            payload["duration_seconds"] = duration_seconds
+        output_path = workspace / output
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
+from shootflow.analysis import AnalysisLoaderError, load_asset_analyses
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.production_status import (
     ProductionJobStatus,
@@ -30,11 +31,13 @@ _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
 _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
 _PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
 _ANALYSIS_PRODUCTION_ADAPTER = "analysis-production-local"
+_SCENE_PRODUCTION_ADAPTER = "scene-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
     _PROXY_PRODUCTION_ADAPTER: ("proxy_media",),
     _ANALYSIS_PRODUCTION_ADAPTER: ("vlm_asset_analysis",),
+    _SCENE_PRODUCTION_ADAPTER: ("scene_grouping",),
 }
 
 
@@ -69,6 +72,11 @@ class ProxyProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class AnalysisProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local analysis adapter."""
+
+
+@dataclass(frozen=True)
+class SceneProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local scene-grouping adapter."""
 
 
 @dataclass(frozen=True)
@@ -153,6 +161,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _ANALYSIS_PRODUCTION_ADAPTER:
         return run_analysis_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _SCENE_PRODUCTION_ADAPTER:
+        return run_scene_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -256,6 +273,29 @@ def run_analysis_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_ANALYSIS_PRODUCTION_ADAPTER,
         run_action=run_analysis_production_action,
+    )
+
+
+def run_scene_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local scene-grouping actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_SCENE_PRODUCTION_ADAPTER,
+        run_action=run_scene_production_action,
     )
 
 
@@ -445,6 +485,35 @@ def run_analysis_production_action(
     )
 
 
+def run_scene_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> SceneProductionAdapterResult:
+    """Persist one trusted scene-grouping action through deterministic JSON output.
+
+    This adapter consumes validated per-asset analysis artifacts and writes a
+    conservative grouping summary. It is a contract probe for future creative
+    scene clustering, not final editorial understanding.
+    """
+
+    _validate_scene_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_SCENE_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_scene_production_outputs,
+        retryable_error_message=_scene_retryable_error_message,
+        result_type=SceneProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -601,6 +670,30 @@ def _materialize_analysis_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_scene_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic scene-grouping JSON from trusted analysis artifacts."""
+
+    _validate_scene_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("scene production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    try:
+        analyses = load_asset_analyses(trusted_plan, root)
+    except AnalysisLoaderError as exc:
+        raise ProductionAdapterError(str(exc)) from exc
+    content = _scene_output_bytes(action, analyses=analyses)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_production_output_bytes(root, output=output, content=content, label="scene production")
+        materialized.append(output)
+    return tuple(materialized)
+
+
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
@@ -634,6 +727,21 @@ def _validate_analysis_action_shape(action: ProductionWorkerAction) -> None:
         raise ProductionAdapterError(
             "Analysis production adapter requires analysis/00000.json-style output: "
             f"{action.outputs[0]}"
+        )
+
+
+def _validate_scene_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_SCENE_PRODUCTION_ADAPTER)
+    if action.output_kind != "scene_grouping":
+        raise ProductionAdapterError(
+            "Scene production adapter only materializes scene_grouping jobs: "
+            f"{action.output_kind}"
+        )
+    if action.can_run_in_parallel:
+        raise ProductionAdapterError("Scene production adapter requires a serial action")
+    if len(action.outputs) != 1 or action.outputs[0] != "analysis/scene_groups.json":
+        raise ProductionAdapterError(
+            "Scene production adapter requires analysis/scene_groups.json output"
         )
 
 
@@ -1044,6 +1152,62 @@ def _analysis_output_bytes(
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _scene_output_bytes(action: ProductionWorkerAction, *, analyses) -> bytes:
+    groups: dict[str, list] = {}
+    for analysis in analyses:
+        groups.setdefault(analysis.scene_label, []).append(analysis)
+
+    scene_groups = []
+    for scene_label in sorted(groups):
+        scene_analyses = sorted(groups[scene_label], key=lambda item: item.asset_path)
+        tags = sorted({tag for analysis in scene_analyses for tag in analysis.tags})
+        scene_groups.append(
+            {
+                "scene_label": scene_label,
+                "asset_count": len(scene_analyses),
+                "video_count": sum(1 for analysis in scene_analyses if analysis.media_type == "video"),
+                "photo_count": sum(1 for analysis in scene_analyses if analysis.media_type == "photo"),
+                "asset_paths": [analysis.asset_path for analysis in scene_analyses],
+                "primary_tags": tags,
+                "average_aesthetic_score": _average_score(
+                    analysis.aesthetic_score for analysis in scene_analyses
+                ),
+                "average_story_score": _average_score(
+                    analysis.story_score for analysis in scene_analyses
+                ),
+                "average_technical_score": _average_score(
+                    analysis.technical_score for analysis in scene_analyses
+                ),
+                "average_motion_score": _average_score(
+                    analysis.motion_score for analysis in scene_analyses
+                ),
+            }
+        )
+
+    payload = {
+        "schema_version": 1,
+        "adapter": "shootflow-scene-production-local",
+        "job_id": action.job_id,
+        "output_kind": action.output_kind,
+        "inputs": list(action.inputs),
+        "outputs": list(action.outputs),
+        "selected_output": action.outputs[0],
+        "depends_on": list(action.depends_on),
+        "can_run_in_parallel": action.can_run_in_parallel,
+        "analysis_count": len(analyses),
+        "scene_count": len(scene_groups),
+        "scene_groups": scene_groups,
+    }
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _average_score(scores) -> float:
+    values = tuple(float(score) for score in scores)
+    if not values:
+        return 0.0
+    return round(sum(values) / len(values), 6)
+
+
 def _analysis_score(sha256: str, *, offset: int) -> float:
     sample = sha256[offset : offset + 4]
     if len(sample) != 4:
@@ -1309,6 +1473,16 @@ def _analysis_retryable_error_message(exc: Exception) -> str:
         detail = detail[:1497] + "..."
     return (
         "Analysis production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
+    )
+
+
+def _scene_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Scene production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
     )
 
