@@ -1,8 +1,10 @@
 import os
+import json
 from pathlib import Path
 import tempfile
 import unittest
 
+from shootflow.analysis import load_asset_analyses
 from shootflow.deliverables import MediaAsset
 from shootflow.production import ExecutionWave, ProductionJob, ProductionPlan, build_production_plan
 from shootflow.production_adapter import (
@@ -10,6 +12,7 @@ from shootflow.production_adapter import (
     ProductionAdapterError,
     ProductionAdapterResult,
     run_production_adapter_batch,
+    run_analysis_production_action,
     run_dry_run_production_action,
     run_metadata_production_action,
     run_proxy_production_action,
@@ -31,13 +34,22 @@ class DryRunProductionAdapterTests(unittest.TestCase):
     def test_declares_supported_output_kinds_for_stage_specific_adapters(self) -> None:
         self.assertEqual(
             supported_production_adapter_names(),
-            ("dry-run-production-local", "metadata-production-local", "proxy-production-local"),
+            (
+                "dry-run-production-local",
+                "metadata-production-local",
+                "proxy-production-local",
+                "analysis-production-local",
+            ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
         self.assertIsNone(supported_production_adapter_output_kinds("metadata-production-local"))
         self.assertEqual(
             supported_production_adapter_output_kinds("proxy-production-local"),
             ("proxy_media",),
+        )
+        self.assertEqual(
+            supported_production_adapter_output_kinds("analysis-production-local"),
+            ("vlm_asset_analysis",),
         )
         with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
@@ -255,6 +267,56 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertIn("Missing metadata production input", result.final_status.error_message or "")
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
+
+    def test_analysis_adapter_writes_schema_compatible_asset_analysis(self) -> None:
+        trusted_plan = build_production_plan(
+            [MediaAsset(path="originals/A001.MOV", media_type="video", duration_seconds=12.0)],
+            shoot_slug="analysis-adapter",
+        )
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                self._succeeded_status(trusted_plan.job_by_id("proxy_asset_00000")),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[1:]
+            ),
+        )
+        action = plan_production_worker_actions(
+            trusted_plan,
+            ready_manifest,
+            worker_adapter="analysis-production-local",
+            eligible_output_kinds=("vlm_asset_analysis",),
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / action.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted analysis source")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_analysis_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T14:05:00Z",
+                completed_at="2026-05-10T14:05:05Z",
+            )
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+            analyses = load_asset_analyses(trusted_plan, workspace)
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(output_payload["adapter"], "shootflow-analysis-production-local")
+        self.assertEqual(output_payload["source_asset_path"], "originals/A001.MOV")
+        self.assertEqual(output_payload["media_type"], "video")
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, action.outputs)
+        self.assertEqual(analyses[0].media_type, "video")
+        self.assertEqual(analyses[0].asset_path, "graded/grade_asset_00000/A001.MOV")
+        self.assertEqual(loaded_manifest.job_statuses[1], result.final_status)
 
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(

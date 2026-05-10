@@ -177,7 +177,11 @@ This repo currently contains the first testable core utilities:
   non-placeholder production path. The proxy adapter is the first local
   media-byte materializer: it byte-copies a trusted source input into its
   declared proxy output as a conservative stand-in before ffmpeg/Metal proxy
-  generation lands. All adapters consume only trusted production-worker
+  generation lands. `analysis-production-local` is the first deterministic
+  per-asset analysis probe: it writes schema-compatible analysis JSON for
+  `vlm_asset_analysis` jobs only, deriving conservative local scores from trusted
+  input bytes so the analysis/status boundary can be exercised before real VLM
+  execution is trusted. All adapters consume only trusted production-worker
   actions, persist each claim and final result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
   file outputs, refuse symlinked, directory-style, or different existing files,

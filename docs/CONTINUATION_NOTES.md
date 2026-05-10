@@ -2,6 +2,78 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 14:00 UTC
+
+This run started on assigned branch
+`cursor/repository-branch-consolidation-3d2e` at `c4384fc`, matching
+`origin/main` and `origin/cursor/branch-reconciliation-and-merge-c7c5`.
+Branch reconciliation at session start pruned many deleted historical automation
+branches. After pruning, the only remaining non-main remote work refs were:
+
+- `origin/cursor/branch-reconciliation-and-merge-448b`, contained in main and
+  two commits behind.
+- `origin/cursor/branch-reconciliation-and-merge-c7c5`, equal to `origin/main`.
+
+Useful work was therefore not stranded on another remote branch before this
+session's implementation began. Local `main` was stale and local
+`cursor/setup-dev-env-3ad0` remained a redundant branch to clean up during final
+reconciliation.
+
+This run completed the next test-first adapter capability target:
+
+- Registered `analysis-production-local` in `shootflow.production_adapter` with
+  output-kind scope `("vlm_asset_analysis",)`.
+- Added `run_analysis_production_action(...)` and
+  `run_analysis_production_batch(...)` behind the existing
+  `ProductionAdapter*` result/batch boundary.
+- The adapter validates `vlm_asset_analysis` actions and
+  `analysis/00000.json`-style declared outputs before claim, then uses the same
+  guarded production-status claim/final compare-write path as dry-run, metadata,
+  and proxy adapters.
+- It writes deterministic, schema-compatible per-asset analysis JSON from
+  trusted workspace input bytes. This is a local contract probe, not real VLM
+  quality: scores are deterministic local values so scheduler routing,
+  checksums, and `load_asset_analyses(...)` compatibility can be proven before a
+  model-backed worker is trusted.
+- Scheduler capability routing now accepts `analysis-production-local` for ready
+  analysis jobs after proxy success, then leaves scene/color/story/package work
+  pending or blocked for compatible future adapters.
+- CLI help plus README, AGENTS, product strategy, business plan, and design
+  decisions now document the adapter as a deterministic analysis/status-boundary
+  proof rather than a finished creative model.
+
+Verification performed during this run:
+
+- Red run:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_analysis_adapter_writes_schema_compatible_asset_analysis tests.test_production_scheduler.DryRunProductionSchedulerTests.test_analysis_adapter_scheduler_leaves_downstream_jobs_pending`
+  failed because `run_analysis_production_action` was not exported and the
+  scheduler rejected unsupported adapter `analysis-production-local`.
+- Focused green:
+  same command -> 3 tests OK.
+- Related suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler`
+  -> 45 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 391 tests OK; compileall and diff-check exited 0.
+- Independent code review reported no findings. Residual test gap: the analysis
+  happy path and scheduler routing are covered, while direct negative tests for
+  malformed analysis actions/outputs and existing different analysis outputs can
+  be added in a future hardening pass; shared writer and symlink behavior are
+  already covered through metadata/proxy adapter tests.
+
+Good next test-first targets:
+
+- Add direct negative coverage for `analysis-production-local`: non-analysis
+  output kind, malformed `analysis/*.json` output, symlinked input/output, and
+  existing different analysis output.
+- Register the next stage-specific adapter deliberately, likely scene grouping
+  or look/color decision proof, and prove it only schedules output kinds it can
+  materialize.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+
 ## Implementation continuation note - 2026-05-10 13:30 UTC
 
 This run continued from `origin/main`/`origin/cursor/branch-reconciliation-and-merge-448b`

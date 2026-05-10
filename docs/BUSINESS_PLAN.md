@@ -79,6 +79,11 @@ Why this wedge wins:
   exercises real media-byte materialization, checksum success reporting, and
   no-overwrite review behavior before quality-focused proxy rendering is wired
   in.
+- A local analysis production adapter that uses the same guarded boundary to
+  write deterministic, schema-compatible `vlm_asset_analysis` JSON from trusted
+  local inputs. This is not final AI understanding; it is a contract probe that
+  proves scheduler stage routing, analysis output checksums, and downstream
+  loader compatibility before local or hosted VLM workers are trusted.
 - A dry-run production scheduler/CLI command that advances trusted pre-render
   jobs from `production_status.json` with bounded parallelism, explicit
   complete/blocked/retryable/failed/waiting state, and no cleanup or deletion
@@ -96,9 +101,10 @@ Why this wedge wins:
   handoff into file-operation authority. Stage-specific local adapters now
   declare output-kind capabilities in the adapter registry, and the scheduler
   uses that registry for both worker planning and stale-lease expiration:
-  `proxy-production-local` receives only `proxy_media` jobs, then leaves later
-  analysis/color/story/package work pending or running for future adapters
-  instead of reporting proxy-adapter failures for incompatible stages.
+  `proxy-production-local` receives only `proxy_media` jobs and
+  `analysis-production-local` receives only `vlm_asset_analysis` jobs, then
+  leaves later scene/color/story/package work pending or running for future
+  adapters instead of reporting stage-mismatch failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production
@@ -279,8 +285,10 @@ Run practical experiments tied to this ICP-first plan:
    initialization, scheduler report, and reviewable outputs. `index-workspace`
    provides the UI/agent state snapshot and `inspect-render-workspace` provides
    the safe read-only state probe before initialization and after scheduler runs.
-3. Extend the local metadata adapter toward real media probes or add the first
-   real renderer adapter shape while still honoring no-delete/no-overwrite rules.
+3. Extend deterministic production probes toward real quality workers: replace
+   the proxy stand-in with ffmpeg/Core Image/Metal downsampled proxy generation,
+   then replace `analysis-production-local` with a local or hosted VLM adapter
+   behind the same no-delete/no-overwrite, declared-output-only rules.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,

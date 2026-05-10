@@ -29,10 +29,12 @@ from shootflow.production_worker import (
 _DRY_RUN_PRODUCTION_ADAPTER = "dry-run-production-local"
 _METADATA_PRODUCTION_ADAPTER = "metadata-production-local"
 _PROXY_PRODUCTION_ADAPTER = "proxy-production-local"
+_ANALYSIS_PRODUCTION_ADAPTER = "analysis-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
     _PROXY_PRODUCTION_ADAPTER: ("proxy_media",),
+    _ANALYSIS_PRODUCTION_ADAPTER: ("vlm_asset_analysis",),
 }
 
 
@@ -62,6 +64,11 @@ class MetadataProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class ProxyProductionAdapterResult(ProductionAdapterResult):
     """Result from the local proxy adapter."""
+
+
+@dataclass(frozen=True)
+class AnalysisProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local analysis adapter."""
 
 
 @dataclass(frozen=True)
@@ -144,6 +151,15 @@ def run_production_adapter_batch(
             completed_at=completed_at,
             max_concurrency=max_concurrency,
         )
+    if action_plan.worker_adapter == _ANALYSIS_PRODUCTION_ADAPTER:
+        return run_analysis_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
     supported_adapters = ", ".join(supported_production_adapter_names())
     raise ProductionAdapterError(
         f"Unsupported production adapter: {action_plan.worker_adapter}. "
@@ -217,6 +233,29 @@ def run_proxy_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_PROXY_PRODUCTION_ADAPTER,
         run_action=run_proxy_production_action,
+    )
+
+
+def run_analysis_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local analysis actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_ANALYSIS_PRODUCTION_ADAPTER,
+        run_action=run_analysis_production_action,
     )
 
 
@@ -377,6 +416,35 @@ def run_proxy_production_action(
     )
 
 
+def run_analysis_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> AnalysisProductionAdapterResult:
+    """Persist one trusted VLM-analysis action through deterministic JSON output.
+
+    This is not a creative VLM. It is a local, deterministic schema probe that
+    exercises the analysis-job status/output boundary before real model adapters
+    are trusted with customer media.
+    """
+
+    _validate_analysis_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_ANALYSIS_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_analysis_production_outputs,
+        retryable_error_message=_analysis_retryable_error_message,
+        result_type=AnalysisProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -414,7 +482,7 @@ def _run_production_action(
     )
 
     try:
-        outputs_materialized = materialize_outputs(action, root)
+        outputs_materialized = materialize_outputs(action, root, trusted_plan=trusted_plan)
         final_status = report_production_worker_success(
             running_status,
             action,
@@ -452,6 +520,8 @@ def _run_production_action(
 def _materialize_dry_run_production_outputs(
     action: ProductionWorkerAction,
     workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
 ) -> tuple[str, ...]:
     """Create deterministic placeholder artifacts for a trusted production action."""
 
@@ -467,6 +537,8 @@ def _materialize_dry_run_production_outputs(
 def _materialize_metadata_production_outputs(
     action: ProductionWorkerAction,
     workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
 ) -> tuple[str, ...]:
     """Create deterministic metadata JSON from trusted workspace inputs."""
 
@@ -483,6 +555,8 @@ def _materialize_metadata_production_outputs(
 def _materialize_proxy_production_outputs(
     action: ProductionWorkerAction,
     workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
 ) -> tuple[str, ...]:
     """Create byte-identical local proxy stand-ins from trusted workspace inputs."""
 
@@ -491,6 +565,33 @@ def _materialize_proxy_production_outputs(
     materialized: list[str] = []
     for output in action.outputs:
         _copy_proxy_output(root, input_ref=action.inputs[0], output=output)
+        materialized.append(output)
+    return tuple(materialized)
+
+
+def _materialize_analysis_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic, loader-compatible per-asset analysis JSON."""
+
+    _validate_analysis_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("analysis production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    input_metadata = _metadata_for_input(root, action.inputs[0], allow_logical=False)
+    media_type = _analysis_media_type_from_plan(action, trusted_plan=trusted_plan)
+    materialized: list[str] = []
+    for output in action.outputs:
+        _write_analysis_output(
+            root,
+            action=action,
+            output=output,
+            input_metadata=input_metadata,
+            media_type=media_type,
+        )
         materialized.append(output)
     return tuple(materialized)
 
@@ -504,6 +605,31 @@ def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
         )
     if len(action.inputs) != 1:
         raise ProductionAdapterError("Proxy production adapter requires exactly one input")
+
+
+def _validate_analysis_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_ANALYSIS_PRODUCTION_ADAPTER)
+    if action.output_kind != "vlm_asset_analysis":
+        raise ProductionAdapterError(
+            "Analysis production adapter only materializes vlm_asset_analysis jobs: "
+            f"{action.output_kind}"
+        )
+    if len(action.inputs) != 1:
+        raise ProductionAdapterError("Analysis production adapter requires exactly one input")
+    if len(action.outputs) != 1:
+        raise ProductionAdapterError("Analysis production adapter requires exactly one output")
+    output_path = Path(action.outputs[0])
+    if (
+        len(output_path.parts) != 2
+        or output_path.parts[0] != "analysis"
+        or not output_path.name.endswith(".json")
+        or not output_path.stem.isdigit()
+        or len(output_path.stem) != 5
+    ):
+        raise ProductionAdapterError(
+            "Analysis production adapter requires analysis/00000.json-style output: "
+            f"{action.outputs[0]}"
+        )
 
 
 def _validate_action(
@@ -687,6 +813,23 @@ def _write_metadata_output(
     _write_production_output_bytes(root, output=output, content=content, label="metadata production")
 
 
+def _write_analysis_output(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    output: str,
+    input_metadata: dict[str, object],
+    media_type: str,
+) -> None:
+    content = _analysis_output_bytes(
+        action,
+        output=output,
+        input_metadata=input_metadata,
+        media_type=media_type,
+    )
+    _write_production_output_bytes(root, output=output, content=content, label="analysis production")
+
+
 def _copy_proxy_output(
     root: Path,
     *,
@@ -840,6 +983,49 @@ def _metadata_output_bytes(
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _analysis_output_bytes(
+    action: ProductionWorkerAction,
+    *,
+    output: str,
+    input_metadata: dict[str, object],
+    media_type: str,
+) -> bytes:
+    sha256 = input_metadata["sha256"]
+    if not isinstance(sha256, str):
+        raise ProductionAdapterError("analysis production input metadata is missing sha256")
+    payload: dict[str, object] = {
+        "schema_version": 1,
+        "adapter": "shootflow-analysis-production-local",
+        "source_asset_path": action.inputs[0],
+        "media_type": media_type,
+        "scene_label": f"local_scene_{action.job_id.removeprefix('analyze_asset_')}",
+        "aesthetic_score": _analysis_score(sha256, offset=0),
+        "story_score": _analysis_score(sha256, offset=4),
+        "technical_score": _analysis_score(sha256, offset=8),
+        "motion_score": _analysis_score(sha256, offset=12),
+        "tags": ("local_analysis_probe", media_type),
+        "adapter_metadata": {
+            "job_id": action.job_id,
+            "output_kind": action.output_kind,
+            "outputs": action.outputs,
+            "selected_output": output,
+            "depends_on": action.depends_on,
+            "can_run_in_parallel": action.can_run_in_parallel,
+            "input_metadata": input_metadata,
+        },
+    }
+    if media_type == "video":
+        payload["duration_seconds"] = 0.0
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _analysis_score(sha256: str, *, offset: int) -> float:
+    sample = sha256[offset : offset + 4]
+    if len(sample) != 4:
+        raise ProductionAdapterError("analysis production input sha256 is invalid")
+    return round(0.5 + (int(sample, 16) / 0xFFFF) * 0.5, 6)
+
+
 def _metadata_for_inputs(root: Path, action: ProductionWorkerAction) -> tuple[dict[str, object], ...]:
     allow_logical_inputs = action.output_kind == "look_development"
     return tuple(
@@ -915,6 +1101,34 @@ def _logical_input_metadata(input_ref: str) -> dict[str, object]:
         "size_bytes": len(encoded),
         "logical": True,
     }
+
+
+def _analysis_media_type_from_plan(
+    action: ProductionWorkerAction,
+    *,
+    trusted_plan: ProductionPlan,
+) -> str:
+    media_types: list[str] = []
+    for job in trusted_plan.jobs:
+        if not job.output_kind.startswith("graded_"):
+            continue
+        if action.job_id not in job.depends_on:
+            continue
+        if job.inputs != action.inputs:
+            raise ProductionAdapterError(
+                "Analysis production adapter found mismatched graded input for "
+                f"{action.job_id}"
+            )
+        media_types.append(job.output_kind.removeprefix("graded_"))
+    if len(media_types) != 1:
+        raise ProductionAdapterError(
+            "Analysis production adapter requires exactly one matching graded job: "
+            f"{action.job_id}"
+        )
+    media_type = media_types[0]
+    if media_type not in {"photo", "video"}:
+        raise ProductionAdapterError(f"Unsupported analysis production media type: {media_type}")
+    return media_type
 
 
 def _workspace_output_path(root: Path, output: str) -> Path:
@@ -1044,6 +1258,16 @@ def _proxy_retryable_error_message(exc: Exception) -> str:
         detail = detail[:1497] + "..."
     return (
         "Proxy production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
+    )
+
+
+def _analysis_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Analysis production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, graded, render, or deliverable files were deleted."
     )
 

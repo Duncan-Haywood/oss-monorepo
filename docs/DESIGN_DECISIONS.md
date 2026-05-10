@@ -77,19 +77,25 @@ The repo currently contains a Python core package because it is quick to test an
   declared outputs, giving future proxy/VLM/color workers a safer local probe
   shape. `proxy-production-local` is the first media-byte local adapter: it
   copies a trusted workspace input into the declared proxy output as a
-  byte-identical stand-in until real downsampled proxy generation lands. All
-  adapters persist claims through the single-job production-status compare/write
-  helper, then persist success checksums or retryable errors through the same
-  status boundary. Directory-style package outputs, symlinked inputs or outputs,
-  missing inputs, and different existing files become retryable review states
-  instead of cleanup instructions. They do not open arbitrary paths, delete
-  files, clean up user outputs, or grant workers authority beyond the trusted
-  production job. The batch runner executes only trusted action plans, preserves
-  serial production jobs, bounds parallel local work, and keeps blocked jobs
-  visible rather than mutating them. The adapter registry also declares
-  output-kind scope for each worker: dry-run and metadata adapters can currently
-  accept all planned kinds, while `proxy-production-local` is explicitly limited
-  to `proxy_media`. Shared result, failure, batch, and error types are named
+  byte-identical stand-in until real downsampled proxy generation lands.
+  `analysis-production-local` is a deterministic local analysis probe. It writes
+  loader-compatible `analysis/00000.json` outputs only for `vlm_asset_analysis`
+  jobs, deriving conservative scores from trusted input bytes so the status,
+  checksum, and downstream analysis-reader contracts can be exercised before
+  real VLM execution is trusted. All adapters persist claims through the
+  single-job production-status compare/write helper, then persist success
+  checksums or retryable errors through the same status boundary. Directory-style
+  package outputs, symlinked inputs or outputs, missing inputs, and different
+  existing files become retryable review states instead of cleanup instructions.
+  They do not open arbitrary paths, delete files, clean up user outputs, or
+  grant workers authority beyond the trusted production job. The batch runner
+  executes only trusted action plans, preserves serial production jobs, bounds
+  parallel local work, and keeps blocked jobs visible rather than mutating them.
+  The adapter registry also declares output-kind scope for each worker: dry-run
+  and metadata adapters can currently accept all planned kinds, while
+  `proxy-production-local` is explicitly limited to `proxy_media` and
+  `analysis-production-local` to `vlm_asset_analysis`. Shared result, failure,
+  batch, and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.
@@ -381,9 +387,12 @@ The desired high-quality pipeline is:
     while `metadata-production-local` writes deterministic metadata JSON from
     workspace-bound trusted inputs. `proxy-production-local` byte-copies trusted
     local source inputs into declared proxy outputs as a safety-proven stand-in
-    before a real proxy renderer is trusted. All adapters persist success or
-    retryable state through `production_status.json` before real VLM, color, or
-    storyline runners are trusted.
+    before a real proxy renderer is trusted. `analysis-production-local` writes
+    deterministic, schema-compatible per-asset analysis JSON for
+    `vlm_asset_analysis` jobs only, proving the analysis output/status handoff
+    before real local or hosted VLM runners are trusted. All adapters persist
+    success or retryable state through `production_status.json` before real VLM,
+    color, or storyline runners are trusted.
 26. Run the dry-run production scheduler from persisted status so Mac shells and
     background agents can advance proxy, analysis, look, grading, storyline, and
     package jobs without reconstructing the worker loop in UI code. Retryable,

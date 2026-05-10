@@ -150,7 +150,12 @@ The current core models a concrete promise for high-volume users:
     writes declared placeholder file outputs; `metadata-production-local` reads
     only workspace-bound trusted inputs and writes deterministic metadata JSON to
     declared outputs; `proxy-production-local` copies trusted local source bytes
-    into declared proxy outputs as a conservative proxy stand-in. All refuse
+    into declared proxy outputs as a conservative proxy stand-in; and
+    `analysis-production-local` writes deterministic schema-compatible
+    `vlm_asset_analysis` JSON only for analysis jobs. This analysis adapter is a
+    contract probe, not final creative understanding: it proves scheduler
+    routing, checksum reporting, and downstream analysis loading before real VLM
+    execution is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
     different files without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
@@ -317,7 +322,11 @@ to automate.
    preserving missing-input, directory-output, stale-claim, and output-conflict
    review states. The proxy adapter extends the contract into media-byte
    materialization by copying trusted source bytes only to declared proxy outputs
-   while preserving the same no-overwrite/no-cleanup review states. The persisted
+   while preserving the same no-overwrite/no-cleanup review states.
+   `analysis-production-local` extends the stage-specific adapter path into the
+   next wave by materializing deterministic per-asset analysis JSON only for
+   `vlm_asset_analysis` jobs; color, scene, storyline, and package work still
+   waits for compatible future adapters. The persisted
    production and render scheduler reports now emit
    root observe-only authority plus derived product metrics, giving the future
    Mac app and pilot analytics a

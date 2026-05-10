@@ -128,6 +128,57 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(result.retryable_job_ids, ())
         self.assertEqual(result.blocked_job_ids, ())
 
+    def test_analysis_adapter_scheduler_leaves_downstream_jobs_pending(self) -> None:
+        trusted_plan = self._video_only_plan()
+        proxy_job = trusted_plan.job_by_id("proxy_asset_00000")
+        ready_manifest = ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=(
+                ProductionJobStatus(
+                    job_id=proxy_job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                ),
+            )
+            + tuple(
+                ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs[1:]
+            ),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            source_path = workspace / proxy_job.inputs[0]
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"trusted analysis scheduler source")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="analysis-production-local",
+                started_at="2026-05-10T14:11:00Z",
+                completed_at="2026-05-10T14:11:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.stopped_reason, "waiting")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("analyze_asset_00000",))
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertEqual(loaded_manifest.job_statuses[1].state, "succeeded")
+        self.assertEqual(loaded_manifest.job_statuses[2].state, "pending")
+        self.assertEqual(loaded_manifest.job_statuses[2].attempts, 0)
+        self.assertEqual(result.retryable_job_ids, ())
+        self.assertEqual(result.blocked_job_ids, ())
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
