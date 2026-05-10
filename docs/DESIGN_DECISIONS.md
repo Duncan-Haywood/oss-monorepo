@@ -100,7 +100,12 @@ The repo currently contains a Python core package because it is quick to test an
   deterministic stand-in graded artifact for `graded_photo`/`graded_video` jobs
   only. It proves the
   look-to-grade handoff before ffmpeg/Core Image/Metal grading workers are
-  trusted. All adapters
+  trusted. `story-production-local` is the deterministic editorial-stage probe:
+  it verifies every planned analysis, scene, look, and graded input against
+  trusted `production_status.json` checksums, loads only plan-compatible analysis,
+  and writes one declared schema v2 `analysis/instagram_storylines.json` artifact
+  for `storyline_selection` jobs only. It proves the grade-to-story handoff
+  before real VLM/editorial story intelligence is trusted. All adapters
   persist claims through the
   single-job production-status compare/write helper, then persist success
   checksums or retryable errors through the same status boundary. Directory-style
@@ -116,7 +121,8 @@ The repo currently contains a Python core package because it is quick to test an
   `analysis-production-local` to `vlm_asset_analysis`,
   `scene-production-local` to `scene_grouping`, `look-production-local` to
   `look_development`, and `grade-production-local` to
-  `graded_photo`/`graded_video`. Shared result, failure, batch, and error types are named
+  `graded_photo`/`graded_video`, and `story-production-local` to
+  `storyline_selection`. Shared result, failure, batch, and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.
@@ -418,8 +424,10 @@ The desired high-quality pipeline is:
     handoff, `color/shoot_look.json`, from the checksum-verified scene summary.
     `grade-production-local` materializes deterministic per-asset graded
     stand-ins from the trusted original, schema-validated/checksum-verified
-    analysis, and schema-validated/checksum-verified look artifact while leaving storyline and
-    package jobs for compatible future adapters.
+    analysis, and schema-validated/checksum-verified look artifact.
+    `story-production-local` materializes the deterministic storyline-selection
+    artifact from checksum-verified analysis, scene, look, and graded inputs
+    while leaving package jobs for compatible future adapters.
     All adapters persist success or retryable state through
     `production_status.json` before real VLM, color, or storyline runners are
     trusted.

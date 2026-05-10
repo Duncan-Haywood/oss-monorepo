@@ -109,8 +109,11 @@ Why this wedge wins:
   deterministic shoot-look profile from the verified scene summary.
   `grade-production-local` receives only `graded_photo`/`graded_video` jobs and
   writes deterministic stand-in graded artifacts from one trusted original plus
-  schema-validated/checksum-verified analysis and look dependencies, then leaves
-  later story/package work pending or running for future adapters instead of
+  schema-validated/checksum-verified analysis and look dependencies.
+  `story-production-local` receives only `storyline_selection` jobs and writes
+  deterministic schema v2 storyline selections from checksum-verified analysis,
+  scene, look, and graded inputs, then leaves later package work pending or
+  running for future adapters instead of
   reporting stage-mismatch failures for incompatible stages.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
@@ -299,7 +302,9 @@ Run practical experiments tied to this ICP-first plan:
    replace `scene-production-local`/`look-production-local` with real scene
    clustering and color-look context, and replace `grade-production-local` with
    ffmpeg/Core Image/Metal grading behind the same no-delete/no-overwrite,
-   declared-output-only rules.
+   declared-output-only rules. Replace `story-production-local` with a real
+   editorial/story intelligence worker behind the same checksum-verified input
+   and declared-output-only boundary.
 4. Build a minimal review loop UI contract (approve, retry, tweak grade intent).
 5. Bind the pilot-dashboard contract into the future Mac UI, continuation
    dashboards, and GTM demos so throughput, manual intervention, lease conflicts,

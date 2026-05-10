@@ -166,7 +166,11 @@ The current core models a concrete promise for high-volume users:
     look plus schema-validated/checksum-verified per-asset analysis to one
     trusted source original at a time, writing deterministic stand-in graded
     outputs only for `graded_photo`/`graded_video` jobs before real ffmpeg/Core
-    Image/Metal grading is trusted. All refuse
+    Image/Metal grading is trusted. `story-production-local` now verifies the
+    planned analysis, scene, look, and graded inputs against trusted status
+    checksums, then writes deterministic schema v2
+    `analysis/instagram_storylines.json` only for `storyline_selection` jobs
+    before real editorial/story intelligence is trusted. All refuse
     symlinked paths, directory-style package outputs, missing inputs, or existing
     different files without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
@@ -325,9 +329,10 @@ to automate.
    or clobbering heartbeat-refreshed workers in a tight loop. Scheduler dispatch
    is adapter-capability aware: `proxy-production-local`,
    `analysis-production-local`, `scene-production-local`,
-   `look-production-local`, and `grade-production-local` receive only
-   dependency-ready jobs for their declared output kinds, while later
-   story/package jobs remain pending or blocked for a compatible worker
+   `look-production-local`, `grade-production-local`, and
+   `story-production-local` receive only dependency-ready jobs for their declared
+   output kinds, while later package jobs remain pending or blocked for a
+   compatible worker
    rather than becoming expected stage-mismatch failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
@@ -344,7 +349,9 @@ to automate.
    a deterministic shoot-look profile from the trusted scene summary; and
    `grade-production-local` extends the path into deterministic per-asset graded
    stand-ins from trusted originals plus schema-validated/checksum-verified
-   analysis and look dependencies. Storyline and package work still waits for
+   analysis and look dependencies. `story-production-local` extends the path
+   into deterministic schema v2 storyline selection from checksum-verified
+   analysis, scene, look, and graded inputs. Package work still waits for
    compatible future adapters. The persisted production and render scheduler
    reports now emit root observe-only authority plus derived product metrics,
    giving the future

@@ -66,10 +66,14 @@ scene-group summary and writes deterministic `color/shoot_look.json` only for
 or style learning. `grade-production-local` reads one trusted original plus its
 schema-validated/checksum-verified analysis and look dependencies, then writes
 deterministic stand-in graded artifacts only for `graded_photo`/`graded_video`
-jobs before real ffmpeg/Core Image/Metal grading is trusted. Scheduler dispatch is
-adapter-capability aware, so proxy, analysis, scene, look, and grade adapters
-receive only the output kinds they can materialize and leave downstream
-story/package jobs pending or blocked for a compatible worker.
+jobs before real ffmpeg/Core Image/Metal grading is trusted.
+`story-production-local` verifies the planned analysis, scene, look, and graded
+inputs against trusted status checksums, then writes deterministic schema v2
+`analysis/instagram_storylines.json` only for `storyline_selection` jobs before
+real editorial/story intelligence is trusted. Scheduler dispatch is
+adapter-capability aware, so proxy, analysis, scene, look, grade, and story
+adapters receive only the output kinds they can materialize and leave downstream
+package jobs pending or blocked for a compatible worker.
 None of these adapters may delete, clean up, overwrite different bytes, or invent
 media paths.
 Production and render scheduler reports are schema v3 and include root

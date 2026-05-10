@@ -189,8 +189,14 @@ This repo currently contains the first testable core utilities:
   checksum-verified scene summary and writes a deterministic
   `color/shoot_look.json` profile for `look_development` jobs only, proving the
   scene-to-look handoff before real color science, creator style learning, or
-  grading adapters are trusted. All adapters
-  consume only trusted production-worker
+  grading adapters are trusted. `grade-production-local` consumes one trusted
+  original plus schema-validated/checksum-verified analysis and look
+  dependencies to write deterministic per-asset graded stand-ins for
+  `graded_photo`/`graded_video` jobs. `story-production-local` verifies the
+  planned analysis, scene, look, and graded inputs against trusted status
+  checksums, then writes the existing schema v2
+  `analysis/instagram_storylines.json` artifact for `storyline_selection` jobs
+  only. All adapters consume only trusted production-worker
   actions, persist each claim and final result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
   file outputs, refuse symlinked, directory-style, or different existing files,
@@ -300,7 +306,9 @@ The intended first workflow is:
     JSON into declared output files, giving the product a real input-fingerprint
     path without deleting or inventing media paths. The proxy adapter copies
     trusted local input bytes into declared proxy outputs as a safety-proven
-    stand-in for future downsampled proxy generation. Stale claims,
+    stand-in for future downsampled proxy generation. The story adapter writes
+    the trusted storyline artifact from checksum-verified analysis, scene, look,
+    and graded inputs before real editorial intelligence is trusted. Stale claims,
     directory-style package outputs, missing inputs, or output conflicts remain
     visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
@@ -471,10 +479,10 @@ inputs/outputs, directory-style outputs, missing inputs, or output conflicts.
 The production adapter registry declares stage capability metadata for local
 workers. The scheduler reads that registry before planning actions or expiring
 stale leases, so `proxy-production-local`, `analysis-production-local`,
-`scene-production-local`, and `look-production-local` receive only the output
-kinds they can materialize, while later grading, storyline, and packaging jobs
-stay pending or running for their own future adapters instead of being attempted
-through an incompatible worker.
+`scene-production-local`, `look-production-local`, `grade-production-local`, and
+`story-production-local` receive only the output kinds they can materialize,
+while later packaging jobs stay pending or running for their own future adapters
+instead of being attempted through an incompatible worker.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and
