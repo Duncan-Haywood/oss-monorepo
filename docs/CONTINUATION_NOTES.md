@@ -27,6 +27,27 @@ Verification in this session:
 - Focused green run:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_render_scheduler tests.test_production_scheduler tests.test_cli.ShootFlowCliTests.test_persisted_cli_demo_workspace_runs_init_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_dry_run_scheduler_command_writes_and_prints_report tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_dry_run_production_scheduler_command_can_print_persisted_report`
   -> 38 tests OK.
+- Full verification after commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 346 tests OK; compileall and diff-check passed.
+
+## Branch reconciliation note - 2026-05-10 04:00 UTC
+
+Final reconciliation for this session:
+
+- `git fetch --prune origin main cursor/repository-branch-consolidation-f53c`
+  succeeded after the assigned branch was first pushed.
+- Remote comparison against `origin/main` found exactly one branch with unique
+  commits: `origin/cursor/repository-branch-consolidation-f53c`, ahead by this
+  session's `34adc2f feat(scheduler): add authority to persisted reports`.
+- No other remote branch had unique work versus `origin/main`; historical
+  branches are either contained in main or behind it.
+- Local `main` was fast-forwarded in place to `origin/main` without checking it
+  out, and the stale local `cursor/setup-dev-env-3ad0` branch was deleted after
+  confirming it was contained.
+- Useful completed work remains on the assigned branch and was not pushed
+  directly to `main` because the Cloud branch instructions for this automation
+  require final pushes only to `cursor/repository-branch-consolidation-f53c`.
 
 Good next test-first targets:
 
