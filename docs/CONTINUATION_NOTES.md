@@ -2,6 +2,32 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation handoff note - 2026-05-10 08:05 UTC
+
+This automation reconciled the live branch set for the single-worker setup:
+
+- `git fetch --prune origin` removed stale remote-tracking refs and showed the
+  live remote had `origin/main` plus one unmerged Cursor branch:
+  `origin/cursor/branch-consolidation-1ada`.
+- `cursor/branch-consolidation-1ada` was the best current source branch because
+  it already contained the scheduler authority schema v3 work, the local
+  metadata production adapter, adapter validation fixes, and the latest CLI
+  scheduler regression coverage.
+- The assigned branch `cursor/branch-consolidation-strategy-90f2` merged that
+  source branch with `97e25f1 merge: consolidate branch work` and was pushed to
+  `origin/cursor/branch-consolidation-strategy-90f2`.
+- Full verification after the merge passed:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 361 tests OK; compileall and diff-check passed.
+- After the pushed handoff branch contained the useful work, the redundant
+  remote `cursor/branch-consolidation-1ada` and stale local
+  `cursor/setup-dev-env-3ad0` branch were deleted. Local `main` was reset to
+  track `origin/main`.
+- Final branch shape is local `main` plus
+  `cursor/branch-consolidation-strategy-90f2`; the remote branch list is
+  `origin/main` plus `origin/cursor/branch-consolidation-strategy-90f2` with
+  `origin/HEAD` pointing at `origin/main`.
+
 ## Branch consolidation note - 2026-05-10 07:00 UTC
 
 This run consolidated the remaining useful branch work onto the assigned branch
