@@ -2,6 +2,96 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 01:30 UTC
+
+Final reconciliation for this session:
+
+- Current assigned branch `origin/cursor/repository-branch-consolidation-ec92`
+  is ahead of `origin/main` by two commits:
+  - `bf14814 feat(cli): add authority to handoff summaries`
+  - `daedff5 test(cli): cover authority on ingest planning summaries`
+- After `git fetch --prune origin`, the visible remote branch set is
+  `origin/main`, `origin/cursor/branch-reconciliation-and-merge-030b`,
+  `origin/cursor/branch-consolidation-0f1f`, and the current assigned branch.
+- `origin/cursor/branch-reconciliation-and-merge-030b` remains unmerged
+  intentionally because its useful implementation is superseded here:
+  it added schema v2 observe-only authority to card-dump, render-task,
+  render-workspace, and demo summary surfaces, while this branch includes those
+  surfaces plus `plan-production`, `next-production-wave`, `plan-import-route`,
+  and `preview-ingest`, with review-driven direct coverage for the two ingest
+  planning surfaces. Its remaining unique tree diff is older continuation-note
+  detail that predates this broader pass.
+- `origin/cursor/branch-consolidation-0f1f` remains unmerged intentionally. Its
+  unique commit changes only `docs/CONTINUATION_NOTES.md` with a stale branch
+  cleanup note claiming the 01:00 authority branch was deleted/superseded before
+  this current branch's broader authority work existed. No implementation or
+  test work is stranded there.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after pruning its gone remote,
+  and reset local `main` to `origin/main` without switching away from the
+  assigned branch.
+- Cloud branch policy for this automation requires pushing to the assigned
+  branch with `git push -u origin cursor/repository-branch-consolidation-ec92`,
+  so this run did not push or fast-forward `origin/main`. The useful completed
+  work is preserved on the assigned branch for the platform PR/merge flow.
+
+## Implementation continuation note - 2026-05-10 01:30 UTC
+
+This run extended the machine-readable no-authority contract across the
+remaining high-risk CLI handoff summaries that can otherwise be misread from
+`next_actions`, command arrays, `next_steps`, or `agent_handoff`:
+
+- `plan-production` and `next-production-wave` JSON now use schema v2 and include
+  root `workflow_authority`, so native shells can show candidate pre-render
+  work without granting claim, retry, materialization, cleanup, overwrite,
+  deletion, copy, or general file-mutation authority.
+- `write-render-tasks`, `card-dump-workflow`, `inspect-render-workspace`,
+  `create-demo-workspace`, `create-card-dump-demo-workspace`, and
+  `create-pilot-cohort-demo` summaries now use the shared schema-v2 CLI handoff
+  constant and emit root observe-only authority before naming advisory workflow
+  steps.
+- `plan-import-route` and `preview-ingest` now include schema v1 plus root
+  observe-only authority. They remain read-only planning/preview surfaces; the
+  actual copy path still requires a separate explicit `execute-ingest --confirm`
+  or `card-dump-workflow --confirm-ingest` invocation.
+- `execute-ingest`, production scheduler summaries, and persisted scheduler
+  reports were intentionally left outside this observe-only expansion because
+  those commands/results represent already-executed mutations or trusted worker
+  reports. A future pass should decide whether they need a distinct
+  post-operation authority contract rather than reusing presentation-only
+  observe-only semantics.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  so future native shells and continuation agents treat root `workflow_authority`
+  as the permission gate for these summaries.
+
+Verification and review:
+
+- Red focused run before implementation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowCliTests.test_create_demo_workspace_command_outputs_scheduler_handoff tests.test_cli.ShootFlowCliTests.test_card_dump_demo_workspace_runs_detected_card_to_scheduler_report tests.test_cli.ShootFlowCliTests.test_create_pilot_cohort_demo_command_writes_dashboards_and_cohort_report tests.test_cli.ShootFlowProductionPlanCliTests.test_plan_production_command_summarizes_manifest_backed_pipeline_without_writes tests.test_cli.ShootFlowProductionPlanCliTests.test_next_production_wave_command_reports_ready_wave_without_writes tests.test_cli.ShootFlowRenderTaskCliTests.test_write_render_tasks_command_persists_trusted_assembly_handoff tests.test_cli.ShootFlowCardDumpWorkflowCliTests.test_card_dump_workflow_previews_route_without_copying tests.test_cli.ShootFlowCardDumpWorkflowCliTests.test_card_dump_workflow_confirm_ingests_and_reports_production`
+  failed on schema version 1.
+- Green focused run after implementation: the same eight tests -> OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests &&
+  PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests &&
+  git diff --check && ruff check src/shootflow/cli.py tests/test_cli.py` -> 339
+  tests OK; compileall/diff-check exited 0; scoped ruff passed.
+- Code-review pass found one important gap: the newly versioned
+  `plan-import-route` and `preview-ingest` authority fields were not asserted.
+  Added direct assertions in `tests/test_cli.py`, reran the focused two-test
+  coverage check, then reran the full verification command above successfully.
+
+Good next test-first targets:
+
+- Add a tiny native-shell/agent contract reader that refuses to enable copy,
+  retry, materialization, cleanup, overwrite, or deletion controls from
+  `next_actions`, `next_steps`, command arrays, `writes_files`, or prose unless
+  a separate explicit reviewed action contract is present.
+- Decide whether mutating command results such as `execute-ingest` and scheduler
+  run summaries need a distinct post-operation authority block rather than the
+  presentation-only observe-only contract.
+- Start a real local proxy or metadata adapter behind the production-worker
+  action contract, preserving declared-output-only authority and stale lease
+  recovery semantics.
+
 ## Branch reconciliation note - 2026-05-10 00:00 UTC
 
 Final reconciliation for this session:
