@@ -131,9 +131,11 @@ This repo currently contains the first testable core utilities:
 - `shootflow.pilot_cohort_report` aggregates saved schema v2
   `pilot-dashboard` JSON payloads into cross-workspace pilot analytics. It
   reports pilot-ready workspace rate, median intervention rate, first-draft
-  output count, and per-workspace readiness evidence without reading raw worker
-  internals or granting workflow authority. Its JSON also carries the same
-  observe-only `workflow_authority` contract.
+  output count, structured readiness-blocker counts, and per-workspace readiness
+  evidence without reading raw worker internals or granting workflow authority.
+  It validates the dashboard's component threshold flags against the reported
+  metrics before trusting readiness. Its JSON also carries the same observe-only
+  `workflow_authority` contract.
 - `shootflow.pilot_cohort_brief` reads one saved cohort report and converts it
   into presentation-ready observe-only labels for native shells and GTM demos:
   status, headline, summary percentages, and per-workspace readiness cards. It
@@ -168,32 +170,32 @@ This repo currently contains the first testable core utilities:
   running job's `updated_at` as a compare/write lease token so active heartbeat
   refreshes win without deleting source, analysis, graded, render, or deliverable
   files.
-- `shootflow.production_adapter` proves pre-render worker handoff with explicit
-  local adapters behind the same production-worker action contract. The
-  deterministic dry-run adapter consumes only trusted actions, persists each
-  claim and final result through the guarded `production_status.json`
-  compare/write boundary, materializes only declared file outputs, refuses
-  symlinked, directory-style, or different existing files, and reports retryable
-  status without deleting source, graded, render, or deliverable media. The
-  `metadata-production-local` adapter is the first real input-reading local
-  worker: it opens only trusted workspace inputs (including absolute ingest
-  manifest paths that remain under the shoot workspace), records size/SHA-256
-  metadata into deterministic JSON at declared outputs, and turns missing,
-  unsafe, symlinked, or conflicting paths into retryable review states. Adapter
-  batches are dispatched only by supported adapter name while preserving
-  serial-only production jobs and blocked-job visibility for UI/scheduler review.
-- `shootflow.production_scheduler` runs the dry-run production adapter in an
+- `shootflow.production_adapter` proves that pre-render worker handoff with
+  local adapters. The dry-run adapter writes deterministic placeholder
+  artifacts, while the metadata adapter reads trusted local inputs and writes
+  deterministic metadata JSON to declared output files as the first
+  non-placeholder production path. Both consume only trusted production-worker
+  actions, persist each claim and final result through the guarded
+  `production_status.json` compare/write boundary, materialize only declared
+  file outputs, refuse symlinked, directory-style, or different existing files,
+  and report retryable status without deleting source, graded, render, or
+  deliverable media. The local batch dispatcher can execute trusted action plans
+  in bounded parallel batches while preserving serial-only production jobs and
+  blocked-job visibility for UI/scheduler review.
+- `shootflow.production_scheduler` runs trusted local production adapters in an
   iterative local loop: each pass reloads trusted `production_status.json`,
   optionally expires stale-running leases through the guarded production-worker
-  helper, plans dependency-ready pending/retryable jobs, runs a bounded dry-run
+  helper, plans dependency-ready pending/retryable jobs, runs a bounded local
   batch, requires explicit review before retrying a previously retryable job,
   avoids retrying a job that already became retryable in the same run, and
   returns explicit complete/blocked/retryable/failed/waiting state for Mac shells
   and background agents. It can persist `production_scheduler_report.json` with
   completed, retryable, failed, blocked, attempted, skipped retryable,
   expired-lease, conflicted-lease, review-required, materialized output, and
-  failure-message details plus derived product metrics and root observe-only
-  `workflow_authority` bound to the final production status.
+  failure-message details plus derived product metrics bound to the final
+  production status. The persisted report also carries root observe-only
+  `workflow_authority`, so post-operation evidence cannot unlock retry, cleanup,
+  overwrite, materialization, deletion, or other file-changing controls.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
@@ -272,18 +274,18 @@ The intended first workflow is:
     proxy/VLM/color/story jobs from trusted status, claim one matching attempt as
     running, verify every declared output before success, and report retry/failure
     states without deleting source, graded, or deliverable media.
-13. Exercise those pre-render transitions with the local production adapters
-    before real proxy, VLM, look-development, grading, or storyline runners are
-    wired in. The dry-run adapter writes only declared placeholder file
-    artifacts. The metadata adapter proves the input-reading path by hashing
-    trusted workspace inputs, including absolute ingest-manifest paths under the
-    shoot workspace, and writing deterministic metadata JSON only to declared
-    outputs. Both keep stale claims, missing inputs, directory-style package
-    outputs, or output conflicts visible in production status.
+13. Exercise those pre-render transitions with local production adapters before
+    real proxy, VLM, look-development, grading, or storyline runners are wired
+    in. The dry-run adapter writes only declared placeholder file artifacts. The
+    metadata adapter reads local trusted inputs and writes deterministic metadata
+    JSON into declared output files, giving the product a real input-fingerprint
+    path without copying, deleting, or inventing media paths. Stale claims,
+    directory-style package outputs, missing inputs, or output conflicts remain
+    visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
     shell or background agent should advance trusted pre-render work from
     persisted status. The scheduler loops over status reload, ready-action
-    planning, bounded dry-run batches, and retryable-job review stops without
+    planning, bounded local adapter batches, and retryable-job review stops without
     deleting or cleaning up source, graded, render, or deliverable files. A
     previously retryable job is retried only when the caller passes that reviewed
     job ID with `--retryable-job`.
@@ -342,17 +344,20 @@ The intended first workflow is:
     `presentation_only`, and false for copy, retry, cleanup, overwrite,
     materialization, deletion, and all file mutation.
 27. Aggregate saved dashboard JSON files with `pilot-cohort-report` when pilot
-    operations need cohort-level ready rate, median intervention rate, and
-    first-draft output count. The report consumes only dashboard payloads, never
-    raw workspace manifests, and cannot copy, retry, materialize, clean up,
-    overwrite, or delete files; the same `workflow_authority` object is emitted
-    for agent-native consumers.
+    operations need cohort-level ready rate, median intervention rate,
+    first-draft output count, and structured blocker counts for missing metrics,
+    low completion, high intervention, or missing materialized outputs. The
+    report consumes only dashboard payloads, validates component threshold flags
+    against dashboard metrics, never reads raw workspace manifests, and cannot
+    copy, retry, materialize, clean up, overwrite, or delete files; the same
+    `workflow_authority` object is emitted for agent-native consumers.
 28. Convert a saved cohort report into native-shell display state with
     `pilot-cohort-brief` when a Mac shell, GTM demo, or continuation agent needs
-    human-readable readiness labels and workspace cards without parsing raw
-    report metrics or receiving executable commands. JSON consumers should
-    respect its observe-only `workflow_authority` before presenting any
-    adjacent retry or materialization controls.
+    human-readable readiness labels, structured readiness blocker counts,
+    controlled blocker labels, and workspace cards without parsing raw report
+    metrics or receiving executable commands. JSON consumers should respect its
+    observe-only `workflow_authority` before presenting any adjacent retry or
+    materialization controls.
 29. Run the same handoff through
     `python -m shootflow.cli init-render-status` followed by
     `python -m shootflow.cli dry-run-render-scheduler` when a UI/background-agent
@@ -436,6 +441,12 @@ PYTHONPATH=src python3 -m shootflow.cli create-pilot-cohort-demo \
 PYTHONPATH=src python3 -m shootflow.cli inspect-render-workspace --workspace <dir>
 ```
 
+Use `--worker metadata-production-local` for the deterministic local metadata
+adapter. It follows the same scheduler/status contract, reads only trusted
+workspace-bound inputs, writes only declared outputs, and records retryable
+review states for symlinked inputs/outputs, directory-style package outputs, or
+output conflicts.
+
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and
 refuses stale status manifests whose production-plan fingerprint no longer
@@ -484,16 +495,21 @@ JSON payloads rather than shoot folders, then calculates cohort-level pilot-read
 workspace rate, median intervention rate, and first-draft output count from the
 trusted dashboard acceptance fields. Dashboards without trusted metrics are
 counted as unavailable instead of being treated as failures or successes, and
-the cohort report does not emit workflow commands.
+the cohort report does not emit workflow commands. It also derives structured
+readiness blocker counts from validated dashboard threshold flags so pilot ops
+can see whether the bottleneck is missing metrics, completion rate, intervention
+rate, or absent first-draft outputs without parsing free-form notes.
 The pilot cohort brief command reads one saved cohort report and writes nothing.
 It turns the trusted cohort metrics into a native-shell-friendly status,
-headline, summary labels, and per-workspace readiness cards so demos can show
-readiness, intervention, and first-draft output evidence without parsing raw
-worker internals. JSON remains the default output for integrations; `--format
-text` prints a deterministic command-free native-shell view for demos and
-operator readouts, omitting saved paths, timestamps, workspace titles, and
-free-form report notes so text output cannot become a shell handoff. It remains
-observe-only and does not emit executable workflow commands.
+headline, summary labels, structured readiness blocker counts, and
+per-workspace readiness cards so demos can show readiness, intervention,
+first-draft output evidence, and the specific blocker category without parsing
+raw worker internals. JSON remains the default output for integrations;
+`--format text` prints a deterministic command-free native-shell view for demos
+and operator readouts, using controlled blocker labels while omitting saved
+paths, timestamps, workspace titles, and free-form report notes so text output
+cannot become a shell handoff. It remains observe-only and does not emit
+executable workflow commands.
 The pilot cohort demo command writes a controlled fixture for demos: multiple
 trusted persisted render demo workspaces under `workspaces/`, saved schema v2
 dashboard JSON under `pilot_dashboards/`, and one saved

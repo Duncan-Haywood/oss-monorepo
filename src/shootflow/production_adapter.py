@@ -638,7 +638,7 @@ def _metadata_output_bytes(
 ) -> bytes:
     payload = {
         "schema_version": 1,
-        "adapter": "shootflow-metadata-production",
+        "adapter": "shootflow-metadata-production-local",
         "job_id": action.job_id,
         "output_kind": action.output_kind,
         "inputs": list(action.inputs),
@@ -682,7 +682,7 @@ def _metadata_for_input(root: Path, input_ref: str) -> dict[str, object]:
         raise DryRunProductionError(f"Unable to read metadata production input: {input_ref}") from exc
 
     return {
-        "path": input_ref,
+        "path": _workspace_display_path(root, input_path, fallback=input_ref),
         "sha256": digest.hexdigest(),
         "size_bytes": input_stat.st_size,
     }
@@ -745,6 +745,13 @@ def _path_is_relative_to(path: Path, root: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _workspace_display_path(root: Path, path: Path, *, fallback: str) -> str:
+    try:
+        return path.absolute().relative_to(root.absolute()).as_posix()
+    except ValueError:
+        return fallback
 
 
 def _validate_existing_output(

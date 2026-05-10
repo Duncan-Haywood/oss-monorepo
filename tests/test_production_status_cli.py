@@ -102,6 +102,86 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertTrue(reel_output_exists)
         self.assertTrue(report_exists)
 
+    def test_metadata_production_scheduler_command_writes_local_metadata_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "card"
+            destination = root / "library"
+            clip = card / "DCIM" / "A001.MOV"
+            clip.parent.mkdir(parents=True)
+            clip.write_bytes(b"video-bytes")
+            main(
+                [
+                    "execute-ingest",
+                    "--source",
+                    str(card),
+                    "--destination",
+                    str(destination),
+                    "--shoot-date",
+                    "2026-05-10",
+                    "--shoot-slug",
+                    "metadata-production",
+                    "--confirm",
+                ],
+                stdout=io.StringIO(),
+            )
+            shoot_folder = destination / "2026-05-10_metadata-production"
+            manifest_path = shoot_folder / "ingest_manifest.json"
+            production_plan = self._production_plan(manifest_path)
+            init_exit_code = main(
+                [
+                    "init-production-status",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                ],
+                stdout=io.StringIO(),
+            )
+            stdout = io.StringIO()
+
+            exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "metadata-production-local",
+                    "--started-at",
+                    "2026-05-10T06:30:00Z",
+                    "--completed-at",
+                    "2026-05-10T06:30:05Z",
+                    "--generated-at",
+                    "2026-05-10T06:30:06Z",
+                    "--max-concurrency",
+                    "2",
+                    "--max-iterations",
+                    "10",
+                ],
+                stdout=stdout,
+            )
+            status_manifest = load_production_status_manifest(shoot_folder, trusted_plan=production_plan)
+            first_output = production_plan.jobs[0].outputs[0]
+            first_output_payload = json.loads((shoot_folder / first_output).read_text(encoding="utf-8"))
+            report_exists = (shoot_folder / PRODUCTION_SCHEDULER_REPORT_PATH).exists()
+
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(init_exit_code, 0)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["schema_version"], 1)
+        self.assertEqual(payload["worker_adapter"], "metadata-production-local")
+        self.assertEqual(payload["stopped_reason"], "complete")
+        self.assertEqual(payload["retryable_job_ids"], [])
+        self.assertEqual(payload["review_required_job_ids"], [])
+        self.assertEqual(payload["completed_job_ids"], [job.job_id for job in production_plan.jobs])
+        self.assertEqual(payload["product_metrics"]["completed_job_count"], len(production_plan.jobs))
+        self.assertEqual(payload["product_metrics"]["review_required_job_count"], 0)
+        self.assertEqual([status.state for status in status_manifest.job_statuses], ["succeeded"] * 7)
+        self.assertTrue(report_exists)
+        self.assertEqual(first_output_payload["adapter"], "shootflow-metadata-production-local")
+        self.assertEqual(first_output_payload["job_id"], production_plan.jobs[0].job_id)
+        self.assertEqual(first_output_payload["selected_output"], first_output)
+        self.assertEqual(first_output_payload["input_metadata"][0]["path"], "originals/DCIM/A001.MOV")
+        self.assertEqual(first_output_payload["input_metadata"][0]["size_bytes"], 11)
+
     def test_dry_run_production_scheduler_command_can_print_persisted_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -240,8 +320,8 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
         self.assertIn("develop_shoot_look", payload["review_required_job_ids"])
         self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
         self.assertEqual(status_manifest.job_statuses[3].state, "retryable")
-        self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production")
-        self.assertEqual(proxy_payload["input_metadata"][0]["path"], production_plan.jobs[0].inputs[0])
+        self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production-local")
+        self.assertEqual(proxy_payload["input_metadata"][0]["path"], "originals/DCIM/A001.MOV")
 
     def test_metadata_scheduler_accepts_relative_ingest_manifest_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -308,8 +388,8 @@ class ShootFlowProductionStatusCliTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(status_manifest.job_statuses[0].state, "succeeded")
-        self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production")
-        self.assertEqual(proxy_payload["input_metadata"][0]["path"], production_plan.jobs[0].inputs[0])
+        self.assertEqual(proxy_payload["adapter"], "shootflow-metadata-production-local")
+        self.assertEqual(proxy_payload["input_metadata"][0]["path"], "originals/DCIM/A001.MOV")
 
     def test_dry_run_production_scheduler_command_expires_stale_running_job(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

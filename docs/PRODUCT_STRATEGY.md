@@ -144,17 +144,14 @@ The current core models a concrete promise for high-volume users:
     completion IDs. Production-worker helpers now turn that trusted status into
     claimable job actions, report success only after declared outputs exist and
     checksum, and record retry/failure statuses without granting cleanup,
-    deletion, or arbitrary path authority. The dry-run production adapter now
-    exercises that status contract by persisting claims and final success or
-    retryable states through the guarded compare/write path, writing only
-    declared placeholder file outputs, and refusing directory-style package
-    outputs or existing different files without cleanup authority. The
-    `metadata-production-local` adapter adds the first real input-reading local
-    worker behind the same boundary: it hashes trusted workspace inputs,
-    including absolute ingest-manifest paths under the shoot workspace, and
-    writes deterministic metadata JSON only to declared outputs, while missing or
-    unsafe inputs remain retryable review states. The dry-run production
-    scheduler now gives Mac shells a single command to advance those
+    deletion, or arbitrary path authority. Local production adapters now
+    exercise that status contract by persisting claims and final success or
+    retryable states through the guarded compare/write path. The dry-run adapter
+    writes declared placeholder file outputs; `metadata-production-local` reads
+    only workspace-bound trusted inputs and writes deterministic metadata JSON to
+    declared outputs. Both refuse symlinked paths, directory-style package
+    outputs, or existing different files without cleanup authority. The dry-run
+    production scheduler now gives Mac shells a single command to advance those
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
     require an explicit reviewed retry ID before the scheduler will attempt them
@@ -205,15 +202,19 @@ The current core models a concrete promise for high-volume users:
     intervention, and at least one materialized output before a workspace is
     counted as ready for pilot review. The follow-on `pilot-cohort-report`
     contract aggregates saved dashboard JSON across workspaces into pilot-ready
-    workspace rate, median intervention rate, and first-draft output count
-    without reading worker internals or granting workflow authority. The
+    workspace rate, median intervention rate, first-draft output count, and
+    structured readiness blockers without reading worker internals or granting
+    workflow authority. It validates component dashboard threshold flags against
+    the reported metrics before trusting workspace readiness, so pilot
+    operations can separate missing telemetry from low completion, high
+    intervention, or missing first-draft output bottlenecks. The
     `create-pilot-cohort-demo` fixture now composes trusted demo render
     workspaces, saved dashboard JSON, and a saved cohort report so pilot/GTM
     demos can show the measurement loop without real media or spreadsheets.
     `pilot-cohort-brief` turns that saved report into native-shell presentation
-    state--status, headline, summary labels, per-workspace cards, and an optional
-    deterministic text-mode readout--without emitting workflow commands or
-    widening authority.
+    state--status, headline, summary labels, structured blocker counts,
+    controlled per-workspace blocker labels, cards, and an optional deterministic
+    text-mode readout--without emitting workflow commands or widening authority.
 27. Assemble reels, carousels, and photo sets from graded masters.
 
 This is the right business wedge because it can save time even before the AI is
@@ -296,18 +297,22 @@ to automate.
    work the same resumable, fingerprint-bound progress boundary as rendering:
    workers can plan dependency-ready jobs, claim a matching attempt, verify
    declared outputs before success, and report retry/failure without deleting or
-   inventing paths. The dry-run production adapter proves the same
-   claim/materialize/report loop for declared file artifacts such as proxy,
-   analysis, look, graded, and storyline outputs, and
-   `metadata-production-local` proves the first real local input-fingerprint
-   path before model-backed workers are wired in. The dry-run production
-   scheduler wraps registered adapters in the same persisted-status loop the
-   render side uses, including guarded stale-lease expiration, so native shells
-   can advance pre-render jobs without embedding scheduling logic or retrying
-   prior/newly retryable conflicts or clobbering heartbeat-refreshed workers in a
-   tight loop. The persisted
-   production and render scheduler reports now emit root observe-only authority
-   plus derived product metrics, giving the future Mac app and pilot analytics a
+   inventing paths. The dry-run production adapter and
+   `metadata-production-local` now prove the same claim/materialize/report loop
+   for declared file artifacts such as proxy, analysis, look, graded, and
+   storyline outputs before real local or model-backed workers are wired in. The
+   dry-run production scheduler wraps those adapters in the same persisted-status
+   loop the render side uses, including
+   guarded stale-lease expiration, so native shells can advance pre-render jobs
+   without embedding scheduling logic or retrying prior/newly retryable conflicts
+   or clobbering heartbeat-refreshed workers in a tight loop. The first local
+   metadata production adapter now extends the same worker contract beyond pure
+   placeholders: it reads trusted local inputs, fingerprints their bytes, and
+   writes deterministic metadata JSON only to declared output files, while
+   preserving missing-input, directory-output, stale-claim, and output-conflict
+   review states. The persisted production and render scheduler reports now emit
+   root observe-only authority plus derived product metrics, giving the future
+   Mac app and pilot analytics a
    trusted way to measure automation throughput, intervention rate, and
    reliability without parsing raw worker internals. `pilot-dashboard` is the
    first stable pilot-facing summary

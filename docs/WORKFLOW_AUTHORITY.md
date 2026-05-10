@@ -26,6 +26,12 @@ Current UI/agent handoff JSON uses a root `workflow_authority` object:
 This object means the payload can be displayed or summarized, but it cannot be
 used as the authority source for file-changing controls.
 
+Persisted render and production scheduler reports also emit this root object.
+Those reports may list materialized outputs, retryable work, blocked work, or
+review-required IDs, but the report remains post-operation evidence only. It
+does not authorize a shell or agent to retry, clean up, overwrite, materialize,
+delete, or mutate files.
+
 ## Native-shell reader
 
 Python consumers can call:

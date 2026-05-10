@@ -612,6 +612,81 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             observe_only_workflow_authority_to_dict(),
         )
 
+    def test_schema_v2_scheduler_report_loads_with_observe_only_authority(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:54Z",
+                completed_at="2026-05-09T17:00:55Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:56Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report["schema_version"] = 2
+            raw_report.pop("workflow_authority", None)
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+
+        self.assertEqual(
+            loaded_report.workflow_authority,
+            observe_only_workflow_authority_to_dict(),
+        )
+
+    def test_schema_v3_scheduler_report_rejects_missing_workflow_authority(self) -> None:
+        trusted_plan = self._video_only_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="dry-run-production-local",
+                started_at="2026-05-09T17:00:55Z",
+                completed_at="2026-05-09T17:00:56Z",
+                max_concurrency=2,
+                max_iterations=10,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            report_path = write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-09T17:00:57Z",
+            )
+            raw_report = json.loads(report_path.read_text(encoding="utf-8"))
+            raw_report.pop("workflow_authority", None)
+            report_path.write_text(json.dumps(raw_report), encoding="utf-8")
+
+            with self.assertRaisesRegex(DryRunProductionSchedulerError, "workflow_authority"):
+                load_dry_run_production_scheduler_report(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    final_manifest=final_manifest,
+                )
+
     def test_scheduler_report_rejects_authorizing_workflow_authority(self) -> None:
         trusted_plan = self._video_only_plan()
         initial_manifest = self._pending_manifest(trusted_plan)
