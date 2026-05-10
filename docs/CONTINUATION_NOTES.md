@@ -2,6 +2,90 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 20:00 UTC
+
+This run started on assigned branch
+`cursor/repository-branch-consolidation-54cb` at `acc4f70`, matching
+`origin/main` and the prior story-adapter continuation head. Local `main` was
+still stale at the initial commit and was handled during branch reconciliation.
+
+Branch reconciliation findings before implementation:
+
+- Fetched `origin/main` and compared local/remote refs against it. The assigned
+  branch matched `origin/main` at session start.
+- Historical remote automation branches were behind `origin/main` and had no
+  unique commits to merge, except
+  `origin/cursor/branch-consolidation-6517`, which was one commit ahead and four
+  commits behind `origin/main`.
+- The unique `origin/cursor/branch-consolidation-6517` diff was a
+  `docs/CONTINUATION_NOTES.md`-only "Branch consolidation note - 2026-05-10
+  19:00 UTC" that described stale/deleted branch state and would have omitted
+  the current story-adapter implementation commits. It was intentionally not
+  merged because it added no current implementation, product, or architecture
+  value beyond these canonical notes.
+
+This run closed the primary post-story handoff left by the 19:00 UTC note:
+
+- Added `package-production-local` as a stage-specific production adapter for
+  `instagram_reel`, `instagram_carousel`, and `instagram_photo_set` jobs.
+- The adapter claims/finalizes through the existing guarded
+  `production_status.json` compare/write path, verifies trusted storyline plus
+  graded dependency outputs against succeeded status checksums, and writes only
+  declared package outputs.
+- File-style package outputs receive deterministic JSON handoff artifacts.
+  Directory-style package outputs receive a controlled `package_manifest.json`
+  plus a deterministic directory checksum through the production-worker checksum
+  path, allowing persisted scheduler reports to count package materialization
+  without treating directories as cleanup authority.
+- Existing package directories are accepted only when they contain exactly the
+  deterministic `package_manifest.json`; a matching manifest plus unplanned
+  extra files now becomes a retryable review state instead of trusting stray
+  bytes as production output.
+- Added direct adapter coverage for reel file output, carousel directory output,
+  missing-story retryability, unexpected existing directory entries, and batch
+  dispatch, plus scheduler/report coverage proving package materialization is
+  visible in persisted production scheduler metrics.
+- Updated CLI help, AGENTS, README, product strategy, business plan, and design
+  decisions so the current canonical production chain is
+  proxy -> analysis -> scene -> look -> grade -> story -> package.
+
+Verification performed during this run:
+
+- Red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_writes_deterministic_reel_from_trusted_story_and_grades tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_materializes_directory_package_with_directory_checksum tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_marks_missing_story_dependency_retryable_without_output tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_batch_runs_ready_actions_through_same_contract`
+  failed because `run_package_production_action` was missing.
+- Focused green after implementation: the same package adapter tests -> 5 tests
+  OK.
+- Review found a blocking directory-safety issue: an existing package directory
+  with a matching `package_manifest.json` plus extra files could be accepted and
+  checksummed as trusted output. Added a regression that failed with a succeeded
+  status, then fixed existing-directory validation so it becomes retryable
+  without deleting or modifying the extra file.
+- Focused regression green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_rejects_existing_directory_with_unplanned_extra_file tests.test_production_adapter.DryRunProductionAdapterTests.test_package_adapter_materializes_directory_package_with_directory_checksum`
+  -> 2 tests OK.
+- Related production suites:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
+  -> 100 tests OK.
+- Full verification before reconciliation:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 434 tests OK, compileall and diff-check exited 0.
+- Independent review (`code-reviewer` subagent) found no remaining blocking
+  correctness or safety issues after the directory regression fix.
+
+Good next test-first targets:
+
+- Add negative scheduler/report coverage for package dependency checksum drift
+  and malformed existing package directories if the Mac UI needs explicit
+  persisted-report proof for those review states.
+- Replace `package-production-local` with real ffmpeg/Core Image/Metal/renderer
+  package workers behind the same trusted storyline/graded dependency and
+  declared-output-only boundary.
+- Start a native-shell bridge proof that can read the completed
+  proxy -> analysis -> scene -> look -> grade -> story -> package scheduler
+  reports and present first-draft package readiness while binding write-capable
+  controls to `workflow_authority`.
+
 ## Implementation continuation note - 2026-05-10 19:00 UTC
 
 This run started on assigned branch

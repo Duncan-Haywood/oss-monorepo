@@ -37,6 +37,7 @@ _SCENE_PRODUCTION_ADAPTER = "scene-production-local"
 _LOOK_PRODUCTION_ADAPTER = "look-production-local"
 _GRADE_PRODUCTION_ADAPTER = "grade-production-local"
 _STORY_PRODUCTION_ADAPTER = "story-production-local"
+_PACKAGE_PRODUCTION_ADAPTER = "package-production-local"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -46,6 +47,7 @@ _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _LOOK_PRODUCTION_ADAPTER: ("look_development",),
     _GRADE_PRODUCTION_ADAPTER: ("graded_photo", "graded_video"),
     _STORY_PRODUCTION_ADAPTER: ("storyline_selection",),
+    _PACKAGE_PRODUCTION_ADAPTER: ("instagram_reel", "instagram_carousel", "instagram_photo_set"),
 }
 
 
@@ -100,6 +102,11 @@ class GradeProductionAdapterResult(ProductionAdapterResult):
 @dataclass(frozen=True)
 class StoryProductionAdapterResult(ProductionAdapterResult):
     """Result from the deterministic local storyline adapter."""
+
+
+@dataclass(frozen=True)
+class PackageProductionAdapterResult(ProductionAdapterResult):
+    """Result from the deterministic local package adapter."""
 
 
 @dataclass(frozen=True)
@@ -220,6 +227,15 @@ def run_production_adapter_batch(
         )
     if action_plan.worker_adapter == _STORY_PRODUCTION_ADAPTER:
         return run_story_production_batch(
+            workspace_root,
+            trusted_plan=trusted_plan,
+            action_plan=action_plan,
+            started_at=started_at,
+            completed_at=completed_at,
+            max_concurrency=max_concurrency,
+        )
+    if action_plan.worker_adapter == _PACKAGE_PRODUCTION_ADAPTER:
+        return run_package_production_batch(
             workspace_root,
             trusted_plan=trusted_plan,
             action_plan=action_plan,
@@ -415,6 +431,29 @@ def run_story_production_batch(
         max_concurrency=max_concurrency,
         expected_adapter=_STORY_PRODUCTION_ADAPTER,
         run_action=run_story_production_action,
+    )
+
+
+def run_package_production_batch(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action_plan: ProductionWorkerActionPlan,
+    started_at: str,
+    completed_at: str,
+    max_concurrency: int,
+) -> ProductionAdapterBatchResult:
+    """Run deterministic local package actions while respecting parallelism."""
+
+    return _run_adapter_batch(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action_plan=action_plan,
+        started_at=started_at,
+        completed_at=completed_at,
+        max_concurrency=max_concurrency,
+        expected_adapter=_PACKAGE_PRODUCTION_ADAPTER,
+        run_action=run_package_production_action,
     )
 
 
@@ -718,6 +757,34 @@ def run_story_production_action(
     )
 
 
+def run_package_production_action(
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan,
+    action: ProductionWorkerAction,
+    started_at: str,
+    completed_at: str,
+) -> PackageProductionAdapterResult:
+    """Persist one trusted package action through deterministic local output.
+
+    This adapter only packages already-verified story and graded artifacts. It
+    does not render real media, publish deliverables, delete, or clean up files.
+    """
+
+    _validate_package_action_shape(action)
+    return _run_production_action(
+        workspace_root,
+        trusted_plan=trusted_plan,
+        action=action,
+        started_at=started_at,
+        completed_at=completed_at,
+        expected_adapter=_PACKAGE_PRODUCTION_ADAPTER,
+        materialize_outputs=_materialize_package_production_outputs,
+        retryable_error_message=_package_retryable_error_message,
+        result_type=PackageProductionAdapterResult,
+    )
+
+
 def _run_production_action(
     workspace_root: Path | str,
     *,
@@ -981,6 +1048,27 @@ def _materialize_story_production_outputs(
     return tuple(materialized)
 
 
+def _materialize_package_production_outputs(
+    action: ProductionWorkerAction,
+    workspace_root: Path | str,
+    *,
+    trusted_plan: ProductionPlan | None = None,
+) -> tuple[str, ...]:
+    """Create deterministic package handoff artifacts from trusted story/grade inputs."""
+
+    _validate_package_action_shape(action)
+    if trusted_plan is None:
+        raise ProductionAdapterError("package production adapter requires a trusted plan")
+    root = _workspace_root(workspace_root)
+    verified_inputs = _verify_package_input_outputs(root, action=action, trusted_plan=trusted_plan)
+    materialized: list[str] = []
+    for output in action.outputs:
+        content = _package_output_bytes(action, output=output, verified_inputs=verified_inputs)
+        _write_package_output(root, output=output, content=content)
+        materialized.append(output)
+    return tuple(materialized)
+
+
 def _validate_proxy_action_shape(action: ProductionWorkerAction) -> None:
     _validate_action(action, expected_adapter=_PROXY_PRODUCTION_ADAPTER)
     if action.output_kind != "proxy_media":
@@ -1086,6 +1174,29 @@ def _validate_story_action_shape(action: ProductionWorkerAction) -> None:
     if len(action.outputs) != 1 or action.outputs[0] != "analysis/instagram_storylines.json":
         raise ProductionAdapterError(
             "Story production adapter requires analysis/instagram_storylines.json output"
+        )
+
+
+def _validate_package_action_shape(action: ProductionWorkerAction) -> None:
+    _validate_action(action, expected_adapter=_PACKAGE_PRODUCTION_ADAPTER)
+    if action.output_kind not in {"instagram_reel", "instagram_carousel", "instagram_photo_set"}:
+        raise ProductionAdapterError(
+            "Package production adapter only materializes Instagram deliverable jobs: "
+            f"{action.output_kind}"
+        )
+    if action.can_run_in_parallel:
+        raise ProductionAdapterError("Package production adapter requires a serial action")
+    if len(action.outputs) != 1:
+        raise ProductionAdapterError("Package production adapter requires exactly one declared output")
+    expected_outputs = {
+        "instagram_reel": "deliverables/instagram_reel.mp4",
+        "instagram_carousel": "deliverables/instagram_carousel/",
+        "instagram_photo_set": "deliverables/instagram_photo_set/",
+    }
+    if action.outputs[0] != expected_outputs[action.output_kind]:
+        raise ProductionAdapterError(
+            "Package production adapter output does not match the trusted deliverable kind: "
+            f"{action.outputs[0]}"
         )
 
 
@@ -1352,6 +1463,83 @@ def _verify_story_input_outputs(
             label="story production dependency output",
             stage_label="Story production",
         )
+
+
+def _verify_package_input_outputs(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    trusted_plan: ProductionPlan,
+) -> tuple[dict[str, object], ...]:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    output_jobs: dict[str, ProductionJob] = {}
+    for job in trusted_plan.jobs:
+        for output in job.outputs:
+            if output in output_jobs:
+                raise ProductionAdapterError(
+                    f"Package production found duplicate planned output: {output}"
+                )
+            output_jobs[output] = job
+
+    for dependency_id in action.depends_on:
+        try:
+            dependency_job = jobs[dependency_id]
+            dependency_status = statuses[dependency_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Package production dependency is missing from trusted status: {dependency_id}"
+            ) from exc
+        if dependency_job.output_kind not in {"storyline_selection", "graded_photo", "graded_video"}:
+            raise ProductionAdapterError(
+                "Package production adapter only consumes story and graded dependencies: "
+                f"{dependency_job.output_kind}"
+            )
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Package production dependency is not succeeded: {dependency_id}"
+            )
+        for output in dependency_job.outputs:
+            if output not in action.inputs:
+                raise ProductionAdapterError(
+                    f"Package production dependency output is missing from action inputs: {output}"
+                )
+
+    verified_inputs: list[dict[str, object]] = []
+    for input_ref in action.inputs:
+        try:
+            dependency_job = output_jobs[input_ref]
+            dependency_status = statuses[dependency_job.job_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Package production input is not produced by trusted status: {input_ref}"
+            ) from exc
+        if dependency_job.output_kind not in {"storyline_selection", "graded_photo", "graded_video"}:
+            raise ProductionAdapterError(
+                "Package production input has unsupported output kind: "
+                f"{dependency_job.output_kind}"
+            )
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Package production input dependency is not succeeded: {dependency_job.job_id}"
+            )
+        output, actual_sha256, _content = _verified_dependency_output(
+            root,
+            dependency_job=dependency_job,
+            dependency_status=dependency_status,
+            label="package production dependency output",
+            stage_label="Package production",
+        )
+        verified_inputs.append(
+            {
+                "path": output,
+                "sha256": actual_sha256,
+                "job_id": dependency_job.job_id,
+                "output_kind": dependency_job.output_kind,
+            }
+        )
+    return tuple(verified_inputs)
 
 
 def _validate_action(
@@ -1702,6 +1890,86 @@ def _write_production_output_bytes(
             temp_path.unlink()
         except FileNotFoundError:
             pass
+
+
+def _write_package_output(root: Path, *, output: str, content: bytes) -> None:
+    if not output.endswith("/"):
+        _write_production_output_bytes(root, output=output, content=content, label="package production")
+        return
+
+    output_path = _workspace_output_path(root, output)
+    _reject_symlink_path(output_path.parent, root, "package production output directory parent")
+    _reject_symlink_path(output_path, root, "package production output directory")
+    manifest_output = f"{output.rstrip('/')}/package_manifest.json"
+    manifest_path = _workspace_output_path(root, manifest_output)
+    expected_sha256 = hashlib.sha256(content).hexdigest()
+
+    if output_path.exists():
+        if not output_path.is_dir():
+            raise ProductionAdapterError(f"Refusing non-directory package production output: {output}")
+        _validate_existing_package_directory(output_path, root=root)
+        _reject_symlink_path(manifest_path, root, "package production directory manifest")
+        if not manifest_path.exists():
+            raise ProductionAdapterError(f"Refusing to modify existing package production output directory: {output}")
+        _validate_existing_output(
+            manifest_path,
+            output=manifest_output,
+            expected_sha256=expected_sha256,
+            label="package production directory manifest",
+        )
+        return
+
+    try:
+        output_path.mkdir(parents=True, exist_ok=False)
+    except OSError as exc:
+        raise ProductionAdapterError(f"Unable to create package production output directory: {output}") from exc
+    _reject_symlink_path(output_path, root, "package production output directory")
+    _write_production_output_bytes(
+        root,
+        output=manifest_output,
+        content=content,
+        label="package production directory manifest",
+    )
+
+
+def _validate_existing_package_directory(output_path: Path, *, root: Path) -> None:
+    try:
+        entries = sorted(output_path.rglob("*"), key=lambda item: item.relative_to(output_path).as_posix())
+    except OSError as exc:
+        raise ProductionAdapterError(f"Unable to inspect package production output directory: {output_path}") from exc
+    relative_entries: list[str] = []
+    for entry in entries:
+        _reject_symlink_path(entry, root, "package production output directory entry")
+        relative_entries.append(entry.relative_to(output_path).as_posix())
+    if relative_entries != ["package_manifest.json"]:
+        raise ProductionAdapterError(
+            "Refusing existing package production directory with unexpected package production directory entry"
+        )
+
+
+def _package_output_bytes(
+    action: ProductionWorkerAction,
+    *,
+    output: str,
+    verified_inputs: tuple[dict[str, object], ...],
+) -> bytes:
+    payload = {
+        "schema_version": 1,
+        "adapter": "shootflow-package-production-local",
+        "job_id": action.job_id,
+        "output_kind": action.output_kind,
+        "inputs": list(action.inputs),
+        "verified_inputs": list(verified_inputs),
+        "outputs": list(action.outputs),
+        "selected_output": output,
+        "depends_on": list(action.depends_on),
+        "can_run_in_parallel": action.can_run_in_parallel,
+        "artifact_note": (
+            "deterministic package contract probe only; real render/export workers "
+            "must replace this behind the same trusted-output boundary"
+        ),
+    }
+    return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
 def _metadata_output_bytes(
@@ -2522,6 +2790,17 @@ def _story_retryable_error_message(exc: Exception) -> str:
     return (
         "Story production adapter could not materialize declared outputs: "
         f"{detail}. No source, analysis, color, graded, render, or deliverable files were deleted."
+    )
+
+
+def _package_retryable_error_message(exc: Exception) -> str:
+    detail = str(exc).strip() or exc.__class__.__name__
+    if len(detail) > 1500:
+        detail = detail[:1497] + "..."
+    return (
+        "Package production adapter could not materialize declared outputs: "
+        f"{detail}. No source, analysis, color, graded, render, deliverable, or package files "
+        "were deleted or cleaned up."
     )
 
 

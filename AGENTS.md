@@ -70,10 +70,16 @@ jobs before real ffmpeg/Core Image/Metal grading is trusted.
 `story-production-local` verifies the planned analysis, scene, look, and graded
 inputs against trusted status checksums, then writes deterministic schema v2
 `analysis/instagram_storylines.json` only for `storyline_selection` jobs before
-real editorial/story intelligence is trusted. Scheduler dispatch is
-adapter-capability aware, so proxy, analysis, scene, look, grade, and story
-adapters receive only the output kinds they can materialize and leave downstream
-package jobs pending or blocked for a compatible worker.
+real editorial/story intelligence is trusted. `package-production-local`
+verifies trusted storyline plus graded dependencies and writes deterministic
+package handoff artifacts only for `instagram_reel`, `instagram_carousel`, and
+`instagram_photo_set` jobs before real render/export packaging is trusted;
+directory-style package outputs receive a deterministic manifest file and
+directory checksum rather than being treated as arbitrary cleanup targets.
+Scheduler dispatch is adapter-capability aware, so proxy, analysis, scene,
+look, grade, story, and package adapters receive only the output kinds they can
+materialize and leave incompatible downstream work pending or blocked for a
+compatible worker.
 None of these adapters may delete, clean up, overwrite different bytes, or invent
 media paths.
 Production and render scheduler reports are schema v3 and include root

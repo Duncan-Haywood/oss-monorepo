@@ -695,6 +695,16 @@ def _output_checksums_for_action(
         _reject_symlink_path(output_path, root, "production output")
         if not output_path.exists():
             raise ProductionWorkerError(f"Missing production output: {output}")
+        if output.endswith("/"):
+            if not output_path.is_dir():
+                raise ProductionWorkerError(f"Production directory output is not a directory: {output}")
+            checksums.append(
+                OutputChecksum(
+                    path=output,
+                    sha256=_sha256_directory(output_path, root=root),
+                )
+            )
+            continue
         if not output_path.is_file():
             raise ProductionWorkerError(f"Production output is not a file: {output}")
         checksums.append(
@@ -704,6 +714,31 @@ def _output_checksums_for_action(
             )
         )
     return tuple(checksums)
+
+
+def _sha256_directory(path: Path, *, root: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        entries = sorted(path.rglob("*"), key=lambda item: item.relative_to(path).as_posix())
+    except OSError as exc:
+        raise ProductionWorkerError(f"Unable to list production directory output: {path}") from exc
+    for entry in entries:
+        _reject_symlink_path(entry, root, "production directory output")
+        relative_name = entry.relative_to(path).as_posix()
+        if entry.is_dir():
+            digest.update(f"dir:{relative_name}\n".encode("utf-8"))
+            continue
+        if not entry.is_file():
+            raise ProductionWorkerError(f"Production directory output contains a non-file entry: {relative_name}")
+        digest.update(f"file:{relative_name}\n".encode("utf-8"))
+        try:
+            with entry.open("rb") as output_file:
+                for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
+                    digest.update(chunk)
+        except OSError as exc:
+            raise ProductionWorkerError(f"Unable to checksum production directory output: {entry}") from exc
+        digest.update(b"\n")
+    return digest.hexdigest()
 
 
 def _workspace_output_path(root: Path, output: str) -> Path:

@@ -694,7 +694,7 @@ def _build_parser() -> argparse.ArgumentParser:
             "metadata-production-local, proxy-production-local, "
             "analysis-production-local, scene-production-local, or "
             "look-production-local, grade-production-local, or "
-            "story-production-local."
+            "story-production-local, or package-production-local."
         ),
     )
     production_scheduler.add_argument("--started-at", required=True, help="ISO-like timestamp for worker claims.")

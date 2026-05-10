@@ -170,9 +170,14 @@ The current core models a concrete promise for high-volume users:
     planned analysis, scene, look, and graded inputs against trusted status
     checksums, then writes deterministic schema v2
     `analysis/instagram_storylines.json` only for `storyline_selection` jobs
-    before real editorial/story intelligence is trusted. All refuse
-    symlinked paths, directory-style package outputs, missing inputs, or existing
-    different files without cleanup authority. The dry-run production scheduler
+    before real editorial/story intelligence is trusted. `package-production-local`
+    now verifies trusted storyline plus graded outputs and writes deterministic
+    package handoff artifacts for `instagram_reel`, `instagram_carousel`, and
+    `instagram_photo_set` jobs before real render/export package workers are
+    trusted. Directory-style packages are represented by a controlled
+    manifest-plus-directory-checksum contract. All refuse symlinked paths,
+    missing inputs, malformed package directories, or existing different files
+    without cleanup authority. The dry-run production scheduler
     now gives Mac shells a single command to advance those
     durable jobs in dependency order, with bounded parallelism and explicit
     complete/blocked/retryable/failed/waiting state. Previously retryable jobs
@@ -330,10 +335,10 @@ to automate.
    is adapter-capability aware: `proxy-production-local`,
    `analysis-production-local`, `scene-production-local`,
    `look-production-local`, `grade-production-local`, and
-   `story-production-local` receive only dependency-ready jobs for their declared
-   output kinds, while later package jobs remain pending or blocked for a
-   compatible worker
-   rather than becoming expected stage-mismatch failures. The first local
+   `story-production-local`, and `package-production-local` receive only
+   dependency-ready jobs for their declared output kinds, while incompatible
+   future jobs remain pending or blocked for a compatible worker rather than
+   becoming expected stage-mismatch failures. The first local
    metadata production adapter now extends the same worker contract beyond pure
    placeholders: it reads trusted local inputs, fingerprints their bytes, and
    writes deterministic metadata JSON only to declared output files, while
@@ -351,8 +356,9 @@ to automate.
    stand-ins from trusted originals plus schema-validated/checksum-verified
    analysis and look dependencies. `story-production-local` extends the path
    into deterministic schema v2 storyline selection from checksum-verified
-   analysis, scene, look, and graded inputs. Package work still waits for
-   compatible future adapters. The persisted production and render scheduler
+   analysis, scene, look, and graded inputs. `package-production-local` extends
+   the path into deterministic package handoff artifacts and directory checksums
+   from verified story and graded dependencies. The persisted production and render scheduler
    reports now emit root observe-only authority plus derived product metrics,
    giving the future
    Mac app and pilot analytics a

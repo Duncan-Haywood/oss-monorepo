@@ -17,6 +17,7 @@ from shootflow.production_adapter import (
     run_dry_run_production_action,
     run_grade_production_action,
     run_metadata_production_action,
+    run_package_production_action,
     run_proxy_production_action,
     run_story_production_action,
     run_look_production_action,
@@ -48,6 +49,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 "look-production-local",
                 "grade-production-local",
                 "story-production-local",
+                "package-production-local",
             ),
         )
         self.assertIsNone(supported_production_adapter_output_kinds("dry-run-production-local"))
@@ -75,6 +77,10 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(
             supported_production_adapter_output_kinds("story-production-local"),
             ("storyline_selection",),
+        )
+        self.assertEqual(
+            supported_production_adapter_output_kinds("package-production-local"),
+            ("instagram_reel", "instagram_carousel", "instagram_photo_set"),
         )
         with self.assertRaisesRegex(ProductionAdapterError, "Unsupported production adapter"):
             supported_production_adapter_output_kinds("future-vlm-local")
@@ -1468,6 +1474,124 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[8], result.final_status)
 
+    def test_package_adapter_writes_deterministic_reel_from_trusted_story_and_grades(self) -> None:
+        trusted_plan, _ready_manifest, action = self._package_ready_context("assemble_instagram_reel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_package_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T20:10:00Z",
+                completed_at="2026-05-10T20:10:05Z",
+            )
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, ("deliverables/instagram_reel.mp4",))
+        self.assertEqual(output_payload["adapter"], "shootflow-package-production-local")
+        self.assertEqual(output_payload["job_id"], "assemble_instagram_reel")
+        self.assertEqual(output_payload["output_kind"], "instagram_reel")
+        self.assertEqual(
+            [input_summary["path"] for input_summary in output_payload["verified_inputs"]],
+            ["analysis/instagram_storylines.json", "graded/grade_asset_00000/A001.MOV"],
+        )
+        self.assertEqual(loaded_manifest.job_statuses[9], result.final_status)
+
+    def test_package_adapter_materializes_directory_package_with_directory_checksum(self) -> None:
+        trusted_plan, _ready_manifest, action = self._package_ready_context("assemble_instagram_carousel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_package_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T20:11:00Z",
+                completed_at="2026-05-10T20:11:05Z",
+            )
+            package_dir = workspace / action.outputs[0]
+            package_manifest = package_dir / "package_manifest.json"
+            output_payload = json.loads(package_manifest.read_text(encoding="utf-8"))
+            package_dir_is_dir = package_dir.is_dir()
+            package_manifest_is_file = package_manifest.is_file()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertTrue(package_dir_is_dir)
+        self.assertTrue(package_manifest_is_file)
+        self.assertEqual(result.outputs_materialized, ("deliverables/instagram_carousel/",))
+        self.assertEqual(result.final_status.output_checksums[0].path, "deliverables/instagram_carousel/")
+        self.assertEqual(output_payload["selected_output"], "deliverables/instagram_carousel/")
+        self.assertEqual(output_payload["output_kind"], "instagram_carousel")
+        self.assertEqual(loaded_manifest.job_statuses[10], result.final_status)
+
+    def test_package_adapter_rejects_existing_directory_with_unplanned_extra_file(self) -> None:
+        trusted_plan, _ready_manifest, action = self._package_ready_context("assemble_instagram_carousel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+            first_result = run_package_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T20:11:10Z",
+                completed_at="2026-05-10T20:11:15Z",
+            )
+            extra_path = workspace / action.outputs[0] / "extra.bin"
+            extra_path.write_bytes(b"unplanned package bytes")
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_package_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T20:11:20Z",
+                completed_at="2026-05-10T20:11:25Z",
+            )
+            extra_bytes = extra_path.read_bytes()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(first_result.final_status.state, "succeeded")
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("unexpected package production directory entry", result.final_status.error_message or "")
+        self.assertEqual(extra_bytes, b"unplanned package bytes")
+        self.assertEqual(loaded_manifest.job_statuses[10], result.final_status)
+
+    def test_package_adapter_marks_missing_story_dependency_retryable_without_output(self) -> None:
+        trusted_plan, _ready_manifest, action = self._package_ready_context("assemble_instagram_reel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            (workspace / "analysis/instagram_storylines.json").unlink()
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_package_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T20:12:00Z",
+                completed_at="2026-05-10T20:12:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Missing package production dependency output", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[9], result.final_status)
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",
@@ -2021,6 +2145,45 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(tuple(action_result.final_status.state for action_result in result.results), ("succeeded",))
         self.assertEqual(loaded_manifest.job_statuses[8], result.results[0].final_status)
 
+    def test_package_adapter_batch_runs_ready_actions_through_same_contract(self) -> None:
+        trusted_plan, _ready_manifest, _action = self._package_ready_context("assemble_instagram_reel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            ready_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            action_plan = plan_production_worker_actions(
+                trusted_plan,
+                ready_manifest,
+                worker_adapter="package-production-local",
+                eligible_output_kinds=("instagram_reel", "instagram_carousel", "instagram_photo_set"),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_production_adapter_batch(
+                workspace,
+                trusted_plan=trusted_plan,
+                action_plan=action_plan,
+                started_at="2026-05-10T20:13:00Z",
+                completed_at="2026-05-10T20:13:05Z",
+                max_concurrency=1,
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertIsInstance(result, ProductionAdapterBatchResult)
+        self.assertEqual(result.worker_adapter, "package-production-local")
+        self.assertEqual(
+            tuple(action.job_id for action in action_plan.actions),
+            ("assemble_instagram_reel", "assemble_instagram_carousel", "export_instagram_photo_set"),
+        )
+        self.assertEqual(
+            tuple(action_result.final_status.state for action_result in result.results),
+            ("succeeded", "succeeded", "succeeded"),
+        )
+        self.assertEqual(
+            tuple(status.state for status in loaded_manifest.job_statuses[9:]),
+            ("succeeded", "succeeded", "succeeded"),
+        )
+
     def test_adapter_batch_rejects_invalid_action_plan_before_dispatch(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaisesRegex(ProductionAdapterError, "action_plan"):
@@ -2167,6 +2330,29 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             worker_adapter="story-production-local",
             eligible_output_kinds=("storyline_selection",),
         ).actions[0]
+        return trusted_plan, ready_manifest, action
+
+    @classmethod
+    def _package_ready_context(cls, job_id: str):
+        trusted_plan = cls._trusted_plan()
+        ready_manifest = cls._package_ready_manifest_with_checksums(
+            trusted_plan,
+            story_checksum="a" * 64,
+            grade_checksums={
+                "graded/grade_asset_00000/A001.MOV": "b" * 64,
+                "graded/grade_asset_00001/IMG_0001.CR3": "c" * 64,
+            },
+        )
+        action = next(
+            action
+            for action in plan_production_worker_actions(
+                trusted_plan,
+                ready_manifest,
+                worker_adapter="package-production-local",
+                eligible_output_kinds=("instagram_reel", "instagram_carousel", "instagram_photo_set"),
+            ).actions
+            if action.job_id == job_id
+        )
         return trusted_plan, ready_manifest, action
 
     @classmethod
@@ -2408,6 +2594,53 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             },
         )
 
+    @classmethod
+    def _write_package_dependencies_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        story_path = workspace / "analysis/instagram_storylines.json"
+        story_path.parent.mkdir(parents=True, exist_ok=True)
+        story_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 2,
+                    "sequences": [
+                        {
+                            "sequence_id": "reel_main",
+                            "deliverable_type": "instagram_reel",
+                            "asset_paths": ["graded/grade_asset_00000/A001.MOV"],
+                        },
+                        {
+                            "sequence_id": "carousel_main",
+                            "deliverable_type": "instagram_carousel",
+                            "asset_paths": ["graded/grade_asset_00001/IMG_0001.CR3"],
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        video_grade_path = workspace / "graded/grade_asset_00000/A001.MOV"
+        video_grade_path.parent.mkdir(parents=True, exist_ok=True)
+        video_grade_path.write_bytes(b"trusted package graded video")
+        photo_grade_path = workspace / "graded/grade_asset_00001/IMG_0001.CR3"
+        photo_grade_path.parent.mkdir(parents=True, exist_ok=True)
+        photo_grade_path.write_bytes(b"trusted package graded photo")
+        return cls._package_ready_manifest_with_checksums(
+            trusted_plan,
+            story_checksum=cls._sha256_file(story_path),
+            grade_checksums={
+                "graded/grade_asset_00000/A001.MOV": cls._sha256_file(video_grade_path),
+                "graded/grade_asset_00001/IMG_0001.CR3": cls._sha256_file(photo_grade_path),
+            },
+        )
+
     @staticmethod
     def _look_ready_manifest_with_checksum(
         trusted_plan,
@@ -2578,6 +2811,93 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                     attempts=1,
                     output_checksums=tuple(
                         OutputChecksum(path=output, sha256=analysis_checksums[output])
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+
+    @staticmethod
+    def _package_ready_manifest_with_checksums(
+        trusted_plan,
+        *,
+        story_checksum: str,
+        grade_checksums: dict[str, str],
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="story-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=job.outputs[0], sha256=story_checksum),
+                    ),
+                    updated_at="2026-05-10T19:10:00Z",
+                )
+                if job.output_kind == "storyline_selection"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="grade-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256=grade_checksums[output])
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T17:35:00Z",
+                )
+                if job.output_kind in {"graded_photo", "graded_video"}
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="look-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="d" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T16:05:00Z",
+                )
+                if job.output_kind == "look_development"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="e" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T15:20:00Z",
+                )
+                if job.output_kind == "scene_grouping"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="f" * 64)
                         for output in job.outputs
                     ),
                     updated_at="2026-05-10T15:10:00Z",

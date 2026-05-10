@@ -105,12 +105,18 @@ The repo currently contains a Python core package because it is quick to test an
   trusted `production_status.json` checksums, loads only plan-compatible analysis,
   and writes one declared schema v2 `analysis/instagram_storylines.json` artifact
   for `storyline_selection` jobs only. It proves the grade-to-story handoff
-  before real VLM/editorial story intelligence is trusted. All adapters
-  persist claims through the
-  single-job production-status compare/write helper, then persist success
-  checksums or retryable errors through the same status boundary. Directory-style
-  package outputs, symlinked inputs or outputs, missing inputs, and different
-  existing files become retryable review states instead of cleanup instructions.
+  before real VLM/editorial story intelligence is trusted.
+  `package-production-local` is the deterministic packaging-stage probe: it
+  verifies the trusted storyline artifact plus the graded outputs declared for
+  each package job, then writes only the declared reel/carousel/photo-set package
+  output. Directory-style package outputs receive a deterministic
+  `package_manifest.json` and directory checksum so retries can reason about the
+  package without treating directories as cleanup authority. All adapters
+  persist claims through the single-job production-status compare/write helper, then persist success
+  checksums or retryable errors through the same status boundary. Symlinked
+  inputs or outputs, missing inputs, malformed package directories, and
+  different existing files become retryable review states instead of cleanup
+  instructions.
   They do not open arbitrary paths, delete files, clean up user outputs, or
   grant workers authority beyond the trusted production job. The batch runner
   executes only trusted action plans, preserves serial production jobs, bounds
@@ -122,7 +128,8 @@ The repo currently contains a Python core package because it is quick to test an
   `scene-production-local` to `scene_grouping`, `look-production-local` to
   `look_development`, and `grade-production-local` to
   `graded_photo`/`graded_video`, and `story-production-local` to
-  `storyline_selection`. Shared result, failure, batch, and error types are named
+  `storyline_selection`, and `package-production-local` to `instagram_reel`,
+  `instagram_carousel`, and `instagram_photo_set`. Shared result, failure, batch, and error types are named
   `ProductionAdapter*` rather than `DryRunProduction*` so future VLM/color/story
   adapters can reuse the same contract without carrying dry-run-specific type
   names through scheduler code.

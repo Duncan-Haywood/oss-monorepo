@@ -643,6 +643,52 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             loaded_report.failure_messages[0].message,
         )
 
+    def test_package_adapter_scheduler_materializes_reel_and_reports_output(self) -> None:
+        trusted_plan = self._video_only_plan()
+        package_job = trusted_plan.job_by_id("assemble_instagram_reel")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            dependency_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="package-production-local",
+                started_at="2026-05-10T20:20:00Z",
+                completed_at="2026-05-10T20:20:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T20:20:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            package_payload = json.loads((workspace / package_job.outputs[0]).read_text(encoding="utf-8"))
+
+        self.assertEqual(result.stopped_reason, "complete")
+        self.assertEqual(result.iterations[0].attempted_job_ids, ("assemble_instagram_reel",))
+        self.assertEqual(result.iterations[1].attempted_job_ids, ())
+        self.assertEqual(final_manifest.job_statuses[6].state, "succeeded")
+        self.assertEqual(package_payload["adapter"], "shootflow-package-production-local")
+        self.assertEqual(package_payload["verified_inputs"][0]["path"], "analysis/instagram_storylines.json")
+        self.assertEqual(loaded_report.completed_job_ids, tuple(job.job_id for job in trusted_plan.jobs))
+        self.assertEqual(loaded_report.outputs_materialized, ("deliverables/instagram_reel.mp4",))
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 7)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["review_required_job_count"], 0)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 1)
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
@@ -1604,6 +1650,112 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             trusted_plan,
             analysis_checksum=cls._sha256_file(analysis_path),
             look_checksum=cls._sha256_file(look_path),
+        )
+
+    @classmethod
+    def _write_package_dependencies_with_manifest(
+        cls,
+        trusted_plan,
+        workspace: Path,
+    ) -> ProductionStatusManifest:
+        story_path = workspace / "analysis/instagram_storylines.json"
+        story_path.parent.mkdir(parents=True, exist_ok=True)
+        story_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 2,
+                    "sequences": [
+                        {
+                            "sequence_id": "reel_main",
+                            "deliverable_type": "instagram_reel",
+                            "asset_paths": ["graded/grade_asset_00000/A001.MOV"],
+                        },
+                    ],
+                },
+                ensure_ascii=True,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        grade_path = workspace / "graded/grade_asset_00000/A001.MOV"
+        grade_path.parent.mkdir(parents=True, exist_ok=True)
+        grade_path.write_bytes(b"trusted scheduler package grade")
+        return cls._package_ready_manifest(
+            trusted_plan,
+            story_checksum=cls._sha256_file(story_path),
+            grade_checksum=cls._sha256_file(grade_path),
+        )
+
+    @staticmethod
+    def _package_ready_manifest(
+        trusted_plan,
+        *,
+        story_checksum: str,
+        grade_checksum: str,
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="story-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=job.outputs[0], sha256=story_checksum),),
+                    updated_at="2026-05-10T19:10:00Z",
+                )
+                if job.output_kind == "storyline_selection"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="grade-production-local",
+                    attempts=1,
+                    output_checksums=(OutputChecksum(path=job.outputs[0], sha256=grade_checksum),),
+                    updated_at="2026-05-10T17:35:00Z",
+                )
+                if job.output_kind in {"graded_photo", "graded_video"}
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="look-production-local",
+                    attempts=1,
+                    output_checksums=tuple(OutputChecksum(path=output, sha256="c" * 64) for output in job.outputs),
+                    updated_at="2026-05-10T16:05:00Z",
+                )
+                if job.output_kind == "look_development"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="scene-production-local",
+                    attempts=1,
+                    output_checksums=tuple(OutputChecksum(path=output, sha256="d" * 64) for output in job.outputs),
+                    updated_at="2026-05-10T15:20:00Z",
+                )
+                if job.output_kind == "scene_grouping"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=tuple(OutputChecksum(path=output, sha256="e" * 64) for output in job.outputs),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(OutputChecksum(path=output, sha256="a" * 64) for output in job.outputs),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
         )
 
     @staticmethod

@@ -67,6 +67,12 @@ Why this wedge wins:
   file outputs, and preserves directory-style package outputs or output
   conflicts as retryable review states before real proxy/VLM/color/story workers
   are introduced.
+- A deterministic local package production adapter that verifies trusted
+  storyline plus graded dependency outputs and writes declared package handoff
+  artifacts for reel, carousel, and photo-set jobs. Directory-style packages use
+  a controlled `package_manifest.json` plus deterministic directory checksums so
+  pilot dashboards can count materialized first-draft packages without granting
+  cleanup, deletion, or arbitrary export authority.
 - A local metadata production adapter that uses the same claim/result boundary
   but reads trusted local inputs, records file size and SHA-256 metadata, and
   writes deterministic JSON only to declared output files. This creates a first
@@ -112,9 +118,10 @@ Why this wedge wins:
   schema-validated/checksum-verified analysis and look dependencies.
   `story-production-local` receives only `storyline_selection` jobs and writes
   deterministic schema v2 storyline selections from checksum-verified analysis,
-  scene, look, and graded inputs, then leaves later package work pending or
-  running for future adapters instead of
-  reporting stage-mismatch failures for incompatible stages.
+  scene, look, and graded inputs. `package-production-local` receives only
+  `instagram_reel`, `instagram_carousel`, and `instagram_photo_set` jobs, proving
+  package handoff and directory-output checksums before real render/export
+  package workers are trusted.
 - A workspace health/index handoff that summarizes trusted artifacts and review
   state for Mac app shells, background agents, and continuation runs without
   granting new media-write or deletion authority. It now covers production

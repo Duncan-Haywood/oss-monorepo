@@ -196,12 +196,17 @@ This repo currently contains the first testable core utilities:
   planned analysis, scene, look, and graded inputs against trusted status
   checksums, then writes the existing schema v2
   `analysis/instagram_storylines.json` artifact for `storyline_selection` jobs
-  only. All adapters consume only trusted production-worker
-  actions, persist each claim and final result through the guarded
+  only. `package-production-local` verifies trusted storyline plus graded
+  dependency outputs and writes deterministic package handoff artifacts for
+  `instagram_reel`, `instagram_carousel`, and `instagram_photo_set` jobs;
+  directory-style package outputs are represented by a controlled
+  `package_manifest.json` plus a deterministic directory checksum. All adapters
+  consume only trusted production-worker actions, persist each claim and final
+  result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
-  file outputs, refuse symlinked, directory-style, or different existing files,
-  and report retryable status without deleting source, graded, render, or
-  deliverable media. The local batch dispatcher can execute trusted action plans
+  outputs, refuse symlinked paths or different existing files, and report
+  retryable status without deleting source, graded, render, deliverable, or
+  package media. The local batch dispatcher can execute trusted action plans
   in bounded parallel batches while preserving serial-only production jobs and
   blocked-job visibility for UI/scheduler review. Shared adapter handoff types
   now use adapter-neutral `ProductionAdapter*` names, so scheduler and future
@@ -480,9 +485,10 @@ The production adapter registry declares stage capability metadata for local
 workers. The scheduler reads that registry before planning actions or expiring
 stale leases, so `proxy-production-local`, `analysis-production-local`,
 `scene-production-local`, `look-production-local`, `grade-production-local`, and
-`story-production-local` receive only the output kinds they can materialize,
-while later packaging jobs stay pending or running for their own future adapters
-instead of being attempted through an incompatible worker.
+`story-production-local`, and `package-production-local` receive only the output
+kinds they can materialize, while incompatible later work stays pending or
+running for its own future adapters instead of being attempted through the wrong
+worker.
 
 The production-status init command writes only `production_status.json` in the
 shoot workspace, never creates analysis/graded/render/deliverable outputs, and
