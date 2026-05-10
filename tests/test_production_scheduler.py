@@ -747,6 +747,58 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         self.assertEqual(extra_bytes, b"unplanned package bytes")
         self.assertEqual(nested_extra_bytes, b"nested unplanned package bytes")
 
+    def test_package_adapter_scheduler_reports_story_checksum_drift(self) -> None:
+        trusted_plan = self._video_only_plan()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            dependency_manifest = self._write_package_dependencies_with_manifest(trusted_plan, workspace)
+            (workspace / "analysis/instagram_storylines.json").write_bytes(b"mutated storyline bytes")
+            write_production_status_manifest(dependency_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_dry_run_production_scheduler(
+                workspace,
+                trusted_plan=trusted_plan,
+                worker_adapter="package-production-local",
+                started_at="2026-05-10T21:11:00Z",
+                completed_at="2026-05-10T21:11:05Z",
+                max_concurrency=1,
+                max_iterations=2,
+            )
+            final_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            write_dry_run_production_scheduler_report(
+                result,
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                generated_at="2026-05-10T21:11:06Z",
+            )
+            loaded_report = load_dry_run_production_scheduler_report(
+                workspace,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+            )
+            package_output_exists = (workspace / "deliverables/instagram_reel.mp4").exists()
+
+        package_status = final_manifest.job_statuses[6]
+        self.assertEqual(result.stopped_reason, "retryable")
+        self.assertEqual(result.retryable_job_ids, ("assemble_instagram_reel",))
+        self.assertEqual(package_status.state, "retryable")
+        self.assertIn(
+            "Package production dependency checksum mismatch: analysis/instagram_storylines.json",
+            package_status.error_message or "",
+        )
+        self.assertFalse(package_output_exists)
+        self.assertEqual(loaded_report.outputs_materialized, ())
+        self.assertEqual(loaded_report.failure_messages[0].job_id, "assemble_instagram_reel")
+        self.assertIn(
+            "Package production dependency checksum mismatch: analysis/instagram_storylines.json",
+            loaded_report.failure_messages[0].message,
+        )
+        self.assertEqual(loaded_report.product_metrics["completed_job_count"], 6)
+        self.assertEqual(loaded_report.product_metrics["retryable_job_count"], 1)
+        self.assertEqual(loaded_report.product_metrics["materialized_output_count"], 0)
+
     def test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases(self) -> None:
         trusted_plan = self._video_only_plan()
         running_analysis_manifest = ProductionStatusManifest(
