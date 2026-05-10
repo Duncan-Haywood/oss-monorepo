@@ -2,6 +2,67 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 17:00 UTC
+
+This run started on assigned branch
+`cursor/repository-branch-consolidation-b07f` at `b073676`, matching
+`origin/main` and the previous consolidated look scene-summary validation head.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and compared all local/remote refs against it.
+- The current assigned branch has one useful branch-only commit,
+  `1a71246 test(production): cover look scheduler scene failures`, which adds
+  scheduler/report coverage for retryable look failures.
+- The only other branch with work ahead of `origin/main` is still
+  `origin/cursor/branch-consolidation-d362` at `48a7be4`. It remains one commit
+  ahead and three commits behind current main. Its diff would remove the current
+  look adapter implementation and tests, so it is stale and was intentionally
+  not merged.
+
+This run closed the highest-priority test-first target from the previous note:
+
+- Added scheduler-level coverage for `look-production-local` when the trusted
+  scene-grouping dependency checksum drifts before look development.
+- Added scheduler-level coverage for a checksum-consistent but schema-invalid
+  `analysis/scene_groups.json` payload.
+- Both tests exercise the full scheduler/report path:
+  `run_dry_run_production_scheduler(...)`, persisted `production_status.json`,
+  `write_dry_run_production_scheduler_report(...)`, and
+  `load_dry_run_production_scheduler_report(...)`.
+- The assertions pin the operational contract: `develop_shoot_look` becomes a
+  retryable review state, the persisted report marks it as review-required,
+  no `color/shoot_look.json` output is materialized, product metrics count the
+  retryable/failure state correctly, and the underlying error message survives
+  into scheduler report `failure_messages`.
+- No production code change was required; the existing scheduler/adapter path
+  already satisfied the new end-to-end contract.
+
+Verification performed during this run:
+
+- Focused new coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_look_adapter_scheduler_reports_scene_checksum_drift_as_retryable tests.test_production_scheduler.DryRunProductionSchedulerTests.test_look_adapter_scheduler_reports_malformed_scene_summary_as_retryable`
+  -> 2 tests OK.
+- Scheduler suite:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler`
+  -> 25 tests OK.
+- Full verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 418 tests OK; compileall and diff-check exited 0; working tree was clean
+  after the test commit.
+
+Good next test-first targets:
+
+- Register the first guarded grading adapter for `graded_video`/`graded_photo`
+  only after the strengthened look artifact remains stable enough for downstream
+  storyline assembly.
+- Replace `proxy-production-local`'s byte-identical stand-in with an ffmpeg or
+  Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
+  declared-output-only boundary.
+- Add native-shell/readout contract tests around future SwiftUI/menu-bar
+  controls so observe-only `workflow_authority` remains the gate before any
+  copy/retry/materialization controls are exposed.
+
 ## Implementation continuation note - 2026-05-10 16:30 UTC
 
 This run started on assigned branch
