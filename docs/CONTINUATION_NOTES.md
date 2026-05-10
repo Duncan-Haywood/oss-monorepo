@@ -21,12 +21,20 @@ Final reconciliation for this session:
   `origin/cursor/repository-branch-consolidation-8b6e`.
 - This session then implemented the next documented test-first target on the
   assigned branch: binding cohort readiness blockers into `pilot-cohort-brief`
-  JSON/text output for native-shell and GTM presentation.
+  JSON/text output for native-shell and GTM presentation, committed as
+  `1614af1 feat(pilot): surface cohort brief blockers`.
+- A final `git fetch --prune origin` deleted the three reconciled remote branches
+  above and surfaced `origin/cursor/branch-consolidation-strategy-afaf`.
+  `afaf` is one empty merge commit ahead of `457643c` with the same tree, so it
+  contains no useful content beyond what the assigned branch already inherited;
+  the assigned branch is one functional commit ahead of it.
+- Local `main` was reset to `origin/main` without checking it out, and stale local
+  branch `cursor/setup-dev-env-3ad0` was deleted after its upstream was pruned.
 - `origin/main` was not checked out or pushed because the Cloud branch
   requirements for this automation require final pushes to
   `cursor/repository-branch-consolidation-8b6e`. Once this branch is merged by
-  normal PR automation, the three reconciled remote feature branches should be
-  considered redundant because their useful work is contained here.
+  normal PR automation, `origin/cursor/branch-consolidation-strategy-afaf`
+  should be considered redundant because its useful tree is contained here.
 
 ## Implementation continuation note - 2026-05-10 09:00 UTC
 
@@ -63,6 +71,9 @@ Verification for this focused slice:
 - Related pilot/CLI run:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_pilot_dashboard tests.test_cli`
   -> 98 tests OK.
+- Full final verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 372 tests OK; compileall and diff-check exited 0.
 
 Good next test-first targets:
 
