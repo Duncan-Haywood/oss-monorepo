@@ -2,6 +2,27 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-05-10 23:02 UTC
+
+This run started on assigned branch `cursor/branch-consolidation-442c` at
+`origin/main` (`39d4d03`). A full-prune fetch showed live remote heads:
+
+- `origin/main` and `origin/cursor/branch-reconciliation-and-merge-2cbd` at
+  `39d4d03`.
+- `origin/cursor/branch-reconciliation-and-merge-7c58` at `5c498c6`, already an
+  ancestor of `origin/main`.
+- `origin/cursor/branch-consolidation-strategy-22ea` at `e9db1f5`, with older
+  package-entry reconciliation commits that are no longer the best version.
+
+The current `origin/main`/assigned-branch content is the best version to keep:
+it includes the package handoff brief, no-op report readiness fix, storyline
+checksum-drift coverage, and named nested package-directory entry reporting.
+The non-ancestor strategy branch was intentionally not merged because its net
+diff would roll back the newer package handoff CLI/tests/docs and replace the
+current `<missing package_manifest.json>` diagnostic with an older `<empty>`
+wording. Its useful package-entry safety behavior is already present in the
+current code and scheduler coverage.
+
 ## Implementation continuation note - 2026-05-10 22:30 UTC
 
 This run started on assigned branch
