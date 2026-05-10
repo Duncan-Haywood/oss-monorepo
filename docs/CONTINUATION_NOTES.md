@@ -68,6 +68,11 @@ Final reconciliation for this session:
   contains only main plus that assigned branch; the live remote now contains many
   historical branches plus this assigned branch, so merging it would make the
   continuity log inaccurate.
+- `origin/cursor/branch-consolidation-e152` later contributed useful regression
+  coverage for legacy scheduler-report authority fallback and missing handoff
+  authority rejection. Those tests were preserved when this branch was
+  reconciled; its older branch-count notes were superseded by this combined
+  continuation note.
 - Useful completed work is now consolidated on the assigned branch. `main` was
   not checked out, modified, or pushed because the Cloud branch instructions for
   this automation require final pushes only to
