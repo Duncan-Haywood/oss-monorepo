@@ -16,28 +16,16 @@ Final reconciliation for this session:
   versioned observe-only authority on `execute-ingest` receipts, schema v2 for
   `plan-import-route` and `preview-ingest`, and command-free write-capable
   `next_actions` for `write-render-tasks` and `card-dump-workflow`.
-- After `git fetch --prune origin`, the visible remote branch set is
-  `origin/main`, `origin/cursor/branch-reconciliation-and-merge-030b`,
-  `origin/cursor/branch-consolidation-0f1f`,
-  `origin/cursor/repository-branch-consolidation-ec92`, and the current
-  assigned branch.
-- `origin/cursor/branch-reconciliation-and-merge-030b` remains unmerged
-  intentionally because its useful implementation is superseded here:
-  it added schema v2 observe-only authority to card-dump, render-task,
-  render-workspace, and demo summary surfaces, while this branch includes those
-  surfaces plus `plan-production`, `next-production-wave`, `plan-import-route`,
-  `preview-ingest`, and `execute-ingest`, with review-driven direct coverage for
-  the ingest planning and receipt surfaces. Its remaining unique tree diff is
-  older continuation-note detail that predates this broader pass.
-- `origin/cursor/branch-consolidation-0f1f` remains unmerged intentionally. Its
-  unique commit changes only `docs/CONTINUATION_NOTES.md` with a stale branch
-  cleanup note claiming the 01:00 authority branch was deleted/superseded before
-  this current branch's broader authority work existed. No implementation or
-  test work is stranded there.
-- Local `cursor/setup-dev-env-3ad0` is still present with a gone upstream after
-  pruning; it can be deleted once final verification is complete.
-- The useful completed work is on the assigned branch. Final reconciliation for
-  `origin/main` should happen after verification on this branch.
+- A final `git fetch --prune origin` removed the older remote branches
+  `origin/cursor/branch-reconciliation-and-merge-030b`,
+  `origin/cursor/branch-consolidation-0f1f`, and
+  `origin/cursor/repository-branch-consolidation-ec92`. A replacement
+  `origin/cursor/branch-consolidation-08bd` remains and points at `5851407`,
+  which is fully contained in this branch and now in `origin/main`.
+- Local `cursor/setup-dev-env-3ad0` was deleted after pruning its gone remote.
+- Local `main` was reset to `origin/main`, fast-forwarded to
+  `cursor/branch-reconciliation-and-merge-e71e`, verified, and pushed. Useful
+  completed work is no longer stranded outside main.
 
 ## Implementation continuation note - 2026-05-10 02:00 UTC
 
