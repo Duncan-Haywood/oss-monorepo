@@ -161,7 +161,9 @@ The repo currently contains a Python core package because it is quick to test an
   preserved for review instead of being hammered repeatedly. It can persist a strict
   `deliverables/render_scheduler_report.json` summary bound to the trusted render-plan fingerprint and final status
   manifest, giving Mac UI, retry flows, and continuation agents an actionable view of completed, retryable, failed,
-  blocked, review-required, materialized-output, lease-conflict, and failure-message details.
+  blocked, review-required, materialized-output, lease-conflict, failure-message details, validated product metrics,
+  and root observe-only `workflow_authority` without granting new renderer, retry, cleanup, overwrite, or deletion
+  authority.
 - `shootflow.workspace_health`: a read-only continuation diagnostic for native
   shells, launch agents, and future agents. It validates production status plus
   production scheduler reports from the trusted ingest manifest, then validates
@@ -453,7 +455,10 @@ High quality depends on scene-level consistency and reversible edits. The system
   failed, blocked, review-required, materialized-output, and failure-message
   details for UI/continuation review. It also emits validated product metric
   counts derived from those same fields, so metrics cannot be forged into product
-  truth without matching the final trusted status.
+  truth without matching the final trusted status. Its root observe-only
+  `workflow_authority` makes the saved post-operation report presentation-only;
+  retry, cleanup, materialization, overwrite, and deletion still require a
+  separate reviewed action path.
 - Per-asset proxy and graded artifacts are namespaced by job ID so common camera filenames such as
   `IMG_0001.CR3` do not collide across cards or archive folders.
 - Deliverables depend on matching graded masters, not raw originals. Reels only depend on video grades;
@@ -541,13 +546,21 @@ High quality depends on scene-level consistency and reversible edits. The system
   `write_dry_run_render_scheduler_report(...)` turns the in-memory result plus the final trusted status manifest into
   `deliverables/render_scheduler_report.json`, and the loader rejects stale fingerprints, unknown task IDs, output paths
   not present in succeeded status checksums, and inconsistent review-required task lists. This report is product-facing
-  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 adds
+  state, not a renderer authority: renderers still consume trusted render tasks and status manifests. Schema v2 added
   derived product metrics to the report and validates them against the task/status fields instead of trusting caller
-  supplied analytics.
+  supplied analytics. Schema v3 adds root observe-only `workflow_authority` so native shells and continuation agents can
+  fail closed when opening the persisted scheduler report directly; legacy v1/v2 reports are loaded as observe-only.
 - `shootflow.render_workspace` is the read-only UI/agent state surface over those persisted handoffs. Inspection
   now verifies succeeded deliverable bytes against status-manifest SHA-256 checksums, not just path presence, and
   routes missing or checksum-mismatched outputs to `review_render_outputs` instead of reporting the workspace complete.
   It still performs no initialization, scheduling, overwrite, cleanup, or deletion work.
+- `shootflow.production_adapter` now has a second local adapter,
+  `metadata-production-local`, behind the same production-worker action/status
+  contract as the dry-run adapter. It reads only trusted local inputs, records
+  file size and SHA-256 metadata, writes deterministic JSON only to declared
+  output files, and routes missing inputs, directory-style outputs, stale claims,
+  or output conflicts back to retry/review status without deleting or cleaning
+  up media.
 - VLM output should feed structured scene, subject, quality, and narrative metadata. It should not make
   destructive storage decisions.
 

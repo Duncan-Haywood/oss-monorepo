@@ -65,7 +65,9 @@ This repo currently contains the first testable core utilities:
   It can also persist `deliverables/render_scheduler_report.json`, a strict
   UI/agent handoff that records completed, retryable, failed, blocked,
   review-required, materialized-output, lease-conflict, and failure-message
-  details plus derived product metrics without granting any new file authority.
+  details plus derived product metrics and root observe-only
+  `workflow_authority` without granting any new file authority. Legacy scheduler
+  report schemas still load as observe-only for existing saved workspaces.
 - `shootflow.render_workspace` gives a Mac app, launch agent, or continuation
   automation a read-only inspection surface over persisted render handoffs. It
   loads the strict render-task manifest, optionally validates the matching
@@ -168,19 +170,22 @@ This repo currently contains the first testable core utilities:
   running job's `updated_at` as a compare/write lease token so active heartbeat
   refreshes win without deleting source, analysis, graded, render, or deliverable
   files.
-- `shootflow.production_adapter` proves that pre-render worker handoff with a
-  deterministic dry-run adapter. It consumes only trusted production-worker
-  actions, persists each claim and final result through the guarded
-  `production_status.json` compare/write boundary, materializes only declared
-  file outputs, refuses symlinked, directory-style, or different existing files,
-  and reports retryable status without deleting source, graded, render, or
-  deliverable media. It can also execute trusted action plans in bounded
-  parallel batches while preserving serial-only production jobs and blocked-job
-  visibility for UI/scheduler review.
-- `shootflow.production_scheduler` runs the dry-run production adapter in an
+- `shootflow.production_adapter` proves that pre-render worker handoff with
+  local adapters. The dry-run adapter writes deterministic placeholder
+  artifacts, while the metadata adapter reads trusted local inputs and writes
+  deterministic metadata JSON to declared output files as the first
+  non-placeholder production path. Both consume only trusted production-worker
+  actions, persist each claim and final result through the guarded
+  `production_status.json` compare/write boundary, materialize only declared
+  file outputs, refuse symlinked, directory-style, or different existing files,
+  and report retryable status without deleting source, graded, render, or
+  deliverable media. The local batch dispatcher can execute trusted action plans
+  in bounded parallel batches while preserving serial-only production jobs and
+  blocked-job visibility for UI/scheduler review.
+- `shootflow.production_scheduler` runs trusted local production adapters in an
   iterative local loop: each pass reloads trusted `production_status.json`,
   optionally expires stale-running leases through the guarded production-worker
-  helper, plans dependency-ready pending/retryable jobs, runs a bounded dry-run
+  helper, plans dependency-ready pending/retryable jobs, runs a bounded local
   batch, requires explicit review before retrying a previously retryable job,
   avoids retrying a job that already became retryable in the same run, and
   returns explicit complete/blocked/retryable/failed/waiting state for Mac shells
@@ -188,7 +193,9 @@ This repo currently contains the first testable core utilities:
   completed, retryable, failed, blocked, attempted, skipped retryable,
   expired-lease, conflicted-lease, review-required, materialized output, and
   failure-message details plus derived product metrics bound to the final
-  production status.
+  production status. The persisted report also carries root observe-only
+  `workflow_authority`, so post-operation evidence cannot unlock retry, cleanup,
+  overwrite, materialization, deletion, or other file-changing controls.
 - `shootflow.card_workflow` ties mounted-volume route discovery, source-size
   estimation, checksum ingest preview, optional confirmed copy, and read-only
   production reporting into one product-facing card-dump workflow for Mac app
@@ -267,15 +274,18 @@ The intended first workflow is:
     proxy/VLM/color/story jobs from trusted status, claim one matching attempt as
     running, verify every declared output before success, and report retry/failure
     states without deleting source, graded, or deliverable media.
-13. Exercise those pre-render transitions with the dry-run production adapter
-    before real proxy, VLM, look-development, grading, or storyline runners are
-    wired in. The adapter writes only declared placeholder file artifacts and
-    keeps stale claims, directory-style package outputs, or output conflicts
+13. Exercise those pre-render transitions with local production adapters before
+    real proxy, VLM, look-development, grading, or storyline runners are wired
+    in. The dry-run adapter writes only declared placeholder file artifacts. The
+    metadata adapter reads local trusted inputs and writes deterministic metadata
+    JSON into declared output files, giving the product a real input-fingerprint
+    path without copying, deleting, or inventing media paths. Stale claims,
+    directory-style package outputs, missing inputs, or output conflicts remain
     visible in production status.
 14. Run `python -m shootflow.cli dry-run-production-scheduler` when a local
     shell or background agent should advance trusted pre-render work from
     persisted status. The scheduler loops over status reload, ready-action
-    planning, bounded dry-run batches, and retryable-job review stops without
+    planning, bounded local adapter batches, and retryable-job review stops without
     deleting or cleaning up source, graded, render, or deliverable files. A
     previously retryable job is retried only when the caller passes that reviewed
     job ID with `--retryable-job`.
@@ -445,8 +455,8 @@ job in the same run. When both `--stale-before` and `--lease-updated-at` are
 supplied, it expires stale running jobs into retryable review states through the
 guarded production-status compare/write path and reports heartbeat-refresh
 conflicts without clobbering the active worker. It writes
-`production_scheduler_report.json` so UI and continuation layers can inspect the
-last run and derived product metrics without rerunning worker orchestration. The render-status init command writes only
+schema v3 `production_scheduler_report.json` so UI and continuation layers can inspect the
+last run, observe-only authority, and derived product metrics without rerunning worker orchestration. The render-status init command writes only
 metadata under `deliverables/`, never deletes media, and fails rather than
 overwriting an existing status manifest that no longer matches the trusted
 render-task plan.
