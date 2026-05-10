@@ -2,6 +2,86 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch reconciliation note - 2026-05-10 09:30 UTC
+
+Final reconciliation for this session:
+
+- Started on assigned branch `cursor/branch-reconciliation-and-merge-96ab`,
+  matching `origin/main` at `2ae8935`.
+- The first branch pass found `origin/cursor/repository-branch-consolidation-f53c`
+  as useful unmerged scheduler-report-authority work, so the assigned branch
+  fast-forwarded through `fc635ed docs: update scheduler authority verification`
+  and was pushed.
+- This session then rebuilt the documented `metadata-production-local` target on
+  the assigned branch with test-first commits, before a fresh `git fetch --prune
+  origin` surfaced the newer superset
+  `origin/cursor/repository-branch-consolidation-8b6e`.
+- `origin/cursor/repository-branch-consolidation-8b6e` already contained the
+  scheduler authority work, an earlier metadata adapter, and the 09:00 pilot
+  cohort-brief blocker presentation work. The assigned branch merged it with
+  `b267fe5 Merge remote-tracking branch
+  'origin/cursor/repository-branch-consolidation-8b6e' into
+  cursor/branch-reconciliation-and-merge-96ab`.
+- Merge conflicts were resolved by preserving the cohort blocker/report work and
+  the stronger consolidated metadata adapter implementation, while removing this
+  session's duplicate CLI metadata scheduler test. The assigned branch keeps this
+  session's additional docs describing the metadata adapter and branch-specific
+  test-first history.
+- Live remote comparison after the merge: the assigned branch is 32 commits ahead
+  of `origin/main`; `origin/cursor/repository-branch-consolidation-8b6e` is
+  contained in the assigned branch; `origin/cursor/branch-consolidation-strategy-afaf`
+  remains 26 commits ahead of main but is a same-tree/older consolidation branch
+  already covered by the merged superset.
+- `origin/main` was not checked out or pushed because the Cloud branch
+  requirements for this automation require final pushes only to
+  `cursor/branch-reconciliation-and-merge-96ab`. Useful completed work is now
+  consolidated on the assigned branch for normal PR automation.
+
+## Implementation continuation note - 2026-05-10 09:30 UTC
+
+This run advanced the production-worker adapter layer and reconciled the latest
+pilot analytics branch:
+
+- Added test-first coverage for `metadata-production-local` as a supported local
+  production adapter: unit tests cover deterministic metadata output, symlinked
+  inputs, symlinked outputs, and the CLI scheduler path.
+- Implemented/merged the local metadata adapter behind the existing trusted
+  production-worker action contract. It fingerprints trusted local inputs, writes
+  deterministic JSON only to declared outputs, persists claims/results through
+  `production_status.json`, and reports retryable review states instead of
+  copying, deleting, cleaning up, or inventing paths.
+- Merged the 09:00 cohort-brief readiness blocker work so the assigned branch
+  also includes structured readiness blocker counts and controlled blocker labels
+  in `pilot-cohort-brief`.
+- Updated README, AGENTS, product strategy, business plan, and design decisions
+  to describe registered local production adapters and the metadata adapter's
+  declared-output-only boundary.
+
+Verification so far in this session:
+
+- Red run for this session's metadata tests:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_metadata_production_scheduler_command_writes_local_metadata_outputs`
+  failed because `run_metadata_production_action` was missing and
+  `metadata-production-local` was unsupported.
+- Focused green before branch merge:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli.ShootFlowProductionStatusCliTests.test_metadata_production_scheduler_command_writes_local_metadata_outputs`
+  -> 8 tests OK.
+- Post-merge focused regression:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_status_cli tests.test_pilot_cohort_brief tests.test_pilot_cohort_report tests.test_production_scheduler tests.test_render_scheduler tests.test_cli`
+  -> 158 tests OK.
+
+Good next test-first targets:
+
+- Add a real proxy-generation adapter behind the same `ProductionWorkerAction`
+  boundary, using `metadata-production-local` as the input-fingerprint and
+  declared-output safety pattern.
+- Bind scheduler reports plus `handoff-controls` into a minimal native-shell CLI
+  fixture so UI controls are disabled from the authority payload rather than
+  presentation prose.
+- Extend metadata adapter coverage to forged succeeded dependencies with missing
+  input files across non-proxy stages before media-producing adapters rely on
+  those upstream artifacts.
+
 ## Branch reconciliation note - 2026-05-10 09:00 UTC
 
 Final reconciliation for this session:
