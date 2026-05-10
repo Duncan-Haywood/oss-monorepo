@@ -1820,11 +1820,76 @@ def _grade_look_summary(
     look_name = look_profile.get("name")
     if not isinstance(look_name, str) or not look_name.strip():
         raise ProductionAdapterError("Grade production look_profile name cannot be empty")
+    _grade_look_source_scene_summary(raw_payload)
+    for string_field in ("tone_curve", "color_bias"):
+        _grade_look_profile_string(look_profile, string_field)
+    for score_field in ("warmth", "saturation", "contrast"):
+        _grade_look_profile_score(look_profile, score_field)
     return {
         "path": output,
         "sha256": sha256,
         "look_profile_name": look_name,
     }
+
+
+def _grade_look_source_scene_summary(raw_payload: dict[str, object]) -> None:
+    source_scene_groups = raw_payload.get("source_scene_groups")
+    if not isinstance(source_scene_groups, dict):
+        raise ProductionAdapterError("Grade production source_scene_groups must be an object")
+    path = source_scene_groups.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise ProductionAdapterError("Grade production source_scene_groups path cannot be empty")
+    sha256 = source_scene_groups.get("sha256")
+    if not isinstance(sha256, str) or len(sha256) != 64:
+        raise ProductionAdapterError("Grade production source_scene_groups sha256 must be a SHA-256 hex digest")
+    try:
+        int(sha256, 16)
+    except ValueError as exc:
+        raise ProductionAdapterError(
+            "Grade production source_scene_groups sha256 must be a SHA-256 hex digest"
+        ) from exc
+    for field_name in ("analysis_count", "scene_count"):
+        _grade_look_non_negative_int(source_scene_groups, f"source_scene_groups {field_name}", field_name)
+    for field_name in ("scene_labels", "primary_tags"):
+        _grade_look_string_list(source_scene_groups, f"source_scene_groups {field_name}", field_name)
+
+
+def _grade_look_non_negative_int(payload: dict[str, object], label: str, field_name: str) -> int:
+    value = payload.get(field_name)
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise ProductionAdapterError(f"Grade production {label} must be a non-negative integer")
+    return value
+
+
+def _grade_look_string_list(payload: dict[str, object], label: str, field_name: str) -> tuple[str, ...]:
+    value = payload.get(field_name)
+    if not isinstance(value, list):
+        raise ProductionAdapterError(f"Grade production {label} must be a list")
+    strings = []
+    for item in value:
+        if not isinstance(item, str) or not item.strip():
+            raise ProductionAdapterError(f"Grade production {label} must contain strings")
+        strings.append(item)
+    return tuple(strings)
+
+
+def _grade_look_profile_string(look_profile: dict[str, object], field_name: str) -> str:
+    value = look_profile.get(field_name)
+    if not isinstance(value, str) or not value.strip():
+        raise ProductionAdapterError(f"Grade production look_profile {field_name} cannot be empty")
+    return value
+
+
+def _grade_look_profile_score(look_profile: dict[str, object], field_name: str) -> float:
+    value = look_profile.get(field_name)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ProductionAdapterError(f"Grade production look_profile {field_name} must be a score")
+    score = float(value)
+    if not math.isfinite(score):
+        raise ProductionAdapterError(f"Grade production look_profile {field_name} must be finite")
+    if score < 0.0 or score > 1.0:
+        raise ProductionAdapterError(f"Grade production look_profile {field_name} must be between 0 and 1")
+    return score
 
 
 def _grade_score(raw_payload: dict[str, object], field_name: str) -> float:

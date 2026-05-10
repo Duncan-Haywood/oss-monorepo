@@ -1311,6 +1311,86 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
 
+    def test_grade_adapter_marks_malformed_look_dependency_retryable(self) -> None:
+        trusted_plan, _ready_manifest, action = self._grade_ready_context()
+
+        def set_look_profile_field(field_name: str, value: object):
+            def mutate(look_payload: dict[str, object]) -> None:
+                look_profile = look_payload["look_profile"]
+                assert isinstance(look_profile, dict)
+                look_profile[field_name] = value
+
+            return mutate
+
+        cases = (
+            (
+                "source_scene_groups_type",
+                lambda look_payload: look_payload.__setitem__("source_scene_groups", "analysis/scene_groups.json"),
+                "Grade production source_scene_groups must be an object",
+            ),
+            (
+                "source_scene_groups_bool_count",
+                lambda look_payload: look_payload.__setitem__(
+                    "source_scene_groups",
+                    {
+                        "path": "analysis/scene_groups.json",
+                        "sha256": "a" * 64,
+                        "analysis_count": True,
+                        "scene_count": 2,
+                        "scene_labels": ["ceremony", "portraits"],
+                        "primary_tags": ["dance", "portrait", "vows"],
+                    },
+                ),
+                "Grade production source_scene_groups analysis_count must be a non-negative integer",
+            ),
+            (
+                "look_profile_empty_tone_curve",
+                set_look_profile_field("tone_curve", ""),
+                "Grade production look_profile tone_curve cannot be empty",
+            ),
+            (
+                "look_profile_nan_warmth",
+                set_look_profile_field("warmth", float("nan")),
+                "Grade production look_profile warmth must be finite",
+            ),
+        )
+
+        for case_name, mutate_payload, expected_message in cases:
+            with self.subTest(case_name=case_name), tempfile.TemporaryDirectory() as tmpdir:
+                workspace = Path(tmpdir)
+                self._write_grade_dependencies_with_manifest(trusted_plan, workspace)
+                source_path = workspace / action.inputs[0]
+                source_path.parent.mkdir(parents=True, exist_ok=True)
+                source_path.write_bytes(b"trusted camera original")
+                look_path = workspace / "color/shoot_look.json"
+                look_payload = json.loads(look_path.read_text(encoding="utf-8"))
+                mutate_payload(look_payload)
+                look_path.write_text(
+                    json.dumps(look_payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                ready_manifest = self._grade_ready_manifest_with_checksums(
+                    trusted_plan,
+                    analysis_checksum=self._sha256_file(workspace / "analysis/00000.json"),
+                    look_checksum=self._sha256_file(look_path),
+                )
+                write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+                result = run_grade_production_action(
+                    workspace,
+                    trusted_plan=trusted_plan,
+                    action=action,
+                    started_at="2026-05-10T18:31:00Z",
+                    completed_at="2026-05-10T18:31:05Z",
+                )
+                output_exists = (workspace / action.outputs[0]).exists()
+                loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+                self.assertEqual(result.final_status.state, "retryable")
+                self.assertIn(expected_message, result.final_status.error_message or "")
+                self.assertFalse(output_exists)
+                self.assertEqual(loaded_manifest.job_statuses[6], result.final_status)
+
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
             job_id="metadata_bad_input",

@@ -96,7 +96,7 @@ The repo currently contains a Python core package because it is quick to test an
   scene-to-look handoff before real color science or reference-look learning is
   trusted. `grade-production-local` is the first per-asset color-stage probe: it
   verifies the trusted original, schema-validated/checksum-verified analysis
-  dependency, and checksum-verified look dependency, then writes one
+  dependency, and schema-validated/checksum-verified look dependency, then writes one
   deterministic stand-in graded artifact for `graded_photo`/`graded_video` jobs
   only. It proves the
   look-to-grade handoff before ffmpeg/Core Image/Metal grading workers are
@@ -418,7 +418,7 @@ The desired high-quality pipeline is:
     handoff, `color/shoot_look.json`, from the checksum-verified scene summary.
     `grade-production-local` materializes deterministic per-asset graded
     stand-ins from the trusted original, schema-validated/checksum-verified
-    analysis, and checksum-verified look artifact while leaving storyline and
+    analysis, and schema-validated/checksum-verified look artifact while leaving storyline and
     package jobs for compatible future adapters.
     All adapters persist success or retryable state through
     `production_status.json` before real VLM, color, or storyline runners are
