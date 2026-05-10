@@ -56,6 +56,22 @@ Good next test-first targets:
   Core Image/Metal downsampled proxy renderer behind the same no-overwrite,
   declared-output-only boundary.
 
+Final branch reconciliation:
+
+- Ran `git fetch --prune origin`. Historical remote work branches were pruned by
+  the remote; the only remaining non-main remotes were
+  `origin/cursor/branch-consolidation-bfe5`, which is already contained in
+  `origin/main`, and the assigned
+  `origin/cursor/repository-branch-consolidation-1bd5`, which is two commits
+  ahead of `origin/main` with this run's completed scheduler-routing work.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after confirming it was merged
+  into `origin/main`, and reset the local `main` ref to `origin/main` without
+  checking it out.
+- Did not fast-forward or push `origin/main` in this run because the active Cloud
+  branch instructions require all pushes to the assigned branch only. The useful
+  completed work is therefore consolidated and pushed on
+  `origin/cursor/repository-branch-consolidation-1bd5` for normal PR automation.
+
 ## Implementation continuation note - 2026-05-10 11:30 UTC
 
 This run first reconciled stranded completed work, then added the next
