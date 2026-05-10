@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -7,6 +8,8 @@ from shootflow.production import build_production_plan
 from shootflow.production_adapter import (
     DryRunProductionAdapterResult,
     DryRunProductionError,
+    MetadataProductionAdapterResult,
+    run_metadata_production_action,
     run_dry_run_production_action,
     supported_production_adapter_names,
 )
@@ -174,6 +177,83 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(result.outputs_materialized, ())
         self.assertFalse(package_path_exists)
         self.assertEqual(loaded_manifest.job_statuses[trusted_plan.jobs.index(trusted_plan.job_by_id(target_job_id))], result.final_status)
+
+    def test_metadata_adapter_persists_input_fingerprints_for_declared_outputs(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            input_path = workspace / action.inputs[0]
+            input_path.parent.mkdir(parents=True)
+            input_path.write_bytes(b"trusted camera bytes")
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T10:05:00Z",
+                completed_at="2026-05-10T10:05:05Z",
+            )
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+            output_payload = json.loads((workspace / action.outputs[0]).read_text(encoding="utf-8"))
+
+        self.assertEqual(
+            supported_production_adapter_names(),
+            ("dry-run-production-local", "metadata-production-local"),
+        )
+        self.assertIsInstance(result, MetadataProductionAdapterResult)
+        self.assertEqual(result.final_status.state, "succeeded")
+        self.assertEqual(result.outputs_materialized, action.outputs)
+        self.assertEqual(result.manifest, loaded_manifest)
+        self.assertEqual(output_payload["adapter"], "shootflow-metadata-production")
+        self.assertEqual(output_payload["job_id"], action.job_id)
+        self.assertEqual(output_payload["output_kind"], action.output_kind)
+        self.assertEqual(
+            output_payload["input_metadata"],
+            [
+                {
+                    "path": action.inputs[0],
+                    "sha256": "5cd00a6f04b1f9fc069579fb82120fe61fe1af4d31d2f9a1fb2e4da5090a0181",
+                    "size_bytes": 20,
+                }
+            ],
+        )
+
+    def test_metadata_adapter_missing_input_becomes_retryable_without_output(self) -> None:
+        trusted_plan = self._trusted_plan()
+        initial_manifest = self._pending_manifest(trusted_plan)
+        action = plan_production_worker_actions(
+            trusted_plan,
+            initial_manifest,
+            worker_adapter="metadata-production-local",
+        ).actions[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            write_production_status_manifest(initial_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_metadata_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T10:06:00Z",
+                completed_at="2026-05-10T10:06:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+            loaded_manifest = load_production_status_manifest(workspace, trusted_plan=trusted_plan)
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Missing metadata production input", result.final_status.error_message or "")
+        self.assertEqual(result.outputs_materialized, ())
+        self.assertFalse(output_exists)
+        self.assertEqual(loaded_manifest.job_statuses[0], result.final_status)
 
     @staticmethod
     def _trusted_plan():
