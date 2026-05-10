@@ -68,6 +68,11 @@ Final reconciliation for this session:
   contains only main plus that assigned branch; the live remote now contains many
   historical branches plus this assigned branch, so merging it would make the
   continuity log inaccurate.
+- `origin/cursor/branch-consolidation-e152` later contributed useful regression
+  coverage for legacy scheduler-report authority fallback and missing handoff
+  authority rejection. Those tests were preserved when this branch was
+  reconciled; its older branch-count notes were superseded by this combined
+  continuation note.
 - Useful completed work is now consolidated on the assigned branch. `main` was
   not checked out, modified, or pushed because the Cloud branch instructions for
   this automation require final pushes only to
@@ -82,42 +87,6 @@ Good next test-first targets:
   output parents, matching existing outputs, and different existing outputs.
 - Decide the first real media-producing adapter boundary after metadata:
   ffmpeg proxy generation, Core Image/Metal look preview, or Resolve handoff.
-
-## Branch consolidation note - 2026-05-10 06:00 UTC
-
-Final consolidation for this session:
-
-- The assigned branch `cursor/branch-consolidation-e152` started at `2ae8935`,
-  matching `origin/main`, while many stale remote-tracking Cursor branches were
-  still visible locally.
-- The useful unmerged branch was
-  `origin/cursor/repository-branch-consolidation-f53c`; the assigned branch
-  fast-forwarded to `fc635ed`, bringing in the scheduler report
-  `workflow_authority`/schema v3 implementation, tests, and documentation.
-- A docs-only stale branch snapshot,
-  `origin/cursor/branch-consolidation-f0b0`, was not carried forward because it
-  contained no implementation or regression coverage beyond an outdated branch
-  count note.
-- After pruning stale remote refs, two newer consolidation branches appeared.
-  Their useful regression coverage was incorporated onto the assigned branch as
-  `646caa2 test(scheduler): cover schema v2 authority fallback` and
-  `e24560b test(cli): cover missing handoff authority`; their branch-count
-  notes were superseded by this final note.
-- Remote cleanup deleted the redundant Cursor branches after their useful work
-  was preserved. The remote branch set is now `origin/main` plus
-  `origin/cursor/branch-consolidation-e152`, staying below the requested
-  three-branch limit for the current single-worker setup.
-- Local cleanup removed the stale `cursor/setup-dev-env-3ad0` branch and reset
-  local `main` to track `origin/main`.
-
-Verification in this session:
-
-- Initial consolidated scheduler-authority tree:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
-  -> 348 tests OK; compileall and diff-check passed.
-- Final consolidated tree after preserving the newer regression coverage:
-  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
-  -> 351 tests OK; compileall and diff-check passed.
 
 ## Implementation continuation note - 2026-05-10 04:00 UTC
 
