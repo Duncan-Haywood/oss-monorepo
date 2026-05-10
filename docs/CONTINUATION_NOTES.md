@@ -31,6 +31,36 @@ Verification performed during this run:
 - Focused green:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_leaves_non_proxy_jobs_pending_for_later_adapters tests.test_production_scheduler.DryRunProductionSchedulerTests.test_proxy_adapter_scheduler_does_not_expire_non_proxy_running_leases`
   -> 3 tests OK.
+- Full repository verification after commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 389 tests OK; compileall/diff-check exited 0; working tree was clean on
+  `cursor/repository-branch-consolidation-1804`.
+- Independent code review found no issues. Residual maintenance risk: adapter
+  capability metadata and batch dispatch must stay in sync as future adapters are
+  registered.
+
+Final branch reconciliation:
+
+- Ran `git fetch --prune origin`. Remaining remotes:
+  `origin/main`, `origin/cursor/branch-consolidation-bfe5`,
+  `origin/cursor/repository-branch-consolidation-1bd5`, and assigned
+  `origin/cursor/repository-branch-consolidation-1804`.
+- `origin/cursor/branch-consolidation-bfe5` is exactly contained in
+  `origin/main` (`origin/main...origin/cursor/branch-consolidation-bfe5` =
+  `0 0`), so it has no stranded unique work.
+- `origin/cursor/repository-branch-consolidation-1bd5` is contained in the
+  assigned branch (`1bd5...1804` = `0 1`), so the prior scheduler-routing work is
+  consolidated here.
+- Assigned branch `origin/cursor/repository-branch-consolidation-1804` is four
+  commits ahead of `origin/main`: the two stage-routing commits, the 12:00
+  branch note, and this adapter-registry refactor.
+- Deleted stale local `cursor/setup-dev-env-3ad0` after fetch marked its upstream
+  gone, and reset the local `main` ref to `origin/main` without checking it out.
+- Did not push `origin/main` or delete remote branches because the active Cloud
+  branch instructions require pushes only to the assigned branch. Useful work is
+  pushed on `origin/cursor/repository-branch-consolidation-1804` for normal PR
+  automation; `branch-consolidation-bfe5` is redundant but remote cleanup is
+  intentionally left to automation with branch-write authority.
 
 Good next test-first targets:
 
