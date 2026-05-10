@@ -2,6 +2,87 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 19:00 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-62ae` at `3c197cc`, matching
+`origin/main` and the previous grade-look reconciliation head.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and compared all local and remote refs against it before
+  implementation. The assigned branch and `origin/main` initially matched.
+- The only other remote branch ahead of `origin/main` was
+  `origin/cursor/branch-consolidation-strategy-1e40`, one commit ahead and eight
+  commits behind at the beginning of the run. Its unique diff remained only the
+  stale branch-consolidation continuation-note content already rejected by prior
+  runs, so it was intentionally not merged.
+- After implementation, local `main` was fast-forwarded from the stale initial
+  commit through `origin/main`, then fast-forwarded through the assigned branch
+  commits and pushed to `origin/main`. A final branch comparison after pushing
+  main showed no useful implementation branch ahead of `origin/main`; only the
+  same stale `origin/cursor/branch-consolidation-strategy-1e40` note branch
+  remained ahead/behind and unmerged for the same reason.
+
+This run closed the primary post-grade handoff left by the 18:30 UTC note:
+
+- Added `story-production-local` as a stage-specific production adapter for
+  `storyline_selection` jobs.
+- The adapter claims/finalizes through the existing guarded
+  `production_status.json` compare/write path, verifies every planned story
+  input artifact (analysis, scene groups, shoot look, and graded outputs)
+  against succeeded trusted-status checksums, then writes only the declared
+  schema v2 `analysis/instagram_storylines.json` output.
+- Missing or unsafe dependencies become retryable review states without
+  deleting, cleaning up, overwriting, or inventing media paths.
+- Added `storyline_artifact_bytes(...)` so adapters can reuse the existing
+  storyline schema/validation without calling the artifact writer that replaces
+  files directly.
+- Added direct action coverage for successful storyline materialization and a
+  missing graded dependency, plus batch-dispatch coverage proving
+  `run_production_adapter_batch(...)` routes `story-production-local` through
+  the same adapter contract.
+- Updated CLI help, AGENTS, README, product strategy, business plan, and design
+  decisions so the current canonical production chain is proxy -> analysis ->
+  scene -> look -> grade -> story, with package work still pending a compatible
+  future adapter.
+
+Verification performed during this run:
+
+- Red check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_declares_supported_output_kinds_for_stage_specific_adapters tests.test_production_adapter.DryRunProductionAdapterTests.test_story_adapter_writes_deterministic_storylines_from_trusted_grade_outputs tests.test_production_adapter.DryRunProductionAdapterTests.test_story_adapter_marks_missing_grade_dependency_retryable_without_output`
+  failed because `run_story_production_action` was missing.
+- Focused green after implementation:
+  the same three story adapter tests -> 3 tests OK.
+- Full adapter verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter`
+  -> 53 tests OK before the batch-dispatch follow-up, then 55 tests OK after
+  adding the story batch test.
+- Related/full verification before docs commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_story tests.test_cli tests.test_production_scheduler && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 160 related tests OK, 428 full tests OK, compileall and diff-check exited
+  0.
+- Independent review (`code-reviewer` subagent) found no correctness, safety, or
+  contract issues. It identified the missing batch-dispatch story adapter test,
+  which this run added and verified.
+- Reconciliation verification on `main` before pushing:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests`
+  -> 428 tests OK, then `origin/main` was fast-forwarded to `4026cb2`.
+
+Good next test-first targets:
+
+- Register a deterministic package/deliverable production adapter that consumes
+  trusted storyline and graded outputs only through declared package job outputs,
+  while preserving directory-output safety and no-overwrite semantics.
+- Add scheduler-level story adapter coverage if native Mac UI/report surfaces
+  need explicit persisted-report proof that story jobs complete and package jobs
+  remain pending for a compatible worker.
+- Replace `story-production-local` with real editorial/story intelligence behind
+  the same checksum-verified input boundary, preserving the existing schema v2
+  storyline artifact until a deliberate schema migration is planned.
+- Continue replacing local stand-ins with real ffmpeg/Core Image/Metal and VLM
+  workers only behind the already-tested declared-output-only contracts.
+
 ## Implementation continuation note - 2026-05-10 18:30 UTC
 
 This run started on assigned branch
