@@ -35,6 +35,11 @@ This run completed the next test-first adapter capability target:
   `load_asset_analyses(...)`, then writes a deterministic
   `analysis/scene_groups.json` summary with scene labels, grouped graded asset
   paths, asset/media counts, primary tags, and average score signals.
+- Follow-up review found the initial scene adapter loaded analysis JSON without
+  verifying it against the succeeded analysis job checksums in
+  `production_status.json`. This run added a red checksum-drift regression and
+  now verifies every scene dependency output exists, is not symlinked, and
+  matches its recorded checksum before scene grouping materializes output.
 - Missing or invalid analysis files become retryable review states after a
   guarded claim, preserving the trusted status loop without deleting source,
   analysis, graded, render, or deliverable files.
@@ -54,6 +59,13 @@ Verification performed during this run:
   rejected unsupported adapter `scene-production-local`.
 - Focused green:
   same command -> 4 tests OK.
+- Review fix red:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_analysis_checksum_drift`
+  failed because the scene adapter marked checksum-drifted analysis files as
+  succeeded.
+- Review fix green:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_writes_deterministic_grouping_from_trusted_analyses tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_missing_analysis_becomes_retryable_after_claim tests.test_production_adapter.DryRunProductionAdapterTests.test_scene_adapter_rejects_analysis_checksum_drift tests.test_production_scheduler.DryRunProductionSchedulerTests.test_scene_adapter_scheduler_leaves_downstream_jobs_pending`
+  -> 4 tests OK.
 - Related suites from committed tree:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter tests.test_production_scheduler tests.test_production_status_cli`
   -> 66 tests OK.

@@ -1,5 +1,6 @@
-import os
 import json
+import os
+import hashlib
 from pathlib import Path
 import tempfile
 import unittest
@@ -489,7 +490,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(preserved_bytes, b"manual analysis")
 
     def test_scene_adapter_writes_deterministic_grouping_from_trusted_analyses(self) -> None:
-        trusted_plan, ready_manifest, action = self._scene_ready_context()
+        trusted_plan, _ready_manifest, action = self._scene_ready_context()
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workspace = Path(tmpdir)
@@ -517,6 +518,13 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                 technical_score=0.8,
                 motion_score=0.5,
                 tags=("vows", "portrait"),
+            )
+            ready_manifest = self._scene_ready_manifest_with_checksums(
+                trusted_plan,
+                {
+                    "analysis/00000.json": self._sha256_file(workspace / "analysis/00000.json"),
+                    "analysis/00001.json": self._sha256_file(workspace / "analysis/00001.json"),
+                },
             )
             write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
 
@@ -564,9 +572,54 @@ class DryRunProductionAdapterTests(unittest.TestCase):
 
         self.assertEqual(result.final_status.state, "retryable")
         self.assertIn("Scene production adapter", result.final_status.error_message or "")
-        self.assertIn("Missing planned analysis file", result.final_status.error_message or "")
+        self.assertIn("Missing scene production dependency output", result.final_status.error_message or "")
         self.assertFalse(output_exists)
         self.assertEqual(loaded_manifest.job_statuses[4], result.final_status)
+
+    def test_scene_adapter_rejects_analysis_checksum_drift(self) -> None:
+        trusted_plan, ready_manifest, action = self._scene_ready_context()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            self._write_analysis_payload(
+                workspace,
+                "analysis/00000.json",
+                source_asset_path="originals/A001.MOV",
+                media_type="video",
+                scene_label="ceremony",
+                aesthetic_score=0.8,
+                story_score=0.9,
+                technical_score=0.7,
+                motion_score=0.6,
+                duration_seconds=12.0,
+                tags=("vows",),
+            )
+            self._write_analysis_payload(
+                workspace,
+                "analysis/00001.json",
+                source_asset_path="originals/IMG_0001.CR3",
+                media_type="photo",
+                scene_label="ceremony",
+                aesthetic_score=0.7,
+                story_score=0.6,
+                technical_score=0.8,
+                motion_score=0.5,
+                tags=("portrait",),
+            )
+            write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
+
+            result = run_scene_production_action(
+                workspace,
+                trusted_plan=trusted_plan,
+                action=action,
+                started_at="2026-05-10T15:18:00Z",
+                completed_at="2026-05-10T15:18:05Z",
+            )
+            output_exists = (workspace / action.outputs[0]).exists()
+
+        self.assertEqual(result.final_status.state, "retryable")
+        self.assertIn("Scene production dependency checksum mismatch", result.final_status.error_message or "")
+        self.assertFalse(output_exists)
 
     def test_metadata_adapter_malformed_input_becomes_retryable_after_claim(self) -> None:
         job = ProductionJob(
@@ -1185,6 +1238,43 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         return trusted_plan, ready_manifest, action
 
     @staticmethod
+    def _scene_ready_manifest_with_checksums(
+        trusted_plan,
+        analysis_checksums: dict[str, str],
+    ) -> ProductionStatusManifest:
+        return ProductionStatusManifest(
+            shoot_slug=trusted_plan.shoot_slug,
+            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+            job_statuses=tuple(
+                ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="analysis-production-local",
+                    attempts=1,
+                    output_checksums=(
+                        OutputChecksum(path=job.outputs[0], sha256=analysis_checksums[job.outputs[0]]),
+                    ),
+                    updated_at="2026-05-10T15:10:00Z",
+                )
+                if job.output_kind == "vlm_asset_analysis"
+                else ProductionJobStatus(
+                    job_id=job.job_id,
+                    state="succeeded",
+                    worker_adapter="proxy-production-local",
+                    attempts=1,
+                    output_checksums=tuple(
+                        OutputChecksum(path=output, sha256="a" * 64)
+                        for output in job.outputs
+                    ),
+                    updated_at="2026-05-10T14:10:00Z",
+                )
+                if job.output_kind == "proxy_media"
+                else ProductionJobStatus(job_id=job.job_id, state="pending")
+                for job in trusted_plan.jobs
+            ),
+        )
+
+    @staticmethod
     def _write_analysis_payload(
         workspace: Path,
         output: str,
@@ -1218,6 +1308,14 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
+
+    @staticmethod
+    def _sha256_file(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as input_file:
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
 
 if __name__ == "__main__":

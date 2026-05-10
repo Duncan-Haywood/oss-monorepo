@@ -182,10 +182,11 @@ This repo currently contains the first testable core utilities:
   `vlm_asset_analysis` jobs only, deriving conservative local scores from trusted
   input bytes so the analysis/status boundary can be exercised before real VLM
   execution is trusted. `scene-production-local` consumes those validated
-  per-asset analysis artifacts and writes a deterministic
-  `analysis/scene_groups.json` grouping summary for `scene_grouping` jobs only,
-  proving the next serial rejoin point before real scene clustering or look
-  development is trusted. All adapters consume only trusted production-worker
+  per-asset analysis artifacts, verifies them against their succeeded status
+  checksums, and writes a deterministic `analysis/scene_groups.json` grouping
+  summary for `scene_grouping` jobs only, proving the next serial rejoin point
+  before real scene clustering or look development is trusted. All adapters
+  consume only trusted production-worker
   actions, persist each claim and final result through the guarded
   `production_status.json` compare/write boundary, materialize only declared
   file outputs, refuse symlinked, directory-style, or different existing files,

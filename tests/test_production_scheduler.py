@@ -1,4 +1,5 @@
 from pathlib import Path
+import hashlib
 import tempfile
 import unittest
 from unittest import mock
@@ -183,32 +184,6 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
         trusted_plan = self._video_only_plan()
         proxy_job = trusted_plan.job_by_id("proxy_asset_00000")
         analysis_job = trusted_plan.job_by_id("analyze_asset_00000")
-        ready_manifest = ProductionStatusManifest(
-            shoot_slug=trusted_plan.shoot_slug,
-            production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
-            job_statuses=(
-                ProductionJobStatus(
-                    job_id=proxy_job.job_id,
-                    state="succeeded",
-                    worker_adapter="proxy-production-local",
-                    attempts=1,
-                    output_checksums=(OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),),
-                    updated_at="2026-05-10T14:10:00Z",
-                ),
-                ProductionJobStatus(
-                    job_id=analysis_job.job_id,
-                    state="succeeded",
-                    worker_adapter="analysis-production-local",
-                    attempts=1,
-                    output_checksums=(OutputChecksum(path=analysis_job.outputs[0], sha256="b" * 64),),
-                    updated_at="2026-05-10T15:10:00Z",
-                ),
-            )
-            + tuple(
-                ProductionJobStatus(job_id=job.job_id, state="pending")
-                for job in trusted_plan.jobs[2:]
-            ),
-        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workspace = Path(tmpdir)
@@ -234,6 +209,33 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                 )
                 + "\n",
                 encoding="utf-8",
+            )
+            analysis_checksum = self._sha256_file(analysis_path)
+            ready_manifest = ProductionStatusManifest(
+                shoot_slug=trusted_plan.shoot_slug,
+                production_plan_fingerprint=production_plan_fingerprint(trusted_plan),
+                job_statuses=(
+                    ProductionJobStatus(
+                        job_id=proxy_job.job_id,
+                        state="succeeded",
+                        worker_adapter="proxy-production-local",
+                        attempts=1,
+                        output_checksums=(OutputChecksum(path=proxy_job.outputs[0], sha256="a" * 64),),
+                        updated_at="2026-05-10T14:10:00Z",
+                    ),
+                    ProductionJobStatus(
+                        job_id=analysis_job.job_id,
+                        state="succeeded",
+                        worker_adapter="analysis-production-local",
+                        attempts=1,
+                        output_checksums=(OutputChecksum(path=analysis_job.outputs[0], sha256=analysis_checksum),),
+                        updated_at="2026-05-10T15:10:00Z",
+                    ),
+                )
+                + tuple(
+                    ProductionJobStatus(job_id=job.job_id, state="pending")
+                    for job in trusted_plan.jobs[2:]
+                ),
             )
             write_production_status_manifest(ready_manifest, workspace, trusted_plan=trusted_plan)
 
@@ -1049,6 +1051,14 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                 for job in trusted_plan.jobs
             ),
         )
+
+    @staticmethod
+    def _sha256_file(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as input_file:
+            for chunk in iter(lambda: input_file.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
 
 if __name__ == "__main__":

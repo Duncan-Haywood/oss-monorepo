@@ -682,6 +682,7 @@ def _materialize_scene_production_outputs(
     if trusted_plan is None:
         raise ProductionAdapterError("scene production adapter requires a trusted plan")
     root = _workspace_root(workspace_root)
+    _verify_scene_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
     try:
         analyses = load_asset_analyses(trusted_plan, root)
     except AnalysisLoaderError as exc:
@@ -743,6 +744,54 @@ def _validate_scene_action_shape(action: ProductionWorkerAction) -> None:
         raise ProductionAdapterError(
             "Scene production adapter requires analysis/scene_groups.json output"
         )
+
+
+def _verify_scene_dependency_outputs(
+    root: Path,
+    *,
+    action: ProductionWorkerAction,
+    trusted_plan: ProductionPlan,
+) -> None:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    for dependency_id in action.depends_on:
+        try:
+            dependency_job = jobs[dependency_id]
+            dependency_status = statuses[dependency_id]
+        except KeyError as exc:
+            raise ProductionAdapterError(
+                f"Scene production dependency is missing from trusted status: {dependency_id}"
+            ) from exc
+        if dependency_job.output_kind != "vlm_asset_analysis":
+            raise ProductionAdapterError(
+                "Scene production adapter only consumes analysis dependencies: "
+                f"{dependency_id}"
+            )
+        if dependency_status.state != "succeeded":
+            raise ProductionAdapterError(
+                f"Scene production dependency is not succeeded: {dependency_id}"
+            )
+        expected_checksums = {
+            checksum.path: checksum.sha256 for checksum in dependency_status.output_checksums
+        }
+        if set(expected_checksums) != set(dependency_job.outputs):
+            raise ProductionAdapterError(
+                f"Scene production dependency checksums do not match planned outputs: {dependency_id}"
+            )
+        for output in dependency_job.outputs:
+            output_path = _workspace_output_path(root, output)
+            _reject_symlink_path(output_path.parent, root, "scene production dependency output directory")
+            _reject_symlink_path(output_path, root, "scene production dependency output")
+            if not output_path.is_file():
+                raise ProductionAdapterError(
+                    f"Missing scene production dependency output: {output}"
+                )
+            actual_sha256 = _sha256_file(output_path, label="scene production dependency output")
+            if actual_sha256 != expected_checksums[output]:
+                raise ProductionAdapterError(
+                    f"Scene production dependency checksum mismatch: {output}"
+                )
 
 
 def _validate_action(
