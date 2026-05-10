@@ -33,6 +33,8 @@ remote branches with unique work:
   `origin/cursor/branch-consolidation-f0b0` remains intentionally unmerged
   because its only unique commit is the stale documentation note described
   above.
+- Reset local `main` to `origin/main` without checking it out and deleted stale
+  local branch `cursor/setup-dev-env-3ad0`.
 
 Verification performed after reconciliation:
 
