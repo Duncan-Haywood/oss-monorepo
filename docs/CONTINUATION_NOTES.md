@@ -36,17 +36,22 @@ Branch reconciliation status from this run:
   commit.
 - The requested remote branch
   `origin/cursor/branch-reconciliation-and-merge-c7c5` did not exist before this
-  run, so this session will push the assigned branch as a new remote branch.
+  run. It was created by pushing the assigned branch after the adapter cleanup
+  commit.
 - A full remote-branch comparison showed every existing remote work branch was
   contained in `origin/main` (`branch_only=0` for all non-main remotes). No
   useful completed work was stranded outside main. Remaining old remote branches
   are redundant historical refs, but this session has no dedicated remote branch
   deletion tool/permission.
-- Local `main` was still the initial commit and should be reset to `origin/main`
-  during final cleanup if it remains unused. Local `cursor/setup-dev-env-3ad0`
-  is contained in `origin/main` and can be deleted locally.
+- After verification and review, local `main` was reset to `origin/main`,
+  fast-forwarded to the assigned branch, and pushed so `origin/main` also points
+  at this completed work. A final remote comparison then showed
+  `origin/main` and `origin/cursor/branch-reconciliation-and-merge-c7c5` both at
+  `3512e83` with no remote branch ahead of main.
+- Local `cursor/setup-dev-env-3ad0` was contained in `origin/main` and was
+  deleted locally during cleanup.
 
-Verification performed during this run so far:
+Verification performed during this run:
 
 - Red run:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_adapter.DryRunProductionAdapterTests.test_persists_claim_and_success_for_declared_outputs`
@@ -57,6 +62,12 @@ Verification performed during this run so far:
 - Scheduler focused green:
   `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler`
   -> 20 tests OK.
+- Full verification before commit:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check && git status --short --branch`
+  -> 389 tests OK; compileall and diff-check exited 0.
+- Independent code review reported no findings. Residual risk: external,
+  untracked consumers still importing obsolete `DryRunProduction*` adapter
+  handoff names must update to `ProductionAdapter*`.
 
 Good next test-first targets:
 
