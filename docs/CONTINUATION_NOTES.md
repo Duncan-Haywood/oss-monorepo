@@ -2,6 +2,81 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Implementation continuation note - 2026-05-10 22:30 UTC
+
+This run started on assigned branch
+`cursor/branch-reconciliation-and-merge-2cbd` from the consolidated package
+reportability head on `origin/main` (`5c498c6`). Local `main` was still stale at
+the initial commit until the reconciliation phase, so `origin/main` remained the
+canonical base.
+
+The highest-value scoped continuation was the native-shell safety bridge left by
+the previous run:
+
+- Added `python -m shootflow.cli package-handoff-brief --ingest-manifest <path>`.
+- The command is read-only. It reloads the trusted ingest manifest, rebuilds the
+  production plan, validates matching `production_status.json` and
+  `production_scheduler_report.json`, summarizes completed/review-required
+  package jobs plus materialized package outputs, and returns disabled
+  copy/retry/materialization controls derived from the scheduler report's
+  observe-only `workflow_authority`.
+- Review found an important edge case: a later no-op scheduler run can write a
+  valid report with `outputs_materialized: []` even though package outputs remain
+  succeeded in trusted production status. The brief now derives current package
+  readiness/output paths from the final trusted status while still binding
+  controls to scheduler report authority.
+- Updated README, AGENTS, product strategy, business plan, design decisions, and
+  workflow authority docs with the package handoff bridge contract.
+
+Branch reconciliation findings:
+
+- Fetched `origin/main` and the assigned branch.
+- The only remote branches ahead of `origin/main` were this assigned branch and
+  `origin/cursor/branch-consolidation-strategy-22ea`.
+- `origin/cursor/branch-consolidation-strategy-22ea` mostly duplicated or
+  regressed current named-entry package reportability (its implementation branch
+  only named flat `extra.bin`, while current main already handles nested
+  `nested/extra.txt` and stronger scheduler/report coverage). It was not merged
+  wholesale.
+- One useful unique test from that branch was integrated directly:
+  scheduler/report coverage for storyline checksum drift before package
+  materialization. A drifted `analysis/instagram_storylines.json` now has
+  persisted scheduler proof that the package job becomes retryable, outputs stay
+  absent, and the checksum-mismatch message survives in the report.
+
+Verification performed during this run:
+
+- Red command-surface check:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowRenderTaskCliTests.test_package_handoff_brief_reads_scheduler_report_and_disables_controls`
+  failed because `package-handoff-brief` did not exist.
+- Focused green after implementation: the same test -> OK.
+- Review-regression red:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowRenderTaskCliTests.test_package_handoff_brief_uses_final_status_after_noop_scheduler_report`
+  failed with `not_ready != ready` because the brief trusted the latest report's
+  empty `outputs_materialized` rather than final status checksums.
+- Focused green after fix:
+  package-brief focused tests -> 2 tests OK.
+- Reconciled package drift coverage:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_production_scheduler.DryRunProductionSchedulerTests.test_package_adapter_scheduler_reports_story_checksum_drift tests.test_production_scheduler.DryRunProductionSchedulerTests.test_package_adapter_scheduler_names_unexpected_directory_entries`
+  -> 2 tests OK.
+- Final verification:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli.ShootFlowRenderTaskCliTests.test_package_handoff_brief_reads_scheduler_report_and_disables_controls tests.test_cli.ShootFlowRenderTaskCliTests.test_package_handoff_brief_uses_final_status_after_noop_scheduler_report tests.test_production_scheduler.DryRunProductionSchedulerTests.test_package_adapter_scheduler_reports_story_checksum_drift && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest tests.test_cli tests.test_production_scheduler && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -B -m unittest discover -s tests && PYTHONPYCACHEPREFIX=/tmp/shootflow-pycache python3 -m compileall -q src tests && git diff --check`
+  -> 3 focused tests OK, 99 CLI/production-scheduler tests OK, 438 total tests
+  OK; compileall and diff-check exited 0.
+- Independent code review first found the no-op report readiness bug above; the
+  final review after the fix reported no actionable correctness/safety findings.
+
+Good next test-first targets:
+
+- Add a package handoff brief review-required case if native shells need a
+  direct readout for retryable package jobs alongside the ready/no-op cases.
+- Start replacing `package-production-local`, `grade-production-local`, and
+  `proxy-production-local` stand-ins with real ffmpeg/Core Image/Metal workers
+  behind the same declared-output-only, checksum-verified boundaries.
+- When a SwiftUI/menu-bar shell appears, bind its package panel to
+  `package-handoff-brief` and keep all adjacent copy/retry/materialization
+  controls disabled unless a separate reviewed action contract exists.
+
 ## Implementation continuation note - 2026-05-10 22:00 UTC
 
 This run started on assigned branch
