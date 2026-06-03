@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { isDocsAuthRequired, readDocsSession } from "./auth/docsAuth";
+import { DocsLoginGate } from "./components/DocsLoginGate";
 import { HomePage } from "./pages/HomePage";
 import { VisionPage } from "./pages/VisionPage";
 import { ArchitecturePage } from "./pages/ArchitecturePage";
@@ -10,6 +13,14 @@ import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
 export function App() {
+  const [authed, setAuthed] = useState(
+    () => !isDocsAuthRequired() || readDocsSession() !== null,
+  );
+
+  if (isDocsAuthRequired() && !authed) {
+    return <DocsLoginGate onAuthenticated={() => setAuthed(true)} />;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />

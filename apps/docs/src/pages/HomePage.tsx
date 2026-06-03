@@ -99,7 +99,7 @@ apps/portal/     sales demo portal (pnpm portal:dev)
 packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports
-.github/workflows/   CI (TypeScript orchestrator)`}</pre>
+.github/workflows/   CI + deploy-docs (GitHub Pages / Vercel)`}</pre>
 
       <footer>
         Private pilot documentation — not legal advice. Engage counsel for GDPR
