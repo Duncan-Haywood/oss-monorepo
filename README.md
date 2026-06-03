@@ -21,7 +21,11 @@ pnpm portal:build  # → apps/portal/dist
 3. Sign in as **Owner** to see the ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact (`docs-dist`).
+
+### Private hosted docs (Vercel)
+
+Human-readable docs for stakeholders: deploy to **Vercel** with **password protection** (platform) plus an app **passcode** (`VITE_DOCS_PASSCODE`). Setup and secrets: [`docs/README.md`](docs/README.md). Local passcode default: `atelier-docs`.
 
 ## Quick start
 

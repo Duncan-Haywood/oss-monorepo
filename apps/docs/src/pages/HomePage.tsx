@@ -93,13 +93,21 @@ export function HomePage() {
         ]}
       />
 
+      <h2>Hosting</h2>
+      <p>
+        This site builds to static files and is meant for a <strong>private</strong>{" "}
+        URL (Vercel password protection + passcode gate). Setup: repository{" "}
+        <code>docs/README.md</code>. CI also publishes a <code>docs-dist</code>{" "}
+        artifact for collaborators.
+      </p>
+
       <h2>Repository</h2>
       <pre>{`apps/docs/       ← TSX documentation (this site)
 apps/portal/     sales demo portal (pnpm portal:dev)
 packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports
-.github/workflows/   CI (TypeScript orchestrator)`}</pre>
+.github/workflows/   CI + deploy-docs (Vercel)`}</pre>
 
       <footer>
         Private pilot documentation — not legal advice. Engage counsel for GDPR

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { RequireAuth } from "./components/RequireAuth";
 import { HomePage } from "./pages/HomePage";
 import { VisionPage } from "./pages/VisionPage";
 import { ArchitecturePage } from "./pages/ArchitecturePage";
@@ -11,6 +12,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 
 export function App() {
   return (
+    <RequireAuth>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/business-plan" element={<BusinessPlanPage />} />
@@ -24,5 +26,6 @@ export function App() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </RequireAuth>
   );
 }
