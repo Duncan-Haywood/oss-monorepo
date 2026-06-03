@@ -67,6 +67,21 @@ export function RoadmapPage() {
         <li>Display scheduling hooks tied to experiment outcomes</li>
       </ul>
 
+      <h2>Do not start yet (low ROI until M3)</h2>
+      <ul>
+        <li>
+          <strong>Window / outdoor CV</strong> — ROI rank 8; needs a trusted
+          conversion baseline from Phase 1
+        </li>
+        <li>
+          <strong>RFID / extra scanners</strong> — rank 7; only if desirability
+          gaps cannot be inferred from POS + door
+        </li>
+        <li>
+          <strong>Multi-store benchmarks</strong> — no € proof at a single pilot
+        </li>
+      </ul>
+
       <h2>Milestones (value-gated)</h2>
       <DataTable
         headers={["Milestone", "ROI focus", "Exit criteria", "Business unlock"]}
