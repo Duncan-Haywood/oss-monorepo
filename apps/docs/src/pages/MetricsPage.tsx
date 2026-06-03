@@ -11,37 +11,44 @@ export function MetricsPage() {
     >
       <h2>Store funnel (phase 1)</h2>
       <DataTable
-        headers={["Metric", "Definition", "Source"]}
+        headers={["Metric", "Definition", "Source", "€ lever"]}
         rows={[
-          ["Entry", "Inward door line cross + dwell inside", "Door CV"],
-          ["Exit", "Outward line cross after entry", "Door CV"],
-          ["Bounce", "Entry + exit within T without zone dwell", "CV"],
-          ["Engaged visit", "Entry + product zone activation", "CV / scanner"],
-          ["Purchase", "POS basket in visit window", "POS"],
+          ["Entry", "Inward door line cross + dwell inside", "Door CV", "Funnel top"],
+          ["Exit", "Outward line cross after entry", "Door CV", "—"],
+          ["Bounce", "Entry + exit within T without zone dwell", "CV", "Conversion loss"],
+          ["Engaged visit", "Entry + product zone activation", "CV / scanner", "Close rate"],
+          ["Purchase", "POS basket in visit window", "POS", "Revenue"],
         ]}
       />
 
-      <h2>Derived rates</h2>
-      <ul>
+      <h2>Derived rates (prioritized)</h2>
+      <ol>
         <li>
-          <strong>Conversion</strong> = purchases / entries
+          <strong>Conversion</strong> = purchases / entries — primary Phase 1
+          KPI; moves daily gross profit directly
         </li>
         <li>
-          <strong>Engagement rate</strong> = engaged / entries
+          <strong>Revenue per entry</strong> = basket total / entries — combines
+          conversion and AOV
         </li>
         <li>
-          <strong>Touch-to-buy</strong> = purchases with SKU / touches for SKU
+          <strong>Engagement rate</strong> = engaged / entries — leading indicator
+          before Phase 2 SKU data
         </li>
-      </ul>
+        <li>
+          <strong>Touch-to-buy</strong> = purchases with SKU / touches for SKU —
+          Phase 2 margin lever
+        </li>
+      </ol>
 
-      <h2>Product metrics</h2>
+      <h2>Product metrics (phase 2+)</h2>
       <DataTable
-        headers={["Metric", "Use"]}
+        headers={["Metric", "Use", "€ lever"]}
         rows={[
-          ["Touch count by SKU", "Merchandising heat"],
-          ["Zone dwell", "Interest without touch"],
-          ["Desirability gap", "High attention, low conversion"],
-          ["Upsell opportunity", "Single-category baskets vs pairs"],
+          ["Touch count by SKU", "Merchandising heat", "Placement"],
+          ["Zone dwell", "Interest without touch", "Staffing / demo"],
+          ["Desirability gap", "High attention, low conversion", "Markdown / pair"],
+          ["Upsell opportunity", "Single-category baskets vs pairs", "AOV"],
         ]}
       />
 
