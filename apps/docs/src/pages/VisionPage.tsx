@@ -9,7 +9,7 @@ export function VisionPage() {
       subtitle="Increase profit per visitor in micro-format leather retail — privacy-preserving, store-local"
       footer={
         <>
-          <Link to="/gtm">GTM strategy →</Link>
+          <Link to="/gtm">GTM &amp; target customers →</Link>
           {" · "}
           <Link to="/business-plan">Business plan →</Link>
           {" · "}

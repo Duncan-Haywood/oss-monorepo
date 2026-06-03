@@ -65,8 +65,8 @@ export function HomePage() {
             "Market, pricing, design partner terms, payback, partners, CS, retention, company KPIs",
           ],
           [
-            <Link to="/gtm">GTM strategy</Link>,
-            "Digital-first motion, ICP, personas, funnel, channels, metrics",
+            <Link to="/gtm">GTM &amp; target customers</Link>,
+            "Digital-first motion, ICP, personas, channels, 90-day playbook",
           ],
           [
             <Link to="/roi">ROI</Link>,

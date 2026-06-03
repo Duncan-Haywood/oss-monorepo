@@ -449,7 +449,7 @@ export function RoiPage() {
         financial order. Milestones M1–M3 unlock ranks 1–5; M4 is live pilot with
         DPIA; M5+ is ranks 7–8 only if M3 KPIs plateau. Commercial framing
         (pricing, market): <Link to="/business-plan">Business plan</Link>. GTM
-        &amp; ICP: <Link to="/gtm">GTM strategy</Link>.
+        &amp; ICP: <Link to="/gtm">GTM &amp; target customers</Link>.
       </p>
     </DocLayout>
   );
