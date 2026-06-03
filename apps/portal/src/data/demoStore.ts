@@ -94,15 +94,15 @@ export const skuInsights = [
 
 export const experiments = [
   {
-    id: "exp-window-warm",
-    title: "Warm window vs neutral",
+    id: "exp-saddle-pedestal",
+    title: "Saddle bag: lit pedestal + open-on-approach",
     status: "running" as const,
     started: "Mon 3 Jun",
-    hypothesis: "Amber spot + hero belt lifts door-to-entry by 10%",
-    metric: "Entry rate from pass-by",
-    baseline: "14.2%",
-    current: "15.0%",
-    confidence: "Day 4 of 14",
+    hypothesis: "Desirability gap closes — touches convert at category avg",
+    metric: "SKU conversion (BAG-SADD-TAN)",
+    baseline: "0%",
+    current: "9.1% (day 4)",
+    confidence: "Day 4 of 14 · ROI rank 2",
   },
   {
     id: "exp-pairing-rack",
@@ -113,7 +113,18 @@ export const experiments = [
     metric: "Items per basket",
     baseline: "1.4",
     current: "—",
-    confidence: "Queued after window test",
+    confidence: "Queued after saddle bag test · ROI rank 3",
+  },
+  {
+    id: "exp-window-warm",
+    title: "Warm window vs neutral",
+    status: "planned" as const,
+    started: "—",
+    hypothesis: "Amber spot + hero belt lifts door-to-entry by 10%",
+    metric: "Entry rate from pass-by",
+    baseline: "14.2%",
+    current: "—",
+    confidence: "Deferred until conversion baseline stable · ROI rank 8",
   },
   {
     id: "exp-till-script",
@@ -131,21 +142,27 @@ export const experiments = [
 export const insights = [
   {
     priority: "high" as const,
+    title: "Conversion +2.4 pp vs last week — rank 1 KPI",
+    body: "Joined door + POS shows 19.1% conversion on 47 entries. Revenue per entrant €60.40. Protect baseline before window tests.",
+    impact: "Illustrative €9k–€23k/year if +1 sale/week sustained.",
+  },
+  {
+    priority: "high" as const,
     title: "Saddle bag: attention without conversion",
-    body: "11 touches, 0 sales in 7 days. Shoppers pause at hook but skip try-on. Suggest moving to lit pedestal and staff open-on-approach for 1 week.",
+    body: "11 touches, 0 sales in 7 days. Active experiment: lit pedestal + open-on-approach (ROI rank 2).",
     impact: "Est. €420–680/week if conversion matches category avg.",
   },
   {
     priority: "medium" as const,
     title: "Tuesday 12:00–14:00 under-monetized",
     body: "Peak entries (16) but only 2 purchases. Staffing or express till queue may be limiting closes during lunch footfall.",
-    impact: "Align 15-min focused service block with CV peak.",
+    impact: "Align 15-min focused service block with CV peak (ROI rank 4).",
   },
   {
     priority: "low" as const,
     title: "Bounce rate improved vs last week",
-    body: "Bounces down 4 pts after doorway clearance fix. Continue monitoring post-window experiment.",
-    impact: "Validates prior layout change.",
+    body: "Bounces down 4 pts after doorway clearance fix. Window experiment queued until rank 1 baseline holds 7+ days.",
+    impact: "Validates prior layout change; defer outdoor CV.",
   },
 ];
 
