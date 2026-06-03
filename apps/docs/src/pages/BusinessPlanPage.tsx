@@ -6,7 +6,7 @@ export function BusinessPlanPage() {
   return (
     <DocLayout
       title="Business plan"
-      subtitle="Retail Pilot Intel — privacy-first store intelligence for micro-format luxury retail (Italy pilot → repeatable offer)"
+      subtitle="Retail Pilot Intel — privacy-first store intelligence for micro-format luxury retail (Italy pilot → digital-first GTM → repeatable offer)"
       footer={
         <>
           <Link to="/roi">Initiative ROI matrix →</Link>
@@ -113,6 +113,15 @@ export function BusinessPlanPage() {
         which favors digital proof and partner-led scale over enterprise field
         sales.
       </p>
+      <Card variant="ok">
+        <p>
+          <strong>Beachhead (Tier A):</strong> Owner-operated leather or luxury
+          accessories, 8–25 m², historic-center Italy, AOV €180–€450, POS export
+          (API or nightly file), 30–80 entries/day. Qualify digitally before
+          install: POS export confirmed, owner asks “conversion this week?” not
+          “heatmaps.”
+        </p>
+      </Card>
       <DataTable
         headers={["Tier", "Profile", "Fit signals", "Y1 priority"]}
         rows={[
@@ -191,6 +200,42 @@ export function BusinessPlanPage() {
         compliance cycles); failed footfall counter that never tied to margin;
         consultant mandate to “show conversion in writing.”
       </p>
+
+      <h3>Buying triggers & seasonality (nurture calendar)</h3>
+      <p>
+        Digital nurture should align to owner calendar — not generic product
+        launches. Email and association content time to these windows.
+      </p>
+      <DataTable
+        headers={["Trigger", "Owner language", "Asset to send"]}
+        rows={[
+          [
+            "Post-season review",
+            "“Tourists came but margin didn’t”",
+            "Conversion vs same week last year (anonymized chart)",
+          ],
+          [
+            "New collection buy",
+            "“I can’t afford wrong SKUs”",
+            "/roi desirability-gap excerpt + portal SKU tab",
+          ],
+          [
+            "Staff change",
+            "“Does greeting matter?”",
+            "One experiment template from proof library",
+          ],
+          [
+            "Neighbor window upgrade",
+            "“Are we losing pass-by?”",
+            "Street add-on one-pager — only after in-store baseline",
+          ],
+          [
+            "POS upgrade",
+            "“New terminal, same blind spots”",
+            "Integrator co-branded kit + export checklist",
+          ],
+        ]}
+      />
 
       <h3>Anti-personas (defer)</h3>
       <ul>
@@ -563,6 +608,58 @@ export function BusinessPlanPage() {
         (newsletter, recorded talk), not booth-heavy field marketing.
       </p>
 
+      <h3>Messaging pillars (digital copy)</h3>
+      <ul>
+        <li>
+          <strong>€ first:</strong> “One extra sale per month pays for this” —
+          link <Link to="/roi">ROI scenarios</Link>, not camera specs
+        </li>
+        <li>
+          <strong>Privacy as enabler:</strong> “Conversion without uploading
+          video” — <Link to="/privacy">GDPR page</Link> in footer, not slide one
+        </li>
+        <li>
+          <strong>Owner time:</strong> “15 minutes every Monday” — ritual beats
+          dashboard features
+        </li>
+        <li>
+          <strong>Local proof:</strong> anonymized street benchmark beats
+          national logos until consent
+        </li>
+      </ul>
+
+      <h3>Product-qualified lead (PQL) handoff</h3>
+      <p>
+        At €149–€449/mo ACV, founders assist when observable intent fires — not
+        on demographics alone. Respond within 24h when <em>any two</em> conditions
+        match:
+      </p>
+      <DataTable
+        headers={["Signal", "Threshold", "Play"]}
+        rows={[
+          [
+            "Portal depth",
+            "≥8 min on funnel + experiments (or Value page)",
+            "WhatsApp/email: “What would you test first?”",
+          ],
+          [
+            "Fit checklist",
+            "Beachhead tier + POS export confirmed",
+            "Term sheet + install calendar; skip discovery deck",
+          ],
+          [
+            "Partner referral",
+            "Installer or POS code on Typeform",
+            "Scoping + DPIA path; founder not on first demo",
+          ],
+          [
+            "Risk flag",
+            "Cloud facial recognition or cross-store shopper IDs",
+            "Disqualify politely; preserve counsel time",
+          ],
+        ]}
+      />
+
       <h3>Channel partner economics</h3>
       <p>
         Scale depends on installers and POS resellers closing without the founder
@@ -753,10 +850,11 @@ export function BusinessPlanPage() {
 
       <h2>11. Sales enablement</h2>
       <p>
-        External buyers see proof before architecture. The secure sales demo
-        portal (<code>pnpm portal:dev</code>) shows illustrative KPIs, funnel,
-        SKU gaps, and experiments for “Atelier Linea” — clearly labeled as demo
-        data until the Italy pilot is live.
+        Digital-first default: async portal + docs proof, then a short scoping
+        call for fit, install, and counsel. External buyers see € mechanics before
+        architecture. The secure sales demo portal (<code>pnpm portal:dev</code>)
+        shows illustrative KPIs, funnel, SKU gaps, and experiments for “Atelier
+        Linea” — clearly labeled as demo data until the Italy pilot is live.
       </p>
       <DataTable
         headers={["Asset", "Audience", "When to use"]}
@@ -764,7 +862,17 @@ export function BusinessPlanPage() {
           [
             "Portal overview + funnel",
             "Owner, spouse, bookkeeper",
-            "First meeting after intro",
+            "Default first touch (email/DM link); replaces slide deck",
+          ],
+          [
+            "3-min portal Loom",
+            "Owner who won’t read docs",
+            "Between portal visit and Cal booking",
+          ],
+          [
+            "Tier A fit Typeform",
+            "Inbound digital leads",
+            "Before founder calendar invite (PQL filter)",
           ],
           [
             "Weekly owner report (1 page)",
@@ -809,6 +917,8 @@ export function BusinessPlanPage() {
           ["CAC payback (months)", "<7 on channel-led", "Partner motion viable"],
           ["Owner-documented € actions", "≥1/week/store post M4", "Leading indicator of retention"],
           ["Time to M3 (first € action named)", "<45 days from install", "Sales promise = delivery"],
+          ["Digital-sourced paid stores (Y1)", "≥40% of closes", "Proves async funnel beyond founder network"],
+          ["Portal → warm PQL", "≥15% of sessions >8 min", "Product signal before sales-assist"],
           ["Partner-sourced new logos (Y2)", "≥40%", "Founder not on every install"],
         ]}
       />
@@ -930,6 +1040,11 @@ export function BusinessPlanPage() {
             "Draft Italian SEO titles for docs (conversion + POS boutique)",
             "Founder",
             "At least 3 indexed pages with €-led meta descriptions",
+          ],
+          [
+            "Ship Tier A Typeform + PQL reply templates (§6 PQL table)",
+            "Founder",
+            "First inbound lead qualified without trade-fair meeting",
           ],
         ]}
       />
