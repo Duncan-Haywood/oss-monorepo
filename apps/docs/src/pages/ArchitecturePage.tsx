@@ -23,6 +23,12 @@ export function ArchitecturePage() {
       subtitle="Edge-first pipeline: sense → aggregate → join POS → recommend"
       footer={<Link to="/metrics">Next: Metrics →</Link>}
     >
+      <p>
+        Components are built in <Link to="/priorities">ROI order</Link>: POS +
+        door first; zones and outdoor cameras only after conversion baseline is
+        trusted.
+      </p>
+
       <h2>High-level diagram</h2>
       <Diagram>{diagram}</Diagram>
 

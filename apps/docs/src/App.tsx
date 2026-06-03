@@ -13,6 +13,7 @@ export function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/roi" element={<RoiPage />} />
+      <Route path="/priorities" element={<Navigate to="/roi" replace />} />
       <Route path="/vision" element={<VisionPage />} />
       <Route path="/architecture" element={<ArchitecturePage />} />
       <Route path="/metrics" element={<MetricsPage />} />

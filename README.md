@@ -38,13 +38,14 @@ scripts/ci.ts           TypeScript CI orchestrator
 
 For the Italy leather boutique pilot, delivery order follows **profit impact**, not sensor count:
 
-1. **Door + POS join** — conversion % (highest ROI foundation)
-2. **SKU attention + desirability gap** — margin on slow inventory
-3. **Window funnel** — entries on high streets (after in-store baseline)
+1. **Door + POS join** — conversion % and revenue per entrant (foundation)
+2. **SKU desirability gap + upsell** — margin and AOV inside the shop
+3. **Experiments** — measurable € lift per change
+4. **Window / outdoor funnel** — only after in-store baseline is trusted
 
-Full matrix: run `pnpm docs:dev` → **ROI** page, or see `apps/docs/src/pages/RoiPage.tsx`.
+Full matrix: `pnpm docs:dev` → **ROI** (`/roi`).
 
-## Phase 1
+## Phase 1 (technical)
 
 - Indoor door camera → aggregate counts (no identity)
 - POS ingest → normalized `SaleEvent`

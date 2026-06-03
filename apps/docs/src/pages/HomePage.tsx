@@ -11,9 +11,10 @@ export function HomePage() {
       <Card variant="ok">
         <p>
           <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
-          The pilot prioritizes what moves profit — conversion, AOV, and margin
-          on a small floor — not analytics for its own sake. Start with{" "}
-          <Link to="/roi">Business value &amp; ROI</Link> for build order.
+          The pilot optimizes <strong>profit per visitor</strong> — conversion,
+          AOV, and margin on a small floor — not analytics for its own sake.
+          Start with <Link to="/roi">Business value &amp; ROI</Link> for build
+          order.
         </p>
       </Card>
 
@@ -25,14 +26,14 @@ export function HomePage() {
             <Link to="/roi">ROI</Link>,
             "Financial priority matrix — what to build first",
           ],
-          [<Link to="/vision">Vision</Link>, "Product goals and pilot context"],
+          [<Link to="/vision">Vision</Link>, "Profit-oriented goals and pilot context"],
           [
             <Link to="/architecture">Architecture</Link>,
             "On-device CV, POS bridge, local aggregation",
           ],
           [
             <Link to="/metrics">Metrics</Link>,
-            "Funnel definitions (look → touch → buy)",
+            "Funnel + margin-oriented KPI definitions",
           ],
           [
             <Link to="/privacy">Privacy & GDPR</Link>,
@@ -40,7 +41,7 @@ export function HomePage() {
           ],
           [
             <Link to="/roadmap">Roadmap</Link>,
-            "Phased delivery (aligned to ROI)",
+            "Phased delivery aligned to ROI",
           ],
           [<Link to="/dashboard">Dashboard</Link>, "Operator UI prototype"],
         ]}
@@ -49,13 +50,12 @@ export function HomePage() {
       <h2>Highest-ROI deliverable (Phase 1)</h2>
       <p>
         Combine <strong>door entry counts</strong> with{" "}
-        <strong>normalized POS events</strong> so the owner can see conversion
-        weekly — the single metric that ties footfall to euros. Later phases add
-        SKU attention (margin) and window funnel (entries on Italian streets).
+        <strong>normalized POS events</strong> so the owner can answer — in €
+        terms:
       </p>
       <ul>
-        <li>Entries, bounces, purchases → conversion % and €/visitor proxy</li>
-        <li>Which hours under-convert (staffing and greeting)</li>
+        <li>Conversion and revenue per entrant this week</li>
+        <li>Which hours or days under-convert (staffing and greeting)</li>
         <li>Phase 2: SKUs with attention but no sale (inventory cash trap)</li>
         <li>Phase 3: Window tests once in-store close rate is known</li>
       </ul>

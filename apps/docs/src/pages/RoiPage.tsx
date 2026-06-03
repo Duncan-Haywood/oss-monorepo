@@ -11,14 +11,41 @@ export function RoiPage() {
     >
       <Card variant="ok">
         <p>
-          <strong>How to read this page:</strong> Every initiative below is scored
-          for the pilot store as a <em>small luxury retailer</em> — high unit
-          margin, tiny floor, limited staff, inventory tied up in few SKUs, and
-          revenue driven by conversion and average order value (AOV), not
-          footfall alone. Build and operator time should go to levers that move
-          euros on the P&amp;L first.
+          <strong>Decision rule:</strong> Ship capabilities that change revenue,
+          margin, or cash tied up in stock before capabilities that only add
+          descriptive analytics. Compliance (GDPR/DPIA) is a gate to go-live, not
+          a substitute for profit metrics. Every initiative below is scored for a{" "}
+          <em>small luxury retailer</em> — high unit margin, tiny floor, limited
+          staff, and revenue driven by conversion and AOV, not footfall alone.
         </p>
       </Card>
+
+      <h2>How we score ROI</h2>
+      <DataTable
+        headers={["Lens", "Question", "Why it matters in Italy"]}
+        rows={[
+          [
+            "Revenue leverage",
+            "Does this move conversion or basket size?",
+            "One extra bag sale/week at €250–€600 AOV dwarfs many analytics costs.",
+          ],
+          [
+            "Margin & cash",
+            "Does this free margin or reduce dead stock?",
+            "Seasonal leather inventory ties working capital; slow SKUs hurt liquidity.",
+          ],
+          [
+            "Operating cost",
+            "Does this cut wasted labor or ad spend?",
+            "Owner-operated boutiques pay for hours whether the door is busy or not.",
+          ],
+          [
+            "Time to proof",
+            "Can the owner see € impact within ~2 weeks?",
+            "Pilots fail when insight arrives after the buying season ends.",
+          ],
+        ]}
+      />
 
       <h2>Store economics (pilot assumptions)</h2>
       <p>
@@ -62,15 +89,15 @@ export function RoiPage() {
       <p>
         Analytics should directly improve <strong>conversion</strong>,{" "}
         <strong>AOV</strong>, <strong>margin on mix</strong>, or{" "}
-        <strong>inventory turns</strong>. Footfall counts alone are a leading
-        indicator; joined POS data is where ROI appears.
+        <strong>inventory turns</strong>. Joined POS data is where ROI appears;
+        footfall alone is only a leading indicator.
       </p>
 
       <h2>Project priority matrix (financial ROI)</h2>
       <p>
-        Ranked for the Italian leather pilot. &quot;Impact&quot; is annualized
-        profit potential at pilot scale; &quot;Effort&quot; is build + store
-        setup burden.
+        Ranked for the leather pilot at ~10 m². Window/street work is{" "}
+        <strong>last</strong> unless the owner proves pass-by is the bottleneck —
+        in a micro-store, most € is decided inside.
       </p>
       <DataTable
         headers={[
@@ -79,6 +106,7 @@ export function RoiPage() {
           "€ lever",
           "Impact",
           "Effort",
+          "Owner action",
           "Delivery",
         ]}
         rows={[
@@ -88,6 +116,7 @@ export function RoiPage() {
             "Conversion %",
             "Very high",
             "Medium",
+            "Compare low-conversion days; test greeting or hero SKU",
             <Tag phase="p1" />,
           ],
           [
@@ -96,6 +125,7 @@ export function RoiPage() {
             "Margin / inventory turns",
             "Very high",
             "Medium",
+            "Markdown, bundle, or reposition in 14 days",
             <Tag phase="p2" />,
           ],
           [
@@ -103,16 +133,18 @@ export function RoiPage() {
             "Upsell & basket patterns (pairs, care kits, belts)",
             "AOV",
             "High",
-            "Low (needs POS)",
+            "Low",
+            "Staff script when single-category baskets dominate",
             <Tag phase="p2" />,
           ],
           [
             "4",
-            "Window funnel (pass-by → look-in → enter)",
-            "Entries (top of funnel)",
-            "Very high",
-            "High",
-            <Tag phase="p3" />,
+            "Hourly traffic vs sales (staffing & hours)",
+            "Labor vs revenue",
+            "Medium",
+            "Low",
+            "Close dead mornings or extend tourist peaks",
+            <Tag phase="p1" />,
           ],
           [
             "5",
@@ -120,6 +152,7 @@ export function RoiPage() {
             "Conversion (micro)",
             "Medium",
             "Low",
+            "Fix first 10 seconds in the room",
             <Tag phase="p1" />,
           ],
           [
@@ -128,15 +161,26 @@ export function RoiPage() {
             "Compound uplift",
             "Medium",
             "Low",
+            "One 7-day test; success = € or conversion",
             <Tag phase="p2" />,
           ],
           [
             "7",
-            "Hourly staffing / peak maps",
-            "Labor vs revenue",
+            "Fixture zones / RFID or scanners",
+            "Finer SKU attribution",
             "Medium",
-            "Low",
-            <Tag phase="p1" />,
+            "Higher",
+            "Defer until ranks 1–3 prove value",
+            <Tag phase="p2" />,
+          ],
+          [
+            "8",
+            "Window funnel (pass-by → look-in → enter)",
+            "Entries (top of funnel)",
+            "High*",
+            "High",
+            "Only after in-store conversion baseline exists",
+            <Tag phase="p3" />,
           ],
           [
             "—",
@@ -144,84 +188,96 @@ export function RoiPage() {
             "Risk & trust (enabler)",
             "Required",
             "Medium",
-            "Gate for M4",
+            "Sign-off before M4 go-live",
+            "Gate",
           ],
         ]}
       />
+      <p className="stub">
+        *Window impact can be huge on Italian high streets but is rank 8 here
+        because it is expensive to build and impossible to interpret without
+        in-store close rate (rank 1).
+      </p>
 
       <h2>Why this order for Italy</h2>
       <ul>
         <li>
-          <strong>POS + door first:</strong> Without knowing{" "}
-          <em>entries → purchases</em>, the owner cannot quantify conversion or
-          justify display changes. This is the cheapest path to weekly €
-          decisions (hours to staff, which days underperform).
+          <strong>POS + door first:</strong> Without <em>entries → purchases</em>,
+          the owner cannot quantify conversion or justify display changes.
         </li>
         <li>
-          <strong>SKU attention before window CV:</strong> In a 10 m² shop,
-          most revenue is decided <em>inside</em> — which bag got touched but not
-          bought. Freeing one slow €800 SKU matters more than counting extra
-          passers-by until baseline conversion is measured.
+          <strong>SKU attention before outdoor CV:</strong> In 10 m², freeing one
+          slow €800 SKU often beats counting extra passers-by.
         </li>
         <li>
-          <strong>Window funnel when baseline exists:</strong> Italian high-street
-          locations can have large pass-by volume; outdoor CV is higher effort
-          (second camera, weather, calibration). ROI is huge but only measurable
-          once in-store conversion and AOV are on the dashboard.
+          <strong>Window when baseline exists:</strong> Outdoor CV is higher
+          effort (second camera, weather). ROI is measurable only once conversion
+          and AOV are on the dashboard.
         </li>
       </ul>
 
       <h2>Illustrative € scenarios (not guarantees)</h2>
       <DataTable
-        headers={["Change", "Mechanism", "Illustrative annual upside"]}
+        headers={["Change", "Mechanism", "Illustrative upside"]}
         rows={[
           [
             "+1 sale/week",
-            "Conversion +0.3 pp on ~50 entries/day",
-            "€9k–€23k gross revenue (margin-dependent)",
+            "Conversion +0.3 pp on ~50 entries/day, €350 AOV",
+            "€9k–€23k gross revenue/year",
           ],
           [
             "+€40 AOV",
             "Upsell on 3 sales/day, 250 trading days",
-            "€30k gross revenue",
+            "€30k gross revenue/year",
           ],
           [
             "Clear 2 slow SKUs",
             "Reposition or markdown; recycle cash",
-            "€1.5k–€4k margin recovered + working capital",
+            "€1.5k–€4k margin + working capital",
+          ],
+          [
+            "Labor 4 h/week saved",
+            "Owner not staffing dead Tuesday mornings",
+            "€120–€200/month",
           ],
           [
             "+5% window enter rate",
-            "Display test on busy street (after baseline)",
-            "Depends on pass-by; often largest lever in Italy urban pilots",
+            "Display test — after rank 1 baseline",
+            "Street-dependent; often largest lever once blind spots are gone",
           ],
         ]}
       />
-      <p className="subtitle">
-        Replace assumptions with store books; use experiments to prove causality,
-        not dashboards alone.
-      </p>
 
       <h2>What to deprioritize (low ROI for v1)</h2>
       <ul>
         <li>Cross-store shopper identity or loyalty graphing</li>
         <li>Cloud video archive or heatmaps with PII risk</li>
-        <li>Generic &quot;AI recommendations&quot; without SKU-level join to POS</li>
-        <li>Real-time alerts for every metric — owners need weekly actions</li>
+        <li>Multi-vendor POS before one adapter proves daily owner use</li>
+        <li>Generic recommendations without SKU-level POS join</li>
+        <li>Real-time alerts for every metric — owners need weekly € actions</li>
       </ul>
 
       <h2>Operator weekly ritual (15 min)</h2>
       <ol>
-        <li>Conversion vs prior week (entries, purchases, bounce)</li>
+        <li>Conversion and revenue per entrant vs prior week</li>
         <li>Top desirability-gap SKUs — repricing, pairing, or window feature</li>
         <li>One experiment: hypothesis, start date, success = € or conversion</li>
       </ol>
 
+      <Card variant="warn">
+        <p>
+          <strong>Italy-specific:</strong> Price tags include IVA; compare{" "}
+          <em>margin</em> and <em>cash recovery</em>, not footfall alone. Align
+          reports to <code>Europe/Rome</code> and tourist season (Easter, summer,
+          Christmas) when setting experiment windows.
+        </p>
+      </Card>
+
       <h2>Maps to delivery</h2>
       <p>
         Technical phases in the <Link to="/roadmap">Roadmap</Link> follow this
-        financial order. Milestones M1–M3 exist to unlock rank #1; M4 is live
-        pilot with privacy sign-off, not new features.
+        financial order. Milestones M1–M3 unlock ranks 1–5; M4 is live pilot with
+        DPIA; M5+ is ranks 7–8 only if M3 KPIs plateau.
       </p>
     </DocLayout>
   );
