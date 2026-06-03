@@ -567,6 +567,39 @@ export function BusinessPlanPage() {
         and municipal business programs are <em>digital</em> distribution
         (newsletter, recorded talk), not booth-heavy field marketing.
       </p>
+      <h3>Sales demo & evaluation</h3>
+      <p>
+        The secure sales portal (<code>pnpm portal:dev</code>, port 5174) shows
+        illustrative joined KPIs — conversion, revenue per entrant, funnel,
+        experiments, and trust posture — without live store data. Use it in
+        discovery calls after the ROI conversation; never substitute it for the
+        owner&apos;s own books during pilot contracting.
+      </p>
+      <DataTable
+        headers={["Buyer step", "Asset", "Outcome"]}
+        rows={[
+          [
+            "Problem fit (10 min)",
+            "ROI page scenarios + owner footfall/POS reality",
+            "Agree one € metric for pilot success",
+          ],
+          [
+            "Trust (10 min)",
+            "Privacy page + LAN-only architecture sketch",
+            "DPIA path credible before camera install",
+          ],
+          [
+            "Product feel (15 min)",
+            "Sales portal login (demo credentials in repo README)",
+            "Owner sees weekly ritual, not heatmaps",
+          ],
+          [
+            "Commercial (async)",
+            "Design partner terms (§5 below)",
+            "Signed scope before M1 hardware spend",
+          ],
+        ]}
+      />
 
       <h3>Channel partner economics</h3>
       <p>
@@ -648,6 +681,31 @@ export function BusinessPlanPage() {
         for the system; everything else is upside.” Margin+ tier is justified when
         desirability-gap actions appear in the weekly ritual (Phase 2).
       </p>
+
+      <h3>Monthly P&amp;L per store (illustrative)</h3>
+      <p>
+        Bridges unit economics to company roll-up — replace with signed pilot
+        actuals after the owner books workshop.
+      </p>
+      <DataTable
+        headers={["Line (per store / month)", "Pilot (discounted)", "Steady Core"]}
+        rows={[
+          ["Subscription", "€49", "€199"],
+          ["Support COGS", "€40", "€30"],
+          ["Hosting / telemetry (optional)", "€5", "€10"],
+          ["Gross profit", "€4", "€159"],
+          ["Gross margin %", "~8%", "~80%"],
+        ]}
+      />
+      <DataTable
+        headers={["Company roll-up", "Y1 (5 stores EoY)", "Y2 (25 stores)"]}
+        rows={[
+          ["MRR (blended €175)", "€875", "€4.4k"],
+          ["Annualized run-rate", "~€10.5k", "~€53k"],
+          ["Founder + contractor opex (planning)", "~€45k", "~€85k"],
+          ["Net (pre-fundraise)", "Negative", "Approaching breakeven"],
+        ]}
+      />
 
       <h3>Bootstrap break-even (company, no founder salary)</h3>
       <DataTable
@@ -891,6 +949,16 @@ export function BusinessPlanPage() {
         docs, (3) case-study marketing in Italy, (4) not premature multi-cloud
         infra.
       </p>
+      <DataTable
+        headers={["Use of funds (if €150k–€300k pre-seed)", "Share", "Rationale"]}
+        rows={[
+          ["POS + edge engineering", "45%", "Second adapter unlocks channel"],
+          ["Install kit + partner playbook", "25%", "Founder off every site visit"],
+          ["Italy case study + associations", "15%", "Proof-led GTM, not ads"],
+          ["Legal / DPIA / counsel", "10%", "Pilot halt risk is existential"],
+          ["Buffer", "5%", "Hardware lead times, one failed install"],
+        ]}
+      />
 
       <h2>17. Immediate next actions</h2>
       <DataTable
@@ -905,6 +973,11 @@ export function BusinessPlanPage() {
             "Sign design-partner term sheet (setup, M4 pricing, publicity)",
             "Founder",
             "Before M2 door camera install",
+          ],
+          [
+            "Run one discovery (ROI page + sales portal); log objections",
+            "Founder",
+            "Objections captured in term sheet or backlog",
           ],
           [
             "Deliver M1–M3 per roadmap",
@@ -925,6 +998,11 @@ export function BusinessPlanPage() {
             "Identify one installer + one POS contact in Milano cluster",
             "Founder",
             "Partner economics sheet shared",
+          ],
+          [
+            "Document installer BOM + 2h commissioning checklist",
+            "Founder",
+            "Channel stage 2 ready without founder travel",
           ],
           [
             "Publish digital GTM pack (portal walkthrough Loom, intro emails, partner one-pager)",
