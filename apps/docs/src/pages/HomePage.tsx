@@ -58,7 +58,10 @@ export function HomePage() {
             <Link to="/roadmap">Roadmap</Link>,
             "Phased delivery aligned to ROI",
           ],
-          ["Sales portal (pnpm portal:dev)", "Secure demo UI with illustrative pilot data"],
+          [
+            "Sales portal (pnpm portal:dev)",
+            "Secure demo UI — Business value, funnel, SKU gap, experiments",
+          ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />

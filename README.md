@@ -14,6 +14,13 @@ pnpm portal:dev    # http://localhost:5174 — sales demo portal
 pnpm portal:build  # → apps/portal/dist
 ```
 
+### Sales / marketing demo walkthrough
+
+1. Run `pnpm portal:dev` and open http://localhost:5174
+2. Passcode: `atelier-demo` (or set `VITE_DEMO_PASSCODE`)
+3. Sign in as **Owner** to see the ROI banner on Overview
+4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
+
 Built docs are verified in CI and uploaded as a GitHub Actions artifact.
 
 ## Quick start
