@@ -20,10 +20,20 @@ export function RoiPage() {
         </p>
       </Card>
 
-      <h2>Build these three first (highest ROI)</h2>
+      <Card>
+        <p>
+          <strong>If you only ship three things this quarter:</strong> (1) POS +
+          door join for conversion, (2) desirability gap on slow leather SKUs, (3)
+          upsell prompts on single-category baskets. Together they attack revenue,
+          working capital, and margin — the three levers that matter in a 10 m²
+          shop. Everything else waits until the owner acts on at least one weekly €
+          decision from these three.
+        </p>
+      </Card>
+
+      <h2>Build these three first (detail)</h2>
       <p>
-        If engineering or pilot time is constrained, stop after these — they use
-        door + POS only and typically pay back a Core subscription (€149–€249/mo)
+        Door + POS only — typically pays back a Core subscription (€149–€249/mo)
         with one incremental sale per month at pilot AOV.
       </p>
       <DataTable
@@ -81,6 +91,10 @@ export function RoiPage() {
           ],
         ]}
       />
+      <p>
+        Weighting for the score column below: revenue leverage 40%, margin &amp;
+        cash 30%, operating cost 20%, time to proof 10%.
+      </p>
 
       <h2>Store economics (pilot assumptions)</h2>
       <p>
@@ -132,97 +146,109 @@ export function RoiPage() {
       <p>
         Ranked for the leather pilot at ~10 m². Window/street work is{" "}
         <strong>last</strong> unless the owner proves pass-by is the bottleneck —
-        in a micro-store, most € is decided inside.
+        in a micro-store, most € is decided inside. Build cost is one-time pilot
+        engineering + install; upside is indicative annual gross profit or cash
+        recovered at pilot assumptions.
       </p>
       <DataTable
         headers={[
           "Rank",
           "Initiative",
-          "€ lever",
-          "Impact",
-          "Effort",
+          "Score",
+          "Build €",
+          "Annual upside",
+          "Payback",
           "Owner action",
-          "Delivery",
+          "Phase",
         ]}
         rows={[
           [
             "1",
             "Door entries + POS join (conversion funnel)",
-            "Conversion %",
-            "Very high",
-            "Medium",
+            "92",
+            "€2k–€4k",
+            "€8k–€23k rev",
+            "4–8 wk",
             "Compare low-conversion days; test greeting or hero SKU",
             <Tag phase="p1" />,
           ],
           [
             "2",
             "Desirability gap (attention without sale by SKU)",
-            "Margin / inventory turns",
-            "Very high",
-            "Medium",
+            "88",
+            "€1k–€3k",
+            "€1.5k–€6k margin + cash",
+            "2–6 wk",
             "Markdown, bundle, or reposition in 14 days",
             <Tag phase="p2" />,
           ],
           [
             "3",
             "Upsell & basket patterns (pairs, care kits, belts)",
-            "AOV",
-            "High",
-            "Low",
+            "84",
+            "€0.5k–€1k",
+            "€6k–€18k rev",
+            "2–4 wk",
             "Staff script when single-category baskets dominate",
             <Tag phase="p2" />,
           ],
           [
             "4",
             "Hourly traffic vs sales (staffing & hours)",
-            "Labor vs revenue",
-            "Medium",
-            "Low",
+            "72",
+            "€0 (uses rank 1)",
+            "€1.4k–€2.4k OpEx",
+            "Immediate",
             "Close dead mornings or extend tourist peaks",
             <Tag phase="p1" />,
           ],
           [
             "5",
             "Bounce & dwell at door (greeting / layout)",
-            "Conversion (micro)",
-            "Medium",
-            "Low",
+            "68",
+            "€0 (uses rank 1)",
+            "€3k–€9k rev",
+            "4–12 wk",
             "Fix first 10 seconds in the room",
             <Tag phase="p1" />,
           ],
           [
             "6",
             "Experiment registry (display, price tests)",
-            "Compound uplift",
-            "Medium",
-            "Low",
+            "65",
+            "€0.5k–€1k",
+            "Compound — 5–15% on tested lever",
+            "After baseline",
             "One 7-day test; success = € or conversion",
             <Tag phase="p2" />,
           ],
           [
             "7",
             "Fixture zones / RFID or scanners",
-            "Finer SKU attribution",
-            "Medium",
-            "Higher",
+            "52",
+            "€2k–€5k",
+            "Enables rank 2 precision",
+            "Only if 2 stalls",
             "Defer until ranks 1–3 prove value",
             <Tag phase="p2" />,
           ],
           [
             "8",
             "Window funnel (pass-by → look-in → enter)",
-            "Entries (top of funnel)",
-            "High*",
-            "High",
+            "48*",
+            "€3k–€6k",
+            "Street-dependent",
+            "Only after rank 1",
             "Only after in-store conversion baseline exists",
             <Tag phase="p3" />,
           ],
           [
             "—",
             "GDPR / DPIA / privacy controls",
-            "Risk & trust (enabler)",
-            "Required",
-            "Medium",
+            "Gate",
+            "€1k–€2k counsel",
+            "Avoids pilot halt",
+            "Before M4",
             "Sign-off before M4 go-live",
             "Gate",
           ],
@@ -233,6 +259,42 @@ export function RoiPage() {
         because it is expensive to build and impossible to interpret without
         in-store close rate (rank 1).
       </p>
+
+      <h2>Which bottleneck to tackle first?</h2>
+      <p>
+        Use the owner&apos;s current pain — not feature interest — to pick the
+        first € action after rank 1 baseline is live:
+      </p>
+      <DataTable
+        headers={["Owner says…", "Start here", "ROI rank"]}
+        rows={[
+          [
+            "“I get people in but they leave empty-handed”",
+            "Conversion + bounce diagnostics",
+            "1, then 5",
+          ],
+          [
+            "“This bag has sat here since last season”",
+            "Desirability gap on that SKU",
+            "2",
+          ],
+          [
+            "“They buy one item and leave”",
+            "Upsell basket patterns",
+            "3",
+          ],
+          [
+            "“I stay open all day but mornings are dead”",
+            "Hourly traffic vs sales",
+            "4",
+          ],
+          [
+            "“Nobody even looks at my window”",
+            "Window funnel — only if rank 1 shows in-store close is healthy",
+            "8 (after 1)",
+          ],
+        ]}
+      />
 
       <h2>Why this order for Italy</h2>
       <ul>

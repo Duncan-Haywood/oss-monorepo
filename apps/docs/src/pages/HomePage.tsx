@@ -10,10 +10,22 @@ export function HomePage() {
     >
       <Card variant="ok">
         <p>
-          <strong>Start here for build order:</strong>{" "}
-          <Link to="/roi">Business value &amp; ROI</Link> — initiatives ranked by
-          € impact for the Italy leather boutique. Commercial framing:{" "}
-          <Link to="/business-plan">Business plan</Link>.
+          <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
+          The pilot optimizes <strong>profit per visitor</strong> — conversion,
+          AOV, and margin on a small floor — not analytics for its own sake.
+          Start with the{" "}
+          <Link to="/roi">ROI matrix</Link> for build order;{" "}
+          <Link to="/business-plan">Business plan</Link> for commercial framing.
+        </p>
+      </Card>
+
+      <Card>
+        <p>
+          <strong>Financial priority (this quarter):</strong> Ship POS + door
+          join first (conversion baseline), then desirability gap on slow SKUs,
+          then upsell patterns. Defer window/outdoor CV until the owner can cite
+          weekly conversion and one inventory € action — see{" "}
+          <Link to="/roi">full ranked matrix</Link>.
         </p>
       </Card>
 
@@ -50,7 +62,7 @@ export function HomePage() {
         rows={[
           [
             <Link to="/business-plan">Business plan</Link>,
-            "Market, pricing, GTM, unit economics, risks",
+            "Market, pricing, GTM, payback model, partners, CS, risks",
           ],
           [
             <Link to="/roi">ROI</Link>,

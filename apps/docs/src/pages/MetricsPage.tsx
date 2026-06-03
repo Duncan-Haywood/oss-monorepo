@@ -11,31 +11,36 @@ export function MetricsPage() {
     >
       <h2>Owner KPIs (check these first)</h2>
       <DataTable
-        headers={["KPI", "Formula", "€ decision it drives"]}
+        headers={["KPI", "Formula", "ROI rank", "€ decision it drives"]}
         rows={[
           [
             "Conversion",
             "purchases / entries",
+            "1",
             "Greeting, hero SKU, pricing — lifts revenue without more traffic",
           ],
           [
             "Revenue per entrant",
             "Σ sale total / entries",
+            "1",
             "Single number for “was today worth opening?”",
           ],
           [
             "Average basket (AOV)",
             "Σ sale total / purchases",
+            "3",
             "Upsell belts, care kits, wallets with bags",
           ],
           [
             "Margin proxy",
             "POS category margin % × revenue (if available)",
+            "2",
             "Prefer margin over raw revenue in experiments",
           ],
           [
             "Desirability gap",
             "High touches or dwell, low SKU conversion",
+            "2",
             "Markdown, bundle, or remove dead stock in 14 days",
           ],
         ]}
