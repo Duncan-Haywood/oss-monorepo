@@ -194,6 +194,48 @@ export function BusinessPlanPage() {
         cash-flow predictability.
       </p>
 
+      <h3>Owner ROI vs subscription (planning frame)</h3>
+      <p>
+        The offer must clear a simple owner test: monthly fee &lt; documented
+        upside from one habit change. Illustrative mechanics (see{" "}
+        <Link to="/roi">ROI scenarios</Link>) — not guarantees:
+      </p>
+      <DataTable
+        headers={["Owner outcome", "Illustrative annual upside", "Core tier cost", "Payback feel"]}
+        rows={[
+          [
+            "+1 sale/week at €350 AOV",
+            "€9k–€23k gross revenue",
+            "€1.8k–€3k / year",
+            "One extra bag/month covers subscription",
+          ],
+          [
+            "+€40 AOV on 3 sales/day",
+            "€30k gross revenue",
+            "Margin+ tier",
+            "Upsell coaching pays for itself in weeks",
+          ],
+          [
+            "Clear 2 slow SKUs",
+            "€1.5k–€4k margin + cash freed",
+            "Often one quarter of fees",
+            "Inventory story sells faster than CV specs",
+          ],
+          [
+            "4 h/week labor avoided",
+            "€1.4k–€2.4k / year",
+            "Core tier",
+            "Staffing alignment is an easy first win",
+          ],
+        ]}
+      />
+      <p>
+        Commercial conversations lead with <strong>€/week the owner controls</strong>
+        (conversion, AOV, dead stock), then privacy and install — not camera
+        resolution. If M3 does not produce a named weekly action, do not renew at
+        list price.
+      </p>
+
       <h2>6. Go-to-market</h2>
       <DataTable
         headers={["Stage", "Motion", "Success metric"]}
@@ -226,6 +268,67 @@ export function BusinessPlanPage() {
         fairs and municipal business associations are low-cost trust channels.
       </p>
 
+      <h3>Sales assets & demo motion</h3>
+      <DataTable
+        headers={["Asset", "Purpose", "When used"]}
+        rows={[
+          [
+            "Sales portal (pnpm portal:dev)",
+            "Password-gated walkthrough of illustrative KPIs, funnel, experiments",
+            "First meeting before site visit; no live store data",
+          ],
+          [
+            "Weekly owner report (1 page)",
+            "Conversion, €/entrant, one experiment result",
+            "Post-M3; renewal and reference intros",
+          ],
+          [
+            "DPIA + privacy one-pager",
+            "Trust under GDPR; Garante-ready posture",
+            "Before camera live (M4 gate)",
+          ],
+          [
+            "Install kit BOM + 2h checklist",
+            "Partner-delivered setup without founder travel",
+            "Stage 2 cluster in same city",
+          ],
+          [
+            "Anonymized street benchmark (opt-in)",
+            "3–5 stores on same high street compare bands",
+            "Stage 1 reference cluster only",
+          ],
+        ]}
+      />
+      <p>
+        Demo data in the portal is explicitly labeled illustrative — never
+        conflate with the design partner&apos;s live metrics in proposals.
+      </p>
+
+      <h3>Channel economics (indicative)</h3>
+      <DataTable
+        headers={["Partner type", "They bring", "We offer", "Economics"]}
+        rows={[
+          [
+            "POS reseller / integrator",
+            "Trust, export/API access, install slot",
+            "White-label report, rev share on MRR",
+            "15–25% of year-1 MRR or €150–€250 per activated store",
+          ],
+          [
+            "Camera / security installer",
+            "Mount, cable, edge PC placement",
+            "Kit BOM + remote handoff script",
+            "€200–€400 install fee (customer-paid); we certify playbook",
+          ],
+          [
+            "Boutique consultant",
+            "Owner intro, merchandising credibility",
+            "Margin+ tier co-sell",
+            "One-time €300–€500 referral or 10% year-1",
+          ],
+        ]}
+      />
+
       <h2>7. Unit economics (illustrative)</h2>
       <DataTable
         headers={["Item", "Pilot store", "Steady-state store"]}
@@ -243,6 +346,22 @@ export function BusinessPlanPage() {
         <strong>LTV:</strong> €199 × 24 months × 70% margin ≈ €3.3k contribution
         before churn. Payback requires &lt;7 months average life — retention
         tied to owner seeing € outcomes (see <Link to="/roi">ROI page</Link>).
+      </p>
+
+      <h3>Break-even (bootstrap, no salary)</h3>
+      <DataTable
+        headers={["Assumption", "Value", "Implication"]}
+        rows={[
+          ["Blended MRR per paid store", "€220", "Mix of Core + early Margin+"],
+          ["Variable COGS / store / month", "€35", "Support + minimal cloud"],
+          ["Fixed monthly (tools, counsel, travel)", "€800–€1.5k", "Founder time excluded"],
+          ["Paid stores to cover fixed @ €185 contribution", "5–9", "Y1 target band is plausible"],
+        ]}
+      />
+      <p>
+        Pilot setup fees fund hardware and DPIA work in year one; recurring
+        margin scales once M3 ritual sticks. Raising capital shifts the table
+        toward faster POS adapter #2 and partner enablement, not headcount.
       </p>
 
       <h2>8. Three-year outlook (scenarios)</h2>
@@ -337,7 +456,58 @@ export function BusinessPlanPage() {
         ]}
       />
 
-      <h2>12. Operating plan & team (lean)</h2>
+      <h2>12. Retention & expansion</h2>
+      <p>
+        Churn in micro-retail is usually <em>non-use</em>, not price. Expansion is
+        tier upsell after trust, not feature dumps.
+      </p>
+      <DataTable
+        headers={["Signal", "Healthy", "At-risk action"]}
+        rows={[
+          [
+            "Owner opens weekly report",
+            "≥3 of 4 weeks",
+            "15-min call; simplify to one KPI",
+          ],
+          [
+            "Documented € experiment / quarter",
+            "≥1 with measured outcome",
+            "Co-design next test; pause Margin+ upsell",
+          ],
+          [
+            "Conversion or €/entrant trend",
+            "Named story (up or explained flat)",
+            "Re-baseline season; check POS lag",
+          ],
+          [
+            "POS sync & door tally",
+            "Green per /metrics",
+            "Fix adapter before selling window add-on",
+          ],
+        ]}
+      />
+      <p>
+        <strong>Expansion path:</strong> Core → Margin+ when ranks 2–3 on{" "}
+        <Link to="/roi">ROI matrix</Link> are live; Street add-on only after M3
+        plateau and owner cites pass-by as bottleneck. Multi-door family groups
+        are one contract, per-store LAN — not a premature SaaS multi-tenant
+        rewrite.
+      </p>
+
+      <h2>13. Company metrics (what we track)</h2>
+      <DataTable
+        headers={["Metric", "Target (indicative)", "Why"]}
+        rows={[
+          ["Pilot → paid conversion", "≥80% after 90d live", "Proves M4 + ritual"],
+          ["Logo churn (annual)", "<15%", "Owner € outcomes drive renewal"],
+          ["Gross margin on MRR", "≥65% at 25 stores", "Support must not scale linearly"],
+          ["CAC payback", "<7 months", "Channel motion viability"],
+          ["Time to M3 (first € action named)", "<45 days from install", "Sales promise = delivery"],
+          ["Partner-sourced % of new logos", "≥40% by Y2", "Founder not on every truck roll"],
+        ]}
+      />
+
+      <h2>14. Operating plan & team (lean)</h2>
       <ul>
         <li>
           <strong>Now:</strong> founder-engineer + design-partner owner; legal
@@ -353,7 +523,7 @@ export function BusinessPlanPage() {
         </li>
       </ul>
 
-      <h2>13. Funding & use of capital (optional)</h2>
+      <h2>15. Funding & use of capital (optional)</h2>
       <p>
         The pilot can bootstrap on setup fees and founder time. If raising, use
         of funds priority: (1) POS adapter #2, (2) repeatable install kit +
@@ -361,14 +531,42 @@ export function BusinessPlanPage() {
         infra.
       </p>
 
-      <h2>14. Immediate next actions</h2>
-      <ol>
-        <li>Replace pilot assumptions with owner books (AOV, margin, footfall)</li>
-        <li>Lock pilot commercial terms (setup discount vs case-study rights)</li>
-        <li>Complete M1–M3 per roadmap; defer rank 7–8 sales talk</li>
-        <li>Draft DPIA with Italian counsel before camera live</li>
-        <li>Pre-write reference customer intro email for two peer boutiques</li>
-      </ol>
+      <h2>16. Immediate next actions</h2>
+      <DataTable
+        headers={["Action", "Owner", "Gate / link"]}
+        rows={[
+          [
+            "Replace pilot assumptions with owner books (AOV, margin, footfall)",
+            "Founder + owner",
+            <Link to="/roi">ROI assumptions</Link>,
+          ],
+          [
+            "Lock pilot terms: setup fee, case-study rights, data processing role",
+            "Founder + counsel",
+            "Before M4",
+          ],
+          [
+            "Ship M1–M3 per roadmap; no window SKU in contract",
+            "Engineering",
+            <Link to="/roadmap">Roadmap M1–M3</Link>,
+          ],
+          [
+            "DPIA draft + signage; Privacy page → owner sign-off",
+            "Counsel",
+            <Link to="/privacy">Privacy</Link>,
+          ],
+          [
+            "Run portal demo in first peer boutique meeting",
+            "Sales",
+            "Home → sales portal",
+          ],
+          [
+            "Pre-write 2 reference intro emails (same street)",
+            "Founder",
+            "After first documented € win",
+          ],
+        ]}
+      />
 
       <Card variant="warn">
         <p>
