@@ -166,3 +166,122 @@ export const weekTrend = [
   { day: "Sat", entries: 61, revenue: 3890 },
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
+
+/** Business value narrative for sales / owner demos — illustrative pilot outcomes. */
+export const pilotValue = {
+  headline: "€14.2k gross profit uplift in pilot month 1",
+  subline:
+    "Joined door + POS data surfaced three weekly € actions — no cloud video, no identity graph.",
+  beforeAfter: {
+    conversionPct: { before: 16.7, after: 19.1, label: "Conversion" },
+    avgBasketEur: { before: 278, after: 316, label: "Avg basket" },
+    weeklyRevenueEur: { before: 16800, after: 18940, label: "Weekly revenue" },
+    slowSkuDays: { before: 21, after: 7, label: "High-gap SKU days (avg)" },
+  },
+  weeklyWins: [
+    {
+      title: "Till pairing script promoted",
+      detail: "Scarf attach on wallet/bag rose 22% → 67% in one week.",
+      impactEur: "€420/wk est. margin",
+    },
+    {
+      title: "Doorway clearance fix",
+      detail: "Bounce rate down 4 pts after layout change validated by CV.",
+      impactEur: "€180–260/wk est.",
+    },
+    {
+      title: "Saddle bag flagged for action",
+      detail: "11 touches, 0 sales — lit pedestal test queued (desirability gap).",
+      impactEur: "€420–680/wk if fixed",
+    },
+  ],
+  roiHighlights: [
+    {
+      initiative: "Door + POS join",
+      buildEur: "€2k–€4k",
+      annualUpside: "€8k–€23k rev",
+      payback: "4–8 wk",
+      status: "live" as const,
+    },
+    {
+      initiative: "Desirability gap (SKU)",
+      buildEur: "€1k–€3k",
+      annualUpside: "€1.5k–€6k margin",
+      payback: "2–6 wk",
+      status: "live" as const,
+    },
+    {
+      initiative: "Upsell & basket patterns",
+      buildEur: "€0.5k–€1k",
+      annualUpside: "€6k–€18k rev",
+      payback: "2–4 wk",
+      status: "proven" as const,
+    },
+    {
+      initiative: "Window funnel",
+      buildEur: "€3k–€6k",
+      annualUpside: "Street-dependent",
+      payback: "After baseline",
+      status: "deferred" as const,
+    },
+  ],
+  subscription: {
+    setupFeeEur: "€2.5k–€4k",
+    monthlyEur: "€149–€249",
+    pilotPaybackWeeks: "6–10",
+  },
+};
+
+export const demoTalkingPoints: Record<
+  string,
+  { title: string; points: string[] }
+> = {
+  "/": {
+    title: "Overview — daily command center",
+    points: [
+      "Owner sees conversion and revenue per entrant, not raw footfall.",
+      "Hourly chart shows when footfall doesn't convert — staffing lever.",
+      "Insights are €-ranked actions, not vanity dashboards.",
+    ],
+  },
+  "/value": {
+    title: "Business value — why they buy",
+    points: [
+      "Before/after from pilot week 6 — conversion + basket + weekly revenue.",
+      "ROI table maps product capabilities to payback (aligned with docs /roi).",
+      "Subscription economics: setup + monthly, payback in 6–10 weeks at pilot scale.",
+    ],
+  },
+  "/funnel": {
+    title: "Funnel — entries to purchase",
+    points: [
+      "Aggregate only — no shopper profiles; GDPR-friendly for Italy.",
+      "Window pass-by is phase 3; in-store close rate comes first.",
+      "Bounce and engagement rates drive layout and greeting experiments.",
+    ],
+  },
+  "/products": {
+    title: "Products — desirability gap",
+    points: [
+      "High-touch / low-close SKUs tie up cash in 10 m² — this is the margin story.",
+      "Saddle bag example: attention without try-on → merchandising action.",
+      "Hero SKUs (wallet) validate placement; don't discount what already converts.",
+    ],
+  },
+  "/experiments": {
+    title: "Experiments — closed loop",
+    points: [
+      "Sold on outcomes: measure → hypothesize → 7-day test → promote winners.",
+      "Till script already promoted — concrete proof for prospects.",
+      "Window test running; pairing rack queued — shows roadmap without over-building.",
+    ],
+  },
+  "/trust": {
+    title: "Privacy — objection handler",
+    points: [
+      "Zero-day video retention; frames discarded on edge device.",
+      "POS payload is SKU/qty/totals only — no card data.",
+      "Store is GDPR controller; we are processor with DPA.",
+    ],
+  },
+};

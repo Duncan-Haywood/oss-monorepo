@@ -1,9 +1,19 @@
 import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
+import { DemoGuide } from "./DemoGuide";
 import { storeProfile } from "../data/demoStore";
 
-const nav = [
+const ownerNav = [
+  { to: "/value", label: "Business value" },
+  { to: "/", label: "Overview", end: true },
+  { to: "/funnel", label: "Funnel" },
+  { to: "/products", label: "Products" },
+  { to: "/experiments", label: "Experiments" },
+  { to: "/trust", label: "Privacy & trust" },
+] as const;
+
+const operatorNav = [
   { to: "/", label: "Overview", end: true },
   { to: "/funnel", label: "Funnel" },
   { to: "/products", label: "Products" },
@@ -22,10 +32,12 @@ export function PortalShell({
 }) {
   const navigate = useNavigate();
   const session = readSession();
+  const isOwner = session?.role === "owner";
+  const nav = isOwner ? ownerNav : operatorNav;
 
   function signOut() {
     clearSession();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -61,6 +73,12 @@ export function PortalShell({
           <p className="role-tag">
             Signed in as <strong>{session?.role ?? "operator"}</strong>
           </p>
+          {isOwner ? (
+            <p className="sidebar-tip">
+              Owner view — start at <strong>Business value</strong> for sales
+              demos.
+            </p>
+          ) : null}
           <button type="button" className="btn-ghost" onClick={signOut}>
             Sign out
           </button>
@@ -78,7 +96,10 @@ export function PortalShell({
             <span className="pill pill-secure">LAN-only demo</span>
           </div>
         </header>
-        <main className="portal-content">{children}</main>
+        <main className="portal-content">
+          {children}
+          <DemoGuide />
+        </main>
       </div>
     </div>
   );

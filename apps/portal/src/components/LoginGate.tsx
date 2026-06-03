@@ -3,7 +3,7 @@ import { createSession, getDemoPasscode, verifyPasscode } from "../auth/demoAuth
 
 export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
-  const [role, setRole] = useState<"operator" | "owner">("operator");
+  const [role, setRole] = useState<"operator" | "owner">("owner");
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
 
@@ -24,9 +24,16 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
         <p className="login-eyebrow">Retail Pilot Intel</p>
         <h1>Store portal</h1>
         <p className="login-lead">
-          Secure demo access for pilot stakeholders. Session stays in this browser
-          only; no production data is loaded.
+          Secure demo for pilot stakeholders and sales conversations. See joined
+          door + POS intelligence with illustrative € outcomes — not live store
+          data.
         </p>
+
+        <ul className="login-value-props">
+          <li>Conversion & revenue per entrant — not footfall alone</li>
+          <li>SKU desirability gaps tied to margin actions</li>
+          <li>Experiment loop with proven till-script win</li>
+        </ul>
 
         <form onSubmit={handleSubmit} className="login-form">
           <label>
@@ -58,7 +65,7 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
                 checked={role === "owner"}
                 onChange={() => setRole("owner")}
               />
-              Owner (revenue & experiments)
+              Owner (revenue & ROI story)
             </label>
           </fieldset>
 
