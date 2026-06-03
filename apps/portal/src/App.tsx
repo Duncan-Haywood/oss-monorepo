@@ -31,6 +31,14 @@ export function App() {
         }
       />
       <Route
+        path="/value"
+        element={
+          <RequireAuth>
+            <ValuePage />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/funnel"
         element={
           <RequireAuth>

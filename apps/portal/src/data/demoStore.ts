@@ -183,7 +183,6 @@ export const weekTrend = [
   { day: "Sat", entries: 61, revenue: 3890 },
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
-
 /** Sales / owner narrative — aligned with docs ROI matrix (illustrative). */
 export const pilotEconomics = {
   aovRange: "€180–€450",
@@ -200,6 +199,19 @@ export const pilotImpactSummary = {
   weeklyRevenueDeltaPct: 12,
   experimentsPromoted: 1,
   slowSkuActions: 2,
+};
+
+export const pilotBeforeAfter = {
+  conversionPct: { before: 16.7, after: 19.1, label: "Conversion" },
+  avgBasketEur: { before: 278, after: 316, label: "Avg basket" },
+  weeklyRevenueEur: { before: 16800, after: 18940, label: "Weekly revenue" },
+  slowSkuDays: { before: 21, after: 7, label: "High-gap SKU days (avg)" },
+};
+
+export const pilotSubscription = {
+  setupFeeEur: "€2.5k–€4k",
+  monthlyEur: "€149–€249",
+  pilotPaybackWeeks: "6–10",
 };
 
 export const quarterlyFocus = [
@@ -294,3 +306,57 @@ export const pilotWins = [
     metric: "€420–680/wk est.",
   },
 ];
+
+export const demoTalkingPoints: Record<
+  string,
+  { title: string; points: string[] }
+> = {
+  "/": {
+    title: "Overview — daily command center",
+    points: [
+      "Owner sees conversion and revenue per entrant, not raw footfall.",
+      "Hourly chart shows when footfall doesn't convert — staffing lever.",
+      "Insights are €-ranked actions, not vanity dashboards.",
+    ],
+  },
+  "/value": {
+    title: "Business value — why they buy",
+    points: [
+      "Before/after from pilot week 6 — conversion, basket, weekly revenue.",
+      "ROI table maps product capabilities to payback (aligned with docs /roi).",
+      "Subscription economics: setup + monthly, payback in 6–10 weeks at pilot scale.",
+    ],
+  },
+  "/funnel": {
+    title: "Funnel — entries to purchase",
+    points: [
+      "Aggregate only — no shopper profiles; GDPR-friendly for Italy.",
+      "Window pass-by is phase 3; in-store close rate comes first.",
+      "Bounce and engagement rates drive layout and greeting experiments.",
+    ],
+  },
+  "/products": {
+    title: "Products — desirability gap",
+    points: [
+      "High-touch / low-close SKUs tie up cash in 10 m² — this is the margin story.",
+      "Saddle bag example: attention without try-on → merchandising action.",
+      "Hero SKUs (wallet) validate placement; don't discount what already converts.",
+    ],
+  },
+  "/experiments": {
+    title: "Experiments — closed loop",
+    points: [
+      "Sold on outcomes: measure → hypothesize → 7-day test → promote winners.",
+      "Till script already promoted — concrete proof for prospects.",
+      "Window test running; pairing rack queued — shows roadmap without over-building.",
+    ],
+  },
+  "/trust": {
+    title: "Privacy — objection handler",
+    points: [
+      "Zero-day video retention; frames discarded on edge device.",
+      "POS payload is SKU/qty/totals only — no card data.",
+      "Store is GDPR controller; we are processor with DPA.",
+    ],
+  },
+};

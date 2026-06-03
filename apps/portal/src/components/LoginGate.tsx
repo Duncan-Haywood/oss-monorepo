@@ -3,7 +3,7 @@ import { createSession, getDemoPasscode, verifyPasscode } from "../auth/demoAuth
 
 export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
-  const [role, setRole] = useState<"operator" | "owner">("operator");
+  const [role, setRole] = useState<"operator" | "owner">("owner");
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
 
@@ -35,7 +35,7 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
             <strong>€-ranked build order</strong> — Business value view for owners
           </li>
           <li>
-            <strong>Illustrative Milano pilot</strong> — Atelier Linea, Week 6
+            <strong>Presenter guide</strong> — talking points on every page
           </li>
         </ul>
 
@@ -69,7 +69,7 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
                 checked={role === "owner"}
                 onChange={() => setRole("owner")}
               />
-              Owner (revenue & experiments)
+              Owner (revenue & ROI story)
             </label>
           </fieldset>
 
