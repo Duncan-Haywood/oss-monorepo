@@ -24,7 +24,7 @@ export function ArchitecturePage() {
       footer={<Link to="/metrics">Next: Metrics →</Link>}
     >
       <p>
-        Components are built in <Link to="/priorities">ROI order</Link>: POS +
+        Components are built in <Link to="/roi">ROI order</Link>: POS +
         door first; zones and outdoor cameras only after conversion baseline is
         trusted.
       </p>
