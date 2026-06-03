@@ -11,6 +11,7 @@ build/
 .env
 .env.*
 !.env.example
+docker/docs.htpasswd
 
 # Edge / CV artifacts (never commit raw video)
 recordings/

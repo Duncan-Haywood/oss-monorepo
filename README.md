@@ -21,7 +21,7 @@ pnpm portal:build  # → apps/portal/dist
 3. Sign in as **Owner** to see the ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publish privately for stakeholders, see **`docs/README.md`** (GitHub Pages, Vercel, or Docker on LAN) — passcode gate + `noindex` by default.
 
 ## Quick start
 
@@ -41,7 +41,8 @@ packages/edge/          On-device vision (stub CLI)
 packages/pos/           POS connector (stub CLI)
 packages/analytics/     SQLite rollups & reports
 scripts/ci.ts           TypeScript CI orchestrator
-.github/workflows/      GitHub Actions
+.github/workflows/      CI + deploy-docs (GitHub Pages)
+docker/                 nginx config for private docs serve
 ```
 
 ## What to build first (ROI)

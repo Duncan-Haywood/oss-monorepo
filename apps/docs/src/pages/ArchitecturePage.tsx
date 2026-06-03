@@ -57,9 +57,11 @@ export function ArchitecturePage() {
       <ul>
         <li>SQLite rollups, funnel joins, experiment registry (later)</li>
       </ul>
-      <h3>Docs & dashboard (apps/docs)</h3>
+      <h3>Docs site (apps/docs)</h3>
       <ul>
-        <li>TSX site built by Vite; CI publishes dist artifact</li>
+        <li>TSX site built by Vite; HashRouter for static hosting</li>
+        <li>CI builds dist; deploy workflow publishes to GitHub Pages or Vercel</li>
+        <li>Passcode gate in production; noindex headers and robots.txt</li>
       </ul>
 
       <h2>Event contracts</h2>
@@ -67,12 +69,38 @@ export function ArchitecturePage() {
 packages/schemas/json/sale_event.schema.json`}</pre>
 
       <h2>Deployment</h2>
+      <h3>Store edge</h3>
       <Card>
         <p>
           Linux edge PC; optional Docker Compose. Camera on isolated VLAN;
           outbound internet disabled by default.
         </p>
       </Card>
+      <h3>Private documentation hosting</h3>
+      <DataTable
+        headers={["Option", "Privacy", "Setup"]}
+        rows={[
+          [
+            "GitHub Pages",
+            "Repo private; site URL shareable — use passcode + org access controls",
+            "Enable Pages → GitHub Actions; set secret DOCS_PASSCODE",
+          ],
+          [
+            "Vercel",
+            "Deployment Protection (team) + VITE_DOCS_PASSCODE at build",
+            "Root directory apps/docs; import repo; add env in project settings",
+          ],
+          [
+            "Docker (LAN)",
+            "localhost:8080 only; optional nginx basic auth",
+            "pnpm docs:build && docker compose up docs",
+          ],
+        ]}
+      />
+      <p className="stub">
+        Client-side passcode is for stakeholder convenience, not cryptographic
+        security — pair with platform protection for sensitive GTM content.
+      </p>
     </DocLayout>
   );
 }
