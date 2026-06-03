@@ -45,6 +45,11 @@ const steps: Array<() => void> = [
     accessSync(docsDist);
     console.log(`✓ Docs build present: ${docsDist}`);
   },
+  () => {
+    const portalDist = join(root, "apps/portal/dist/index.html");
+    accessSync(portalDist);
+    console.log(`✓ Portal build present: ${portalDist}`);
+  },
 ];
 
 for (const step of steps) {

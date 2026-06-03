@@ -48,7 +48,8 @@ export function HomePage() {
             <Link to="/roadmap">Roadmap</Link>,
             "Phased delivery aligned to ROI",
           ],
-          [<Link to="/dashboard">Dashboard</Link>, "Operator UI prototype"],
+          ["Sales portal (pnpm portal:dev)", "Secure demo UI with illustrative pilot data"],
+          [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />
 
@@ -67,6 +68,7 @@ export function HomePage() {
 
       <h2>Repository</h2>
       <pre>{`apps/docs/       ← TSX documentation (this site)
+apps/portal/     sales demo portal (pnpm portal:dev)
 packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports

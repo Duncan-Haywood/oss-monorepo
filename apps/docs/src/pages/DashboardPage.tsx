@@ -1,38 +1,32 @@
+import { Link } from "react-router-dom";
 import { DocLayout } from "../components/DocLayout";
 
 export function DashboardPage() {
   return (
     <DocLayout
       title="Store dashboard"
-      subtitle="LAN prototype — API wiring planned for M3"
+      subtitle="Operator UI lives in the sales portal app"
     >
-      <div className="kpi-grid">
-        <div className="kpi">
-          <div className="value">—</div>
-          <div className="label">Entries today</div>
-        </div>
-        <div className="kpi">
-          <div className="value">—</div>
-          <div className="label">Bounces</div>
-        </div>
-        <div className="kpi">
-          <div className="value">—</div>
-          <div className="label">Purchases</div>
-        </div>
-        <div className="kpi">
-          <div className="value">—</div>
-          <div className="label">Conversion</div>
-        </div>
-      </div>
-
-      <div className="card">
-        <p className="stub">Populate data from repo root:</p>
-        <pre>{`pnpm install
-pnpm bootstrap`}</pre>
-        <p className="stub">
-          M3 will fetch KPIs from SQLite via a small TypeScript API.
+      <div className="card ok">
+        <p>
+          <strong>Sales demo portal</strong> — passcode-gated mock operator UI with
+          illustrative metrics for the Milano leather boutique pilot. Run locally:
+        </p>
+        <pre>{`pnpm portal:dev
+# default passcode: atelier-demo`}</pre>
+        <p>
+          Built static bundle: <code>apps/portal/dist/index.html</code>
         </p>
       </div>
+
+      <p className="stub">
+        This docs route remains a lightweight placeholder. Production wiring (M3) will
+        connect KPIs from SQLite via a small TypeScript API on the store LAN.
+      </p>
+
+      <footer>
+        <Link to="/">← Home</Link>
+      </footer>
     </DocLayout>
   );
 }

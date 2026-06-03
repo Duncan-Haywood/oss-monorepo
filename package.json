@@ -10,7 +10,9 @@
     "ci": "tsx scripts/ci.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
     "docs:dev": "pnpm --filter @retail-pilot/docs dev",
-    "docs:build": "pnpm --filter @retail-pilot/docs build"
+    "docs:build": "pnpm --filter @retail-pilot/docs build",
+    "portal:dev": "pnpm --filter @retail-pilot/portal dev",
+    "portal:build": "pnpm --filter @retail-pilot/portal build"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
