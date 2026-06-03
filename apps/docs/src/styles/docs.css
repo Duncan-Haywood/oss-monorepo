@@ -184,3 +184,130 @@ footer {
 }
 
 .stub { color: var(--muted); font-size: 0.9rem; }
+
+/* Private docs gate */
+.docs-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.docs-gate-panel {
+  width: 100%;
+  max-width: 28rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.docs-gate-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.docs-gate-panel h1 {
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.docs-gate-lead {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.docs-gate-form label span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.docs-gate-form input[type="password"] {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.docs-gate-error {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: #e57373;
+  margin: 0 0 1rem;
+}
+
+.docs-gate-submit {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #0f1419;
+  cursor: pointer;
+}
+
+.docs-gate-submit:hover {
+  filter: brightness(1.08);
+}
+
+.docs-gate-foot {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 1.25rem 0 0;
+}
+
+.docs-gate-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.docs-gate-hint code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.docs-gate-trust {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-gate-trust li {
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.docs-gate-trust li::before {
+  content: "·";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}

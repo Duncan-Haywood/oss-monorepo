@@ -12,3 +12,5 @@ pnpm docs:build   # output: apps/docs/dist
 ```
 
 CI builds and uploads `apps/docs/dist` on every push to `main`.
+
+**Private hosting:** see [HOSTING.md](./HOSTING.md) — recommended stack is Vercel (password protection) plus the built-in docs passcode gate. Optional GitHub Actions deploy when `DOCS_DEPLOY_ENABLED` and Vercel secrets are configured.

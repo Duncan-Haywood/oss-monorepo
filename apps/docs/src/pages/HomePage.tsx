@@ -102,7 +102,8 @@ packages/analytics/  rollups & reports
 .github/workflows/   CI (TypeScript orchestrator)`}</pre>
 
       <footer>
-        Private pilot documentation — not legal advice. Engage counsel for GDPR
+        Private pilot documentation (passcode + host protection) — not legal
+        advice. Engage counsel for GDPR
         sign-off in Italy.
       </footer>
     </DocLayout>

@@ -21,7 +21,7 @@ pnpm portal:build  # → apps/portal/dist
 3. Sign in as **Owner** to see the ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact. For a **private, human-readable URL**, deploy to Vercel with deployment password protection — see [docs/HOSTING.md](docs/HOSTING.md). The docs site includes a passcode gate (`VITE_DOCS_PASSCODE`; local bypass: `VITE_DOCS_GATE=off`).
 
 ## Quick start
 
