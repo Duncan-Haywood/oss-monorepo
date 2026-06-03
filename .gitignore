@@ -33,5 +33,5 @@ models/*.pt
 
 # Logs & local data
 logs/
-data/
+data/*
 !data/.gitkeep
