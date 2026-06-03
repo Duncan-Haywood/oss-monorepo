@@ -1,0 +1,100 @@
+import { useState, type FormEvent } from "react";
+import { createSession, getDemoPasscode, verifyPasscode } from "../auth/demoAuth";
+
+export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
+  const [passcode, setPasscode] = useState("");
+  const [role, setRole] = useState<"operator" | "owner">("operator");
+  const [error, setError] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState(false);
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!verifyPasscode(passcode)) {
+      setError("Invalid demo passcode. Contact your pilot lead for access.");
+      return;
+    }
+    createSession(role);
+    onAuthenticated();
+  }
+
+  return (
+    <div className="login-screen">
+      <div className="login-panel">
+        <p className="login-eyebrow">Retail Pilot Intel</p>
+        <h1>Store portal</h1>
+        <p className="login-lead">
+          Secure demo access for pilot stakeholders. Session stays in this browser
+          only; no production data is loaded.
+        </p>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <label>
+            <span>Demo passcode</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              placeholder="Enter passcode"
+            />
+          </label>
+
+          <fieldset className="role-fieldset">
+            <legend>View as</legend>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                checked={role === "operator"}
+                onChange={() => setRole("operator")}
+              />
+              Operator (daily ops)
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                checked={role === "owner"}
+                onChange={() => setRole("owner")}
+              />
+              Owner (revenue & experiments)
+            </label>
+          </fieldset>
+
+          {error ? (
+            <p className="login-error" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          <button type="submit" className="btn-primary">
+            Enter portal
+          </button>
+        </form>
+
+        <p className="login-foot">
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => setShowHint((v) => !v)}
+          >
+            {showHint ? "Hide" : "Show"} demo hint
+          </button>
+          {showHint ? (
+            <span className="demo-hint">
+              {" "}
+              Passcode for this build: <code>{getDemoPasscode()}</code>
+            </span>
+          ) : null}
+        </p>
+
+        <ul className="login-trust">
+          <li>Edge-first · aggregates only</li>
+          <li>Illustrative metrics · not live POS</li>
+          <li>Session expires after 8 hours</li>
+        </ul>
+      </div>
+    </div>
+  );
+}

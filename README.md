@@ -10,6 +10,8 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 pnpm install
 pnpm docs:dev      # http://localhost:5173
 pnpm docs:build    # → apps/docs/dist
+pnpm portal:dev    # http://localhost:5174 — sales demo portal
+pnpm portal:build  # → apps/portal/dist
 ```
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact.
@@ -25,7 +27,8 @@ pnpm run ci        # typecheck, lint, build, bootstrap smoke test
 ## Repository layout
 
 ```
-apps/docs/              TSX documentation + dashboard (Vite/React)
+apps/docs/              TSX documentation site (Vite/React)
+apps/portal/            Secure sales demo portal (illustrative data)
 packages/schemas/       Event types + JSON Schema
 packages/edge/          On-device vision (stub CLI)
 packages/pos/           POS connector (stub CLI)

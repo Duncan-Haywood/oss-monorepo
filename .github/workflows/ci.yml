@@ -37,3 +37,10 @@ jobs:
           name: docs-dist
           path: apps/docs/dist
           if-no-files-found: error
+
+      - name: Upload portal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-dist
+          path: apps/portal/dist
+          if-no-files-found: error

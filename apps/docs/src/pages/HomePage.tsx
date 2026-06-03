@@ -35,7 +35,8 @@ export function HomePage() {
             "Italy/EU constraints and technical controls",
           ],
           [<Link to="/roadmap">Roadmap</Link>, "Phased delivery"],
-          [<Link to="/dashboard">Dashboard</Link>, "Operator UI prototype"],
+          ["Sales portal (pnpm portal:dev)", "Secure demo UI with illustrative pilot data"],
+          [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />
 
