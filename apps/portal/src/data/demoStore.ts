@@ -166,71 +166,129 @@ export const weekTrend = [
   { day: "Sat", entries: 61, revenue: 3890 },
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
-
-/** Business value narrative for sales / owner demos — illustrative pilot outcomes. */
-export const pilotValue = {
-  headline: "€14.2k gross profit uplift in pilot month 1",
-  subline:
-    "Joined door + POS data surfaced three weekly € actions — no cloud video, no identity graph.",
-  beforeAfter: {
-    conversionPct: { before: 16.7, after: 19.1, label: "Conversion" },
-    avgBasketEur: { before: 278, after: 316, label: "Avg basket" },
-    weeklyRevenueEur: { before: 16800, after: 18940, label: "Weekly revenue" },
-    slowSkuDays: { before: 21, after: 7, label: "High-gap SKU days (avg)" },
-  },
-  weeklyWins: [
-    {
-      title: "Till pairing script promoted",
-      detail: "Scarf attach on wallet/bag rose 22% → 67% in one week.",
-      impactEur: "€420/wk est. margin",
-    },
-    {
-      title: "Doorway clearance fix",
-      detail: "Bounce rate down 4 pts after layout change validated by CV.",
-      impactEur: "€180–260/wk est.",
-    },
-    {
-      title: "Saddle bag flagged for action",
-      detail: "11 touches, 0 sales — lit pedestal test queued (desirability gap).",
-      impactEur: "€420–680/wk if fixed",
-    },
-  ],
-  roiHighlights: [
-    {
-      initiative: "Door + POS join",
-      buildEur: "€2k–€4k",
-      annualUpside: "€8k–€23k rev",
-      payback: "4–8 wk",
-      status: "live" as const,
-    },
-    {
-      initiative: "Desirability gap (SKU)",
-      buildEur: "€1k–€3k",
-      annualUpside: "€1.5k–€6k margin",
-      payback: "2–6 wk",
-      status: "live" as const,
-    },
-    {
-      initiative: "Upsell & basket patterns",
-      buildEur: "€0.5k–€1k",
-      annualUpside: "€6k–€18k rev",
-      payback: "2–4 wk",
-      status: "proven" as const,
-    },
-    {
-      initiative: "Window funnel",
-      buildEur: "€3k–€6k",
-      annualUpside: "Street-dependent",
-      payback: "After baseline",
-      status: "deferred" as const,
-    },
-  ],
-  subscription: {
-    setupFeeEur: "€2.5k–€4k",
-    monthlyEur: "€149–€249",
-    pilotPaybackWeeks: "6–10",
-  },
+/** Sales / owner narrative — aligned with docs ROI matrix (illustrative). */
+export const pilotEconomics = {
+  aovRange: "€180–€450",
+  grossMargin: "55–70%",
+  dailyEntries: "25–80",
+  staffOnFloor: "1–2",
 };
+
+export const pilotImpactSummary = {
+  headline: "€14k–€32k indicative annual upside",
+  subline:
+    "From conversion lift, SKU repositioning, and upsell — at pilot assumptions for a ~10 m² leather boutique.",
+  conversionLiftPts: 2.4,
+  weeklyRevenueDeltaPct: 12,
+  experimentsPromoted: 1,
+  slowSkuActions: 2,
+};
+
+export const pilotBeforeAfter = {
+  conversionPct: { before: 16.7, after: 19.1, label: "Conversion" },
+  avgBasketEur: { before: 278, after: 316, label: "Avg basket" },
+  weeklyRevenueEur: { before: 16800, after: 18940, label: "Weekly revenue" },
+  slowSkuDays: { before: 21, after: 7, label: "High-gap SKU days (avg)" },
+};
+
+export const pilotSubscription = {
+  setupFeeEur: "€2.5k–€4k",
+  monthlyEur: "€149–€249",
+  pilotPaybackWeeks: "6–10",
+};
+
+export const quarterlyFocus = [
+  "Door + POS join — conversion % and revenue per entrant",
+  "Desirability gap — attention without sale on leather SKUs",
+  "Upsell patterns — multi-SKU baskets without discounting heroes",
+];
+
+export const rankedInitiatives = [
+  {
+    rank: 1,
+    name: "Door entries + POS join",
+    score: 92,
+    buildCost: "€2k–€4k",
+    upside: "€8k–€23k rev",
+    payback: "4–8 wk",
+    action: "Compare low-conversion days; test greeting or hero SKU",
+    phase: "Phase 1",
+    liveInDemo: true,
+  },
+  {
+    rank: 2,
+    name: "Desirability gap (SKU)",
+    score: 88,
+    buildCost: "€1k–€3k",
+    upside: "€1.5k–€6k margin + cash",
+    payback: "2–6 wk",
+    action: "Markdown, bundle, or reposition in 14 days",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 3,
+    name: "Upsell & basket patterns",
+    score: 84,
+    buildCost: "€0.5k–€1k",
+    upside: "€6k–€18k rev",
+    payback: "2–4 wk",
+    action: "Staff script when single-category baskets dominate",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 4,
+    name: "Hourly traffic vs sales",
+    score: 72,
+    buildCost: "€0 (uses #1)",
+    upside: "€1.4k–€2.4k OpEx",
+    payback: "Immediate",
+    action: "Close dead mornings or extend tourist peaks",
+    phase: "Phase 1",
+    liveInDemo: true,
+  },
+  {
+    rank: 6,
+    name: "Experiment registry",
+    score: 65,
+    buildCost: "€0.5k–€1k",
+    upside: "5–15% on tested lever",
+    payback: "After baseline",
+    action: "One 7-day test; success = € or conversion",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 8,
+    name: "Window / outdoor funnel",
+    score: 48,
+    buildCost: "€3k–€6k",
+    upside: "€2k–€8k rev",
+    payback: "8–16 wk",
+    action: "Defer until in-store baseline is trusted",
+    phase: "Phase 3",
+    liveInDemo: false,
+  },
+];
+
+export const pilotWins = [
+  {
+    title: "Conversion +2.4 pts vs last week",
+    detail: "Door-to-sale join live; owner can see € impact daily.",
+    metric: "19.1% today",
+  },
+  {
+    title: "Till script promoted to standard",
+    detail: "Scarf attach on wallet/bag: 22% → 67% in 7-day test.",
+    metric: "+45 pts attach",
+  },
+  {
+    title: "Saddle bag flagged before write-off",
+    detail: "11 touches / 0 sales — reposition test queued.",
+    metric: "€420–680/wk est.",
+  },
+];
 
 export const demoTalkingPoints: Record<
   string,
@@ -247,7 +305,7 @@ export const demoTalkingPoints: Record<
   "/value": {
     title: "Business value — why they buy",
     points: [
-      "Before/after from pilot week 6 — conversion + basket + weekly revenue.",
+      "Before/after from pilot week 6 — conversion, basket, weekly revenue.",
       "ROI table maps product capabilities to payback (aligned with docs /roi).",
       "Subscription economics: setup + monthly, payback in 6–10 weeks at pilot scale.",
     ],

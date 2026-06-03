@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Card, Diagram } from "../components/DocPrimitives";
+import { Card, DataTable, Diagram } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
 
 const diagram = `┌─────────────────────────────────────────────────────────────┐
@@ -28,6 +28,17 @@ export function ArchitecturePage() {
         door first; zones and outdoor cameras only after conversion baseline is
         trusted.
       </p>
+
+      <h2>Build sequence (€ impact)</h2>
+      <DataTable
+        headers={["Order", "Package / surface", "Financial unlock"]}
+        rows={[
+          ["1", "packages/pos + door CV", "Conversion, revenue per entrant"],
+          ["2", "packages/analytics rollups", "Weekly owner KPIs on LAN"],
+          ["3", "Scanners / zones (optional)", "Desirability gap, touch-to-buy"],
+          ["4", "Second camera / window CV", "Street funnel — rank 8 in ROI matrix"],
+        ]}
+      />
 
       <h2>High-level diagram</h2>
       <Diagram>{diagram}</Diagram>

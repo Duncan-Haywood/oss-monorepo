@@ -14,7 +14,13 @@ pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atel
 pnpm portal:build  # → apps/portal/dist
 ```
 
-**Sales demo flow:** Sign in as **Owner** → start at **Business value** for ROI narrative → walk through Overview, Products, Experiments. Presenter guide at the bottom of each page.
+### Sales / marketing demo walkthrough
+
+1. Run `pnpm portal:dev` and open http://localhost:5174
+2. Passcode: `atelier-demo` (or set `VITE_DEMO_PASSCODE`)
+3. Sign in as **Owner** — Business value is first in the nav; ROI banner on Overview
+4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
+5. Use the **Presenter guide** at the bottom of each page for talking points
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact.
 
@@ -41,14 +47,14 @@ scripts/ci.ts           TypeScript CI orchestrator
 
 ## What to build first (ROI)
 
-For the Italy leather boutique pilot, delivery order follows **profit impact per euro of build**, not sensor count:
+For the Italy leather boutique pilot, delivery order follows **profit impact per euro of build**, not sensor count. **Start at ranks 1–3** (door+POS, desirability gap, upsell) — they typically pay back a Core subscription with one extra sale/month at pilot AOV.
 
 1. **Door + POS join** — conversion % and revenue per entrant (ranks 1, 4, 5)
 2. **SKU desirability gap + upsell** — margin, cash recovery, and AOV (ranks 2–3)
 3. **Experiments** — measurable € lift per change (rank 6)
 4. **Window / outdoor funnel** — only after in-store baseline is trusted (rank 8)
 
-Full matrix with scores, build cost, and payback: `pnpm docs:dev` → **ROI** (`/roi`).
+Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **ROI & priorities** (`/roi`).
 
 **Business plan** (market, pricing, GTM, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
 

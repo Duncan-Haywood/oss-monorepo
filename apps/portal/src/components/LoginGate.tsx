@@ -24,15 +24,19 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
         <p className="login-eyebrow">Retail Pilot Intel</p>
         <h1>Store portal</h1>
         <p className="login-lead">
-          Secure demo for pilot stakeholders and sales conversations. See joined
-          door + POS intelligence with illustrative € outcomes — not live store
-          data.
+          Sales demo for micro-format retail: conversion, SKU margin, and experiment
+          loops — privacy-first, edge-aggregated. Session stays in this browser only.
         </p>
-
-        <ul className="login-value-props">
-          <li>Conversion & revenue per entrant — not footfall alone</li>
-          <li>SKU desirability gaps tied to margin actions</li>
-          <li>Experiment loop with proven till-script win</li>
+        <ul className="login-value-points">
+          <li>
+            <strong>Profit per visitor</strong> — door + POS join, not footfall alone
+          </li>
+          <li>
+            <strong>€-ranked build order</strong> — Business value view for owners
+          </li>
+          <li>
+            <strong>Presenter guide</strong> — talking points on every page
+          </li>
         </ul>
 
         <form onSubmit={handleSubmit} className="login-form">

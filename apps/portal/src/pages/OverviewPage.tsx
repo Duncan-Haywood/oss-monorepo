@@ -1,17 +1,16 @@
+import { readSession } from "../auth/demoAuth";
 import { BarChart } from "../components/BarChart";
 import { InsightList } from "../components/InsightList";
 import { KpiCard } from "../components/KpiCard";
+import { OwnerBanner } from "../components/OwnerBanner";
 import { PortalShell } from "../components/PortalShell";
-import { readSession } from "../auth/demoAuth";
 import {
   funnelStages,
   hourlyFootfall,
   insights,
-  pilotValue,
   todayKpis,
   weekTrend,
 } from "../data/demoStore";
-import { Link } from "react-router-dom";
 
 export function OverviewPage() {
   const k = todayKpis;
@@ -22,17 +21,8 @@ export function OverviewPage() {
       title="Today at a glance"
       subtitle="What a store owner would see after door CV and POS are joined on the edge — illustrative pilot week."
     >
-      {isOwner ? (
-        <section className="value-banner">
-          <div>
-            <p className="value-eyebrow">Business impact · pilot week 6</p>
-            <p className="value-banner-text">{pilotValue.headline}</p>
-          </div>
-          <Link to="/value" className="btn-primary btn-compact">
-            View ROI story →
-          </Link>
-        </section>
-      ) : null}
+      {isOwner ? <OwnerBanner /> : null}
+
       <section className="kpi-grid">
         <KpiCard
           label="Door entries"

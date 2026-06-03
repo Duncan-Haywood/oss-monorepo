@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
 import { DemoGuide } from "./DemoGuide";
 import { storeProfile } from "../data/demoStore";
@@ -15,6 +15,7 @@ const ownerNav = [
 
 const operatorNav = [
   { to: "/", label: "Overview", end: true },
+  { to: "/value", label: "Business value" },
   { to: "/funnel", label: "Funnel" },
   { to: "/products", label: "Products" },
   { to: "/experiments", label: "Experiments" },
@@ -30,14 +31,13 @@ export function PortalShell({
   title: string;
   subtitle?: string;
 }) {
-  const navigate = useNavigate();
   const session = readSession();
   const isOwner = session?.role === "owner";
   const nav = isOwner ? ownerNav : operatorNav;
 
   function signOut() {
     clearSession();
-    navigate("/", { replace: true });
+    window.location.replace("/");
   }
 
   return (

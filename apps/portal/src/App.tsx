@@ -63,6 +63,14 @@ export function App() {
         }
       />
       <Route
+        path="/value"
+        element={
+          <RequireAuth>
+            <ValuePage />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/trust"
         element={
           <RequireAuth>
