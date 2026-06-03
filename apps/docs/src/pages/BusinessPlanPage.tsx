@@ -225,6 +225,39 @@ export function BusinessPlanPage() {
         save story, one window experiment — not feature lists. Italian trade
         fairs and municipal business associations are low-cost trust channels.
       </p>
+      <h3>Sales demo & evaluation</h3>
+      <p>
+        The secure sales portal (<code>pnpm portal:dev</code>, port 5174) shows
+        illustrative joined KPIs — conversion, revenue per entrant, funnel,
+        experiments, and trust posture — without live store data. Use it in
+        discovery calls after the ROI conversation; never substitute it for the
+        owner&apos;s own books during pilot contracting.
+      </p>
+      <DataTable
+        headers={["Buyer step", "Asset", "Outcome"]}
+        rows={[
+          [
+            "Problem fit (10 min)",
+            "ROI page scenarios + owner footfall/POS reality",
+            "Agree one € metric for pilot success",
+          ],
+          [
+            "Trust (10 min)",
+            "Privacy page + LAN-only architecture sketch",
+            "DPIA path credible before camera install",
+          ],
+          [
+            "Product feel (15 min)",
+            "Sales portal login (demo credentials in repo README)",
+            "Owner sees weekly ritual, not heatmaps",
+          ],
+          [
+            "Commercial (async)",
+            "Design partner terms (§14 below)",
+            "Signed scope before M1 hardware spend",
+          ],
+        ]}
+      />
 
       <h2>7. Unit economics (illustrative)</h2>
       <DataTable
@@ -360,14 +393,192 @@ export function BusinessPlanPage() {
         docs, (3) case-study marketing in Italy, (4) not premature multi-cloud
         infra.
       </p>
+      <DataTable
+        headers={["Use of funds (if €150k–€300k pre-seed)", "Share", "Rationale"]}
+        rows={[
+          ["POS + edge engineering", "45%", "Second adapter unlocks channel"],
+          ["Install kit + partner playbook", "25%", "Founder off every site visit"],
+          ["Italy case study + associations", "15%", "Proof-led GTM, not ads"],
+          ["Legal / DPIA / counsel", "10%", "Pilot halt risk is existential"],
+          ["Buffer", "5%", "Hardware lead times, one failed install"],
+        ]}
+      />
 
-      <h2>14. Immediate next actions</h2>
+      <h2>14. Design partner commercial framework</h2>
+      <p>
+        The Italy leather boutique is a <strong>design partner</strong>, not a
+        discounted forever customer. Terms should be written before M1 spend and
+        align incentives with case-study rights and weekly owner ritual.
+      </p>
+      <DataTable
+        headers={["Term", "Typical range", "Notes"]}
+        rows={[
+          [
+            "Pilot length",
+            "90 days from M4 go-live",
+            "Extension only if M3 KPIs improving",
+          ],
+          [
+            "Setup fee",
+            "€1.5k list → €0–€750 with case study",
+            "Case study = anonymized metrics + quote + 2 intros",
+          ],
+          [
+            "Monthly during pilot",
+            "€0–€99 Core (list €199)",
+            "Converts to list or Margin+ at day 91",
+          ],
+          [
+            "Hardware",
+            "Owner buys or lease-to-own via installer",
+            "We do not own edge assets on balance sheet at scale",
+          ],
+          [
+            "Data & IP",
+            "Store owns operational data; we own software",
+            "No raw video export; aggregates export on request",
+          ],
+          [
+            "Success definition",
+            "One documented € action/week by week 4 post-M4",
+            "Tied to ROI ranks 1–3, not feature checklist",
+          ],
+          [
+            "Termination",
+            "30-day notice; kit removal playbook",
+            "DPIA records retained per counsel guidance",
+          ],
+        ]}
+      />
+
+      <h2>15. Monthly financial model (illustrative)</h2>
+      <p>
+        Bridges <Link to="/roi">ROI store assumptions</Link> to §5 pricing for
+        one pilot store and a steady-state Core customer. Replace with signed
+        pilot actuals.
+      </p>
+      <DataTable
+        headers={["Line (per store / month)", "Pilot (discounted)", "Steady Core"]}
+        rows={[
+          ["Subscription", "€49", "€199"],
+          ["Support COGS", "€40", "€30"],
+          ["Hosting / telemetry (optional)", "€5", "€10"],
+          ["Gross profit", "€4", "€159"],
+          ["Gross margin %", "~8%", "~80%"],
+        ]}
+      />
+      <p>
+        <strong>Owner-side ROI check:</strong> at AOV €300 and 40 entries/day,
+        +0.5 pp conversion ≈ 0.2 extra sales/day × 26 days × €300 ≈ €1.6k/mo
+        gross revenue — subscription pays back if the owner attributes even a
+        fraction of lift to joined data. Margin+ tier justified when desirability
+        gap frees one slow SKU per quarter (cash + margin).
+      </p>
+      <DataTable
+        headers={["Company roll-up", "Y1 (5 stores EoY)", "Y2 (25 stores)"]}
+        rows={[
+          ["MRR (blended €175)", "€875", "€4.4k"],
+          ["Annualized run-rate", "~€10.5k", "~€53k"],
+          ["Founder + contractor opex (planning)", "~€45k", "~€85k"],
+          ["Net (pre-fundraise)", "Negative", "Approaching breakeven"],
+        ]}
+      />
+
+      <h2>16. Retention & land-and-expand</h2>
+      <p>
+        Churn is almost always &quot;owner stopped trusting € outcomes,&quot; not
+        price. Retention mechanics mirror the{" "}
+        <Link to="/roi">15-minute weekly ritual</Link>.
+      </p>
+      <DataTable
+        headers={["Signal", "Healthy", "At-risk action"]}
+        rows={[
+          [
+            "Weekly login / report open",
+            "≥3 of 4 weeks",
+            "15-min call; simplify to one KPI",
+          ],
+          [
+            "Documented experiment / month",
+            "≥1 with € or conversion target",
+            "Co-design one 14-day test",
+          ],
+          [
+            "Conversion vs prior 4 weeks",
+            "Flat or up",
+            "Diagnose POS lag or bounce rules",
+          ],
+          [
+            "Support tickets",
+            "<1 / quarter",
+            "Remote health check; kit swap playbook",
+          ],
+        ]}
+      />
+      <p>
+        <strong>Expand:</strong> Margin+ upgrade after 60 days of trusted M3 KPIs;
+        Street add-on only with rank-1 baseline; multi-door family groups priced
+        per door with 10–15% bundle discount — still one DPIA scope per site.
+      </p>
+
+      <h2>17. Partner & channel economics</h2>
+      <DataTable
+        headers={["Partner type", "They bring", "We offer", "Economics"]}
+        rows={[
+          [
+            "Camera / low-voltage installer",
+            "Mount, cable, handoff",
+            "BOM + 2h remote commissioning",
+            "€150–€250 per install referral fee",
+          ],
+          [
+            "POS reseller / accountant",
+            "Trust + export enablement",
+            "Revenue share on subscription Y1",
+            "15–20% of year-1 MRR per referred store",
+          ],
+          [
+            "Boutique consultant",
+            "Owner intro + margin review",
+            "White-label PDF weekly summary",
+            "€50/store/mo or project fee — TBD at 10 stores",
+          ],
+        ]}
+      />
+      <p>
+        Channel goal by Y2: ≥50% new stores closed without founder travel.
+        Partners must not promise window analytics before M3 baseline exists (see
+        §10 gates).
+      </p>
+
+      <h2>18. Business KPI scorecard</h2>
+      <p>
+        Tracks commercial health alongside technical milestones on the{" "}
+        <Link to="/roadmap">Roadmap</Link>.
+      </p>
+      <DataTable
+        headers={["KPI", "Target", "When"]}
+        rows={[
+          ["Design partner LOI signed", "1", "Before M1"],
+          ["Owner weekly ritual (self-reported)", "4 consecutive weeks", "M4 + 30d"],
+          ["Documented € uplift vs baseline quarter", "≥1 case", "Pilot day 90"],
+          ["Peer intro meetings booked", "2", "Pilot day 60–90"],
+          ["Paid stores (ex-pilot)", "4", "Y1 EoY"],
+          ["Blended gross margin on subscription", "≥65%", "≥10 stores"],
+          ["Annual logo churn", "<20%", "Y2+"],
+          ["CAC payback (channel-led)", "<7 months", "Y2+"],
+        ]}
+      />
+
+      <h2>19. Immediate next actions</h2>
       <ol>
         <li>Replace pilot assumptions with owner books (AOV, margin, footfall)</li>
-        <li>Lock pilot commercial terms (setup discount vs case-study rights)</li>
+        <li>Send design partner term sheet (§14) — setup, case study, success metric</li>
+        <li>Run one discovery using ROI page + sales portal; capture objections</li>
         <li>Complete M1–M3 per roadmap; defer rank 7–8 sales talk</li>
         <li>Draft DPIA with Italian counsel before camera live</li>
-        <li>Pre-write reference customer intro email for two peer boutiques</li>
+        <li>Pre-write reference intro email; attach anonymized week-4 chart template</li>
+        <li>Document installer BOM + 2h commissioning checklist for channel stage 2</li>
       </ol>
 
       <Card variant="warn">
