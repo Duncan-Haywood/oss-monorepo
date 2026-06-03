@@ -6,45 +6,89 @@ export function RoadmapPage() {
   return (
     <DocLayout
       title="Roadmap"
-      subtitle="Phased delivery for leather boutique pilot"
-      footer={<Link to="/">← Back to home</Link>}
+      subtitle="Delivery order follows financial ROI — see Priorities for the full ranking"
+      footer={<Link to="/priorities">← Priorities & ROI</Link>}
     >
+      <p>
+        Phases below are <strong>reordered by € impact</strong> for the leather
+        boutique pilot, not by sensor novelty. Technical phase tags (P1–P3)
+        remain for engineering traceability.
+      </p>
+
       <h2>
-        Phase 1 — Camera + POS <Tag phase="p1" />
+        Now — Revenue baseline <Tag phase="p1" />
       </h2>
+      <p>
+        <strong>ROI ranks 1–4.</strong> Without POS + door conversion, no other
+        feature pays for itself.
+      </p>
       <ul>
-        <li>Door line-crossing counts</li>
-        <li>POS adapter (one vendor)</li>
-        <li>SQLite + daily rollups (TypeScript)</li>
-        <li>LAN dashboard in docs app</li>
+        <li>POS adapter (one vendor) → normalized SaleEvent</li>
+        <li>Door line-crossing counts → entries / bounces</li>
+        <li>SQLite daily rollups + conversion & revenue-per-visitor KPIs</li>
+        <li>LAN dashboard — owner checks one number: € per entrant</li>
       </ul>
 
       <h2>
-        Phase 2 — Product engagement <Tag phase="p2" />
+        Next — Margin & inventory <Tag phase="p2" />
       </h2>
+      <p>
+        <strong>ROI ranks 2–3, 6.</strong> Only after baseline KPIs are trusted
+        for 7+ days.
+      </p>
       <ul>
-        <li>Fixture zones / scanner events</li>
-        <li>Desirability gap recommendations</li>
-        <li>Experiment registry</li>
+        <li>SKU-level desirability gap (attention vs purchase)</li>
+        <li>Basket mix / upsell prompts (single-category vs pairs)</li>
+        <li>Experiment registry — one in-store change, measured outcome</li>
+        <li>Optional fixture zones or scanners if SKU attribution is too coarse</li>
       </ul>
 
       <h2>
-        Phase 3 — Window & display <Tag phase="p3" />
+        Later — Street & display <Tag phase="p3" />
       </h2>
+      <p>
+        <strong>ROI ranks 7–8.</strong> Defer unless owner confirms pass-by traffic
+        is the bottleneck (common in larger frontage, rare in ~10 m²).
+      </p>
       <ul>
         <li>Outdoor pass-by / look-in / enter funnel</li>
-        <li>Display scheduling hooks</li>
+        <li>Display scheduling hooks tied to conversion experiments</li>
       </ul>
 
-      <h2>Milestones</h2>
+      <h2>Milestones (financial exit criteria)</h2>
       <DataTable
-        headers={["Milestone", "Exit criteria"]}
+        headers={["Milestone", "ROI focus", "Exit criteria"]}
         rows={[
-          ["M0 — Repo & docs", "TSX docs site + CI build"],
-          ["M1 — POS ingest", "Sample SaleEvent in DB"],
-          ["M2 — Door counts", "Replay → hourly entries"],
-          ["M3 — Joined funnel", "Dashboard KPIs from SQLite API"],
-          ["M4 — Pilot live", "7 days stable; DPIA signed"],
+          [
+            "M0 — Repo & docs",
+            "Enablement",
+            "TSX docs site + CI; Priorities page agreed with owner",
+          ],
+          [
+            "M1 — POS ingest",
+            "Rank 1, 3",
+            "Daily revenue & SKU mix in DB; &lt; 60 s lag",
+          ],
+          [
+            "M2 — Door counts",
+            "Rank 1, 4, 5",
+            "Replay → hourly entries; ±5% vs manual tally",
+          ],
+          [
+            "M3 — Joined funnel",
+            "Rank 1–5",
+            "Dashboard shows conversion; owner names one € action/week",
+          ],
+          [
+            "M4 — Pilot live",
+            "Compliance gate",
+            "7 days stable; DPIA signed; no PII retention",
+          ],
+          [
+            "M5+ — Zones / window",
+            "Rank 7–8",
+            "Only if M3 KPIs plateau; experiment shows lift",
+          ],
         ]}
       />
     </DocLayout>

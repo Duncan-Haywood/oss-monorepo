@@ -34,7 +34,16 @@ scripts/ci.ts           TypeScript CI orchestrator
 .github/workflows/      GitHub Actions
 ```
 
-## Phase 1
+## What to build first (ROI)
+
+For the Italy leather boutique pilot, delivery order follows **financial value**, not sensor count. See the docs site **Priorities & ROI** page (`pnpm docs:dev` → `/priorities`).
+
+1. POS + door → conversion and revenue per entrant
+2. SKU desirability gap and basket upsell
+3. Experiments with measurable € lift
+4. Outdoor/window analytics only if baseline KPIs plateau
+
+## Phase 1 (technical)
 
 - Indoor door camera → aggregate counts (no identity)
 - POS ingest → normalized `SaleEvent`

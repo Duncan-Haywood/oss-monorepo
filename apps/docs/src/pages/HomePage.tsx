@@ -10,10 +10,11 @@ export function HomePage() {
     >
       <Card variant="ok">
         <p>
-          <strong>Pilot context:</strong> A ~10 m² leather boutique running a
-          technology pilot: door-mounted vision (aggregate only), in-store
-          scanners or RFID where available, and POS sales data unified for
-          profit-oriented recommendations and controlled experiments.
+          <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
+          The pilot optimizes <strong>profit per visitor</strong> — conversion,
+          basket margin, and cash in slow SKUs — using door aggregates and POS
+          data on a store-local edge node. Build order follows{" "}
+          <Link to="/priorities">financial ROI</Link>, not feature count.
         </p>
       </Card>
 
@@ -21,36 +22,39 @@ export function HomePage() {
       <DataTable
         headers={["Page", "Topic"]}
         rows={[
-          [<Link to="/vision">Vision</Link>, "Product goals and pilot context"],
+          [<Link to="/vision">Vision</Link>, "Profit-oriented goals and pilot context"],
+          [
+            <Link to="/priorities">Priorities & ROI</Link>,
+            "What to build first for maximum € impact (start here for planning)",
+          ],
           [
             <Link to="/architecture">Architecture</Link>,
             "On-device CV, POS bridge, local aggregation",
           ],
           [
             <Link to="/metrics">Metrics</Link>,
-            "Funnel definitions (look → touch → buy)",
+            "Funnel + margin-oriented KPI definitions",
           ],
           [
             <Link to="/privacy">Privacy & GDPR</Link>,
             "Italy/EU constraints and technical controls",
           ],
-          [<Link to="/roadmap">Roadmap</Link>, "Phased delivery"],
+          [<Link to="/roadmap">Roadmap</Link>, "ROI-ordered delivery milestones"],
           [<Link to="/dashboard">Dashboard</Link>, "Operator UI prototype"],
         ]}
       />
 
-      <h2>Phase 1 deliverable</h2>
+      <h2>Phase 1 deliverable (highest ROI)</h2>
       <p>
         Combine <strong>indoor door camera aggregates</strong> with{" "}
-        <strong>normalized POS events</strong> so operators can answer:
+        <strong>normalized POS events</strong> so the owner can answer — in €
+        terms:
       </p>
       <ul>
-        <li>How many people entered vs bounced?</li>
-        <li>
-          Of entrants, how many engaged with product vs purchased?
-        </li>
-        <li>Which SKUs get attention but under-convert?</li>
-        <li>What layout experiments might lift margin?</li>
+        <li>What is conversion and revenue per entrant this week?</li>
+        <li>Which days have traffic without sales (staffing or display issue)?</li>
+        <li>Which SKUs get attention but under-convert (cash tied up)?</li>
+        <li>Where is a simple upsell or layout test worth running next?</li>
       </ul>
 
       <h2>Repository</h2>

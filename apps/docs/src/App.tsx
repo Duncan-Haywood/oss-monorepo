@@ -4,6 +4,7 @@ import { VisionPage } from "./pages/VisionPage";
 import { ArchitecturePage } from "./pages/ArchitecturePage";
 import { MetricsPage } from "./pages/MetricsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
+import { PrioritiesPage } from "./pages/PrioritiesPage";
 import { RoadmapPage } from "./pages/RoadmapPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
@@ -12,6 +13,7 @@ export function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/vision" element={<VisionPage />} />
+      <Route path="/priorities" element={<PrioritiesPage />} />
       <Route path="/architecture" element={<ArchitecturePage />} />
       <Route path="/metrics" element={<MetricsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />

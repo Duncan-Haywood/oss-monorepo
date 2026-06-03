@@ -6,41 +6,49 @@ export function VisionPage() {
   return (
     <DocLayout
       title="Product vision"
-      subtitle="Optimize profit and sales in micro-format retail without surveillance capitalism"
-      footer={<Link to="/architecture">Next: Architecture →</Link>}
+      subtitle="Increase profit per visitor in micro-format leather retail — privacy-preserving, store-local"
+      footer={<Link to="/priorities">Next: Priorities & ROI →</Link>}
     >
-      <h2>Problem</h2>
+      <h2>Problem (financial)</h2>
       <p>
-        Small luxury retail has thin margins and limited staff. Operators lack
-        feedback on window conversion, attention without sales, upsell gaps, and
-        whether display changes move revenue.
+        A ~10 m² leather boutique in Italy runs on thin traffic and high ticket
+        sizes. The owner cannot see which days convert footfall to margin, which
+        SKUs attract attention but do not sell, or whether display and staffing
+        choices return €. Generic footfall counters do not connect to POS margin.
       </p>
 
       <h2>Solution</h2>
-      <p>A <strong>store-local intelligence layer</strong> that:</p>
+      <p>
+        A <strong>store-local intelligence layer</strong> that ties anonymous
+        in-store signals to POS outcomes and surfaces ranked, €-oriented actions:
+      </p>
       <ol>
         <li>
-          Runs CV on premises, emitting only aggregated, non-identifying
-          statistics
+          Aggregate door and engagement events on premises — no identity
         </li>
-        <li>Ingests POS data capsules (no card data)</li>
-        <li>Joins engagement with sales for funnel analytics</li>
-        <li>Suggests and tracks simple in-store experiments</li>
+        <li>Ingest POS sale capsules (no card data)</li>
+        <li>Join funnel to revenue and SKU mix</li>
+        <li>Track one in-store experiment at a time with measurable lift</li>
       </ol>
 
       <h2>Target pilot</h2>
       <Card>
         <ul>
           <li>
-            <strong>Format:</strong> ~10 m² leather boutique, Italy
+            <strong>Format:</strong> ~10 m² leather boutique, Italy (owner-operated
+            or 1–2 staff)
           </li>
           <li>
-            <strong>Hardware:</strong> Door camera; optional scanners; existing
-            POS
+            <strong>Economics:</strong> High AOV (bags, jackets), seasonal tourist
+            traffic, working capital in slow-moving SKUs
           </li>
           <li>
-            <strong>Compute:</strong> Edge PC on store LAN — no cloud required
-            for raw video
+            <strong>Hardware:</strong> Door camera; existing POS; scanners only if
+            SKU gap needs them
+          </li>
+          <li>
+            <strong>Compute:</strong> Edge PC on store LAN — no cloud required for
+            raw video
           </li>
         </ul>
       </Card>
@@ -50,16 +58,19 @@ export function VisionPage() {
         <li>Facial recognition or cross-store shopper IDs</li>
         <li>Cloud upload of identifiable imagery</li>
         <li>Replacing POS or full WMS</li>
+        <li>Analytics that do not suggest a priced owner action within a week</li>
       </ul>
 
-      <h2>Success criteria</h2>
+      <h2>Success criteria (owner-visible €)</h2>
       <DataTable
         headers={["Measure", "Target (indicative)"]}
         rows={[
-          ["Entry count vs manual tally", "±5% on sample days"],
+          ["Conversion (purchases / entries)", "Tracked weekly; goal +0.5 pp in 30 days"],
+          ["Revenue per entrant", "Baseline week 1; improve or explain flat trend"],
+          ["≥ 1 inventory or display action / week", "From desirability gap or experiment"],
           ["POS sync latency", "< 60 s for aggregates"],
           ["Raw video retention", "0 days default"],
-          ["Weekly actionable insight", "≥ 1 experiment idea"],
+          ["Entry count vs manual tally", "±5% on sample days"],
         ]}
       />
     </DocLayout>
