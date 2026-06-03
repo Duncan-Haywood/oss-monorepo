@@ -11,4 +11,6 @@ pnpm docs:dev
 pnpm docs:build   # output: apps/docs/dist
 ```
 
-CI builds and uploads `apps/docs/dist` on every push to `main`.
+CI builds `apps/docs/dist` on every push to `main`. The **Deploy docs (GitHub Pages)** workflow publishes the site to private GitHub Pages (Settings → Pages → Source: GitHub Actions; visibility: Private).
+
+For external stakeholders without GitHub access, see `vercel.docs.json` and the **Vercel** section in the root `README.md`.

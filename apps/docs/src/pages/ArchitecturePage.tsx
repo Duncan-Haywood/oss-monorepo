@@ -59,7 +59,11 @@ export function ArchitecturePage() {
       </ul>
       <h3>Docs & dashboard (apps/docs)</h3>
       <ul>
-        <li>TSX site built by Vite; CI publishes dist artifact</li>
+        <li>TSX site built by Vite; CI verifies build on every PR</li>
+        <li>
+          Private GitHub Pages on <code>main</code> (repo collaborators only);
+          optional Vercel with deployment protection for external readers
+        </li>
       </ul>
 
       <h2>Event contracts</h2>

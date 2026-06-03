@@ -21,7 +21,37 @@ pnpm portal:build  # → apps/portal/dist
 3. Sign in as **Owner** to see the ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and published to **private GitHub Pages** on every push to `main` (see [Hosting docs](#hosting-docs-private)).
+
+## Hosting docs (private)
+
+The TSX docs site is a static Vite build (`apps/docs/dist`) with hash-based routing — no server rewrites required.
+
+### GitHub Pages (recommended, repo-private)
+
+1. **Settings → Pages → Build and deployment:** set **Source** to **GitHub Actions**.
+2. **Settings → Pages → Visibility:** set **Private** (requires GitHub Pro, Team, or Enterprise on the account/org).
+3. Push to `main` — workflow `.github/workflows/docs-pages.yml` builds and deploys automatically.
+4. Open the URL shown under **Settings → Pages** or the `github-pages` environment on the latest workflow run.
+
+Only people with access to this repository can view private Pages. No extra passwords or third-party accounts.
+
+### Vercel (optional — external stakeholders)
+
+Use a separate Vercel project when you need a shareable URL with **Deployment Protection** (password or Vercel Authentication) for people who do not have GitHub access:
+
+1. Import this repo in Vercel; use the settings in `vercel.docs.json` (install/build/output).
+2. Enable **Deployment Protection → Password** (or Vercel Authentication) on the project.
+3. Store the password in your team password manager — do not rely on client-side env vars for confidentiality.
+
+### Local / LAN preview
+
+```bash
+pnpm docs:build
+docker compose up docs   # http://localhost:8080
+```
+
+CI also uploads `apps/docs/dist` as a downloadable artifact on every run.
 
 ## Quick start
 
