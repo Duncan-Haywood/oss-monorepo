@@ -87,7 +87,7 @@ export function HomePage() {
           ],
           [
             "Sales portal (pnpm portal:dev)",
-            "Secure demo UI — Business value, funnel, SKU gap, experiments",
+            "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide on each page)",
           ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
