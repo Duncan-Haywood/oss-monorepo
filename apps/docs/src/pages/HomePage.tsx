@@ -29,13 +29,40 @@ export function HomePage() {
         </p>
       </Card>
 
+      <h2>Highest-ROI work (ranks 1–3)</h2>
+      <DataTable
+        headers={["Rank", "Deliverable", "Why it wins for a 10 m² leather shop"]}
+        rows={[
+          [
+            "1",
+            "Door + POS join",
+            "Conversion and revenue per entrant — without this, no weekly € decisions",
+          ],
+          [
+            "2",
+            "Desirability gap by SKU",
+            "One slow €800 bag ties cash in ~10 m²; attention-without-sale is the signal",
+          ],
+          [
+            "3",
+            "Upsell / basket patterns",
+            "Belts and care kits lift AOV without more street traffic",
+          ],
+        ]}
+      />
+      <p>
+        Full matrix, monthly € math, and deprioritized features:{" "}
+        <Link to="/roi">ROI page</Link>. Delivery phases:{" "}
+        <Link to="/roadmap">Roadmap</Link>.
+      </p>
+
       <h2>Documentation map</h2>
       <DataTable
         headers={["Page", "Topic"]}
         rows={[
           [
             <Link to="/business-plan">Business plan</Link>,
-            "Market, pricing, payback model, partners, CS, risks",
+            "Market, pricing, payback, partners, CS, retention, company KPIs",
           ],
           [
             <Link to="/gtm">GTM strategy</Link>,
@@ -62,23 +89,13 @@ export function HomePage() {
             <Link to="/roadmap">Roadmap</Link>,
             "Phased delivery aligned to ROI",
           ],
-          ["Sales portal (pnpm portal:dev)", "Secure demo UI with illustrative pilot data"],
+          [
+            "Sales portal (pnpm portal:dev)",
+            "Secure demo UI — Business value, funnel, SKU gap, experiments",
+          ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />
-
-      <h2>Highest-ROI deliverable (Phase 1)</h2>
-      <p>
-        Combine <strong>door entry counts</strong> with{" "}
-        <strong>normalized POS events</strong> so the owner can answer — in €
-        terms:
-      </p>
-      <ul>
-        <li>Conversion and revenue per entrant this week</li>
-        <li>Which hours or days under-convert (staffing and greeting)</li>
-        <li>Phase 2: SKUs with attention but no sale (inventory cash trap)</li>
-        <li>Phase 3: Window tests once in-store close rate is known</li>
-      </ul>
 
       <h2>Repository</h2>
       <pre>{`apps/docs/       ← TSX documentation (this site)
