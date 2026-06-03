@@ -25,17 +25,24 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
         <h1>Store portal</h1>
         <p className="login-lead">
           Sales demo for micro-format retail: conversion, SKU margin, and experiment
-          loops — privacy-first, edge-aggregated. Session stays in this browser only.
+          loops on illustrative Milano boutique data — privacy-first, edge-aggregated.
+          Session stays in this browser only.
         </p>
         <ul className="login-value-points">
           <li>
             <strong>Profit per visitor</strong> — door + POS join, not footfall alone
           </li>
           <li>
-            <strong>€-ranked build order</strong> — Business value view for owners
+            <strong>€18k–€48k</strong> indicative annual upside at pilot assumptions
+          </li>
+          <li>
+            <strong>4–8 week</strong> payback on conversion + inventory actions
           </li>
           <li>
             <strong>Presenter guide</strong> — talking points on every page
+          </li>
+          <li>
+            <strong>GDPR-first</strong> — no cloud video, aggregates only
           </li>
         </ul>
 

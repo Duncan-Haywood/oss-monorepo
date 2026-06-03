@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const links = [
   { to: "/", label: "Home", end: true },
+  { to: "/demo", label: "Sales demo" },
   { to: "/roi", label: "ROI & priorities" },
   { to: "/business-plan", label: "Business plan" },
   { to: "/gtm", label: "GTM" },

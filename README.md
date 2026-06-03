@@ -60,6 +60,8 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 
 **GTM & target customers** (ICP, personas, digital-first channels): `pnpm docs:dev` → **GTM** (`/gtm`).
 
+**Sales demo** (scripted walkthrough + portal guide): `pnpm docs:dev` → **Sales demo** (`/demo`).
+
 ## Phase 1 (technical)
 
 - Indoor door camera → aggregate counts (no identity)

@@ -84,8 +84,30 @@ code {
 
 .login-lead {
   color: var(--muted);
-  margin: 0 0 1.5rem;
+  margin: 0 0 1rem;
   font-size: 0.9rem;
+}
+
+.login-value {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  list-style: none;
+  background: var(--accent-dim);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.login-value li {
+  margin-bottom: 0.4rem;
+}
+
+.login-value li:last-child {
+  margin-bottom: 0;
+}
+
+.login-value strong {
+  color: var(--accent);
 }
 
 .login-form label span {
@@ -146,6 +168,12 @@ code {
 
 .btn-primary:hover {
   filter: brightness(1.05);
+}
+
+.btn-primary.btn-compact {
+  width: auto;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
 }
 
 .btn-ghost {

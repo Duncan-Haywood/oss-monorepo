@@ -9,6 +9,7 @@ import { RoiPage } from "./pages/RoiPage";
 import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { DemoPage } from "./pages/DemoPage";
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
       <Route path="/metrics" element={<MetricsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/roadmap" element={<RoadmapPage />} />
+      <Route path="/demo" element={<DemoPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
