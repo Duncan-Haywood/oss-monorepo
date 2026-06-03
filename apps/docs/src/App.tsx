@@ -7,6 +7,7 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { RoadmapPage } from "./pages/RoadmapPage";
 import { RoiPage } from "./pages/RoiPage";
 import { BusinessPlanPage } from "./pages/BusinessPlanPage";
+import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/business-plan" element={<BusinessPlanPage />} />
+      <Route path="/gtm" element={<GtmPage />} />
       <Route path="/roi" element={<RoiPage />} />
       <Route path="/priorities" element={<Navigate to="/roi" replace />} />
       <Route path="/vision" element={<VisionPage />} />

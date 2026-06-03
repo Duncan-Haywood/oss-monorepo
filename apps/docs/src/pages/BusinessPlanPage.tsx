@@ -9,6 +9,8 @@ export function BusinessPlanPage() {
       subtitle="Retail Pilot Intel — privacy-first store intelligence for micro-format luxury retail (Italy pilot → repeatable offer)"
       footer={
         <>
+          <Link to="/gtm">GTM &amp; target customers →</Link>
+          {" · "}
           <Link to="/roi">Initiative ROI matrix →</Link>
           {" · "}
           <Link to="/roadmap">Delivery roadmap →</Link>
@@ -406,6 +408,11 @@ export function BusinessPlanPage() {
       </p>
 
       <h2>6. Go-to-market</h2>
+      <p>
+        Full ICP, personas, digital channel mix, buyer journey, and 90-day
+        playbook: <Link to="/gtm">GTM &amp; target customers</Link>. Summary
+        below.
+      </p>
       <Card variant="ok">
         <p>
           <strong>Digital-first principle:</strong> At €149–€449/mo ACV, field
@@ -785,6 +792,11 @@ export function BusinessPlanPage() {
             "This business plan",
             "Investor, association, partner",
             "Pricing, market, scale path",
+          ],
+          [
+            "GTM page (/gtm)",
+            "Founder, partner, outbound",
+            "ICP, personas, digital channels, 90-day playbook",
           ],
           [
             "Privacy page + DPIA draft",

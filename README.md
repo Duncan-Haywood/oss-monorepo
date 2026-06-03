@@ -55,7 +55,9 @@ For the Italy leather boutique pilot, delivery order follows **profit impact per
 
 Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **ROI & priorities** (`/roi`).
 
-**Business plan** (market, pricing, GTM, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
+**Business plan** (market, pricing, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
+
+**GTM & target customers** (ICP, personas, digital-first channels): `pnpm docs:dev` → **GTM** (`/gtm`).
 
 ## Phase 1 (technical)
 
