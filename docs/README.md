@@ -1,5 +1,7 @@
 # Documentation
 
+**Commercial viability assessment (HTML):** [commercial-viability-report.html](./commercial-viability-report.html) — deep evaluation of market fit, scalability, unit economics, technical gaps, and recommendations.
+
 Product docs live in **`apps/docs`** as TSX pages, built with Vite.
 
 Key pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan` — market, pricing, GTM, design partner terms, payback model, partners, CS), **Roadmap** (`/roadmap`).
