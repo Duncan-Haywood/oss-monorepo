@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retail Pilot Intel — Commercial Viability Assessment</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #3d9ee6;
+      --ok: #3dba7a;
+      --warn: #e6b84d;
+      --bad: #e85d5d;
+      --border: #2d3d52;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    h2 {
+      font-size: 1.25rem;
+      margin: 2.25rem 0 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+    p { margin: 0.6rem 0; }
+    a { color: var(--accent); }
+    .verdict {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    @media (max-width: 640px) { .verdict { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+    }
+    .card.ok { border-color: rgba(61, 186, 122, 0.45); }
+    .card.warn { border-color: rgba(230, 184, 77, 0.45); }
+    .card.bad { border-color: rgba(232, 93, 93, 0.45); }
+    .score-big {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin: 0.25rem 0;
+    }
+    .score-big.moderate { color: var(--warn); }
+    .score-big.weak { color: var(--bad); }
+    .score-big.strong { color: var(--ok); }
+    .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--surface2); font-weight: 600; }
+    tr:nth-child(even) td { background: rgba(26, 35, 50, 0.5); }
+    .bar-row { display: flex; align-items: center; gap: 0.75rem; margin: 0.4rem 0; }
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-fill.high { background: var(--ok); }
+    .bar-fill.mid { background: var(--warn); }
+    .bar-fill.low { background: var(--bad); }
+    .bar-val { width: 2.5rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.85rem; }
+    ul, ol { margin: 0.5rem 0; padding-left: 1.35rem; }
+    li { margin: 0.35rem 0; }
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      font-size: 0.8rem;
+      margin: 1rem 0;
+    }
+    .matrix .cell {
+      padding: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      min-height: 4rem;
+    }
+    .matrix .head { background: var(--surface2); font-weight: 600; }
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .tag.go { background: rgba(61, 186, 122, 0.2); color: var(--ok); }
+    .tag.caution { background: rgba(230, 184, 77, 0.2); color: var(--warn); }
+    .tag.stop { background: rgba(232, 93, 93, 0.2); color: var(--bad); }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 720px) { .scenario-grid { grid-template-columns: 1fr; } }
+    .footnote {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .rec-priority { font-weight: 600; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Commercial Viability Assessment</h1>
+      <p class="meta">
+        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury retail<br />
+        Assessment date: 3 June 2026 · Repository state: pre-pilot (M0 complete; M1–M4 not shipped)<br />
+        Method: Deep review of in-repo business plan, GTM, ROI model, sales portal, and technical implementation
+      </p>
+    </header>
+
+    <section>
+      <h2>Executive summary</h2>
+      <div class="verdict">
+        <div class="card warn">
+          <span class="label">Overall viability (weighted)</span>
+          <div class="score-big moderate">5.8 / 10</div>
+          <p><strong>Verdict: Conditionally pursue.</strong> The wedge (Italy owner-operated leather/accessories, door + POS join, GDPR-local) is coherent and commercially narrated better than most pre-seed concepts. Profitability at <em>store</em> level is plausible; profitability as a <em>company</em> in year one is not, without a signed design partner and fast M1–M4 delivery.</p>
+        </div>
+        <div class="card ok">
+          <span class="label">Best-fit outcome (5-year horizon)</span>
+          <p><strong>Niche B2B SaaS + services</strong> — 50–200 EU doors, €190k–€280k ARR, founder + 2–4 FTE, partner-led install. Not a venture-scale platform unless POS/channel leverage appears after 25+ paying stores.</p>
+        </div>
+      </div>
+      <p>
+        This is <strong>not</strong> a “failed idea” assessment. It is a <strong>timing and proof</strong> assessment: the repository today is an exceptionally strong <em>commercial and technical specification</em> with a working analytics skeleton and sales/demo surfaces, but <strong>zero validated product-market fit</strong> because no live store runs joined door + POS data yet.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Dimension</th><th>Score</th><th>One-line read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Problem &amp; ICP clarity</td><td>8.5</td><td>Sharp beachhead; anti-personas documented</td></tr>
+          <tr><td>Solution differentiation</td><td>7.5</td><td>LAN + POS join beats footfall-only; moat unproven</td></tr>
+          <tr><td>Business model / unit economics</td><td>6.5</td><td>Works if retention &gt;18 mo; Y1 company P&amp;L negative</td></tr>
+          <tr><td>GTM &amp; sales motion</td><td>7.0</td><td>Digital-first fits ACV; still founder-bound</td></tr>
+          <tr><td>Market size &amp; scalability</td><td>5.0</td><td>Real but small SAM; install/DPIA limits velocity</td></tr>
+          <tr><td>Competitive position</td><td>6.0</td><td>Gap exists; POS vendors and cheap counters are threats</td></tr>
+          <tr><td>Product / technical readiness</td><td>3.5</td><td>Schemas + SQLite join exist; CV and POS adapters are stubs</td></tr>
+          <tr><td>Evidence of demand</td><td>2.0</td><td>No paying pilot, no owner € actions logged in production</td></tr>
+          <tr><td>Regulatory / execution risk</td><td>5.5</td><td>GDPR path is thoughtful; counsel + tally trust are gating</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Is this realistically profitable?</h2>
+      <h3>Per store (steady state) — yes, if the owner acts</h3>
+      <p>
+        At <strong>Core €199/mo</strong> with <strong>€30–40 COGS</strong> and hardware amortization, gross margin targets of <strong>65–75%</strong> are credible for software-heavy delivery. The ROI story is sound: one incremental sale/month at <strong>€180–€450 AOV</strong> covers the subscription; ranks 1–3 (conversion, desirability gap, upsell) map to owner-visible € levers documented in the business plan.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Planning assumption</th><th>Viability note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Break-even (owner)</td><td>~0.6 incremental sales/month @ €350 AOV</td><td><span class="tag go">Achievable</span> if insights change behavior</td></tr>
+          <tr><td>LTV (24 mo, 70% margin)</td><td>~€3.3k contribution</td><td><span class="tag caution">Sensitive to churn</span></td></tr>
+          <tr><td>CAC (channel-led)</td><td>€800–€1.2k loaded</td><td>Payback &lt;7 mo only if life &gt;18 mo</td></tr>
+          <tr><td>Churn driver</td><td>Owner stops weekly ritual</td><td>Product success = documented € experiment, not logins</td></tr>
+        </tbody>
+      </table>
+
+      <h3>As a company (Y1–Y2) — not without proof and capital discipline</h3>
+      <p>
+        Illustrative roll-up: <strong>5 stores EoY @ €175 blended MRR ≈ €10.5k ARR</strong> vs <strong>~€45k founder + contractor opex</strong> → deeply negative. Bootstrap break-even on fixed costs (~€800–€1.5k/mo excluding founder salary) needs <strong>5–9 paid stores</strong> — aligned with Y1 target but <em>not</em> achieved today.
+      </p>
+      <div class="scenario-grid">
+        <div class="card bad">
+          <span class="label">Bear (40% weight)</span>
+          <p><strong>Pilot stalls</strong> — GDPR delay, POS export blocked, or owner never names weekly € actions. 0–1 paid store by month 12. Outcome: acqui-hire or shutdown; sunk founder time ~6–12 months.</p>
+        </div>
+        <div class="card warn">
+          <span class="label">Base (45% weight)</span>
+          <p><strong>1 design partner + 3–4 paid cluster peers</strong> by month 12. ~€8–12k ARR. Outcome: viable side business; reinvest setup fees; defer salary until 15+ stores.</p>
+        </div>
+        <div class="card ok">
+          <span class="label">Bull (15% weight)</span>
+          <p><strong>5+ paid + 2 partner-sourced</strong>, anonymized case study drives Milano street cluster. ~€15–18k ARR Y1, path to €60k Y2. Outcome: fundable micro-SaaS or sustainable lifestyle company.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Is it scalable?</h2>
+      <p>
+        <strong>Moderately scalable</strong> within a bounded SAM — not hyperscale SaaS. Each store requires hardware install, DPIA posture, POS adapter configuration, and owner onboarding. The business plan correctly defers scale to <strong>installer + POS partner playbooks (stage 2)</strong> and caps SOM at <strong>50–200 stores in 36 months</strong>.
+      </p>
+      <div class="bar-row">
+        <span style="width:11rem">Revenue scalability</span>
+        <div class="bar-track"><div class="bar-fill mid" style="width:55%"></div></div>
+        <span class="bar-val">5.5</span>
+      </div>
+      <div class="bar-row">
+        <span style="width:11rem">Delivery scalability</span>
+        <div class="bar-track"><div class="bar-fill low" style="width:38%"></div></div>
+        <span class="bar-val">3.8</span>
+      </div>
+      <div class="bar-row">
+        <span style="width:11rem">GTM scalability</span>
+        <div class="bar-track"><div class="bar-fill mid" style="width:62%"></div></div>
+        <span class="bar-val">6.2</span>
+      </div>
+      <div class="bar-row">
+        <span style="width:11rem">Product scalability (multi-tenant)</span>
+        <div class="bar-track"><div class="bar-fill low" style="width:35%"></div></div>
+        <span class="bar-val">3.5</span>
+      </div>
+      <p>
+        <strong>Scaling bottlenecks:</strong> (1) founder on install/DPIA until M2 playbook ships, (2) one POS adapter limits channel, (3) computer vision accuracy and owner trust require per-site tuning, (4) Italian-first GTM before EU replication.
+      </p>
+      <p>
+        <strong>What would make it more scalable:</strong> standardized edge kit BOM, remote commissioning checklist, second POS adapter, partner closes ≥40% of logos (Y2 KPI), and multi-store family contracts without premature multi-tenant rewrite.
+      </p>
+    </section>
+
+    <section>
+      <h2>Market &amp; opportunity</h2>
+      <p>
+        The wedge — <strong>owner-operated luxury micro-stores in Italy</strong> with digital POS export — is strategically valid. Italy’s fragmented independent specialty retail favors referral clusters over enterprise procurement. JOOR-style stats (~87% independent GMV in fashion wholesale) support narrative, not TAM precision; SAM remains <strong>low tens of thousands</strong> in Italy for the strict ICP.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Scale (indicative)</th><th>Assessment</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TAM (EU)</td><td>Hundreds of thousands of doors</td><td>True but irrelevant without adapter + install capacity</td></tr>
+          <tr><td>SAM (strict ICP)</td><td>Italy: low tens of thousands</td><td>Enough for €1–3M ARR business, not €100M+ without expansion</td></tr>
+          <tr><td>SOM (36 mo)</td><td>50–200 stores</td><td>Achievable only with partners; ambitious for solo founder</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Worth pursuing if</strong> the founder treats this as a <em>profitable niche</em> with optional EU expansion (eyewear, jewelry, FR/ES), not a “retail AI platform” pitch to VCs on day one.
+      </p>
+    </section>
+
+    <section>
+      <h2>Competitive landscape</h2>
+      <table>
+        <thead>
+          <tr><th>Alternative</th><th>Threat level</th><th>Your edge</th><th>Risk</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>IR / beam footfall counters</td>
+            <td>High (price)</td>
+            <td>POS join + €/entrant</td>
+            <td>Owners may “good enough” with entries only</td>
+          </tr>
+          <tr>
+            <td>Cloud people counting (€49–900/yr)</td>
+            <td>Medium</td>
+            <td>GDPR-local, no raw video cloud</td>
+            <td>Privacy story erodes if you add cloud features</td>
+          </tr>
+          <tr>
+            <td>POS reporting alone</td>
+            <td>High (bundled)</td>
+            <td>Traffic funnel + experiments</td>
+            <td>POS vendor ships conversion module</td>
+          </tr>
+          <tr>
+            <td>Enterprise in-store analytics</td>
+            <td>Low (wrong buyer)</td>
+            <td>Price, simplicity, 15 min/week ritual</td>
+            <td>None for ICP</td>
+          </tr>
+          <tr>
+            <td>Owner intuition</td>
+            <td>High (default)</td>
+            <td>Experiment discipline + season compare</td>
+            <td>Churn if numbers don’t beat gut quickly</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Durable moat today:</strong> weak. <strong>Potential moat:</strong> anonymized street benchmarks, POS adapter depth, DPIA templates trusted by Italian counsel, and owner habit (weekly ritual) — all require live stores.
+      </p>
+    </section>
+
+    <section>
+      <h2>Product &amp; technical readiness</h2>
+      <p>
+        Codebase assessment (June 2026): strong <strong>foundation</strong>, weak <strong>product completeness</strong>.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Status</th><th>Commercial impact</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Event schemas (AggregateEvent, SaleEvent)</td><td><span class="tag go">Done</span></td><td>Enables partner integration narrative</td></tr>
+          <tr><td>Analytics SQLite + daily funnel join</td><td><span class="tag go">Prototype</span></td><td>Proves join logic; not production-hardened</td></tr>
+          <tr><td>Edge vision (RTSP, line-crossing)</td><td><span class="tag stop">Stub</span></td><td>Blocks M2–M4; core value unproven</td></tr>
+          <tr><td>POS vendor adapter</td><td><span class="tag stop">Stub</span></td><td>Blocks revenue join; existential for product</td></tr>
+          <tr><td>LAN owner dashboard</td><td><span class="tag stop">Not built</span></td><td>Portal is illustrative demo only</td></tr>
+          <tr><td>Desirability gap / SKU zones</td><td><span class="tag stop">Phase 2</span></td><td>Margin+ tier unsellable until live</td></tr>
+          <tr><td>Docs + business plan + GTM</td><td><span class="tag go">Strong</span></td><td>Best-in-class for pre-revenue; not substitute for pilot</td></tr>
+          <tr><td>Sales portal (passcode demo)</td><td><span class="tag go">Strong</span></td><td>Enables digital-first evaluation</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Technical viability:</strong> Architecture (edge aggregate → local SQLite → LAN dashboard) is appropriate for GDPR and micro-store economics. Execution risk is concentrated in <strong>CV accuracy (±5% tally)</strong> and <strong>POS export reliability</strong>, not in monorepo structure.
+      </p>
+    </section>
+
+    <section>
+      <h2>GTM &amp; sales viability</h2>
+      <p>
+        The digital-first motion (portal → /roi → privacy → term sheet) is <strong>well-matched to €149–449/mo ACV</strong>. PQL rules, nurture calendar, and partner economics are unusually mature for this stage.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Strength</th><th>Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Clear ICP tiers and anti-personas</td>
+            <td>No live case study or pilot screenshots yet</td>
+          </tr>
+          <tr>
+            <td>ROI-ranked product promises align with roadmap gates</td>
+            <td>Demo data labeled illustrative — trust gap until M4</td>
+          </tr>
+          <tr>
+            <td>Partner playbook specified (installer, POS, consultant)</td>
+            <td>Partners not signed; kits not versioned in production</td>
+          </tr>
+          <tr>
+            <td>Italian SEO / association distribution planned</td>
+            <td>Inbound pipeline unmeasured (no CRM metrics in repo)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Sales cycle hypothesis:</strong> 4–10 weeks digital-assisted for cluster peers after design partner; 3–6 months if GDPR or POS blocks. Founder travel should be limited to install/DPIA — plan is credible only after one remote install succeeds.
+      </p>
+    </section>
+
+    <section>
+      <h2>Risk matrix</h2>
+      <div class="matrix">
+        <div class="cell head"></div>
+        <div class="cell head">Low impact</div>
+        <div class="cell head">High impact</div>
+        <div class="cell head">High likelihood</div>
+        <div class="cell">Owner doesn’t adopt weekly ritual → churn</div>
+        <div class="cell bad">POS export denied → no product</div>
+        <div class="cell head">Low likelihood</div>
+        <div class="cell">Feature creep (window CV before rank 1)</div>
+        <div class="cell bad">Garante scrutiny halts pilot</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Risk</th><th>Likelihood</th><th>Mitigation (in plan)</th><th>Residual</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>No design partner signed</td><td>Medium</td><td>Term sheet before M2 hardware spend</td><td>Still critical path</td></tr>
+          <tr><td>Founder-only delivery</td><td>High (Y1)</td><td>Installer BOM + 2h script by M2</td><td>High until 10 stores</td></tr>
+          <tr><td>CV distrust</td><td>Medium</td><td>Manual tally week</td><td>Owner-dependent</td></tr>
+          <tr><td>Competitor “good enough” counter</td><td>Medium</td><td>Lead with €/week not sensors</td><td>Price pressure on Core tier</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Worth pursuing? Decision framework</h2>
+      <table>
+        <thead>
+          <tr><th>Question</th><th>Answer</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Is there a real problem worth paying for?</td>
+            <td><strong>Yes</strong> — conversion + dead SKU cash in high-AOV micro-stores is legible.</td>
+          </tr>
+          <tr>
+            <td>Is the solution direction credible?</td>
+            <td><strong>Yes</strong> — door + POS join on LAN fits Italy privacy and economics.</td>
+          </tr>
+          <tr>
+            <td>Is there proof customers will pay?</td>
+            <td><strong>Not yet</strong> — no signed design partner or production KPIs in repo.</td>
+          </tr>
+          <tr>
+            <td>Can one founder reach 5 paying stores in 12 months?</td>
+            <td><strong>Plausible</strong> with committed Italy partner + M1–M4 in ~6 months.</td>
+          </tr>
+          <tr>
+            <td>Is this venture-scale without proof?</td>
+            <td><strong>No</strong> — treat as bootstrap niche until 25+ stores and partner %.</td>
+          </tr>
+          <tr>
+            <td>Is this a lifestyle / profitable small business path?</td>
+            <td><strong>Yes, conditional</strong> on pilot success and churn &lt;20% annual.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Recommendation:</strong> <span class="tag go">Pursue</span> if you have or can secure a <strong>signed design-partner boutique</strong> in the beachhead ICP within 60 days. <span class="tag caution">Pause</span> if you cannot get POS export confirmation and owner commitment to a weekly ritual before buying hardware. <span class="tag stop">Do not pursue</span> as a VC-scale “retail AI platform” until one anonymized case study shows documented € actions for 8+ weeks.
+      </p>
+    </section>
+
+    <section>
+      <h2>Recommendations for a more successful business</h2>
+      <p>Ordered by impact on viability score. Items marked <span class="rec-priority">P0</span> change go/no-go; <span class="rec-priority">P1</span> unlock scale; <span class="rec-priority">P2</span> improve odds.</p>
+
+      <h3><span class="rec-priority">P0 — Proof before polish (next 90 days)</span></h3>
+      <ol>
+        <li><strong>Sign design-partner term sheet</strong> before M2 camera spend — include case-study rights, M4 pricing lock, and exit/buyback terms.</li>
+        <li><strong>Ship M1–M3 on one real POS vendor</strong> (not stub): daily sales in SQLite with &lt;60s lag; owner can reconcile to Z-report.</li>
+        <li><strong>Ship door CV to ±5% vs manual tally</strong> for one week — without this, conversion KPIs are fiction.</li>
+        <li><strong>Replace portal illustrative data</strong> with anonymized pilot screenshots at M4 — digital GTM depends on trust.</li>
+        <li><strong>Log owner € actions weekly</strong> in a simple shared doc — leading indicator for retention and case study.</li>
+        <li><strong>DPIA + counsel sign-off before M4 go-live</strong> — existential risk in Italy; do not shortcut.</li>
+      </ol>
+
+      <h3><span class="rec-priority">P1 — Repeatability &amp; revenue (months 4–12)</span></h3>
+      <ol>
+        <li><strong>One Milano street cluster campaign</strong> — 3–5 paying stores from design-partner intros, not national ads.</li>
+        <li><strong>Lock one installer + one POS integrator</strong> with signed economics and versioned digital kit (BOM, 2h video, referral form).</li>
+        <li><strong>Second POS adapter</strong> — largest unlock for channel scale; fund from setup fees or small pre-seed if needed.</li>
+        <li><strong>Tier A Typeform + PQL templates</strong> — measure portal depth and POS-export fit before founder calendar.</li>
+        <li><strong>Do not sell Margin+ or Street</strong> until rank 1–2 features work in production — prevents over-promise churn.</li>
+        <li><strong>Annual prepay incentive</strong> (2 months free) once M3 ritual holds — improves cash flow vs monthly churn risk.</li>
+      </ol>
+
+      <h3><span class="rec-priority">P2 — Strategic optionality (year 2+)</span></h3>
+      <ol>
+        <li><strong>Anonymized street benchmark</strong> (≥3 consenting stores) — referral engine for cluster GTM.</li>
+        <li><strong>Consultant multi-client seats</strong> — Giulia persona introduces 2+ stores/quarter with rev share.</li>
+        <li><strong>Adjacent vertical (eyewear/jewelry)</strong> only after adapter #2 and 3 leather references.</li>
+        <li><strong>Italian SEO content</strong> — long-tail “conversione negozio POS GDPR” compounds inbound in Y2.</li>
+        <li><strong>Consider pre-seed (€150–300k)</strong> only if pilot shows ≥1 owner € action/week for 8 weeks — prioritize POS engineering and install kit, not multi-cloud infra.</li>
+      </ol>
+
+      <h3>What to stop or defer (protects focus)</h3>
+      <ul>
+        <li>Window / outdoor CV and RFID before ranks 1–3 prove value in the live pilot.</li>
+        <li>Trade-fair booth spend — poor fit for ACV; use association newsletters instead.</li>
+        <li>Multi-store cloud dashboards and shopper identity — conflicts with positioning.</li>
+        <li>Raising VC on TAM slides before 5 paying stores — SAM is niche; story is unit economics + retention.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Scorecard summary</h2>
+      <table>
+        <thead>
+          <tr><th>Criterion</th><th>Weight</th><th>Score</th><th>Weighted</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Problem / ICP</td><td>15%</td><td>8.5</td><td>1.28</td></tr>
+          <tr><td>Solution fit</td><td>15%</td><td>7.5</td><td>1.13</td></tr>
+          <tr><td>Business model</td><td>15%</td><td>6.5</td><td>0.98</td></tr>
+          <tr><td>Market scale</td><td>10%</td><td>5.0</td><td>0.50</td></tr>
+          <tr><td>Competitive advantage</td><td>10%</td><td>6.0</td><td>0.60</td></tr>
+          <tr><td>GTM execution readiness</td><td>10%</td><td>7.0</td><td>0.70</td></tr>
+          <tr><td>Technical / product readiness</td><td>15%</td><td>3.5</td><td>0.53</td></tr>
+          <tr><td>Evidence of demand</td><td>10%</td><td>2.0</td><td>0.20</td></tr>
+          <tr><td></td><td><strong>100%</strong></td><td></td><td><strong>5.8</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Repository references</h2>
+      <p>This assessment synthesizes:</p>
+      <ul>
+        <li><code>apps/docs</code> — Business plan, ROI matrix, GTM, roadmap, architecture</li>
+        <li><code>apps/portal</code> — Sales demo (illustrative Atelier Linea data)</li>
+        <li><code>packages/edge</code>, <code>packages/pos</code> — Stub CLIs (no production ingest)</li>
+        <li><code>packages/analytics</code> — SQLite funnel join (bootstrap path)</li>
+      </ul>
+      <p>Run locally: <code>pnpm docs:dev</code> (business plan at /business-plan), <code>pnpm portal:dev</code> (demo portal).</p>
+    </section>
+
+    <p class="footnote">
+      This report is an independent viability analysis based on repository artifacts as of 3 June 2026.
+      It is not legal, tax, or investment advice. Financial figures mirror illustrative planning docs until validated against signed pilot data.
+      Open this file in any browser: <code>docs/commercial-viability-report.html</code>
+    </p>
+  </div>
+</body>
+</html>
