@@ -7,7 +7,13 @@ export function VisionPage() {
     <DocLayout
       title="Product vision"
       subtitle="Increase profit per visitor in micro-format leather retail — privacy-preserving, store-local"
-      footer={<Link to="/roi">Next: Business value &amp; ROI →</Link>}
+      footer={
+        <>
+          <Link to="/business-plan">Business plan →</Link>
+          {" · "}
+          <Link to="/roi">ROI matrix →</Link>
+        </>
+      }
     >
       <h2>Problem (financial)</h2>
       <p>

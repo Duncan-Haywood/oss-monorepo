@@ -45,6 +45,8 @@ For the Italy leather boutique pilot, delivery order follows **profit impact**, 
 
 Full matrix: `pnpm docs:dev` → **ROI** (`/roi`).
 
+**Business plan** (market, pricing, GTM, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
+
 ## Phase 1 (technical)
 
 - Indoor door camera → aggregate counts (no identity)

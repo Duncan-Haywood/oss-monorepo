@@ -13,7 +13,8 @@ export function HomePage() {
           <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
           The pilot optimizes <strong>profit per visitor</strong> — conversion,
           AOV, and margin on a small floor — not analytics for its own sake.
-          Start with <Link to="/roi">Business value &amp; ROI</Link> for build
+          Stakeholders: <Link to="/business-plan">Business plan</Link>.
+          Builders: <Link to="/roi">Business value &amp; ROI</Link> for build
           order.
         </p>
       </Card>
@@ -22,6 +23,10 @@ export function HomePage() {
       <DataTable
         headers={["Page", "Topic"]}
         rows={[
+          [
+            <Link to="/business-plan">Business plan</Link>,
+            "Market, pricing, GTM, unit economics, risks",
+          ],
           [
             <Link to="/roi">ROI</Link>,
             "Financial priority matrix — what to build first",
