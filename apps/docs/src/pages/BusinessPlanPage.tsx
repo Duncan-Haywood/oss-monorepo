@@ -26,6 +26,25 @@ export function BusinessPlanPage() {
         </p>
       </Card>
 
+      <h2>Product build priority (financial)</h2>
+      <p>
+        Engineering and GTM stay aligned to the{" "}
+        <Link to="/roi">ROI matrix</Link> — sell and ship in this order:
+      </p>
+      <DataTable
+        headers={["Priority", "Capability", "€ lever for the pilot"]}
+        rows={[
+          ["1", "Door + POS conversion baseline", "Revenue per visitor; staffing"],
+          ["2", "SKU desirability gap", "Working capital on slow leather SKUs"],
+          ["3", "Upsell / basket patterns", "AOV (belts, care kits)"],
+          ["Later", "Window / outdoor funnel", "Only after rank 1 baseline exists"],
+        ]}
+      />
+      <p className="stub">
+        Pricing anchors to one incremental sale per month, not sensor count — see
+        section 5.
+      </p>
+
       <h2>1. Executive summary</h2>
       <DataTable
         headers={["Dimension", "Summary"]}

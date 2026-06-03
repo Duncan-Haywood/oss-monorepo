@@ -2,9 +2,9 @@
 
 Product docs live in **`apps/docs`** as TSX pages, built with Vite.
 
-Key pages: **Business plan** (`/business-plan` — market, pricing, GTM, payback, partners, CS), **ROI** (`/roi`), **Roadmap** (`/roadmap`).
+Key pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan` — market, pricing, GTM, payback, partners, CS), **Roadmap** (`/roadmap`).
 
-Planning starts at **Business value & ROI** (`/roi`) — initiatives ranked by weighted financial score, build cost, payback, and expected € upside for the leather boutique pilot in Italy, then **Roadmap** for milestone order.
+Planning starts at **Business value & ROI** (`/roi`) — ranks 1–3 first (door+POS, desirability gap, upsell), then weighted score, build cost, payback, and monthly/annual € scenarios for the Italy leather boutique pilot. **Roadmap** maps milestones M1–M5+ to that order.
 
 ```bash
 pnpm docs:dev
