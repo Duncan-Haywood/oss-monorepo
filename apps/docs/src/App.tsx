@@ -1,4 +1,7 @@
+import { useCallback, useState, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { readSession } from "./auth/docsAuth";
+import { DocsLoginGate } from "./components/DocsLoginGate";
 import { HomePage } from "./pages/HomePage";
 import { VisionPage } from "./pages/VisionPage";
 import { ArchitecturePage } from "./pages/ArchitecturePage";
@@ -9,8 +12,19 @@ import { RoiPage } from "./pages/RoiPage";
 import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
+function RequireAuth({ children }: { children: ReactNode }) {
+  const [authed, setAuthed] = useState(() => readSession() !== null);
+  const refresh = useCallback(() => setAuthed(readSession() !== null), []);
+
+  if (!authed) {
+    return <DocsLoginGate onAuthenticated={refresh} />;
+  }
+  return <>{children}</>;
+}
+
 export function App() {
   return (
+    <RequireAuth>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/business-plan" element={<BusinessPlanPage />} />
@@ -24,5 +38,6 @@ export function App() {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </RequireAuth>
   );
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+import { clearSession } from "../auth/docsAuth";
 
 const links = [
   { to: "/", label: "Home", end: true },
@@ -37,6 +38,16 @@ export function DocLayout({
             {label}
           </NavLink>
         ))}
+        <button
+          type="button"
+          className="doc-sign-out link-btn"
+          onClick={() => {
+            clearSession();
+            window.location.reload();
+          }}
+        >
+          Sign out
+        </button>
       </nav>
       <h1>{title}</h1>
       {subtitle ? <p className="subtitle">{subtitle}</p> : null}

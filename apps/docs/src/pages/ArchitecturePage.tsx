@@ -60,6 +60,11 @@ export function ArchitecturePage() {
       <h3>Docs & dashboard (apps/docs)</h3>
       <ul>
         <li>TSX site built by Vite; CI publishes dist artifact</li>
+        <li>
+          Private hosting: GitHub Pages (Actions workflow) or Vercel with
+          deployment protection — passcode gate in the SPA for casual access
+        </li>
+        <li>Local preview: <code>pnpm docs:build</code> then Docker on port 8080</li>
       </ul>
 
       <h2>Event contracts</h2>

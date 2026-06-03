@@ -184,3 +184,128 @@ footer {
 }
 
 .stub { color: var(--muted); font-size: 0.9rem; }
+
+.doc-nav .doc-sign-out {
+  margin-left: auto;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+}
+
+/* Docs access gate */
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.login-panel {
+  width: min(26rem, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 2rem 1.5rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.login-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.login-panel h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: #fff;
+}
+
+.login-lead {
+  font-family: var(--sans);
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+.login-form label span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  margin-bottom: 1rem;
+}
+
+.login-error {
+  font-family: var(--sans);
+  color: #e07a7a;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #a8894f, var(--accent));
+  color: #1a1510;
+  font-weight: 600;
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.login-foot {
+  font-family: var(--sans);
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.demo-hint code {
+  color: var(--accent);
+}
+
+.login-trust {
+  font-family: var(--sans);
+  margin: 1.25rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.login-trust li::before {
+  content: "✓ ";
+  color: var(--ok);
+}
