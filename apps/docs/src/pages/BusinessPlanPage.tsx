@@ -9,6 +9,8 @@ export function BusinessPlanPage() {
       subtitle="Retail Pilot Intel — privacy-first store intelligence for micro-format luxury retail (Italy pilot → repeatable offer)"
       footer={
         <>
+          <Link to="/gtm">GTM strategy &amp; target customers →</Link>
+          {" · "}
           <Link to="/roi">Initiative ROI matrix →</Link>
           {" · "}
           <Link to="/roadmap">Delivery roadmap →</Link>
@@ -234,6 +236,14 @@ export function BusinessPlanPage() {
       />
 
       <h2>6. Go-to-market</h2>
+      <Card variant="ok">
+        <p>
+          <strong>Digital-first:</strong> Acquisition, education, and evaluation
+          happen online (demo portal, this docs site, privacy pack) before onsite
+          install. Full ICP tiers, personas, funnel, and channel priority are in{" "}
+          <Link to="/gtm">GTM strategy</Link>.
+        </p>
+      </Card>
       <DataTable
         headers={["Stage", "Motion", "Success metric"]}
         rows={[
@@ -261,8 +271,10 @@ export function BusinessPlanPage() {
       />
       <p>
         Marketing is proof-led: before/after conversion chart, one desirability-gap
-        save story, one window experiment — not feature lists. Italian trade
-        fairs and municipal business associations are low-cost trust channels.
+        save story, one window experiment — not feature lists. Primary digital
+        motions: self-serve sales portal, async GDPR/ROI materials, and niche
+        Italian/English content. Trade fairs and municipal associations supplement
+        — they are trust channels, not the main pipeline.
       </p>
 
       <h3>Channel partner economics</h3>
