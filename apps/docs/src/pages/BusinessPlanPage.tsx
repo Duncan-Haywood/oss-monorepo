@@ -252,6 +252,47 @@ export function BusinessPlanPage() {
         ]}
       />
 
+      <h3>Owner ROI vs subscription (planning frame)</h3>
+      <p>
+        The offer must clear a simple owner test: monthly fee &lt; documented
+        upside from one habit change. Illustrative mechanics (see{" "}
+        <Link to="/roi">ROI scenarios</Link>) — not guarantees:
+      </p>
+      <DataTable
+        headers={["Owner outcome", "Illustrative annual upside", "Tier", "Payback feel"]}
+        rows={[
+          [
+            "+1 sale/week at €350 AOV",
+            "€9k–€23k gross revenue",
+            "Core",
+            "One extra bag/month covers subscription",
+          ],
+          [
+            "+€40 AOV on 3 sales/day",
+            "€30k gross revenue",
+            "Margin+",
+            "Upsell coaching pays for itself in weeks",
+          ],
+          [
+            "Clear 2 slow SKUs",
+            "€1.5k–€4k margin + cash freed",
+            "Core",
+            "Inventory story sells faster than CV specs",
+          ],
+          [
+            "4 h/week labor avoided",
+            "€1.4k–€2.4k / year",
+            "Core",
+            "Staffing alignment is an easy first win",
+          ],
+        ]}
+      />
+      <p>
+        Lead with <strong>€/week the owner controls</strong>, then privacy and
+        install. If M3 does not produce a named weekly action, do not renew at
+        list price.
+      </p>
+
       <h2>6. Go-to-market</h2>
       <DataTable
         headers={["Stage", "Motion", "Success metric"]}
@@ -423,6 +464,21 @@ export function BusinessPlanPage() {
         ]}
       />
 
+      <h3>Bootstrap break-even (company, no founder salary)</h3>
+      <DataTable
+        headers={["Assumption", "Value", "Implication"]}
+        rows={[
+          ["Blended MRR per paid store", "€220", "Mix of Core + early Margin+"],
+          ["Variable COGS / store / month", "€35", "Support + minimal cloud"],
+          ["Fixed monthly (tools, counsel, travel)", "€800–€1.5k", "Founder time excluded"],
+          ["Paid stores to cover fixed @ ~€185 contribution", "5–9", "Aligns with Y1 EoY target"],
+        ]}
+      />
+      <p>
+        Pilot setup fees fund hardware and DPIA in year one; recurring margin
+        scales once the M3 ritual sticks.
+      </p>
+
       <h2>8. Three-year outlook (scenarios)</h2>
       <p>Not forecasts — sensitivity frames for planning.</p>
       <DataTable
@@ -508,6 +564,11 @@ export function BusinessPlanPage() {
           <strong>Retention:</strong> quarterly business review — € outcomes, not
           feature roadmap
         </li>
+        <li>
+          <strong>Expansion:</strong> Core → Margin+ when ROI ranks 2–3 are live;
+          Street add-on only after M3 plateau; multi-door families = one contract,
+          per-store LAN (no premature multi-tenant rewrite)
+        </li>
       </ul>
 
       <h2>11. Sales enablement</h2>
@@ -524,6 +585,16 @@ export function BusinessPlanPage() {
             "Portal overview + funnel",
             "Owner, spouse, bookkeeper",
             "First meeting after intro",
+          ],
+          [
+            "Weekly owner report (1 page)",
+            "Owner",
+            "Post-M3; renewal and peer intros",
+          ],
+          [
+            "Anonymized street benchmark (opt-in)",
+            "3–5 stores same high street",
+            "Reference cluster stage 1 only",
           ],
           [
             "ROI page (/roi)",
@@ -557,6 +628,8 @@ export function BusinessPlanPage() {
           ["Logo churn (annual)", "<20%", "€ outcomes drive renewals"],
           ["CAC payback (months)", "<7 on channel-led", "Partner motion viable"],
           ["Owner-documented € actions", "≥1/week/store post M4", "Leading indicator of retention"],
+          ["Time to M3 (first € action named)", "<45 days from install", "Sales promise = delivery"],
+          ["Partner-sourced new logos (Y2)", "≥40%", "Founder not on every install"],
         ]}
       />
 

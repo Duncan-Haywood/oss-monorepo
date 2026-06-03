@@ -62,7 +62,7 @@ export function HomePage() {
         rows={[
           [
             <Link to="/business-plan">Business plan</Link>,
-            "Market, pricing, GTM, design partner terms, payback model, partners, CS, risks",
+            "Market, pricing, GTM, design partner terms, payback, partners, CS, retention, company KPIs",
           ],
           [
             <Link to="/roi">ROI</Link>,
