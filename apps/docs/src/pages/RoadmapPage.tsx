@@ -24,7 +24,9 @@ export function RoadmapPage() {
       <p>
         <strong>Financial goal:</strong> Answer how many entered, how many bought,
         and when — unlocks conversion %, bounce, revenue per entrant, and labor
-        alignment. <em>ROI ranks 1, 4, 5.</em>
+        alignment. <em>ROI ranks 1, 4, 5.</em>{" "}
+        <strong>Indicative upside:</strong> €8k–€23k/year from +1 sale/week or
+        €1.4k–€2.4k OpEx from smarter hours.
       </p>
       <ul>
         <li>Door line-crossing counts (entries / exits / bounce)</li>
@@ -39,7 +41,9 @@ export function RoadmapPage() {
       <p>
         <strong>Financial goal:</strong> Recover margin on slow SKUs and lift
         basket size. Only after Phase 1 KPIs are trusted for 7+ days.{" "}
-        <em>ROI ranks 2–3, 6–7.</em>
+        <em>ROI ranks 2–3, 6–7.</em>{" "}
+        <strong>Indicative upside:</strong> €1.5k–€6k margin + cash from clearing
+        dead stock; €6k–€18k/year from +€25 AOV on daily sales.
       </p>
       <ul>
         <li>Fixture zones / scanner events → touch &amp; dwell by SKU (if needed)</li>
@@ -54,6 +58,9 @@ export function RoadmapPage() {
       <p>
         <strong>Financial goal:</strong> Turn pass-by traffic into entries on
         Italian high streets — <em>ROI rank 8</em>, after in-store baseline exists.
+        <strong> Gate:</strong> Do not start until rank 1 conversion is tracked for
+        14+ days and the owner confirms pass-by — not close rate — is the
+        bottleneck.
       </p>
       <ul>
         <li>Outdoor pass-by / look-in / enter funnel</li>
