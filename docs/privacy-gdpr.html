@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy & GDPR — Retail Pilot Intel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="doc-nav">
+      <a href="index.html">Home</a>
+      <a href="vision.html">Vision</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="metrics.html">Metrics</a>
+      <a href="privacy-gdpr.html" aria-current="page">Privacy & GDPR</a>
+      <a href="roadmap.html">Roadmap</a>
+    </nav>
+
+    <h1>Privacy & GDPR (Italy / EU)</h1>
+    <p class="subtitle">Technical and organizational controls — not legal advice</p>
+
+    <div class="card warn">
+      <p><strong>Important:</strong> Video analytics in a retail environment typically involves processing <strong>personal data</strong> (images of identifiable individuals). This project is designed to <strong>minimize</strong> risk via on-device aggregation and purpose limitation, but the controller must still establish a lawful basis, transparency, and DPIA where required. Consult qualified counsel and, where needed, the Garante per la protezione dei dati personali.</p>
+    </div>
+
+    <h2>Design principles</h2>
+    <ol>
+      <li><strong>Data minimization</strong> — Process video in memory; persist counts and SKU-level events, not faces</li>
+      <li><strong>Purpose limitation</strong> — Store operations analytics only; no marketing resale of footage</li>
+      <li><strong>Storage limitation</strong> — No raw video by default; short debug retention if enabled</li>
+      <li><strong>Integrity & confidentiality</strong> — LAN segmentation, encrypted disks, access logs</li>
+      <li><strong>Accountability</strong> — Document processing activities (Art. 30 record)</li>
+    </ol>
+
+    <h2>Prohibited / out of scope</h2>
+    <ul>
+      <li>Facial recognition or persistent “shopper ID”</li>
+      <li>Biometric categorization (age/gender inference for profiling)</li>
+      <li>Sharing raw or identifiable imagery with third parties without DPA</li>
+      <li>Automated decisions with legal/similar effect on individuals (not applicable to v1)</li>
+    </ul>
+
+    <h2>Technical controls</h2>
+    <table>
+      <thead>
+        <tr><th>Control</th><th>Implementation</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>On-device CV</td><td>All inference on edge PC; RTSP not exposed to internet</td></tr>
+        <tr><td>Aggregation at source</td><td>Emit AggregateEvent only (counts, zones, timestamps)</td></tr>
+        <tr><td>No identity linkage</td><td>Do not join video tracks to POS cardholder or loyalty ID</td></tr>
+        <tr><td>Signage & transparency</td><td>Physical notice at entrance (Italian) per Art. 13</td></tr>
+        <tr><td>Access control</td><td>Role-based dashboard; audit admin access</td></tr>
+        <tr><td>Breach procedure</td><td>Document 72h notification workflow</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Lawful basis (indicative — confirm with counsel)</h2>
+    <p>Controllers often evaluate:</p>
+    <ul>
+      <li><strong>Legitimate interest</strong> (Art. 6(1)(f)) with LIA balancing test for security and limited analytics</li>
+      <li>Where cameras are prominent, <strong>transparency</strong> and opt-out expectations for non-essential analytics</li>
+      <li>Staff areas may need separate basis or exclusion zones</li>
+    </ul>
+
+    <h2>DPIA checklist (pilot)</h2>
+    <ul>
+      <li>☐ Describe processing: door camera, optional outdoor, POS join</li>
+      <li>☐ Necessity & proportionality — why aggregates suffice</li>
+      <li>☐ Risks to individuals — re-identification from rare events</li>
+      <li>☐ Mitigations — aggregation, retention, access, vendor DPAs</li>
+      <li>☐ Consult Garante if high risk remains</li>
+    </ul>
+
+    <h2>POS data</h2>
+    <p>Ingest only operational fields needed for analytics. Exclude payment card numbers, full customer PII unless explicit consent and separate purpose. Pseudonymous basket_id is sufficient for funnel joins.</p>
+
+    <h2>Subprocessors</h2>
+    <p>Default pilot: <strong>no cloud subprocessor</strong>. If backup or remote support is added, execute Art. 28 DPAs and document transfers (SCCs if outside EEA).</p>
+
+    <footer><a href="roadmap.html">Next: Roadmap →</a></footer>
+  </div>
+</body>
+</html>

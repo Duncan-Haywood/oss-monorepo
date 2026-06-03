@@ -1,0 +1,23 @@
+# Pilot edge stack (optional). Camera RTSP stays on store hardware.
+services:
+  analytics-sync:
+    image: python:3.12-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - pilot-data:/app/data
+    command: python -m analytics.sync_inbox
+    environment:
+      - STORE_ID=${STORE_ID:-pilot-leather-01}
+    restart: unless-stopped
+
+  dashboard:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  pilot-data:

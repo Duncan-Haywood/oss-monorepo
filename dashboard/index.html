@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pilot Dashboard — Retail Pilot Intel</title>
+  <link rel="stylesheet" href="../docs/styles.css" />
+  <style>
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .kpi {
+      font-family: var(--sans);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .kpi .value { font-size: 1.75rem; font-weight: 600; color: var(--accent); }
+    .kpi .label { font-size: 0.8rem; color: var(--muted); }
+    .stub { color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Store dashboard</h1>
+    <p class="subtitle">LAN-only prototype — connect to analytics API in a later milestone</p>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="value" id="entries">—</div><div class="label">Entries today</div></div>
+      <div class="kpi"><div class="value" id="bounces">—</div><div class="label">Bounces</div></div>
+      <div class="kpi"><div class="value" id="purchases">—</div><div class="label">Purchases</div></div>
+      <div class="kpi"><div class="value" id="conversion">—</div><div class="label">Conversion</div></div>
+    </div>
+
+    <div class="card">
+      <p class="stub">Run locally to populate data:</p>
+      <pre>python -m edge.ingest --sample
+python -m pos.ingest --sample
+python -m analytics.db init
+python -m analytics.sync_inbox
+python -m analytics.report --date today</pre>
+      <p class="stub">API wiring (fetch KPIs from SQLite) is planned for M3.</p>
+    </div>
+
+    <p><a href="../docs/index.html">Full documentation</a></p>
+  </div>
+</body>
+</html>

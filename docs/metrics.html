@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metrics — Retail Pilot Intel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="doc-nav">
+      <a href="index.html">Home</a>
+      <a href="vision.html">Vision</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="metrics.html" aria-current="page">Metrics</a>
+      <a href="privacy-gdpr.html">Privacy & GDPR</a>
+      <a href="roadmap.html">Roadmap</a>
+    </nav>
+
+    <h1>Metrics & funnels</h1>
+    <p class="subtitle">Definitions for footfall, engagement, and commerce — all aggregate</p>
+
+    <h2>Store funnel (phase 1 — indoor door)</h2>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Definition</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Entry</strong></td><td>Person centroid crosses inward door line, dwell &gt; N sec inside</td><td>Door CV</td></tr>
+        <tr><td><strong>Exit</strong></td><td>Outward line cross after valid entry</td><td>Door CV</td></tr>
+        <tr><td><strong>Bounce</strong></td><td>Entry then exit within T<sub>bounce</sub> (e.g. 30s) with no product-zone dwell</td><td>CV + zones</td></tr>
+        <tr><td><strong>Engaged visit</strong></td><td>Entry + ≥1 product zone activation (touch proxy or scanner ping)</td><td>CV / scanner</td></tr>
+        <tr><td><strong>Purchase</strong></td><td>POS basket closed in same visit window (± slack)</td><td>POS</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Derived rates</h2>
+    <ul>
+      <li><strong>Conversion rate</strong> = purchases / entries (per daypart)</li>
+      <li><strong>Engagement rate</strong> = engaged visits / entries</li>
+      <li><strong>Bounce rate</strong> = bounces / entries</li>
+      <li><strong>Touch-to-buy</strong> = purchases including SKU X / touch events for SKU X</li>
+    </ul>
+
+    <h2>Product metrics</h2>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Touch count by SKU</td><td>Merchandising heat — what gets hands-on attention</td></tr>
+        <tr><td>Look duration (zone dwell)</td><td>Storytelling / price-point interest without touch</td></tr>
+        <tr><td>Attention rank</td><td>Top SKUs by touch + dwell composite score</td></tr>
+        <tr><td>Revenue rank</td><td>From POS line items</td></tr>
+        <tr><td>Desirability gap</td><td>High attention, low conversion — candidate for price, placement, or staff pitch</td></tr>
+        <tr><td>Upsell opportunity</td><td>Baskets with single category where historical pairs exist (rule/mining later)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Outdoor / window (phase 3)</h2>
+    <ul>
+      <li><strong>Pass-by</strong> — pedestrian track outside storefront, no line cross</li>
+      <li><strong>Look-in</strong> — pause facing window over threshold</li>
+      <li><strong>Enter</strong> — joins indoor entry metric</li>
+      <li><strong>Window conversion</strong> = entries / look-ins</li>
+    </ul>
+
+    <h2>Experiment metrics</h2>
+    <p>Each experiment registers a primary metric (e.g. conversion rate) and guardrails (returns, margin). Reporting includes:</p>
+    <ul>
+      <li>Baseline vs treatment period means</li>
+      <li>Simple two-proportion or t-test flag (not a substitute for power analysis)</li>
+      <li>Minimum run length before “winner” call</li>
+    </ul>
+
+    <h2>Time bucketing</h2>
+    <p>Default buckets: <strong>5 minutes</strong> (live), <strong>1 hour</strong> (ops), <strong>1 day</strong> (owner). Align POS timestamps to Europe/Rome with explicit offset in ingest.</p>
+
+    <footer><a href="privacy-gdpr.html">Next: Privacy & GDPR →</a></footer>
+  </div>
+</body>
+</html>

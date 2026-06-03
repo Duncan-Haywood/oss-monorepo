@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Architecture — Retail Pilot Intel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="doc-nav">
+      <a href="index.html">Home</a>
+      <a href="vision.html">Vision</a>
+      <a href="architecture.html" aria-current="page">Architecture</a>
+      <a href="metrics.html">Metrics</a>
+      <a href="privacy-gdpr.html">Privacy & GDPR</a>
+      <a href="roadmap.html">Roadmap</a>
+    </nav>
+
+    <h1>System architecture</h1>
+    <p class="subtitle">Edge-first pipeline: sense → aggregate → join POS → recommend</p>
+
+    <h2>High-level diagram</h2>
+    <div class="diagram">┌─────────────────────────────────────────────────────────────┐
+│                        STORE (Italy)                         │
+│  ┌──────────┐   ┌──────────────┐   ┌─────────┐   ┌────────┐ │
+│  │ Door cam │──►│ Edge runtime │──►│ Local   │──►│Dashboard│ │
+│  │ (RTSP)   │   │ CV + rules   │   │ store   │   │ (LAN)  │ │
+│  └──────────┘   └──────┬───────┘   └────▲────┘   └────────┘ │
+│                        │                 │                   │
+│  ┌──────────┐          │          ┌──────┴───────┐           │
+│  │ Scanners │──────────┼─────────►│  Analytics   │           │
+│  │ / RFID   │          │          │  + experiments│          │
+│  └──────────┘          │          └──────▲───────┘           │
+│                        │                 │                   │
+│  ┌──────────┐          │          ┌──────┴───────┐           │
+│  │   POS    │──export──┴─────────►│ POS connector │           │
+│  │ (sales)  │   (CSV/API/file)    │  normalize    │           │
+│  └──────────┘                     └───────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+         │ optional encrypted backup of aggregates only
+         ▼
+    [ Operator cloud — later, if DPA allows ]</div>
+
+    <h2>Components</h2>
+
+    <h3>1. Edge vision (`edge/`)</h3>
+    <ul>
+      <li>Ingest single or dual RTSP stream (indoor door; outdoor later)</li>
+      <li>On-device detection: person blobs, line-crossing for entry/exit, dwell zones</li>
+      <li>Optional fixture zones: hand proximity / pick-up heuristics (camera or scanner)</li>
+      <li>Emit <strong>AggregateEvent</strong> JSON (counts, zone_id, time_bucket) — never face embeddings</li>
+    </ul>
+
+    <h3>2. POS connector (`pos/`)</h3>
+    <ul>
+      <li>Poll or webhook from POS export (vendor-specific adapter)</li>
+      <li>Normalize to <strong>SaleEvent</strong>: basket_id, timestamp, line_items (sku, qty, unit_price), payment_method_class (cash/card, no PAN)</li>
+      <li>Idempotent ingest with cursor / file offset</li>
+    </ul>
+
+    <h3>3. Analytics core (`analytics/`)</h3>
+    <ul>
+      <li>Time-bucket rollups (5m / 1h / 1d)</li>
+      <li>Funnel joins: entries in bucket ↔ sales in bucket ↔ SKU touches</li>
+      <li>Experiment registry: hypothesis, start/end, metric, simple significance flag</li>
+      <li>Recommendation engine v0: rule-based thresholds (e.g. high touch + low conversion)</li>
+    </ul>
+
+    <h3>4. Dashboard (`dashboard/`)</h3>
+    <ul>
+      <li>Static or lightweight SPA served on LAN</li>
+      <li>Auth: local password / mTLS for pilot; no public internet by default</li>
+    </ul>
+
+    <h2>Data stores (pilot)</h2>
+    <table>
+      <thead>
+        <tr><th>Store</th><th>Contents</th><th>Retention default</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SQLite / DuckDB</td><td>Aggregates, sales, experiments</td><td>90 days hot, archive policy TBD</td></tr>
+        <tr><td>Edge buffer</td><td>Transient frames</td><td>&lt; 1 s in memory</td></tr>
+        <tr><td>Debug mode</td><td>Annotated clips</td><td>Off in production; 24h max if enabled</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Event contracts (initial)</h2>
+    <p>Canonical schemas live in repo:</p>
+    <ul>
+      <li><code>pos/schemas/sale_event.schema.json</code></li>
+      <li><code>edge/schemas/aggregate_event.schema.json</code></li>
+    </ul>
+
+    <h2>Deployment</h2>
+    <div class="card">
+      <p><strong>Pilot box:</strong> Linux on edge PC, Docker Compose optional for services (`edge-ingest`, `pos-sync`, `analytics-api`, `dashboard`). Camera on isolated VLAN; outbound internet disabled by default.</p>
+    </div>
+
+    <footer><a href="metrics.html">Next: Metrics →</a></footer>
+  </div>
+</body>
+</html>

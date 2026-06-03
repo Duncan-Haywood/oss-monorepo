@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vision — Retail Pilot Intel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="doc-nav">
+      <a href="index.html">Home</a>
+      <a href="vision.html" aria-current="page">Vision</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="metrics.html">Metrics</a>
+      <a href="privacy-gdpr.html">Privacy & GDPR</a>
+      <a href="roadmap.html">Roadmap</a>
+    </nav>
+
+    <h1>Product vision</h1>
+    <p class="subtitle">Optimize profit and sales in micro-format retail without surveillance capitalism</p>
+
+    <h2>Problem</h2>
+    <p>Small luxury retail (e.g. leather goods) has thin margins, high SKU storytelling needs, and limited staff. Operators lack quantitative feedback on:</p>
+    <ul>
+      <li>Whether window and doorway presentation converts passers-by into entrants</li>
+      <li>Which items attract attention but fail to sell</li>
+      <li>Where upsell or bundling opportunities exist in the basket</li>
+      <li>Whether layout, lighting, or display changes actually move revenue</li>
+    </ul>
+
+    <h2>Solution</h2>
+    <p>A <strong>store-local intelligence layer</strong> that:</p>
+    <ol>
+      <li>Runs computer vision and sensor fusion <strong>on premises</strong>, emitting only aggregated, non-identifying statistics</li>
+      <li>Ingests POS “data capsule” events (line items, totals, timestamps — not card data)</li>
+      <li>Joins engagement signals with sales for funnel and assortment analytics</li>
+      <li>Suggests experiments (display A/B, placement, hours) and tracks outcomes with simple statistical rigor</li>
+    </ol>
+
+    <h2>Target pilot</h2>
+    <div class="card">
+      <ul>
+        <li><strong>Format:</strong> ~10 m² leather boutique, Italy</li>
+        <li><strong>Hardware:</strong> High-resolution wide-angle camera at interior door; optional scanners/RFID on key fixtures; existing POS</li>
+        <li><strong>Compute:</strong> Small form-factor edge PC (e.g. NUC / industrial mini-PC) on store LAN, no cloud requirement for raw video</li>
+      </ul>
+    </div>
+
+    <h2>Operator outcomes</h2>
+    <ul>
+      <li>Daily funnel: pass-by (later) → enter → engage → purchase</li>
+      <li>SKU-level “attention vs revenue” leaderboard</li>
+      <li>Alerts for high-touch / low-conversion items</li>
+      <li>Experiment cards: “move bestseller left”, measure 2-week uplift</li>
+    </ul>
+
+    <h2>Non-goals (v1)</h2>
+    <ul>
+      <li>Facial recognition, loyalty identification, or cross-store shopper tracking</li>
+      <li>Cloud upload of identifiable imagery</li>
+      <li>Replacing POS — we integrate, not compete</li>
+      <li>Full inventory WMS — focus on pilot metrics first</li>
+    </ul>
+
+    <h2>Success criteria for pilot</h2>
+    <table>
+      <thead>
+        <tr><th>Measure</th><th>Target (indicative)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Entry count accuracy vs manual tally</td><td>±5% on sample days</td></tr>
+        <tr><td>POS sync latency</td><td>&lt; 60 s for aggregates</td></tr>
+        <tr><td>Raw video retention</td><td>0 days default (process in stream)</td></tr>
+        <tr><td>Actionable weekly insight</td><td>≥ 1 experiment recommendation</td></tr>
+      </tbody>
+    </table>
+
+    <footer><a href="architecture.html">Next: Architecture →</a></footer>
+  </div>
+</body>
+</html>

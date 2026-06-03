@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retail Pilot Intel — Documentation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="doc-nav" aria-label="Documentation">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="vision.html">Vision</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="metrics.html">Metrics</a>
+      <a href="privacy-gdpr.html">Privacy & GDPR</a>
+      <a href="roadmap.html">Roadmap</a>
+    </nav>
+
+    <h1>Retail Pilot Intel</h1>
+    <p class="subtitle">Edge analytics + POS intelligence for small-format retail pilots (Italy / GDPR-first)</p>
+
+    <div class="card ok">
+      <p><strong>Pilot context:</strong> A ~10 m² leather boutique running a technology pilot: door-mounted vision (aggregate only), in-store scanners or RFID where available, and POS sales data unified for profit-oriented recommendations and controlled experiments.</p>
+    </div>
+
+    <h2>Documentation map</h2>
+    <ul>
+      <li><a href="vision.html">Vision</a> — Why we’re building this, operator outcomes, non-goals</li>
+      <li><a href="architecture.html">Architecture</a> — On-device CV, POS bridge, local aggregation, dashboard</li>
+      <li><a href="metrics.html">Metrics</a> — Footfall funnel, product engagement, conversion, upsell signals</li>
+      <li><a href="privacy-gdpr.html">Privacy & GDPR</a> — Legal constraints, technical controls, DPIA checklist</li>
+      <li><a href="roadmap.html">Roadmap</a> — Phase 1 (camera + POS) through window/display analytics</li>
+    </ul>
+
+    <h2>Phase 1 deliverable</h2>
+    <p>Combine <strong>indoor door camera aggregates</strong> with <strong>normalized POS events</strong> so operators can answer:</p>
+    <ul>
+      <li>How many people entered vs walked away (bounce)?</li>
+      <li>Of those who entered, how many engaged with product (touch / pickup proxy) vs purchased?</li>
+      <li>Which SKUs get attention but under-convert relative to peers?</li>
+      <li>What simple layout or staffing experiments might lift margin?</li>
+    </ul>
+
+    <h2>Repository</h2>
+    <pre>retail-pilot-intel/
+├── docs/          ← you are here
+├── edge/          on-device vision & aggregation
+├── pos/           POS connector & event schema
+├── analytics/     rollups, experiments, recommendations
+└── dashboard/     operator UI prototype</pre>
+
+    <footer>Private pilot documentation — not legal advice. Engage a DPO/lawyer for GDPR sign-off in Italy.</footer>
+  </div>
+</body>
+</html>
