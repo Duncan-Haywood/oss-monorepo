@@ -93,7 +93,9 @@ export function RoiPage() {
       />
       <p>
         Weighting for the score column below: revenue leverage 40%, margin &amp;
-        cash 30%, operating cost 20%, time to proof 10%.
+        cash 30%, operating cost 20%, time to proof 10%.{" "}
+        <code>priority ≈ (€ impact × speed to proof) ÷ build effort</code> —
+        initiatives without a weekly owner € action rank last.
       </p>
 
       <h2>Store economics (pilot assumptions)</h2>
@@ -260,6 +262,43 @@ export function RoiPage() {
         in-store close rate (rank 1).
       </p>
 
+      <h2>Leather boutique € levers (Italy)</h2>
+      <DataTable
+        headers={["Business reality", "What to build", "Financial outcome"]}
+        rows={[
+          [
+            "High AOV, few daily closes",
+            "Conversion + revenue per entrant",
+            "One extra bag/week dominates sensor cost",
+          ],
+          [
+            "Slow-moving seasonal SKUs",
+            "Desirability gap + 14-day action",
+            "Recover margin and free working capital",
+          ],
+          [
+            "Tourist peaks (Easter, summer, Natale)",
+            "Hourly join + Europe/Rome",
+            "Staff when entries convert, not when street is noisy",
+          ],
+          [
+            "Gift attach (scarves, belts, care)",
+            "Basket pairing / till script",
+            "AOV lift without more footfall",
+          ],
+          [
+            "Brera-style window competition",
+            "Window funnel (rank 8)",
+            "Largest lever only after in-store close rate is known",
+          ],
+          [
+            "IVA on shelf price",
+            "Margin % in reports",
+            "Compare experiments on contribution, not headline €",
+          ],
+        ]}
+      />
+
       <h2>Which bottleneck to tackle first?</h2>
       <p>
         Use the owner&apos;s current pain — not feature interest — to pick the
@@ -310,6 +349,10 @@ export function RoiPage() {
           <strong>Window when baseline exists:</strong> Outdoor CV is higher
           effort (second camera, weather). ROI is measurable only once conversion
           and AOV are on the dashboard.
+        </li>
+        <li>
+          <strong>Experiments after baseline:</strong> A window test without rank
+          1 data optimizes entries while conversion stays blind.
         </li>
       </ul>
 

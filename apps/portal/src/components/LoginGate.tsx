@@ -3,7 +3,7 @@ import { createSession, getDemoPasscode, verifyPasscode } from "../auth/demoAuth
 
 export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
-  const [role, setRole] = useState<"operator" | "owner">("operator");
+  const [role, setRole] = useState<"operator" | "owner">("owner");
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
 
@@ -37,6 +37,9 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
           </li>
           <li>
             <strong>4–8 week</strong> payback on conversion + inventory actions
+          </li>
+          <li>
+            <strong>Presenter guide</strong> — talking points on every page
           </li>
           <li>
             <strong>GDPR-first</strong> — no cloud video, aggregates only
@@ -73,7 +76,7 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
                 checked={role === "owner"}
                 onChange={() => setRole("owner")}
               />
-              Owner (revenue & experiments)
+              Owner (revenue & ROI story)
             </label>
           </fieldset>
 

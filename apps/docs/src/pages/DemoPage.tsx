@@ -58,7 +58,7 @@ export function DemoPage() {
           <strong>Two-app demo flow:</strong> Start here in the docs site for ROI and
           commercial framing (~8 min), then open the passcode-gated{" "}
           <strong>sales portal</strong> for the operator experience (~12 min). The portal
-          includes a built-in demo script overlay — use passcode{" "}
+          includes a <strong>Presenter guide</strong> on each page — use passcode{" "}
           <code>atelier-demo</code> unless your build sets <code>VITE_DEMO_PASSCODE</code>.
         </p>
       </Card>
@@ -101,9 +101,9 @@ pnpm portal:dev        # http://localhost:5174
           {section.step === 3 ? (
             <p>
               Open portal at <code>http://localhost:5174</code> — sign in as{" "}
-              <strong>Owner</strong> for the ROI banner. Follow the{" "}
-              <strong>Demo script</strong> overlay (Business value → Overview → Products →
-              Experiments → Privacy).
+              <strong>Owner</strong> for the ROI banner. Tour order: Business value →
+              Overview → Products → Experiments → Trust. Use the{" "}
+              <strong>Presenter guide</strong> at the bottom of each page.
             </p>
           ) : null}
         </Card>

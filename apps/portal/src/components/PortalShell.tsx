@@ -1,10 +1,19 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
-import { DemoTour } from "./DemoTour";
+import { DemoGuide } from "./DemoGuide";
 import { storeProfile } from "../data/demoStore";
 
-const nav = [
+const ownerNav = [
+  { to: "/value", label: "Business value" },
+  { to: "/", label: "Overview", end: true },
+  { to: "/funnel", label: "Funnel" },
+  { to: "/products", label: "Products" },
+  { to: "/experiments", label: "Experiments" },
+  { to: "/trust", label: "Privacy & trust" },
+] as const;
+
+const operatorNav = [
   { to: "/", label: "Overview", end: true },
   { to: "/value", label: "Business value" },
   { to: "/funnel", label: "Funnel" },
@@ -23,6 +32,8 @@ export function PortalShell({
   subtitle?: string;
 }) {
   const session = readSession();
+  const isOwner = session?.role === "owner";
+  const nav = isOwner ? ownerNav : operatorNav;
 
   function signOut() {
     clearSession();
@@ -62,6 +73,12 @@ export function PortalShell({
           <p className="role-tag">
             Signed in as <strong>{session?.role ?? "operator"}</strong>
           </p>
+          {isOwner ? (
+            <p className="sidebar-tip">
+              Owner view — start at <strong>Business value</strong> for sales
+              demos.
+            </p>
+          ) : null}
           <button type="button" className="btn-ghost" onClick={signOut}>
             Sign out
           </button>
@@ -79,8 +96,10 @@ export function PortalShell({
             <span className="pill pill-secure">LAN-only demo</span>
           </div>
         </header>
-        <main className="portal-content">{children}</main>
-        <DemoTour />
+        <main className="portal-content">
+          {children}
+          <DemoGuide />
+        </main>
       </div>
     </div>
   );

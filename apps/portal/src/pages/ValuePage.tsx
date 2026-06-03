@@ -1,7 +1,11 @@
+import { BeforeAfterGrid } from "../components/BeforeAfterGrid";
+import { KpiCard } from "../components/KpiCard";
 import { PortalShell } from "../components/PortalShell";
 import {
+  pilotBeforeAfter,
   pilotEconomics,
   pilotImpactSummary,
+  pilotSubscription,
   pilotWins,
   quarterlyFocus,
   rankedInitiatives,
@@ -37,6 +41,30 @@ export function ValuePage() {
             <span className="stat-label">SKU actions in flight</span>
           </div>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>Before vs after (6-week pilot)</h2>
+        <p className="panel-desc">
+          Baseline from pre-join footfall + Z-report estimates; week 6 from joined
+          door CV and POS.
+        </p>
+        <BeforeAfterGrid metrics={pilotBeforeAfter} />
+      </section>
+
+      <section className="kpi-grid">
+        <KpiCard
+          label="Est. payback"
+          value={pilotSubscription.pilotPaybackWeeks}
+          suffix=" weeks"
+          hint="At pilot subscription tier"
+        />
+        <KpiCard
+          label="Monthly subscription"
+          value={pilotSubscription.monthlyEur}
+          hint="After setup fee"
+        />
+        <KpiCard label="Setup (one-time)" value={pilotSubscription.setupFeeEur} />
       </section>
 
       <section className="panel">
@@ -81,8 +109,8 @@ export function ValuePage() {
       <section className="panel">
         <h2>Build priority (financial ROI)</h2>
         <p className="panel-desc">
-          Ranked for ~10 m² Italy leather pilot. Rows marked “in this demo” map to portal
-          views you can click through live.
+          Ranked for ~10 m² Italy leather pilot. Rows marked “Live” map to portal
+          views you can click through in this demo.
         </p>
         <div className="table-wrap">
           <table className="sku-table initiative-table">

@@ -94,15 +94,15 @@ export const skuInsights = [
 
 export const experiments = [
   {
-    id: "exp-window-warm",
-    title: "Warm window vs neutral",
+    id: "exp-saddle-pedestal",
+    title: "Saddle bag: lit pedestal + open-on-approach",
     status: "running" as const,
     started: "Mon 3 Jun",
-    hypothesis: "Amber spot + hero belt lifts door-to-entry by 10%",
-    metric: "Entry rate from pass-by",
-    baseline: "14.2%",
-    current: "15.0%",
-    confidence: "Day 4 of 14",
+    hypothesis: "Desirability gap closes — touches convert at category avg",
+    metric: "SKU conversion (BAG-SADD-TAN)",
+    baseline: "0%",
+    current: "9.1% (day 4)",
+    confidence: "Day 4 of 14 · ROI rank 2",
   },
   {
     id: "exp-pairing-rack",
@@ -113,7 +113,18 @@ export const experiments = [
     metric: "Items per basket",
     baseline: "1.4",
     current: "—",
-    confidence: "Queued after window test",
+    confidence: "Queued after saddle bag test · ROI rank 3",
+  },
+  {
+    id: "exp-window-warm",
+    title: "Warm window vs neutral",
+    status: "planned" as const,
+    started: "—",
+    hypothesis: "Amber spot + hero belt lifts door-to-entry by 10%",
+    metric: "Entry rate from pass-by",
+    baseline: "14.2%",
+    current: "—",
+    confidence: "Deferred until conversion baseline stable · ROI rank 8",
   },
   {
     id: "exp-till-script",
@@ -131,21 +142,27 @@ export const experiments = [
 export const insights = [
   {
     priority: "high" as const,
+    title: "Conversion +2.4 pp vs last week — rank 1 KPI",
+    body: "Joined door + POS shows 19.1% conversion on 47 entries. Revenue per entrant €60.40. Protect baseline before window tests.",
+    impact: "Illustrative €9k–€23k/year if +1 sale/week sustained.",
+  },
+  {
+    priority: "high" as const,
     title: "Saddle bag: attention without conversion",
-    body: "11 touches, 0 sales in 7 days. Shoppers pause at hook but skip try-on. Suggest moving to lit pedestal and staff open-on-approach for 1 week.",
+    body: "11 touches, 0 sales in 7 days. Active experiment: lit pedestal + open-on-approach (ROI rank 2).",
     impact: "Est. €420–680/week if conversion matches category avg.",
   },
   {
     priority: "medium" as const,
     title: "Tuesday 12:00–14:00 under-monetized",
     body: "Peak entries (16) but only 2 purchases. Staffing or express till queue may be limiting closes during lunch footfall.",
-    impact: "Align 15-min focused service block with CV peak.",
+    impact: "Align 15-min focused service block with CV peak (ROI rank 4).",
   },
   {
     priority: "low" as const,
     title: "Bounce rate improved vs last week",
-    body: "Bounces down 4 pts after doorway clearance fix. Continue monitoring post-window experiment.",
-    impact: "Validates prior layout change.",
+    body: "Bounces down 4 pts after doorway clearance fix. Window experiment queued until rank 1 baseline holds 7+ days.",
+    impact: "Validates prior layout change; defer outdoor CV.",
   },
 ];
 
@@ -166,7 +183,6 @@ export const weekTrend = [
   { day: "Sat", entries: 61, revenue: 3890 },
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
-
 /** Sales / owner narrative — aligned with docs ROI matrix (illustrative). */
 export const pilotEconomics = {
   aovRange: "€180–€450",
@@ -183,6 +199,19 @@ export const pilotImpactSummary = {
   weeklyRevenueDeltaPct: 12,
   experimentsPromoted: 1,
   slowSkuActions: 2,
+};
+
+export const pilotBeforeAfter = {
+  conversionPct: { before: 16.7, after: 19.1, label: "Conversion" },
+  avgBasketEur: { before: 278, after: 316, label: "Avg basket" },
+  weeklyRevenueEur: { before: 16800, after: 18940, label: "Weekly revenue" },
+  slowSkuDays: { before: 21, after: 7, label: "High-gap SKU days (avg)" },
+};
+
+export const pilotSubscription = {
+  setupFeeEur: "€2.5k–€4k",
+  monthlyEur: "€149–€249",
+  pilotPaybackWeeks: "6–10",
 };
 
 export const quarterlyFocus = [
@@ -278,46 +307,56 @@ export const pilotWins = [
   },
 ];
 
-/** Guided sales walkthrough — follow Demo script overlay in portal. */
-export const demoTourSteps = [
-  {
-    id: "value",
-    path: "/value",
-    title: "Business case",
-    talkingPoint:
-      "Start with € outcomes: ranked build priority, pilot wins, and indicative upside — sold on weekly decisions, not cameras.",
-    duration: "~3 min",
+export const demoTalkingPoints: Record<
+  string,
+  { title: string; points: string[] }
+> = {
+  "/": {
+    title: "Overview — daily command center",
+    points: [
+      "Owner sees conversion and revenue per entrant, not raw footfall.",
+      "Hourly chart shows when footfall doesn't convert — staffing lever.",
+      "Insights are €-ranked actions, not vanity dashboards.",
+    ],
   },
-  {
-    id: "overview",
-    path: "/",
-    title: "Daily operator view",
-    talkingPoint:
-      "This is what the owner sees each morning: entries, conversion, revenue, and hourly footfall joined to POS — no analyst required.",
-    duration: "~2 min",
+  "/value": {
+    title: "Business value — why they buy",
+    points: [
+      "Before/after from pilot week 6 — conversion, basket, weekly revenue.",
+      "ROI table maps product capabilities to payback (aligned with docs /roi).",
+      "Subscription economics: setup + monthly, payback in 6–10 weeks at pilot scale.",
+    ],
   },
-  {
-    id: "products",
-    path: "/products",
-    title: "Desirability gap",
-    talkingPoint:
-      "High-touch SKUs with zero sales are cash traps on a tiny floor. This table ranks where to reposition, bundle, or markdown.",
-    duration: "~3 min",
+  "/funnel": {
+    title: "Funnel — entries to purchase",
+    points: [
+      "Aggregate only — no shopper profiles; GDPR-friendly for Italy.",
+      "Window pass-by is phase 3; in-store close rate comes first.",
+      "Bounce and engagement rates drive layout and greeting experiments.",
+    ],
   },
-  {
-    id: "experiments",
-    path: "/experiments",
-    title: "Experiment loop",
-    talkingPoint:
-      "Pilots are sold on outcomes. Measure a baseline, run a lightweight test, promote winners — like the till script that lifted scarf attach to 67%.",
-    duration: "~2 min",
+  "/products": {
+    title: "Products — desirability gap",
+    points: [
+      "High-touch / low-close SKUs tie up cash in 10 m² — this is the margin story.",
+      "Saddle bag example: attention without try-on → merchandising action.",
+      "Hero SKUs (wallet) validate placement; don't discount what already converts.",
+    ],
   },
-  {
-    id: "trust",
-    path: "/trust",
-    title: "Privacy & trust",
-    talkingPoint:
-      "Address GDPR early: no identity, no cloud video, aggregates only. Store remains controller; pilot is processor under DPA.",
-    duration: "~2 min",
+  "/experiments": {
+    title: "Experiments — closed loop",
+    points: [
+      "Sold on outcomes: measure → hypothesize → 7-day test → promote winners.",
+      "Till script already promoted — concrete proof for prospects.",
+      "Window test running; pairing rack queued — shows roadmap without over-building.",
+    ],
   },
-] as const;
+  "/trust": {
+    title: "Privacy — objection handler",
+    points: [
+      "Zero-day video retention; frames discarded on edge device.",
+      "POS payload is SKU/qty/totals only — no card data.",
+      "Store is GDPR controller; we are processor with DPA.",
+    ],
+  },
+};

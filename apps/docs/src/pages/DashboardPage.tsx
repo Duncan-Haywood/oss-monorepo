@@ -25,7 +25,8 @@ export function DashboardPage() {
         <p>
           For the full sales narrative — ROI framing, objection handling, and scripted
           walkthrough — start at the{" "}
-          <Link to="/demo">Sales & marketing demo</Link> page.
+          <Link to="/demo">Sales & marketing demo</Link> page. Use the in-portal{" "}
+          <strong>Presenter guide</strong> on each page for live talking points.
         </p>
       </Card>
 

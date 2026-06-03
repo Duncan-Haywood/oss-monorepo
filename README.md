@@ -10,7 +10,7 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 pnpm install
 pnpm docs:dev      # http://localhost:5173
 pnpm docs:build    # → apps/docs/dist
-pnpm portal:dev    # http://localhost:5174 — sales demo portal (guided tour)
+pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
 ```
 
@@ -18,8 +18,9 @@ pnpm portal:build  # → apps/portal/dist
 
 1. Run `pnpm portal:dev` and open http://localhost:5174
 2. Passcode: `atelier-demo` (or set `VITE_DEMO_PASSCODE`)
-3. Sign in as **Owner** to see the ROI banner on Overview
+3. Sign in as **Owner** — Business value is first in the nav; ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
+5. Use the **Presenter guide** at the bottom of each page for talking points
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact.
 
