@@ -54,6 +54,11 @@ export function BusinessPlanPage() {
             "12-month goal",
             "1 live pilot → 5 paying stores in same segment → documented € case study",
           ],
+          [
+            "GTM motion",
+            "Digital-first: portal + docs proof → sales-assist close; channel by M2 playbook",
+            "Founder travel only for install/DPIA, not every evaluation",
+          ],
         ]}
       />
 
@@ -80,6 +85,113 @@ export function BusinessPlanPage() {
         <strong>Champion:</strong> occasionally a bookkeeper or boutique consultant
         who wants margin reports, not heatmaps.
       </p>
+
+      <h3>Ideal customer profile (ICP)</h3>
+      <p>
+        Y1 focus is one wedge ICP; adjacent segments open only after a signed
+        case study and a repeatable install playbook. Italy&apos;s retail base is
+        highly fragmented (regional independents, not national chain procurement),
+        which favors digital proof and partner-led scale over enterprise field
+        sales.
+      </p>
+      <DataTable
+        headers={["Tier", "Profile", "Fit signals", "Y1 priority"]}
+        rows={[
+          [
+            "Beachhead (A)",
+            "Owner-operated luxury micro-store: leather, accessories, designer footwear; 8–50 m²; 1–3 staff; urban Italy",
+            "AOV €150–€600; digital POS export or nightly file; owner cites conversion or dead stock weekly; refuses cloud video",
+            "Primary — design partner + 3–5 reference cluster",
+          ],
+          [
+            "Cluster peer (B)",
+            "Same street / trade association; same format; no shared IT",
+            "Warm intro from design partner; willing 15-min weekly ritual; DPIA path acceptable",
+            "Primary — founder-assisted, async close after portal demo",
+          ],
+          [
+            "Family micro-group (C)",
+            "2–5 doors, one family operator, same city",
+            "Margin+ across doors; bookkeeper champion; standard POS per site",
+            "Secondary — after 1 paid reference store",
+          ],
+          [
+            "Adjacent format (D)",
+            "Eyewear, jewelry, high-end footwear; same economics",
+            "POS adapter proven; privacy story portable",
+            "Secondary — Y2 after adapter #2",
+          ],
+          [
+            "Consultant-influenced (E)",
+            "Boutique coach / fractional CFO serving 5–20 clients",
+            "Wants anonymized benchmark; introduces 2+ stores/quarter",
+            "Channel — digital playbook + rev share, not direct sales",
+          ],
+        ]}
+      />
+
+      <h3>Buyer personas</h3>
+      <DataTable
+        headers={["Persona", "Role", "Cares about", "Digital touchpoint"]}
+        rows={[
+          [
+            "Owner-operator",
+            "Economic buyer + daily user",
+            "€/week actions, seasonality, no surveillance feel",
+            "LAN dashboard, weekly ritual email, portal walkthrough",
+          ],
+          [
+            "Family partner",
+            "Risk / spend approver",
+            "Lock-in, privacy, payback vs one sale/month",
+            "Privacy page, pilot term sheet PDF, payback table on /roi",
+          ],
+          [
+            "Bookkeeper",
+            "Data skeptic",
+            "POS truth, tally accuracy, export hygiene",
+            "Funnel vs Z-report reconciliation doc; async Loom, not live demo",
+          ],
+          [
+            "POS integrator",
+            "Technical gatekeeper",
+            "API stability, support burden, referral economics",
+            "Integration one-pager, sandbox export sample, partner sheet",
+          ],
+          [
+            "Boutique consultant",
+            "Champion / introducer",
+            "Client outcomes, reputational risk",
+            "Anonymized case chart, benchmark opt-in, intro template",
+          ],
+        ]}
+      />
+      <p>
+        <strong>Buying triggers:</strong> post-season inventory hangover; new
+        neighbor competition on the same street; POS upgrade (Italy RT/fiscal
+        compliance cycles); failed footfall counter that never tied to margin;
+        consultant mandate to “show conversion in writing.”
+      </p>
+
+      <h3>Anti-personas (defer)</h3>
+      <ul>
+        <li>
+          National or franchise chains with centralized IT and 12+ month
+          procurement — wrong ACV and motion for bootstrap GTM
+        </li>
+        <li>
+          High-volume, low-AOV formats (convenience, telecom kiosks) — ROI
+          story breaks; subscription not justified by incremental sale
+        </li>
+        <li>
+          Stores without machine-readable POS export — revenue join blocked;
+          partner motion required first
+        </li>
+        <li>
+          Owners seeking real-time heatmaps, staff surveillance, or cross-store
+          shopper IDs — conflicts with privacy positioning and v1 scope
+        </li>
+      </ul>
 
       <h2>3. Market opportunity (indicative)</h2>
       <p>
@@ -234,35 +346,161 @@ export function BusinessPlanPage() {
       />
 
       <h2>6. Go-to-market</h2>
+      <Card variant="ok">
+        <p>
+          <strong>Digital-first principle:</strong> At €149–€449/mo ACV, field
+          events and founder-heavy onsite selling do not scale. Acquisition,
+          education, and trust build through async assets — secure demo portal,
+          ROI and privacy pages, recorded walkthroughs, and partner-distributed
+          PDFs — with human touch reserved for design-partner onboarding,
+          DPIA sign-off, and install QA. Hybrid motion: product-led discovery →
+          sales-assist close when privacy or POS integration needs a call.
+        </p>
+      </Card>
+
+      <h3>GTM stages</h3>
       <DataTable
-        headers={["Stage", "Motion", "Success metric"]}
+        headers={["Stage", "Primary motion", "Digital layer", "Success metric"]}
         rows={[
           [
             "0 — Design partner",
-            "Single Italy leather boutique; subsidized setup",
+            "Founder-led install + weekly ritual coaching",
+            "Portal labeled illustrative; privacy + term sheet shared as links before M2",
             "M4 live 7d; owner weekly ritual",
           ],
           [
             "1 — Reference cluster",
-            "3–5 stores same city/street; owner introductions",
-            "≥3 paying; shared anonymized benchmark optional",
+            "Warm intros; 20-min portal + /roi scoping call",
+            "Case-study page (anonymized charts); 2 peer intro email templates; WhatsApp follow-up",
+            "≥3 paying; optional street benchmark",
           ],
           [
             "2 — Channel",
-            "POS reseller / camera installer playbook (kit + 2h install)",
+            "Installer + POS reseller closes kit install",
+            "Partner portal pack: BOM, 2h script, owner week-1 PDF, co-branded landing stub",
             "Partner closes without founder on every site",
           ],
           [
             "3 — Expand SKU",
-            "Second POS vendor, second vertical (e.g. eyewear)",
+            "Self-serve discovery for adapter #2 verticals",
+            "SEO/content for “conversion + POS” queries; comparison one-pagers vs footfall-only",
             "CAC payback &lt; 6 months on Core tier",
           ],
         ]}
       />
+
+      <h3>Digital acquisition funnel</h3>
       <p>
-        Marketing is proof-led: before/after conversion chart, one desirability-gap
-        save story, one window experiment — not feature lists. Italian trade
-        fairs and municipal business associations are low-cost trust channels.
+        Funnel stages map to assets we already ship in-repo; no separate
+        marketing site required for Y1.
+      </p>
+      <DataTable
+        headers={["Stage", "Goal", "Primary asset", "Exit criterion"]}
+        rows={[
+          [
+            "Awareness",
+            "Owner learns “footfall + POS join” exists",
+            "Consultant forward, association newsletter, localized LinkedIn post",
+            "Clicks through to docs or portal",
+          ],
+          [
+            "Education",
+            "Understand privacy + € payback",
+            "/privacy, /roi, this page §7 payback",
+            "Requests portal link or intro call",
+          ],
+          [
+            "Evaluation",
+            "See product shape without travel",
+            "Secure portal (`pnpm portal:dev`) — funnel, SKU gap, experiments",
+            "Names one weekly € decision they would track",
+          ],
+          [
+            "Commit",
+            "Sign design-partner or Core terms",
+            "Term sheet PDF + DPIA timeline",
+            "M2 scheduled; POS export path confirmed",
+          ],
+          [
+            "Activate",
+            "First joined conversion week",
+            "LAN dashboard + ritual checklist",
+            "≥1 logged experiment or inventory action in 14 days",
+          ],
+          [
+            "Expand",
+            "Margin+ or Street add-on",
+            "In-product signal: 4+ healthy ritual weeks",
+            "Upsell or referral ask",
+          ],
+        ]}
+      />
+
+      <h3>Digital channels (Y1–Y2)</h3>
+      <DataTable
+        headers={["Channel", "Why digital-first fits", "Tactic", "Avoid"]}
+        rows={[
+          [
+            "Secure demo portal",
+            "Replaces first showroom visit; spouse can review async",
+            "Password-shared link; Atelier Linea illustrative → pilot screenshots when live",
+            "Promising window funnel before rank-1 baseline",
+          ],
+          [
+            "Docs site (this repo)",
+            "SEO + sales enablement single source",
+            "Italian + English titles on problem/payback; link from email signature",
+            "Feature dumps without € story",
+          ],
+          [
+            "Founder content",
+            "High trust in micro-retail; low ad budget",
+            "90s Loom: “one desirability gap save”; before/after conversion chart",
+            "Generic AI retail thought leadership",
+          ],
+          [
+            "Partner co-marketing",
+            "Italy buys through regional POS/installers",
+            "White-label one-pager; referral link in integrator newsletter",
+            "Exclusive marketplace fees before 10 live stores",
+          ],
+          [
+            "Associations / municipal",
+            "Low-cost credibility",
+            "Guest article on seasonality + conversion; webinar recording hosted on docs",
+            "Booth spend at trade fairs (poor ACV fit)",
+          ],
+          [
+            "Paid search (test)",
+            "Capture high-intent integrators and owners",
+            "Long-tail IT: POS export boutique, conteggio visitatori negozio piccolo",
+            "Broad “retail AI” keywords (wrong ICP)",
+          ],
+        ]}
+      />
+
+      <h3>Proof library (build order)</h3>
+      <ol>
+        <li>
+          Anonymized conversion trend (design partner) — hero for cluster stage
+        </li>
+        <li>
+          One desirability-gap inventory save with € margin cited by owner
+        </li>
+        <li>
+          DPIA summary + “no raw video cloud” architecture diagram (link /architecture)
+        </li>
+        <li>
+          Partner install timelapse or checklist completion photo (trust, not surveillance)
+        </li>
+        <li>
+          Optional street benchmark PDF when ≥3 stores consent
+        </li>
+      </ol>
+      <p>
+        Marketing stays proof-led, not feature-led. Italian trade associations
+        and municipal business programs are <em>digital</em> distribution
+        (newsletter, recorded talk), not booth-heavy field marketing.
       </p>
 
       <h3>Channel partner economics</h3>
@@ -590,6 +828,16 @@ export function BusinessPlanPage() {
             "Identify one installer + one POS contact in Milano cluster",
             "Founder",
             "Partner economics sheet shared",
+          ],
+          [
+            "Publish digital GTM pack (portal walkthrough Loom, intro emails, partner one-pager)",
+            "Founder",
+            "Linked from /business-plan §6; used in first 3 cluster outreaches",
+          ],
+          [
+            "Draft Italian SEO titles for docs (conversion + POS boutique)",
+            "Founder",
+            "At least 3 indexed pages with €-led meta descriptions",
           ],
         ]}
       />
