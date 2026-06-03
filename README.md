@@ -10,7 +10,7 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 pnpm install
 pnpm docs:dev      # http://localhost:5173
 pnpm docs:build    # → apps/docs/dist
-pnpm portal:dev    # http://localhost:5174 — sales demo portal
+pnpm portal:dev    # http://localhost:5174 — sales demo portal (guided tour)
 pnpm portal:build  # → apps/portal/dist
 ```
 
@@ -49,6 +49,8 @@ For the Italy leather boutique pilot, delivery order follows **profit impact per
 Full matrix with scores, build cost, and payback: `pnpm docs:dev` → **ROI** (`/roi`).
 
 **Business plan** (market, pricing, GTM, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
+
+**Sales demo** (scripted walkthrough + portal guide): `pnpm docs:dev` → **Sales demo** (`/demo`).
 
 ## Phase 1 (technical)
 

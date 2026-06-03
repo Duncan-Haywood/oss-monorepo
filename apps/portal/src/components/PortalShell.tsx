@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
+import { DemoTour } from "./DemoTour";
 import { storeProfile } from "../data/demoStore";
 
 const nav = [
@@ -8,6 +9,7 @@ const nav = [
   { to: "/funnel", label: "Funnel" },
   { to: "/products", label: "Products" },
   { to: "/experiments", label: "Experiments" },
+  { to: "/value", label: "Business value" },
   { to: "/trust", label: "Privacy & trust" },
 ] as const;
 
@@ -79,6 +81,7 @@ export function PortalShell({
           </div>
         </header>
         <main className="portal-content">{children}</main>
+        <DemoTour />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { FunnelPage } from "./pages/FunnelPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { ProductsPage } from "./pages/ProductsPage";
 import { TrustPage } from "./pages/TrustPage";
+import { ValuePage } from "./pages/ValuePage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const [authed, setAuthed] = useState(() => readSession() !== null);
@@ -50,6 +51,14 @@ export function App() {
         element={
           <RequireAuth>
             <ExperimentsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/value"
+        element={
+          <RequireAuth>
+            <ValuePage />
           </RequireAuth>
         }
       />

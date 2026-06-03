@@ -166,3 +166,96 @@ export const weekTrend = [
   { day: "Sat", entries: 61, revenue: 3890 },
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
+
+/** Business value framing for sales demos — illustrative pilot economics. */
+export const businessValue = {
+  headline: "Profit per visitor, not footfall for its own sake",
+  subhead:
+    "Retail Pilot Intel joins anonymous door signals with POS so a 10 m² boutique owner can act on weekly € decisions.",
+  pilotEconomics: [
+    { label: "Average order value", value: "€180–€450", note: "One extra sale/week ≈ €10k–€23k/year" },
+    { label: "Gross margin (leather)", value: "55–70%", note: "Slow SKUs tie working capital" },
+    { label: "Daily door entries", value: "25–80", note: "Small conversion lift compounds" },
+    { label: "Floor staff", value: "1–2", note: "Insights must fit a 2-minute morning check" },
+  ],
+  outcomes: [
+    {
+      id: "conversion",
+      title: "Conversion baseline",
+      metric: "+2.4 pts vs last week",
+      annualEur: "€8k–€18k",
+      detail: "Door + POS join surfaces close rate in days, not after the season ends.",
+      phase: "Phase 1",
+    },
+    {
+      id: "desirability",
+      title: "Desirability gap recovery",
+      metric: "1 high-touch / zero-sale SKU",
+      annualEur: "€6k–€18k",
+      detail: "Reposition, bundle, or markdown with evidence — not gut feel on 10 m².",
+      phase: "Phase 2",
+    },
+    {
+      id: "upsell",
+      title: "Upsell attach (till script)",
+      metric: "22% → 67% scarf attach",
+      annualEur: "€4k–€12k",
+      detail: "Promoted to standard practice after a 7-day experiment readout.",
+      phase: "Phase 2",
+    },
+  ],
+  summary: {
+    indicativeUpside: "€18k–€48k",
+    paybackWeeks: "4–8",
+    subscription: "€150–€350/mo",
+    pilotInstall: "€2k–€5k one-time",
+  },
+  proofPoints: [
+    "No cloud video — frames discarded on device; GDPR-first for Italy/EU",
+    "Owner sees conversion and one inventory € action within ~2 weeks of go-live",
+    "Sold on outcomes (conversion, AOV, cash recovery) — not sensor count",
+  ],
+};
+
+export const demoTourSteps = [
+  {
+    id: "overview",
+    path: "/",
+    title: "Daily operator view",
+    talkingPoint:
+      "This is what the owner sees each morning: entries, conversion, revenue, and hourly footfall joined to POS — no analyst required.",
+    duration: "~2 min",
+  },
+  {
+    id: "products",
+    path: "/products",
+    title: "Desirability gap",
+    talkingPoint:
+      "High-touch SKUs with zero sales are cash traps on a tiny floor. This table ranks where to reposition, bundle, or markdown.",
+    duration: "~3 min",
+  },
+  {
+    id: "experiments",
+    path: "/experiments",
+    title: "Experiment loop",
+    talkingPoint:
+      "Pilots are sold on outcomes. Measure a baseline, run a lightweight test, promote winners — like the till script that lifted scarf attach to 67%.",
+    duration: "~2 min",
+  },
+  {
+    id: "value",
+    path: "/value",
+    title: "Business case",
+    talkingPoint:
+      "Close with indicative annual upside, payback, and subscription — tied to conversion, margin, and inventory cash, not vanity metrics.",
+    duration: "~3 min",
+  },
+  {
+    id: "trust",
+    path: "/trust",
+    title: "Privacy & trust",
+    talkingPoint:
+      "Address GDPR early: no identity, no cloud video, aggregates only. Store remains controller; pilot is processor under DPA.",
+    duration: "~2 min",
+  },
+] as const;

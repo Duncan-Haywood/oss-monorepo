@@ -24,9 +24,22 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
         <p className="login-eyebrow">Retail Pilot Intel</p>
         <h1>Store portal</h1>
         <p className="login-lead">
-          Secure demo access for pilot stakeholders. Session stays in this browser
-          only; no production data is loaded.
+          Secure demo access for pilot stakeholders. See conversion, SKU gaps, and
+          experiment lift on illustrative Milano boutique data — session stays in this
+          browser only.
         </p>
+
+        <ul className="login-value">
+          <li>
+            <strong>€18k–€48k</strong> indicative annual upside at pilot assumptions
+          </li>
+          <li>
+            <strong>4–8 week</strong> payback on conversion + inventory actions
+          </li>
+          <li>
+            <strong>GDPR-first</strong> — no cloud video, aggregates only
+          </li>
+        </ul>
 
         <form onSubmit={handleSubmit} className="login-form">
           <label>

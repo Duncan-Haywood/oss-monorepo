@@ -13,9 +13,10 @@ export function HomePage() {
           <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
           The pilot optimizes <strong>profit per visitor</strong> — conversion,
           AOV, and margin on a small floor — not analytics for its own sake.
-          Start with the{" "}
-          <Link to="/roi">ROI matrix</Link> for build order;{" "}
-          <Link to="/business-plan">Business plan</Link> for commercial framing.
+          For sales presentations, start with the{" "}
+          <Link to="/demo">Sales demo</Link> script; for build order see{" "}
+          <Link to="/roi">ROI matrix</Link> and{" "}
+          <Link to="/business-plan">Business plan</Link>.
         </p>
       </Card>
 
@@ -33,6 +34,10 @@ export function HomePage() {
       <DataTable
         headers={["Page", "Topic"]}
         rows={[
+          [
+            <Link to="/demo">Sales demo</Link>,
+            "Scripted walkthrough, objection handling, portal guide",
+          ],
           [
             <Link to="/business-plan">Business plan</Link>,
             "Market, pricing, GTM, unit economics, risks",
@@ -58,7 +63,7 @@ export function HomePage() {
             <Link to="/roadmap">Roadmap</Link>,
             "Phased delivery aligned to ROI",
           ],
-          ["Sales portal (pnpm portal:dev)", "Secure demo UI with illustrative pilot data"],
+          ["Sales portal (pnpm portal:dev)", "Secure demo UI + business value page + guided tour"],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />
