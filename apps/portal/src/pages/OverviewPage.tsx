@@ -1,6 +1,8 @@
+import { readSession } from "../auth/demoAuth";
 import { BarChart } from "../components/BarChart";
 import { InsightList } from "../components/InsightList";
 import { KpiCard } from "../components/KpiCard";
+import { OwnerBanner } from "../components/OwnerBanner";
 import { PortalShell } from "../components/PortalShell";
 import {
   funnelStages,
@@ -12,12 +14,15 @@ import {
 
 export function OverviewPage() {
   const k = todayKpis;
+  const isOwner = readSession()?.role === "owner";
 
   return (
     <PortalShell
       title="Today at a glance"
       subtitle="What a store owner would see after door CV and POS are joined on the edge — illustrative pilot week."
     >
+      {isOwner ? <OwnerBanner /> : null}
+
       <section className="kpi-grid">
         <KpiCard
           label="Door entries"

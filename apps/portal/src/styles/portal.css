@@ -200,6 +200,21 @@ code {
   color: var(--ok);
 }
 
+.login-value-points {
+  margin: 0 0 1.25rem;
+  padding: 0 0 0 1.1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.login-value-points li {
+  margin-bottom: 0.45rem;
+}
+
+.login-value-points strong {
+  color: var(--text);
+}
+
 /* Layout */
 .portal-layout {
   display: grid;
@@ -802,6 +817,198 @@ code {
 
 .trust-list li {
   margin-bottom: 0.65rem;
+}
+
+/* Owner banner */
+.owner-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(196, 165, 116, 0.12), rgba(92, 154, 114, 0.08));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.owner-banner-eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.owner-banner-title {
+  margin: 0.25rem 0 0;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.owner-banner-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.btn-owner-cta {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-owner-cta:hover {
+  background: rgba(196, 165, 116, 0.25);
+  color: #fff;
+}
+
+/* Business value */
+.value-hero {
+  margin-bottom: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent);
+}
+
+.value-hero-label {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.value-hero-headline {
+  margin: 0.5rem 0 0;
+  font-family: var(--serif);
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.value-hero-sub {
+  margin: 0.5rem 0 1.25rem;
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.value-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1rem;
+}
+
+.value-hero-stats .stat-num {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.value-hero-stats .stat-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.focus-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text);
+}
+
+.focus-list li {
+  margin-bottom: 0.5rem;
+}
+
+.economics-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.economics-dl dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.economics-dl dd {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.8rem !important;
+}
+
+.initiative-table .block {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.initiative-table tr.row-live {
+  background: rgba(92, 154, 114, 0.04);
+}
+
+.initiative-table tr.row-deferred {
+  opacity: 0.75;
+}
+
+.wins-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.85rem;
+}
+
+.win-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+
+.win-metric {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--ok);
+  margin-bottom: 0.35rem;
+}
+
+.win-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.win-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.sales-callout {
+  border-left: 3px solid var(--accent);
 }
 
 @media (max-width: 768px) {
