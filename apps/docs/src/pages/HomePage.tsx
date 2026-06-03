@@ -10,14 +10,39 @@ export function HomePage() {
     >
       <Card variant="ok">
         <p>
-          <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
-          The pilot optimizes <strong>profit per visitor</strong> — conversion,
-          AOV, and margin on a small floor — not analytics for its own sake.
-          Stakeholders: <Link to="/business-plan">Business plan</Link>.
-          Builders: <Link to="/roi">Business value &amp; ROI</Link> for build
-          order.
+          <strong>Start here for build order:</strong>{" "}
+          <Link to="/roi">Business value &amp; ROI</Link> — initiatives ranked by
+          € impact for the Italy leather boutique. Commercial framing:{" "}
+          <Link to="/business-plan">Business plan</Link>.
         </p>
       </Card>
+
+      <h2>Highest-ROI work (ranks 1–3)</h2>
+      <DataTable
+        headers={["Rank", "Deliverable", "Why it wins for a 10 m² leather shop"]}
+        rows={[
+          [
+            "1",
+            "Door + POS join",
+            "Conversion and revenue per entrant — without this, no weekly € decisions",
+          ],
+          [
+            "2",
+            "Desirability gap by SKU",
+            "One slow €800 bag ties cash in ~10 m²; attention-without-sale is the signal",
+          ],
+          [
+            "3",
+            "Upsell / basket patterns",
+            "Belts and care kits lift AOV without more street traffic",
+          ],
+        ]}
+      />
+      <p>
+        Full matrix, monthly € math, and deprioritized features:{" "}
+        <Link to="/roi">ROI page</Link>. Delivery phases:{" "}
+        <Link to="/roadmap">Roadmap</Link>.
+      </p>
 
       <h2>Documentation map</h2>
       <DataTable
@@ -52,19 +77,6 @@ export function HomePage() {
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
         ]}
       />
-
-      <h2>Highest-ROI deliverable (Phase 1)</h2>
-      <p>
-        Combine <strong>door entry counts</strong> with{" "}
-        <strong>normalized POS events</strong> so the owner can answer — in €
-        terms:
-      </p>
-      <ul>
-        <li>Conversion and revenue per entrant this week</li>
-        <li>Which hours or days under-convert (staffing and greeting)</li>
-        <li>Phase 2: SKUs with attention but no sale (inventory cash trap)</li>
-        <li>Phase 3: Window tests once in-store close rate is known</li>
-      </ul>
 
       <h2>Repository</h2>
       <pre>{`apps/docs/       ← TSX documentation (this site)

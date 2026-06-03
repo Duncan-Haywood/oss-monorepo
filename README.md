@@ -39,14 +39,15 @@ scripts/ci.ts           TypeScript CI orchestrator
 
 ## What to build first (ROI)
 
-For the Italy leather boutique pilot, delivery order follows **profit impact**, not sensor count:
+For the Italy leather boutique pilot, delivery order follows **profit impact**, not sensor count. **Start at ranks 1–3** (door+POS, desirability gap, upsell) — they typically pay back subscription cost with one extra sale/month at pilot AOV.
 
 1. **Door + POS join** — conversion % and revenue per entrant (foundation)
-2. **SKU desirability gap + upsell** — margin and AOV inside the shop
-3. **Experiments** — measurable € lift per change
-4. **Window / outdoor funnel** — only after in-store baseline is trusted
+2. **SKU desirability gap** — free cash on slow leather SKUs in ~10 m²
+3. **Upsell / basket patterns** — AOV without more footfall
+4. **Experiments** — measurable € lift per change
+5. **Window / outdoor funnel** — last unless pass-by is proven the bottleneck
 
-Full matrix: `pnpm docs:dev` → **ROI** (`/roi`).
+Full matrix + monthly € math: `pnpm docs:dev` → **ROI & priorities** (`/roi`).
 
 **Business plan** (market, pricing, GTM, unit economics): `pnpm docs:dev` → **Business plan** (`/business-plan`).
 

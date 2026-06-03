@@ -20,6 +20,41 @@ export function RoiPage() {
         </p>
       </Card>
 
+      <h2>Build these three first (highest ROI)</h2>
+      <p>
+        If engineering or pilot time is constrained, stop after these — they use
+        door + POS only and typically pay back a Core subscription (€149–€249/mo)
+        with one incremental sale per month at pilot AOV.
+      </p>
+      <DataTable
+        headers={["Rank", "Initiative", "Owner sees within ~2 weeks", "Primary € lever"]}
+        rows={[
+          [
+            "1",
+            "Door entries + POS join",
+            "Conversion % and revenue per entrant vs last week",
+            "Revenue — every staffing and greeting decision",
+          ],
+          [
+            "2",
+            "Desirability gap by SKU",
+            "SKUs with attention but no sale in 14 days",
+            "Cash — markdown, bundle, or reposition before season ends",
+          ],
+          [
+            "3",
+            "Basket composition & upsell",
+            "Single-category baskets (bag without belt/care kit)",
+            "Margin — AOV without more footfall",
+          ],
+        ]}
+      />
+      <p className="stub">
+        Ranks 4–8 and compliance gates are below. Outdoor window CV stays last
+        unless the owner proves pass-by — not in-store conversion — is the
+        bottleneck.
+      </p>
+
       <h2>How we score ROI</h2>
       <DataTable
         headers={["Lens", "Question", "Why it matters in Italy"]}
@@ -216,7 +251,42 @@ export function RoiPage() {
         </li>
       </ul>
 
-      <h2>Illustrative € scenarios (not guarantees)</h2>
+      <h2>Monthly € upside (pilot scale)</h2>
+      <p>
+        Order-of-magnitude for owner conversations — calibrate with real AOV and
+        footfall after week one of joined data.
+      </p>
+      <DataTable
+        headers={["Scenario", "Assumption", "Monthly € upside"]}
+        rows={[
+          [
+            "Conversion +0.5 pp",
+            "40 entries/day, 8% → 8.5%, €350 AOV",
+            "~€210 (1–2 extra bags)",
+          ],
+          [
+            "AOV +€25 via upsell",
+            "12 purchases/day attach care kit or belt",
+            "~€300",
+          ],
+          [
+            "One slow SKU cleared",
+            "€800 COGS bag held 60 days → cash back + avoid markdown",
+            "€800 one-time + margin preserved",
+          ],
+          [
+            "Labor 4 h/week saved",
+            "Close dead Tuesday mornings",
+            "~€120–€200 at Italian labor cost",
+          ],
+        ]}
+      />
+      <p className="stub">
+        Ranks 1–3 usually beat ranks 7–8 on ROI because they use POS + door before
+        new sensors or a second camera.
+      </p>
+
+      <h2>Annual € scenarios (not guarantees)</h2>
       <DataTable
         headers={["Change", "Mechanism", "Illustrative upside"]}
         rows={[
@@ -236,14 +306,9 @@ export function RoiPage() {
             "€1.5k–€4k margin + working capital",
           ],
           [
-            "Labor 4 h/week saved",
-            "Owner not staffing dead Tuesday mornings",
-            "€120–€200/month",
-          ],
-          [
             "+5% window enter rate",
             "Display test — after rank 1 baseline",
-            "Street-dependent; often largest lever once blind spots are gone",
+            "Street-dependent; often largest lever once in-store blind spots are gone",
           ],
         ]}
       />
