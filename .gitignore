@@ -1,17 +1,11 @@
 # Dependencies
 node_modules/
-.venv/
-__pycache__/
-*.pyc
-.Python
 
 # Build & runtime
 dist/
 build/
-*.egg-info/
-.coverage
-htmlcov/
-.pytest_cache/
+*.tsbuildinfo
+.turbo/
 
 # Environment & secrets
 .env
@@ -28,8 +22,11 @@ models/*.pt
 # IDE & OS
 .idea/
 .vscode/
+.cursor/
 .DS_Store
 *.swp
+__pycache__/
+*.pyc
 
 # Logs & local data
 logs/

@@ -1,22 +1,22 @@
-# Pilot edge stack (optional). Camera RTSP stays on store hardware.
+# Pilot edge stack. Build docs first: pnpm docs:build
 services:
-  analytics-sync:
-    image: python:3.12-slim
-    working_dir: /app
-    volumes:
-      - .:/app
-      - pilot-data:/app/data
-    command: python -m analytics.sync_inbox
-    environment:
-      - STORE_ID=${STORE_ID:-pilot-leather-01}
-    restart: unless-stopped
-
-  dashboard:
+  docs:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./dashboard:/usr/share/nginx/html:ro
+      - ./apps/docs/dist:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  analytics-sync:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - pilot-data:/app/data
+    command: sh -c "corepack enable && pnpm exec tsx packages/analytics/src/cli.ts sync"
+    environment:
+      - STORE_ID=${STORE_ID:-pilot-leather-01}
     restart: unless-stopped
 
 volumes:

@@ -2,41 +2,43 @@
 
 Privacy-first retail analytics for small-format pilot stores (initial target: ~10 m² leather boutique, Italy).
 
-## What this is
+**Stack:** TypeScript monorepo (pnpm), TSX documentation site, Node 22+ with built-in SQLite.
 
-An edge-first system that combines **door/aisle computer vision** (aggregate footfall and engagement, no customer identity) with **point-of-sale (POS) transaction data** to power business intelligence, experimentation, and profit-oriented recommendations.
+## Documentation (TSX)
 
-## Documentation
+```bash
+pnpm install
+pnpm docs:dev      # http://localhost:5173
+pnpm docs:build    # → apps/docs/dist
+```
 
-Open the HTML docs in a browser (start at [`docs/index.html`](docs/index.html)):
+Built docs are verified in CI and uploaded as a GitHub Actions artifact.
 
-| Doc | Topic |
-|-----|--------|
-| [Vision](docs/vision.html) | Product goals and pilot context |
-| [Architecture](docs/architecture.html) | On-device pipeline, POS bridge, analytics |
-| [Metrics](docs/metrics.html) | Funnel definitions (look → touch → buy) |
-| [Privacy & GDPR](docs/privacy-gdpr.html) | Italy/EU constraints and technical controls |
-| [Roadmap](docs/roadmap.html) | Phased delivery |
+## Quick start
+
+```bash
+pnpm install
+pnpm bootstrap     # sample edge + POS events → SQLite + report
+pnpm run ci        # typecheck, lint, build, bootstrap smoke test
+```
 
 ## Repository layout
 
 ```
-docs/           # Product & compliance documentation (HTML)
-edge/           # On-device CV & aggregation (planned)
-pos/            # POS connector & normalized sales events
-analytics/      # Aggregates, experiments, recommendations
-dashboard/      # Operator UI (static prototype)
+apps/docs/              TSX documentation + dashboard (Vite/React)
+packages/schemas/       Event types + JSON Schema
+packages/edge/          On-device vision (stub CLI)
+packages/pos/           POS connector (stub CLI)
+packages/analytics/     SQLite rollups & reports
+scripts/ci.ts           TypeScript CI orchestrator
+.github/workflows/      GitHub Actions
 ```
 
-## Phase 1 (current focus)
+## Phase 1
 
-- Indoor door camera → **aggregate** counts (entries, bounces, dwell bands)
-- POS ingest → line items, baskets, timestamps (no payment PAN)
-- Join aggregates with sales for **looked-at vs sold** style insights
-
-## Status
-
-Early scaffolding — specifications and structure; implementation in `edge/`, `pos/`, and `analytics/` to follow.
+- Indoor door camera → aggregate counts (no identity)
+- POS ingest → normalized `SaleEvent`
+- Join for looked-at vs sold insights
 
 ## License
 
