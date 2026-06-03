@@ -2,6 +2,8 @@
 
 Product docs live in **`apps/docs`** as TSX pages, built with Vite.
 
+**Commercial viability assessment:** open [`commercial-viability-report.html`](./commercial-viability-report.html) in a browser — deep strategic analysis of market fit, unit economics, scalability, and recommendations.
+
 Key pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan` — market, pricing, GTM, design partner terms, payback model, partners, CS), **Roadmap** (`/roadmap`).
 
 Planning starts at **Business value & ROI** (`/roi`) — ranks 1–3 first (door+POS, desirability gap, upsell), then weighted score, build cost, payback, and monthly/annual € scenarios for the Italy leather boutique pilot. **Roadmap** maps milestones M1–M5+ to that order.
