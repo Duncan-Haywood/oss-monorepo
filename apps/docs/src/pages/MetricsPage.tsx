@@ -6,49 +6,93 @@ export function MetricsPage() {
   return (
     <DocLayout
       title="Metrics & funnels"
-      subtitle="Definitions for footfall, engagement, and commerce — all aggregate"
+      subtitle="Aggregate definitions — ordered by owner € decisions, not data novelty"
       footer={<Link to="/privacy">Next: Privacy & GDPR →</Link>}
     >
-      <h2>Store funnel (phase 1)</h2>
+      <h2>Owner KPIs (check these first)</h2>
       <DataTable
-        headers={["Metric", "Definition", "Source"]}
+        headers={["KPI", "Formula", "€ decision it drives"]}
         rows={[
-          ["Entry", "Inward door line cross + dwell inside", "Door CV"],
-          ["Exit", "Outward line cross after entry", "Door CV"],
-          ["Bounce", "Entry + exit within T without zone dwell", "CV"],
-          ["Engaged visit", "Entry + product zone activation", "CV / scanner"],
-          ["Purchase", "POS basket in visit window", "POS"],
+          [
+            "Conversion",
+            "purchases / entries",
+            "Greeting, hero SKU, pricing — lifts revenue without more traffic",
+          ],
+          [
+            "Revenue per entrant",
+            "Σ sale total / entries",
+            "Single number for “was today worth opening?”",
+          ],
+          [
+            "Average basket (AOV)",
+            "Σ sale total / purchases",
+            "Upsell belts, care kits, wallets with bags",
+          ],
+          [
+            "Margin proxy",
+            "POS category margin % × revenue (if available)",
+            "Prefer margin over raw revenue in experiments",
+          ],
+          [
+            "Desirability gap",
+            "High touches or dwell, low SKU conversion",
+            "Markdown, bundle, or remove dead stock in 14 days",
+          ],
         ]}
       />
 
-      <h2>Derived rates</h2>
-      <ul>
-        <li>
-          <strong>Conversion</strong> = purchases / entries
-        </li>
-        <li>
-          <strong>Engagement rate</strong> = engaged / entries
-        </li>
-        <li>
-          <strong>Touch-to-buy</strong> = purchases with SKU / touches for SKU
-        </li>
-      </ul>
-
-      <h2>Product metrics</h2>
+      <h2>Store funnel (phase 1)</h2>
       <DataTable
-        headers={["Metric", "Use"]}
+        headers={["Metric", "Definition", "Source", "€ lever"]}
         rows={[
-          ["Touch count by SKU", "Merchandising heat"],
-          ["Zone dwell", "Interest without touch"],
-          ["Desirability gap", "High attention, low conversion"],
-          ["Upsell opportunity", "Single-category baskets vs pairs"],
+          ["Entry", "Inward door line cross + dwell inside", "Door CV", "Funnel top"],
+          ["Exit", "Outward line cross after entry", "Door CV", "—"],
+          ["Bounce", "Entry + exit within T without zone dwell", "CV", "Conversion loss"],
+          ["Engaged visit", "Entry + product zone activation", "CV / scanner", "Close rate"],
+          ["Purchase", "POS basket in visit window", "POS", "Revenue"],
+        ]}
+      />
+
+      <h2>Derived rates (prioritized)</h2>
+      <ol>
+        <li>
+          <strong>Conversion</strong> = purchases / entries — primary Phase 1
+          KPI
+        </li>
+        <li>
+          <strong>Revenue per entry</strong> = basket total / entries — combines
+          conversion and AOV
+        </li>
+        <li>
+          <strong>Bounce rate</strong> = bounces / entries — short visits in 10 m²
+          often mean display or price shock
+        </li>
+        <li>
+          <strong>Engagement rate</strong> = engaged / entries — leading indicator
+          before Phase 2 SKU data
+        </li>
+        <li>
+          <strong>Touch-to-buy</strong> = purchases with SKU / touches for SKU —
+          Phase 2 margin lever
+        </li>
+      </ol>
+
+      <h2>Product metrics (phase 2+)</h2>
+      <DataTable
+        headers={["Metric", "Use", "€ lever"]}
+        rows={[
+          ["Touch count by SKU", "Merchandising heat", "Placement"],
+          ["Zone dwell", "Interest without touch", "Layout / demo"],
+          ["Desirability gap", "High attention, low conversion", "Working capital"],
+          ["Upsell opportunity", "Single-category baskets", "AOV / staff script"],
         ]}
       />
 
       <h2>Time bucketing</h2>
       <p>
         Default: 5m (live), 1h (ops), 1d (owner). Align POS to{" "}
-        <code>Europe/Rome</code>.
+        <code>Europe/Rome</code>. Compare weeks with Italian retail seasonality
+        (tourist peaks, Christmas gifting) before calling an experiment failed.
       </p>
     </DocLayout>
   );

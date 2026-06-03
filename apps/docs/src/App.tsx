@@ -5,12 +5,17 @@ import { ArchitecturePage } from "./pages/ArchitecturePage";
 import { MetricsPage } from "./pages/MetricsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { RoadmapPage } from "./pages/RoadmapPage";
+import { RoiPage } from "./pages/RoiPage";
+import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { DashboardPage } from "./pages/DashboardPage";
 
 export function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/business-plan" element={<BusinessPlanPage />} />
+      <Route path="/roi" element={<RoiPage />} />
+      <Route path="/priorities" element={<Navigate to="/roi" replace />} />
       <Route path="/vision" element={<VisionPage />} />
       <Route path="/architecture" element={<ArchitecturePage />} />
       <Route path="/metrics" element={<MetricsPage />} />
