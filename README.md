@@ -34,11 +34,21 @@ scripts/ci.ts           TypeScript CI orchestrator
 .github/workflows/      GitHub Actions
 ```
 
+## What to build first (ROI)
+
+For the Italy leather boutique pilot, delivery order follows **profit impact**, not sensor count:
+
+1. **Door + POS join** — conversion % (highest ROI foundation)
+2. **SKU attention + desirability gap** — margin on slow inventory
+3. **Window funnel** — entries on high streets (after in-store baseline)
+
+Full matrix: run `pnpm docs:dev` → **ROI** page, or see `apps/docs/src/pages/RoiPage.tsx`.
+
 ## Phase 1
 
 - Indoor door camera → aggregate counts (no identity)
 - POS ingest → normalized `SaleEvent`
-- Join for looked-at vs sold insights
+- Join funnel → conversion and revenue-per-entry KPIs
 
 ## License
 

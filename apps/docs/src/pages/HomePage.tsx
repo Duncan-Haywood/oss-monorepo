@@ -10,10 +10,10 @@ export function HomePage() {
     >
       <Card variant="ok">
         <p>
-          <strong>Pilot context:</strong> A ~10 m² leather boutique running a
-          technology pilot: door-mounted vision (aggregate only), in-store
-          scanners or RFID where available, and POS sales data unified for
-          profit-oriented recommendations and controlled experiments.
+          <strong>Pilot context:</strong> A ~10 m² leather boutique in Italy.
+          The pilot prioritizes what moves profit — conversion, AOV, and margin
+          on a small floor — not analytics for its own sake. Start with{" "}
+          <Link to="/roi">Business value &amp; ROI</Link> for build order.
         </p>
       </Card>
 
@@ -21,6 +21,10 @@ export function HomePage() {
       <DataTable
         headers={["Page", "Topic"]}
         rows={[
+          [
+            <Link to="/roi">ROI</Link>,
+            "Financial priority matrix — what to build first",
+          ],
           [<Link to="/vision">Vision</Link>, "Product goals and pilot context"],
           [
             <Link to="/architecture">Architecture</Link>,
@@ -34,23 +38,26 @@ export function HomePage() {
             <Link to="/privacy">Privacy & GDPR</Link>,
             "Italy/EU constraints and technical controls",
           ],
-          [<Link to="/roadmap">Roadmap</Link>, "Phased delivery"],
+          [
+            <Link to="/roadmap">Roadmap</Link>,
+            "Phased delivery (aligned to ROI)",
+          ],
           [<Link to="/dashboard">Dashboard</Link>, "Operator UI prototype"],
         ]}
       />
 
-      <h2>Phase 1 deliverable</h2>
+      <h2>Highest-ROI deliverable (Phase 1)</h2>
       <p>
-        Combine <strong>indoor door camera aggregates</strong> with{" "}
-        <strong>normalized POS events</strong> so operators can answer:
+        Combine <strong>door entry counts</strong> with{" "}
+        <strong>normalized POS events</strong> so the owner can see conversion
+        weekly — the single metric that ties footfall to euros. Later phases add
+        SKU attention (margin) and window funnel (entries on Italian streets).
       </p>
       <ul>
-        <li>How many people entered vs bounced?</li>
-        <li>
-          Of entrants, how many engaged with product vs purchased?
-        </li>
-        <li>Which SKUs get attention but under-convert?</li>
-        <li>What layout experiments might lift margin?</li>
+        <li>Entries, bounces, purchases → conversion % and €/visitor proxy</li>
+        <li>Which hours under-convert (staffing and greeting)</li>
+        <li>Phase 2: SKUs with attention but no sale (inventory cash trap)</li>
+        <li>Phase 3: Window tests once in-store close rate is known</li>
       </ul>
 
       <h2>Repository</h2>
