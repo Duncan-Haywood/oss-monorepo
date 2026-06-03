@@ -67,11 +67,11 @@ export function HomePage() {
           ],
           [
             <Link to="/business-plan">Business plan</Link>,
-            "Market, pricing, GTM, design partner terms, payback, partners, CS, retention, company KPIs",
+            "Market, pricing, design partner terms, payback, partners, CS, retention, company KPIs",
           ],
           [
-            <Link to="/gtm">GTM & target customers</Link>,
-            "ICP, personas, digital-first channels, 90-day playbook",
+            <Link to="/gtm">GTM &amp; target customers</Link>,
+            "Digital-first motion, ICP, personas, channels, 90-day playbook",
           ],
           [
             <Link to="/roi">ROI</Link>,
