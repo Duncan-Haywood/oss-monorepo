@@ -167,57 +167,127 @@ export const weekTrend = [
   { day: "Sun", entries: 47, revenue: 2840 },
 ];
 
-/** Business value framing for sales demos — illustrative pilot economics. */
-export const businessValue = {
-  headline: "Profit per visitor, not footfall for its own sake",
-  subhead:
-    "Retail Pilot Intel joins anonymous door signals with POS so a 10 m² boutique owner can act on weekly € decisions.",
-  pilotEconomics: [
-    { label: "Average order value", value: "€180–€450", note: "One extra sale/week ≈ €10k–€23k/year" },
-    { label: "Gross margin (leather)", value: "55–70%", note: "Slow SKUs tie working capital" },
-    { label: "Daily door entries", value: "25–80", note: "Small conversion lift compounds" },
-    { label: "Floor staff", value: "1–2", note: "Insights must fit a 2-minute morning check" },
-  ],
-  outcomes: [
-    {
-      id: "conversion",
-      title: "Conversion baseline",
-      metric: "+2.4 pts vs last week",
-      annualEur: "€8k–€18k",
-      detail: "Door + POS join surfaces close rate in days, not after the season ends.",
-      phase: "Phase 1",
-    },
-    {
-      id: "desirability",
-      title: "Desirability gap recovery",
-      metric: "1 high-touch / zero-sale SKU",
-      annualEur: "€6k–€18k",
-      detail: "Reposition, bundle, or markdown with evidence — not gut feel on 10 m².",
-      phase: "Phase 2",
-    },
-    {
-      id: "upsell",
-      title: "Upsell attach (till script)",
-      metric: "22% → 67% scarf attach",
-      annualEur: "€4k–€12k",
-      detail: "Promoted to standard practice after a 7-day experiment readout.",
-      phase: "Phase 2",
-    },
-  ],
-  summary: {
-    indicativeUpside: "€18k–€48k",
-    paybackWeeks: "4–8",
-    subscription: "€150–€350/mo",
-    pilotInstall: "€2k–€5k one-time",
-  },
-  proofPoints: [
-    "No cloud video — frames discarded on device; GDPR-first for Italy/EU",
-    "Owner sees conversion and one inventory € action within ~2 weeks of go-live",
-    "Sold on outcomes (conversion, AOV, cash recovery) — not sensor count",
-  ],
+/** Sales / owner narrative — aligned with docs ROI matrix (illustrative). */
+export const pilotEconomics = {
+  aovRange: "€180–€450",
+  grossMargin: "55–70%",
+  dailyEntries: "25–80",
+  staffOnFloor: "1–2",
 };
 
+export const pilotImpactSummary = {
+  headline: "€14k–€32k indicative annual upside",
+  subline:
+    "From conversion lift, SKU repositioning, and upsell — at pilot assumptions for a ~10 m² leather boutique.",
+  conversionLiftPts: 2.4,
+  weeklyRevenueDeltaPct: 12,
+  experimentsPromoted: 1,
+  slowSkuActions: 2,
+};
+
+export const quarterlyFocus = [
+  "Door + POS join — conversion % and revenue per entrant",
+  "Desirability gap — attention without sale on leather SKUs",
+  "Upsell patterns — multi-SKU baskets without discounting heroes",
+];
+
+export const rankedInitiatives = [
+  {
+    rank: 1,
+    name: "Door entries + POS join",
+    score: 92,
+    buildCost: "€2k–€4k",
+    upside: "€8k–€23k rev",
+    payback: "4–8 wk",
+    action: "Compare low-conversion days; test greeting or hero SKU",
+    phase: "Phase 1",
+    liveInDemo: true,
+  },
+  {
+    rank: 2,
+    name: "Desirability gap (SKU)",
+    score: 88,
+    buildCost: "€1k–€3k",
+    upside: "€1.5k–€6k margin + cash",
+    payback: "2–6 wk",
+    action: "Markdown, bundle, or reposition in 14 days",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 3,
+    name: "Upsell & basket patterns",
+    score: 84,
+    buildCost: "€0.5k–€1k",
+    upside: "€6k–€18k rev",
+    payback: "2–4 wk",
+    action: "Staff script when single-category baskets dominate",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 4,
+    name: "Hourly traffic vs sales",
+    score: 72,
+    buildCost: "€0 (uses #1)",
+    upside: "€1.4k–€2.4k OpEx",
+    payback: "Immediate",
+    action: "Close dead mornings or extend tourist peaks",
+    phase: "Phase 1",
+    liveInDemo: true,
+  },
+  {
+    rank: 6,
+    name: "Experiment registry",
+    score: 65,
+    buildCost: "€0.5k–€1k",
+    upside: "5–15% on tested lever",
+    payback: "After baseline",
+    action: "One 7-day test; success = € or conversion",
+    phase: "Phase 2",
+    liveInDemo: true,
+  },
+  {
+    rank: 8,
+    name: "Window / outdoor funnel",
+    score: 48,
+    buildCost: "€3k–€6k",
+    upside: "€2k–€8k rev",
+    payback: "8–16 wk",
+    action: "Defer until in-store baseline is trusted",
+    phase: "Phase 3",
+    liveInDemo: false,
+  },
+];
+
+export const pilotWins = [
+  {
+    title: "Conversion +2.4 pts vs last week",
+    detail: "Door-to-sale join live; owner can see € impact daily.",
+    metric: "19.1% today",
+  },
+  {
+    title: "Till script promoted to standard",
+    detail: "Scarf attach on wallet/bag: 22% → 67% in 7-day test.",
+    metric: "+45 pts attach",
+  },
+  {
+    title: "Saddle bag flagged before write-off",
+    detail: "11 touches / 0 sales — reposition test queued.",
+    metric: "€420–680/wk est.",
+  },
+];
+
+/** Guided sales walkthrough — follow Demo script overlay in portal. */
 export const demoTourSteps = [
+  {
+    id: "value",
+    path: "/value",
+    title: "Business case",
+    talkingPoint:
+      "Start with € outcomes: ranked build priority, pilot wins, and indicative upside — sold on weekly decisions, not cameras.",
+    duration: "~3 min",
+  },
   {
     id: "overview",
     path: "/",
@@ -241,14 +311,6 @@ export const demoTourSteps = [
     talkingPoint:
       "Pilots are sold on outcomes. Measure a baseline, run a lightweight test, promote winners — like the till script that lifted scarf attach to 67%.",
     duration: "~2 min",
-  },
-  {
-    id: "value",
-    path: "/value",
-    title: "Business case",
-    talkingPoint:
-      "Close with indicative annual upside, payback, and subscription — tied to conversion, margin, and inventory cash, not vanity metrics.",
-    duration: "~3 min",
   },
   {
     id: "trust",

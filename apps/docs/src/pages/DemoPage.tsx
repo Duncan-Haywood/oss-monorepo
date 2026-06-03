@@ -100,9 +100,10 @@ pnpm portal:dev        # http://localhost:5174
           ) : null}
           {section.step === 3 ? (
             <p>
-              Open portal at <code>http://localhost:5174</code> — follow the{" "}
-              <strong>Demo script</strong> overlay (Overview → Products → Experiments →
-              Business value → Privacy).
+              Open portal at <code>http://localhost:5174</code> — sign in as{" "}
+              <strong>Owner</strong> for the ROI banner. Follow the{" "}
+              <strong>Demo script</strong> overlay (Business value → Overview → Products →
+              Experiments → Privacy).
             </p>
           ) : null}
         </Card>

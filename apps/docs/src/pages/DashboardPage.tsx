@@ -12,12 +12,13 @@ export function DashboardPage() {
         <p>
           <strong>Sales demo portal</strong> — passcode-gated mock operator UI with
           illustrative metrics for the Milano leather boutique pilot. Includes a{" "}
-          <strong>Business value</strong> page and a floating <strong>Demo script</strong>{" "}
-          walkthrough for sales presentations.
+          <strong>Business value</strong> view (ROI matrix, pilot wins, quarterly focus),
+          owner ROI banner, and a floating <strong>Demo script</strong> walkthrough for
+          sales presentations.
         </p>
         <pre>{`pnpm portal:dev
 # default passcode: atelier-demo
-# http://localhost:5174`}</pre>
+# sign in as Owner for ROI banner; tour: /value → / → /products`}</pre>
       </Card>
 
       <Card>
