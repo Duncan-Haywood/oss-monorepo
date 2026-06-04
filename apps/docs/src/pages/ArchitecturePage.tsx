@@ -60,6 +60,11 @@ export function ArchitecturePage() {
       <h3>Docs & dashboard (apps/docs)</h3>
       <ul>
         <li>TSX site built by Vite; CI publishes dist artifact</li>
+        <li>
+          Private web hosting: Vercel static deploy + password protection; app
+          passcode gate for pilot sharing (see repo <code>docs/HOSTING.md</code>)
+        </li>
+        <li>Hash routes for static hosting without SPA rewrite rules</li>
       </ul>
 
       <h2>Event contracts</h2>
