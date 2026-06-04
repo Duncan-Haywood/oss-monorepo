@@ -66,8 +66,8 @@ export default function SecurityPage() {
 npm ci
 npm run build   # runs scripts/build-docs.mjs then next build`}</pre>
         <p>
-          The prebuild step converts <code>../docs/*.html</code> and selected
-          markdown files into <code>src/app/docs/**/page.tsx</code> TSX routes
+          The prebuild step rewrites <code>../docs/*.html</code> and selected
+          markdown into semantic JSX in <code>src/generated/doc-content/</code>
           (see <code>src/generated/manifest.ts</code> for navigation metadata).
         </p>
 

@@ -723,8 +723,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
-Source files live under `docs/`. A private Next.js site in `docs-site/` converts
-HTML/Markdown sources to TSX routes at `npm run build` (hand-authored guides for
+Source files live under `docs/`. A private Next.js site in `docs-site/` rewrites
+HTML/Markdown sources as semantic JSX at `npm run build` (hand-authored guides for
 architecture, CLI, security) — see `docs-site/README.md` for auth, domain, and deploy.
 
 - `docs/PRODUCT_STRATEGY.md`
