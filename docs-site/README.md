@@ -27,6 +27,14 @@ npm run build
 2. Parses selected `docs/*.md` — markdown → HTML → JSX, same content module layout under `src/app/docs/<slug>/`.
 3. Writes `src/generated/manifest.ts` for navigation metadata only.
 
+## Documentation policy (TSX-first)
+
+- **Canonical**: TSX in this app (`src/app/docs/**` or generated `src/generated/doc-content/*.tsx`).
+- **Ingest only**: `../docs/*.html` and listed `../docs/*.md` are build inputs, not preferred editing surfaces for new guides.
+- **One-off PDF/HTML**: run `npm run dev` or `npm run build && npm start`, open the route, then Print → Save as PDF or save the page as HTML. Do not treat repo-stored PDF/HTML as the source of truth unless explicitly required for legal/archival delivery.
+
+Agent rule file: `../.cursor/rules/documentation-tsx.mdc`.
+
 ## Security
 
 | Variable | Required (prod) | Purpose |

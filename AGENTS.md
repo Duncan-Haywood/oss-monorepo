@@ -172,9 +172,13 @@ Windows.
 ### Private docs site (`docs-site/`)
 
 `docs-site/` is a Next.js app (npm) for internal documentation, separate from the
-stdlib Python core. Hand-authored TSX pages cover architecture, CLI, and security;
-`npm run build` runs `scripts/build-docs.mjs` to rewrite `docs/*.html` and selected
-markdown as semantic JSX in `src/generated/doc-content/` plus thin route wrappers.
+stdlib Python core. **Documentation is TSX-first**: hand-authored pages under
+`src/app/docs/`, plus `scripts/build-docs.mjs` rewriting approved `docs/*.html` and
+selected markdown into `src/generated/doc-content/*.tsx` and thin route wrappers.
+Do not add new long-form Markdown/HTML in `docs/` as canonical hand-maintained docs
+unless they are on the build-docs ingest list. For one-off PDF/HTML sharing, export
+from the built site (browser Print → PDF or Save Page As) — do not maintain parallel
+canonical copies. See `.cursor/rules/documentation-tsx.mdc`.
 
 ```bash
 cd docs-site && npm ci && npm run build
