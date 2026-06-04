@@ -8,12 +8,14 @@ const links = [
   { to: "/demo", label: "Sales demo" },
   { to: "/roi", label: "ROI & priorities" },
   { to: "/business-plan", label: "Business plan" },
+  { to: "/commercial-viability", label: "Commercial viability" },
   { to: "/gtm", label: "GTM" },
   { to: "/vision", label: "Vision" },
   { to: "/architecture", label: "Architecture" },
   { to: "/metrics", label: "Metrics" },
   { to: "/privacy", label: "Privacy & GDPR" },
   { to: "/roadmap", label: "Roadmap" },
+  { to: "/archive", label: "HTML archive" },
   { to: "/dashboard", label: "Dashboard" },
 ] as const;
 

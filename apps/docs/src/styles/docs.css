@@ -184,7 +184,6 @@ footer {
 }
 
 .stub { color: var(--muted); font-size: 0.9rem; }
-
 .doc-nav-divider {
   color: var(--border);
   user-select: none;
@@ -331,4 +330,42 @@ footer {
 
 .docs-login-trust li {
   margin-bottom: 0.35rem;
+}
+
+/* Inline HTML archive (extracted body from build-doc-sources) */
+.html-archive {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+}
+
+.archive-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.html-archive-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+}
+
+.html-archive-body :is(h1, h2, h3) {
+  font-family: var(--sans);
+}
+
+.html-archive-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 0.75rem 0;
+}
+
+.html-archive-body th,
+.html-archive-body td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.6rem;
+  vertical-align: top;
 }

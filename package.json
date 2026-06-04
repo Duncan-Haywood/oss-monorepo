@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "ci": "tsx scripts/ci.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
+    "docs:sync": "tsx scripts/sync-html-docs.ts && tsx scripts/build-doc-sources.ts",
     "docs:dev": "pnpm --filter @retail-pilot/docs dev",
     "docs:sync-html": "tsx scripts/sync-html-docs.ts",
     "docs:build": "pnpm docs:sync-html && pnpm --filter @retail-pilot/docs build",

@@ -10,6 +10,7 @@ on:
       - "docs/**"
       - "reports/**"
       - "scripts/sync-html-docs.ts"
+      - "scripts/build-doc-sources.ts"
       - "packages/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/deploy-docs.yml"
@@ -63,3 +64,37 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-vercel:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ secrets.VERCEL_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build docs for Vercel
+        env:
+          VITE_DOCS_GATE_ENABLED: "true"
+          VITE_DOCS_PASSCODE: ${{ secrets.DOCS_PASSCODE }}
+        run: pnpm docs:build
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: apps/docs
+          vercel-args: "--prod"

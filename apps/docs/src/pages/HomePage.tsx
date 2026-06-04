@@ -96,6 +96,14 @@ export function HomePage() {
             "Phased delivery aligned to ROI",
           ],
           [
+            <Link to="/commercial-viability">Commercial viability</Link>,
+            "TSX scorecard + links to compiled HTML reports",
+          ],
+          [
+            <Link to="/archive">HTML archive</Link>,
+            "Build-time sync from docs/ and reports/ HTML sources",
+          ],
+          [
             "Sales portal (pnpm portal:dev)",
             "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide + docs /demo script)",
           ],

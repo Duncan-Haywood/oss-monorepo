@@ -11,6 +11,9 @@ import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DemoPage } from "./pages/DemoPage";
 import { HtmlReportPage } from "./pages/HtmlReportPage";
+import { CommercialViabilityPage } from "./pages/CommercialViabilityPage";
+import { ArchiveIndexPage } from "./pages/ArchiveIndexPage";
+import { ArchiveReportPage } from "./pages/ArchiveReportPage";
 
 export function App() {
   return (
@@ -27,7 +30,10 @@ export function App() {
       <Route path="/roadmap" element={<RoadmapPage />} />
       <Route path="/demo" element={<DemoPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/commercial-viability" element={<CommercialViabilityPage />} />
       <Route path="/reports/:slug" element={<HtmlReportPage />} />
+      <Route path="/archive" element={<ArchiveIndexPage />} />
+      <Route path="/archive/:slug" element={<ArchiveReportPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

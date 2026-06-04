@@ -28,7 +28,7 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
         <h1>Pilot documentation</h1>
         <p className="docs-login-lead">
           Private product docs: ROI priorities, business plan, architecture, and
-          privacy. Session stays in this browser only.
+          HTML reports synced at build time. Session stays in this browser only.
         </p>
 
         <form onSubmit={handleSubmit} className="docs-login-form">
@@ -72,7 +72,7 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
 
         <ul className="docs-login-trust">
           <li>Not indexed — share link + passcode with stakeholders only</li>
-          <li>Client-side gate — pair with Vercel or nginx protection in production</li>
+          <li>Pair with Vercel Deployment Protection or GitHub Pages private repo</li>
           <li>Session expires after 12 hours</li>
         </ul>
       </div>

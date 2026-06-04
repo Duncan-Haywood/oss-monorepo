@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_DOCS_PASSCODE?: string;
   readonly VITE_DOCS_GATE_ENABLED?: string;
+  readonly VITE_DOCS_SITE_URL?: string;
 }
 
 interface ImportMeta {
