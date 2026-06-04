@@ -9,7 +9,7 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 ```bash
 pnpm install
 pnpm docs:dev      # http://localhost:5173 (gate off in dev unless VITE_DOCS_GATE_ENABLED=true)
-pnpm docs:build    # ingest HTML reports → apps/docs/dist
+pnpm docs:build    # sync HTML reports → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
 ```
@@ -19,7 +19,7 @@ pnpm portal:build  # → apps/portal/dist
 | Layer | What it does |
 |-------|----------------|
 | **TSX pages** | Product narrative (`apps/docs/src/pages/*.tsx`) |
-| **HTML ingest** | `pnpm docs:ingest` copies `docs/*.html` + `reports/*.html` into the static bundle |
+| **HTML sync** | `pnpm docs:sync-html` copies `docs/*.html` + `reports/*.html` into the static bundle |
 | **Passcode gate** | Production builds (`VITE_DOCS_PASSCODE`, default `pilot-docs`) — 12h browser session |
 | **GitHub Pages** | `.github/workflows/deploy-docs.yml` — set repo secret `DOCS_PASSCODE`, enable Pages |
 | **Vercel** | Root `apps/docs` project — add custom domain, enable **Deployment Protection**, set env vars |
@@ -39,7 +39,9 @@ docker compose --profile secure up docs-secure   # https://localhost:8443
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publish privately for stakeholders, see **`docs/README.md`** (GitHub Pages, Vercel custom domain, or Docker on LAN) — passcode gate + `noindex` by default.
+
+HTML reports under `docs/` and `reports/` are synced into the site at build time (`pnpm docs:sync-html`).
 
 ## Quick start
 
@@ -59,7 +61,8 @@ packages/edge/          On-device vision (stub CLI)
 packages/pos/           POS connector (stub CLI)
 packages/analytics/     SQLite rollups & reports
 scripts/ci.ts           TypeScript CI orchestrator
-.github/workflows/      GitHub Actions
+.github/workflows/      CI + deploy-docs (GitHub Pages)
+docker/                 nginx config for private docs serve
 ```
 
 ## What to build first (ROI)

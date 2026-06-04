@@ -9,7 +9,8 @@ on:
       - "apps/docs/**"
       - "docs/**"
       - "reports/**"
-      - "scripts/ingest-html-docs.ts"
+      - "scripts/sync-html-docs.ts"
+      - "packages/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:

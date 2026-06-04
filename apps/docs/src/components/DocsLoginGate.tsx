@@ -72,7 +72,7 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
 
         <ul className="docs-login-trust">
           <li>Not indexed — share link + passcode with stakeholders only</li>
-          <li>Pair with Vercel Deployment Protection or nginx basic auth in production</li>
+          <li>Client-side gate — pair with Vercel Deployment Protection or nginx basic auth in production</li>
           <li>Session expires after 12 hours</li>
         </ul>
       </div>

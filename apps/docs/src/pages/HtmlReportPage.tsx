@@ -1,30 +1,29 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate } from "react-router-dom";
 import { DocLayout } from "../components/DocLayout";
-import { htmlReports } from "../generated/htmlReports";
+import { htmlReportManifest } from "../generated/htmlReportManifest";
 
 export function HtmlReportPage() {
   const { slug } = useParams<{ slug: string }>();
-  const report = htmlReports.find((r) => r.slug === slug);
+  const report = htmlReportManifest.find((r) => r.slug === slug);
 
   if (!report) {
-    return (
-      <DocLayout title="Report not found">
-        <p>
-          Unknown report slug. <Link to="/reports">Back to reports index</Link>
-        </p>
-      </DocLayout>
-    );
+    return <Navigate to="/reports" replace />;
   }
 
-  const src = `./${report.assetPath}`;
+  const base = import.meta.env.BASE_URL;
+  const src = `${base}${report.assetPath}`;
 
   return (
     <DocLayout
       title={report.title}
-      subtitle={`Ingested from ${report.sourceFile}`}
+      subtitle={`Imported from ${report.sourceLabel} at build time`}
       footer={
         <p>
           <Link to="/reports">← All HTML reports</Link>
+          {" · "}
+          <a href={src} target="_blank" rel="noopener noreferrer">
+            Open full-page HTML
+          </a>
         </p>
       }
     >

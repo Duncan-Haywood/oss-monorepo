@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
+import { htmlReportManifest } from "../generated/htmlReportManifest";
 
 export function HomePage() {
   return (
@@ -103,8 +104,23 @@ export function HomePage() {
             "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide + docs /demo script)",
           ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
+          ...htmlReportManifest.map((r) => [
+            <Link key={r.slug} to={`/reports/${r.slug}`}>
+              {r.title}
+            </Link>,
+            `HTML report (from ${r.sourceLabel})`,
+          ]),
         ]}
       />
+
+      <Card>
+        <p>
+          <strong>Private hosting:</strong> This site builds from TSX plus HTML
+          under <code>docs/</code> and <code>reports/</code>. Deploy via GitHub
+          Pages, Vercel (custom domain + Deployment Protection), or Docker —
+          passcode gate in production. See repository <code>docs/README.md</code>.
+        </p>
+      </Card>
 
       <h2>Repository</h2>
       <pre>{`apps/docs/       ← TSX documentation (this site)
@@ -112,7 +128,8 @@ apps/portal/     sales demo portal (pnpm portal:dev)
 packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports
-.github/workflows/   CI (TypeScript orchestrator)`}</pre>
+.github/workflows/   CI + deploy-docs (GitHub Pages)
+scripts/sync-html-docs.ts  HTML → static assets + nav`}</pre>
 
       <footer>
         Private pilot documentation — not legal advice. Engage counsel for GDPR
