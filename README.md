@@ -28,6 +28,16 @@ Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publ
 
 Long-form commercial viability reports live as native TSX JSX in `apps/docs/src/pages/commercial-viability/`.
 
+### Private hosted docs
+
+Production builds gate the docs site with a passcode (`VITE_DOCS_PASSCODE`, default `pilot-docs`). Local `pnpm docs:dev` skips the gate unless you set `VITE_DOCS_REQUIRE_AUTH=true`.
+
+**GitHub Pages (default):** On push to `main`, `.github/workflows/deploy-docs.yml` builds and publishes `apps/docs/dist` to GitHub Pages. Enable in repo **Settings → Pages → Source: GitHub Actions**, then set repository secret `DOCS_PASSCODE` (recommended — overrides the default baked into the build).
+
+**Vercel (optional):** `vercel.json` at the repo root targets the docs app. Connect the repo in Vercel or set repository variable `VERCEL_DEPLOY=true` plus secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) in the Vercel project for platform-level privacy.
+
+**LAN / Docker:** `pnpm docs:build && docker compose up docs` serves on http://localhost:8080 (nginx).
+
 ## Quick start
 
 ```bash
