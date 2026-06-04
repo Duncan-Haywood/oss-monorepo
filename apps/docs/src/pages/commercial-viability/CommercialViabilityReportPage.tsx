@@ -439,7 +439,7 @@ export function CommercialViabilityReportPage() {
 
     <footer>
       <p>Retail Pilot Intel — internal commercial assessment. Not legal, tax, or investment advice.</p>
-      <p>Generated for repository planning. Open this file in a browser: <code>docs/commercial-viability-report.html</code></p>
+      <p>Generated for repository planning. View in docs: <Link to="/commercial-viability/report">Commercial viability report</Link></p>
     </footer>
   </div>
     </DocLayout>
