@@ -1,0 +1,25 @@
+{
+  "name": "shootflow-docs-site",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build:content": "node scripts/build-from-html.mjs",
+    "dev": "npm run build:content && next dev",
+    "build": "npm run build:content && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "typescript": "^5.8.3"
+  }
+}

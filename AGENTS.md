@@ -169,7 +169,22 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
+### Private docs site (`docs-site/`)
+
+The Python core stays stdlib-only. Product documentation can be published via
+the separate Next.js app in `docs-site/`:
+
+```bash
+cd docs-site && npm ci && npm run build
+```
+
+`npm run build:content` ingests `docs/*.html` into `src/generated/`; TSX routes
+serve markdown from `docs/*.md` and built HTML at `/reports/[slug]`. Production
+requires `DOCS_AUTH_USER` and `DOCS_AUTH_PASSWORD` (see `docs-site/.env.example`
+and `docs-site/README.md`).
+
 ### No external services
 
-No database, no Docker, no Node.js, no external APIs. Everything runs against
-the local filesystem.
+No database, no Docker, no Node.js for the Python core, no external APIs for
+ShootFlow runtime. The optional docs site uses Node only at build/deploy time.
+Everything else runs against the local filesystem.

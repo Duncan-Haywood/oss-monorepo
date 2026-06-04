@@ -729,3 +729,10 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 - `docs/WORKFLOW_AUTHORITY.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
 - `docs/CONTINUATION_NOTES.md`
+
+### Private docs site
+
+A Next.js site under `docs-site/` publishes markdown guides and ingests HTML
+reports from `docs/` at build time. Deploy to Vercel with root directory
+`docs-site`, set `DOCS_AUTH_USER` / `DOCS_AUTH_PASSWORD`, enable Deployment
+Protection, and attach a custom domain. See `docs-site/README.md`.
