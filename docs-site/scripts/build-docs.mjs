@@ -25,6 +25,8 @@ const MD_SLUGS = {
   "DESIGN_DECISIONS.md": "design-decisions",
   "BUSINESS_PLAN.md": "business-plan",
   "TERMS_AND_CONDITIONS_DRAFT.md": "terms-and-conditions",
+  "WORKFLOW_AUTHORITY.md": "workflow-authority",
+  "CONTINUATION_NOTES.md": "continuation-notes",
 };
 
 function extractTitle(html) {

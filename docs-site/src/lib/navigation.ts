@@ -13,6 +13,11 @@ export const PRIMARY_NAV: NavItem[] = [
     description: "Observe-only contract",
   },
   {
+    href: "/docs/continuation-notes",
+    label: "Continuation notes",
+    description: "Agent run handoff log",
+  },
+  {
     href: "/docs/product-strategy",
     label: "Product strategy",
     description: "Curated TSX summary",

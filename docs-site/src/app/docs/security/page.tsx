@@ -52,7 +52,12 @@ export default function SecurityPage() {
             Deployment Protection.
           </li>
           <li>
-            Set <code>robots: noindex</code> (already in layout metadata).
+            Set <code>DOCS_SITE_DOMAIN</code> (e.g. <code>docs.yourdomain.com</code>)
+            for canonical URL metadata in layout.
+          </li>
+          <li>
+            Set <code>robots: noindex</code> (already in layout metadata and{" "}
+            <code>/robots.txt</code>).
           </li>
         </ol>
 

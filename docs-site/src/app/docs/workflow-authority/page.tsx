@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DocsLayout } from "@/components/DocsLayout";
 import { FULL_NAV } from "@/lib/navigation";
 
@@ -52,6 +53,14 @@ export default function WorkflowAuthorityPage() {
           Production and render scheduler reports (schema v3) include the same
           root observe-only object. They record materialized outputs and
           retryable work as post-operation evidence only.
+        </p>
+
+        <p>
+          Full contract text:{" "}
+          <Link href="/archive/workflow-authority">
+            WORKFLOW_AUTHORITY.md (archive)
+          </Link>
+          .
         </p>
 
         <div className="callout">
