@@ -169,7 +169,14 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
+### Private docs site
+
+Internal product/engineering documentation is published via `docs-site/` (Next.js).
+TSX pages cover core guides; `docs/*.html` reports are ingested at build time. See
+`docs-site/README.md` for local dev (`DOCS_SITE_PASSWORD`) and Vercel domain +
+deployment-protection setup.
+
 ### No external services
 
-No database, no Docker, no Node.js, no external APIs. Everything runs against
-the local filesystem.
+The Python core has no database, Docker, or external APIs. The optional docs site
+uses Node only for the private documentation deployment.
