@@ -57,24 +57,55 @@ function escapeTs(str) {
     .replace(/\$\{/g, "\\${");
 }
 
+function slugFromFilename(filename) {
+  return filename
+    .replace(/\.html$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function ingestHtml() {
   const pages = [];
-  for (const [filename, slug] of Object.entries(HTML_SLUGS)) {
+  const usedSlugs = new Set();
+  const ingestedFiles = new Set();
+
+  function pushPage(filename, slug) {
     const filePath = path.join(DOCS_ROOT, filename);
     if (!fs.existsSync(filePath)) {
       console.warn(`skip missing html: ${filename}`);
-      continue;
+      return;
     }
+    let finalSlug = slug;
+    if (usedSlugs.has(finalSlug)) {
+      let n = 2;
+      while (usedSlugs.has(`${slug}-${n}`)) n += 1;
+      finalSlug = `${slug}-${n}`;
+    }
+    usedSlugs.add(finalSlug);
+    ingestedFiles.add(filename);
     const raw = fs.readFileSync(filePath, "utf8");
     pages.push({
       kind: "html",
-      slug,
+      slug: finalSlug,
       title: extractTitle(raw),
       sourceFile: filename,
       styles: extractStyles(raw),
       bodyHtml: extractMainHtml(raw),
     });
   }
+
+  for (const [filename, slug] of Object.entries(HTML_SLUGS)) {
+    pushPage(filename, slug);
+  }
+
+  for (const filename of fs.readdirSync(DOCS_ROOT)) {
+    if (!filename.toLowerCase().endsWith(".html") || ingestedFiles.has(filename)) {
+      continue;
+    }
+    pushPage(filename, slugFromFilename(filename));
+  }
+
   return pages.sort((a, b) => a.title.localeCompare(b.title));
 }
 

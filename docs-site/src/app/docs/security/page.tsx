@@ -11,21 +11,25 @@ export default function SecurityPage() {
       <section className="doc-section">
         <h2>Authentication</h2>
         <p>
-          Middleware enforces HTTP Basic Auth in production when{" "}
-          <code>DOCS_SITE_PASSWORD</code> is set. Optional variables:
+          Production requires at least one of <code>DOCS_SITE_PASSWORD</code> or{" "}
+          <code>DOCS_SITE_TOKEN</code> (fail closed if neither is set). Supported methods:
         </p>
         <ul>
           <li>
-            <code>DOCS_SITE_USERNAME</code> — defaults to <code>shootflow</code>
+            <strong>HTTP Basic</strong> — <code>DOCS_SITE_PASSWORD</code> with optional{" "}
+            <code>DOCS_SITE_USERNAME</code> (default <code>shootflow</code>)
           </li>
           <li>
-            <code>DOCS_SITE_SESSION_SECRET</code> — sets a 12-hour session cookie
-            after successful Basic Auth
+            <strong>Session cookie</strong> — <code>DOCS_SITE_SESSION_SECRET</code> after
+            successful Basic Auth (12 hours)
+          </li>
+          <li>
+            <strong>Token login</strong> — <code>DOCS_SITE_TOKEN</code> via <code>/login</code>{" "}
+            or <code>Authorization: Bearer</code>
           </li>
         </ul>
         <p>
-          Without a password in production, the site returns 503 (fail closed).
-          Local <code>npm run dev</code> allows open access for authoring.
+          Local <code>npm run dev</code> allows open access when auth env vars are unset.
         </p>
 
         <h2>Vercel deployment</h2>
@@ -34,8 +38,9 @@ export default function SecurityPage() {
             Import the repo with root directory <code>docs-site</code>.
           </li>
           <li>
-            Set environment variables: <code>DOCS_SITE_PASSWORD</code>,{" "}
-            <code>DOCS_SITE_SESSION_SECRET</code> (random 32+ chars).
+            Set environment variables: <code>DOCS_SITE_PASSWORD</code> and/or{" "}
+            <code>DOCS_SITE_TOKEN</code>, plus <code>DOCS_SITE_SESSION_SECRET</code> when using
+            Basic Auth.
           </li>
           <li>
             Add a custom domain (e.g. <code>docs.yourdomain.com</code>) in

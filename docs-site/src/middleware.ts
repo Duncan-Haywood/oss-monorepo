@@ -1,32 +1,58 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  SESSION_COOKIE,
+  TOKEN_SESSION_COOKIE,
+  hasPasswordSession,
   isAuthConfigured,
+  isPublicPath,
+  tokenSessionCookieOptions,
   unauthorizedResponse,
   validateBasicAuth,
+  passwordConfigured,
+  tokenConfigured,
+  verifyAccessToken,
+  verifyTokenSessionValue,
 } from "@/lib/auth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (isPublicPath(pathname)) {
+    return NextResponse.next();
+  }
+
   if (!isAuthConfigured()) {
     if (process.env.NODE_ENV === "production") {
       return new NextResponse(
-        "Docs site misconfigured: set DOCS_SITE_PASSWORD in production.",
+        "Docs site misconfigured: set DOCS_SITE_PASSWORD and/or DOCS_SITE_TOKEN.",
         { status: 503 },
       );
     }
     return NextResponse.next();
   }
 
-  const session = request.cookies.get("docs_session")?.value;
-  if (session === process.env.DOCS_SITE_SESSION_SECRET) {
+  if (hasPasswordSession(request.cookies.get(SESSION_COOKIE)?.value)) {
     return NextResponse.next();
   }
 
-  if (validateBasicAuth(request.headers.get("authorization"))) {
+  if (await verifyTokenSessionValue(request.cookies.get(TOKEN_SESSION_COOKIE)?.value)) {
+    return NextResponse.next();
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice("Bearer ".length).trim();
+    if (verifyAccessToken(token)) {
+      return NextResponse.next();
+    }
+  }
+
+  if (validateBasicAuth(authHeader)) {
     const response = NextResponse.next();
-    const secret = process.env.DOCS_SITE_SESSION_SECRET;
+    const secret = process.env.DOCS_SITE_SESSION_SECRET?.trim();
     if (secret) {
-      response.cookies.set("docs_session", secret, {
+      response.cookies.set(SESSION_COOKIE, secret, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -37,8 +63,11 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  if (request.nextUrl.pathname.startsWith("/api/health")) {
-    return NextResponse.next();
+  if (tokenConfigured() && !passwordConfigured()) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return unauthorizedResponse();
