@@ -723,6 +723,10 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
+Private web publishing for the HTML/Markdown files below lives in
+[`docs-site/`](docs-site/README.md) (Next.js build from `docs/`, HTTP Basic auth,
+Vercel Deployment Protection, custom domain).
+
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`
 - `docs/DESIGN_DECISIONS.md`

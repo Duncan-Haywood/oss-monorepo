@@ -1,0 +1,25 @@
+{
+  "name": "shootflow-docs-site",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "sync-docs": "tsx scripts/sync-docs.ts",
+    "dev": "npm run sync-docs && next dev",
+    "build": "npm run sync-docs && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "marked": "^15.0.7",
+    "next": "^15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
