@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Generated docs (rebuilt by pnpm docs:sync)
+# Legacy generated docs (optional sync pipeline — not used in TSX-first flow)
 apps/docs/src/generated/
 
 # Build & runtime
