@@ -723,9 +723,9 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
-Source files live under `docs/`. A private Next.js site in `docs-site/` builds
-curated TSX pages plus HTML/Markdown ingests at `npm run build` — see
-`docs-site/README.md` for auth, custom domain, and Vercel deployment.
+Source files live under `docs/`. A private Next.js site in `docs-site/` converts
+HTML/Markdown sources to TSX routes at `npm run build` (hand-authored guides for
+architecture, CLI, security) — see `docs-site/README.md` for auth, domain, and deploy.
 
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`

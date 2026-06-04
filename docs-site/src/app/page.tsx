@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { DocsLayout } from "@/components/DocsLayout";
-import { ARCHIVE_NAV, FULL_NAV, PRIMARY_NAV, REPORT_NAV } from "@/lib/navigation";
+import { FULL_NAV, PRIMARY_NAV, REPORT_NAV } from "@/lib/navigation";
 
 export default function HomePage() {
   return (
     <DocsLayout
       title="ShootFlow private documentation"
-      subtitle="Curated TSX guides plus build-ingested HTML reports and markdown archives."
+      subtitle="TSX guides and build-generated TSX pages from repository docs."
       nav={FULL_NAV}
     >
       <p>
-        This site is generated from repository documentation under{" "}
-        <code>docs/</code>. Most navigation and policy pages are authored in
-        TSX; commercial viability HTML reports are ingested at build time.
+        Documentation lives under <code>docs/</code> in the repository. The build
+        step converts HTML reports and markdown sources into Next.js{" "}
+        <code>page.tsx</code> files; architecture, CLI, and security pages are
+        hand-authored in TSX.
       </p>
 
       <div className="card-grid">
@@ -25,7 +26,7 @@ export default function HomePage() {
       </div>
 
       <section className="doc-section">
-        <h2>HTML reports (build-ingested)</h2>
+        <h2>Commercial viability reports (TSX from HTML)</h2>
         <ul>
           {REPORT_NAV.map((item) => (
             <li key={item.href}>
@@ -41,21 +42,10 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <section className="doc-section">
-        <h2>Full markdown archives</h2>
-        <ul>
-          {ARCHIVE_NAV.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href}>{item.label}</Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <div className="callout">
-        Production deployments require <code>DOCS_SITE_PASSWORD</code> and a
-        custom domain with Vercel Deployment Protection enabled. See{" "}
-        <Link href="/docs/security">Site security</Link>.
+        Production deployments require <code>DOCS_SITE_PASSWORD</code> and/or{" "}
+        <code>DOCS_SITE_TOKEN</code>, plus a custom domain with Vercel Deployment
+        Protection. See <Link href="/docs/security">Site security</Link>.
       </div>
     </DocsLayout>
   );
