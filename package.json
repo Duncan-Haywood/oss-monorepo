@@ -12,7 +12,7 @@
     "docs:sync": "tsx scripts/sync-html-docs.ts && tsx scripts/build-doc-sources.ts",
     "docs:dev": "pnpm --filter @retail-pilot/docs dev",
     "docs:sync-html": "tsx scripts/sync-html-docs.ts",
-    "docs:build": "pnpm docs:sync-html && pnpm --filter @retail-pilot/docs build",
+    "docs:build": "pnpm docs:sync && pnpm --filter @retail-pilot/docs build",
     "portal:dev": "pnpm --filter @retail-pilot/portal dev",
     "portal:build": "pnpm --filter @retail-pilot/portal build"
   },
