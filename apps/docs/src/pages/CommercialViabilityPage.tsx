@@ -1,21 +1,26 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { reportRegistry } from "../generated/report-manifest";
-
-const primarySlug = "commercial-viability-report";
+import { CommercialViabilitySubnav } from "../components/CommercialViabilitySubnav";
+import { commercialViabilityPages } from "./commercial-viability";
 
 export function CommercialViabilityPage() {
-  const primary = reportRegistry.find((e) => e.slug === primarySlug);
-  const related = reportRegistry.filter(
-    (e) => e.slug.includes("commercial-viability") && e.slug !== primarySlug,
-  );
-
   return (
     <DocLayout
       title="Commercial viability"
-      subtitle="TSX summary — full assessments are TSX reports under /reports"
+      subtitle="TSX assessments — native React pages converted from legacy HTML reports"
+      footer={
+        <>
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+          {" · "}
+          <Link to="/">Home</Link>
+        </>
+      }
     >
+      <CommercialViabilitySubnav />
+
       <Card variant="warn">
         <p>
           <strong>Verdict (M0–M1):</strong> Conditionally viable for a design-partner
@@ -36,6 +41,18 @@ export function CommercialViabilityPage() {
         ]}
       />
 
+      <h2>Full assessments (TSX)</h2>
+      <DataTable
+        headers={["Report", "Route", "Open"]}
+        rows={commercialViabilityPages.map((page) => [
+          page.title.replace(/ — Retail Pilot Intel.*$/i, ""),
+          <code key={`${page.slug}-route`}>/commercial-viability/{page.slug}</code>,
+          <Link to={`/commercial-viability/${page.slug}`} key={page.slug}>
+            Read
+          </Link>,
+        ])}
+      />
+
       <h2>What to do first</h2>
       <ol>
         <li>
@@ -51,47 +68,6 @@ export function CommercialViabilityPage() {
           site mirrors the same commercial story.
         </li>
       </ol>
-
-      <h2>Full assessments (TSX)</h2>
-      <Card>
-        <p>
-          Long-form reports live in <code>apps/docs/src/reports/</code> and are
-          registered at build time. Edit TSX there, then{" "}
-          <code>pnpm docs:sync</code>.
-        </p>
-        <DataTable
-          headers={["Report", "Open"]}
-          rows={[
-            ...(primary
-              ? [
-                  [
-                    primary.title,
-                    <Link to={`/reports/${primary.slug}`} key="primary">
-                      Open full report
-                    </Link>,
-                  ],
-                ]
-              : []),
-            ...related.map((e) => [
-              e.title,
-              <Link to={`/reports/${e.slug}`} key={e.slug}>
-                Open
-              </Link>,
-            ]),
-          ]}
-        />
-        <p>
-          <Link to="/reports">Browse all reports →</Link>
-        </p>
-      </Card>
-
-      <footer>
-        <Link to="/business-plan">Business plan</Link>
-        {" · "}
-        <Link to="/roi">ROI</Link>
-        {" · "}
-        <Link to="/">Home</Link>
-      </footer>
     </DocLayout>
   );
 }

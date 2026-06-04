@@ -1,16 +1,14 @@
 # Private documentation site — deployment
 
-The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative and long-form reports are **TSX** under `src/pages/` and `src/reports/`.
+The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. All documentation is **TSX** under `src/pages/`.
 
-## Build pipeline
+## Build
 
 ```bash
-pnpm docs:sync
-# scripts/build-report-manifest.ts → apps/docs/src/generated/report-manifest.ts
 pnpm docs:build   # → apps/docs/dist
 ```
 
-Legacy `/archive/*` and old `/reports/docs-*` slugs redirect to `/reports/:slug`.
+Legacy `/reports/*` and `/archive/*` URLs redirect to `/commercial-viability/*` TSX routes.
 
 ## Local
 
@@ -50,3 +48,7 @@ Optional CI job `deploy-vercel` runs when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `
 | GitHub Pages (private repo) or Vercel Deployment Protection | Network access |
 | `VITE_DOCS_PASSCODE` + `VITE_DOCS_GATE_ENABLED` | Browser session gate (12h) |
 | `X-Robots-Tag: noindex` | Discourage indexing if URL leaks |
+
+## Converting legacy HTML
+
+If HTML sources are restored under `docs/` or `reports/`, run `pnpm docs:convert-html` to regenerate TSX in `apps/docs/src/pages/commercial-viability/`.

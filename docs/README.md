@@ -1,20 +1,25 @@
-# Documentation sources
+# Documentation
 
-Product narrative and long-form reports live in **`apps/docs`** as **TSX** (canonical).
-
-| Location | Role |
-|----------|------|
-| `apps/docs/src/pages/` | Site pages (business plan, GTM, ROI, etc.) |
-| `apps/docs/src/reports/` | Long-form assessments (commercial viability, deep dives) |
+All product documentation lives in **`apps/docs/src/pages/`** as **TSX** (React components).
 
 ```bash
-pnpm docs:sync    # scripts/build-report-manifest.ts — register report modules
-pnpm docs:dev     # passcode: pilot-docs (gate off in dev unless PROD)
-pnpm docs:build
+pnpm docs:dev     # http://localhost:5173 — passcode: pilot-docs
+pnpm docs:build   # → apps/docs/dist
 ```
 
-Each report exports `reportMeta` and a page component. Legacy `/reports/docs-*` URLs redirect to the new slugs.
+## Commercial viability reports
 
-Deploy: GitHub Pages (`.github/workflows/deploy-docs.yml`) and/or Vercel — see `apps/docs/DEPLOY.md`. Enable **Deployment Protection** or keep the repo private; passcode gate is `VITE_DOCS_PASSCODE`.
+Five full assessments as native TSX JSX (converted from legacy HTML):
 
-**Optional:** `pnpm exec tsx scripts/migrate-html-to-tsx-reports.ts` imports legacy HTML from `docs/` or `reports/` into TSX modules (one-time migration helper).
+| Route | Page |
+|-------|------|
+| `#/commercial-viability` | Hub + scorecard |
+| `#/commercial-viability/report` | Primary assessment |
+| `#/commercial-viability/assessment` | Assessment variant |
+| `#/commercial-viability/deep-assessment` | Deep assessment |
+| `#/commercial-viability/deep-dive` | Deep dive |
+| `#/commercial-viability/deep-dive-2026` | 2026 deep dive |
+
+To regenerate TSX from HTML sources (if restored): `pnpm docs:convert-html`
+
+Deploy: GitHub Pages or Vercel — see `apps/docs/DEPLOY.md`.

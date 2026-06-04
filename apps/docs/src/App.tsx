@@ -11,12 +11,33 @@ import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DemoPage } from "./pages/DemoPage";
 import { CommercialViabilityPage } from "./pages/CommercialViabilityPage";
-import { ReportPage } from "./pages/ReportPage";
-import { ReportsIndexPage } from "./pages/ReportsIndexPage";
+import {
+  CommercialViabilityReportPage,
+  CommercialViabilityAssessmentPage,
+  CommercialViabilityDeepAssessmentPage,
+  CommercialViabilityDeepDive2026Page,
+  CommercialViabilityDeepDivePage,
+} from "./pages/commercial-viability";
 
-function ArchiveToReportRedirect() {
+/** Maps legacy /reports/:slug and /archive/:slug URLs to TSX routes. */
+const legacyReportRedirects: Record<string, string> = {
+  "commercial-viability-report": "/commercial-viability/report",
+  "docs-commercial-viability-report": "/commercial-viability/report",
+  "commercial-viability-assessment": "/commercial-viability/assessment",
+  "reports-commercial-viability-assessment": "/commercial-viability/assessment",
+  "commercial-viability-deep-assessment": "/commercial-viability/deep-assessment",
+  "reports-commercial-viability-deep-assessment": "/commercial-viability/deep-assessment",
+  "commercial-viability-deep-dive-2026": "/commercial-viability/deep-dive-2026",
+  "reports-commercial-viability-deep-dive-2026": "/commercial-viability/deep-dive-2026",
+  "commercial-viability-deep-dive": "/commercial-viability/deep-dive",
+  "reports-commercial-viability-deep-dive": "/commercial-viability/deep-dive",
+};
+
+function LegacyReportRedirect() {
   const { slug } = useParams<{ slug: string }>();
-  return <Navigate to={slug ? `/reports/${slug}` : "/reports"} replace />;
+  if (!slug) return <Navigate to="/commercial-viability" replace />;
+  const target = legacyReportRedirects[slug];
+  return <Navigate to={target ?? "/commercial-viability"} replace />;
 }
 
 export function App() {
@@ -35,10 +56,15 @@ export function App() {
       <Route path="/demo" element={<DemoPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/commercial-viability" element={<CommercialViabilityPage />} />
-      <Route path="/reports" element={<ReportsIndexPage />} />
-      <Route path="/reports/:slug" element={<ReportPage />} />
-      <Route path="/archive" element={<Navigate to="/reports" replace />} />
-      <Route path="/archive/:slug" element={<ArchiveToReportRedirect />} />
+      <Route path="/commercial-viability/report" element={<CommercialViabilityReportPage />} />
+      <Route path="/commercial-viability/assessment" element={<CommercialViabilityAssessmentPage />} />
+      <Route path="/commercial-viability/deep-assessment" element={<CommercialViabilityDeepAssessmentPage />} />
+      <Route path="/commercial-viability/deep-dive-2026" element={<CommercialViabilityDeepDive2026Page />} />
+      <Route path="/commercial-viability/deep-dive" element={<CommercialViabilityDeepDivePage />} />
+      <Route path="/reports" element={<Navigate to="/commercial-viability" replace />} />
+      <Route path="/reports/:slug" element={<LegacyReportRedirect />} />
+      <Route path="/archive" element={<Navigate to="/commercial-viability" replace />} />
+      <Route path="/archive/:slug" element={<LegacyReportRedirect />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

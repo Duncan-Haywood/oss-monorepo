@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { clearDocsSession, isDocsGateEnabled } from "../auth/docsAuth";
-import { reportRegistry } from "../generated/report-manifest";
 import { DocHead } from "./DocHead";
 
 const links = [
@@ -16,7 +15,6 @@ const links = [
   { to: "/metrics", label: "Metrics" },
   { to: "/privacy", label: "Privacy & GDPR" },
   { to: "/roadmap", label: "Roadmap" },
-  { to: "/reports", label: "Reports" },
   { to: "/dashboard", label: "Dashboard" },
 ] as const;
 
@@ -45,27 +43,6 @@ export function DocLayout({
             {label}
           </NavLink>
         ))}
-        {reportRegistry.length > 0 ? (
-          <>
-            <span className="doc-nav-divider" aria-hidden="true">
-              |
-            </span>
-            {reportRegistry.map((report) => (
-              <NavLink
-                key={report.slug}
-                to={`/reports/${report.slug}`}
-                className={({ isActive }) =>
-                  isActive ? "active doc-nav-report" : "doc-nav-report"
-                }
-                title={report.title}
-              >
-                {report.title.length > 28
-                  ? `${report.title.slice(0, 26)}…`
-                  : report.title}
-              </NavLink>
-            ))}
-          </>
-        ) : null}
         {isDocsGateEnabled() ? (
           <button
             type="button"
