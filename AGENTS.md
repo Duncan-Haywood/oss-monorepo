@@ -173,8 +173,8 @@ Windows.
 
 `docs-site/` is a Next.js app (npm) for internal documentation, separate from the
 stdlib Python core. Hand-authored TSX pages cover architecture, CLI, and security;
-`npm run build` runs `scripts/build-docs.mjs` to convert `docs/*.html` and selected
-markdown into generated `src/app/docs/**/page.tsx` routes plus `src/generated/manifest.ts`.
+`npm run build` runs `scripts/build-docs.mjs` to rewrite `docs/*.html` and selected
+markdown as semantic JSX in `src/generated/doc-content/` plus thin route wrappers.
 
 ```bash
 cd docs-site && npm ci && npm run build

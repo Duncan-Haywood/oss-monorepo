@@ -6,14 +6,14 @@ export default function HomePage() {
   return (
     <DocsLayout
       title="ShootFlow private documentation"
-      subtitle="TSX guides and build-generated TSX pages from repository docs."
+      subtitle="Hand-authored TSX guides plus repository docs rewritten as semantic JSX."
       nav={FULL_NAV}
     >
       <p>
         Documentation lives under <code>docs/</code> in the repository. The build
-        step converts HTML reports and markdown sources into Next.js{" "}
-        <code>page.tsx</code> files; architecture, CLI, and security pages are
-        hand-authored in TSX.
+        step rewrites HTML reports and markdown sources into semantic JSX under{" "}
+        <code>src/generated/doc-content/</code>; architecture, CLI, and security
+        pages are hand-authored in TSX.
       </p>
 
       <div className="card-grid">
@@ -26,7 +26,7 @@ export default function HomePage() {
       </div>
 
       <section className="doc-section">
-        <h2>Commercial viability reports (TSX from HTML)</h2>
+        <h2>Commercial viability reports (semantic TSX from HTML)</h2>
         <ul>
           {REPORT_NAV.map((item) => (
             <li key={item.href}>

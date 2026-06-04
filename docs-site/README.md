@@ -2,8 +2,8 @@
 
 Next.js site for internal product, architecture, and commercial viability
 documentation. Architecture, CLI, and security pages are **hand-authored TSX**;
-HTML reports and selected markdown under `../docs/` are **converted to TSX
-`page.tsx` files** at build time.
+HTML reports and selected markdown under `../docs/` are **rewritten as semantic
+JSX** in `src/generated/doc-content/*.tsx` at build time (via `htmltojsx`).
 
 ## Local development
 
@@ -23,8 +23,8 @@ npm run build
 
 `prebuild` runs `scripts/build-docs.mjs`, which:
 
-1. Parses `docs/*.html` — emits `src/app/docs/reports/<slug>/page.tsx`.
-2. Parses selected `docs/*.md` — emits `src/app/docs/<slug>/page.tsx`.
+1. Parses `docs/*.html` — converts body HTML to JSX, writes `src/generated/doc-content/<slug>.tsx` plus a thin `src/app/docs/reports/<slug>/page.tsx` wrapper.
+2. Parses selected `docs/*.md` — markdown → HTML → JSX, same content module layout under `src/app/docs/<slug>/`.
 3. Writes `src/generated/manifest.ts` for navigation metadata only.
 
 ## Security
