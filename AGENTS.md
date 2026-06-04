@@ -169,7 +169,24 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
+### Private docs site (`docs-site/`)
+
+The `docs-site/` package is a separate Next.js app (not part of the stdlib
+Python core). It serves internal documentation with token auth and optional
+Vercel Deployment Protection.
+
+```bash
+cd docs-site && npm ci && npm run build
+```
+
+- Hand-authored pages live in `docs-site/src/app/**/page.tsx`.
+- `docs/*.html` files are synced at build time via `scripts/build-from-html.mjs`
+  into `docs-site/src/generated/html-docs/`.
+- Production requires `DOCS_SITE_TOKEN`; set `DOCS_SITE_DOMAIN` for custom host
+  metadata. See `docs-site/README.md`.
+
 ### No external services
 
-No database, no Docker, no Node.js, no external APIs. Everything runs against
-the local filesystem.
+The Python core uses no database, Docker, or external APIs. Everything runs
+against the local filesystem. The docs site is an optional Node deployment for
+team documentation only.
