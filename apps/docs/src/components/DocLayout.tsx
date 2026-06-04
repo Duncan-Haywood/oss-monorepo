@@ -17,6 +17,7 @@ const links = [
   { to: "/roadmap", label: "Roadmap" },
   { to: "/reports", label: "HTML reports" },
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/reports", label: "HTML reports" },
 ] as const;
 
 export function DocLayout({

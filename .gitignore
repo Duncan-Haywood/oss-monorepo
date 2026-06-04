@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Generated docs (rebuilt by pnpm docs:sync)
+apps/docs/src/generated/
+
 # Build & runtime
 dist/
 build/
