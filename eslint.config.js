@@ -11,7 +11,6 @@ export default tseslint.config(
       "**/node_modules/**",
       "apps/docs/dist/**",
       "apps/docs/src/generated/**",
-      "apps/docs/public/html-reports/**",
     ],
   },
   {

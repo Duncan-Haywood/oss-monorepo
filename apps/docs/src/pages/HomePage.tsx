@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { htmlReportManifest } from "../generated/htmlReportManifest";
+import { reportRegistry } from "../generated/report-manifest";
 
 export function HomePage() {
   return (
@@ -97,32 +97,31 @@ export function HomePage() {
           ],
           [
             <Link to="/commercial-viability">Commercial viability</Link>,
-            "TSX scorecard + links to compiled HTML reports",
+            "TSX scorecard + links to full TSX reports",
           ],
           [
-            <Link to="/archive">HTML archive</Link>,
-            "Build-time sync from docs/ and reports/ HTML sources",
+            <Link to="/reports">Reports</Link>,
+            "Long-form assessments (TSX in apps/docs/src/reports/)",
           ],
           [
             "Sales portal (pnpm portal:dev)",
             "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide + docs /demo script)",
           ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
-          ...htmlReportManifest.map((r) => [
+          ...reportRegistry.map((r) => [
             <Link key={r.slug} to={`/reports/${r.slug}`}>
               {r.title}
             </Link>,
-            `HTML report (from ${r.sourceLabel})`,
+            `TSX report`,
           ]),
         ]}
       />
 
       <Card>
         <p>
-          <strong>Private hosting:</strong> This site builds from TSX plus HTML
-          under <code>docs/</code> and <code>reports/</code>. Deploy via GitHub
-          Pages, Vercel (custom domain + Deployment Protection), or Docker —
-          passcode gate in production. See repository <code>docs/README.md</code>.
+          <strong>Private hosting:</strong> This site is TSX (pages + reports).
+          Deploy via GitHub Pages, Vercel (custom domain + Deployment Protection),
+          or Docker — passcode gate in production. See <code>docs/README.md</code>.
         </p>
       </Card>
 
@@ -133,7 +132,7 @@ packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports
 .github/workflows/   CI + deploy-docs (GitHub Pages)
-scripts/sync-html-docs.ts  HTML → static assets + nav`}</pre>
+scripts/build-report-manifest.ts  register TSX reports`}</pre>
 
       <footer>
         Private pilot documentation — not legal advice. Engage counsel for GDPR

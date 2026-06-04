@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { VisionPage } from "./pages/VisionPage";
 import { ArchitecturePage } from "./pages/ArchitecturePage";
@@ -10,10 +10,14 @@ import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DemoPage } from "./pages/DemoPage";
-import { HtmlReportPage } from "./pages/HtmlReportPage";
 import { CommercialViabilityPage } from "./pages/CommercialViabilityPage";
-import { ArchiveIndexPage } from "./pages/ArchiveIndexPage";
-import { ArchiveReportPage } from "./pages/ArchiveReportPage";
+import { ReportPage } from "./pages/ReportPage";
+import { ReportsIndexPage } from "./pages/ReportsIndexPage";
+
+function ArchiveToReportRedirect() {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={slug ? `/reports/${slug}` : "/reports"} replace />;
+}
 
 export function App() {
   return (
@@ -31,9 +35,10 @@ export function App() {
       <Route path="/demo" element={<DemoPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/commercial-viability" element={<CommercialViabilityPage />} />
-      <Route path="/reports/:slug" element={<HtmlReportPage />} />
-      <Route path="/archive" element={<ArchiveIndexPage />} />
-      <Route path="/archive/:slug" element={<ArchiveReportPage />} />
+      <Route path="/reports" element={<ReportsIndexPage />} />
+      <Route path="/reports/:slug" element={<ReportPage />} />
+      <Route path="/archive" element={<Navigate to="/reports" replace />} />
+      <Route path="/archive/:slug" element={<ArchiveToReportRedirect />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

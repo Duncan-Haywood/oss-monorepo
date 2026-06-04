@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { htmlReportManifest } from "../generated/htmlReportManifest";
+import { reportRegistry } from "../generated/report-manifest";
 
-const primarySlug = "docs-commercial-viability-report";
+const primarySlug = "commercial-viability-report";
 
 export function CommercialViabilityPage() {
-  const primary = htmlReportManifest.find((e) => e.slug === primarySlug);
-  const related = htmlReportManifest.filter(
+  const primary = reportRegistry.find((e) => e.slug === primarySlug);
+  const related = reportRegistry.filter(
     (e) => e.slug.includes("commercial-viability") && e.slug !== primarySlug,
   );
 
   return (
     <DocLayout
       title="Commercial viability"
-      subtitle="TSX summary — full HTML assessments open as iframe reports"
+      subtitle="TSX summary — full assessments are TSX reports under /reports"
     >
       <Card variant="warn">
         <p>
@@ -52,11 +52,12 @@ export function CommercialViabilityPage() {
         </li>
       </ol>
 
-      <h2>Full HTML assessments</h2>
+      <h2>Full assessments (TSX)</h2>
       <Card>
         <p>
-          Long-form reports are copied from <code>docs/</code> and{" "}
-          <code>reports/</code> at build time. Open iframe reports for full layouts.
+          Long-form reports live in <code>apps/docs/src/reports/</code> and are
+          registered at build time. Edit TSX there, then{" "}
+          <code>pnpm docs:sync</code>.
         </p>
         <DataTable
           headers={["Report", "Open"]}
@@ -80,7 +81,7 @@ export function CommercialViabilityPage() {
           ]}
         />
         <p>
-          <Link to="/archive">Browse inline archive →</Link>
+          <Link to="/reports">Browse all reports →</Link>
         </p>
       </Card>
 
