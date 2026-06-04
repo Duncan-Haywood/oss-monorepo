@@ -169,7 +169,15 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
+### Private docs site
+
+`docs-site/` is a Next.js app (npm) for internal documentation. TSX pages cover
+policy summaries; `npm run build` runs `scripts/build-docs.mjs` to ingest
+`docs/*.html` and selected markdown into generated routes. Production requires
+`DOCS_SITE_PASSWORD`; see `docs-site/README.md` for Vercel domain and Deployment
+Protection setup. The Python core remains stdlib-only; Node is only for this site.
+
 ### No external services
 
-No database, no Docker, no Node.js, no external APIs. Everything runs against
-the local filesystem.
+No database, no Docker, no external APIs for the Python core. Everything runs
+against the local filesystem. The docs site deploys separately on Vercel when used.
