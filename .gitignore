@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Legacy generated docs (optional sync pipeline — not used in TSX-first flow)
+apps/docs/src/generated/
+
 # Build & runtime
 dist/
 build/
@@ -11,6 +14,7 @@ build/
 .env
 .env.*
 !.env.example
+docker/docs.htpasswd
 
 # Edge / CV artifacts (never commit raw video)
 recordings/

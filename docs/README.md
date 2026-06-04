@@ -30,6 +30,8 @@ Five full assessments as native TSX JSX (converted from legacy HTML):
 | `#/commercial-viability/deep-dive` | Deep dive |
 | `#/commercial-viability/deep-dive-2026` | 2026 deep dive |
 
-To regenerate TSX from HTML sources (if restored): `pnpm docs:convert-html`
+Legacy HTML source (for `pnpm docs:convert-html`): [`commercial-viability-report.html`](./commercial-viability-report.html). Additional sources under `reports/`.
+
+To regenerate TSX from HTML sources: `pnpm docs:convert-html`
 
 Deploy: GitHub Pages or Vercel — see `apps/docs/DEPLOY.md`.

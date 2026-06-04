@@ -78,6 +78,10 @@ export function HomePage() {
             <Link to="/roi">ROI</Link>,
             "Financial priority matrix — what to build first",
           ],
+          [
+            <Link to="/reports">HTML reports</Link>,
+            "Synced viability HTML from docs/ and reports/",
+          ],
           [<Link to="/vision">Vision</Link>, "Profit-oriented goals and pilot context"],
           [
             <Link to="/architecture">Architecture</Link>,
@@ -131,7 +135,8 @@ packages/analytics/  rollups & reports
 .github/workflows/   CI + deploy-docs (GitHub Pages)`}</pre>
 
       <footer>
-        Private pilot documentation — not legal advice. Engage counsel for GDPR
+        Private pilot documentation (passcode + host protection) — not legal
+        advice. Engage counsel for GDPR
         sign-off in Italy.
       </footer>
     </DocLayout>
