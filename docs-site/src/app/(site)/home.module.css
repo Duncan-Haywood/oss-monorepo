@@ -1,0 +1,45 @@
+.page {
+  max-width: 760px;
+}
+
+.lead {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 2rem 0;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.card ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.card p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.stats {
+  color: var(--muted);
+  font-size: 0.95rem;
+}

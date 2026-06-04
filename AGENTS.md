@@ -169,7 +169,22 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
+### Private docs site (`docs-site/`)
+
+A separate Next.js app (not part of the stdlib Python package) publishes
+`docs/` behind password protection:
+
+```bash
+cd docs-site && npm install && npm run dev
+```
+
+`npm run sync` ingests `docs/*.html` and `docs/*.md` into generated App Router
+pages; `npm run build` runs sync then `next build`. Deploy from `docs-site/` on
+Vercel with `DOCS_ACCESS_PASSWORD` and `DOCS_SESSION_SECRET`; see
+`docs-site/README.md` for domain and Deployment Protection notes.
+
 ### No external services
 
-No database, no Docker, no Node.js, no external APIs. Everything runs against
-the local filesystem.
+The Python core has no database, Docker, or external APIs. The optional docs
+site uses Node only at build/serve time on Vercel (or similar), not in the
+ShootFlow CLI runtime.

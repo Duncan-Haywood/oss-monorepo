@@ -1,0 +1,157 @@
+/* AUTO-GENERATED from docs/commercial-viability-deep-dive.html — do not edit by hand */
+import type { Metadata } from "next";
+import { HtmlDocument } from "@/components/HtmlDocument";
+
+export const metadata: Metadata = {
+  title: "ShootFlow — Deep Commercial Viability Assessment (Continuation)",
+  robots: { index: false, follow: false },
+};
+
+const documentCss = `:root {
+      --bg: #0b0f14; --surface: #161b24; --surface2: #1f2633; --text: #e2e8f0; --muted: #94a3b8;
+      --accent: #60a5fa; --green: #4ade80; --amber: #fbbf24; --red: #f87171; --border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); line-height:1.7; font-size:15px; }
+    .wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 5rem; }
+    header { border-bottom:1px solid var(--border); padding-bottom:2rem; margin-bottom:2.5rem; }
+    h1 { font-size:2rem; font-weight:700; margin:0 0 .5rem; letter-spacing:-.025em; }
+    .meta { color:var(--muted); font-size:.9rem; }
+    h2 { font-size:1.35rem; margin:2.75rem 0 1rem; color:var(--accent); font-weight:600; border-bottom:1px solid var(--border); padding-bottom:.4rem; }
+    h3 { font-size:1.1rem; margin:1.75rem 0 .6rem; color:#cbd5e1; }
+    p { margin:.6rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; margin:1.1rem 0; }
+    th,td { border:1px solid var(--border); padding:.6rem .8rem; text-align:left; vertical-align:top; }
+    th { background:var(--surface2); color:var(--muted); font-weight:600; }
+    tr:nth-child(even) td { background:rgba(22,27,36,.6); }
+    .verdict { background:linear-gradient(135deg,#1e2937 0%,var(--surface) 70%); border:1px solid var(--border); border-radius:14px; padding:1.6rem 1.9rem; margin:1.6rem 0; }
+    .score { font-size:2.8rem; font-weight:800; color:var(--amber); line-height:1; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; font-size:.78rem; font-weight:700; margin:.2rem .25rem .2rem 0; }
+    .pill-high { background:rgba(74,222,128,.15); color:var(--green); }
+    .pill-mid { background:rgba(251,191,36,.15); color:var(--amber); }
+    .pill-low { background:rgba(248,113,113,.15); color:var(--red); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; margin:1.25rem 0; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.05rem 1.2rem; }
+    .card strong { display:block; font-size:1.55rem; color:var(--accent); margin-bottom:.15rem; }
+    .card span { font-size:.82rem; color:var(--muted); }
+    .risk { border-left:4px solid var(--red); padding-left:1rem; margin:1.1rem 0; }
+    .opp { border-left:4px solid var(--green); padding-left:1rem; margin:1.1rem 0; }
+    ul { margin:.4rem 0 1rem; padding-left:1.35rem; }
+    li { margin:.3rem 0; }
+    .section-note { font-size:.85rem; color:var(--muted); font-style:italic; }
+    code { background:var(--surface2); padding:.1rem .35rem; border-radius:3px; font-size:.88em; }
+    .footer { margin-top:4rem; padding-top:1.5rem; border-top:1px solid var(--border); font-size:.82rem; color:var(--muted); }`;
+const documentHtml = `<div class="wrap">
+  <header>
+    <h1>ShootFlow — Deep Commercial Viability Assessment</h1>
+    <p class="meta">Continuation evaluation · 4 June 2026 · 438/438 tests passing · Branch: cursor/commercial-viability-deep-dive-fe7a · Pure-Python stdlib core, zero deps</p>
+  </header>
+
+  <section class="verdict">
+    <h2 style="margin:0 0 .75rem;border:none;color:inherit;">Executive Verdict (Updated)</h2>
+    <div style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap;">
+      <div><div class="score">47 / 100</div><div style="color:var(--muted);margin-top:.25rem;">Low-to-moderate pursue probability</div></div>
+      <div style="max-width:620px;">
+        <p><strong>Realistically profitable? Marginally plausible at small scale, difficult to scale profitably without major capital and productization.</strong></p>
+        <p>Scalable business? Architecture supports it in theory, but execution gap (no UI, no real media output, no GTM) and market realities make it a high-risk, capital-intensive bet. Worth pursuing only with committed founder-operator who is also a working photographer or has direct access to ICP, plus seed funding or 18+ months runway for Mac app + quality media pipeline.</p>
+        <div>
+          <span class="pill pill-high">Safety &amp; workflow engineering: excellent</span>
+          <span class="pill pill-mid">ICP pain match: good</span>
+          <span class="pill pill-low">Differentiation vs AI tools: weak</span>
+          <span class="pill pill-low">Path to first $100k ARR: unclear</span>
+          <span class="pill pill-low">Moat durability: low</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h2>1. Deep Product &amp; Technical Audit (Codebase Review)</h2>
+  <p>Inspected 31 modules, 438 tests, CLI surface (22+ commands), production/render schedulers, adapters, pilot analytics, workflow_authority observe-only contracts. Strengths:</p>
+  <ul>
+    <li><strong>Exceptional operational safety:</strong> compare-and-write leases, checksum manifests, no-delete/no-overwrite invariants, directory checksums for packages, explicit retryable states. This is rare and valuable for pros handling client-paid originals.</li>
+    <li><strong>Scalable orchestration design:</strong> adapter-capability aware dispatch, resumable status, parallel workers, production plan fingerprinting. Could extend to cloud or multi-machine without rewrite.</li>
+    <li><strong>Rich observability:</strong> pilot dashboards, cohort reports, package handoff briefs, workspace health v4 — all observe-only, presentation-grade, with authority objects preventing accidental mutation authority.</li>
+    <li><strong>Zero-dependency purity:</strong> stdlib only; easy to audit, bundle, or embed. fcntl advisory locking (Mac/Linux only, acknowledged).</li>
+  </ul>
+  <p>Critical gaps preventing commercial product:</p>
+  <ul>
+    <li><strong>Zero end-user surface:</strong> Only CLI + JSON artifacts. No SwiftUI/Cocoa app, no visual timeline, no thumbnail review, no one-click "approve reel". Photographers will not adopt CLI for daily card dumps.</li>
+    <li><strong>Media output is stand-in only:</strong> All production adapters (analysis, scene, look, grade, story, package) are deterministic JSON or byte-copy placeholders. No ffmpeg, no CoreImage/Metal grading, no real VLM (vision-language model). Quality claims unproven; "first-draft" output quality unknown.</li>
+    <li><strong>Render path incomplete:</strong> Only dry-run-local render adapter. No real proxy generation, no delivery formats beyond package manifests.</li>
+    <li><strong>Local-only, Mac-centric:</strong> fcntl locks, macOS volume metadata. Windows/Android/iOS clients impossible without rewrite. Cloud workers not implemented.</li>
+    <li><strong>No billing, auth, multi-user, tenancy:</strong> Single-workspace model. No subscription enforcement, no cloud quota, no team sharing.</li>
+    <li><strong>Performance unknown:</strong> Python stdlib for large shoots (10k+ assets) may be slow; no benchmarks on real media corpora.</li>
+  </ul>
+  <div class="grid">
+    <div class="card"><strong>0</strong><span>Native UI / onboarding flows</span></div>
+    <div class="card"><strong>0</strong><span>Real media processing pipelines</span></div>
+    <div class="card"><strong>0</strong><span>Revenue or licensing code</span></div>
+    <div class="card"><strong>~40k</strong><span>Lines of defensive, safe Python</span></div>
+  </div>
+
+  <h2>2. Market &amp; ICP Deep Dive</h2>
+  <h3>Target: High-volume recurring delivery pros (wedding/event, portrait studios, real-estate media teams)</h3>
+  <p>Pain is real and paid for: editors cost $100–$1k+/week; owners lose evenings to ops. Willingness-to-pay exists for measurable time savings + consistency.</p>
+  <table>
+    <thead><tr><th>Dimension</th><th>Evidence from codebase/docs</th><th>Commercial implication</th><th>Score</th></tr></thead>
+    <tbody>
+      <tr><td>ICP specificity</td><td>Well-defined in BUSINESS_PLAN.md, PRODUCT_STRATEGY.md; wedge = "card dump → IG-ready graded package"</td><td>Good for early sales, but narrow; may not expand to hobbyists or large agencies easily</td><td>7</td></tr>
+      <tr><td>Market size</td><td>Global professional photographers ~1.2–1.8M (est.); US wedding/event segment alone ~$2.5B service TAM but software TAM smaller</td><td>Fragmented, low-ACV buyers; high churn risk if cheaper AI alternatives appear</td><td>5</td></tr>
+      <tr><td>Competitive intensity</td><td>Lightroom/Classic, Capture One, Photo Mechanic (ingest), Descript/Runway/Pika (AI video), custom FFmpeg scripts, emerging "AI editor" startups</td><td>Extremely crowded; safety moat is narrow vs "magic AI" marketing; differentiation requires proven output quality + trust</td><td>3</td></tr>
+      <tr><td>Switching cost</td><td>High for paid-client work (trust, training, integration with existing DAMs)</td><td>Positive for retention once adopted, but long sales cycle and pilot requirements</td><td>7</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Profitability Model Analysis</h2>
+  <p>Assumed model (inferred from strategy docs): Desktop app (Mac-first) + optional cloud workers, subscription $19–$49/mo per seat or per studio, with usage-based overages for heavy VLM/cloud.</p>
+  <div class="opp">
+    <strong>Positive unit economics possible:</strong> 75–85% gross margins once shipped (software). Low marginal cost per additional workspace if local-first. Pilot metrics (completion rate, intervention rate, first-draft package count) already instrumented — could become usage signals for billing.
+  </div>
+  <div class="risk">
+    <strong>Profitability blockers:</strong><br>
+    • CAC likely high: content marketing + demos to busy creatives; sales cycle 3–9 months for studios.<br>
+    • Support burden: media pros expect "it just works" on their specific card readers, RAIDs, color workflows. CLI errors will generate support tickets.<br>
+    • AI/media infra cost: Real VLM (Claude-3.5/GPT-4o or local) + ffmpeg transcoding at scale could be $0.02–$0.15 per asset or more; need to pass through or absorb.<br>
+    • Churn: If first-draft quality requires heavy manual fixes, users abandon after 1–2 months.<br>
+    • No network effects or data moat yet: each workspace is isolated; learned "looks" not shared.
+  </div>
+  <p>Break-even math (rough): 800–1,200 paying seats at $29/mo avg to cover 3–4 person team + infra + marketing after 18 months. Achievable only with viral/organic adoption in tight photo communities or strong App Store presence. Unlikely without paid acquisition or founder distribution.</p>
+
+  <h2>4. Scalability Assessment</h2>
+  <p><strong>Technical scalability:</strong> Promising. Production scheduler already supports bounded parallelism, stale-lease expiration, adapter capability negotiation, and deterministic local stand-ins that prove the contract before real workers. Workflow authority cleanly separates observe-only analytics from mutation authority. Could add cloud adapters (AWS/GCP batch, Modal, RunPod) with minimal core change.</p>
+  <p><strong>Business/organizational scalability:</strong> Weak. Single-founder or tiny team cannot simultaneously (a) build production-quality Mac app + real grading/VLM pipelines, (b) maintain 438-test safety invariants, (c) do GTM and support, (d) raise or bootstrap funding. Requires either significant personal capital or early revenue + angel/seed round. Platform lock-in (Mac-only) limits TAM expansion.</p>
+  <p><strong>Regulatory/ops scalability:</strong> Unaddressed. Client media often contains identifiable people, minors, sensitive events. No consent tracking, no audit logs for "who approved this reel", no SOC2 path. One data-loss incident = existential.</p>
+
+  <h2>5. Suggestions for a More Successful Business</h2>
+  <ol>
+    <li><strong>Ship a real Mac app immediately (priority #1, 6–9 months):</strong> Use SwiftUI + embedded Python (PyObjC or PyApp) or rewrite hot paths in Swift. Visual card-dump wizard, thumbnail grid, inline review/approve for selects and reels. This is the only way to reach paying users.</li>
+    <li><strong>Prove output quality with real adapters (parallel track):</strong> Wire ffmpeg for proxies/graded exports, integrate local or cheap API VLM for scene/look analysis, ship one "look_development" and "graded_photo" path that produces subjectively good results on 3–5 real wedding/event test shoots. Publish before/after case studies.</li>
+    <li><strong>Hybrid local + cloud execution:</strong> Keep heavy lifting (VLM, 4K grading) optional in cloud with clear cost preview. Offer "privacy mode" (fully local, slower) and "speed mode" (cloud burst). This expands TAM beyond Mac power users.</li>
+    <li><strong>Monetization &amp; packaging:</strong> Tiered: Free (dry-run + limited local packages), Pro ($29/mo, unlimited local + 500 cloud credits), Studio ($79/mo, team workspaces, audit logs, priority support). Annual prepay discount. Include "export to Lightroom catalog" and "sync to Google Drive/Dropbox" as table-stakes integrations.</li>
+    <li><strong>GTM &amp; distribution:</strong> Founder must be visible in wedding photography Facebook groups, YouTube (long-form "I automated my entire 2025 wedding season"), podcast interviews. Beta cohort of 25–40 paying or high-profile users before public launch. Consider App Store + Gumroad or Paddle for payments (easy tax/VAT).</li>
+    <li><strong>Moat &amp; defensibility:</strong> Open-source the core workflow engine under permissive license (attract contributors), keep Mac app and quality media models proprietary. Build "ShootFlow Looks Marketplace" where users sell/share approved grading references — creates network and recurring revenue share.</li>
+    <li><strong>Team &amp; capital:</strong> Do not attempt solo beyond MVP. Hire/contract one senior Mac/iOS engineer + one media pipeline engineer (ex-Adobe or colorist background) early. Target $750k–$1.5M pre-seed/seed to fund 18 months runway.</li>
+    <li><strong>Risk mitigation:</strong> Add explicit license file, CONTRIBUTING, security policy. Instrument real usage telemetry (opt-in) for pilot metrics. Plan SOC2/Type II audit path once ARR >$200k. Add consent/rights metadata fields to manifests.</li>
+    <li><strong>Expansion vectors:</strong> After Mac success: Windows desktop, iOS capture companion (auto-upload from phone while shooting), Adobe Lightroom plugin, agency white-label, verticals (real-estate listing packages, e-commerce product spins).</li>
+    <li><strong>Success metric gates:</strong> Do not raise or scale hiring until: (a) 50 active weekly workspaces with real media, (b) &lt;15% manual intervention rate on first-draft packages, (c) 3 public case studies showing ≥8 hrs/week saved with measurable client turnaround improvement.</li>
+  </ol>
+
+  <h2>6. Overall Likelihood &amp; Recommendation</h2>
+  <p><strong>Probability of becoming a $5M+ ARR, profitable, 10+ person company in 5 years: ~25–35%.</strong> The engineering foundation is unusually strong for the stage, and the pain is genuine. However, the gap between "trusted workflow engine with stand-ins" and "trusted Mac app that produces client-ready social content faster and safer than existing tools" is massive — larger than most early-stage teams appreciate. Success requires founder-market fit (photography ops experience), elite execution on product quality, and luck with timing vs the current AI media hype cycle.</p>
+  <p><strong>Recommendation:</strong> Continue only if the primary contributor(s) have direct, ongoing access to the ICP and are willing to spend the next 12–18 months primarily on UI + real media quality rather than further backend sophistication. Otherwise, the codebase is an excellent open-source contribution or acqui-hire candidate for a larger media-tool company seeking workflow safety IP.</p>
+
+  <div class="footer">
+    This report was generated as a continuation task on the assigned branch. All claims derived from direct codebase inspection (src/, tests/, docs/BUSINESS_PLAN.md, PRODUCT_STRATEGY.md, DESIGN_DECISIONS.md, CONTINUATION_NOTES.md), test runs, and strategy documents. No external market research performed beyond repository contents.
+  </div>
+</div>`;
+
+export default function Page() {
+  return (
+    <HtmlDocument
+      title={"ShootFlow — Deep Commercial Viability Assessment (Continuation)"}
+      css={documentCss}
+      html={documentHtml}
+      sourceFile={"docs/commercial-viability-deep-dive.html"}
+    />
+  );
+}
