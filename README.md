@@ -8,10 +8,27 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 
 ```bash
 pnpm install
-pnpm docs:dev      # http://localhost:5173
-pnpm docs:build    # → apps/docs/dist
+pnpm docs:dev      # http://localhost:5173 (gate off in dev unless VITE_DOCS_GATE_ENABLED=true)
+pnpm docs:build    # ingest HTML reports → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
+```
+
+### Private docs hosting (domain + security)
+
+| Layer | What it does |
+|-------|----------------|
+| **TSX pages** | Product narrative (`apps/docs/src/pages/*.tsx`) |
+| **HTML ingest** | `pnpm docs:ingest` copies `docs/*.html` + `reports/*.html` into the static bundle |
+| **Passcode gate** | Production builds (`VITE_DOCS_PASSCODE`, default `pilot-docs`) — 12h browser session |
+| **GitHub Pages** | `.github/workflows/deploy-docs.yml` — set repo secret `DOCS_PASSCODE`, enable Pages |
+| **Vercel** | Root `apps/docs` project — add custom domain, enable **Deployment Protection**, set env vars |
+| **Self-host** | `pnpm docs:build && docker compose up docs` — optional `docs-secure` profile with nginx basic auth |
+
+```bash
+# Self-host with HTTP basic auth (generate docker/docs.htpasswd first)
+pnpm docs:build
+docker compose --profile secure up docs-secure   # https://localhost:8443
 ```
 
 ### Sales / marketing demo walkthrough

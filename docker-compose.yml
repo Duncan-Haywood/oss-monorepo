@@ -6,6 +6,19 @@ services:
       - "8080:80"
     volumes:
       - ./apps/docs/dist:/usr/share/nginx/html:ro
+      - ./docker/docs.nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  # nginx HTTP basic auth in front of the same dist (generate docker/docs.htpasswd)
+  docs-secure:
+    profiles: ["secure"]
+    image: nginx:alpine
+    ports:
+      - "8443:80"
+    volumes:
+      - ./apps/docs/dist:/usr/share/nginx/html:ro
+      - ./docker/docs.nginx-with-auth.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/docs.htpasswd:/etc/nginx/.htpasswd:ro
     restart: unless-stopped
 
   analytics-sync:

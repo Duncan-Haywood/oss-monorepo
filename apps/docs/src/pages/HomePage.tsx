@@ -95,6 +95,10 @@ export function HomePage() {
             "Phased delivery aligned to ROI",
           ],
           [
+            <Link to="/reports">HTML reports</Link>,
+            "Commercial viability assessments (ingested from docs/ and reports/)",
+          ],
+          [
             "Sales portal (pnpm portal:dev)",
             "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide + docs /demo script)",
           ],

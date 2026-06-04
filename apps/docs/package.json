@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -p tsconfig.json --noEmit && vite build",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "ingest": "tsx ../../scripts/ingest-html-docs.ts",
+    "dev": "pnpm run ingest && vite",
+    "build": "pnpm run ingest && tsc -p tsconfig.json --noEmit && vite build",
+    "typecheck": "pnpm run ingest && tsc -p tsconfig.json --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

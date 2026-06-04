@@ -184,3 +184,119 @@ footer {
 }
 
 .stub { color: var(--muted); font-size: 0.9rem; }
+
+.html-report-frame {
+  width: 100%;
+  min-height: 70vh;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0a0e12;
+}
+
+.docs-login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  font-family: var(--sans);
+}
+
+.docs-login-panel {
+  max-width: 26rem;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem 1.75rem;
+}
+
+.docs-login-eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.docs-login-panel h1 {
+  font-family: var(--sans);
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.docs-login-lead {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.docs-login-form label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.docs-login-form label span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.docs-login-form input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #0a0e12;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.docs-login-error {
+  color: #e86a6a;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.docs-btn-primary {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #0f1419;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.docs-link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.docs-login-foot {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 1.25rem 0 0;
+}
+
+.docs-demo-hint code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.docs-login-trust {
+  margin: 1.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.45;
+}

@@ -10,7 +10,10 @@ Planning starts at **Business value & ROI** (`/roi`) — ranks 1–3 first (door
 
 ```bash
 pnpm docs:dev
-pnpm docs:build   # output: apps/docs/dist
+pnpm docs:ingest  # copy docs/*.html and reports/*.html into the Vite app
+pnpm docs:build   # ingest + output: apps/docs/dist
 ```
 
-CI builds and uploads `apps/docs/dist` on every push to `main`.
+In the built site, open **HTML reports** (`#/reports`) for ingested assessments, or view TSX pages in the nav.
+
+CI builds and uploads `apps/docs/dist` on every push to `main`. **Deploy docs** workflow publishes to GitHub Pages when `main` changes under `apps/docs/`, `docs/`, or `reports/` (requires `DOCS_PASSCODE` secret).
