@@ -23,6 +23,16 @@ export const PRIMARY_NAV: NavItem[] = [
     description: "Architecture notes",
   },
   {
+    href: "/docs/architecture",
+    label: "Architecture",
+    description: "Core modules & handoffs",
+  },
+  {
+    href: "/docs/cli-reference",
+    label: "CLI reference",
+    description: "Agent & shell commands",
+  },
+  {
     href: "/docs/business-plan",
     label: "Business plan",
     description: "GTM overview",
