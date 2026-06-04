@@ -1,15 +1,16 @@
 # Private documentation site — deployment
 
-The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative lives in **TSX pages**; **HTML** and **Markdown** under `docs/` and `reports/` are compiled at build time into inline archive pages (`/archive/:slug`). Legacy `/reports/:slug` links redirect to the archive.
+The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative and long-form reports are **TSX** under `src/pages/` and `src/reports/`.
 
 ## Build pipeline
 
 ```bash
 pnpm docs:sync
-# 1. scripts/sync-html-docs.ts  → apps/docs/public/html-reports/ + htmlReportManifest.ts
-# 2. scripts/build-doc-sources.ts → apps/docs/public/generated/ + source-manifest.ts
+# scripts/build-report-manifest.ts → apps/docs/src/generated/report-manifest.ts
 pnpm docs:build   # → apps/docs/dist
 ```
+
+Legacy `/archive/*` and old `/reports/docs-*` slugs redirect to `/reports/:slug`.
 
 ## Local
 

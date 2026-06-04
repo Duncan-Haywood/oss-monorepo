@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "sync": "tsx ../../scripts/sync-html-docs.ts && tsx ../../scripts/build-doc-sources.ts",
+    "sync": "tsx ../../scripts/build-report-manifest.ts",
     "dev": "pnpm run sync && vite",
     "prebuild": "pnpm run sync",
     "build": "tsc -p tsconfig.json --noEmit && vite build",

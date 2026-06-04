@@ -8,9 +8,8 @@ on:
     paths:
       - "apps/docs/**"
       - "docs/**"
-      - "reports/**"
-      - "scripts/sync-html-docs.ts"
-      - "scripts/build-doc-sources.ts"
+      - "scripts/build-report-manifest.ts"
+      - "scripts/migrate-html-to-tsx-reports.ts"
       - "packages/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/deploy-docs.yml"
