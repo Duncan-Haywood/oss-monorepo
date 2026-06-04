@@ -10,6 +10,7 @@ import { BusinessPlanPage } from "./pages/BusinessPlanPage";
 import { GtmPage } from "./pages/GtmPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DemoPage } from "./pages/DemoPage";
+import { HtmlReportPage } from "./pages/HtmlReportPage";
 
 export function App() {
   return (
@@ -26,6 +27,7 @@ export function App() {
       <Route path="/roadmap" element={<RoadmapPage />} />
       <Route path="/demo" element={<DemoPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/reports/:slug" element={<HtmlReportPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
