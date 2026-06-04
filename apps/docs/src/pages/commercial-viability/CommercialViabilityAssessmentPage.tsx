@@ -1,173 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Commercial Viability Assessment — Retail Pilot Intel</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --surface: #1a222d;
-      --surface2: #243040;
-      --text: #e8edf4;
-      --muted: #8b9cb3;
-      --accent: #3d8f7a;
-      --accent2: #5eb8a0;
-      --warn: #c9a227;
-      --danger: #d45d5d;
-      --ok: #4caf82;
-      --border: #2d3a4d;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-      --mono: "SF Mono", "Consolas", monospace;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      font-size: 16px;
-    }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    .meta { color: var(--muted); font-size: 0.9rem; }
-    h2 {
-      font-size: 1.25rem;
-      margin: 2.25rem 0 0.75rem;
-      color: var(--accent2);
-      font-weight: 600;
-    }
-    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
-    p { margin: 0.6rem 0; }
-    a { color: var(--accent2); }
-    .verdict-box {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-    @media (max-width: 640px) { .verdict-box { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.35rem;
-    }
-    .card.highlight { border-color: var(--accent); background: linear-gradient(135deg, #1a2a28 0%, var(--surface) 100%); }
-    .card.warn { border-color: var(--warn); }
-    .card.danger { border-color: var(--danger); }
-    .score {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent2);
-      line-height: 1;
-    }
-    .score-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .badge-conditional { background: #3d3520; color: var(--warn); }
-    .badge-moderate { background: #1e3a32; color: var(--ok); }
-    .badge-low { background: #3a2020; color: var(--danger); }
-    .badge-high { background: #1e3a32; color: var(--ok); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 1rem 0;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.55rem 0.75rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: var(--surface2); color: var(--muted); font-weight: 600; }
-    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-    ul, ol { margin: 0.5rem 0; padding-left: 1.35rem; }
-    li { margin: 0.35rem 0; }
-    .bar-row { margin: 0.5rem 0; }
-    .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
-    .bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
-    .bar-fill.warn { background: var(--warn); }
-    .bar-fill.danger { background: var(--danger); }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-    @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr; } }
-    .scenario { font-family: var(--mono); font-size: 0.85rem; }
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-    .rec-priority::before {
-      content: attr(data-p);
-      display: inline-block;
-      width: 1.4rem;
-      height: 1.4rem;
-      line-height: 1.4rem;
-      text-align: center;
-      background: var(--accent);
-      color: var(--bg);
-      border-radius: 50%;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-right: 0.5rem;
-      vertical-align: middle;
-    }
-    code { font-family: var(--mono); font-size: 0.88em; background: var(--surface2); padding: 0.1em 0.35em; border-radius: 3px; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Commercial Viability Assessment</h1>
-      <p class="meta">
-        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury retail<br />
-        Assessment date: 3 June 2026 · Repository: retail-pilot-intel (detached HEAD aefa569)<br />
-        Scope: Deep evaluation of profitability, scalability, and whether this is a business worth pursuing
-      </p>
-    </header>
+/** Converted from reports/commercial-viability-assessment.html — edit here; re-run convert-html-to-tsx.ts to refresh from HTML. */
+import { Link } from "react-router-dom";
+import { DocLayout } from "../../components/DocLayout";
+import { CommercialViabilitySubnav } from "../../components/CommercialViabilitySubnav";
+
+export function CommercialViabilityAssessmentPage() {
+  return (
+    <DocLayout
+      title={"Commercial Viability Assessment"}
+      subtitle={"Retail Pilot Intel · Privacy-first store intelligence for micro-format luxury retail · Assessment date: 3 June 2026 · Repository: retail-pilot-intel (detached HEAD aefa569) · Scope: Deep evaluation of profitability, scalability, and whether this is a business worth pursuing"}
+      footer={
+        <>
+          <Link to="/commercial-viability">← Commercial viability hub</Link>
+          {" · "}
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+        </>
+      }
+    >
+      <CommercialViabilitySubnav />
+      <div className="doc-prose">
 
     <section id="executive-summary">
       <h2>Executive summary</h2>
-      <div class="verdict-box">
-        <div class="card highlight">
-          <div class="score">6.2<span style="font-size:1rem;color:var(--muted)">/10</span></div>
-          <div class="score-label">Overall commercial viability (conditional pursue)</div>
-          <p style="margin-top:1rem">
+      <div className="verdict-box">
+        <div className="card highlight">
+          <div className="score">6.2<span style={{ fontSize: "1rem", color: "var(--muted)" }}>/10</span></div>
+          <div className="score-label">Overall commercial viability (conditional pursue)</div>
+          <p style={{ marginTop: "1rem" }}>
             <strong>Verdict:</strong> Worth pursuing as a <em>focused bootstrap venture</em> — not as a venture-scale SaaS bet yet.
             The problem, ICP, pricing logic, and GTM narrative are unusually mature for this stage. What is immature is
             <strong>product proof</strong>: no live pilot, edge CV and POS are stubs, and the sales portal runs on illustrative data.
           </p>
         </div>
-        <div class="card">
+        <div className="card">
           <p><strong>One-line recommendation</strong></p>
           <p>
             Sign the Italy design partner, ship M1–M4 (door + POS join + LAN dashboard + DPIA), and do not scale sales
             until one owner documents a weekly € action for 30+ days. Until then, treat the repo as sales enablement + engineering
             scaffold, not a revenue business.
           </p>
-          <p style="margin-top:0.75rem">
-            <span class="badge badge-conditional">Pursue with gates</span>
+          <p style={{ marginTop: "0.75rem" }}>
+            <span className="badge badge-conditional">Pursue with gates</span>
             &nbsp;
-            <span class="badge badge-moderate">Bootstrap-viable</span>
+            <span className="badge badge-moderate">Bootstrap-viable</span>
             &nbsp;
-            <span class="badge badge-low">Not VC-ready</span>
+            <span className="badge badge-low">Not VC-ready</span>
           </p>
         </div>
       </div>
@@ -214,41 +92,41 @@
           <tr>
             <td>Door + POS join → conversion %</td>
             <td><code>packages/analytics</code> syncs JSON events to SQLite; <code>dailySummary</code> computes entries, purchases, conversion. Edge/POS CLIs only emit <code>--sample</code> stubs.</td>
-            <td><span class="badge badge-high">Critical</span></td>
+            <td><span className="badge badge-high">Critical</span></td>
           </tr>
           <tr>
             <td>LAN dashboard for owner ritual</td>
             <td><code>apps/portal</code> is a polished demo UI with hardcoded “Atelier Linea” data; not wired to <code>data/pilot.db</code>.</td>
-            <td><span class="badge badge-high">Critical</span></td>
+            <td><span className="badge badge-high">Critical</span></td>
           </tr>
           <tr>
             <td>Edge CV (RTSP, line-crossing)</td>
             <td><code>packages/edge</code> exits with “not connected to RTSP” unless sample mode.</td>
-            <td><span class="badge badge-high">Critical</span></td>
+            <td><span className="badge badge-high">Critical</span></td>
           </tr>
           <tr>
             <td>POS vendor adapter</td>
             <td><code>packages/pos</code> stub only; no Tilby/Lightspeed-class integration.</td>
-            <td><span class="badge badge-high">Critical</span></td>
+            <td><span className="badge badge-high">Critical</span></td>
           </tr>
           <tr>
             <td>SKU desirability gap, experiments</td>
             <td>Illustrated in portal demo only; no backend tables or rollups.</td>
-            <td><span class="badge badge-conditional">Phase 2</span></td>
+            <td><span className="badge badge-conditional">Phase 2</span></td>
           </tr>
           <tr>
             <td>GDPR / DPIA posture</td>
             <td>Documented on privacy page; architecture diagram; no signed pilot DPIA in repo.</td>
-            <td><span class="badge badge-conditional">Process</span></td>
+            <td><span className="badge badge-conditional">Process</span></td>
           </tr>
           <tr>
             <td>Sales &amp; investor narrative</td>
             <td>Business plan, GTM, ROI matrix, roadmap, demo script — production-quality TSX docs site + CI.</td>
-            <td><span class="badge badge-moderate">Strength</span></td>
+            <td><span className="badge badge-moderate">Strength</span></td>
           </tr>
         </tbody>
       </table>
-      <div class="card warn">
+      <div className="card warn">
         <p>
           <strong>Implication:</strong> The business is currently a <em>validated hypothesis packaged for sales</em>, not an
           operating product company. Commercial viability hinges on closing the M1–M4 gap with one paying design partner before
@@ -292,17 +170,17 @@
         returns without expanding ACV (multi-door families, Margin+ mix) or reducing CAC via channel partners below €800–€1.2k.
       </p>
 
-      <div class="bar-row">
-        <div class="bar-label"><span>Probability of bootstrap profitability by Y3 (base case)</span><span>55%</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:55%"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Probability of bootstrap profitability by Y3 (base case)</span><span>55%</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "55%" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Probability design partner churns before M4</span><span>35%</span></div>
-        <div class="bar-track"><div class="bar-fill warn" style="width:35%"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Probability design partner churns before M4</span><span>35%</span></div>
+        <div className="bar-track"><div className="bar-fill warn" style={{ width: "35%" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Probability POS vendor blocks export (fatal for wedge)</span><span>25%</span></div>
-        <div class="bar-track"><div class="bar-fill danger" style="width:25%"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Probability POS vendor blocks export (fatal for wedge)</span><span>25%</span></div>
+        <div className="bar-track"><div className="bar-fill danger" style={{ width: "25%" }}></div></div>
       </div>
     </section>
 
@@ -347,17 +225,17 @@
 
     <section id="market">
       <h2>Market opportunity</h2>
-      <div class="grid-3">
-        <div class="card">
-          <h3 style="margin-top:0">TAM</h3>
+      <div className="grid-3">
+        <div className="card">
+          <h3 style={{ marginTop: "0" }}>TAM</h3>
           <p>EU independent specialty retail with POS + storefront — hundreds of thousands of doors. <em>Too broad to operate.</em></p>
         </div>
-        <div class="card">
-          <h3 style="margin-top:0">SAM</h3>
+        <div className="card">
+          <h3 style={{ marginTop: "0" }}>SAM</h3>
           <p>Single-site luxury/accessories &lt;50 m², AOV €150+ — Italy low tens of thousands; EU multiple larger.</p>
         </div>
-        <div class="card highlight">
-          <h3 style="margin-top:0">SOM (36 mo)</h3>
+        <div className="card highlight">
+          <h3 style={{ marginTop: "0" }}>SOM (36 mo)</h3>
           <p>50–200 stores via direct + installer — <strong>this is the operable market</strong> for a bootstrap team.</p>
         </div>
       </div>
@@ -420,13 +298,13 @@
         partner economics, nurture calendar aligned to Italian retail seasonality, and a scripted demo path (Business value → Overview →
         Products → Experiments → Trust).
       </p>
-      <div class="bar-row">
-        <div class="bar-label"><span>GTM narrative quality</span><span>85%</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>GTM narrative quality</span><span>85%</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "85%" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Ability to close without live pilot proof</span><span>40%</span></div>
-        <div class="bar-track"><div class="bar-fill warn" style="width:40%"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Ability to close without live pilot proof</span><span>40%</span></div>
+        <div className="bar-track"><div className="bar-fill warn" style={{ width: "40%" }}></div></div>
       </div>
       <p>
         <strong>GTM verdict:</strong> Motion is correctly designed for ACV. Success rate will jump once anonymized conversion trend and
@@ -443,20 +321,20 @@
         <tbody>
           <tr>
             <td><strong>Bear</strong></td>
-            <td class="scenario">8–15</td>
-            <td class="scenario">€20k–€35k</td>
+            <td className="scenario">8–15</td>
+            <td className="scenario">€20k–€35k</td>
             <td>Pilot stalls on GDPR or POS; founder pivots or shuts down; docs/portal remain consulting assets</td>
           </tr>
           <tr>
             <td><strong>Base</strong></td>
-            <td class="scenario">40–60</td>
-            <td class="scenario">€95k–€140k</td>
+            <td className="scenario">40–60</td>
+            <td className="scenario">€95k–€140k</td>
             <td>1 case study, 2 partners, 2 POS adapters; sustainable side business / pre-seed optional</td>
           </tr>
           <tr>
             <td><strong>Bull</strong></td>
-            <td class="scenario">80–120</td>
-            <td class="scenario">€190k–€320k</td>
+            <td className="scenario">80–120</td>
+            <td className="scenario">€190k–€320k</td>
             <td>Street benchmarks viral in clusters; Margin+ mix; family micro-groups; hire CS + partner manager</td>
           </tr>
         </tbody>
@@ -525,7 +403,7 @@
 
     <section id="worth-pursuing">
       <h2>Is it worth pursuing?</h2>
-      <div class="card highlight">
+      <div className="card highlight">
         <p><strong>Yes — if you accept these constraints:</strong></p>
         <ol>
           <li><strong>Stage gate:</strong> Do not raise capital or hire until M4 (joined funnel live 7 days + owner weekly € action).</li>
@@ -535,7 +413,7 @@
           <li><strong>Time investment:</strong> Founder-engineer + design partner for 6–9 months before expecting channel scale.</li>
         </ol>
       </div>
-      <div class="card danger">
+      <div className="card danger">
         <p><strong>No — or pause — if any of these are true:</strong></p>
         <ul>
           <li>You cannot secure a design partner with POS export and appetite for a DPIA-backed camera install.</li>
@@ -552,57 +430,57 @@
 
       <h3>Critical path (next 90 days)</h3>
       <ul>
-        <li class="rec-priority" data-p="1">
+        <li className="rec-priority" data-p="1">
           <strong>Sign design-partner term sheet</strong> before hardware spend — setup fee, M4 pricing, publicity, exit/buyback.
           Without a committed owner, the repo remains a prototype.
         </li>
-        <li class="rec-priority" data-p="2">
+        <li className="rec-priority" data-p="2">
           <strong>Ship one real POS path</strong> (API or nightly export) for the pilot vendor — revenue join is the product;
           footfall-only commoditizes you.
         </li>
-        <li class="rec-priority" data-p="3">
+        <li className="rec-priority" data-p="3">
           <strong>Implement minimal edge ingest</strong> (RTSP → line-cross → aggregate events) with a manual tally validation week.
         </li>
-        <li class="rec-priority" data-p="4">
+        <li className="rec-priority" data-p="4">
           <strong>Wire portal or a simple LAN UI to live SQLite</strong> — replace illustrative demo for the pilot store only;
           keep demo mode for prospects.
         </li>
-        <li class="rec-priority" data-p="5">
+        <li className="rec-priority" data-p="5">
           <strong>Complete DPIA with counsel before camera go-live</strong> — existential risk in Italy; documented posture is not enough.
         </li>
       </ul>
 
       <h3>Revenue &amp; retention</h3>
       <ul>
-        <li class="rec-priority" data-p="6">
+        <li className="rec-priority" data-p="6">
           <strong>Automate the “weekly owner report” (1 page PDF/email)</strong> from real rollups — retention is tied to € actions, not logins.
         </li>
-        <li class="rec-priority" data-p="7">
+        <li className="rec-priority" data-p="7">
           <strong>Instrument experiment registry in analytics</strong> before selling Margin+ — desirability gap is the upsell justification.
         </li>
-        <li class="rec-priority" data-p="8">
+        <li className="rec-priority" data-p="8">
           <strong>Define hard churn early-warning:</strong> 14 days no login + no experiment → founder call, not email drip.
         </li>
-        <li class="rec-priority" data-p="9">
+        <li className="rec-priority" data-p="9">
           <strong>Capture objections from 3 discovery calls</strong> in a living doc — refine term sheet and portal copy weekly.
         </li>
       </ul>
 
       <h3>Scale &amp; moat</h3>
       <ul>
-        <li class="rec-priority" data-p="10">
+        <li className="rec-priority" data-p="10">
           <strong>Publish anonymized case study within 60 days of M4</strong> — unlocks cluster stage and consultant channel.
         </li>
-        <li class="rec-priority" data-p="11">
+        <li className="rec-priority" data-p="11">
           <strong>Lock one installer + one POS integrator in Milano</strong> with economics sheet — test channel-led close without founder travel.
         </li>
-        <li class="rec-priority" data-p="12">
+        <li className="rec-priority" data-p="12">
           <strong>Ship installer BOM + 2h commissioning checklist as repo artifacts</strong> (PDF/markdown) — reduces founder bottleneck.
         </li>
-        <li class="rec-priority" data-p="13">
+        <li className="rec-priority" data-p="13">
           <strong>Second POS adapter</strong> only after first pilot renewal intent — unlocks adjacent verticals (eyewear, jewelry).
         </li>
-        <li class="rec-priority" data-p="14">
+        <li className="rec-priority" data-p="14">
           <strong>Italian SEO on docs</strong> (conversion + POS boutique long-tail) — low-cost inbound per GTM plan.
         </li>
       </ul>
@@ -671,5 +549,6 @@
       </p>
     </footer>
   </div>
-</body>
-</html>
+    </DocLayout>
+  );
+}

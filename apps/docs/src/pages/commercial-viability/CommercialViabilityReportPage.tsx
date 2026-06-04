@@ -1,202 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Commercial Viability Assessment — Retail Pilot Intel</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --surface: #1a222c;
-      --surface2: #243040;
-      --text: #e8edf4;
-      --muted: #9aa8b8;
-      --accent: #3d9ee8;
-      --ok: #3dba7a;
-      --warn: #e8b84a;
-      --bad: #e86a6a;
-      --border: #2d3a4a;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      font-size: 16px;
-    }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    h1 { font-size: 1.75rem; font-weight: 650; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
-    .meta { color: var(--muted); font-size: 0.9rem; }
-    h2 {
-      font-size: 1.25rem;
-      margin: 2.25rem 0 0.75rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
-    p { margin: 0.6rem 0; }
-    a { color: var(--accent); }
-    .score-hero {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-    @media (max-width: 640px) { .score-hero { grid-template-columns: 1fr; } }
-    .score-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.35rem;
-    }
-    .score-card.primary { border-color: var(--accent); }
-    .score-big { font-size: 2.5rem; font-weight: 700; line-height: 1; }
-    .score-label { color: var(--muted); font-size: 0.85rem; margin-top: 0.35rem; }
-    .verdict {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--warn);
-    }
-    .pill {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .pill-conditional { background: rgba(232, 184, 74, 0.2); color: var(--warn); }
-    .pill-low { background: rgba(232, 106, 106, 0.2); color: var(--bad); }
-    .pill-mid { background: rgba(61, 158, 232, 0.2); color: var(--accent); }
-    .pill-high { background: rgba(61, 186, 122, 0.2); color: var(--ok); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 0.75rem 0 1rem;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.55rem 0.65rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: var(--surface2); font-weight: 600; }
-    tr:nth-child(even) td { background: rgba(26, 34, 44, 0.5); }
-    .bar-row { margin: 0.4rem 0; }
-    .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
-    .bar-track {
-      height: 8px;
-      background: var(--surface2);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .bar-fill { height: 100%; border-radius: 4px; }
-    .callout {
-      background: var(--surface);
-      border-left: 4px solid var(--accent);
-      padding: 1rem 1.15rem;
-      margin: 1rem 0;
-      border-radius: 0 8px 8px 0;
-    }
-    .callout.warn { border-left-color: var(--warn); }
-    .callout.ok { border-left-color: var(--ok); }
-    .callout.bad { border-left-color: var(--bad); }
-    ul, ol { margin: 0.5rem 0 0.75rem; padding-left: 1.35rem; }
-    li { margin: 0.35rem 0; }
-    .scenario-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.85rem;
-      margin: 1rem 0;
-    }
-    @media (max-width: 720px) { .scenario-grid { grid-template-columns: 1fr; } }
-    .scenario {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    .scenario h4 { margin: 0 0 0.5rem; font-size: 0.95rem; }
-    .scenario .prob { font-size: 0.8rem; color: var(--muted); }
-    .rec {
-      counter-reset: rec;
-      list-style: none;
-      padding: 0;
-    }
-    .rec li {
-      counter-increment: rec;
-      padding: 0.85rem 1rem 0.85rem 2.75rem;
-      position: relative;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 0.65rem;
-    }
-    .rec li::before {
-      content: counter(rec);
-      position: absolute;
-      left: 0.85rem;
-      top: 0.85rem;
-      width: 1.5rem;
-      height: 1.5rem;
-      background: var(--accent);
-      color: var(--bg);
-      border-radius: 50%;
-      font-size: 0.8rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .rec strong { color: var(--text); }
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-    .mermaid-note { font-size: 0.85rem; color: var(--muted); font-style: italic; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Commercial Viability Assessment</h1>
-      <p class="meta">
-        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury retail<br />
-        Assessment date: 3 June 2026 · Repository snapshot: pre-pilot / M0–M1 technical stage
-      </p>
-    </header>
+/** Converted from docs/commercial-viability-report.html — edit here; re-run convert-html-to-tsx.ts to refresh from HTML. */
+import { Link } from "react-router-dom";
+import { DocLayout } from "../../components/DocLayout";
+import { CommercialViabilitySubnav } from "../../components/CommercialViabilitySubnav";
+
+export function CommercialViabilityReportPage() {
+  return (
+    <DocLayout
+      title={"Commercial Viability Assessment"}
+      subtitle={"Retail Pilot Intel · Privacy-first store intelligence for micro-format luxury retail · Assessment date: 3 June 2026 · Repository snapshot: pre-pilot / M0–M1 technical stage"}
+      footer={
+        <>
+          <Link to="/commercial-viability">← Commercial viability hub</Link>
+          {" · "}
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+        </>
+      }
+    >
+      <CommercialViabilitySubnav />
+      <div className="doc-prose">
 
     <section id="executive-summary">
       <h2>Executive summary</h2>
-      <div class="score-hero">
-        <div class="score-card primary">
-          <div class="score-big" style="color: var(--warn)">5.4<span style="font-size:1.2rem;color:var(--muted)">/10</span></div>
-          <div class="score-label">Overall commercial viability (weighted)</div>
-          <p class="verdict" style="margin-top:0.75rem">Conditionally worth pursuing — not as a venture-scale bet yet</p>
+      <div className="score-hero">
+        <div className="score-card primary">
+          <div className="score-big" style={{ color: "var(--warn)" }}>5.4<span style={{ fontSize: "1.2rem", color: "var(--muted)" }}>/10</span></div>
+          <div className="score-label">Overall commercial viability (weighted)</div>
+          <p className="verdict" style={{ marginTop: "0.75rem" }}>Conditionally worth pursuing — not as a venture-scale bet yet</p>
         </div>
-        <div class="score-card">
-          <div class="score-big" style="color: var(--accent)">62%</div>
-          <div class="score-label">Probability of reaching €50k+ ARR within 36 months (with committed founder + design partner)</div>
-          <p style="margin-top:0.75rem;font-size:0.9rem;color:var(--muted)">
+        <div className="score-card">
+          <div className="score-big" style={{ color: "var(--accent)" }}>62%</div>
+          <div className="score-label">Probability of reaching €50k+ ARR within 36 months (with committed founder + design partner)</div>
+          <p style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "var(--muted)" }}>
             Without a signed Italy pilot and one POS adapter, drops to ~25%.
           </p>
         </div>
       </div>
 
-      <div class="callout warn">
+      <div className="callout warn">
         <p><strong>Bottom line:</strong> The <em>problem</em> is real, the <em>wedge ICP</em> is well chosen, and the <em>go-to-market collateral</em> in this repo is unusually strong for a pre-revenue product. What is <strong>not</strong> yet proven is that owners will pay recurring fees for joined door+POS intelligence, that edge CV can be installed reliably in historic Italian storefronts, or that the business can scale beyond founder-led delivery. Today this is a <strong>credible bootstrap niche SaaS + services</strong> play—not a default path to a large, capital-efficient software company without substantial execution risk reduction.</p>
       </div>
 
@@ -205,15 +47,15 @@
           <tr><th>Dimension</th><th>Score</th><th>Signal</th></tr>
         </thead>
         <tbody>
-          <tr><td>Problem &amp; buyer pain</td><td><span class="pill pill-high">7.5/10</span></td><td>Micro luxury retailers lack conversion + margin joins; enterprise tools are mis-fit.</td></tr>
-          <tr><td>Market &amp; timing</td><td><span class="pill pill-mid">6.5/10</span></td><td>Growing footfall+POS segment; Italy wedge sensible; TAM large but SAM execution-heavy.</td></tr>
-          <tr><td>Product–market fit evidence</td><td><span class="pill pill-low">2.5/10</span></td><td>No live pilot, no paying customers, no validated € outcomes from real store data.</td></tr>
-          <tr><td>Technical delivery vs. promise</td><td><span class="pill pill-low">3.5/10</span></td><td>Schemas + SQLite funnel exist; CV, POS adapters, LAN dashboard, experiments are stubs or docs-only.</td></tr>
-          <tr><td>Competitive differentiation</td><td><span class="pill pill-mid">5.5/10</span></td><td>Privacy + € ritual + POS join is coherent; not unique—many vendors chase conversion KPIs.</td></tr>
-          <tr><td>Unit economics &amp; pricing</td><td><span class="pill pill-mid">6/10</span></td><td>€149–€449/mo anchored to one sale/month is credible; CAC and install burden threaten margins.</td></tr>
-          <tr><td>GTM readiness</td><td><span class="pill pill-high">7.5/10</span></td><td>Business plan, ROI matrix, demo portal, privacy narrative—sales enablement ahead of product.</td></tr>
-          <tr><td>Scalability</td><td><span class="pill pill-low">4/10</span></td><td>Low ACV, hardware, DPIA, per-store install; channel model unproven until M2 playbook ships.</td></tr>
-          <tr><td>Regulatory / trust risk</td><td><span class="pill pill-mid">5/10</span></td><td>GDPR-first design helps; camera analytics still triggers DPIA and owner anxiety in Italy.</td></tr>
+          <tr><td>Problem &amp; buyer pain</td><td><span className="pill pill-high">7.5/10</span></td><td>Micro luxury retailers lack conversion + margin joins; enterprise tools are mis-fit.</td></tr>
+          <tr><td>Market &amp; timing</td><td><span className="pill pill-mid">6.5/10</span></td><td>Growing footfall+POS segment; Italy wedge sensible; TAM large but SAM execution-heavy.</td></tr>
+          <tr><td>Product–market fit evidence</td><td><span className="pill pill-low">2.5/10</span></td><td>No live pilot, no paying customers, no validated € outcomes from real store data.</td></tr>
+          <tr><td>Technical delivery vs. promise</td><td><span className="pill pill-low">3.5/10</span></td><td>Schemas + SQLite funnel exist; CV, POS adapters, LAN dashboard, experiments are stubs or docs-only.</td></tr>
+          <tr><td>Competitive differentiation</td><td><span className="pill pill-mid">5.5/10</span></td><td>Privacy + € ritual + POS join is coherent; not unique—many vendors chase conversion KPIs.</td></tr>
+          <tr><td>Unit economics &amp; pricing</td><td><span className="pill pill-mid">6/10</span></td><td>€149–€449/mo anchored to one sale/month is credible; CAC and install burden threaten margins.</td></tr>
+          <tr><td>GTM readiness</td><td><span className="pill pill-high">7.5/10</span></td><td>Business plan, ROI matrix, demo portal, privacy narrative—sales enablement ahead of product.</td></tr>
+          <tr><td>Scalability</td><td><span className="pill pill-low">4/10</span></td><td>Low ACV, hardware, DPIA, per-store install; channel model unproven until M2 playbook ships.</td></tr>
+          <tr><td>Regulatory / trust risk</td><td><span className="pill pill-mid">5/10</span></td><td>GDPR-first design helps; camera analytics still triggers DPIA and owner anxiety in Italy.</td></tr>
         </tbody>
       </table>
     </section>
@@ -234,41 +76,41 @@
           <tr>
             <td>Door line-crossing / entry counts</td>
             <td><code>packages/edge</code> — sample JSON only; RTSP/CV not connected</td>
-            <td><span class="pill pill-low">Critical</span></td>
+            <td><span className="pill pill-low">Critical</span></td>
           </tr>
           <tr>
             <td>POS revenue join</td>
             <td><code>packages/pos</code> — sample sale events; no vendor adapters</td>
-            <td><span class="pill pill-low">Critical</span></td>
+            <td><span className="pill pill-low">Critical</span></td>
           </tr>
           <tr>
             <td>Conversion funnel KPIs</td>
             <td><code>packages/analytics</code> — daily entries/purchases/conversion in SQLite</td>
-            <td><span class="pill pill-mid">Partial</span></td>
+            <td><span className="pill pill-mid">Partial</span></td>
           </tr>
           <tr>
             <td>Desirability gap, experiments, upsell</td>
             <td>Documented in docs/portal; <strong>zero implementation</strong> in packages</td>
-            <td><span class="pill pill-low">Critical</span></td>
+            <td><span className="pill pill-low">Critical</span></td>
           </tr>
           <tr>
             <td>LAN owner dashboard</td>
             <td>Architecture described; production dashboard not in repo (portal uses illustrative demo data)</td>
-            <td><span class="pill pill-low">Critical</span></td>
+            <td><span className="pill pill-low">Critical</span></td>
           </tr>
           <tr>
             <td>GDPR / DPIA go-live</td>
             <td>Privacy page + principles; no signed DPIA artifact in repo</td>
-            <td><span class="pill pill-mid">Process</span></td>
+            <td><span className="pill pill-mid">Process</span></td>
           </tr>
           <tr>
             <td>Sales &amp; investor narrative</td>
             <td>Rich TSX docs site + passcode demo portal + CI — <strong>production-ready collateral</strong></td>
-            <td><span class="pill pill-high">Strength</span></td>
+            <td><span className="pill pill-high">Strength</span></td>
           </tr>
         </tbody>
       </table>
-      <p class="mermaid-note">CI pipeline passes: typecheck, lint, build, bootstrap smoke (sample events → SQLite → daily report). That validates engineering hygiene, not market validation.</p>
+      <p className="mermaid-note">CI pipeline passes: typecheck, lint, build, bootstrap smoke (sample events → SQLite → daily report). That validates engineering hygiene, not market validation.</p>
     </section>
 
     <section id="market">
@@ -281,10 +123,10 @@
         <li><strong>SAM (Italy/EU luxury micro, AOV €150+, &lt;50 m²):</strong> Plausible low tens of thousands in Italy; expansion requires adapter and privacy playbook per country.</li>
         <li><strong>SOM (36 months, in-repo plan):</strong> 50–200 stores via direct + installers—<em>ambitious</em> given current stage; 15–40 stores is a more realistic bootstrap ceiling without funding.</li>
       </ul>
-      <div class="callout ok">
+      <div className="callout ok">
         <p><strong>Why the wedge works on paper:</strong> Italy historic centers combine tourism volatility, high privacy sensitivity, dense referral clusters (same street), and owner-operators who already pay for POS and sometimes footfall counters—but rarely get margin-linked weekly actions. Selling “one extra bag per month pays for this” matches how they think about money.</p>
       </div>
-      <div class="callout bad">
+      <div className="callout bad">
         <p><strong>Why the wedge may not scale fast:</strong> Each store is a mini integration project (camera mount, edge PC, POS export, DPIA). Competitors and POS vendors can add “conversion rate” dashboards; owners may treat insights as interesting but not habit-forming—churn driver called out correctly in the business plan.</p>
       </div>
     </section>
@@ -384,21 +226,21 @@
       <h2>Go-to-market feasibility</h2>
       <p>The repo’s GTM strategy is one of its strongest assets: digital-first discovery, async demo portal, ROI-led copy, narrow ICP, anti-personas, partner economics, PQL rules, and proof-library build order.</p>
 
-      <div class="bar-row">
-        <div class="bar-label"><span>Sales collateral completeness</span><span>8/10</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:80%;background:var(--ok)"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Sales collateral completeness</span><span>8/10</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "80%", background: "var(--ok)" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Founder network / design partner access (unknown)</span><span>?</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--muted)"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Founder network / design partner access (unknown)</span><span>?</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "40%", background: "var(--muted)" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Channel partner traction</span><span>1/10</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--bad)"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Channel partner traction</span><span>1/10</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "10%", background: "var(--bad)" }}></div></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label"><span>Proof assets (case study, live charts)</span><span>1/10</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--bad)"></div></div>
+      <div className="bar-row">
+        <div className="bar-label"><span>Proof assets (case study, live charts)</span><span>1/10</span></div>
+        <div className="bar-track"><div className="bar-fill" style={{ width: "10%", background: "var(--bad)" }}></div></div>
       </div>
 
       <p>
@@ -408,25 +250,25 @@
 
     <section id="scenarios">
       <h2>Outcome scenarios (36 months)</h2>
-      <div class="scenario-grid">
-        <div class="scenario">
+      <div className="scenario-grid">
+        <div className="scenario">
           <h4>Bootstrap lifestyle</h4>
-          <p class="prob">Probability: ~35%</p>
+          <p className="prob">Probability: ~35%</p>
           <p>8–20 stores, €20k–€50k ARR, founder + part-time install support. Covers tools and modest income; slow growth.</p>
         </div>
-        <div class="scenario">
+        <div className="scenario">
           <h4>Regional niche winner</h4>
-          <p class="prob">Probability: ~20%</p>
+          <p className="prob">Probability: ~20%</p>
           <p>40–80 stores Italy + adjacent EU, €100k–€250k ARR, 2 POS adapters, working partner channel. Requires flawless pilot + cluster referrals.</p>
         </div>
-        <div class="scenario">
+        <div className="scenario">
           <h4>Stalled pilot</h4>
-          <p class="prob">Probability: ~30%</p>
+          <p className="prob">Probability: ~30%</p>
           <p>Design partner never reaches M4; GDPR delay; POS export blocked; owner does not weekly ritual. Remains consulting/docs project.</p>
         </div>
-        <div class="scenario" style="grid-column: 1 / -1; max-width: 100%;">
+        <div className="scenario" style={{ gridColumn: "1 / -1", maxWidth: "100%" }}>
           <h4>Venture-scale exit</h4>
-          <p class="prob">Probability: &lt;5% without category expansion or 10× ACV uplift</p>
+          <p className="prob">Probability: &lt;5% without category expansion or 10× ACV uplift</p>
           <p>ACV and services load are misaligned with typical SaaS fund returns unless repositioned to multi-door groups, franchise rollups, or white-label platform for integrators.</p>
         </div>
       </div>
@@ -471,10 +313,10 @@
         </tbody>
       </table>
 
-      <div class="callout ok">
+      <div className="callout ok">
         <p><strong>What makes this more viable than typical pre-pilot startups:</strong> disciplined ROI ordering, honest anti-personas, privacy as sales enabler, pricing tied to owner language (€/week), and a complete async sales funnel in-repo. The team has thought like operators, not feature factories.</p>
       </div>
-      <div class="callout warn">
+      <div className="callout warn">
         <p><strong>What blocks “highly scalable business” today:</strong> sub-€3k ACV, hardware on-site, unbuilt core product, no moat, crowded adjacent solutions, and success tied to human habit formation in a low-tech buyer.</p>
       </div>
     </section>
@@ -482,7 +324,7 @@
     <section id="recommendations">
       <h2>Recommendations for a more successful business</h2>
       <p>Ordered by impact on viability and scale. These go beyond what the business plan already lists—focusing on gaps exposed by code vs. docs.</p>
-      <ol class="rec">
+      <ol className="rec">
         <li>
           <strong>Close the design partner before more GTM assets.</strong>
           Sign term sheet, POS export path, and M4 pricing lock. Without this, commercial viability stays theoretical. Success metric: owner names one € action/week on <em>real</em> joined data within 45 days of install.
@@ -600,5 +442,6 @@
       <p>Generated for repository planning. Open this file in a browser: <code>docs/commercial-viability-report.html</code></p>
     </footer>
   </div>
-</body>
-</html>
+    </DocLayout>
+  );
+}

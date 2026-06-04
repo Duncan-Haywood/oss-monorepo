@@ -1,164 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Commercial Viability Deep Assessment — Retail Pilot Intel</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --surface: #1a222d;
-      --surface2: #243040;
-      --text: #e8edf4;
-      --muted: #8b9cb3;
-      --accent: #3d8f7a;
-      --accent2: #5eb8a0;
-      --warn: #c9a227;
-      --danger: #d45d5d;
-      --ok: #4caf82;
-      --border: #2d3a4d;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-      --mono: "SF Mono", "Consolas", monospace;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      font-size: 16px;
-    }
-    .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    .meta { color: var(--muted); font-size: 0.9rem; }
-    h2 {
-      font-size: 1.25rem;
-      margin: 2.25rem 0 0.75rem;
-      color: var(--accent2);
-      font-weight: 600;
-    }
-    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
-    p { margin: 0.6rem 0; }
-    a { color: var(--accent2); }
-    .verdict-box {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-    @media (max-width: 640px) { .verdict-box { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.35rem;
-    }
-    .card.highlight { border-color: var(--accent); background: linear-gradient(135deg, #1a2a28 0%, var(--surface) 100%); }
-    .card.warn { border-color: var(--warn); }
-    .card.danger { border-color: var(--danger); }
-    .score {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent2);
-      line-height: 1;
-    }
-    .score-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .badge-conditional { background: #3d3520; color: var(--warn); }
-    .badge-moderate { background: #1e3a32; color: var(--ok); }
-    .badge-low { background: #3a2020; color: var(--danger); }
-    .badge-high { background: #1e3a32; color: var(--ok); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 1rem 0;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.55rem 0.75rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: var(--surface2); color: var(--muted); font-weight: 600; }
-    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-    ul, ol { margin: 0.5rem 0; padding-left: 1.35rem; }
-    li { margin: 0.35rem 0; }
-    .bar-row { margin: 0.5rem 0; }
-    .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
-    .bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
-    .bar-fill.warn { background: var(--warn); }
-    .bar-fill.danger { background: var(--danger); }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-    @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr; } }
-    .scenario { font-family: var(--mono); font-size: 0.85rem; }
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-    .rec-priority::before {
-      content: attr(data-p);
-      display: inline-block;
-      width: 1.4rem;
-      height: 1.4rem;
-      line-height: 1.4rem;
-      text-align: center;
-      background: var(--accent);
-      color: var(--bg);
-      border-radius: 50%;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-right: 0.5rem;
-      vertical-align: middle;
-    }
-    code { font-family: var(--mono); font-size: 0.88em; background: var(--surface2); padding: 0.1em 0.35em; border-radius: 3px; }
-    .citation { font-size: 0.75rem; color: var(--muted); }
-    .deep-section { border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Commercial Viability Deep Assessment</h1>
-      <p class="meta">
-        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury retail<br />
-        Assessment date: 4 June 2026 · Continuation of prior 3 June report (6.2/10 conditional)<br />
-        Scope: In-depth analysis of realistic profitability, scalability, unit economics, competition, and pursuit-worthiness with external market validation
-      </p>
-    </header>
+/** Converted from reports/commercial-viability-deep-assessment.html — edit here; re-run convert-html-to-tsx.ts to refresh from HTML. */
+import { Link } from "react-router-dom";
+import { DocLayout } from "../../components/DocLayout";
+import { CommercialViabilitySubnav } from "../../components/CommercialViabilitySubnav";
+
+export function CommercialViabilityDeepAssessmentPage() {
+  return (
+    <DocLayout
+      title={"Commercial Viability Deep Assessment"}
+      subtitle={"Retail Pilot Intel · Privacy-first store intelligence for micro-format luxury retail · Assessment date: 4 June 2026 · Continuation of prior 3 June report (6.2/10 conditional) · Scope: In-depth analysis of realistic profitability, scalability, unit economics, competition, and pursuit-worthiness with external market validation"}
+      footer={
+        <>
+          <Link to="/commercial-viability">← Commercial viability hub</Link>
+          {" · "}
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+        </>
+      }
+    >
+      <CommercialViabilitySubnav />
+      <div className="doc-prose">
 
     <section id="executive-summary">
       <h2>Executive Summary — Updated Verdict</h2>
-      <div class="verdict-box">
-        <div class="card highlight">
-          <div class="score">7.1<span style="font-size:1rem;color:var(--muted)">/10</span></div>
-          <div class="score-label">Overall commercial viability (bootstrap pursue recommended)</div>
-          <p style="margin-top:1rem">
+      <div className="verdict-box">
+        <div className="card highlight">
+          <div className="score">7.1<span style={{ fontSize: "1rem", color: "var(--muted)" }}>/10</span></div>
+          <div className="score-label">Overall commercial viability (bootstrap pursue recommended)</div>
+          <p style={{ marginTop: "1rem" }}>
             <strong>Verdict:</strong> <strong>Realistically profitable and worth pursuing as a focused bootstrap/SMB SaaS business</strong>. 
             Strong problem-solution fit validated by 87% independent retailer GMV share in Italy. 
             Pricing aligns with owner economics (one extra €250–450 sale/month pays for subscription). 
             Scalability is the primary limiter (manual install + niche ICP), not demand or willingness-to-pay.
           </p>
         </div>
-        <div class="card">
+        <div className="card">
           <p><strong>Key updated findings from deep dive</strong></p>
           <ul>
             <li>Market: Italy luxury €20B+ (2026), 87% independent specialty stores — massive fragmented TAM for wedge ICP.</li>
@@ -167,12 +43,12 @@
             <li>Risk: High founder-dependency on first 3–5 installs; low technical moat on counting layer.</li>
             <li>Recommendation: Proceed with Italy design partner gate; build partner channel early; expand verticals Y2.</li>
           </ul>
-          <p style="margin-top:0.75rem">
-            <span class="badge badge-moderate">Bootstrap viable &amp; profitable</span>
+          <p style={{ marginTop: "0.75rem" }}>
+            <span className="badge badge-moderate">Bootstrap viable &amp; profitable</span>
             &nbsp;
-            <span class="badge badge-conditional">Scalable with partners (not viral)</span>
+            <span className="badge badge-conditional">Scalable with partners (not viral)</span>
             &nbsp;
-            <span class="badge badge-low">Not VC-scale</span>
+            <span className="badge badge-low">Not VC-scale</span>
           </p>
         </div>
       </div>
@@ -189,7 +65,7 @@
         <li><strong>Europe retail analytics SMB growth:</strong> €3.23B market 2025 → €3.76B 2026, 16%+ CAGR; SMB segment 17.43% CAGR. Vouchers/subsidies (e.g., Spain Kit Digital analogs in Italy PNRR) lower entry barriers.</li>
         <li><strong>Pricing benchmark:</strong> SMB retail analytics TCO €500–2k/mo for 1–5 stores common; our proposed €149–249/mo is competitively accessible for micro-format owners.</li>
       </ul>
-      <p class="citation">Sources: Mordor Intelligence Italy Luxury 2026, JOOR Italian Market Analysis 2025, Europe Retail Analytics 2025–2031 reports.</p>
+      <p className="citation">Sources: Mordor Intelligence Italy Luxury 2026, JOOR Italian Market Analysis 2025, Europe Retail Analytics 2025–2031 reports.</p>
     </section>
 
     <section id="competition-differentiation">
@@ -207,22 +83,22 @@
           <tr><td>Milesight/ToF VS133, s-People, FootfallCam</td><td>High precision, anonymous, Italy/EU distribution</td><td>Traffic analytics only; lack owner-actionable € levers (AOV upsell, dead-stock recovery)</td></tr>
         </tbody>
       </table>
-      <div class="deep-section">
+      <div className="deep-section">
         <p><strong>Our wedge advantage:</strong> The "join layer" (door + POS + SKU attention) + experiment registry + LAN dashboard tailored to 8–25m² owner-operator with AOV €180–450. Competitors sell sensors + dashboards; we sell "one extra sale per month" payback narrative. Privacy story is table-stakes; the € decision support is the moat.</p>
       </div>
     </section>
 
     <section id="profitability">
       <h2>3. Profitability &amp; Unit Economics Analysis</h2>
-      <div class="grid-3">
-        <div class="card">
+      <div className="grid-3">
+        <div className="card">
           <h3>Customer economics (pilot AOV €300)</h3>
           <p>One incremental sale/month = €300 revenue. Core sub €199/mo → payback in ~1 sale. Realistic lift from conversion visibility + upsell prompts: 5–15% conversion or 10% AOV documented in similar tools.</p>
           <p><strong>Owner ROI:</strong> 3–6 month payback credible; ongoing 10–20× return on subscription.</p>
         </div>
-        <div class="card">
+        <div className="card">
           <h3>Vendor unit economics (Y2 target 25–50 stores)</h3>
-          <table style="font-size:0.8rem">
+          <table style={{ fontSize: "0.8rem" }}>
             <tr><td>ARR @ €199 × 40 stores</td><td>€95k</td></tr>
             <tr><td>Gross margin (software)</td><td>70–80%</td></tr>
             <tr><td>Install/support cost/store</td><td>€1.5–3k one-time</td></tr>
@@ -232,7 +108,7 @@
             <tr><td>LTV:CAC</td><td>1.5–3× (bootstrap acceptable)</td></tr>
           </table>
         </div>
-        <div class="card">
+        <div className="card">
           <h3>Break-even &amp; cash</h3>
           <p>Founder-only bootstrap: break-even at ~12–15 paying stores (after first 3 reference installs). Low fixed costs (no sales team initially). Hardware margin optional buffer.</p>
           <p><strong>Realistic path:</strong> 1 design partner (M4) → 5 paying (M12) → 25+ (M24) via consultant/channel.</p>
@@ -272,14 +148,14 @@
       <h2>6. Suggestions for a More Successful Business</h2>
       <p>Prior internal roadmap and GTM are solid. To increase probability of commercial success and accelerate scale/profitability, prioritize these additions (ranked by impact):</p>
 
-      <h3 class="rec-priority" data-p="1">Distribution leverage (biggest scaler)</h3>
+      <h3 className="rec-priority" data-p="1">Distribution leverage (biggest scaler)</h3>
       <ul>
         <li>Partner with 2–3 Italian fiscal/POS vendors (common in RT compliance cycles) for co-sell, bundled export, referral revenue share. Turns every POS upgrade into a lead.</li>
         <li>Enroll in Italy PNRR / digitalization voucher programs; position as subsidized "retail intelligence" solution.</li>
         <li>Build "certified boutique consultant" program (Tier E) with rev-share on intros + anonymized benchmark dashboard.</li>
       </ul>
 
-      <h3 class="rec-priority" data-p="2">Product velocity &amp; stickiness</h3>
+      <h3 className="rec-priority" data-p="2">Product velocity &amp; stickiness</h3>
       <ul>
         <li>Immediately after pilot: SKU gap + upsell (ranks 2–3) — these drive the "cash recovery" and AOV stories that justify ongoing sub.</li>
         <li>Add weekly email digest (1 actionable € insight + trend vs last week/season) — embeds the ritual without app login.</li>
@@ -287,21 +163,21 @@
         <li>Quick vertical expansion: eyewear/jewelry adapters (similar AOV, same owner profile) by M9–12.</li>
       </ul>
 
-      <h3 class="rec-priority" data-p="3">GTM &amp; sales efficiency</h3>
+      <h3 className="rec-priority" data-p="3">GTM &amp; sales efficiency</h3>
       <ul>
         <li>Lower friction: self-serve "export checker" tool in portal; pre-DPIA questionnaire; remote install option for simple sites.</li>
         <li>Sales demo portal already strong — add "ROI calculator" input (AOV, entries/week, current conversion guess) that outputs personalized payback table.</li>
         <li>Case study template: owner quote + before/after € metric screenshot + "what changed in my week".</li>
       </ul>
 
-      <h3 class="rec-priority" data-p="4">Risk reduction &amp; defensibility</h3>
+      <h3 className="rec-priority" data-p="4">Risk reduction &amp; defensibility</h3>
       <ul>
         <li>Publish open schemas + reference POS export adapters (with contribution guidelines) to encourage ecosystem and slow copycats.</li>
         <li>Hardware kit option (pre-configured ToF + compute) with margin or white-label for partners — reduces install variance.</li>
         <li>Legal: standard DPIA + data processing agreement templates; consider SOC2-lite path if EU enterprise interest emerges later.</li>
       </ul>
 
-      <h3 class="rec-priority" data-p="5">Financial / ops hygiene</h3>
+      <h3 className="rec-priority" data-p="5">Financial / ops hygiene</h3>
       <ul>
         <li>Track leading indicators weekly: demo signups, export checks completed, qualified ICP calls, not just revenue.</li>
         <li>Founder time audit: cap non-install customer time at 4h/week after M6; productize support.</li>
@@ -311,7 +187,7 @@
 
     <section id="final-verdict">
       <h2>7. Final Recommendation</h2>
-      <div class="card highlight">
+      <div className="card highlight">
         <p><strong>This is a realistically profitable, defensible-enough, owner-operated business worth pursuing — with clear gates.</strong></p>
         <p>
           The combination of (a) validated massive independent retailer base in Italy, (b) pricing that pays for itself with one sale, (c) differentiated €-action focus vs pure counting competitors, and (d) mature documentation/sales assets makes this a high-conviction bootstrap opportunity.
@@ -319,7 +195,7 @@
         <p>
           It is <em>not</em> a venture-scale company (narrow ICP + install friction caps TAM velocity). Treat it as such: ship the pilot, prove the weekly ritual, then layer partners and verticals. Success probability high (70%+) if first design partner signs and M1–M4 delivers owner-visible € data within 30 days.
         </p>
-        <p style="margin-top:1rem"><strong>Next concrete step:</strong> Secure signed pilot term sheet + DPIA with Italy leather boutique; unblock edge CV + POS join development; run first bootstrap cohort of 3–5 stores before any paid marketing spend.</p>
+        <p style={{ marginTop: "1rem" }}><strong>Next concrete step:</strong> Secure signed pilot term sheet + DPIA with Italy leather boutique; unblock edge CV + POS join development; run first bootstrap cohort of 3–5 stores before any paid marketing spend.</p>
       </div>
     </section>
 
@@ -327,5 +203,6 @@
       Generated as continuation of repository evaluation. All market data from 2025–2026 public reports (Mordor, JOOR, etc.). Internal product/roadmap details from apps/docs and packages/. This assessment is for internal decision-making.
     </footer>
   </div>
-</body>
-</html>
+    </DocLayout>
+  );
+}

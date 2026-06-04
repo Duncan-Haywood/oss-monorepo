@@ -1,21 +1,26 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { htmlReportManifest } from "../generated/htmlReportManifest";
-
-const primarySlug = "docs-commercial-viability-report";
+import { CommercialViabilitySubnav } from "../components/CommercialViabilitySubnav";
+import { commercialViabilityPages } from "./commercial-viability";
 
 export function CommercialViabilityPage() {
-  const primary = htmlReportManifest.find((e) => e.slug === primarySlug);
-  const related = htmlReportManifest.filter(
-    (e) => e.slug.includes("commercial-viability") && e.slug !== primarySlug,
-  );
-
   return (
     <DocLayout
       title="Commercial viability"
-      subtitle="TSX summary — full HTML assessments open as iframe reports"
+      subtitle="TSX assessments — converted from legacy HTML reports; hub for all viability analyses"
+      footer={
+        <>
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+          {" · "}
+          <Link to="/">Home</Link>
+        </>
+      }
     >
+      <CommercialViabilitySubnav />
+
       <Card variant="warn">
         <p>
           <strong>Verdict (M0–M1):</strong> Conditionally viable for a design-partner
@@ -36,6 +41,18 @@ export function CommercialViabilityPage() {
         ]}
       />
 
+      <h2>Full assessments (TSX)</h2>
+      <DataTable
+        headers={["Report", "Route", "Open"]}
+        rows={commercialViabilityPages.map((page) => [
+          page.title.replace(/ — Retail Pilot Intel.*$/i, ""),
+          <code key={`${page.slug}-route`}>/commercial-viability/{page.slug}</code>,
+          <Link to={`/commercial-viability/${page.slug}`} key={page.slug}>
+            Read
+          </Link>,
+        ])}
+      />
+
       <h2>What to do first</h2>
       <ol>
         <li>
@@ -51,46 +68,6 @@ export function CommercialViabilityPage() {
           site mirrors the same commercial story.
         </li>
       </ol>
-
-      <h2>Full HTML assessments</h2>
-      <Card>
-        <p>
-          Long-form reports are copied from <code>docs/</code> and{" "}
-          <code>reports/</code> at build time. Open iframe reports for full layouts.
-        </p>
-        <DataTable
-          headers={["Report", "Open"]}
-          rows={[
-            ...(primary
-              ? [
-                  [
-                    primary.title,
-                    <Link to={`/reports/${primary.slug}`} key="primary">
-                      Open full report
-                    </Link>,
-                  ],
-                ]
-              : []),
-            ...related.map((e) => [
-              e.title,
-              <Link to={`/reports/${e.slug}`} key={e.slug}>
-                Open
-              </Link>,
-            ]),
-          ]}
-        />
-        <p>
-          <Link to="/archive">Browse inline archive →</Link>
-        </p>
-      </Card>
-
-      <footer>
-        <Link to="/business-plan">Business plan</Link>
-        {" · "}
-        <Link to="/roi">ROI</Link>
-        {" · "}
-        <Link to="/">Home</Link>
-      </footer>
     </DocLayout>
   );
 }

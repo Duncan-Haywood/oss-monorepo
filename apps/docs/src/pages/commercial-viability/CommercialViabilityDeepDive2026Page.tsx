@@ -1,173 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Commercial Viability Deep Dive — Retail Pilot Intel (2026)</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --surface: #1a222d;
-      --surface2: #243040;
-      --text: #e8edf4;
-      --muted: #8b9cb3;
-      --accent: #3d8f7a;
-      --accent2: #5eb8a0;
-      --warn: #c9a227;
-      --danger: #d45d5d;
-      --ok: #4caf82;
-      --border: #2d3a4d;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-      --mono: "SF Mono", "Consolas", monospace;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      font-size: 16px;
-    }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    h1 { font-size: 1.9rem; font-weight: 600; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    .meta { color: var(--muted); font-size: 0.9rem; }
-    h2 {
-      font-size: 1.35rem;
-      margin: 2.5rem 0 0.85rem;
-      color: var(--accent2);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.4rem;
-    }
-    h3 { font-size: 1.1rem; margin: 1.6rem 0 0.55rem; color: var(--text); }
-    p { margin: 0.65rem 0; }
-    a { color: var(--accent2); }
-    .verdict-box {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.1rem;
-      margin: 1.6rem 0;
-    }
-    @media (max-width: 640px) { .verdict-box { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.35rem 1.45rem;
-    }
-    .card.highlight { border-color: var(--accent); background: linear-gradient(135deg, #1a2a28 0%, var(--surface) 100%); }
-    .card.warn { border-color: var(--warn); }
-    .card.danger { border-color: var(--danger); }
-    .score {
-      font-size: 2.65rem;
-      font-weight: 700;
-      color: var(--accent2);
-      line-height: 1;
-    }
-    .score-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
-    .badge {
-      display: inline-block;
-      padding: 0.22rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.74rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .badge-conditional { background: #3d3520; color: var(--warn); }
-    .badge-moderate { background: #1e3a32; color: var(--ok); }
-    .badge-low { background: #3a2020; color: var(--danger); }
-    .badge-high { background: #1e3a32; color: var(--ok); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 1.1rem 0;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.6rem 0.8rem;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: var(--surface2); color: var(--muted); font-weight: 600; }
-    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-    ul, ol { margin: 0.55rem 0; padding-left: 1.4rem; }
-    li { margin: 0.38rem 0; }
-    .bar-row { margin: 0.55rem 0; }
-    .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.22rem; }
-    .bar-track { height: 9px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
-    .bar-fill.warn { background: var(--warn); }
-    .bar-fill.danger { background: var(--danger); }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
-    @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr; } }
-    .scenario { font-family: var(--mono); font-size: 0.86rem; }
-    .citation { font-size: 0.78rem; color: var(--muted); }
-    footer {
-      margin-top: 3.2rem;
-      padding-top: 1.6rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-    .rec-priority::before {
-      content: attr(data-p);
-      display: inline-block;
-      width: 1.45rem;
-      height: 1.45rem;
-      line-height: 1.45rem;
-      text-align: center;
-      background: var(--accent);
-      color: var(--bg);
-      border-radius: 50%;
-      font-size: 0.76rem;
-      font-weight: 700;
-      margin-right: 0.55rem;
-      vertical-align: middle;
-    }
-    code { font-family: var(--mono); font-size: 0.88em; background: var(--surface2); padding: 0.12em 0.38em; border-radius: 3px; }
-    .section-divider { height: 1px; background: var(--border); margin: 2.8rem 0; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Commercial Viability Deep Dive Assessment</h1>
-      <p class="meta">
-        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury retail<br />
-        Deep-dive date: 4 June 2026 · Branch: cursor/commercial-viability-deep-dive-2fb0<br />
-        Scope: Rigorous evaluation of realistic profitability, scalability, unit economics, market evidence, and whether this is a business worth building and pursuing at scale
-      </p>
-    </header>
+/** Converted from reports/commercial-viability-deep-dive-2026.html — edit here; re-run convert-html-to-tsx.ts to refresh from HTML. */
+import { Link } from "react-router-dom";
+import { DocLayout } from "../../components/DocLayout";
+import { CommercialViabilitySubnav } from "../../components/CommercialViabilitySubnav";
+
+export function CommercialViabilityDeepDive2026Page() {
+  return (
+    <DocLayout
+      title={"Commercial Viability Deep Dive — Retail Pilot Intel (2026)"}
+      subtitle={"Retail Pilot Intel · Privacy-first store intelligence for micro-format luxury retail · Deep-dive date: 4 June 2026 · Branch: cursor/commercial-viability-deep-dive-2fb0 · Scope: Rigorous evaluation of realistic profitability, scalability, unit economics, market evidence, and whether this is a business worth building and pursuing at scale"}
+      footer={
+        <>
+          <Link to="/commercial-viability">← Commercial viability hub</Link>
+          {" · "}
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+        </>
+      }
+    >
+      <CommercialViabilitySubnav />
+      <div className="doc-prose">
 
     <section id="executive-summary">
       <h2>Executive verdict (updated after deeper analysis)</h2>
-      <div class="verdict-box">
-        <div class="card highlight">
-          <div class="score">5.9<span style="font-size:1.05rem;color:var(--muted)">/10</span></div>
-          <div class="score-label">Overall commercial viability — conditional bootstrap pursue</div>
-          <p style="margin-top:1.15rem">
+      <div className="verdict-box">
+        <div className="card highlight">
+          <div className="score">5.9<span style={{ fontSize: "1.05rem", color: "var(--muted)" }}>/10</span></div>
+          <div className="score-label">Overall commercial viability — conditional bootstrap pursue</div>
+          <p style={{ marginTop: "1.15rem" }}>
             <strong>Verdict:</strong> <em>Realistically viable as a profitable micro-SaaS / services hybrid for a solo founder or 2-person team</em>, but <strong>not a high-growth scalable venture</strong> without major productization and channel leverage. The wedge ICP, privacy positioning, and ROI framing are strong and differentiated. However, per-store deployment friction, hardware variability, ongoing CV model maintenance, and limited organic scale (no network effects, no multi-tenant SaaS leverage) cap realistic TAM capture and velocity.
           </p>
         </div>
-        <div class="card">
+        <div className="card">
           <p><strong>One-line recommendation</strong></p>
           <p>
             Secure the Italy design partner with a paid pilot (M1–M4 scope) within 60 days. Validate one owner produces documented weekly € actions for 45+ days. Only then productize the install playbook and open a second cluster. Do not hire sales or expand GTM until real revenue + case study exists. Treat as lifestyle/profitable bootstrap business first; VC-scale only if hardware abstraction + channel partners materialize.
           </p>
-          <p style="margin-top:0.85rem">
-            <span class="badge badge-conditional">Pursue gated</span>
+          <p style={{ marginTop: "0.85rem" }}>
+            <span className="badge badge-conditional">Pursue gated</span>
             &nbsp;
-            <span class="badge badge-moderate">Bootstrap-profitable possible</span>
+            <span className="badge badge-moderate">Bootstrap-profitable possible</span>
             &nbsp;
-            <span class="badge badge-low">Low scalability ceiling</span>
+            <span className="badge badge-low">Low scalability ceiling</span>
           </p>
         </div>
       </div>
@@ -176,15 +50,15 @@
     <section id="market-evidence">
       <h2>Market evidence &amp; realistic addressable market (with citations)</h2>
       <p>
-        Italy has ~1,120 luxury boutiques (77.5% single-owner operated) and a broader jewelry/watch retail sector of ~11,800 micro-enterprises (96.8% with 1-9 employees) generating €7.4B turnover.<citation class="citation">[1][2][3]</citation> Europe luxury fashion market ~$95.9B in 2026, with Italy holding ~24% share and independent specialty stores driving 87% of GMV for Italian brands.<citation class="citation">[4][5]</citation>
+        Italy has ~1,120 luxury boutiques (77.5% single-owner operated) and a broader jewelry/watch retail sector of ~11,800 micro-enterprises (96.8% with 1-9 employees) generating €7.4B turnover.<span className="citation">[1][2][3]</span> Europe luxury fashion market ~$95.9B in 2026, with Italy holding ~24% share and independent specialty stores driving 87% of GMV for Italian brands.<span className="citation">[4][5]</span>
       </p>
       <p>
-        However, the retail analytics segment for <em>micro independents</em> is largely unserved by incumbents. RetailNext and similar enterprise platforms target multi-location chains with $1,000+/month per location pricing and complex deployments; they explicitly exclude single-door boutiques.<citation class="citation">[6][7]</citation> Entry-level footfall counters exist at lower price points (~$100/mo SaaS + hardware), but lack the margin/POS join and experiment layer that drives the € action narrative here.
+        However, the retail analytics segment for <em>micro independents</em> is largely unserved by incumbents. RetailNext and similar enterprise platforms target multi-location chains with $1,000+/month per location pricing and complex deployments; they explicitly exclude single-door boutiques.<span className="citation">[6][7]</span> Entry-level footfall counters exist at lower price points (~$100/mo SaaS + hardware), but lack the margin/POS join and experiment layer that drives the € action narrative here.
       </p>
       <p>
         <strong>Realistic SOM:</strong> 80–150 addressable micro-boutiques in Tier-1 Italian cities (Florence, Milan, Rome, Venice historic centers) that match the ICP (AOV €150–600, POS export capable, privacy-sensitive owner). Broader SAM (EU micro luxury accessories) perhaps 800–1,200 doors over 5 years if adapters generalize. This is a <em>niche wedge</em>, not a mass market — supporting high-touch, high-price positioning but limiting hyper-growth.
       </p>
-      <div class="citation" style="margin-top:0.4rem">
+      <div className="citation" style={{ marginTop: "0.4rem" }}>
         Sources: JOOR Italian Market Analysis 2025, Federpreziosi Format Research 2026, Rentec Digital boutique list 2026, Market Data Forecast Europe Luxury 2025–2034, ITQlick/RetailNext pricing analyses, Shopify Edge Retail 2026.
       </div>
     </section>
@@ -220,40 +94,40 @@
 
     <section id="scalability-analysis">
       <h2>Scalability bottlenecks &amp; realistic growth curve</h2>
-      <div class="grid-3">
-        <div class="card">
-          <h3 style="margin-top:0">Technical</h3>
+      <div className="grid-3">
+        <div className="card">
+          <h3 style={{ marginTop: "0" }}>Technical</h3>
           <ul>
             <li>POS adapter per vendor (Tilby, Lightspeed, custom files) — each new format 2–4 weeks dev + testing</li>
             <li>CV model drift &amp; retraining per lighting/layout — requires ongoing labeled data pipeline</li>
             <li>Zero-touch remote deploy &amp; health monitoring not yet built</li>
             <li>LAN dashboard must run reliably on customer hardware (RPi/NUC)</li>
           </ul>
-          <p class="bar-label"><span>Current blocker severity</span><span class="badge badge-low">High</span></p>
+          <p className="bar-label"><span>Current blocker severity</span><span className="badge badge-low">High</span></p>
         </div>
-        <div class="card">
-          <h3 style="margin-top:0">Operational / GTM</h3>
+        <div className="card">
+          <h3 style={{ marginTop: "0" }}>Operational / GTM</h3>
           <ul>
             <li>Install + DPIA requires founder travel (Italy only initially) — 1–2 days/site</li>
             <li>Support burden scales linearly until remote diagnostics + self-serve</li>
             <li>No self-serve signup; every deal founder-assisted</li>
             <li>Consultant channel (rev-share) only viable after 3–5 reference cases</li>
           </ul>
-          <p class="bar-label"><span>Scalability ceiling</span><span class="badge badge-conditional">Medium</span></p>
+          <p className="bar-label"><span>Scalability ceiling</span><span className="badge badge-conditional">Medium</span></p>
         </div>
-        <div class="card">
-          <h3 style="margin-top:0">Market / Economic</h3>
+        <div className="card">
+          <h3 style={{ marginTop: "0" }}>Market / Economic</h3>
           <ul>
             <li>1,120 boutiques total; realistic cluster per city 8–25 doors → natural regional caps</li>
             <li>Owners buy one tool that pays for itself monthly; low switching but also low urgency</li>
             <li>GDPR enforcement risk if any data egress incident</li>
             <li>Hardware supply chain &amp; warranty logistics per country</li>
           </ul>
-          <p class="bar-label"><span>Addressable ceiling</span><span class="badge badge-moderate">Niche</span></p>
+          <p className="bar-label"><span>Addressable ceiling</span><span className="badge badge-moderate">Niche</span></p>
         </div>
       </div>
 
-      <p style="margin-top:1.1rem">
+      <p style={{ marginTop: "1.1rem" }}>
         <strong>Realistic growth trajectory (gated):</strong> Y1: 1 design partner → 5 paying stores (all founder-led). Y2: 18–25 stores after playbook + 1–2 city clusters + consultant intros. Y3–4: 40–60 stores max without pivoting to multi-location family groups or adding non-privacy-first features. Beyond that requires either (a) white-label sensor OEM partnership or (b) selling the analytics layer to POS vendors / consultants as OEM.
       </p>
     </section>
@@ -299,19 +173,19 @@
       </table>
     </section>
 
-    <div class="section-divider"></div>
+    <div className="section-divider"></div>
 
     <section id="suggestions">
       <h2>Suggestions for a more successful, profitable, and scalable business</h2>
       <ol>
-        <li class="rec-priority" data-p="1"><strong>Gate everything on real pilot proof.</strong> Do not expand sales, hire, or raise until one owner has logged ≥45 days of weekly € decisions (conversion lift, SKU recovery, or staffing change) directly attributable to the dashboard. This single artifact de-risks everything downstream.</li>
-        <li class="rec-priority" data-p="2"><strong>Productize the install &amp; DPIA in 4 weeks.</strong> Create a repeatable 1-day remote + 1-day on-site playbook with checklists, pre-configured images, and video walkthroughs. This is the highest-ROI engineering investment for scale.</li>
-        <li class="rec-priority" data-p="3"><strong>Build the remote diagnostics &amp; zero-touch layer early.</strong> Health pings, model drift alerts, auto-restart, and remote log access reduce founder time per store from hours to minutes — essential for 15+ store economics.</li>
-        <li class="rec-priority" data-p="4"><strong>Launch a consultant / bookkeeper channel with 15–20% rev share.</strong> Boutique coaches and fractional CFOs already advise 5–20 clients; they become the scalable distribution arm once you have 3 reference cases and a clean one-pager.</li>
-        <li class="rec-priority" data-p="5"><strong>Offer hardware-as-a-service or customer-supplied option.</strong> Reduce friction and capex for owners; capture recurring margin via managed kits or certified hardware list. Explore partnership with 1–2 Italian IoT resellers.</li>
-        <li class="rec-priority" data-p="6"><strong>Instrument the dashboard for “action taken” telemetry.</strong> Add optional 1-click “I acted on this” logging (conversion greeting change, reorder decision, etc.). This becomes the core dataset for case studies and future predictive features.</li>
-        <li class="rec-priority" data-p="7"><strong>Consider a narrow “Margin+ only” SKU for bookkeepers.</strong> A lighter, lower-price tier focused purely on cash recovery / dead-stock alerts may convert the skeptical bookkeeper persona faster than full funnel view.</li>
-        <li class="rec-priority" data-p="8"><strong>Validate pricing elasticity with 2–3 A/B tests.</strong> Test €99 Core entry tier vs current anchor; measure close rate and 6-month retention. The “one extra sale pays for it” framing is powerful — confirm it in live conversations.</li>
+        <li className="rec-priority" data-p="1"><strong>Gate everything on real pilot proof.</strong> Do not expand sales, hire, or raise until one owner has logged ≥45 days of weekly € decisions (conversion lift, SKU recovery, or staffing change) directly attributable to the dashboard. This single artifact de-risks everything downstream.</li>
+        <li className="rec-priority" data-p="2"><strong>Productize the install &amp; DPIA in 4 weeks.</strong> Create a repeatable 1-day remote + 1-day on-site playbook with checklists, pre-configured images, and video walkthroughs. This is the highest-ROI engineering investment for scale.</li>
+        <li className="rec-priority" data-p="3"><strong>Build the remote diagnostics &amp; zero-touch layer early.</strong> Health pings, model drift alerts, auto-restart, and remote log access reduce founder time per store from hours to minutes — essential for 15+ store economics.</li>
+        <li className="rec-priority" data-p="4"><strong>Launch a consultant / bookkeeper channel with 15–20% rev share.</strong> Boutique coaches and fractional CFOs already advise 5–20 clients; they become the scalable distribution arm once you have 3 reference cases and a clean one-pager.</li>
+        <li className="rec-priority" data-p="5"><strong>Offer hardware-as-a-service or customer-supplied option.</strong> Reduce friction and capex for owners; capture recurring margin via managed kits or certified hardware list. Explore partnership with 1–2 Italian IoT resellers.</li>
+        <li className="rec-priority" data-p="6"><strong>Instrument the dashboard for “action taken” telemetry.</strong> Add optional 1-click “I acted on this” logging (conversion greeting change, reorder decision, etc.). This becomes the core dataset for case studies and future predictive features.</li>
+        <li className="rec-priority" data-p="7"><strong>Consider a narrow “Margin+ only” SKU for bookkeepers.</strong> A lighter, lower-price tier focused purely on cash recovery / dead-stock alerts may convert the skeptical bookkeeper persona faster than full funnel view.</li>
+        <li className="rec-priority" data-p="8"><strong>Validate pricing elasticity with 2–3 A/B tests.</strong> Test €99 Core entry tier vs current anchor; measure close rate and 6-month retention. The “one extra sale pays for it” framing is powerful — confirm it in live conversations.</li>
       </ol>
     </section>
 
@@ -323,10 +197,10 @@
       <p>
         <strong>Worth pursuing?</strong> Yes — <em>as a gated bootstrap venture</em> with strict milestones (design partner signed by Aug 2026, first paid case study by Oct 2026, 8 stores by end Y1). The problem is real, the ICP loves the narrative, competitors ignore the segment, and unit economics work. Success probability rises dramatically if the first 3–5 installs are treated as R&amp;D for the playbook rather than revenue.
       </p>
-      <p style="margin-top:1.4rem">
-        <span class="badge badge-moderate">Bootstrap viable &amp; worth building</span>
+      <p style={{ marginTop: "1.4rem" }}>
+        <span className="badge badge-moderate">Bootstrap viable &amp; worth building</span>
         &nbsp;&nbsp;
-        <span class="badge badge-conditional">Scale ceiling: niche / regional (40–80 stores max without pivot)</span>
+        <span className="badge badge-conditional">Scale ceiling: niche / regional (40–80 stores max without pivot)</span>
       </p>
     </section>
 
@@ -334,5 +208,6 @@
       Report generated from repository analysis + external market data (June 2026). All financial models are illustrative and conservative; actuals depend on execution quality of the Italy pilot. Previous viability assessments (6.2/10) updated downward slightly on scalability realism after deeper unit economics and deployment friction analysis. Merge candidate for main after review.
     </footer>
   </div>
-</body>
-</html>
+    </DocLayout>
+  );
+}

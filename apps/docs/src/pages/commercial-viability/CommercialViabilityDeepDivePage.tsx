@@ -1,164 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Deep Commercial Viability Assessment — Retail Pilot Intel</title>
-  <style>
-    :root {
-      --bg: #0a0f14;
-      --surface: #141b24;
-      --surface2: #1f2a38;
-      --text: #e8edf4;
-      --muted: #8a9ab0;
-      --accent: #4aa3e0;
-      --ok: #3ec27a;
-      --warn: #e8b84a;
-      --bad: #e86a6a;
-      --border: #2a3748;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      font-size: 15.5px;
-    }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.75rem;
-      margin-bottom: 2.25rem;
-    }
-    h1 { font-size: 1.9rem; font-weight: 650; margin: 0 0 0.4rem; letter-spacing: -0.025em; }
-    .meta { color: var(--muted); font-size: 0.92rem; }
-    h2 {
-      font-size: 1.35rem;
-      margin: 2.5rem 0 0.85rem;
-      color: var(--accent);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.35rem;
-    }
-    h3 { font-size: 1.12rem; margin: 1.65rem 0 0.55rem; color: #c5d4e8; }
-    p { margin: 0.65rem 0; }
-    a { color: var(--accent); }
-    .score-hero {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr 1fr;
-      gap: 1.1rem;
-      margin: 1.75rem 0 2rem;
-    }
-    @media (max-width: 780px) { .score-hero { grid-template-columns: 1fr; } }
-    .score-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.35rem 1.45rem;
-    }
-    .score-card.primary { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(74,163,224,0.15); }
-    .score-big { font-size: 2.65rem; font-weight: 700; line-height: 1; }
-    .score-label { color: var(--muted); font-size: 0.88rem; margin-top: 0.4rem; }
-    .verdict { font-size: 1.05rem; font-weight: 600; margin-top: 0.85rem; }
-    .pill {
-      display: inline-block; padding: 0.18rem 0.6rem; border-radius: 5px; font-size: 0.73rem;
-      font-weight: 700; text-transform: uppercase; letter-spacing: 0.045em;
-    }
-    .pill-conditional { background: rgba(232,184,74,0.18); color: var(--warn); }
-    .pill-low { background: rgba(232,106,106,0.18); color: var(--bad); }
-    .pill-mid { background: rgba(74,163,224,0.18); color: var(--accent); }
-    .pill-high { background: rgba(62,194,122,0.18); color: var(--ok); }
-    table {
-      width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.9rem 0 1.25rem;
-    }
-    th, td {
-      border: 1px solid var(--border); padding: 0.6rem 0.7rem; text-align: left; vertical-align: top;
-    }
-    th { background: var(--surface2); font-weight: 600; }
-    tr:nth-child(even) td { background: rgba(20,27,36,0.55); }
-    .bar-row { margin: 0.45rem 0; }
-    .bar-label { display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 0.18rem; }
-    .bar-track {
-      height: 9px; background: var(--surface2); border-radius: 5px; overflow: hidden;
-    }
-    .bar-fill { height: 100%; border-radius: 5px; transition: width .3s; }
-    .callout {
-      background: var(--surface); border-left: 5px solid var(--accent); padding: 1.1rem 1.3rem;
-      margin: 1.15rem 0; border-radius: 0 10px 10px 0;
-    }
-    .callout.warn { border-left-color: var(--warn); }
-    .callout.ok { border-left-color: var(--ok); }
-    .callout.bad { border-left-color: var(--bad); }
-    ul, ol { margin: 0.55rem 0 0.9rem; padding-left: 1.45rem; }
-    li { margin: 0.38rem 0; }
-    .scenario-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.2rem 0;
-    }
-    @media (max-width: 820px) { .scenario-grid { grid-template-columns: 1fr; } }
-    .scenario {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.15rem;
-    }
-    .scenario h4 { margin: 0 0 0.55rem; font-size: 0.98rem; }
-    .scenario .prob { font-size: 0.8rem; color: var(--muted); }
-    .rec {
-      counter-reset: rec; list-style: none; padding: 0;
-    }
-    .rec li {
-      counter-increment: rec;
-      padding: 0.95rem 1.15rem 0.95rem 3rem;
-      position: relative; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 9px; margin-bottom: 0.7rem;
-    }
-    .rec li::before {
-      content: counter(rec); position: absolute; left: 0.95rem; top: 0.95rem;
-      width: 1.65rem; height: 1.65rem; background: var(--accent); color: var(--bg);
-      border-radius: 50%; font-size: 0.82rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .rec strong { color: var(--text); }
-    .metric { font-variant-numeric: tabular-nums; }
-    footer {
-      margin-top: 3.5rem; padding-top: 1.65rem; border-top: 1px solid var(--border);
-      color: var(--muted); font-size: 0.86rem;
-    }
-    .mermaid-note { font-size: 0.84rem; color: var(--muted); font-style: italic; }
-    .section-divider { height: 1px; background: var(--border); margin: 2.25rem 0; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Deep Commercial Viability Assessment</h1>
-      <p class="meta">
-        <strong>Retail Pilot Intel</strong> · Privacy-first store intelligence for micro-format luxury &amp; specialty retail<br />
-        Deep-dive evaluation · 4 June 2026 · Repository at M0–M1 technical stage (stubs + strong collateral)
-      </p>
-    </header>
+/** Converted from reports/commercial-viability-deep-dive.html — edit here; re-run convert-html-to-tsx.ts to refresh from HTML. */
+import { Link } from "react-router-dom";
+import { DocLayout } from "../../components/DocLayout";
+import { CommercialViabilitySubnav } from "../../components/CommercialViabilitySubnav";
+
+export function CommercialViabilityDeepDivePage() {
+  return (
+    <DocLayout
+      title={"Deep Commercial Viability Assessment"}
+      subtitle={"Retail Pilot Intel · Privacy-first store intelligence for micro-format luxury &amp; specialty retail · Deep-dive evaluation · 4 June 2026 · Repository at M0–M1 technical stage (stubs + strong collateral)"}
+      footer={
+        <>
+          <Link to="/commercial-viability">← Commercial viability hub</Link>
+          {" · "}
+          <Link to="/business-plan">Business plan</Link>
+          {" · "}
+          <Link to="/roi">ROI</Link>
+        </>
+      }
+    >
+      <CommercialViabilitySubnav />
+      <div className="doc-prose">
 
     <section id="executive">
       <h2>Executive Verdict</h2>
-      <div class="score-hero">
-        <div class="score-card primary">
-          <div class="score-big" style="color:#e8b84a">4.8<span style="font-size:1.15rem;color:var(--muted)">/10</span></div>
-          <div class="score-label">Overall commercial viability (updated deep-dive weighted)</div>
-          <p class="verdict" style="color:#e8b84a">Conditionally viable as a lifestyle bootstrap niche business — <strong>not venture-scale without major de-risking</strong></p>
+      <div className="score-hero">
+        <div className="score-card primary">
+          <div className="score-big" style={{ color: "#e8b84a" }}>4.8<span style={{ fontSize: "1.15rem", color: "var(--muted)" }}>/10</span></div>
+          <div className="score-label">Overall commercial viability (updated deep-dive weighted)</div>
+          <p className="verdict" style={{ color: "#e8b84a" }}>Conditionally viable as a lifestyle bootstrap niche business — <strong>not venture-scale without major de-risking</strong></p>
         </div>
-        <div class="score-card">
-          <div class="score-big" style="color:#4aa3e0">38%</div>
-          <div class="score-label">Probability of reaching €75k+ ARR profitably within 36 months (founder + 1 design partner)</div>
-          <p style="margin-top:0.7rem;font-size:0.88rem;color:var(--muted)">Requires successful Italy pilot validation + first 3 paying stores; drops to ~18% without signed pilot.</p>
+        <div className="score-card">
+          <div className="score-big" style={{ color: "#4aa3e0" }}>38%</div>
+          <div className="score-label">Probability of reaching €75k+ ARR profitably within 36 months (founder + 1 design partner)</div>
+          <p style={{ marginTop: "0.7rem", fontSize: "0.88rem", color: "var(--muted)" }}>Requires successful Italy pilot validation + first 3 paying stores; drops to ~18% without signed pilot.</p>
         </div>
-        <div class="score-card">
-          <div class="score-big" style="color:#3ec27a">€142k</div>
-          <div class="score-label">Realistic 36-month ARR ceiling in bootstrap mode (no external capital)</div>
-          <p style="margin-top:0.7rem;font-size:0.88rem;color:var(--muted)">With 55–70 stores @ €220 avg ACV, 82% gross margin after year 2.</p>
+        <div className="score-card">
+          <div className="score-big" style={{ color: "#3ec27a" }}>€142k</div>
+          <div className="score-label">Realistic 36-month ARR ceiling in bootstrap mode (no external capital)</div>
+          <p style={{ marginTop: "0.7rem", fontSize: "0.88rem", color: "var(--muted)" }}>With 55–70 stores @ €220 avg ACV, 82% gross margin after year 2.</p>
         </div>
       </div>
 
-      <div class="callout warn">
+      <div className="callout warn">
         <p><strong>Bottom line after deeper analysis:</strong> The wedge (micro luxury Italy, privacy-first, € ritual pricing) is intelligently chosen and the sales collateral is exceptional. However, <strong>unit economics are fragile</strong> once real install, support, churn, and channel costs are modeled. Scalability is fundamentally constrained by per-store physical integration work and GDPR friction. This is realistically a <strong>profitable micro-SaaS/services hybrid</strong> (founder income €70–110k/yr possible by Y3) but <strong>unlikely to become a large, high-margin, capital-light software company</strong> without pivoting the delivery model (e.g., POS-native or installer channel) or raising seed to productize hardware/install.</p>
       </div>
     </section>
@@ -175,7 +58,7 @@
         <li>Owner-operators already pay for POS (€30–80/mo) and sometimes basic footfall counters; they think in weekly € outcomes, not dashboards.</li>
       </ul>
 
-      <div class="callout bad">
+      <div className="callout bad">
         <p><strong>Market reality check:</strong> Most growth in retail analytics is captured by POS platforms (Square, Lightspeed, Shopify POS, SumUp) adding conversion widgets, or by enterprise vendors (RetailNext, ShopperTrak, FootfallCam) whose minimums and complexity exclude micro stores. The “install edge CV + custom dashboard” motion has high friction and low LTV compared to native POS add-ons.</p>
       </div>
     </section>
@@ -200,7 +83,7 @@
 
       <p><strong>Payback period per store:</strong> 7–11 months on fully-loaded basis. Acceptable for bootstrap but requires 4–6 month cash runway per new cohort.</p>
 
-      <div class="callout ok">
+      <div className="callout ok">
         <p><strong>Profitability path:</strong> At 45 stores with 19% churn and €38 blended support cost, monthly contribution margin reaches ~€7,200 (founder salary + small profit). Scaling to 70 stores yields ~€110–130k annual founder take-home after all costs. This is a <em>good lifestyle business</em>, not a venture exit.</p>
       </div>
     </section>
@@ -243,7 +126,7 @@
       <h2>Suggestions for a More Successful Business</h2>
       <p>The current positioning and collateral are strong. To materially improve odds of a profitable, scalable outcome, prioritize the following (ranked by expected impact on viability score):</p>
 
-      <ol class="rec">
+      <ol className="rec">
         <li><strong>Secure a signed 90-day design-partner agreement with the Italy leather boutique before writing more code.</strong> Include data-access clause, weekly owner interview, and success metric (e.g., “identify 2 SKUs with &gt;3× desirability gap”). This single step raises probability of reaching €50k ARR from 38% → 62%.</li>
         <li><strong>Radically narrow MVP scope to Door + POS join only (rank 1 in ROI matrix).</strong> Deliver conversion %, revenue-per-entry, and staffing suggestion in 8 weeks. Defer SKU gap, upsell patterns, and experiments until after first paid renewal. This reduces technical risk and time-to-value dramatically.</li>
         <li><strong>Build or partner for the top 3 Italian micro-POS export paths (CSV, API, webhook) rather than generic “POS connector”.</strong> 80% of target stores use 4–5 systems; native-ish integration removes the biggest install friction.</li>
@@ -260,7 +143,7 @@
       <p>This is a realistically profitable niche business for a founder who enjoys on-site work, deep customer intimacy, and Italian micro-retail. Expected founder income in a successful bootstrap scenario: €65–95k in Y2, €95–130k in Y3 with 60–75 stores. It can be a satisfying, defensible craft business with low capital needs.</p>
       <p>It is <strong>not</strong> a high-conviction path to a €5M+ ARR, venture-backable, or acquirable-at-scale software company without one of the scalability pivots above (channel, POS-native, or seed-funded productization).</p>
 
-      <div class="callout ok">
+      <div className="callout ok">
         <p><strong>Recommended next action:</strong> Treat the next 90 days as a <em>validation sprint</em>, not a build sprint. Goal: signed pilot contract + first 3 paid stores + validated 60-day habit metric. Only after that evidence should further engineering investment (beyond Door+POS MVP) be approved.</p>
       </div>
     </section>
@@ -269,5 +152,6 @@
       Generated as continuation of prior viability work (3 June report). All projections are model-based estimates using repo pricing, realistic install/support costs, and 2026 European retail analytics market data. Not financial advice. Repository snapshot used for technical maturity assessment.
     </footer>
   </div>
-</body>
-</html>
+    </DocLayout>
+  );
+}
