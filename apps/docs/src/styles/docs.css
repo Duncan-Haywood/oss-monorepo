@@ -184,3 +184,140 @@ footer {
 }
 
 .stub { color: var(--muted); font-size: 0.9rem; }
+
+.muted { color: var(--muted); }
+
+/* Private docs login (mirrors portal pattern) */
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  font-family: var(--sans);
+}
+
+.login-panel {
+  width: min(26rem, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 2rem 1.5rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.login-eyebrow {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.login-panel h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: #fff;
+}
+
+.login-lead {
+  color: var(--muted);
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.login-form label span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #0a0e12;
+  color: var(--text);
+  font: inherit;
+  margin-bottom: 1rem;
+}
+
+.login-error {
+  color: #e86a6a;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #a8894f, var(--accent));
+  color: #1a1510;
+  font-weight: 600;
+  font: inherit;
+  cursor: pointer;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.login-foot {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.demo-hint code {
+  font-size: 0.85em;
+}
+
+.login-trust {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.login-trust li {
+  margin-bottom: 0.35rem;
+}
+
+/* Imported HTML report body */
+.html-doc-source {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.html-doc-root .html-doc-body {
+  font-family: var(--sans);
+  line-height: 1.55;
+}
+
+.html-doc-root .html-doc-body table {
+  font-size: 0.85rem;
+}
+
+.html-doc-root .html-doc-body .wrap {
+  max-width: none;
+  padding: 0;
+}
+
+.html-doc-root .html-doc-body h1,
+.html-doc-root .html-doc-body h2 {
+  border-left: none;
+  padding-left: 0;
+}

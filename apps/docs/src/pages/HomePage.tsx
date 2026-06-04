@@ -77,6 +77,10 @@ export function HomePage() {
             <Link to="/roi">ROI</Link>,
             "Financial priority matrix — what to build first",
           ],
+          [
+            <Link to="/reports">HTML reports</Link>,
+            "Synced viability HTML from docs/ and reports/",
+          ],
           [<Link to="/vision">Vision</Link>, "Profit-oriented goals and pilot context"],
           [
             <Link to="/architecture">Architecture</Link>,

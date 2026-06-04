@@ -13,6 +13,7 @@ const links = [
   { to: "/privacy", label: "Privacy & GDPR" },
   { to: "/roadmap", label: "Roadmap" },
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/reports", label: "HTML reports" },
 ] as const;
 
 export function DocLayout({

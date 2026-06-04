@@ -8,11 +8,14 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 
 ```bash
 pnpm install
-pnpm docs:dev      # http://localhost:5173
-pnpm docs:build    # → apps/docs/dist
+pnpm docs:sync     # HTML/MD in docs/ + reports/ → generated TSX modules
+pnpm docs:dev      # http://localhost:5173 — passcode-gated private docs
+pnpm docs:build    # sync + Vite → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
 ```
+
+Private docs deployment (Vercel domain + Deployment Protection + `VITE_DOCS_PASSCODE`): see [`docs/deployment.md`](docs/deployment.md).
 
 ### Sales / marketing demo walkthrough
 

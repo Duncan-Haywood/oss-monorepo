@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "cd ../.. && pnpm run docs:sync",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "pretypecheck": "cd ../.. && pnpm run docs:sync",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview"
   },

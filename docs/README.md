@@ -1,16 +1,17 @@
 # Documentation
 
-**Commercial viability report** (standalone HTML): [`commercial-viability-report.html`](./commercial-viability-report.html) — market fit, profitability, scalability, technical gaps, risks, and prioritized recommendations.
+Product docs live in **`apps/docs`** as **TSX pages**. Standalone **HTML/Markdown** in this folder and in `reports/` are synced into the site at build time.
 
-Product docs live in **`apps/docs`** as TSX pages, built with Vite.
+**Commercial viability report** (source HTML): [`commercial-viability-report.html`](./commercial-viability-report.html) — also available in the built site at `#/reports/commercial-viability-report` after `pnpm docs:sync`.
 
-Key pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan` — market, pricing, GTM, design partner terms, payback model, partners, CS), **Roadmap** (`/roadmap`).
-
-Planning starts at **Business value & ROI** (`/roi`) — ranks 1–3 first (door+POS, desirability gap, upsell), then weighted score, build cost, payback, and monthly/annual € scenarios for the Italy leather boutique pilot. **Roadmap** maps milestones M1–M5+ to that order.
+Key TSX pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan`), **Roadmap** (`/roadmap`), **HTML reports** index (`/reports`).
 
 ```bash
-pnpm docs:dev
-pnpm docs:build   # output: apps/docs/dist
+pnpm docs:sync    # ingest docs/*.html, reports/*.html → generated TS modules
+pnpm docs:dev     # private passcode gate (see .env.example)
+pnpm docs:build   # → apps/docs/dist
 ```
 
-CI builds and uploads `apps/docs/dist` on every push to `main`.
+**Deploy, custom domain, and security:** [deployment.md](./deployment.md).
+
+CI syncs HTML, builds, and uploads `apps/docs/dist` on every push to `main`.

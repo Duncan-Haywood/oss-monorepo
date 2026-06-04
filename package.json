@@ -9,12 +9,14 @@
     "lint": "eslint .",
     "ci": "tsx scripts/ci.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
-    "docs:dev": "pnpm --filter @retail-pilot/docs dev",
-    "docs:build": "pnpm --filter @retail-pilot/docs build",
+    "docs:sync": "tsx scripts/sync-html-docs.ts",
+    "docs:dev": "pnpm run docs:sync && pnpm --filter @retail-pilot/docs dev",
+    "docs:build": "pnpm run docs:sync && pnpm --filter @retail-pilot/docs build",
     "portal:dev": "pnpm --filter @retail-pilot/portal dev",
     "portal:build": "pnpm --filter @retail-pilot/portal build"
   },
   "devDependencies": {
+    "marked": "^15.0.12",
     "@eslint/js": "^9.28.0",
     "@types/node": "^22.15.21",
     "eslint": "^9.28.0",

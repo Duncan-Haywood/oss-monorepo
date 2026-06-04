@@ -33,6 +33,7 @@ function requireNode22(): void {
 }
 
 const steps: Array<() => void> = [
+  () => run("pnpm", ["run", "docs:sync"]),
   () => run("pnpm", ["run", "typecheck"]),
   () => run("pnpm", ["run", "lint"]),
   () => run("pnpm", ["run", "build"]),
