@@ -1,16 +1,17 @@
-# Documentation
+# Documentation sources
 
-**Commercial viability report** (standalone HTML): [`commercial-viability-report.html`](./commercial-viability-report.html) — market fit, profitability, scalability, technical gaps, risks, and prioritized recommendations.
+Product narrative lives in **`apps/docs`** as **TSX pages** (canonical). This folder holds **HTML/Markdown sources** that are compiled into the site at build time.
 
-Product docs live in **`apps/docs`** as TSX pages, built with Vite.
-
-Key pages: **ROI & priorities** (`/roi`), **Business plan** (`/business-plan` — market, pricing, GTM, design partner terms, payback model, partners, CS), **Roadmap** (`/roadmap`).
-
-Planning starts at **Business value & ROI** (`/roi`) — ranks 1–3 first (door+POS, desirability gap, upsell), then weighted score, build cost, payback, and monthly/annual € scenarios for the Italy leather boutique pilot. **Roadmap** maps milestones M1–M5+ to that order.
+| Source | Role |
+|--------|------|
+| `commercial-viability-report.html` | Long-form commercial assessment |
+| `README.md` | This index (synced into the docs archive) |
+| `../reports/*.html` | Additional viability reports |
 
 ```bash
-pnpm docs:dev
-pnpm docs:build   # output: apps/docs/dist
+pnpm docs:sync    # HTML/MD → apps/docs/public/generated + manifest
+pnpm docs:dev     # passcode: atelier-docs (see .env.example)
+pnpm docs:build
 ```
 
-CI builds and uploads `apps/docs/dist` on every push to `main`.
+In the built app: **Commercial viability** (`#/commercial-viability`) is TSX; full HTML tables live under **HTML archive** (`#/archive/...`). Deploy with domain + Vercel Deployment Protection — `apps/docs/DEPLOY.md`.

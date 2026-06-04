@@ -8,11 +8,14 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 
 ```bash
 pnpm install
-pnpm docs:dev      # http://localhost:5173
+pnpm docs:sync     # compile docs/*.html, reports/*.html, docs/*.md → apps/docs
+pnpm docs:dev      # http://localhost:5173 — private docs (passcode: atelier-docs)
 pnpm docs:build    # → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
 ```
+
+Deploy the private docs site to Vercel with a custom domain and **Deployment Protection** — see `apps/docs/DEPLOY.md`.
 
 ### Sales / marketing demo walkthrough
 

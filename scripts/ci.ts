@@ -41,6 +41,11 @@ const steps: Array<() => void> = [
     run("pnpm", ["run", "bootstrap"]);
   },
   () => {
+    const manifest = join(root, "apps/docs/src/generated/source-manifest.ts");
+    accessSync(manifest);
+    console.log(`✓ Docs HTML manifest present: ${manifest}`);
+  },
+  () => {
     const docsDist = join(root, "apps/docs/dist/index.html");
     accessSync(docsDist);
     console.log(`✓ Docs build present: ${docsDist}`);

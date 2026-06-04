@@ -4,6 +4,7 @@ node_modules/
 # Build & runtime
 dist/
 build/
+apps/docs/public/generated/
 *.tsbuildinfo
 .turbo/
 
