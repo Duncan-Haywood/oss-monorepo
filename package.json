@@ -12,6 +12,7 @@
     "docs:convert-html": "tsx scripts/convert-html-to-tsx.ts",
     "docs:dev": "pnpm --filter @retail-pilot/docs dev",
     "docs:build": "pnpm --filter @retail-pilot/docs build",
+    "docs:export": "tsx scripts/export-docs-oneoff.ts",
     "portal:dev": "pnpm --filter @retail-pilot/portal dev",
     "portal:build": "pnpm --filter @retail-pilot/portal build"
   },

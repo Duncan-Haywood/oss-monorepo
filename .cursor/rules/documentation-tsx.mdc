@@ -1,0 +1,44 @@
+---
+description: Author product documentation in TSX; export HTML or PDF only for one-off sharing
+globs:
+  - apps/docs/**
+  - docs/**
+  - reports/**
+alwaysApply: true
+---
+
+# Documentation — TSX first
+
+## Source of truth
+
+- **All product and stakeholder documentation** is authored as **React TSX** under `apps/docs/src/pages/` (and shared primitives in `apps/docs/src/components/`).
+- Use `DocLayout`, `Card`, `DataTable`, and other `DocPrimitives` — do not introduce parallel Markdown or standalone HTML as the canonical source.
+- **Package READMEs** (`packages/*/README.md`) stay minimal: CLI usage and pointers to the docs site — not long-form product copy.
+- **Ops-only** files (`apps/docs/DEPLOY.md`, root `README.md`, `docs/README.md`) may remain Markdown for setup and hosting.
+
+## Adding or changing docs
+
+1. Add or edit a page component in `apps/docs/src/pages/` (e.g. `MyTopicPage.tsx`).
+2. Register the route in `apps/docs/src/App.tsx` and navigation in `DocLayout` / `siteMeta` as needed.
+3. Run `pnpm docs:dev` to preview; run `pnpm typecheck` and `pnpm docs:build` before merging.
+
+## Legacy HTML
+
+- Do **not** add new `.html` reports under `docs/` or `reports/` as the primary artifact.
+- If HTML sources exist for migration only, run `pnpm docs:convert-html` once, then maintain the generated TSX under `apps/docs/src/pages/commercial-viability/`.
+
+## One-off consumption (HTML / PDF)
+
+When someone needs a **quick share** (email attachment, offline read, printout) without the live site:
+
+| Need | Command / action |
+|------|------------------|
+| **Static HTML site** | `pnpm docs:export` → `apps/docs/dist/` (full SPA; host or open `index.html` via `pnpm docs:preview`) |
+| **PDF (one-off)** | `pnpm docs:preview`, open the hash route (e.g. `#/commercial-viability/report`) → Print → Save as PDF |
+
+Built HTML is the default one-off export. PDF is a **derived** artifact from the same TSX — never maintain a separate PDF source file.
+
+## Sales demo
+
+- Narrative for live demos: `apps/portal/` (illustrative data).
+- Scripts and methodology: docs site → `/demo` and related TSX pages — not duplicate Markdown decks.

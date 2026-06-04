@@ -22,7 +22,9 @@ models/*.pt
 # IDE & OS
 .idea/
 .vscode/
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .DS_Store
 *.swp
 __pycache__/

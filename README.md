@@ -10,6 +10,7 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 pnpm install
 pnpm docs:dev      # http://localhost:5173 — private docs (passcode: pilot-docs)
 pnpm docs:build    # → apps/docs/dist
+pnpm docs:export   # build for one-off HTML (see docs/README.md)
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
 ```
