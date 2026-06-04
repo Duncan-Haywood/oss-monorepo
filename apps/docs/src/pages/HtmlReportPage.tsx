@@ -1,36 +1,28 @@
-import { useParams, Navigate } from "react-router-dom";
-import { DocLayout } from "../components/DocLayout";
+import { Navigate, useParams } from "react-router-dom";
+import { docSourceManifest } from "../generated/source-manifest";
 import { htmlReportManifest } from "../generated/htmlReportManifest";
+
+/** Legacy /reports/:slug URLs from sync-html-docs → inline archive view. */
+function archiveSlugForReportSlug(reportSlug: string): string | null {
+  const entry = htmlReportManifest.find((r) => r.slug === reportSlug);
+  if (!entry) return null;
+  const base = entry.sourceLabel.replace(/\.html$/i, "");
+  const file = base.split("/").pop() ?? "";
+  const stem = file.replace(/\.html$/i, "");
+  const match = docSourceManifest.find(
+    (d) => d.kind === "html" && d.sourcePath.endsWith(`${stem}.html`),
+  );
+  return match?.slug ?? null;
+}
 
 export function HtmlReportPage() {
   const { slug } = useParams<{ slug: string }>();
-  const report = htmlReportManifest.find((r) => r.slug === slug);
+  if (!slug) return <Navigate to="/" replace />;
 
-  if (!report) {
-    return <Navigate to="/" replace />;
+  const archiveSlug = archiveSlugForReportSlug(slug);
+  if (archiveSlug) {
+    return <Navigate to={`/archive/${archiveSlug}`} replace />;
   }
 
-  const base = import.meta.env.BASE_URL;
-  const src = `${base}${report.assetPath}`;
-
-  return (
-    <DocLayout
-      title={report.title}
-      subtitle={`Imported from ${report.sourceLabel} at build time`}
-      footer={
-        <p>
-          <a href={src} target="_blank" rel="noopener noreferrer">
-            Open full-page HTML
-          </a>
-        </p>
-      }
-    >
-      <iframe
-        className="html-report-frame"
-        title={report.title}
-        src={src}
-        sandbox="allow-same-origin"
-      />
-    </DocLayout>
-  );
+  return <Navigate to="/archive" replace />;
 }

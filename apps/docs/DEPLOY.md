@@ -1,6 +1,6 @@
 # Private documentation site — deployment
 
-The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative lives in **TSX pages**; **HTML** under `docs/` and `reports/` is synced at build time (iframe reports + inline archive).
+The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative lives in **TSX pages**; **HTML** and **Markdown** under `docs/` and `reports/` are compiled at build time into inline archive pages (`/archive/:slug`). Legacy `/reports/:slug` links redirect to the archive.
 
 ## Build pipeline
 
