@@ -30,4 +30,5 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
+          DOCS_SITE_PASSWORD: ci-docs-password
           DOCS_SITE_TOKEN: ci-build-placeholder-token-32chars

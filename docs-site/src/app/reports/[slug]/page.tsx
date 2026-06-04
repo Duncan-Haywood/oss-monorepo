@@ -1,32 +1,33 @@
 import { notFound } from "next/navigation";
-import htmlManifest from "@/generated/html-manifest.json";
+import { DocsLayout } from "@/components/DocsLayout";
+import { IngestedContent } from "@/components/IngestedContent";
+import { getIngestedPage } from "@/generated/content";
+import { FULL_NAV } from "@/lib/navigation";
 
-type PageProps = {
+interface PageProps {
   params: Promise<{ slug: string }>;
-};
+}
 
 export async function generateStaticParams() {
-  return htmlManifest.docs.map((doc) => ({ slug: doc.slug }));
+  const { INGESTED_PAGES } = await import("@/generated/content");
+  return INGESTED_PAGES.filter((p) => p.kind === "html").map((p) => ({
+    slug: p.slug,
+  }));
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export default async function ReportPage({ params }: PageProps) {
   const { slug } = await params;
-  const doc = htmlManifest.docs.find((entry) => entry.slug === slug);
-  return { title: doc?.title ?? "Report" };
-}
+  const page = getIngestedPage(slug);
+  if (!page || page.kind !== "html") notFound();
 
-export default async function HtmlReportPage({ params }: PageProps) {
-  const { slug } = await params;
-  const doc = htmlManifest.docs.find((entry) => entry.slug === slug);
-  if (!doc) {
-    notFound();
-  }
-
-  try {
-    const module = await import(`@/generated/html-docs/${slug}.tsx`);
-    const Page = module.default;
-    return <Page />;
-  } catch {
-    notFound();
-  }
+  return (
+    <DocsLayout
+      title={page.title}
+      subtitle="Commercial viability report"
+      sourceFile={page.sourceFile}
+      nav={FULL_NAV}
+    >
+      <IngestedContent page={page} />
+    </DocsLayout>
+  );
 }

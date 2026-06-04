@@ -34,9 +34,7 @@ function LoginForm() {
     <div className="login-page">
       <form className="login-card" onSubmit={onSubmit}>
         <h1>ShootFlow Docs</h1>
-        <p style={{ color: "var(--muted)", margin: 0 }}>
-          Enter the team access token to view private documentation.
-        </p>
+        <p className="muted">Enter the team access token.</p>
         <label htmlFor="token">Access token</label>
         <input
           id="token"
@@ -58,15 +56,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="login-page">
-          <div className="login-card">
-            <p style={{ color: "var(--muted)", margin: 0 }}>Loading…</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="login-page"><p className="muted">Loading…</p></div>}>
       <LoginForm />
     </Suspense>
   );

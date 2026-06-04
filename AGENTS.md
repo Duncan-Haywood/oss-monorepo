@@ -171,22 +171,21 @@ Windows.
 
 ### Private docs site (`docs-site/`)
 
-The `docs-site/` package is a separate Next.js app (not part of the stdlib
-Python core). It serves internal documentation with token auth and optional
-Vercel Deployment Protection.
+`docs-site/` is a Next.js app (npm) for internal documentation, separate from the
+stdlib Python core. Curated TSX pages live under `src/app/docs/`; `npm run build`
+runs `scripts/build-docs.mjs` to ingest `docs/*.html` and selected markdown into
+`src/generated/content.ts`.
 
 ```bash
 cd docs-site && npm ci && npm run build
 ```
 
-- Hand-authored pages live in `docs-site/src/app/**/page.tsx`.
-- `docs/*.html` files are synced at build time via `scripts/build-from-html.mjs`
-  into `docs-site/src/generated/html-docs/`.
-- Production requires `DOCS_SITE_TOKEN`; set `DOCS_SITE_DOMAIN` for custom host
-  metadata. See `docs-site/README.md`.
+Production auth uses `DOCS_SITE_PASSWORD` (HTTP Basic + optional session cookie)
+and/or `DOCS_SITE_TOKEN` (login form + bearer). Set `DOCS_SITE_DOMAIN` for custom
+host metadata. See `docs-site/README.md` for Vercel domain and Deployment
+Protection.
 
 ### No external services
 
-The Python core uses no database, Docker, or external APIs. Everything runs
-against the local filesystem. The docs site is an optional Node deployment for
-team documentation only.
+No database, no Docker, or external APIs for the Python core. Everything runs
+against the local filesystem. The docs site deploys separately on Vercel when used.

@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import {
-  SESSION_COOKIE,
-  isAuthConfigured,
-  sessionCookieOptions,
-  signSessionValue,
+  TOKEN_SESSION_COOKIE,
+  tokenSessionCookieOptions,
+  signTokenSessionValue,
   verifyAccessToken,
 } from "@/lib/auth";
 
 export async function POST(request: Request) {
-  if (!isAuthConfigured()) {
+  const tokenEnv = process.env.DOCS_SITE_TOKEN?.trim();
+  if (!tokenEnv) {
     return NextResponse.json(
-      { error: "DOCS_SITE_TOKEN is not configured on the server." },
-      { status: 503 }
+      { error: "DOCS_SITE_TOKEN is not configured." },
+      { status: 503 },
     );
   }
 
@@ -21,13 +21,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid access token." }, { status: 401 });
   }
 
-  const session = await signSessionValue();
+  const session = await signTokenSessionValue();
   if (!session) {
     return NextResponse.json({ error: "Unable to create session." }, { status: 500 });
   }
 
   const secure = request.url.startsWith("https://");
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(SESSION_COOKIE, session, sessionCookieOptions(secure));
+  response.cookies.set(TOKEN_SESSION_COOKIE, session, tokenSessionCookieOptions(secure));
   return response;
 }

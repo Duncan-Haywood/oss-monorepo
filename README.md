@@ -723,9 +723,9 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
-Private documentation site (Next.js, TSX guides + HTML build sync): see
-`docs-site/README.md`. Deploy with `DOCS_SITE_TOKEN` and a team-only domain;
-HTML under `docs/*.html` is converted at `npm run build` time.
+Source files live under `docs/`. A private Next.js site in `docs-site/` builds
+curated TSX pages plus HTML/Markdown ingests at `npm run build` — see
+`docs-site/README.md` for auth, custom domain, and Vercel deployment.
 
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`
