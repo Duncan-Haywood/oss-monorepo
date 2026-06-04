@@ -30,11 +30,13 @@ npm run build
 
 | Variable | Required (prod) | Purpose |
 |----------|-------------------|---------|
-| `DOCS_SITE_PASSWORD` | Yes | Basic Auth password |
+| `DOCS_SITE_PASSWORD` | One of password/token | Basic Auth password |
+| `DOCS_SITE_TOKEN` | One of password/token | Login form + Bearer (min 16 chars) |
 | `DOCS_SITE_USERNAME` | No | Basic Auth user (default `shootflow`) |
-| `DOCS_SITE_SESSION_SECRET` | Recommended | Session cookie after auth |
+| `DOCS_SITE_SESSION_SECRET` | Recommended | Session cookie after Basic Auth |
+| `DOCS_SITE_DOMAIN` | No | Custom host for `metadataBase` / canonical URLs |
 
-In production, missing `DOCS_SITE_PASSWORD` returns **503** (fail closed).
+In production, missing both `DOCS_SITE_PASSWORD` and `DOCS_SITE_TOKEN` returns **503** (fail closed).
 
 Also enable **Vercel Deployment Protection** (password or SSO) on the project for
 defense in depth.

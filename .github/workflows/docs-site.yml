@@ -6,11 +6,13 @@ on:
     paths:
       - "docs-site/**"
       - "docs/*.html"
+      - "docs/*.md"
       - ".github/workflows/docs-site.yml"
   pull_request:
     paths:
       - "docs-site/**"
       - "docs/*.html"
+      - "docs/*.md"
       - ".github/workflows/docs-site.yml"
 
 defaults:
