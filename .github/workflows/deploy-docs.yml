@@ -47,6 +47,7 @@ jobs:
         env:
           VITE_DOCS_GATE_ENABLED: "true"
           VITE_DOCS_PASSCODE: ${{ secrets.DOCS_PASSCODE }}
+          VITE_DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL }}
         run: pnpm docs:build
 
       - name: Upload Pages artifact
@@ -88,6 +89,7 @@ jobs:
         env:
           VITE_DOCS_GATE_ENABLED: "true"
           VITE_DOCS_PASSCODE: ${{ secrets.DOCS_PASSCODE }}
+          VITE_DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL }}
         run: pnpm docs:build
 
       - name: Deploy to Vercel

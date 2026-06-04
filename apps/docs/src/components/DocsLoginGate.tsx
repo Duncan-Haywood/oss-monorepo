@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from "react";
 import {
   createDocsSession,
-  getDocsPasscode,
   verifyDocsPasscode,
 } from "../auth/docsAuth";
 
 export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [showHint, setShowHint] = useState(false);
+  const showDevHint = import.meta.env.DEV;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -55,19 +54,14 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
         </form>
 
         <p className="docs-login-foot">
-          <button
-            type="button"
-            className="docs-link-btn"
-            onClick={() => setShowHint((v) => !v)}
-          >
-            {showHint ? "Hide" : "Show"} dev hint
-          </button>
-          {showHint ? (
-            <span className="docs-demo-hint">
-              {" "}
-              Passcode for this build: <code>{getDocsPasscode()}</code>
-            </span>
-          ) : null}
+          {showDevHint ? (
+            <>
+              Local dev passcode: <code>pilot-docs</code> (or{" "}
+              <code>VITE_DOCS_PASSCODE</code>)
+            </>
+          ) : (
+            "Contact your pilot lead if you need access."
+          )}
         </p>
 
         <ul className="docs-login-trust">

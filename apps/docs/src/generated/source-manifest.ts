@@ -47,4 +47,4 @@ export const docSourceManifest: DocSourceEntry[] = [
   }
 ] as const;
 
-export const docSourcesBuiltAt = "2026-06-04T12:49:19.134Z";
+export const docSourcesBuiltAt = "2026-06-04T12:55:14.279Z";

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { clearDocsSession, isDocsGateEnabled } from "../auth/docsAuth";
 import { htmlReportManifest } from "../generated/htmlReportManifest";
+import { DocHead } from "./DocHead";
 
 const links = [
   { to: "/", label: "Home", end: true },
@@ -32,6 +33,7 @@ export function DocLayout({
 }) {
   return (
     <div className="wrap">
+      <DocHead title={title} description={subtitle} />
       <nav className="doc-nav" aria-label="Documentation">
         {links.map(({ to, label, ...rest }) => (
           <NavLink
