@@ -1,37 +1,48 @@
 # Private documentation site — deployment
 
-The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative lives in **TSX pages**; long-form **HTML and Markdown** under `docs/` and `reports/` are compiled into `public/generated/` at build time.
+The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. Product narrative lives in **TSX pages**; **HTML** under `docs/` and `reports/` is synced at build time (iframe reports + inline archive).
+
+## Build pipeline
+
+```bash
+pnpm docs:sync
+# 1. scripts/sync-html-docs.ts  → apps/docs/public/html-reports/ + htmlReportManifest.ts
+# 2. scripts/build-doc-sources.ts → apps/docs/public/generated/ + source-manifest.ts
+pnpm docs:build   # → apps/docs/dist
+```
 
 ## Local
 
 ```bash
-pnpm install
-pnpm docs:sync    # HTML/MD → apps/docs/public/generated + manifest
-pnpm docs:dev     # http://localhost:5173 — passcode: atelier-docs
-pnpm docs:build   # → apps/docs/dist
+pnpm docs:dev     # http://localhost:5173
+# Passcode default: pilot-docs
+# Disable gate locally: VITE_DOCS_GATE_ENABLED=false
 ```
 
-Set `VITE_DOCS_AUTH_DISABLED=true` only for local UI work without the gate.
+## Hosting options
 
-## Custom domain (Vercel)
+### GitHub Pages (included workflow)
 
-1. Create a Vercel project with **Root Directory** = `apps/docs` (monorepo).
-2. Add domain, e.g. `docs.retailpilotintel.com` (or your pilot subdomain).
-3. Set production env vars:
-   - `VITE_DOCS_PASSCODE` — stakeholder passcode (never commit real values).
-4. Enable **Deployment Protection** → *Password protection* or *Vercel Authentication* on the project. This is the real network boundary; the client passcode is for casual link sharing only.
+1. Repo **Settings → Pages** → source: **GitHub Actions**
+2. Set repository secret `DOCS_PASSCODE` (used at build for `VITE_DOCS_PASSCODE`)
+3. Push to `main` — workflow `.github/workflows/deploy-docs.yml` publishes `apps/docs/dist`
+
+Private repo + passcode gate is suitable for stakeholder links. Add org SSO via GitHub if required.
+
+### Vercel (custom domain)
+
+1. Vercel project **Root Directory** = `apps/docs`
+2. Domain e.g. `docs.retailpilotintel.com`
+3. Env: `VITE_DOCS_PASSCODE`, `VITE_DOCS_GATE_ENABLED=true`
+4. Enable **Deployment Protection** (password or Vercel Authentication) — network boundary beyond the client passcode
+
+Optional CI job `deploy-vercel` runs when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` secrets exist.
 
 ## Security layers
 
 | Layer | Purpose |
 |-------|---------|
-| Vercel Deployment Protection | Blocks unauthenticated visitors before static assets load |
-| `VITE_DOCS_PASSCODE` | Session gate in the browser (8h), same pattern as the sales portal |
-| `X-Robots-Tag: noindex` | Keeps collateral off search indexes if a URL leaks |
-| Private GitHub repo | Source control boundary |
-
-## CI
-
-`pnpm run ci` runs `docs:build`, which syncs HTML sources and uploads `apps/docs/dist` as a GitHub Actions artifact.
-
-Optional: `.github/workflows/deploy-docs.yml` deploys to Vercel when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` repository secrets are configured.
+| Private GitHub repo | Source control |
+| GitHub Pages (private repo) or Vercel Deployment Protection | Network access |
+| `VITE_DOCS_PASSCODE` + `VITE_DOCS_GATE_ENABLED` | Browser session gate (12h) |
+| `X-Robots-Tag: noindex` | Discourage indexing if URL leaks |

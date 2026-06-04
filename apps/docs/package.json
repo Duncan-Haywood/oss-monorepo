@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "sync": "tsx ../../scripts/build-doc-sources.ts",
+    "sync": "tsx ../../scripts/sync-html-docs.ts && tsx ../../scripts/build-doc-sources.ts",
     "dev": "pnpm run sync && vite",
-    "build": "pnpm run sync && tsc -p tsconfig.json --noEmit && vite build",
+    "prebuild": "pnpm run sync",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
     "typecheck": "pnpm run sync && tsc -p tsconfig.json --noEmit",
     "preview": "vite preview"
   },

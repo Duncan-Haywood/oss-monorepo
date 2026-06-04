@@ -8,8 +8,8 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 
 ```bash
 pnpm install
-pnpm docs:sync     # compile docs/*.html, reports/*.html, docs/*.md → apps/docs
-pnpm docs:dev      # http://localhost:5173 — private docs (passcode: atelier-docs)
+pnpm docs:sync     # HTML → iframe reports; HTML/MD → inline archive
+pnpm docs:dev      # http://localhost:5173 — private docs (passcode: pilot-docs)
 pnpm docs:build    # → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
 pnpm portal:build  # → apps/portal/dist
@@ -25,7 +25,9 @@ Deploy the private docs site to Vercel with a custom domain and **Deployment Pro
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publish privately for stakeholders, see **`docs/README.md`** (GitHub Pages, Vercel custom domain, or Docker on LAN) — passcode gate + `noindex` by default.
+
+HTML reports under `docs/` and `reports/` are synced into the site at build time (`pnpm docs:sync-html`).
 
 ## Quick start
 
@@ -45,7 +47,8 @@ packages/edge/          On-device vision (stub CLI)
 packages/pos/           POS connector (stub CLI)
 packages/analytics/     SQLite rollups & reports
 scripts/ci.ts           TypeScript CI orchestrator
-.github/workflows/      GitHub Actions
+.github/workflows/      CI + deploy-docs (GitHub Pages)
+docker/                 nginx config for private docs serve
 ```
 
 ## What to build first (ROI)

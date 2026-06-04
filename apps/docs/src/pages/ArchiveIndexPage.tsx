@@ -2,36 +2,51 @@ import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
 import { docSourceManifest } from "../generated/source-manifest";
+import { htmlReportManifest } from "../generated/htmlReportManifest";
 
 export function ArchiveIndexPage() {
   return (
     <DocLayout
       title="HTML & Markdown archive"
-      subtitle="Compiled from docs/ and reports/ at build time — TSX pages remain the canonical product docs"
+      subtitle="Build-time sync from docs/ and reports/ — TSX pages remain canonical"
     >
       <Card variant="ok">
         <p>
-          Source HTML and Markdown in the repository are synced into{" "}
-          <code>apps/docs/public/generated/</code> by{" "}
-          <code>pnpm docs:sync</code> before each production build. Edit the
-          TSX pages for narrative product docs; use the archive for long-form
-          commercial assessments.
+          <strong>Iframe reports</strong> (<code>/reports/:slug</code>) copy full HTML
+          files. <strong>Inline archive</strong> (<code>/archive/:slug</code>) embeds
+          extracted body content and Markdown. Run <code>pnpm docs:sync</code> before
+          build.
         </p>
       </Card>
 
-      <h2>Available reports</h2>
+      <h2>Iframe HTML reports</h2>
       <DataTable
-        headers={["Report", "Source", "Kind"]}
-        rows={docSourceManifest.map((entry) => [
-          <Link to={`/archive/${entry.slug}`} key={entry.slug}>
-            {entry.title}
+        headers={["Report", "Source", "Open"]}
+        rows={htmlReportManifest.map((entry) => [
+          entry.title,
+          <code key={`${entry.slug}-src`}>{entry.sourceLabel}</code>,
+          <Link to={`/reports/${entry.slug}`} key={entry.slug}>
+            View
           </Link>,
-          <code key={`${entry.slug}-src`}>{entry.sourcePath}</code>,
+        ])}
+      />
+
+      <h2>Inline archive (extracted / Markdown)</h2>
+      <DataTable
+        headers={["Document", "Source", "Kind", "Open"]}
+        rows={docSourceManifest.map((entry) => [
+          entry.title,
+          <code key={`${entry.slug}-path`}>{entry.sourcePath}</code>,
           entry.kind,
+          <Link to={`/archive/${entry.slug}`} key={entry.slug}>
+            View
+          </Link>,
         ])}
       />
 
       <footer>
+        <Link to="/commercial-viability">Commercial viability (TSX)</Link>
+        {" · "}
         <Link to="/">← Home</Link>
       </footer>
     </DocLayout>

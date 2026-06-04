@@ -3,8 +3,10 @@ node_modules/
 
 # Build & runtime
 dist/
+apps/docs/public/html-reports/
 build/
 apps/docs/public/generated/
+apps/docs/public/html-reports/
 *.tsbuildinfo
 .turbo/
 

@@ -6,7 +6,13 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "apps/docs/dist/**"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "apps/docs/dist/**",
+      "apps/docs/src/generated/**",
+      "apps/docs/public/html-reports/**",
+    ],
   },
   {
     files: ["**/*.{ts,tsx}"],

@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { docSourceManifest } from "../generated/source-manifest";
+import { htmlReportManifest } from "../generated/htmlReportManifest";
 
-const primarySlug = "commercial-viability-report";
+const primarySlug = "docs-commercial-viability-report";
 
 export function CommercialViabilityPage() {
-  const primary = docSourceManifest.find((e) => e.slug === primarySlug);
-  const related = docSourceManifest.filter(
+  const primary = htmlReportManifest.find((e) => e.slug === primarySlug);
+  const related = htmlReportManifest.filter(
     (e) => e.slug.includes("commercial-viability") && e.slug !== primarySlug,
   );
 
   return (
     <DocLayout
       title="Commercial viability"
-      subtitle="TSX summary — full HTML assessments linked in the archive"
+      subtitle="TSX summary — full HTML assessments open as iframe reports"
     >
       <Card variant="warn">
         <p>
@@ -55,18 +55,17 @@ export function CommercialViabilityPage() {
       <h2>Full HTML assessments</h2>
       <Card>
         <p>
-          Long-form reports are compiled from repository HTML at build time. The
-          canonical short path is this TSX page; open the archive for tables,
-          scenarios, and citations preserved from source files.
+          Long-form reports are copied from <code>docs/</code> and{" "}
+          <code>reports/</code> at build time. Open iframe reports for full layouts.
         </p>
         <DataTable
-          headers={["Report", "Action"]}
+          headers={["Report", "Open"]}
           rows={[
             ...(primary
               ? [
                   [
                     primary.title,
-                    <Link to={`/archive/${primary.slug}`} key="primary">
+                    <Link to={`/reports/${primary.slug}`} key="primary">
                       Open full report
                     </Link>,
                   ],
@@ -74,14 +73,14 @@ export function CommercialViabilityPage() {
               : []),
             ...related.map((e) => [
               e.title,
-              <Link to={`/archive/${e.slug}`} key={e.slug}>
+              <Link to={`/reports/${e.slug}`} key={e.slug}>
                 Open
               </Link>,
             ]),
           ]}
         />
         <p>
-          <Link to="/archive">Browse all archived sources →</Link>
+          <Link to="/archive">Browse inline archive →</Link>
         </p>
       </Card>
 

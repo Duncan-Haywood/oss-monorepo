@@ -9,9 +9,10 @@
     "lint": "eslint .",
     "ci": "tsx scripts/ci.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
-    "docs:sync": "tsx scripts/build-doc-sources.ts",
+    "docs:sync": "tsx scripts/sync-html-docs.ts && tsx scripts/build-doc-sources.ts",
     "docs:dev": "pnpm --filter @retail-pilot/docs dev",
-    "docs:build": "pnpm --filter @retail-pilot/docs build",
+    "docs:sync-html": "tsx scripts/sync-html-docs.ts",
+    "docs:build": "pnpm docs:sync-html && pnpm --filter @retail-pilot/docs build",
     "portal:dev": "pnpm --filter @retail-pilot/portal dev",
     "portal:build": "pnpm --filter @retail-pilot/portal build"
   },

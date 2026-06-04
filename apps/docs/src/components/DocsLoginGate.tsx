@@ -1,15 +1,11 @@
 import { useState, type FormEvent } from "react";
 import {
-  createSession,
+  createDocsSession,
   getDocsPasscode,
-  verifyPasscode,
+  verifyDocsPasscode,
 } from "../auth/docsAuth";
 
-export function DocsLoginGate({
-  onAuthenticated,
-}: {
-  onAuthenticated: () => void;
-}) {
+export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
@@ -17,38 +13,27 @@ export function DocsLoginGate({
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!verifyPasscode(passcode)) {
-      setError("Invalid passcode. Contact your pilot lead for access.");
+    if (!verifyDocsPasscode(passcode)) {
+      setError("Invalid passcode. Ask your pilot lead for access.");
       return;
     }
-    createSession();
+    createDocsSession();
     onAuthenticated();
   }
 
   return (
-    <div className="login-screen">
-      <div className="login-panel">
-        <p className="login-eyebrow">Retail Pilot Intel</p>
-        <h1>Private documentation</h1>
-        <p className="login-lead">
-          Internal product, GTM, and commercial collateral for the Italy leather
-          boutique pilot. Passcode required; session stays in this browser only.
+    <div className="docs-login-screen">
+      <div className="docs-login-panel">
+        <p className="docs-login-eyebrow">Retail Pilot Intel</p>
+        <h1>Pilot documentation</h1>
+        <p className="docs-login-lead">
+          Private product docs: ROI priorities, business plan, architecture, and
+          HTML reports synced at build time. Session stays in this browser only.
         </p>
-        <ul className="login-value-points">
-          <li>
-            <strong>TSX-first</strong> — ROI, business plan, GTM, architecture
-          </li>
-          <li>
-            <strong>HTML archive</strong> — built from repo reports at compile time
-          </li>
-          <li>
-            <strong>noindex</strong> — not indexed; pair with Vercel deployment protection
-          </li>
-        </ul>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="docs-login-form">
           <label>
-            <span>Documentation passcode</span>
+            <span>Access passcode</span>
             <input
               type="password"
               autoComplete="current-password"
@@ -59,36 +44,36 @@ export function DocsLoginGate({
           </label>
 
           {error ? (
-            <p className="login-error" role="alert">
+            <p className="docs-login-error" role="alert">
               {error}
             </p>
           ) : null}
 
-          <button type="submit" className="btn-primary">
-            Enter documentation
+          <button type="submit" className="docs-btn-primary">
+            View documentation
           </button>
         </form>
 
-        <p className="login-foot">
+        <p className="docs-login-foot">
           <button
             type="button"
-            className="link-btn"
+            className="docs-link-btn"
             onClick={() => setShowHint((v) => !v)}
           >
-            {showHint ? "Hide" : "Show"} hint
+            {showHint ? "Hide" : "Show"} dev hint
           </button>
           {showHint ? (
-            <span className="demo-hint">
+            <span className="docs-demo-hint">
               {" "}
               Passcode for this build: <code>{getDocsPasscode()}</code>
             </span>
           ) : null}
         </p>
 
-        <ul className="login-trust">
-          <li>Client-side gate for stakeholder sharing</li>
-          <li>Enable Vercel Deployment Protection for production</li>
-          <li>Session expires after 8 hours</li>
+        <ul className="docs-login-trust">
+          <li>Not indexed — share link + passcode with stakeholders only</li>
+          <li>Pair with Vercel Deployment Protection or GitHub Pages private repo</li>
+          <li>Session expires after 12 hours</li>
         </ul>
       </div>
     </div>
