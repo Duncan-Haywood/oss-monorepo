@@ -1,3 +1,3 @@
 # Reports
 
-Long-form assessments moved to **`apps/docs/src/reports/`** as TSX modules. See `docs/README.md` for build and deploy.
+Long-form assessments live as native TSX in **`apps/docs/src/pages/commercial-viability/`**. See `docs/README.md` for build and deploy.
