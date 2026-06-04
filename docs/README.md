@@ -1,11 +1,21 @@
 # Documentation
 
-All product documentation lives in **`apps/docs/src/pages/`** as **TSX** (React components).
+All product documentation lives in **`apps/docs/src/pages/`** as **TSX** (React components). Agents and editors should follow **`.cursor/rules/documentation-tsx.mdc`** and **`AGENTS.md`**.
 
 ```bash
 pnpm docs:dev     # http://localhost:5173 — passcode: pilot-docs
 pnpm docs:build   # → apps/docs/dist
+pnpm docs:export  # build + print dist path (one-off HTML)
 ```
+
+## One-off HTML or PDF
+
+| Goal | How |
+|------|-----|
+| **Share static HTML** | `pnpm docs:export` then ship or host `apps/docs/dist/` |
+| **Quick PDF** | `pnpm docs:preview`, open the route (hash URL), **Print → Save as PDF** |
+
+Do not maintain separate `.html` or `.pdf` source files — TSX is canonical; exports are derived.
 
 ## Commercial viability reports
 
