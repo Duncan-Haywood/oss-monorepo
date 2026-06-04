@@ -31,9 +31,12 @@ Private repo + passcode gate is suitable for stakeholder links. Add org SSO via 
 
 ### Vercel (custom domain)
 
-1. Vercel project **Root Directory** = `apps/docs`
-2. Domain e.g. `docs.retailpilotintel.com`
-3. Env: `VITE_DOCS_PASSCODE`, `VITE_DOCS_GATE_ENABLED=true`
+1. Import repo; use root **`vercel.docs.json`** (or set project root to repo root with that config).
+2. Add domain e.g. `docs.retailpilotintel.com` in **Project → Settings → Domains** (CNAME to `cname.vercel-dns.com`).
+3. Env vars (Production + Preview):
+   - `VITE_DOCS_PASSCODE` — stakeholder passcode (also set as GitHub secret `DOCS_PASSCODE` for Pages)
+   - `VITE_DOCS_GATE_ENABLED=true`
+   - `VITE_DOCS_SITE_URL=https://docs.retailpilotintel.com` — canonical URLs in page meta
 4. Enable **Deployment Protection** (password or Vercel Authentication) — network boundary beyond the client passcode
 
 Optional CI job `deploy-vercel` runs when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` secrets exist.
