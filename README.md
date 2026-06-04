@@ -8,7 +8,6 @@ Privacy-first retail analytics for small-format pilot stores (initial target: ~1
 
 ```bash
 pnpm install
-pnpm docs:sync     # register TSX report modules (build-report-manifest)
 pnpm docs:dev      # http://localhost:5173 — private docs (passcode: pilot-docs)
 pnpm docs:build    # → apps/docs/dist
 pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atelier-demo)
@@ -27,7 +26,7 @@ Deploy the private docs site to Vercel with a custom domain and **Deployment Pro
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publish privately for stakeholders, see **`docs/README.md`** (GitHub Pages, Vercel custom domain, or Docker on LAN) — passcode gate + `noindex` by default.
 
-Long-form reports live as TSX in `apps/docs/src/reports/` (see `docs/README.md`).
+Long-form commercial viability reports live as native TSX JSX in `apps/docs/src/pages/commercial-viability/`.
 
 ## Quick start
 

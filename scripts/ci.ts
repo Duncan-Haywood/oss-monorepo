@@ -34,7 +34,6 @@ function requireNode22(): void {
 
 const steps: Array<() => void> = [
   () => run("pnpm", ["run", "typecheck"]),
-  () => run("pnpm", ["run", "docs:sync"]),
   () => run("pnpm", ["run", "lint"]),
   () => run("pnpm", ["run", "build"]),
   () => {
@@ -42,9 +41,9 @@ const steps: Array<() => void> = [
     run("pnpm", ["run", "bootstrap"]);
   },
   () => {
-    const reportManifest = join(root, "apps/docs/src/generated/report-manifest.ts");
-    accessSync(reportManifest);
-    console.log(`✓ Docs report manifest present: ${reportManifest}`);
+    const cvIndex = join(root, "apps/docs/src/pages/commercial-viability/index.ts");
+    accessSync(cvIndex);
+    console.log(`✓ Commercial viability TSX pages present: ${cvIndex}`);
   },
   () => {
     const docsDist = join(root, "apps/docs/dist/index.html");

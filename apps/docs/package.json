@@ -4,11 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "sync": "tsx ../../scripts/build-report-manifest.ts",
-    "dev": "pnpm run sync && vite",
-    "prebuild": "pnpm run sync",
+    "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
-    "typecheck": "pnpm run sync && tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

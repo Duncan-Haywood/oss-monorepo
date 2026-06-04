@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, DataTable } from "../components/DocPrimitives";
 import { DocLayout } from "../components/DocLayout";
-import { reportRegistry } from "../generated/report-manifest";
+import { commercialViabilityPages } from "./commercial-viability";
 
 export function HomePage() {
   return (
@@ -97,31 +97,28 @@ export function HomePage() {
           ],
           [
             <Link to="/commercial-viability">Commercial viability</Link>,
-            "TSX scorecard + links to full TSX reports",
+            "Hub + five full TSX assessment reports",
           ],
-          [
-            <Link to="/reports">Reports</Link>,
-            "Long-form assessments (TSX in apps/docs/src/reports/)",
-          ],
+          ...commercialViabilityPages.map((p) => [
+            <Link key={p.slug} to={`/commercial-viability/${p.slug}`}>
+              {p.title.replace(/ — Retail Pilot Intel.*$/i, "")}
+            </Link>,
+            "Commercial viability assessment (TSX)",
+          ]),
           [
             "Sales portal (pnpm portal:dev)",
-            "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo; presenter guide + docs /demo script)",
+            "Secure demo UI — Business value, funnel, SKU gap, experiments (passcode: atelier-demo)",
           ],
           [<Link to="/dashboard">Dashboard</Link>, "Docs placeholder (see portal)"],
-          ...reportRegistry.map((r) => [
-            <Link key={r.slug} to={`/reports/${r.slug}`}>
-              {r.title}
-            </Link>,
-            `TSX report`,
-          ]),
         ]}
       />
 
       <Card>
         <p>
-          <strong>Private hosting:</strong> This site is TSX (pages + reports).
-          Deploy via GitHub Pages, Vercel (custom domain + Deployment Protection),
-          or Docker — passcode gate in production. See <code>docs/README.md</code>.
+          <strong>Private hosting:</strong> All documentation is TSX in{" "}
+          <code>apps/docs/src/pages/</code>. Deploy via GitHub Pages, Vercel
+          (custom domain + Deployment Protection), or Docker — passcode gate in
+          production. See <code>apps/docs/DEPLOY.md</code>.
         </p>
       </Card>
 
@@ -131,8 +128,7 @@ apps/portal/     sales demo portal (pnpm portal:dev)
 packages/edge/   on-device vision & aggregation
 packages/pos/    POS connector & event schema
 packages/analytics/  rollups & reports
-.github/workflows/   CI + deploy-docs (GitHub Pages)
-scripts/build-report-manifest.ts  register TSX reports`}</pre>
+.github/workflows/   CI + deploy-docs (GitHub Pages)`}</pre>
 
       <footer>
         Private pilot documentation — not legal advice. Engage counsel for GDPR
