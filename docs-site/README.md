@@ -1,8 +1,9 @@
 # ShootFlow private docs site
 
 Next.js site for internal product, architecture, and commercial viability
-documentation. Most navigation and policy pages are authored in **TSX**; HTML
-reports and long markdown files are **ingested at build time** from `../docs/`.
+documentation. Architecture, CLI, and security pages are **hand-authored TSX**;
+HTML reports and selected markdown under `../docs/` are **converted to TSX
+`page.tsx` files** at build time.
 
 ## Local development
 
@@ -22,9 +23,9 @@ npm run build
 
 `prebuild` runs `scripts/build-docs.mjs`, which:
 
-1. Parses `docs/*.html` — extracts `<title>`, `<style>`, and `<main>` body HTML.
-2. Parses selected `docs/*.md` — renders to HTML via `marked`.
-3. Writes `src/generated/content.ts` for static report/archive routes.
+1. Parses `docs/*.html` — emits `src/app/docs/reports/<slug>/page.tsx`.
+2. Parses selected `docs/*.md` — emits `src/app/docs/<slug>/page.tsx`.
+3. Writes `src/generated/manifest.ts` for navigation metadata only.
 
 ## Security
 

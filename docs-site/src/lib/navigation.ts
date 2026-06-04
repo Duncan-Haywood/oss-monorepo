@@ -1,9 +1,8 @@
 import type { NavItem } from "@/components/DocsLayout";
 import {
-  HTML_REPORT_SLUGS,
-  INGESTED_PAGES,
-  MARKDOWN_ARCHIVE_SLUGS,
-} from "@/generated/content";
+  GENERATED_REPORT_PAGES,
+  GENERATED_SOURCE_DOC_PAGES,
+} from "@/generated/manifest";
 
 export const PRIMARY_NAV: NavItem[] = [
   { href: "/", label: "Overview", description: "Site home" },
@@ -20,12 +19,12 @@ export const PRIMARY_NAV: NavItem[] = [
   {
     href: "/docs/product-strategy",
     label: "Product strategy",
-    description: "Curated TSX summary",
+    description: "From PRODUCT_STRATEGY.md",
   },
   {
     href: "/docs/design-decisions",
     label: "Design decisions",
-    description: "Architecture notes",
+    description: "From DESIGN_DECISIONS.md",
   },
   {
     href: "/docs/architecture",
@@ -40,7 +39,12 @@ export const PRIMARY_NAV: NavItem[] = [
   {
     href: "/docs/business-plan",
     label: "Business plan",
-    description: "GTM overview",
+    description: "From BUSINESS_PLAN.md",
+  },
+  {
+    href: "/docs/terms-and-conditions",
+    label: "Terms (draft)",
+    description: "From TERMS_AND_CONDITIONS_DRAFT.md",
   },
   {
     href: "/docs/security",
@@ -49,26 +53,13 @@ export const PRIMARY_NAV: NavItem[] = [
   },
 ];
 
-export const REPORT_NAV: NavItem[] = HTML_REPORT_SLUGS.map((slug) => {
-  const page = INGESTED_PAGES.find((p) => p.slug === slug);
-  return {
-    href: `/reports/${slug}`,
-    label: page?.title ?? slug,
-    description: page?.sourceFile,
-  };
-});
-
-export const ARCHIVE_NAV: NavItem[] = MARKDOWN_ARCHIVE_SLUGS.map((slug) => {
-  const page = INGESTED_PAGES.find((p) => p.slug === slug);
-  return {
-    href: `/archive/${slug}`,
-    label: `${page?.title ?? slug} (full)`,
-    description: "Build-ingested MD",
-  };
-});
+export const REPORT_NAV: NavItem[] = GENERATED_REPORT_PAGES.map((page) => ({
+  href: page.href,
+  label: page.title,
+  description: page.sourceFile,
+}));
 
 export const FULL_NAV: NavItem[] = [
   ...PRIMARY_NAV,
   ...REPORT_NAV,
-  ...ARCHIVE_NAV,
 ];
