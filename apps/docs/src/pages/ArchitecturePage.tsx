@@ -59,10 +59,11 @@ export function ArchitecturePage() {
       </ul>
       <h3>Docs & dashboard (apps/docs)</h3>
       <ul>
-        <li>TSX site built by Vite; CI publishes dist artifact</li>
+        <li>TSX site built by Vite; CI verifies build on every PR and publishes dist on <code>main</code></li>
         <li>
-          Private web hosting: Vercel static deploy + password protection; app
-          passcode gate for pilot sharing (see repo <code>docs/HOSTING.md</code>)
+          Private GitHub Pages (repo collaborators) or Vercel with deployment
+          protection (external readers); app passcode gate — see{" "}
+          <code>docs/HOSTING.md</code>
         </li>
         <li>Hash routes for static hosting without SPA rewrite rules</li>
       </ul>
