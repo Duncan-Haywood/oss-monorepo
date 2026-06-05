@@ -169,14 +169,27 @@ Pre-existing findings:
 Uses `fcntl` for advisory file locking — Linux/macOS only, will not work on
 Windows.
 
-### Private docs site
+### Private docs site (`docs-site/`)
 
-Internal product/engineering documentation is published via `docs-site/` (Next.js).
-TSX pages cover core guides; `docs/*.html` reports are ingested at build time. See
-`docs-site/README.md` for local dev (`DOCS_SITE_PASSWORD`) and Vercel domain +
-deployment-protection setup.
+`docs-site/` is a Next.js app (npm) for internal documentation, separate from the
+stdlib Python core. **Documentation is TSX-first**: hand-authored pages under
+`src/app/docs/`, plus `scripts/build-docs.mjs` rewriting approved `docs/*.html` and
+selected markdown into `src/generated/doc-content/*.tsx` and thin route wrappers.
+Do not add new long-form Markdown/HTML in `docs/` as canonical hand-maintained docs
+unless they are on the build-docs ingest list. For one-off PDF/HTML sharing, export
+from the built site (browser Print → PDF or Save Page As) — do not maintain parallel
+canonical copies. See `.cursor/rules/documentation-tsx.mdc`.
+
+```bash
+cd docs-site && npm ci && npm run build
+```
+
+Production auth uses `DOCS_SITE_PASSWORD` (HTTP Basic + optional session cookie)
+and/or `DOCS_SITE_TOKEN` (login form + bearer). Set `DOCS_SITE_DOMAIN` for custom
+host metadata. See `docs-site/README.md` for Vercel domain and Deployment
+Protection.
 
 ### No external services
 
-The Python core has no database, Docker, or external APIs. The optional docs site
-uses Node only for the private documentation deployment.
+No database, no Docker, or external APIs for the Python core. Everything runs
+against the local filesystem. The docs site deploys separately on Vercel when used.

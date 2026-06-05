@@ -1,55 +1,66 @@
 # ShootFlow private docs site
 
-Next.js site that publishes internal ShootFlow documentation:
-
-- **TSX guides** — product strategy, design decisions, workflow authority, business plan, terms summary.
-- **HTML reports** — `docs/*.html` files are copied at build time via `npm run ingest-html` and embedded in `/docs/reports/[slug]`.
+Next.js site for internal product, architecture, and commercial viability
+documentation. Architecture, CLI, and security pages are **hand-authored TSX**;
+HTML reports and selected markdown under `../docs/` are **rewritten as semantic
+JSX** in `src/generated/doc-content/*.tsx` at build time (via `htmltojsx`).
 
 ## Local development
 
 ```bash
 cd docs-site
-npm install
-# Optional in dev: leave DOCS_SITE_PASSWORD unset to browse without login
-DOCS_SITE_PASSWORD=your-secret npm run dev
+npm ci
+npm run dev
 ```
 
-Open http://localhost:3000. When `DOCS_SITE_PASSWORD` is set, middleware redirects to `/login`.
+Open http://localhost:3000 (no auth in development unless you set env vars).
 
 ## Production build
 
 ```bash
 npm run build
-DOCS_SITE_PASSWORD=your-secret npm start
 ```
 
-`prebuild` runs HTML ingest automatically.
+`prebuild` runs `scripts/build-docs.mjs`, which:
 
-## Deploy on Vercel (custom domain + security)
+1. Parses `docs/*.html` — converts body HTML to JSX, writes `src/generated/doc-content/<slug>.tsx` plus a thin `src/app/docs/reports/<slug>/page.tsx` wrapper.
+2. Parses selected `docs/*.md` — markdown → HTML → JSX, same content module layout under `src/app/docs/<slug>/`.
+3. Writes `src/generated/manifest.ts` for navigation metadata only.
 
-1. Import the repo and set **Root Directory** to `docs-site`.
-2. Add environment variable **`DOCS_SITE_PASSWORD`** (Production + Preview). Use a long random value from a password manager.
-3. Attach your private domain under **Project → Settings → Domains** (e.g. `docs.yourstudio.com`).
-4. Enable **Deployment Protection** (Vercel Authentication or Password Protection) as a second layer if your team already uses it.
-5. Keep **`robots: noindex`** (set in app metadata and `vercel.json` headers) so the site is not indexed.
+## Documentation policy (TSX-first)
 
-### Security layers
+- **Canonical**: TSX in this app (`src/app/docs/**` or generated `src/generated/doc-content/*.tsx`).
+- **Ingest only**: `../docs/*.html` and listed `../docs/*.md` are build inputs, not preferred editing surfaces for new guides.
+- **One-off PDF/HTML**: run `npm run dev` or `npm run build && npm start`, open the route, then Print → Save as PDF or save the page as HTML. Do not treat repo-stored PDF/HTML as the source of truth unless explicitly required for legal/archival delivery.
 
-| Layer | Purpose |
-| --- | --- |
-| `DOCS_SITE_PASSWORD` + middleware | App-level session cookie (HttpOnly, 14-day max age) |
-| Vercel Deployment Protection | Platform gate before the app loads |
-| Private DNS + non-public links | Reduces discovery |
-| `noindex` headers | Discourages search indexing if URL leaks |
+Agent rule file: `../.cursor/rules/documentation-tsx.mdc`.
 
-## Adding documentation
+## Security
 
-- **New guide page:** add `src/content/<name>.tsx`, route under `src/app/docs/<name>/page.tsx`, and an entry in `src/lib/navigation.ts`.
-- **New HTML report:** add `docs/<name>.html` at repo root; rebuild runs ingest and adds `/docs/reports/<slug>`.
+| Variable | Required (prod) | Purpose |
+|----------|-------------------|---------|
+| `DOCS_SITE_PASSWORD` | One of password/token | Basic Auth password |
+| `DOCS_SITE_TOKEN` | One of password/token | Login form + Bearer (min 16 chars) |
+| `DOCS_SITE_USERNAME` | No | Basic Auth user (default `shootflow`) |
+| `DOCS_SITE_SESSION_SECRET` | Recommended | Session cookie after Basic Auth |
+| `DOCS_SITE_DOMAIN` | No | Custom host for `metadataBase` / canonical URLs |
 
-## HTML ingest manifest
+In production, missing both `DOCS_SITE_PASSWORD` and `DOCS_SITE_TOKEN` returns **503** (fail closed).
 
-`scripts/ingest-html-docs.mjs` writes:
+Also enable **Vercel Deployment Protection** (password or SSO) on the project for
+defense in depth.
 
-- `public/generated/html/*.html` — static copies for iframe embedding
-- `src/generated/html-manifest.json` — slugs, titles, and paths for Next routes
+## Custom domain
+
+1. Deploy with root directory `docs-site`.
+2. Vercel → Project → **Domains** → add e.g. `docs.yourdomain.com`.
+3. Configure DNS per Vercel instructions (CNAME or A record).
+
+## Deploy on Vercel
+
+```bash
+cd docs-site
+npx vercel --prod
+```
+
+Set environment variables in the Vercel dashboard before promoting to production.

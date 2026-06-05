@@ -1,55 +1,78 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
-  DOCS_SESSION_COOKIE,
-  docsPasswordConfigured,
-  getDocsPassword,
-  isValidSessionToken,
-} from "@/lib/auth-token";
-
-const PUBLIC_PATHS = new Set(["/login", "/api/auth/login"]);
+  SESSION_COOKIE,
+  TOKEN_SESSION_COOKIE,
+  hasPasswordSession,
+  isAuthConfigured,
+  isPublicPath,
+  tokenSessionCookieOptions,
+  unauthorizedResponse,
+  validateBasicAuth,
+  passwordConfigured,
+  tokenConfigured,
+  verifyAccessToken,
+  verifyTokenSessionValue,
+} from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/generated/")
-  ) {
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
-  if (PUBLIC_PATHS.has(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (!docsPasswordConfigured()) {
+  if (!isAuthConfigured()) {
     if (process.env.NODE_ENV === "production") {
-      return new NextResponse("Docs site is not configured for private access.", {
-        status: 503,
-      });
+      return new NextResponse(
+        "Docs site misconfigured: set DOCS_SITE_PASSWORD and/or DOCS_SITE_TOKEN.",
+        { status: 503 },
+      );
     }
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(DOCS_SESSION_COOKIE)?.value;
-  const valid = await isValidSessionToken(getDocsPassword(), token);
-
-  if (valid) {
+  if (hasPasswordSession(request.cookies.get(SESSION_COOKIE)?.value)) {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (await verifyTokenSessionValue(request.cookies.get(TOKEN_SESSION_COOKIE)?.value)) {
+    return NextResponse.next();
   }
 
-  const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = "/login";
-  loginUrl.searchParams.set("next", pathname);
-  return NextResponse.redirect(loginUrl);
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice("Bearer ".length).trim();
+    if (verifyAccessToken(token)) {
+      return NextResponse.next();
+    }
+  }
+
+  if (validateBasicAuth(authHeader)) {
+    const response = NextResponse.next();
+    const secret = process.env.DOCS_SITE_SESSION_SECRET?.trim();
+    if (secret) {
+      response.cookies.set(SESSION_COOKIE, secret, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 12,
+      });
+    }
+    return response;
+  }
+
+  if (tokenConfigured() && !passwordConfigured()) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return unauthorizedResponse();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

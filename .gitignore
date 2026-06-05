@@ -7,9 +7,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-
-# Private docs site (Next.js)
 docs-site/node_modules/
 docs-site/.next/
 docs-site/out/
+docs-site/.vercel/
 docs-site/public/generated/

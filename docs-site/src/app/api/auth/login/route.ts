@@ -1,40 +1,33 @@
 import { NextResponse } from "next/server";
 import {
-  DOCS_SESSION_COOKIE,
-  docsPasswordConfigured,
-  getDocsPassword,
-  sessionTokenForPassword,
-} from "@/lib/auth-token";
+  TOKEN_SESSION_COOKIE,
+  tokenSessionCookieOptions,
+  signTokenSessionValue,
+  verifyAccessToken,
+} from "@/lib/auth";
 
 export async function POST(request: Request) {
-  if (!docsPasswordConfigured()) {
+  const tokenEnv = process.env.DOCS_SITE_TOKEN?.trim();
+  if (!tokenEnv) {
     return NextResponse.json(
-      { error: "DOCS_SITE_PASSWORD is not configured on the server." },
+      { error: "DOCS_SITE_TOKEN is not configured." },
       { status: 503 },
     );
   }
 
-  let body: { password?: string };
-  try {
-    body = (await request.json()) as { password?: string };
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  const body = (await request.json().catch(() => null)) as { token?: string } | null;
+  const token = body?.token?.trim() ?? "";
+  if (!verifyAccessToken(token)) {
+    return NextResponse.json({ error: "Invalid access token." }, { status: 401 });
   }
 
-  const password = body.password?.trim();
-  const configured = getDocsPassword();
-  if (!password || password !== configured) {
-    return NextResponse.json({ error: "Invalid password." }, { status: 401 });
+  const session = await signTokenSessionValue();
+  if (!session) {
+    return NextResponse.json({ error: "Unable to create session." }, { status: 500 });
   }
 
-  const token = await sessionTokenForPassword(configured);
+  const secure = request.url.startsWith("https://");
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(DOCS_SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 14,
-  });
+  response.cookies.set(TOKEN_SESSION_COOKIE, session, tokenSessionCookieOptions(secure));
   return response;
 }
