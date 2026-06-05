@@ -1,67 +1,66 @@
 # ShootFlow private docs site
 
-Next.js site that compiles repository `docs/` HTML reports and Markdown guides
-into static pages behind HTTP Basic auth and optional Vercel Deployment
-Protection.
-
-## Architecture
-
-| Layer | Role |
-| --- | --- |
-| `scripts/sync-docs.ts` | Build step: reads `../docs/*.html` and `../docs/*.md`, writes `generated/` |
-| `app/*.tsx` | TSX shell, navigation, home, and doc routes |
-| `middleware.ts` | Production gate via `DOCS_SITE_PASSWORD` (+ optional bypass header) |
-| `vercel.json` | Security headers and Vercel build settings |
-
-Most UI is TSX. Document bodies come from the sync step (HTML body extraction or
-Markdown → HTML via `marked`).
+Next.js site for internal product, architecture, and commercial viability
+documentation. Architecture, CLI, and security pages are **hand-authored TSX**;
+HTML reports and selected markdown under `../docs/` are **rewritten as semantic
+JSX** in `src/generated/doc-content/*.tsx` at build time (via `htmltojsx`).
 
 ## Local development
 
 ```bash
 cd docs-site
-npm install
-cp .env.example .env.local
-# Edit .env.local and set DOCS_SITE_PASSWORD for local auth testing
-
+npm ci
 npm run dev
 ```
 
-Open http://localhost:3000 and sign in with any username and your
-`DOCS_SITE_PASSWORD`.
+Open http://localhost:3000 (no auth in development unless you set env vars).
 
-## Production deploy (Vercel)
+## Production build
 
-1. Import the repo in Vercel and set **Root Directory** to `docs-site`.
-2. Add environment variable `DOCS_SITE_PASSWORD` for Production (and Preview if
-   desired).
-3. Enable **Deployment Protection** → Password (or SSO) on the Vercel project for
-   a second layer beyond app middleware.
-4. Add a custom domain under **Domains** (e.g. `docs.yourcompany.com`) and point
-   DNS per Vercel instructions.
-5. Optionally set `DOCS_PROTECTION_BYPASS_SECRET` to match a Vercel protection
-   bypass secret for automation only.
+```bash
+npm run build
+```
+
+`prebuild` runs `scripts/build-docs.mjs`, which:
+
+1. Parses `docs/*.html` — converts body HTML to JSX, writes `src/generated/doc-content/<slug>.tsx` plus a thin `src/app/docs/reports/<slug>/page.tsx` wrapper.
+2. Parses selected `docs/*.md` — markdown → HTML → JSX, same content module layout under `src/app/docs/<slug>/`.
+3. Writes `src/generated/manifest.ts` for navigation metadata only.
+
+## Documentation policy (TSX-first)
+
+- **Canonical**: TSX in this app (`src/app/docs/**` or generated `src/generated/doc-content/*.tsx`).
+- **Ingest only**: `../docs/*.html` and listed `../docs/*.md` are build inputs, not preferred editing surfaces for new guides.
+- **One-off PDF/HTML**: run `npm run dev` or `npm run build && npm start`, open the route, then Print → Save as PDF or save the page as HTML. Do not treat repo-stored PDF/HTML as the source of truth unless explicitly required for legal/archival delivery.
+
+Agent rule file: `../.cursor/rules/documentation-tsx.mdc`.
+
+## Security
+
+| Variable | Required (prod) | Purpose |
+|----------|-------------------|---------|
+| `DOCS_SITE_PASSWORD` | One of password/token | Basic Auth password |
+| `DOCS_SITE_TOKEN` | One of password/token | Login form + Bearer (min 16 chars) |
+| `DOCS_SITE_USERNAME` | No | Basic Auth user (default `shootflow`) |
+| `DOCS_SITE_SESSION_SECRET` | Recommended | Session cookie after Basic Auth |
+| `DOCS_SITE_DOMAIN` | No | Custom host for `metadataBase` / canonical URLs |
+
+In production, missing both `DOCS_SITE_PASSWORD` and `DOCS_SITE_TOKEN` returns **503** (fail closed).
+
+Also enable **Vercel Deployment Protection** (password or SSO) on the project for
+defense in depth.
+
+## Custom domain
+
+1. Deploy with root directory `docs-site`.
+2. Vercel → Project → **Domains** → add e.g. `docs.yourdomain.com`.
+3. Configure DNS per Vercel instructions (CNAME or A record).
+
+## Deploy on Vercel
 
 ```bash
 cd docs-site
-npm run build
+npx vercel --prod
 ```
 
-## Updating content
-
-Edit files under repository `docs/`, then rebuild:
-
-```bash
-npm run sync-docs   # regenerate generated/manifest.json + html/*.json
-npm run build
-```
-
-`CONTINUATION_NOTES.md` is excluded from the public site manifest (internal agent
-notes only).
-
-## Security notes
-
-- `/api/health` is unauthenticated for uptime checks; it returns no document data.
-- All other routes require Basic auth when `DOCS_SITE_PASSWORD` is set.
-- Without `DOCS_SITE_PASSWORD` in production, middleware denies access.
-- `X-Robots-Tag: noindex` is set on authenticated responses.
+Set environment variables in the Vercel dashboard before promoting to production.

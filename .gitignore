@@ -12,3 +12,4 @@ docs-site/.next/
 docs-site/out/
 docs-site/.env
 docs-site/.env.local
+docs-site/.vercel/

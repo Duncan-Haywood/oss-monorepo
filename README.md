@@ -723,9 +723,10 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
-Private web publishing for the HTML/Markdown files below lives in
-[`docs-site/`](docs-site/README.md) (Next.js build from `docs/`, HTTP Basic auth,
-Vercel Deployment Protection, custom domain).
+**TSX-first** in `docs-site/` (hand-authored pages plus build-time conversion of
+approved `docs/` HTML/Markdown to semantic JSX). For quick one-off PDF/HTML, export
+from the running docs site; see `docs-site/README.md` and
+`.cursor/rules/documentation-tsx.mdc`. Deploy/auth: `docs-site/README.md`.
 
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`
