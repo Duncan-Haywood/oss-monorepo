@@ -14,6 +14,9 @@ export function getDocsPasscodeForDevHint(): string {
 
 /** When false, the gate is skipped (local dev only — set explicitly). */
 export function isDocsGateEnabled(): boolean {
+  const requireAuth = import.meta.env.VITE_DOCS_REQUIRE_AUTH?.trim().toLowerCase();
+  if (requireAuth === "true" || requireAuth === "1") return true;
+
   const flag = import.meta.env.VITE_DOCS_GATE_ENABLED?.trim().toLowerCase();
   if (flag === "false" || flag === "0") return false;
   if (flag === "true" || flag === "1") return true;

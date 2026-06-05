@@ -8,6 +8,7 @@ on:
     paths:
       - "apps/docs/**"
       - "docs/**"
+      - "reports/**"
       - "scripts/convert-html-to-tsx.ts"
       - "packages/**"
       - "pnpm-lock.yaml"

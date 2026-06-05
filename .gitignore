@@ -1,9 +1,10 @@
 # Dependencies
 node_modules/
 
-# Legacy generated docs (optional sync pipeline — not used in TSX-first flow)
+# Legacy HTML-sync artifacts (TSX-first flow — do not commit)
 apps/docs/src/generated/
 apps/docs/public/html-reports/
+apps/docs/public/generated/
 
 # Build & runtime
 dist/
