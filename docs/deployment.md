@@ -36,7 +36,7 @@ Local dev: gate off by default. Force on with `VITE_DOCS_GATE_ENABLED=true`. Def
 3. Env: `VITE_DOCS_PASSCODE`, `VITE_DOCS_GATE_ENABLED=true`, `VITE_DOCS_SITE_URL`
 4. **Deployment Protection** (password or SSO)
 
-Optional CI job `deploy-vercel` when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` secrets exist.
+Optional CI job `deploy-vercel` when repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` are set.
 
 ## Docker / LAN
 
