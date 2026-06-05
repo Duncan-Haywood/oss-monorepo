@@ -1,0 +1,36 @@
+name: docs-site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs-site/**"
+      - "docs/*.html"
+      - "docs/*.md"
+      - ".github/workflows/docs-site.yml"
+  pull_request:
+    paths:
+      - "docs-site/**"
+      - "docs/*.html"
+      - "docs/*.md"
+      - ".github/workflows/docs-site.yml"
+
+defaults:
+  run:
+    working-directory: docs-site
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          DOCS_SITE_PASSWORD: ci-docs-password
+          DOCS_SITE_TOKEN: ci-build-placeholder-token-32chars

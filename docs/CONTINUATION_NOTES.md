@@ -2,6 +2,69 @@
 
 These notes are for the next automation run continuing the same product prompt.
 
+## Branch consolidation note - 2026-06-04 15:30 UTC
+
+This run consolidated all outstanding remote Cursor branches against
+`origin/main` (`91dc7d4`) and intentionally kept the current mainline as the
+best version unless a branch added unique, non-superseded value.
+
+Merged into this consolidation branch:
+
+- `origin/cursor/branch-consolidation-442c` — cherry-picked the missing
+  2026-05-10 23:02 UTC branch consolidation note into
+  `docs/CONTINUATION_NOTES.md`.
+
+Intentionally not merged (superseded by current `origin/main`):
+
+- `origin/cursor/docs-reports-tsx-14f5` (open PR #23) — predates and conflicts
+  with the merged docs-site TSX page generation on PR #22
+  (`cursor/docs-tsx-conversion-90c1`). Main already emits per-doc
+  `src/app/docs/**/page.tsx` files plus `src/generated/manifest.ts`; the branch
+  would regress to `src/generated/reports/` + `registry.ts` dynamic routes.
+- `origin/cursor/docs-tsx-conversion-90c1` — already merged via PR #22.
+- `origin/cursor/private-docs-site-{091c,c945,f632,fa1d}` — draft docs-site
+  scaffolding superseded by merged PRs #18–#21.
+- `origin/cursor/private-docs-site-{2d5e,76fe,79bb,completion-90c1}` — already
+  merged.
+- `origin/cursor/commercial-viability-assessment-8600` — PR #13 merged; branch
+  HTML matches main.
+- `origin/cursor/commercial-viability-evaluation-9dbd` (open PR #12) — shorter
+  restyled `commercial-viability-deep-dive.html`; main keeps the richer
+  continuation report already ingested into the docs site.
+- `origin/cursor/commercial-viability-{deep-dive-d6ac,deep-dive-fe7a,report-*}` —
+  already merged or fully contained in main docs HTML.
+
+Verification on the consolidation branch:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests
+cd docs-site && npm ci && npm run build
+```
+
+Future agents should continue from `origin/main` after this merge. Stale open
+PRs #12 and #23 can be closed as superseded.
+
+## Branch consolidation note - 2026-05-10 23:02 UTC
+
+This run started on assigned branch `cursor/branch-consolidation-442c` at
+`origin/main` (`39d4d03`). A full-prune fetch showed live remote heads:
+
+- `origin/main` and `origin/cursor/branch-reconciliation-and-merge-2cbd` at
+  `39d4d03`.
+- `origin/cursor/branch-reconciliation-and-merge-7c58` at `5c498c6`, already an
+  ancestor of `origin/main`.
+- `origin/cursor/branch-consolidation-strategy-22ea` at `e9db1f5`, with older
+  package-entry reconciliation commits that are no longer the best version.
+
+The current `origin/main`/assigned-branch content is the best version to keep:
+it includes the package handoff brief, no-op report readiness fix, storyline
+checksum-drift coverage, and named nested package-directory entry reporting.
+The non-ancestor strategy branch was intentionally not merged because its net
+diff would roll back the newer package handoff CLI/tests/docs and replace the
+current `<missing package_manifest.json>` diagnostic with an older `<empty>`
+wording. Its useful package-entry safety behavior is already present in the
+current code and scheduler coverage.
+
 ## Implementation continuation note - 2026-05-10 22:30 UTC
 
 This run started on assigned branch

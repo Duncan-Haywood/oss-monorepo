@@ -1,14 +1,13 @@
 "use client";
 
-import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import styles from "./login.module.css";
+import { FormEvent, Suspense, useState } from "react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") || "/";
-  const [password, setPassword] = useState("");
+  const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,41 +15,37 @@ function LoginForm() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ token }),
     });
-
     setLoading(false);
-
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(payload?.error ?? "Login failed.");
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      setError(data.error ?? "Login failed.");
       return;
     }
-
     router.replace(nextPath);
     router.refresh();
   }
 
   return (
-    <div className={styles.page}>
-      <form className={styles.card} onSubmit={onSubmit}>
-        <h1>ShootFlow private docs</h1>
-        <p>Enter the site password to continue.</p>
-        <label htmlFor="password">Password</label>
+    <div className="login-page">
+      <form className="login-card" onSubmit={onSubmit}>
+        <h1>ShootFlow Docs</h1>
+        <p className="muted">Enter the team access token.</p>
+        <label htmlFor="token">Access token</label>
         <input
-          id="password"
-          name="password"
+          id="token"
+          name="token"
           type="password"
           autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
           required
         />
-        {error ? <p className={styles.error}>{error}</p> : null}
+        {error ? <p className="error">{error}</p> : null}
         <button type="submit" disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
         </button>
@@ -61,7 +56,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className={styles.page}>Loading…</div>}>
+    <Suspense fallback={<div className="login-page"><p className="muted">Loading…</p></div>}>
       <LoginForm />
     </Suspense>
   );

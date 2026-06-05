@@ -10,3 +10,4 @@ build/
 docs-site/node_modules/
 docs-site/.next/
 docs-site/out/
+docs-site/.vercel/
