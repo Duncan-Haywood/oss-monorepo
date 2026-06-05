@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 from dataclasses import dataclass
@@ -141,7 +142,7 @@ def execute_copy_plan(plan: CopyPlan) -> CopyReport:
             continue
 
         item.destination.parent.mkdir(parents=True, exist_ok=True)
-        _reject_symlink(item.destination.parent, "destination parent")
+        _reject_symlink_path(item.destination.parent, plan.destination_root, "destination parent")
         temp_path = item.destination.with_name(f".{item.destination.name}.tmp")
         if temp_path.exists() or temp_path.is_symlink():
             raise UnsafePathError(f"Temporary path already exists: {temp_path}")
@@ -186,11 +187,15 @@ def sha256_file(path: Path) -> str:
 def _iter_media_files(root: Path) -> tuple[Path, ...]:
     if not root.exists():
         raise FileNotFoundError(root)
-    files = [
-        path
-        for path in root.rglob("*")
-        if path.is_file() and path.suffix.lower() in MEDIA_EXTENSIONS
-    ]
+    files: list[Path] = []
+    for path in root.rglob("*"):
+        if _any_parent_is_symlink(path, root):
+            continue
+        if not path.is_file() or path.suffix.lower() not in MEDIA_EXTENSIONS:
+            continue
+        if path.is_symlink():
+            raise UnsafePathError(f"Refusing source media symlink: {path}")
+        files.append(path)
     return tuple(sorted(files, key=lambda path: path.as_posix().lower()))
 
 
@@ -225,6 +230,42 @@ def _reject_symlink(path: Path, label: str) -> None:
         raise UnsafePathError(f"Refusing {label} symlink: {path}")
 
 
+def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
+    current = path
+    while True:
+        if current.is_symlink():
+            raise UnsafePathError(f"Refusing {label} symlink: {current}")
+        if current == root or current.absolute() == root.absolute():
+            break
+        if current.parent == current:
+            break
+        current = current.parent
+
+
+def _any_parent_is_symlink(path: Path, root: Path) -> bool:
+    current = path.parent
+    while current != root and current.parent != current:
+        if current.is_symlink():
+            return True
+        current = current.parent
+    return False
+
+
+def _write_text_no_follow(path: Path, content: str) -> None:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags, 0o600)
+    except OSError as exc:
+        raise UnsafePathError(f"Unable to create temporary manifest: {path}") from exc
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(content)
+    except OSError as exc:
+        raise UnsafePathError(f"Unable to write temporary manifest: {path}") from exc
+
+
 def _write_manifest(plan: CopyPlan) -> Path:
     manifest_path = plan.shoot_folder / "ingest_manifest.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -252,6 +293,6 @@ def _write_manifest(plan: CopyPlan) -> Path:
     temp_path = manifest_path.with_name(".ingest_manifest.json.tmp")
     if temp_path.exists() or temp_path.is_symlink():
         raise UnsafePathError(f"Manifest temporary path already exists: {temp_path}")
-    temp_path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+    _write_text_no_follow(temp_path, json.dumps(data, indent=2, sort_keys=True))
     temp_path.replace(manifest_path)
     return manifest_path

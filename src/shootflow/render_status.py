@@ -580,7 +580,7 @@ def _checksum_to_json(checksum: OutputChecksum) -> dict[str, str]:
 
 def _read_json_object(path: Path) -> dict[str, object]:
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw = json.loads(_read_text_no_follow(path))
     except FileNotFoundError as exc:
         raise RenderStatusError(f"Missing render status manifest: {path}") from exc
     except json.JSONDecodeError as exc:
@@ -588,6 +588,26 @@ def _read_json_object(path: Path) -> dict[str, object]:
     if not isinstance(raw, dict):
         raise RenderStatusError(f"Render status manifest root must be an object: {path}")
     return raw
+
+
+def _read_text_no_follow(path: Path) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        raise
+    except OSError as exc:
+        raise RenderStatusError(
+            f"Unable to open render status manifest: {path}"
+        ) from exc
+    try:
+        with os.fdopen(fd, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        os.close(fd)
+        raise
 
 
 def _manifest_from_json(raw_manifest: dict[str, object]) -> RenderStatusManifest:
