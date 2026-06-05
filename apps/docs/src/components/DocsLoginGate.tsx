@@ -27,7 +27,7 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
         <h1>Pilot documentation</h1>
         <p className="docs-login-lead">
           Private product docs: ROI priorities, business plan, architecture, and
-          HTML reports synced at build time. Session stays in this browser only.
+          commercial viability reports (TSX). Session stays in this browser only.
         </p>
 
         <form onSubmit={handleSubmit} className="docs-login-form">
