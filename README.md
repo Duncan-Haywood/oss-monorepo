@@ -51,7 +51,7 @@ Use a separate Vercel project when you need a URL with **Deployment Protection**
 
 1. Import this repo in Vercel; use `vercel.docs.json` (install/build/output).
 2. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) on the project.
-3. Set secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to enable the optional `deploy-vercel` job in `deploy-docs.yml`.
+3. Set repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to enable the optional `deploy-vercel` job in `deploy-docs.yml`.
 
 ### Local / LAN preview
 

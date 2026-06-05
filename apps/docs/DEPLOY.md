@@ -38,7 +38,7 @@ Private repo + passcode gate is suitable for stakeholder links. Add org SSO via 
    - `VITE_DOCS_SITE_URL=https://docs.retailpilotintel.com` — canonical URLs in page meta
 4. Enable **Deployment Protection** (password or Vercel Authentication) — network boundary beyond the client passcode
 
-Optional CI job `deploy-vercel` runs when `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` secrets exist.
+Optional CI job `deploy-vercel` runs when repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` are set.
 
 ## Security layers
 
