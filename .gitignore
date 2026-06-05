@@ -3,6 +3,7 @@ node_modules/
 
 # Legacy generated docs (optional sync pipeline — not used in TSX-first flow)
 apps/docs/src/generated/
+apps/docs/public/html-reports/
 
 # Build & runtime
 dist/
