@@ -4,6 +4,7 @@ import {
   SESSION_COOKIE,
   TOKEN_SESSION_COOKIE,
   hasPasswordSession,
+  hasProtectionBypass,
   isAuthConfigured,
   isPublicPath,
   tokenSessionCookieOptions,
@@ -19,6 +20,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isPublicPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (hasProtectionBypass(request)) {
     return NextResponse.next();
   }
 
