@@ -1,11 +1,14 @@
 const SESSION_KEY = "rpi_docs_session";
 const SESSION_HOURS = 12;
 
+declare const __DOCS_PASSCODE_HASH__: string;
+
 export interface DocsSession {
   expiresAt: number;
 }
 
-export function getDocsPasscode(): string {
+/** Only available in dev builds for the login hint. Never call in production. */
+export function getDocsPasscodeForDevHint(): string {
   return import.meta.env.VITE_DOCS_PASSCODE?.trim() || "pilot-docs";
 }
 
@@ -48,8 +51,16 @@ export function clearDocsSession(): void {
   sessionStorage.removeItem(SESSION_KEY);
 }
 
-export function verifyDocsPasscode(input: string): boolean {
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function verifyDocsPasscode(input: string): Promise<boolean> {
   const normalized = input.trim();
   if (!normalized) return false;
-  return normalized === getDocsPasscode();
+  const inputHash = await sha256Hex(normalized);
+  return inputHash === __DOCS_PASSCODE_HASH__;
 }

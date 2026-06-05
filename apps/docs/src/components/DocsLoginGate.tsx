@@ -1,23 +1,29 @@
 import { useState, type FormEvent } from "react";
 import {
   createDocsSession,
+  getDocsPasscodeForDevHint,
   verifyDocsPasscode,
 } from "../auth/docsAuth";
 
 export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void }) {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
   const showDevHint = import.meta.env.DEV;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!verifyDocsPasscode(passcode)) {
-      setError("Invalid passcode. Ask your pilot lead for access.");
-      return;
-    }
-    createDocsSession();
-    onAuthenticated();
+    setVerifying(true);
+    verifyDocsPasscode(passcode).then((valid) => {
+      setVerifying(false);
+      if (!valid) {
+        setError("Invalid passcode. Ask your pilot lead for access.");
+        return;
+      }
+      createDocsSession();
+      onAuthenticated();
+    });
   }
 
   return (
@@ -27,7 +33,7 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
         <h1>Pilot documentation</h1>
         <p className="docs-login-lead">
           Private product docs: ROI priorities, business plan, architecture, and
-          HTML reports synced at build time. Session stays in this browser only.
+          commercial viability reports (TSX). Session stays in this browser only.
         </p>
 
         <form onSubmit={handleSubmit} className="docs-login-form">
@@ -48,15 +54,15 @@ export function DocsLoginGate({ onAuthenticated }: { onAuthenticated: () => void
             </p>
           ) : null}
 
-          <button type="submit" className="docs-btn-primary">
-            View documentation
+          <button type="submit" className="docs-btn-primary" disabled={verifying}>
+            {verifying ? "Verifying…" : "View documentation"}
           </button>
         </form>
 
         <p className="docs-login-foot">
           {showDevHint ? (
             <>
-              Local dev passcode: <code>pilot-docs</code> (or{" "}
+              Local dev passcode: <code>{getDocsPasscodeForDevHint()}</code> (or{" "}
               <code>VITE_DOCS_PASSCODE</code>)
             </>
           ) : (
