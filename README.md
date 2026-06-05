@@ -31,7 +31,7 @@ Long-form commercial viability reports live as native TSX JSX in `apps/docs/src/
 
 ### Private hosted docs
 
-Production builds gate the docs site with a passcode (`VITE_DOCS_PASSCODE`, default `pilot-docs`). Local `pnpm docs:dev` skips the gate unless you set `VITE_DOCS_REQUIRE_AUTH=true`.
+Production builds gate the docs site with a passcode (`VITE_DOCS_PASSCODE`, default `pilot-docs`). Local `pnpm docs:dev` skips the gate unless you set `VITE_DOCS_GATE_ENABLED=true`.
 
 **GitHub Pages (default):** On push to `main`, `.github/workflows/deploy-docs.yml` builds and publishes `apps/docs/dist` to GitHub Pages. Enable in repo **Settings → Pages → Source: GitHub Actions**, then set repository secret `DOCS_PASSCODE` (recommended — overrides the default baked into the build).
 

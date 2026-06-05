@@ -34,4 +34,4 @@ Legacy HTML source (for `pnpm docs:convert-html`): [`commercial-viability-report
 
 To regenerate TSX from HTML sources: `pnpm docs:convert-html`
 
-Deploy: GitHub Pages or Vercel — see `apps/docs/DEPLOY.md`.
+Deploy: GitHub Pages or Vercel — see [`deployment.md`](./deployment.md) and [`apps/docs/DEPLOY.md`](../apps/docs/DEPLOY.md).

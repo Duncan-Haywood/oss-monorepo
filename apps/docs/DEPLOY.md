@@ -8,7 +8,7 @@ The docs app (`apps/docs`) is a **passcode-gated** Vite/React SPA. All documenta
 pnpm docs:build   # → apps/docs/dist
 ```
 
-Legacy `/reports/*` and `/archive/*` URLs redirect to `/commercial-viability/*` TSX routes.
+Legacy `/reports/*` and `/archive/*` URLs redirect to `/commercial-viability/*` TSX routes. Overview: **`docs/deployment.md`**.
 
 ## Local
 
