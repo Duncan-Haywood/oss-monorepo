@@ -121,6 +121,24 @@ export function tokenSessionCookieOptions(secure: boolean) {
   };
 }
 
+export function hasProtectionBypass(request: {
+  headers: { get(name: string): string | null };
+  nextUrl?: { searchParams: { get(name: string): string | null } };
+}): boolean {
+  const bypass = process.env.DOCS_PROTECTION_BYPASS_SECRET?.trim();
+  if (!bypass) return false;
+
+  const headerBypass = request.headers.get("x-vercel-protection-bypass");
+  if (headerBypass && safeEqual(headerBypass, bypass)) {
+    return true;
+  }
+
+  const queryBypass = request.nextUrl?.searchParams.get(
+    "x-vercel-protection-bypass",
+  );
+  return Boolean(queryBypass && safeEqual(queryBypass, bypass));
+}
+
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/login" ||

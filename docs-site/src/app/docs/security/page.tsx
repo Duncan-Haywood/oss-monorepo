@@ -52,6 +52,10 @@ export default function SecurityPage() {
             Deployment Protection.
           </li>
           <li>
+            Optional: set <code>DOCS_PROTECTION_BYPASS_SECRET</code> to match a
+            Vercel protection bypass secret for trusted CI/automation only.
+          </li>
+          <li>
             Set <code>DOCS_SITE_DOMAIN</code> (e.g. <code>docs.yourdomain.com</code>)
             for canonical URL metadata in layout.
           </li>
