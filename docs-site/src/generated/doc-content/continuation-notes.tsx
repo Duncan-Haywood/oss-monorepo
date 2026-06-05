@@ -6,6 +6,59 @@ export function ContinuationNotesContent() {
       <div className="ingested-markdown">
         <h1>Continuation Notes</h1>
           <p>These notes are for the next automation run continuing the same product prompt.</p>
+          <h2>Branch consolidation note - 2026-06-04 15:30 UTC</h2>
+          <p>This run consolidated all outstanding remote Cursor branches against
+            <code>origin/main</code> (<code>91dc7d4</code>) and intentionally kept the current mainline as the
+            best version unless a branch added unique, non-superseded value.</p>
+          <p>Merged into this consolidation branch:</p>
+          <ul>
+            <li><code>origin/cursor/branch-consolidation-442c</code> — cherry-picked the missing
+              2026-05-10 23:02 UTC branch consolidation note into
+              <code>docs/CONTINUATION_NOTES.md</code>.</li>
+          </ul>
+          <p>Intentionally not merged (superseded by current <code>origin/main</code>):</p>
+          <ul>
+            <li><code>origin/cursor/docs-reports-tsx-14f5</code> (open PR #23) — predates and conflicts
+              with the merged docs-site TSX page generation on PR #22
+              (<code>cursor/docs-tsx-conversion-90c1</code>). Main already emits per-doc
+              <code>src/app/docs/**/page.tsx</code> files plus <code>src/generated/manifest.ts</code>; the branch
+              would regress to <code>src/generated/reports/</code> + <code>registry.ts</code> dynamic routes.</li>
+            <li><code>origin/cursor/docs-tsx-conversion-90c1</code> — already merged via PR #22.</li>
+            <li><code>origin/cursor/private-docs-site-{'{'}091c,c945,f632,fa1d{'}'}</code> — draft docs-site
+              scaffolding superseded by merged PRs #18–#21.</li>
+            <li><code>origin/cursor/private-docs-site-{'{'}2d5e,76fe,79bb,completion-90c1{'}'}</code> — already
+              merged.</li>
+            <li><code>origin/cursor/commercial-viability-assessment-8600</code> — PR #13 merged; branch
+              HTML matches main.</li>
+            <li><code>origin/cursor/commercial-viability-evaluation-9dbd</code> (open PR #12) — shorter
+              restyled <code>commercial-viability-deep-dive.html</code>; main keeps the richer
+              continuation report already ingested into the docs site.</li>
+            <li><code>origin/cursor/commercial-viability-{'{'}deep-dive-d6ac,deep-dive-fe7a,report-*{'}'}</code> —
+              already merged or fully contained in main docs HTML.</li>
+          </ul>
+          <p>Verification on the consolidation branch:</p>
+          <pre><code className="language-bash">PYTHONPATH=src python3 -m unittest discover -s tests{"\n"}cd docs-site &amp;&amp; npm ci &amp;&amp; npm run build{"\n"}</code></pre>
+          <p>Future agents should continue from <code>origin/main</code> after this merge. Stale open
+            PRs #12 and #23 can be closed as superseded.</p>
+          <h2>Branch consolidation note - 2026-05-10 23:02 UTC</h2>
+          <p>This run started on assigned branch <code>cursor/branch-consolidation-442c</code> at
+            <code>origin/main</code> (<code>39d4d03</code>). A full-prune fetch showed live remote heads:</p>
+          <ul>
+            <li><code>origin/main</code> and <code>origin/cursor/branch-reconciliation-and-merge-2cbd</code> at
+              <code>39d4d03</code>.</li>
+            <li><code>origin/cursor/branch-reconciliation-and-merge-7c58</code> at <code>5c498c6</code>, already an
+              ancestor of <code>origin/main</code>.</li>
+            <li><code>origin/cursor/branch-consolidation-strategy-22ea</code> at <code>e9db1f5</code>, with older
+              package-entry reconciliation commits that are no longer the best version.</li>
+          </ul>
+          <p>The current <code>origin/main</code>/assigned-branch content is the best version to keep:
+            it includes the package handoff brief, no-op report readiness fix, storyline
+            checksum-drift coverage, and named nested package-directory entry reporting.
+            The non-ancestor strategy branch was intentionally not merged because its net
+            diff would roll back the newer package handoff CLI/tests/docs and replace the
+            current <code>&lt;missing package_manifest.json&gt;</code> diagnostic with an older <code>&lt;empty&gt;</code>
+            wording. Its useful package-entry safety behavior is already present in the
+            current code and scheduler coverage.</p>
           <h2>Implementation continuation note - 2026-05-10 22:30 UTC</h2>
           <p>This run started on assigned branch
             <code>cursor/branch-reconciliation-and-merge-2cbd</code> from the consolidated package
