@@ -6,16 +6,21 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
   const [role, setRole] = useState<"operator" | "owner">("owner");
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!verifyPasscode(passcode)) {
-      setError("Invalid demo passcode. Contact your pilot lead for access.");
-      return;
-    }
-    createSession(role);
-    onAuthenticated();
+    setVerifying(true);
+    verifyPasscode(passcode).then((valid) => {
+      setVerifying(false);
+      if (!valid) {
+        setError("Invalid demo passcode. Contact your pilot lead for access.");
+        return;
+      }
+      createSession(role);
+      onAuthenticated();
+    });
   }
 
   return (
@@ -86,26 +91,28 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
             </p>
           ) : null}
 
-          <button type="submit" className="btn-primary">
-            Enter portal
+          <button type="submit" className="btn-primary" disabled={verifying}>
+            {verifying ? "Verifying…" : "Enter portal"}
           </button>
         </form>
 
-        <p className="login-foot">
-          <button
-            type="button"
-            className="link-btn"
-            onClick={() => setShowHint((v) => !v)}
-          >
-            {showHint ? "Hide" : "Show"} demo hint
-          </button>
-          {showHint ? (
-            <span className="demo-hint">
-              {" "}
-              Passcode for this build: <code>{getDemoPasscode()}</code>
-            </span>
-          ) : null}
-        </p>
+        {import.meta.env.DEV && (
+          <p className="login-foot">
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => setShowHint((v) => !v)}
+            >
+              {showHint ? "Hide" : "Show"} demo hint
+            </button>
+            {showHint ? (
+              <span className="demo-hint">
+                {" "}
+                Passcode for this build: <code>{getDemoPasscode()}</code>
+              </span>
+            ) : null}
+          </p>
+        )}
 
         <ul className="login-trust">
           <li>Edge-first · aggregates only</li>

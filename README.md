@@ -25,19 +25,42 @@ Deploy the private docs site to Vercel with a custom domain and **Deployment Pro
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
 
-Built docs are verified in CI and uploaded as a GitHub Actions artifact. To publish privately for stakeholders, see **`docs/README.md`** (GitHub Pages, Vercel custom domain, or Docker on LAN) — passcode gate + `noindex` by default.
+Built docs are verified in CI and uploaded as a GitHub Actions artifact. On push to `main`, they are also published to **private GitHub Pages** when enabled (see [Hosting docs](#hosting-docs-private)). Passcode gate + `noindex` by default.
 
 Long-form commercial viability reports live as native TSX JSX in `apps/docs/src/pages/commercial-viability/`.
 
-### Private hosted docs
+## Hosting docs (private)
 
-Production builds gate the docs site with a passcode (`VITE_DOCS_PASSCODE`, default `pilot-docs`). Local `pnpm docs:dev` skips the gate unless you set `VITE_DOCS_GATE_ENABLED=true`.
+The TSX docs site is a static Vite build (`apps/docs/dist`) with hash-based routing — no server rewrites required.
 
-**GitHub Pages (default):** On push to `main`, `.github/workflows/deploy-docs.yml` builds and publishes `apps/docs/dist` to GitHub Pages. Enable in repo **Settings → Pages → Source: GitHub Actions**, then set repository secret `DOCS_PASSCODE` (recommended — overrides the default baked into the build).
+Production builds gate the site with a passcode (`VITE_DOCS_PASSCODE`, default `pilot-docs`). Local `pnpm docs:dev` skips the gate unless you set `VITE_DOCS_GATE_ENABLED=true`.
 
-**Vercel (optional):** `vercel.json` at the repo root targets the docs app. Connect the repo in Vercel or set repository variable `VERCEL_DEPLOY=true` plus secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) in the Vercel project for platform-level privacy.
+### GitHub Pages (recommended, repo-private)
 
-**LAN / Docker:** `pnpm docs:build && docker compose up docs` serves on http://localhost:8080 (nginx).
+1. **Settings → Pages → Build and deployment:** set **Source** to **GitHub Actions**.
+2. **Settings → Pages → Visibility:** set **Private** (requires GitHub Pro, Team, or Enterprise on the account/org).
+3. Set repository secret `DOCS_PASSCODE` (recommended for production builds).
+4. Push to `main` — workflow `.github/workflows/deploy-docs.yml` builds and deploys automatically.
+5. Open the URL under **Settings → Pages** or the `github-pages` environment on the latest workflow run.
+
+Only people with access to this repository can view private Pages. The client passcode adds a second layer for shared links.
+
+### Vercel (optional — external stakeholders)
+
+Use a separate Vercel project when you need a URL with **Deployment Protection** for people without GitHub access:
+
+1. Import this repo in Vercel; use `vercel.docs.json` (install/build/output).
+2. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) on the project.
+3. Set secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to enable the optional `deploy-vercel` job in `deploy-docs.yml`.
+
+### Local / LAN preview
+
+```bash
+pnpm docs:build
+docker compose up docs   # http://localhost:8080
+```
+
+More detail: `apps/docs/DEPLOY.md`, `docs/HOSTING.md`, and `docs/README.md`.
 
 ## Quick start
 

@@ -34,4 +34,8 @@ Legacy HTML source (for `pnpm docs:convert-html`): [`commercial-viability-report
 
 To regenerate TSX from HTML sources: `pnpm docs:convert-html`
 
-Deploy: GitHub Pages or Vercel — see [`deployment.md`](./deployment.md) and [`apps/docs/DEPLOY.md`](../apps/docs/DEPLOY.md).
+## Deploy
+
+CI builds `apps/docs/dist` on every push to `main`. Workflow `.github/workflows/deploy-docs.yml` publishes to **private GitHub Pages** when enabled (Settings → Pages → Source: GitHub Actions; visibility: Private).
+
+Full setup: [`deployment.md`](./deployment.md) and [`apps/docs/DEPLOY.md`](../apps/docs/DEPLOY.md). Vercel template: `vercel.docs.json`.
