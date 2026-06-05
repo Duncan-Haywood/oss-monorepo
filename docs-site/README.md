@@ -1,13 +1,11 @@
 # ShootFlow private docs site
 
-Next.js (App Router) site that publishes repo documentation with:
+Next.js site for internal product, architecture, and commercial viability
+documentation. Architecture, CLI, and security pages are **hand-authored TSX**;
+HTML reports and selected markdown under `../docs/` are **rewritten as semantic
+JSX** in `src/generated/doc-content/*.tsx` at build time (via `htmltojsx`).
 
-- **TSX shell** — layout, navigation, home, and security guides
-- **Markdown routes** — `docs/*.md` rendered at `/docs/[slug]`
-- **HTML build step** — `docs/*.html` ingested into `src/generated/` for `/reports/[slug]`
-- **Private access** — HTTP Basic Auth middleware plus Vercel Deployment Protection
-
-## Quick start
+## Local development
 
 ```bash
 cd docs-site
@@ -15,37 +13,54 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000 (auth disabled until `DOCS_AUTH_*` is set).
+Open http://localhost:3000 (no auth in development unless you set env vars).
 
-## Build
+## Production build
 
 ```bash
-npm run build:content   # ingest ../docs/*.html
-npm run build           # content + next build
+npm run build
 ```
+
+`prebuild` runs `scripts/build-docs.mjs`, which:
+
+1. Parses `docs/*.html` — converts body HTML to JSX, writes `src/generated/doc-content/<slug>.tsx` plus a thin `src/app/docs/reports/<slug>/page.tsx` wrapper.
+2. Parses selected `docs/*.md` — markdown → HTML → JSX, same content module layout under `src/app/docs/<slug>/`.
+3. Writes `src/generated/manifest.ts` for navigation metadata only.
+
+## Documentation policy (TSX-first)
+
+- **Canonical**: TSX in this app (`src/app/docs/**` or generated `src/generated/doc-content/*.tsx`).
+- **Ingest only**: `../docs/*.html` and listed `../docs/*.md` are build inputs, not preferred editing surfaces for new guides.
+- **One-off PDF/HTML**: run `npm run dev` or `npm run build && npm start`, open the route, then Print → Save as PDF or save the page as HTML. Do not treat repo-stored PDF/HTML as the source of truth unless explicitly required for legal/archival delivery.
+
+Agent rule file: `../.cursor/rules/documentation-tsx.mdc`.
+
+## Security
+
+| Variable | Required (prod) | Purpose |
+|----------|-------------------|---------|
+| `DOCS_SITE_PASSWORD` | One of password/token | Basic Auth password |
+| `DOCS_SITE_TOKEN` | One of password/token | Login form + Bearer (min 16 chars) |
+| `DOCS_SITE_USERNAME` | No | Basic Auth user (default `shootflow`) |
+| `DOCS_SITE_SESSION_SECRET` | Recommended | Session cookie after Basic Auth |
+| `DOCS_SITE_DOMAIN` | No | Custom host for `metadataBase` / canonical URLs |
+
+In production, missing both `DOCS_SITE_PASSWORD` and `DOCS_SITE_TOKEN` returns **503** (fail closed).
+
+Also enable **Vercel Deployment Protection** (password or SSO) on the project for
+defense in depth.
+
+## Custom domain
+
+1. Deploy with root directory `docs-site`.
+2. Vercel → Project → **Domains** → add e.g. `docs.yourdomain.com`.
+3. Configure DNS per Vercel instructions (CNAME or A record).
 
 ## Deploy on Vercel
 
-1. Import the repository and set **Root Directory** to `docs-site`.
-2. Add environment variables:
-   - `DOCS_AUTH_USER`
-   - `DOCS_AUTH_PASSWORD`
-3. Enable **Deployment Protection → Password Protection** for production and previews.
-4. Add a custom domain under **Domains** (e.g. `docs.yourdomain.com`) and configure DNS.
-5. Deploy. The site sets `robots: noindex` and requires credentials when configured.
+```bash
+cd docs-site
+npx vercel --prod
+```
 
-## Security model
-
-| Layer | Purpose |
-| --- | --- |
-| Middleware Basic Auth | App-level gate using `DOCS_AUTH_USER` / `DOCS_AUTH_PASSWORD` |
-| Vercel Password Protection | Platform gate if middleware is bypassed |
-| Custom domain + noindex | Reduces accidental public indexing |
-
-See `/security` in the running site for full setup notes.
-
-## Adding documentation
-
-- **Markdown:** add an entry in `src/lib/docs-registry.ts` pointing at `docs/YourFile.md`.
-- **HTML reports:** add `docs/your-report.html` and run `npm run build:content`.
-- **Native TSX pages:** add routes under `src/app/` and link from `DocsShell` navigation.
+Set environment variables in the Vercel dashboard before promoting to production.

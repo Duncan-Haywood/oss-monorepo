@@ -171,20 +171,25 @@ Windows.
 
 ### Private docs site (`docs-site/`)
 
-The Python core stays stdlib-only. Product documentation can be published via
-the separate Next.js app in `docs-site/`:
+`docs-site/` is a Next.js app (npm) for internal documentation, separate from the
+stdlib Python core. **Documentation is TSX-first**: hand-authored pages under
+`src/app/docs/`, plus `scripts/build-docs.mjs` rewriting approved `docs/*.html` and
+selected markdown into `src/generated/doc-content/*.tsx` and thin route wrappers.
+Do not add new long-form Markdown/HTML in `docs/` as canonical hand-maintained docs
+unless they are on the build-docs ingest list. For one-off PDF/HTML sharing, export
+from the built site (browser Print → PDF or Save Page As) — do not maintain parallel
+canonical copies. See `.cursor/rules/documentation-tsx.mdc`.
 
 ```bash
 cd docs-site && npm ci && npm run build
 ```
 
-`npm run build:content` ingests `docs/*.html` into `src/generated/`; TSX routes
-serve markdown from `docs/*.md` and built HTML at `/reports/[slug]`. Production
-requires `DOCS_AUTH_USER` and `DOCS_AUTH_PASSWORD` (see `docs-site/.env.example`
-and `docs-site/README.md`).
+Production auth uses `DOCS_SITE_PASSWORD` (HTTP Basic + optional session cookie)
+and/or `DOCS_SITE_TOKEN` (login form + bearer). Set `DOCS_SITE_DOMAIN` for custom
+host metadata. See `docs-site/README.md` for Vercel domain and Deployment
+Protection.
 
 ### No external services
 
-No database, no Docker, no Node.js for the Python core, no external APIs for
-ShootFlow runtime. The optional docs site uses Node only at build/deploy time.
-Everything else runs against the local filesystem.
+No database, no Docker, or external APIs for the Python core. Everything runs
+against the local filesystem. The docs site deploys separately on Vercel when used.

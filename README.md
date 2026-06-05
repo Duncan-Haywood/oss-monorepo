@@ -723,6 +723,11 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 
 ## Product docs
 
+**TSX-first** in `docs-site/` (hand-authored pages plus build-time conversion of
+approved `docs/` HTML/Markdown to semantic JSX). For quick one-off PDF/HTML, export
+from the running docs site; see `docs-site/README.md` and
+`.cursor/rules/documentation-tsx.mdc`. Deploy/auth: `docs-site/README.md`.
+
 - `docs/PRODUCT_STRATEGY.md`
 - `docs/BUSINESS_PLAN.md`
 - `docs/DESIGN_DECISIONS.md`
