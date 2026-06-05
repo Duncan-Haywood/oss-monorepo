@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 from pathlib import Path
 from typing import Literal
@@ -117,12 +118,30 @@ def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
 
 def _read_json_object(path: Path) -> dict[str, object]:
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw = json.loads(_read_text_no_follow(path))
     except json.JSONDecodeError as exc:
         raise AnalysisLoaderError(f"Invalid analysis JSON: {path}") from exc
     if not isinstance(raw, dict):
         raise AnalysisLoaderError(f"Analysis JSON root must be an object: {path}")
     return raw
+
+
+def _read_text_no_follow(path: Path) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        raise AnalysisLoaderError(f"Missing planned analysis file: {path}")
+    except OSError as exc:
+        raise AnalysisLoaderError(f"Unable to open analysis file: {path}") from exc
+    try:
+        with os.fdopen(fd, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        os.close(fd)
+        raise
 
 
 def _analysis_from_json(

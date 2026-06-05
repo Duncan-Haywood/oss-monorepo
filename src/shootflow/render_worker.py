@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import stat
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -731,11 +733,24 @@ def _workspace_output_path(root: Path, output: str) -> Path:
 
 
 def _sha256_file(path: Path) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
     digest = hashlib.sha256()
     try:
-        with path.open("rb") as output_file:
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise RenderWorkerError(f"Unable to open render output: {path}") from exc
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            os.close(fd)
+            raise RenderWorkerError(f"Render output is not a regular file: {path}")
+        with os.fdopen(fd, "rb") as output_file:
             for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
                 digest.update(chunk)
+    except RenderWorkerError:
+        raise
     except OSError as exc:
         raise RenderWorkerError(f"Unable to checksum render output: {path}") from exc
     return digest.hexdigest()

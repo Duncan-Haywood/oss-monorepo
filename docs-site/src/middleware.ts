@@ -14,6 +14,7 @@ import {
   tokenConfigured,
   verifyAccessToken,
   verifyTokenSessionValue,
+  signPasswordSessionValue,
 } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
@@ -37,7 +38,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (hasPasswordSession(request.cookies.get(SESSION_COOKIE)?.value)) {
+  if (await hasPasswordSession(request.cookies.get(SESSION_COOKIE)?.value)) {
     return NextResponse.next();
   }
 
@@ -55,9 +56,9 @@ export async function middleware(request: NextRequest) {
 
   if (validateBasicAuth(authHeader)) {
     const response = NextResponse.next();
-    const secret = process.env.DOCS_SITE_SESSION_SECRET?.trim();
-    if (secret) {
-      response.cookies.set(SESSION_COOKIE, secret, {
+    const sessionValue = await signPasswordSessionValue();
+    if (sessionValue) {
+      response.cookies.set(SESSION_COOKIE, sessionValue, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

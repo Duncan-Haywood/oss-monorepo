@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 import hashlib
+import os
 import re
+import stat
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -731,8 +733,12 @@ def _sha256_directory(path: Path, *, root: Path) -> str:
         if not entry.is_file():
             raise ProductionWorkerError(f"Production directory output contains a non-file entry: {relative_name}")
         digest.update(f"file:{relative_name}\n".encode("utf-8"))
+        entry_flags = os.O_RDONLY
+        if hasattr(os, "O_NOFOLLOW"):
+            entry_flags |= os.O_NOFOLLOW
         try:
-            with entry.open("rb") as output_file:
+            entry_fd = os.open(entry, entry_flags)
+            with os.fdopen(entry_fd, "rb") as output_file:
                 for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
                     digest.update(chunk)
         except OSError as exc:
@@ -752,11 +758,24 @@ def _workspace_output_path(root: Path, output: str) -> Path:
 
 
 def _sha256_file(path: Path) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
     digest = hashlib.sha256()
     try:
-        with path.open("rb") as output_file:
+        fd = os.open(path, flags)
+    except OSError as exc:
+        raise ProductionWorkerError(f"Unable to open production output: {path}") from exc
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            os.close(fd)
+            raise ProductionWorkerError(f"Production output is not a regular file: {path}")
+        with os.fdopen(fd, "rb") as output_file:
             for chunk in iter(lambda: output_file.read(1024 * 1024), b""):
                 digest.update(chunk)
+    except ProductionWorkerError:
+        raise
     except OSError as exc:
         raise ProductionWorkerError(f"Unable to checksum production output: {path}") from exc
     return digest.hexdigest()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -157,9 +158,8 @@ def write_storyline_artifact(
 
     temp_path = artifact_path.with_suffix(".json.tmp")
     _reject_symlink(temp_path, "temporary storyline artifact")
-    temp_path.write_bytes(
-        storyline_artifact_bytes(plan, allowed_asset_paths=allowed_asset_paths)
-    )
+    content = storyline_artifact_bytes(plan, allowed_asset_paths=allowed_asset_paths)
+    _write_bytes_no_follow(temp_path, content)
     temp_path.replace(artifact_path)
     return artifact_path
 
@@ -182,9 +182,9 @@ def load_storyline_artifact(
     allowed_asset_paths: set[str] | frozenset[str],
 ) -> StorylinePlan:
     allowed_paths = _validate_allowed_asset_paths(allowed_asset_paths)
-    artifact_path = _storyline_artifact_path(workspace_root)
-    _reject_symlink(artifact_path.parent, "storyline artifact directory")
-    _reject_symlink(artifact_path, "storyline artifact")
+    root = Path(workspace_root)
+    artifact_path = _storyline_artifact_path(root)
+    _reject_symlink_path(artifact_path, root, "storyline artifact")
     raw_artifact = _read_json_object(artifact_path)
     plan = _storyline_plan_from_json(raw_artifact)
     _validate_storyline_plan(plan, allowed_paths=allowed_paths)
@@ -502,7 +502,7 @@ def _content_sequence_to_json(name: str, sequence: ContentSequence) -> dict[str,
 
 def _read_json_object(path: Path) -> dict[str, object]:
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw = json.loads(_read_text_no_follow(path))
     except FileNotFoundError as exc:
         raise StoryPlanError(f"Missing storyline artifact: {path}") from exc
     except json.JSONDecodeError as exc:
@@ -637,6 +637,55 @@ def _validate_exact_keys(
 def _reject_symlink(path: Path, label: str) -> None:
     if path.is_symlink():
         raise StoryPlanError(f"Refusing {label} symlink: {path}")
+
+
+def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
+    current = path
+    while True:
+        if current.is_symlink():
+            raise StoryPlanError(f"Refusing {label} symlink: {current}")
+        if current == root or current.absolute() == root.absolute():
+            break
+        if current.parent == current:
+            break
+        current = current.parent
+
+
+def _read_text_no_follow(path: Path) -> str:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        raise
+    except OSError as exc:
+        raise StoryPlanError(f"Unable to open storyline artifact: {path}") from exc
+    try:
+        with os.fdopen(fd, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        os.close(fd)
+        raise
+
+
+def _write_bytes_no_follow(path: Path, content: bytes) -> None:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags, 0o600)
+    except OSError as exc:
+        raise StoryPlanError(
+            f"Unable to create temporary storyline artifact: {path}"
+        ) from exc
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(content)
+    except OSError as exc:
+        raise StoryPlanError(
+            f"Unable to write temporary storyline artifact: {path}"
+        ) from exc
 
 
 def _quality_score(analysis: AssetAnalysis) -> float:

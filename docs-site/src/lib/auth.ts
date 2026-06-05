@@ -1,6 +1,7 @@
 export const SESSION_COOKIE = "docs_session";
 export const TOKEN_SESSION_COOKIE = "shootflow-docs-session";
 const TOKEN_SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+const PASSWORD_SESSION_MAX_AGE_SEC = 60 * 60 * 12;
 
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -47,9 +48,28 @@ export function validateBasicAuth(authorization: string | null): boolean {
   return safeEqual(user, expectedUser) && safeEqual(pass, password);
 }
 
-export function hasPasswordSession(session: string | undefined): boolean {
+export async function hasPasswordSession(
+  session: string | undefined,
+): Promise<boolean> {
   const secret = process.env.DOCS_SITE_SESSION_SECRET?.trim();
-  return Boolean(secret && session && safeEqual(session, secret));
+  if (!secret || !session) return false;
+  const parts = session.split(".");
+  if (parts.length !== 3 || parts[0] !== "pw1") return false;
+  const issuedAt = Number(parts[1]);
+  if (!Number.isFinite(issuedAt)) return false;
+  const age = Math.floor(Date.now() / 1000) - issuedAt;
+  if (age < 0 || age > PASSWORD_SESSION_MAX_AGE_SEC) return false;
+  const expectedSig = await hmacSign(`pw1.${issuedAt}`, secret);
+  return safeEqual(parts[2], expectedSig);
+}
+
+export async function signPasswordSessionValue(): Promise<string | null> {
+  const secret = process.env.DOCS_SITE_SESSION_SECRET?.trim();
+  if (!secret) return null;
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const payload = `pw1.${issuedAt}`;
+  const sig = await hmacSign(payload, secret);
+  return `${payload}.${sig}`;
 }
 
 export function verifyAccessToken(candidate: string): boolean {
