@@ -4,3 +4,7 @@ export * from './Strategy';
 export * from './RevenueModel';
 export * from './Operations';
 export * from './ArtistPitch';
+export * from './AiDigitalStrategy';
+export * from './GtmStrategy';
+export * from './MarketResearch';
+export * from './ProfitabilityAnalysis';
