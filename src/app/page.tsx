@@ -7,6 +7,7 @@ import Operations from "@/components/Operations";
 import ArtistPitch from "@/components/ArtistPitch";
 import MarketResearch from "@/components/MarketResearch";
 import GTMStrategy from "@/components/GTMStrategy";
+import PlatformDemo from "@/components/PlatformDemo";
 import { Menu, X } from "lucide-react";
 
 const tabs = [
@@ -16,6 +17,7 @@ const tabs = [
   { id: "pitch", label: "Artist Pitch" },
   { id: "research", label: "Market Research" },
   { id: "gtm", label: "GTM Strategy" },
+  { id: "demo", label: "Platform Demo" },
 ];
 
 export default function Home() {
@@ -73,6 +75,7 @@ export default function Home() {
             {activeTab === "pitch" && <ArtistPitch />}
             {activeTab === "research" && <MarketResearch />}
             {activeTab === "gtm" && <GTMStrategy />}
+            {activeTab === "demo" && <PlatformDemo />}
           </div>
         </main>
       </div>
