@@ -23,6 +23,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | Tab | Component | Content |
 |-----|-----------|---------|
 | Strategy & Vision | `Strategy.tsx` | Problem, AI-first solution, positioning, dual-sided tracks |
+| Sales & Outreach | `SalesOutreach.tsx` | Digital-first dual-sided outreach philosophy |
 | Tech Strategy | `TechStrategy.tsx` | Architecture, stack, build phases, key decisions |
 | Revenue & Profitability | `RevenueModel.tsx` | 70/30 split, unit economics, margin path |
 | Financial Model | `FinancialProjections.tsx` | Interactive calculator with scenario comparison |
