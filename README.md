@@ -23,16 +23,16 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | Tab | Component | Content |
 |-----|-----------|---------|
 | Strategy & Vision | `Strategy.tsx` | Problem, AI-first solution, positioning, dual-sided tracks |
-| Sales & Outreach | `SalesOutreach.tsx` | Digital-first dual-sided outreach philosophy |
-| Tech Strategy | `TechStrategy.tsx` | Architecture, stack, build phases, key decisions |
-| Revenue & Profitability | `RevenueModel.tsx` | 70/30 split, unit economics, margin path |
-| Financial Model | `FinancialProjections.tsx` | Interactive calculator with scenario comparison |
+| Sales & Outreach | `SalesOutreach.tsx` | Digital-first dual-sided outreach, channel mix |
+| Tech Strategy | `TechStrategy.tsx` | Architecture, stack, build phases, infra costs |
+| Revenue & Profitability | `RevenueModel.tsx` | 70/30 split, interactive unit economics, monthly P&L |
+| Financial Model | `FinancialProjections.tsx` | Scenario calculator with artist/ad spend inputs |
 | AI Operations | `Operations.tsx` | Capture workflow, cataloging, fulfillment |
-| Marketing & Sales | `MarketingSales.tsx` | Dual-sided digital acquisition, channel mix |
+| Marketing & Sales | `MarketingSales.tsx` | Dual-sided digital acquisition, retention |
 | Artist Pitch | `ArtistPitch.tsx` | Supply-side sales narrative |
-| Market Research | `MarketResearch.tsx` | TAM/SAM/SOM, audiences, competitive landscape |
-| GTM Strategy | `GTMStrategy.tsx` | 4-phase go-to-market plan |
-| Platform Demo | `PlatformDemo.tsx` | Embedded storefront + artist portal preview |
+| Market Research | `MarketResearch.tsx` | TAM/SAM/SOM, SWOT, audiences, competitors |
+| GTM Strategy | `GTMStrategy.tsx` | 4-phase plan with KPIs and launch calendar |
+| Platform Demo | `PlatformDemo.tsx` | Embedded storefront, artist portal, capture preview |
 
 ## Live Demo Pages
 
@@ -41,8 +41,12 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/storefront` | Consumer e-commerce storefront (demand side) |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |
-| `/designer-portal` | B2B trade portal for interior designers (Phase 4 GTM) |
-| `/capture` | Mobile capture app with AI processing pipeline demo |
+| `/b2b-portal` | B2B trade portal for interior designers |
+| `/designer-portal` | Designer portal (Phase 4 GTM) |
+| `/capture` | Mobile capture app with AI processing pipeline |
+| `/capture-demo` | Interactive AI capture pipeline demo |
+| `/sales-portal` | Sales outreach command center |
+| `/marketing-portal` | Marketing automation hub |
 | `/ops` | Internal outreach CRM for artist acquisition |
 | `/admin-portal` | Operations command center for AI pipeline and infrastructure |
 
@@ -56,8 +60,14 @@ src/
 │   ├── page.tsx              # Main business plan dashboard
 │   ├── artist-portal/        # Full artist portal demo
 │   ├── storefront/           # Full storefront demo
-│   ├── designer-portal/      # B2B designer portal demo
+│   ├── buyer-portal/         # Buyer shop demo
+│   ├── b2b-portal/           # B2B designer trade portal
+│   ├── designer-portal/      # Designer portal demo
 │   ├── capture/              # Capture app demo
+│   ├── capture-demo/         # Interactive capture pipeline
+│   ├── sales-portal/         # Sales outreach hub
+│   ├── marketing-portal/     # Marketing automation hub
+│   ├── admin-portal/         # Admin operations console
 │   └── ops/                  # Outreach console demo
 └── components/
     ├── shared/DemoNav.tsx    # Shared demo navigation

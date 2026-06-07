@@ -4,8 +4,12 @@ const demos = [
   { href: "/storefront", label: "Storefront" },
   { href: "/buyer-portal", label: "Buyer Portal" },
   { href: "/artist-portal", label: "Artist Portal" },
+  { href: "/b2b-portal", label: "B2B Portal" },
   { href: "/designer-portal", label: "Designer Portal" },
   { href: "/capture", label: "Capture App" },
+  { href: "/capture-demo", label: "Capture Demo" },
+  { href: "/sales-portal", label: "Sales Hub" },
+  { href: "/marketing-portal", label: "Marketing Hub" },
   { href: "/ops", label: "Ops Console" },
   { href: "/admin-portal", label: "Admin Console" },
 ];

@@ -33,8 +33,12 @@ const demoLinks = [
   { href: "/storefront", label: "Storefront" },
   { href: "/buyer-portal", label: "Buyer Portal", badge: "New" },
   { href: "/artist-portal", label: "Artist Portal" },
+  { href: "/b2b-portal", label: "B2B Designer Portal", badge: "New" },
   { href: "/designer-portal", label: "Designer Portal" },
   { href: "/capture", label: "Capture App" },
+  { href: "/capture-demo", label: "AI Capture Flow", badge: "New" },
+  { href: "/sales-portal", label: "Sales Outreach", badge: "New" },
+  { href: "/marketing-portal", label: "Marketing Hub", badge: "New" },
   { href: "/ops", label: "Ops Console" },
   { href: "/admin-portal", label: "Admin Console", badge: "New" },
 ];
@@ -88,7 +92,7 @@ export default function Home() {
                   <ExternalLink className="w-3 h-3 opacity-50" />
                 </span>
                 {link.badge && (
-                  <span className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium">
+                  <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 px-2 py-0.5 rounded-full font-medium">
                     {link.badge}
                   </span>
                 )}
@@ -107,7 +111,11 @@ export default function Home() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-6 md:p-10">
-          <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+          <div
+            className={`mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 ${
+              activeTab === "demo" ? "max-w-6xl" : "max-w-4xl"
+            }`}
+          >
             {activeTab === "strategy" && <Strategy />}
             {activeTab === "sales" && <SalesOutreach />}
             {activeTab === "tech" && <TechStrategy />}

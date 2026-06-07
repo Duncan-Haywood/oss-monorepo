@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, Palette, TrendingUp, Image as ImageIcon, ExternalLink } from "lucide-react";
+import { ShoppingBag, Palette, TrendingUp, Image as ImageIcon, Camera, ExternalLink } from "lucide-react";
 
 export default function Demo() {
-  const [view, setView] = useState<"storefront" | "artist">("storefront");
+  const [view, setView] = useState<"storefront" | "artist" | "capture">("storefront");
 
   const fullDemos = [
     { href: "/storefront", label: "Full Storefront" },
     { href: "/buyer-portal", label: "Buyer Portal" },
     { href: "/artist-portal", label: "Artist Portal" },
+    { href: "/b2b-portal", label: "B2B Designer Portal" },
     { href: "/designer-portal", label: "Designer Portal" },
     { href: "/capture", label: "Capture App" },
+    { href: "/capture-demo", label: "AI Capture Flow" },
+    { href: "/sales-portal", label: "Sales Outreach" },
+    { href: "/marketing-portal", label: "Marketing Hub" },
     { href: "/ops", label: "Ops Console" },
     { href: "/admin-portal", label: "Admin Console" },
   ];
@@ -54,10 +58,20 @@ export default function Demo() {
           >
             Artist Portal (Supply)
           </button>
+          <button
+            onClick={() => setView("capture")}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              view === "capture" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            AI Capture
+          </button>
         </div>
       </div>
 
-      {view === "storefront" ? <StorefrontDemo /> : <ArtistPortalDemo />}
+      {view === "storefront" && <StorefrontDemo />}
+      {view === "artist" && <ArtistPortalDemo />}
+      {view === "capture" && <CapturePreview />}
     </div>
   );
 }
@@ -291,6 +305,41 @@ function ArtistPortalDemo() {
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CapturePreview() {
+  const steps = ["Upload", "Deskew", "Color Correct", "Upscale", "Mockups"];
+  return (
+    <div className="bg-gray-900 text-white rounded-xl overflow-hidden shadow-sm border border-gray-800">
+      <div className="p-6 border-b border-gray-800 flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Camera className="w-5 h-5 text-indigo-400" /> AI Capture Pipeline
+          </h3>
+          <p className="text-sm text-gray-400 mt-1">Phone photo → print-ready master in &lt;60 seconds</p>
+        </div>
+        <a href="/capture-demo" className="text-sm bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-500 transition flex items-center gap-1">
+          Try Interactive Demo <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-3">
+          {steps.map((step, i) => (
+            <div key={step} className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+              <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold">{i + 1}</div>
+              <span>{step}</span>
+              {i < 4 && <span className="ml-auto text-xs text-gray-500">~{[5, 8, 12, 20, 15][i]}s</span>}
+            </div>
+          ))}
+        </div>
+        <div className="aspect-[4/3] bg-stone-200 rounded-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-300"></div>
+          <div className="absolute top-1/3 left-1/4 w-1/2 h-1/3 bg-blue-900 shadow-2xl border-4 border-white"></div>
+          <span className="absolute bottom-3 left-3 text-xs bg-white text-gray-800 px-2 py-1 rounded shadow">AI-generated living room mockup</span>
         </div>
       </div>
     </div>

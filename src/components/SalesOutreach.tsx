@@ -1,61 +1,107 @@
 export default function SalesOutreach() {
   return (
     <div className="space-y-6 prose dark:prose-invert max-w-none">
-      <h1 className="text-3xl font-bold border-b pb-4">Digital-First Sales & Marketing</h1>
+      <h1 className="text-3xl font-bold border-b pb-4">Digital-First Sales & Outreach</h1>
 
       <section>
-        <h2 className="text-2xl font-semibold">The Core Philosophy: Digital First</h2>
+        <h2 className="text-2xl font-semibold">Core Philosophy: Digital First, AI First</h2>
         <p>
-          Print Atelier replaces traditional gallery curation and manual sales efforts with high-velocity, software-driven outreach. We treat artist acquisition and buyer generation as engineering problems, not just marketing tasks.
+          Print Atelier replaces traditional gallery curation and manual sales with high-velocity, software-driven outreach. Artist acquisition and buyer generation are engineering problems — not just marketing tasks. Both sides of the marketplace are automated from day one.
         </p>
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold">1. Supply Side: Automated Artist Outreach</h2>
-        <p>
-          To build our catalog rapidly, we deploy intelligent, automated systems to identify and onboard artists.
-        </p>
+        <h2 className="text-2xl font-semibold">Supply Side: Automated Artist Outreach</h2>
+        <p>To build catalog rapidly, we deploy intelligent systems to identify and onboard artists at near-zero marginal cost.</p>
         <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Social Graph Scraping:</strong> Proprietary tools scan Instagram, TikTok, and Pinterest for independent artists meeting specific engagement and quality criteria.</li>
-          <li><strong>AI-Personalized DMs:</strong> Instead of generic blasts, our system uses LLMs to reference specific artworks on the artist's profile in the outreach message, drastically increasing response rates.</li>
-          <li><strong>Self-Serve Onboarding:</strong> The outreach links to a frictionless digital portal where artists can create a profile, upload a photo from their phone, and have a print-ready product live in under 3 minutes.</li>
+          <li><strong>Social Graph Scraping:</strong> Proprietary tools scan Instagram, TikTok, and Pinterest for independent artists meeting engagement and quality thresholds (2k–20k followers, consistent style signals).</li>
+          <li><strong>AI-Personalized DMs:</strong> LLMs reference specific artworks in outreach messages, increasing response rates from ~3% (generic) to ~40%+ (personalized).</li>
+          <li><strong>Self-Serve Onboarding:</strong> Outreach links to a frictionless portal where artists snap a photo and see a living-room mockup in under 3 minutes — the conversion hook.</li>
+          <li><strong>Zero Human SDRs (Phase 1):</strong> Fully software-orchestrated acquisition until response quality degrades at scale.</li>
         </ul>
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold">2. Demand Side: Algorithmic Marketing</h2>
-        <p>
-          Buyer acquisition is driven by programmatic campaigns that leverage the unique visual nature of our product.
-        </p>
-        <div className="bg-blue-50 dark:bg-blue-900/30 p-5 rounded-xl mt-4 border border-blue-100 dark:border-blue-800">
-          <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">The "Living Room" Strategy</h3>
+        <h2 className="text-2xl font-semibold">Demand Side: Algorithmic Marketing</h2>
+        <p>Buyer acquisition is driven by programmatic campaigns leveraging the visual nature of our product.</p>
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-5 rounded-xl mt-4 border border-blue-100 dark:border-blue-800 not-prose">
+          <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">The &quot;Living Room&quot; Strategy</h3>
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            Consumers struggle to visualize raw art in their homes. Our software automatically generates thousands of hyper-realistic mockups of the art in various interior design styles. We feed these dynamically generated assets into Meta/Google ad networks, allowing algorithmic testing to find the exact combination of art, frame, and room setting that converts best.
+            Consumers struggle to visualize raw art in their homes. Our software generates thousands of hyper-realistic mockups across interior styles. These feed into Meta/Google ad networks where multi-armed bandit algorithms find the exact art + room + frame combination that converts best.
           </p>
+        </div>
+        <ul className="list-disc pl-5 space-y-2 mt-4">
+          <li><strong>Programmatic SEO:</strong> Auto-generated landing pages for style/color/medium combinations.</li>
+          <li><strong>Dynamic Ads:</strong> Catalog fed into ad APIs; algorithms test thousands of creative permutations daily.</li>
+          <li><strong>Retargeting:</strong> AI email flows recommend complementary pieces based on purchase color palette and style signals.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-semibold">The Network Effect (B2B2C)</h2>
+        <p>Artists are our most potent marketing channel. By providing a platform that works, they bring their audiences.</p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Automated Promo Kits:</strong> On publish, artists receive pre-sized Instagram Stories, Reels, and captions announcing the drop.</li>
+          <li><strong>Referral Economics:</strong> Artists incentivized to bring other artists to the platform.</li>
+          <li><strong>Audience Capture:</strong> Every fan visiting an artist page enters our broader ecosystem for cross-sell retargeting.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-semibold">Channel Mix & Targets</h2>
+        <div className="overflow-x-auto not-prose">
+          <table className="min-w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b-2 border-gray-300 dark:border-gray-600">
+                <th className="text-left py-2 pr-4">Channel</th>
+                <th className="text-left py-2 pr-4">Phase</th>
+                <th className="text-left py-2 pr-4">% of Acquisition</th>
+                <th className="text-left py-2">Target CAC</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-700 dark:text-gray-300">
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <td className="py-2 pr-4">Artist-driven (organic)</td>
+                <td className="py-2 pr-4">Phase 1–2</td>
+                <td className="py-2 pr-4">60%</td>
+                <td className="py-2">$0</td>
+              </tr>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <td className="py-2 pr-4">AI social outreach (supply)</td>
+                <td className="py-2 pr-4">Phase 1</td>
+                <td className="py-2 pr-4">100% of artists</td>
+                <td className="py-2">&lt;$2/artist</td>
+              </tr>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <td className="py-2 pr-4">Programmatic SEO</td>
+                <td className="py-2 pr-4">Phase 3</td>
+                <td className="py-2 pr-4">25%</td>
+                <td className="py-2">&lt;$5/buyer</td>
+              </tr>
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                <td className="py-2 pr-4">Paid social (Meta/Google)</td>
+                <td className="py-2 pr-4">Phase 3</td>
+                <td className="py-2 pr-4">15%</td>
+                <td className="py-2">&lt;$12/buyer</td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-4">Email retention</td>
+                <td className="py-2 pr-4">Phase 2+</td>
+                <td className="py-2 pr-4">Repeat purchases</td>
+                <td className="py-2">&lt;$3/reorder</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold">3. The Network Effect (B2B2C)</h2>
-        <p>
-          Artists are our most potent marketing channel. By providing them with a platform that actually works, they bring their audiences.
-        </p>
-        <ul className="list-disc pl-5 space-y-2">
-          <li><strong>Automated Promo Kits:</strong> Upon publishing a piece, the system automatically emails the artist pre-sized, optimized social media assets (Reels, Stories, Posts) to announce the drop.</li>
-          <li><strong>Referral Economics:</strong> Artists are incentivized not just to sell their own work, but to bring other artists to the platform.</li>
-          <li><strong>Audience Capture:</strong> Every fan an artist brings to their specific Print Atelier page enters our broader ecosystem, allowing us to retarget them with complementary art from other creators.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-semibold">4. Profitability & Unit Economics Analysis</h2>
-        <p>
-          Because our outreach and marketing are software-driven, our Customer Acquisition Cost (CAC) scales sub-linearly.
-        </p>
+        <h2 className="text-2xl font-semibold">Profitability of Digital Outreach</h2>
         <ul className="list-disc pl-5 space-y-2">
           <li><strong>Near-Zero Supply CAC:</strong> Automated scripts and AI DMs require only compute cost to acquire artists.</li>
-          <li><strong>High LTV (Lifetime Value):</strong> By capturing buyer emails and using AI to recommend similar pieces over time, we increase repeat purchase rates without ad spend.</li>
-          <li><strong>No Inventory Risk:</strong> The print-on-demand model ensures we never hold physical stock, keeping overhead strictly limited to software and personnel.</li>
+          <li><strong>High LTV:</strong> Capturing buyer emails and AI recommendations increases repeat purchase rates without incremental ad spend.</li>
+          <li><strong>No Inventory Risk:</strong> Print-on-demand ensures zero physical stock; overhead is software and personnel only.</li>
+          <li><strong>LTV:CAC Target:</strong> 12:1+ at steady state ($150 LTV / $12 CAC).</li>
         </ul>
       </section>
     </div>
