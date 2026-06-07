@@ -13,3 +13,8 @@ Thumbs.db
 # Local business planning artifacts (keep out of repo unless intentional)
 scratch/
 private/
+
+# Next.js
+.next/
+next-env.d.ts
+out/
