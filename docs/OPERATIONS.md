@@ -1,118 +1,71 @@
-# Operations Playbook
+# Operations Playbook (Software & AI First)
 
-## Capture Workflow (Single Session)
+## The AI Capture & Processing Pipeline
 
-### Pre-session
+We eliminate the need for manual field photography by leveraging AI to process artist-submitted photos.
 
-- [ ] Confirm artist agreement signed
-- [ ] Inventory pieces to be captured (title, dimensions, medium, year)
-- [ ] Confirm pieces are dry, dust-free, and positioned for photography
-- [ ] Pack kit: camera, tripod, lights, gray card / color checker, measuring tape
+### 1. Artist Upload (Self-Serve)
 
-### On-site
+- **Input:** Artist uploads a photo of their painting taken with a modern smartphone (iPhone 12+, Pixel 5+, etc.).
+- **Guidelines:** We provide a simple, digital guide (e.g., "Take photo in indirect natural light, keep phone parallel to canvas").
+- **Metadata:** Artist inputs title, dimensions, medium, and year via the web portal.
 
-1. **Environment** — controlled lighting, minimal glare, neutral background or easel setup
-2. **Per piece:**
-   - Measure and record dimensions
-   - Capture RAW + bracketed exposures if needed
-   - Include color reference card in frame
-   - Optional: process photos/video (time-lapse, detail shots, palette)
-3. **Metadata** — artist name, title, medium, dimensions, date, location captured
+### 2. AI Processing Engine (Automated)
 
-### Post-session
+- **Perspective Correction:** Auto-detect canvas edges and correct skew/keystoning.
+- **Lighting Normalization:** AI removes glare, evens out lighting gradients, and neutralizes color casts.
+- **Upscaling & Enhancement:** Use advanced AI models (e.g., Topaz Gigapixel, custom Stable Diffusion pipelines) to upscale the image to 300 DPI at large print sizes while preserving authentic brushstrokes and texture.
+- **Color Grading:** Automated color correction to match standard print profiles (CMYK conversion).
 
-1. Upload RAW/files to shared storage (Google Drive or equivalent) using naming convention:
-   ```
-   {city}/{artist-slug}/{date}/{piece-slug}/
-     raw/
-     edited/
-     marketing/
-     metadata.json
-   ```
-2. Color-correct and export print-ready masters (TIFF/PNG, appropriate DPI for target print sizes)
-3. Generate proof print → artist approval
-4. Create listing assets (cropped views, room mocks if available)
-5. Publish to storefront
+### 3. Automated Merchandising
 
-## Print-on-Demand Fulfillment (Phase 0–2)
+- **Room Mockups:** AI generates photorealistic lifestyle images of the art in various settings (modern living room, minimalist office, etc.).
+- **Detail Shots:** AI generates simulated macro shots highlighting texture.
+- **Listing Copy:** LLMs generate SEO-optimized product descriptions based on the artist's metadata and visual analysis of the piece.
 
-Use a POD partner until volume and margins justify alternative fulfillment.
+### 4. Publishing & Sync
 
-### Provider evaluation criteria
+- Processed assets and metadata are automatically pushed to our commerce backend (e.g., Shopify API).
+- Products are instantly available for purchase.
 
-- Color accuracy and paper options (archival, cotton rag, etc.)
-- Print size range
-- Frame/mount options
-- Shipping speed and international coverage
-- API/integration for automation
-- Base cost vs. retail price → gross margin
+## Print-on-Demand Fulfillment (API Driven)
 
-### Order flow (manual → automated)
+We operate with zero inventory, relying entirely on API-integrated POD partners.
 
-1. Customer orders on storefront
-2. Order routed to POD provider (manual at first, API later)
-3. Provider prints, packs, ships
-4. Tracking synced to customer
-5. Sale recorded for artist revenue share calculation
+### Provider Criteria
 
-## City Expansion Model
+- **API Robustness:** Must support fully automated order routing, variant mapping, and tracking sync.
+- **Quality:** Archival inks, museum-quality cotton rag paper options.
+- **Global Network:** Ability to route orders to facilities near the customer to reduce shipping costs and times.
 
-### Roles
+### Order Flow (Zero Touch)
 
-| Role | Responsibility |
-|------|----------------|
-| **Acquisition lead** | Artist outreach, scheduling, relationship management |
-| **Field photographer** | On-site capture per playbook |
-| **Central ops** | Editing, cataloging, listing, fulfillment coordination |
+1. Customer orders on storefront.
+2. Webhook triggers order routing to the optimal POD facility via API.
+3. Provider prints, packs, and ships.
+4. Tracking is automatically synced back to the storefront and customer.
+5. Sale is recorded in our database, and the artist's revenue share is credited to their dashboard.
 
-### Launching a new city
+## Digital-First Sales Outreach
 
-1. Identify local art clusters (studios, schools, co-ops, fairs)
-2. Recruit contract photographer — send gear checklist and training doc
-3. Provide contract templates and pitch materials
-4. Run 2-week acquisition sprint: target N artists, M pieces
-5. Upload to central pipeline; central team processes within SLA (e.g. 5 business days)
+Instead of manual city-by-city expansion, we scale globally from day one using software.
 
-### Field photographer kit (minimum)
+### B2B / Trade Outreach (Automated)
 
-- DSLR/mirrorless with RAW capability
-- 50mm or appropriate lens (minimal distortion)
-- Two adjustable lights + diffusers
-- Tripod
-- Color checker
-- Tablet/phone for metadata entry
-- Laminated quick-reference capture guide
+- **Targeting:** Scrape directories and social media for interior designers, boutique hotels, and architects.
+- **Campaigns:** Automated, personalized email sequences offering trade discounts and curated collections.
+- **Fulfillment:** Trade portal for bulk ordering with automated invoicing.
 
-### Compensation (TBD)
+### Artist Acquisition (Automated)
 
-- Per-session fee, per-piece fee, or revenue share on that city's catalog
-- Travel reimbursement policy
+- **Targeting:** Identify emerging artists on Instagram, TikTok, and portfolio sites using computer vision and hashtag analysis.
+- **Outreach:** AI-drafted personalized DMs and emails pitching the platform. "We saw your piece [Title], it would look amazing as a print. Upload a photo and we'll handle the rest."
 
-## Marketing Asset Pipeline
+## Tooling & Architecture Roadmap
 
-Process content captured during sessions feeds demand-side marketing:
-
-- Instagram/TikTok: painting timelapses, studio visits
-- Email: "Meet the artist" features
-- Product pages: process gallery alongside print options
-- Ads: story-led creative outperforms bare product shots
-
-Store alongside print masters in `{piece-slug}/marketing/`.
-
-## Quality Bar
-
-A piece does **not** list until:
-
-- [ ] Color-accurate master approved internally
-- [ ] Proof print approved by artist (pilot phase) or internal QA (scale phase)
-- [ ] Metadata complete
-- [ ] Minimum 2 listing images (full piece + detail or room mock)
-
-## Tooling Roadmap
-
-| Phase | Tools |
-|-------|-------|
-| 0 | Google Drive, spreadsheet tracker, manual Shopify/manual orders |
-| 1 | Notion/Airtable catalog, standardized metadata schema |
-| 2 | Artist upload portal, automated POD routing, payout dashboard |
-| 3 | Multi-city dispatch, inventory analytics, ad performance integration |
+| Phase | Focus | Technologies |
+|-------|-------|--------------|
+| **0 — Prototype** | Validate AI upscaling and POD API | Python, OpenCV, Topaz/Stable Diffusion APIs, Printful/Prodigi API |
+| **1 — MVP Platform** | Artist upload portal, basic processing pipeline, Shopify integration | Next.js, Vercel, AWS S3, Shopify API |
+| **2 — Automation** | Automated merchandising (mockups, copy), automated outreach | Midjourney API, OpenAI API, Apollo.io / Instantly |
+| **3 — Scale** | Custom AI models trained specifically on fine art textures, global POD routing engine | Custom PyTorch models, advanced workflow orchestration |
