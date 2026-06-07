@@ -2,75 +2,63 @@
 
 ## Problem
 
-Working artists face a structural income ceiling: every painting is a one-time transaction tied directly to hours in the studio. Marketing, fulfillment, and repeat revenue require skills and infrastructure most painters do not want to build.
+Working artists face a structural income ceiling: every painting is a one-time transaction tied directly to hours in the studio. Marketing, fulfillment, and repeat revenue require skills and infrastructure most painters do not want to build. 
 
-## Solution
+Historically, digitizing art required expensive professional photography, creating a geographic and financial bottleneck that prevented scaling.
 
-Print Atelier sits between artists and buyers as a **digitization + distribution layer**:
+## Solution: Software-First, AI-First
 
-1. Capture high-fidelity digital masters of original paintings (professional camera, controlled lighting, color-accurate workflow)
-2. Optionally document the painting process as marketing content
-3. List prints across commerce channels
-4. Fulfill via print-on-demand partners until margins support in-house operations
-5. Pay artists a transparent revenue share on every sale
+Print Atelier sits between artists and buyers as a **digital-first digitization + distribution platform**:
+
+1. **AI-Powered Capture:** Artists use our proprietary smartphone app. AI handles glare reduction, color correction, perspective stitching, and super-resolution upscaling to create museum-quality digital masters without a professional photographer.
+2. **Automated Cataloging:** AI tags the artwork (style, colors, subjects) for SEO and generates hyper-realistic room mockups.
+3. **Omnichannel Distribution:** Automated listing across our direct-to-consumer store and partner marketplaces.
+4. **Zero-Touch Fulfillment:** API-integrated print-on-demand (POD) partners handle printing and global dropshipping.
+5. **Transparent Revenue:** Artists earn a revenue share on every sale, tracked via a real-time dashboard.
 
 ## Positioning
 
-- **Not** a gallery taking 50% on a single original sale
-- **Not** a stock-photo marketplace treating art as commodity clip art
-- **Is** a partner that turns finished work into long-tail inventory while the artist keeps painting
+- **Not** a gallery taking 50% on a single original sale.
+- **Not** a manual photography service constrained by geography.
+- **Is** a scalable software platform that turns physical art into long-tail digital inventory using AI, while the artist keeps painting.
 
-## Growth Tracks
+## Growth Tracks (Digital-First)
 
 ### Track 1: Supply (Artist Acquisition)
 
-- Direct outreach to painters, art schools, studio complexes, and local art scenes
-- Pitch: digitize once, earn on every print, zero logistics burden
-- Deliverable to artist: signed agreement, professional scan session, optional process footage/photos for marketing
+- **AI-Driven Sourcing:** Scraping Instagram, TikTok, and Etsy to identify emerging painters with high engagement but poor monetization.
+- **Automated Outreach:** Personalized, automated email and DM campaigns pitching the "zero-effort print business" value prop.
+- **Self-Serve Onboarding:** Artists download the app, scan their work, and sign the digital agreement in minutes. No human intervention required.
 
 ### Track 2: Demand (Consumer Commerce)
 
-- Direct-to-consumer print store (Shopify, custom storefront, or marketplace channels)
-- Paid advertising once catalog and conversion data justify spend
-- SEO and social around artist stories and process content
-
-### Track 3: Geographic Expansion
-
-- Hire or contract field photographers per city
-- Ship standardized capture kit (camera guidance, lighting checklist, color card, contract templates)
-- Upload pipeline: raw captures → shared drive → central processing → catalog
+- **Programmatic SEO:** Auto-generating landing pages for specific art styles, colors, and interior design trends based on AI tags.
+- **AI Content Marketing:** Generating social media content, Pinterest pins, and blog posts featuring the art in various aesthetic environments.
+- **Targeted Ads:** Dynamic creative optimization using AI-generated room mockups tailored to the viewer's demographic and interests.
 
 ## Key Metrics
 
 | Metric | Why it matters |
 |--------|----------------|
-| Artists signed | Supply pipeline depth |
-| Pieces digitized | Catalog size (inventory) |
+| Artists onboarded via App | Supply acquisition velocity |
+| Cost of Artist Acquisition (CAC-Supply) | Efficiency of automated outreach |
+| Scans to Publish Rate | Friction in the AI capture app |
 | Print conversion rate | Demand-side efficiency |
-| Revenue per artist per month | Supply-side retention signal |
-| Blended gross margin | When to move off POD providers |
+| Blended gross margin | Profitability of the software layer |
 | CAC / LTV (buyers) | Ad spend viability |
 
-## Competitive Moat (Over Time)
+## Competitive Moat
 
-1. **Curated catalog** — quality bar and artist relationships, not infinite scroll
-2. **Process content** — behind-the-scenes material competitors cannot easily replicate
-3. **Local acquisition network** — city-by-city photographer playbook
-4. **Artist trust** — transparent splits, reliable payouts, professional treatment of their work
+1. **AI Capture Technology:** The proprietary model that turns a smartphone photo into a print-ready, color-accurate master file.
+2. **Zero Marginal Cost of Supply:** Unlike competitors relying on physical studios or mail-in scanning, our supply acquisition scales infinitely at near-zero marginal cost.
+3. **Data Advantage:** A growing, proprietary dataset of original artwork and consumer purchasing behavior.
+4. **Automated Distribution Engine:** The software infrastructure that seamlessly routes one scan to multiple sales channels and fulfillment centers globally.
 
 ## Phase Plan
 
 | Phase | Focus |
 |-------|-------|
-| **0 — Foundation** | Document model, validate with 1–3 pilot artists (sister + local painters), test POD quality |
-| **1 — Pilot commerce** | Small catalog live, manual ops, prove unit economics on 10–20 pieces |
-| **2 — Platform** | Upload/catalog tooling, artist portal, automated payout tracking |
-| **3 — Scale** | Multi-city acquisition, advertising engine, evaluate in-house fulfillment |
-
-## Open Questions
-
-- [ ] Which POD provider(s) meet color fidelity and paper quality bar?
-- [ ] Minimum catalog size before paid acquisition makes sense?
-- [ ] Exclusive vs. non-exclusive rights per piece?
-- [ ] Pricing tiers (open edition vs. limited edition prints)?
-- [ ] Legal template for artist agreements (jurisdiction, rights scope)
+| **0 — MVP & Validation** | Build MVP of AI capture app. Validate output quality with POD partners. Manual digital outreach to first 50 artists. |
+| **1 — Platform Automation** | Launch self-serve artist portal. Automate listing generation and POD routing. |
+| **2 — GTM & Demand Scale** | Turn on programmatic SEO and paid ads. Scale automated artist outreach. |
+| **3 — Ecosystem** | Expand to B2B (interior designers, hotels) via API. Explore in-house fulfillment for top SKUs. |

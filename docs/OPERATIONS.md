@@ -1,118 +1,68 @@
 # Operations Playbook
 
-## Capture Workflow (Single Session)
+## App-Based Capture Workflow (Software-First)
 
-### Pre-session
+The core operational bottleneck of traditional art digitization (professional photographers, lighting setups, physical travel) is eliminated by our AI-powered mobile app.
 
-- [ ] Confirm artist agreement signed
-- [ ] Inventory pieces to be captured (title, dimensions, medium, year)
-- [ ] Confirm pieces are dry, dust-free, and positioned for photography
-- [ ] Pack kit: camera, tripod, lights, gray card / color checker, measuring tape
+### Artist Experience
 
-### On-site
+1. **Onboarding:** Artist downloads the Print Atelier app and completes KYC/payout setup.
+2. **Capture:** 
+   - App guides the artist to place the artwork in even, natural light.
+   - App uses AR to ensure the phone is perfectly parallel to the canvas.
+   - Artist takes multiple overlapping photos (guided by the app) for high-resolution stitching, plus one shot with our standard color-calibration card (mailed to them upon signup, or using a standard household item reference).
+3. **Processing (Cloud):**
+   - **Glare Removal:** AI identifies and removes specular highlights from wet paint or varnish.
+   - **Perspective & Stitching:** Images are flattened and stitched into a massive composite.
+   - **Color Correction:** AI calibrates the image against the reference card.
+   - **Upscaling:** Super-resolution models upscale the image to support large-format prints (e.g., 40x60 inches) without pixelation.
+4. **Approval:** Artist reviews the digital proof in the app and taps "Publish".
 
-1. **Environment** — controlled lighting, minimal glare, neutral background or easel setup
-2. **Per piece:**
-   - Measure and record dimensions
-   - Capture RAW + bracketed exposures if needed
-   - Include color reference card in frame
-   - Optional: process photos/video (time-lapse, detail shots, palette)
-3. **Metadata** — artist name, title, medium, dimensions, date, location captured
+### Central Ops (Automated)
 
-### Post-session
+1. **Asset Generation:** System automatically generates cropped views, detail shots, and AI interior design mockups.
+2. **Metadata & SEO:** Vision AI tags the image (e.g., "abstract", "blue", "impasto", "coastal") and generates SEO-optimized titles and descriptions.
+3. **Syndication:** The piece is pushed to the Print Atelier storefront and API-connected marketplaces.
 
-1. Upload RAW/files to shared storage (Google Drive or equivalent) using naming convention:
-   ```
-   {city}/{artist-slug}/{date}/{piece-slug}/
-     raw/
-     edited/
-     marketing/
-     metadata.json
-   ```
-2. Color-correct and export print-ready masters (TIFF/PNG, appropriate DPI for target print sizes)
-3. Generate proof print → artist approval
-4. Create listing assets (cropped views, room mocks if available)
-5. Publish to storefront
+## Print-on-Demand Fulfillment (API-Driven)
 
-## Print-on-Demand Fulfillment (Phase 0–2)
+We operate with zero physical inventory. All fulfillment is routed programmatically.
 
-Use a POD partner until volume and margins justify alternative fulfillment.
+### Provider Integration
 
-### Provider evaluation criteria
+- **Primary Partner:** Global POD provider (e.g., Prodigi, Gelato) integrated via API.
+- **Routing Logic:** Software automatically routes the order to the print facility geographically closest to the buyer to minimize shipping costs and carbon footprint.
 
-- Color accuracy and paper options (archival, cotton rag, etc.)
-- Print size range
-- Frame/mount options
-- Shipping speed and international coverage
-- API/integration for automation
-- Base cost vs. retail price → gross margin
+### Order Flow (Zero-Touch)
 
-### Order flow (manual → automated)
+1. Customer orders on storefront.
+2. Webhook triggers order creation in Print Atelier backend.
+3. API pushes order details and print-ready master URL to the optimal POD facility.
+4. Provider prints, packs, and ships (white-labeled).
+5. Tracking number is posted back via API and emailed to the customer.
+6. Ledger updates automatically: Artist's balance increases, Print Atelier's margin is recorded.
 
-1. Customer orders on storefront
-2. Order routed to POD provider (manual at first, API later)
-3. Provider prints, packs, ships
-4. Tracking synced to customer
-5. Sale recorded for artist revenue share calculation
+## Marketing Asset Pipeline (AI-Generated)
 
-## City Expansion Model
+We do not rely on artists to provide high-quality lifestyle marketing content.
 
-### Roles
+- **Room Mockups:** Our AI places the artwork into diverse, hyper-realistic interior settings (Mid-Century Modern, Minimalist, Industrial) to appeal to different buyer aesthetics.
+- **Social Content:** Automated generation of Instagram Reels/TikToks using the Ken Burns effect (panning across the high-res details of the artwork) paired with trending audio.
+- **Dynamic Ads:** Meta/Google ads automatically assemble using the AI mockups and performance data.
 
-| Role | Responsibility |
-|------|----------------|
-| **Acquisition lead** | Artist outreach, scheduling, relationship management |
-| **Field photographer** | On-site capture per playbook |
-| **Central ops** | Editing, cataloging, listing, fulfillment coordination |
+## Quality Assurance (Human-in-the-Loop)
 
-### Launching a new city
+While software handles 99% of the process, quality is maintained via targeted human review:
 
-1. Identify local art clusters (studios, schools, co-ops, fairs)
-2. Recruit contract photographer — send gear checklist and training doc
-3. Provide contract templates and pitch materials
-4. Run 2-week acquisition sprint: target N artists, M pieces
-5. Upload to central pipeline; central team processes within SLA (e.g. 5 business days)
+- **Flagged Scans:** If the AI confidence score for color accuracy or sharpness is below a threshold, the scan is flagged for manual review by a digital retoucher.
+- **Test Prints:** For an artist's first submission, a small physical proof is automatically ordered and sent to HQ to verify the app's calibration for that specific artist's medium.
 
-### Field photographer kit (minimum)
+## Tooling & Infrastructure
 
-- DSLR/mirrorless with RAW capability
-- 50mm or appropriate lens (minimal distortion)
-- Two adjustable lights + diffusers
-- Tripod
-- Color checker
-- Tablet/phone for metadata entry
-- Laminated quick-reference capture guide
-
-### Compensation (TBD)
-
-- Per-session fee, per-piece fee, or revenue share on that city's catalog
-- Travel reimbursement policy
-
-## Marketing Asset Pipeline
-
-Process content captured during sessions feeds demand-side marketing:
-
-- Instagram/TikTok: painting timelapses, studio visits
-- Email: "Meet the artist" features
-- Product pages: process gallery alongside print options
-- Ads: story-led creative outperforms bare product shots
-
-Store alongside print masters in `{piece-slug}/marketing/`.
-
-## Quality Bar
-
-A piece does **not** list until:
-
-- [ ] Color-accurate master approved internally
-- [ ] Proof print approved by artist (pilot phase) or internal QA (scale phase)
-- [ ] Metadata complete
-- [ ] Minimum 2 listing images (full piece + detail or room mock)
-
-## Tooling Roadmap
-
-| Phase | Tools |
-|-------|-------|
-| 0 | Google Drive, spreadsheet tracker, manual Shopify/manual orders |
-| 1 | Notion/Airtable catalog, standardized metadata schema |
-| 2 | Artist upload portal, automated POD routing, payout dashboard |
-| 3 | Multi-city dispatch, inventory analytics, ad performance integration |
+| Layer | Technology Stack |
+|-------|------------------|
+| **Mobile App** | React Native / Swift, CoreML/ARKit for capture guidance |
+| **AI Pipeline** | Python, OpenCV, Custom PyTorch models (stitching, upscaling) |
+| **Backend** | Node.js / Python, PostgreSQL, Stripe Connect (payouts) |
+| **Commerce** | Headless Shopify or custom Next.js storefront |
+| **Fulfillment** | Gelato / Prodigi API |
