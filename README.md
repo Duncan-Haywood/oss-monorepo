@@ -34,6 +34,7 @@ Revenue is decoupled from any single artist's hours. Each digitized piece become
 
 ```
 docs/
+  BUSINESS-PLAN.md  — Executive summary, market research, and GTM strategy
   STRATEGY.md       — Business model, positioning, growth thesis
   ARTIST-PITCH.md   — Pitch and contract framework for painters
   OPERATIONS.md     — Field capture, upload workflow, city expansion
