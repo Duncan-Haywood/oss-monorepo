@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+*.log
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+
+# Local business planning artifacts (keep out of repo unless intentional)
+scratch/
+private/
