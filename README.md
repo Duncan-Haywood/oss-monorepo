@@ -1,6 +1,6 @@
 # Print Atelier
 
-A two-sided art commerce business that digitizes original paintings and sells high-quality prints — without artists trading time for a single sale.
+A software-first, AI-driven two-sided art commerce platform. We digitize original paintings and sell high-quality prints through automated channels — scaling independent artists without them trading time for a single sale.
 
 ## The Idea
 
@@ -34,10 +34,13 @@ Revenue is decoupled from any single artist's hours. Each digitized piece become
 
 ```
 docs/
-  STRATEGY.md       — Business model, positioning, growth thesis
-  ARTIST-PITCH.md   — Pitch and contract framework for painters
-  OPERATIONS.md     — Field capture, upload workflow, city expansion
-  REVENUE-MODEL.md  — Splits, unit economics, fulfillment tiers
+  STRATEGY.md              — Software-first business model, positioning, growth thesis
+  MARKET-RESEARCH.md       — Competitive landscape and AI advantage
+  GTM-STRATEGY.md          — Digital-first sales outreach and marketing
+  PROFITABILITY-ANALYSIS.md— Unit economics and software efficiency gains
+  ARTIST-PITCH.md          — Pitch and contract framework for painters
+  OPERATIONS.md            — Field capture, upload workflow, city expansion
+  REVENUE-MODEL.md         — Splits, unit economics, fulfillment tiers
 ```
 
 ## Status
