@@ -34,6 +34,7 @@ Revenue is decoupled from any single artist's hours. Each digitized piece become
 
 ```
 docs/
+  BUSINESS-PLAN.md         — Executive summary, market research, and GTM strategy
   STRATEGY.md              — Software-first business model, positioning, growth thesis
   MARKET-RESEARCH.md       — Competitive landscape and AI advantage
   GTM-STRATEGY.md          — Digital-first sales outreach and marketing
