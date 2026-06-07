@@ -34,10 +34,14 @@ Revenue is decoupled from any single artist's hours. Each digitized piece become
 
 ```
 docs/
-  STRATEGY.md       — Business model, positioning, growth thesis
-  ARTIST-PITCH.md   — Pitch and contract framework for painters
-  OPERATIONS.md     — Field capture, upload workflow, city expansion
-  REVENUE-MODEL.md  — Splits, unit economics, fulfillment tiers
+  STRATEGY.md             — Business model, positioning, growth thesis
+  ARTIST-PITCH.md         — Pitch and contract framework for painters
+  OPERATIONS.md           — Field capture, upload workflow, city expansion
+  REVENUE-MODEL.md        — Splits, unit economics, fulfillment tiers
+  AI-DIGITAL-STRATEGY.md  — Software-first approach to ops, marketing, and sales
+  MARKET-RESEARCH.md      — TAM, target audience, and competitor analysis
+  PROFITABILITY-ANALYSIS.md — Break-even, scaling margins, and deep unit economics
+  GTM-STRATEGY.md         — Go-to-market plan for supply and demand
 ```
 
 ## Status
