@@ -1,50 +1,24 @@
-# Print Atelier
+# Print Atelier (Business Plan)
 
-A two-sided art commerce business that digitizes original paintings and sells high-quality prints — without artists trading time for a single sale.
+This repository contains the interactive business plan and strategy documentation for **Print Atelier**, built as a Next.js React application. 
 
-## The Idea
+The strategy has been updated to reflect an **AI-first, software-driven approach** focusing on:
+- Digital-first sales outreach
+- Marketing & sales automation on both sides (Supply & Demand)
+- Profitability and SaaS-like unit economics
+- Market Research (TAM/SAM/SOM)
+- GTM (Go-To-Market) Strategy
 
-Traditional painting is one-to-one: an artist spends days or weeks on a canvas, sells it once, and starts over. Print Atelier flips that model. We professionally photograph original work, produce museum-quality digital masters, and monetize each piece repeatedly through print sales and related channels.
+## Running the Documentation App
 
-Artists keep creating. We handle capture, cataloging, fulfillment, and distribution.
-
-## Two Sides of the Business
-
-| Side | What we do | Who we serve |
-|------|------------|--------------|
-| **Supply** | Acquire artwork scans, process documentation, and artist partnerships | Painters and visual artists |
-| **Demand** | Run a consumer-facing art print commerce business | Buyers of fine art prints |
-
-## Artist Value Proposition
-
-- **30% of net profits** on every print sold from your work
-- **+30% materials reimbursement** when the artist needs support covering canvas, paint, or supplies
-- No warehousing, no shipping headaches — print-on-demand partners handle fulfillment until volume justifies bringing it in-house
-- Your original stays yours; we monetize the digital master
-
-## Why This Scales
-
-Revenue is decoupled from any single artist's hours. Each digitized piece becomes inventory that can sell indefinitely. Growth means:
-
-1. Signing more artists (supply sales)
-2. Driving more print buyers (demand / advertising)
-3. Expanding to new cities with field photographers and a repeatable capture playbook
-
-## Repository Structure
-
-```
-docs/
-  BUSINESS-PLAN.md  — Executive summary, market research, and GTM strategy
-  STRATEGY.md       — Business model, positioning, growth thesis
-  ARTIST-PITCH.md   — Pitch and contract framework for painters
-  OPERATIONS.md     — Field capture, upload workflow, city expansion
-  REVENUE-MODEL.md  — Splits, unit economics, fulfillment tiers
+```bash
+npm install
+npm run dev
 ```
 
-## Status
+Then visit [http://localhost:3000](http://localhost:3000) to view the interactive business plan.
 
-**Phase 0 — Analysis & foundation.** Documenting the model, validating unit economics, and preparing the artist pitch before building the commerce platform.
+## Architecture
 
-## Origin
-
-Born from conversations with a working painter — background in marketing and art education — about making studio time more profitable without sacrificing the craft.
+- `src/app/page.tsx`: The main dashboard wrapping the sections.
+- `src/components/`: Contains the individual TSX components for each section (Strategy, Revenue Model, Operations, Artist Pitch, Market Research, GTM Strategy).
