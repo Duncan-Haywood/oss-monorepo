@@ -55,6 +55,16 @@ export default function Home() {
               {tab.label}
             </button>
           ))}
+          
+          <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+            <a 
+              href="/artist-portal"
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              <span>Artist Portal Demo</span>
+              <span className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium">New</span>
+            </a>
+          </div>
         </nav>
       </div>
 
