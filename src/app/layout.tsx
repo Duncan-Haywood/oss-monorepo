@@ -40,6 +40,18 @@ export default function RootLayout({
             <Link href="/business-plan" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
               Business Plan
             </Link>
+            <Link href="/ai-digital-strategy" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
+              AI & Digital Strategy
+            </Link>
+            <Link href="/gtm-strategy" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
+              GTM Strategy
+            </Link>
+            <Link href="/market-research" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
+              Market Research
+            </Link>
+            <Link href="/profitability-analysis" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
+              Profitability Analysis
+            </Link>
             <Link href="/strategy" className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100">
               Strategy
             </Link>
