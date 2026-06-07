@@ -31,8 +31,12 @@ export default function RootLayout({
               <div className="h-4 w-px bg-stone-300"></div>
               <Link href="/business-plan" className="hover:text-stone-900 transition-colors">Business Plan</Link>
               <Link href="/strategy" className="hover:text-stone-900 transition-colors">Strategy</Link>
+              <Link href="/ai-digital-strategy" className="hover:text-stone-900 transition-colors">AI & Digital</Link>
+              <Link href="/market-research" className="hover:text-stone-900 transition-colors">Market</Link>
               <Link href="/operations" className="hover:text-stone-900 transition-colors">Operations</Link>
-              <Link href="/revenue" className="hover:text-stone-900 transition-colors">Revenue Model</Link>
+              <Link href="/gtm-strategy" className="hover:text-stone-900 transition-colors">GTM</Link>
+              <Link href="/revenue" className="hover:text-stone-900 transition-colors">Revenue</Link>
+              <Link href="/profitability-analysis" className="hover:text-stone-900 transition-colors">Profitability</Link>
             </nav>
           </div>
         </header>
