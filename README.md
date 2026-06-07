@@ -1,49 +1,36 @@
-# Print Atelier
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A two-sided art commerce business that digitizes original paintings and sells high-quality prints — without artists trading time for a single sale.
+## Getting Started
 
-## The Idea
+First, run the development server:
 
-Traditional painting is one-to-one: an artist spends days or weeks on a canvas, sells it once, and starts over. Print Atelier flips that model. We professionally photograph original work, produce museum-quality digital masters, and monetize each piece repeatedly through print sales and related channels.
-
-Artists keep creating. We handle capture, cataloging, fulfillment, and distribution.
-
-## Two Sides of the Business
-
-| Side | What we do | Who we serve |
-|------|------------|--------------|
-| **Supply** | Acquire artwork scans, process documentation, and artist partnerships | Painters and visual artists |
-| **Demand** | Run a consumer-facing art print commerce business | Buyers of fine art prints |
-
-## Artist Value Proposition
-
-- **30% of net profits** on every print sold from your work
-- **+30% materials reimbursement** when the artist needs support covering canvas, paint, or supplies
-- No warehousing, no shipping headaches — print-on-demand partners handle fulfillment until volume justifies bringing it in-house
-- Your original stays yours; we monetize the digital master
-
-## Why This Scales
-
-Revenue is decoupled from any single artist's hours. Each digitized piece becomes inventory that can sell indefinitely. Growth means:
-
-1. Signing more artists (supply sales)
-2. Driving more print buyers (demand / advertising)
-3. Expanding to new cities with field photographers and a repeatable capture playbook
-
-## Repository Structure
-
-```
-docs/
-  STRATEGY.md       — Business model, positioning, growth thesis
-  ARTIST-PITCH.md   — Pitch and contract framework for painters
-  OPERATIONS.md     — Field capture, upload workflow, city expansion
-  REVENUE-MODEL.md  — Splits, unit economics, fulfillment tiers
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Status
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-**Phase 0 — Analysis & foundation.** Documenting the model, validating unit economics, and preparing the artist pitch before building the commerce platform.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Origin
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Born from conversations with a working painter — background in marketing and art education — about making studio time more profitable without sacrificing the craft.
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
