@@ -1,27 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Strategy from "@/components/Strategy";
 import RevenueModel from "@/components/RevenueModel";
 import Operations from "@/components/Operations";
 import ArtistPitch from "@/components/ArtistPitch";
 import MarketResearch from "@/components/MarketResearch";
 import GTMStrategy from "@/components/GTMStrategy";
-import PlatformDemo from "@/components/PlatformDemo";
 import TechStrategy from "@/components/TechStrategy";
 import SalesOutreach from "@/components/SalesOutreach";
-import { Menu, X, Code, Store, ShieldAlert } from "lucide-react";
+import MarketingSales from "@/components/MarketingSales";
+import FinancialProjections from "@/components/FinancialProjections";
+import PlatformDemo from "@/components/PlatformDemo";
+import { Menu, X, ExternalLink } from "lucide-react";
 
 const tabs = [
   { id: "strategy", label: "Strategy & Vision" },
-  { id: "sales", label: "Sales & Marketing (Digital First)" },
+  { id: "sales", label: "Sales & Outreach" },
+  { id: "tech", label: "Tech Strategy" },
   { id: "revenue", label: "Revenue & Profitability" },
+  { id: "financials", label: "Financial Model" },
   { id: "operations", label: "AI Operations" },
-  { id: "tech", label: "Tech Strategy & Architecture" },
+  { id: "marketing", label: "Marketing & Sales" },
   { id: "pitch", label: "Artist Pitch" },
   { id: "research", label: "Market Research" },
   { id: "gtm", label: "GTM Strategy" },
-  { id: "demo", label: "Platform Concept Demo" },
+  { id: "demo", label: "Platform Demo" },
+];
+
+const demoLinks = [
+  { href: "/storefront", label: "Storefront" },
+  { href: "/buyer-portal", label: "Buyer Portal", badge: "New" },
+  { href: "/artist-portal", label: "Artist Portal" },
+  { href: "/designer-portal", label: "Designer Portal" },
+  { href: "/capture", label: "Capture App" },
+  { href: "/ops", label: "Ops Console" },
+  { href: "/admin-portal", label: "Admin Console", badge: "New" },
 ];
 
 export default function Home() {
@@ -30,7 +45,6 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
       <div
         className={`${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -42,8 +56,8 @@ export default function Home() {
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Business Plan</h2>
+        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
+          <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Business Plan</p>
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -51,7 +65,7 @@ export default function Home() {
                 setActiveTab(tab.id);
                 setIsSidebarOpen(false);
               }}
-              className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+              className={`w-full text-left px-4 py-2 rounded-lg transition-colors text-sm ${
                 activeTab === tab.id
                   ? "bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200 font-medium"
                   : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -60,34 +74,30 @@ export default function Home() {
               {tab.label}
             </button>
           ))}
-          
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3 px-2">Live Demos</h2>
-          <div className="space-y-2">
-            <a 
-              href="/artist-portal"
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              <div className="flex items-center gap-2"><Code className="w-4 h-4" /> <span>Artist Portal</span></div>
-            </a>
-            <a 
-              href="/buyer-portal"
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              <div className="flex items-center gap-2"><Store className="w-4 h-4" /> <span>Buyer Portal</span></div>
-              <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded font-medium">New</span>
-            </a>
-            <a 
-              href="/admin-portal"
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              <div className="flex items-center gap-2"><ShieldAlert className="w-4 h-4" /> <span>Admin Console</span></div>
-              <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded font-medium">New</span>
-            </a>
+
+          <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Live Demos</p>
+            {demoLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                <span className="flex items-center gap-2">
+                  {link.label}
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </span>
+                {link.badge && (
+                  <span className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium">
+                    {link.badge}
+                  </span>
+                )}
+              </Link>
+            ))}
           </div>
         </nav>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="flex items-center h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 md:hidden">
           <button onClick={() => setIsSidebarOpen(true)} className="mr-4">
@@ -100,9 +110,11 @@ export default function Home() {
           <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
             {activeTab === "strategy" && <Strategy />}
             {activeTab === "sales" && <SalesOutreach />}
-            {activeTab === "revenue" && <RevenueModel />}
-            {activeTab === "operations" && <Operations />}
             {activeTab === "tech" && <TechStrategy />}
+            {activeTab === "revenue" && <RevenueModel />}
+            {activeTab === "financials" && <FinancialProjections />}
+            {activeTab === "operations" && <Operations />}
+            {activeTab === "marketing" && <MarketingSales />}
             {activeTab === "pitch" && <ArtistPitch />}
             {activeTab === "research" && <MarketResearch />}
             {activeTab === "gtm" && <GTMStrategy />}

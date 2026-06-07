@@ -1,17 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Palette, TrendingUp, Image as ImageIcon, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { ShoppingBag, Palette, TrendingUp, Image as ImageIcon, ExternalLink } from "lucide-react";
 
 export default function Demo() {
   const [view, setView] = useState<"storefront" | "artist">("storefront");
 
+  const fullDemos = [
+    { href: "/storefront", label: "Full Storefront" },
+    { href: "/buyer-portal", label: "Buyer Portal" },
+    { href: "/artist-portal", label: "Artist Portal" },
+    { href: "/designer-portal", label: "Designer Portal" },
+    { href: "/capture", label: "Capture App" },
+    { href: "/ops", label: "Ops Console" },
+    { href: "/admin-portal", label: "Admin Console" },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto pb-12">
+      <div className="flex flex-wrap gap-2 mb-6">
+        {fullDemos.map((demo) => (
+          <Link
+            key={demo.href}
+            href={demo.href}
+            className="inline-flex items-center gap-1.5 text-xs bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition"
+          >
+            {demo.label}
+            <ExternalLink className="w-3 h-3" />
+          </Link>
+        ))}
+      </div>
+
       <div className="flex justify-between items-end mb-8 border-b pb-4">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">Platform Demo</h1>
-          <p className="text-gray-500 mt-2">Interactive mockup of the Print Atelier software platform</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Platform Demo</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Interactive mockup — open full demos above for standalone pages</p>
         </div>
         <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
           <button
