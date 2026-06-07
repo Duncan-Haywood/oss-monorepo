@@ -8,16 +8,20 @@ import ArtistPitch from "@/components/ArtistPitch";
 import MarketResearch from "@/components/MarketResearch";
 import GTMStrategy from "@/components/GTMStrategy";
 import PlatformDemo from "@/components/PlatformDemo";
-import { Menu, X } from "lucide-react";
+import TechStrategy from "@/components/TechStrategy";
+import SalesOutreach from "@/components/SalesOutreach";
+import { Menu, X, Code, Store, ShieldAlert } from "lucide-react";
 
 const tabs = [
   { id: "strategy", label: "Strategy & Vision" },
+  { id: "sales", label: "Sales & Marketing (Digital First)" },
   { id: "revenue", label: "Revenue & Profitability" },
   { id: "operations", label: "AI Operations" },
+  { id: "tech", label: "Tech Strategy & Architecture" },
   { id: "pitch", label: "Artist Pitch" },
   { id: "research", label: "Market Research" },
   { id: "gtm", label: "GTM Strategy" },
-  { id: "demo", label: "Platform Demo" },
+  { id: "demo", label: "Platform Concept Demo" },
 ];
 
 export default function Home() {
@@ -30,7 +34,7 @@ export default function Home() {
       <div
         className={`${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:flex-shrink-0`}
+        } fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:flex-shrink-0 flex flex-col`}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-lg font-bold text-gray-900 dark:text-white">Print Atelier</h1>
@@ -38,7 +42,8 @@ export default function Home() {
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
-        <nav className="p-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Business Plan</h2>
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -56,13 +61,27 @@ export default function Home() {
             </button>
           ))}
           
-          <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-3 px-2">Live Demos</h2>
+          <div className="space-y-2">
             <a 
               href="/artist-portal"
               className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <span>Artist Portal Demo</span>
-              <span className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded-full font-medium">New</span>
+              <div className="flex items-center gap-2"><Code className="w-4 h-4" /> <span>Artist Portal</span></div>
+            </a>
+            <a 
+              href="/buyer-portal"
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              <div className="flex items-center gap-2"><Store className="w-4 h-4" /> <span>Buyer Portal</span></div>
+              <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded font-medium">New</span>
+            </a>
+            <a 
+              href="/admin-portal"
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              <div className="flex items-center gap-2"><ShieldAlert className="w-4 h-4" /> <span>Admin Console</span></div>
+              <span className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded font-medium">New</span>
             </a>
           </div>
         </nav>
@@ -80,8 +99,10 @@ export default function Home() {
         <main className="flex-1 overflow-y-auto p-6 md:p-10">
           <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
             {activeTab === "strategy" && <Strategy />}
+            {activeTab === "sales" && <SalesOutreach />}
             {activeTab === "revenue" && <RevenueModel />}
             {activeTab === "operations" && <Operations />}
+            {activeTab === "tech" && <TechStrategy />}
             {activeTab === "pitch" && <ArtistPitch />}
             {activeTab === "research" && <MarketResearch />}
             {activeTab === "gtm" && <GTMStrategy />}
