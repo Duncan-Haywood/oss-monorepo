@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   allocateWeeklyChannelBudget,
+  buildListingReleaseDecisions,
   buildPayoutExceptionQueue,
   calculateCatalogSummary,
   calculateChannelScenario,
@@ -339,4 +340,60 @@ test("buildPayoutExceptionQueue creates review items when payout advantage is po
     springBloom.holdMessage,
     /Hold Spring Bloom until payout advantage reaches \$4\.00\/order target/,
   );
+});
+
+test("buildListingReleaseDecisions marks safe listings as ready with artist-facing payout proof", () => {
+  const releaseQueue = buildListingReleaseDecisions(catalogArtworks, {
+    monthlyOrders: 12,
+    minimumArtistPayoutPerOrder: 8,
+    targetPodAdvantagePerOrder: 0,
+  });
+  const midnightCoast = releaseQueue.decisions.find((decision) => decision.artwork.slug === "midnight-coast");
+
+  assert.equal(releaseQueue.releaseReadyCount, 5);
+  assert.equal(releaseQueue.holdCount, 1);
+  assert.equal(releaseQueue.overrideReviewCount, 0);
+  assert.ok(midnightCoast);
+  assert.equal(midnightCoast.releaseStatus, "release-ready");
+  assert.equal(midnightCoast.owner, "Growth");
+  assert.equal(midnightCoast.canUsePayoutPromise, true);
+  assert.match(midnightCoast.artistFacingCopy, /\$16\.23\/print/);
+  assert.match(midnightCoast.artistFacingCopy, /beats Redbubble Premium by \$2\.63\/print/);
+});
+
+test("buildListingReleaseDecisions keeps unsafe listings on hold without leaking payout-promise copy", () => {
+  const releaseQueue = buildListingReleaseDecisions(catalogArtworks, {
+    monthlyOrders: 12,
+    minimumArtistPayoutPerOrder: 8,
+    targetPodAdvantagePerOrder: 0,
+  });
+  const abstractNo4 = releaseQueue.decisions.find((decision) => decision.artwork.slug === "abstract-no-4");
+
+  assert.ok(abstractNo4);
+  assert.equal(abstractNo4.releaseStatus, "hold");
+  assert.equal(abstractNo4.owner, "Ops");
+  assert.equal(abstractNo4.canUsePayoutPromise, false);
+  assert.equal(abstractNo4.suggestedRetailPrice, 93);
+  assert.deepEqual(abstractNo4.overrideReasons, []);
+  assert.match(abstractNo4.operatorAction, /Raise retail price to \$93/);
+  assert.doesNotMatch(abstractNo4.artistFacingCopy, /30% payout promise/);
+});
+
+test("buildListingReleaseDecisions separates finance override review from operational holds", () => {
+  const releaseQueue = buildListingReleaseDecisions(catalogArtworks, {
+    monthlyOrders: 20,
+    targetPodAdvantagePerOrder: 4,
+  });
+  const springBloom = releaseQueue.decisions.find((decision) => decision.artwork.slug === "spring-bloom");
+
+  assert.equal(releaseQueue.releaseReadyCount, 0);
+  assert.equal(releaseQueue.overrideReviewCount, 5);
+  assert.ok(springBloom);
+  assert.equal(springBloom.releaseStatus, "override-review");
+  assert.equal(springBloom.owner, "Finance");
+  assert.equal(springBloom.canUsePayoutPromise, false);
+  assert.equal(springBloom.suggestedRetailPrice, 73);
+  assert.deepEqual(springBloom.overrideReasons, [
+    "Finance may approve lower POD advantage for strategic artist or cohort test",
+  ]);
 });

@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 21:20 UTC — Listing release workflow
+
+- **Gate:** Restored campaign control files from the latest orchestrator branch because this assigned branch started at `main`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~2.90 hours remaining; not the final active-window run.
+- **Orient:** `git fetch --all --prune` ran; fast-forwarded `cursor/orchestrator-campaign-flow-59b3` to the latest product/orchestrator state from `origin/cursor/orchestrator-campaign-flow-6176`; `npm ci && npm run build` passed before new work.
+- **Hygiene:** Pushed the fast-forwarded assigned branch, deleted superseded remote branch `cursor/orchestrator-campaign-flow-6176` after this branch reached the same commit, and deleted `cursor/dev-env-setup-a621` because it had no commits ahead of `main`. Remote `cursor/*` branch count dropped to 8. Existing open PRs remain visible but cannot be closed with this automation's read-only GitHub CLI.
+- **Theme shipped:** Listing hold/release workflow for payout-trust operations.
+- **Shipped:** `buildListingReleaseDecisions` in `src/lib/marketplace.ts`; three TDD tests for release-ready payout proof, unsafe hold copy suppression, and finance override review separation; `/admin-portal` now has an interactive Listing Hold / Release Workflow with release-ready, finance-review, and ops-hold counts, filters, suggested retail, owner, operator action, blocker chips, and artist-facing trust copy preview.
+- **Invention shipped:** Listing release decision desk that turns payout guardrails into release, finance review, or ops hold states before artist outreach copy is allowed.
+- **Research:** Added `docs/research/2026-06-08-listing-release-workflow.md` with INPRNT, BetterShared, and Society6 terms/payout sources.
+- **Maturity changes:** Added Listing release workflow at Phase 1; Operations notes now include the hold/release workflow; active slice now includes listing release decisions and next-step persistence of release/override history.
+- **Validation:** TDD red run failed on missing `buildListingReleaseDecisions`; after implementation, `npm test` passed (25 tests) and `npm run build` passed (15 routes).
+- **Top 3 ideas for next run:** persist listing release decisions with owner/status/override reason/copy snapshot; add release SLA aging for finance override reviews and ops holds; add listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement.
+
+---
+
 ## 2026-06-08 20:09 UTC — Payout exception guardrail queue
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~3.95 hours remaining; not the final active-window run.

@@ -27,10 +27,12 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
 - [ ] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
-- [ ] [product] Add listing hold/release workflow with override reasons and artist-facing trust copy preview
 - [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
 - [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
 - [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
+- [ ] [platform] Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot
+- [ ] [ops] Add release SLA aging for finance override reviews and ops holds
+- [ ] [legal] Add listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement
 
 ## in_progress
 
@@ -38,6 +40,8 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [product] Listing hold/release workflow with override reasons and artist-facing trust copy preview in `/admin-portal`
+- [x] [platform] Shared listing release decision contract with tests for release-ready, finance review, and ops hold states
 - [x] [ops] Payout exception queue in `/admin-portal` for listings where POD cost, proof, or mockup gaps make the 30% promise unsafe
 - [x] [platform] Shared payout exception guardrail contract with tested suggested retail price and blocker output
 - [x] [sales] Outreach queue holds upload-link replies when the associated catalog SKU fails payout guardrails

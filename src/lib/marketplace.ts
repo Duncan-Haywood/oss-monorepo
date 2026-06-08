@@ -72,6 +72,32 @@ export type PayoutExceptionQueueItem = {
   holdMessage: string;
 };
 
+export type ListingReleaseStatus = "release-ready" | "override-review" | "hold";
+
+export type ListingReleaseOwner = "Growth" | "Finance" | "Ops";
+
+export type ListingReleaseDecision = {
+  artwork: CatalogArtwork;
+  releaseStatus: ListingReleaseStatus;
+  owner: ListingReleaseOwner;
+  canUsePayoutPromise: boolean;
+  currentArtistPayoutPerOrder: number;
+  bestPodAlternativeLabel: string;
+  podAdvantagePerOrder: number;
+  suggestedRetailPrice: number;
+  blockers: string[];
+  overrideReasons: string[];
+  artistFacingCopy: string;
+  operatorAction: string;
+};
+
+export type ListingReleaseDecisionQueue = {
+  decisions: ListingReleaseDecision[];
+  releaseReadyCount: number;
+  holdCount: number;
+  overrideReviewCount: number;
+};
+
 export type BudgetChannelInput = {
   id: string;
   label: string;
@@ -491,6 +517,85 @@ export function buildPayoutExceptionQueue(
 
       return a.podAdvantagePerOrder - b.podAdvantagePerOrder;
     });
+}
+
+export function buildListingReleaseDecisions(
+  artworks: CatalogArtwork[],
+  options: PayoutExceptionQueueOptions = {},
+): ListingReleaseDecisionQueue {
+  const resolvedOptions = {
+    monthlyOrders: options.monthlyOrders ?? 12,
+    minimumArtistPayoutPerOrder: options.minimumArtistPayoutPerOrder ?? 8,
+    targetPodAdvantagePerOrder: options.targetPodAdvantagePerOrder ?? 0,
+    maxSuggestedRetailPrice: options.maxSuggestedRetailPrice ?? 250,
+    paymentFeeRate: options.paymentFeeRate ?? 0.03,
+    aiComputeCost: options.aiComputeCost ?? 0.35,
+  };
+  const exceptionBySlug = new Map(
+    buildPayoutExceptionQueue(artworks, resolvedOptions).map((item) => [item.artwork.slug, item]),
+  );
+  const statusRank: Record<ListingReleaseStatus, number> = {
+    hold: 0,
+    "override-review": 1,
+    "release-ready": 2,
+  };
+  const decisions = artworks
+    .map((artwork) => {
+      const exception = exceptionBySlug.get(artwork.slug);
+      const comparison = compareArtistPayoutModels({
+        retailPrice: artwork.retailPrice,
+        fulfillmentCost: artwork.fulfillmentCost,
+        monthlyOrders: resolvedOptions.monthlyOrders,
+        paymentFeeRate: resolvedOptions.paymentFeeRate,
+        aiComputeCost: resolvedOptions.aiComputeCost,
+      });
+      const releaseStatus: ListingReleaseStatus = exception
+        ? exception.severity === "review"
+          ? "override-review"
+          : "hold"
+        : "release-ready";
+      const canUsePayoutPromise = releaseStatus === "release-ready";
+      const bestPodAlternativeLabel = comparison.bestPodAlternative?.label ?? "best POD benchmark";
+      const podAdvantagePhrase =
+        comparison.podAdvantagePerOrder >= 0
+          ? `beats ${bestPodAlternativeLabel} by $${comparison.podAdvantagePerOrder.toFixed(2)}/print`
+          : `trails ${bestPodAlternativeLabel} by $${Math.abs(comparison.podAdvantagePerOrder).toFixed(2)}/print`;
+
+      return {
+        artwork,
+        releaseStatus,
+        owner: releaseStatus === "release-ready" ? "Growth" : releaseStatus === "override-review" ? "Finance" : "Ops",
+        canUsePayoutPromise,
+        currentArtistPayoutPerOrder: comparison.printAtelier.artistPayoutPerOrder,
+        bestPodAlternativeLabel,
+        podAdvantagePerOrder: comparison.podAdvantagePerOrder,
+        suggestedRetailPrice: exception?.suggestedRetailPrice ?? artwork.retailPrice,
+        blockers: exception?.blockers ?? [],
+        overrideReasons:
+          releaseStatus === "override-review"
+            ? ["Finance may approve lower POD advantage for strategic artist or cohort test"]
+            : [],
+        artistFacingCopy: canUsePayoutPromise
+          ? `${artwork.artistName} keeps copyright, grants a limited POD/marketing license, and earns $${comparison.printAtelier.artistPayoutPerOrder.toFixed(2)}/print; Print Atelier ${podAdvantagePhrase} at today's costs.`
+          : `Artist-facing payout copy is withheld for ${artwork.title}. Resolve guardrail blockers before showing earnings, rights, or ad-use language.`,
+        operatorAction:
+          releaseStatus === "release-ready"
+            ? "Release to outreach with transparent payout proof and rights acknowledgement."
+            : (exception?.nextAction ?? "Review payout proof before release."),
+      } satisfies ListingReleaseDecision;
+    })
+    .sort(
+      (a, b) =>
+        statusRank[a.releaseStatus] - statusRank[b.releaseStatus] ||
+        a.podAdvantagePerOrder - b.podAdvantagePerOrder,
+    );
+
+  return {
+    decisions,
+    releaseReadyCount: decisions.filter((decision) => decision.releaseStatus === "release-ready").length,
+    holdCount: decisions.filter((decision) => decision.releaseStatus === "hold").length,
+    overrideReviewCount: decisions.filter((decision) => decision.releaseStatus === "override-review").length,
+  };
 }
 
 export function calculateChannelScenario({

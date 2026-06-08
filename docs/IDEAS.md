@@ -175,3 +175,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 - `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
 - See `docs/research/2026-06-08-payout-exception-queue.md`, which reuses the existing source-backed artist payout benchmark research for the payout exception guardrail.
 - Strategic implication: payout trust must become a hold/release workflow, not a static calculator, because artist acquisition copy should only lead with the 30% net-profit promise when SKU economics, proof approval, and room mockups are defensible.
+
+## Ten-lens invention pass (2026-06-08 21:20 UTC — listing release workflow run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Listing release decision desk that converts payout guardrails into release-ready, finance-review, and ops-hold states | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Artist-facing trust copy preview that is hidden until SKU economics, proof, and mockups clear release criteria | Product | 5 | 2 | 4 | 5 | 50 | shipped |
+| Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI-assisted release reviewer that proposes cheaper POD, retail price, or mockup remediation before an operator overrides | AI/ML | 4 | 3 | 5 | 5 | 33 | ready |
+| Release-gated artist cohort launcher that only enrolls approved listings into outbound sequences | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Finance-approved override sequence for strategic artists whose payout advantage is thin but cohort value is high | Sales | 4 | 2 | 4 | 5 | 40 | backlog |
+| Artist recruitment landing blocks that show real payout proof only for release-ready examples | Marketing | 4 | 2 | 4 | 5 | 40 | backlog |
+| Release SLA aging board for finance override reviews and ops holds | Operations | 5 | 2 | 3 | 5 | 38 | ready |
+| Price-floor optimizer that balances artist trust, CAC, POD cost, and conversion risk before release | Finance | 5 | 2 | 4 | 5 | 50 | ready |
+| Listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 21:20 UTC)
+
+- See `docs/research/2026-06-08-listing-release-workflow.md` for artist marketplace terms, copyright-retention, license-grant, and payout-transparency sources from INPRNT, BetterShared, and Society6.
+- Strategic implication: Print Atelier should treat payout proof and rights language as a release artifact, not generic copy, because artist-facing promises need current SKU economics and clear license/payout context before outreach.

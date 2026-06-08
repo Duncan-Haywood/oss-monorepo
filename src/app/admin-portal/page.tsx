@@ -1,12 +1,45 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Users, Image as ImageIcon, Box, AlertCircle, Database, Server, Zap, ShieldCheck } from "lucide-react";
-import { buildPayoutExceptionQueue, calculateCatalogSummary, catalogArtworks } from "@/lib/marketplace";
+import {
+  Users,
+  Image as ImageIcon,
+  Box,
+  AlertCircle,
+  Database,
+  Server,
+  Zap,
+  ShieldCheck,
+  CheckCircle2,
+  CircleDollarSign,
+  LockKeyhole,
+} from "lucide-react";
+import {
+  buildListingReleaseDecisions,
+  buildPayoutExceptionQueue,
+  calculateCatalogSummary,
+  catalogArtworks,
+} from "@/lib/marketplace";
+
+type ReleaseStatusFilter = "all" | "hold" | "override-review" | "release-ready";
+
+const releaseFilters: { id: ReleaseStatusFilter; label: string }[] = [
+  { id: "all", label: "All listings" },
+  { id: "hold", label: "Ops holds" },
+  { id: "override-review", label: "Finance review" },
+  { id: "release-ready", label: "Release ready" },
+];
+
+const releaseStatusStyles = {
+  hold: "border-rose-500/30 bg-rose-500/10 text-rose-200",
+  "override-review": "border-amber-500/30 bg-amber-500/10 text-amber-200",
+  "release-ready": "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+};
 
 export default function AdminPortal() {
   const [minimumArtistPayout, setMinimumArtistPayout] = useState(8);
   const [targetPodAdvantage, setTargetPodAdvantage] = useState(0);
+  const [releaseStatusFilter, setReleaseStatusFilter] = useState<ReleaseStatusFilter>("all");
   const payoutQueue = useMemo(
     () =>
       buildPayoutExceptionQueue(catalogArtworks, {
@@ -15,6 +48,18 @@ export default function AdminPortal() {
         targetPodAdvantagePerOrder: targetPodAdvantage,
       }),
     [minimumArtistPayout, targetPodAdvantage],
+  );
+  const releaseQueue = useMemo(
+    () =>
+      buildListingReleaseDecisions(catalogArtworks, {
+        monthlyOrders: 12,
+        minimumArtistPayoutPerOrder: minimumArtistPayout,
+        targetPodAdvantagePerOrder: targetPodAdvantage,
+      }),
+    [minimumArtistPayout, targetPodAdvantage],
+  );
+  const filteredReleaseDecisions = releaseQueue.decisions.filter(
+    (decision) => releaseStatusFilter === "all" || decision.releaseStatus === releaseStatusFilter,
   );
   const catalogSummary = calculateCatalogSummary(catalogArtworks);
   const criticalPayoutItems = payoutQueue.filter((item) => item.severity === "critical").length;
@@ -179,6 +224,116 @@ export default function AdminPortal() {
             </div>
           </div>
         </div>
+
+        {/* Listing Release Workflow */}
+        <section className="rounded-xl border border-slate-700/50 bg-slate-800/50 overflow-hidden">
+          <div className="border-b border-slate-700/50 bg-slate-800 px-5 py-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 font-semibold text-white">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Listing Hold / Release Workflow
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Turns payout guardrails into an operator decision: release to outreach, send to finance, or keep hidden
+                  from artist-facing trust copy.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs sm:min-w-[420px]">
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
+                  <p className="text-2xl font-bold text-emerald-200">{releaseQueue.releaseReadyCount}</p>
+                  <p className="text-emerald-100/70">Release ready</p>
+                </div>
+                <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
+                  <p className="text-2xl font-bold text-amber-200">{releaseQueue.overrideReviewCount}</p>
+                  <p className="text-amber-100/70">Finance review</p>
+                </div>
+                <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3">
+                  <p className="text-2xl font-bold text-rose-200">{releaseQueue.holdCount}</p>
+                  <p className="text-rose-100/70">Ops holds</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {releaseFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setReleaseStatusFilter(filter.id)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    releaseStatusFilter === filter.id
+                      ? "border-blue-400 bg-blue-500/20 text-blue-100"
+                      : "border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-500 hover:text-white"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4 p-5 lg:grid-cols-2">
+            {filteredReleaseDecisions.map((decision) => (
+              <article key={decision.artwork.slug} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full border px-2 py-1 text-xs font-semibold ${releaseStatusStyles[decision.releaseStatus]}`}>
+                        {decision.releaseStatus.replace("-", " ")}
+                      </span>
+                      <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">
+                        Owner: {decision.owner}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-lg font-semibold text-white">{decision.artwork.title}</h3>
+                    <p className="text-sm text-slate-500">by {decision.artwork.artistName}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-right text-xs">
+                    <div>
+                      <p className="uppercase tracking-wide text-slate-500">Payout</p>
+                      <p className="text-lg font-bold text-white">${decision.currentArtistPayoutPerOrder.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="uppercase tracking-wide text-slate-500">POD edge</p>
+                      <p className={decision.podAdvantagePerOrder >= 0 ? "text-lg font-bold text-emerald-200" : "text-lg font-bold text-rose-200"}>
+                        ${decision.podAdvantagePerOrder.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-3 text-sm md:grid-cols-[1fr_auto]">
+                  <p className="rounded-lg border border-slate-700 bg-slate-800/60 p-3 text-slate-300">
+                    {decision.artistFacingCopy}
+                  </p>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-right">
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Suggested retail</p>
+                    <p className="text-2xl font-bold text-white">${decision.suggestedRetailPrice}</p>
+                  </div>
+                </div>
+                <p className="mt-3 flex items-start gap-2 text-sm font-medium text-blue-200">
+                  {decision.releaseStatus === "release-ready" ? (
+                    <CircleDollarSign className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                  ) : (
+                    <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                  )}
+                  {decision.operatorAction}
+                </p>
+                {(decision.blockers.length > 0 || decision.overrideReasons.length > 0) && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[...decision.blockers, ...decision.overrideReasons].map((reason) => (
+                      <span key={reason} className="rounded-lg bg-slate-800 px-3 py-2 text-xs text-slate-300">
+                        {reason}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
+            {filteredReleaseDecisions.length === 0 && (
+              <p className="rounded-xl border border-slate-700 bg-slate-900/60 p-6 text-center text-sm text-slate-400 lg:col-span-2">
+                No listings match this release filter under the current payout guardrails.
+              </p>
+            )}
+          </div>
+        </section>
 
         {/* Two Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
