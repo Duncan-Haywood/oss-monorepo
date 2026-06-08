@@ -12,6 +12,9 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [marketing] Generate ad creative variants from shared catalog tags and readiness scores
 - [ ] [sales] Add outreach CRM table with reply classification and next-step queue
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
+- [ ] [gtm] Add weekly channel budget planner with LTV:CAC guardrails from the finance simulator
+- [ ] [ai-ml] Add AI creative scoring that estimates CAC reduction from tags, mockups, and copy variants
+- [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 
 ## in_progress
 
@@ -19,6 +22,7 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [finance] CAC, payout, and POD sensitivity simulator tied to shared catalog economics
 - [x] [platform] Shared catalog + tested payout/readiness math in `src/lib/marketplace.ts`
 - [x] [demo] Artist portal launch-readiness queue powered by shared catalog
 - [x] [demo] Storefront filters live shared-catalog listings and shows artist payout per print

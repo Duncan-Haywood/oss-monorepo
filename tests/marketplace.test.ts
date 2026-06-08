@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   calculateCatalogSummary,
+  calculateChannelScenario,
   calculateLaunchReadiness,
   calculatePrintEconomics,
   catalogArtworks,
@@ -49,4 +50,41 @@ test("calculateLaunchReadiness rewards complete metadata, mockups, and print eco
     label: "Needs work",
     blockers: ["Approve proof", "Add room mockups", "Improve margin"],
   });
+});
+
+test("calculateChannelScenario models CAC payback from lifetime platform gross", () => {
+  const scenario = calculateChannelScenario({
+    retailPrice: 85,
+    fulfillmentCost: 28,
+    monthlyOrders: 500,
+    customerAcquisitionCost: 34,
+    purchasesPerCustomer: 1.8,
+  });
+
+  assert.equal(scenario.platformGrossPerOrder, 37.87);
+  assert.equal(scenario.artistPayoutPerOrder, 16.23);
+  assert.equal(scenario.lifetimePlatformGross, 68.17);
+  assert.equal(scenario.profitAfterCAC, 34.17);
+  assert.equal(scenario.paybackOrders, 1);
+  assert.equal(scenario.ltvToCacRatio, 2);
+  assert.equal(scenario.monthlyMarketingSpend, 9444.44);
+  assert.equal(scenario.monthlyContributionAfterCAC, 9490.56);
+  assert.equal(scenario.monthlyArtistPayout, 8115);
+});
+
+test("calculateChannelScenario flags channels that need repeat purchases to break even", () => {
+  const scenario = calculateChannelScenario({
+    retailPrice: 65,
+    fulfillmentCost: 18,
+    monthlyOrders: 300,
+    customerAcquisitionCost: 90,
+    purchasesPerCustomer: 1.2,
+  });
+
+  assert.equal(scenario.platformGrossPerOrder, 31.29);
+  assert.equal(scenario.lifetimePlatformGross, 37.55);
+  assert.equal(scenario.profitAfterCAC, -52.45);
+  assert.equal(scenario.paybackOrders, 3);
+  assert.equal(scenario.ltvToCacRatio, 0.42);
+  assert.equal(scenario.monthlyContributionAfterCAC, -13113);
 });

@@ -28,6 +28,12 @@ export type PrintEconomicsInput = {
   aiComputeCost?: number;
 };
 
+export type ChannelScenarioInput = PrintEconomicsInput & {
+  monthlyOrders: number;
+  customerAcquisitionCost: number;
+  purchasesPerCustomer: number;
+};
+
 export const catalogArtworks: CatalogArtwork[] = [
   {
     id: 1,
@@ -170,6 +176,48 @@ export function calculatePrintEconomics({
     artistShare,
     platformShare,
     marginPercent,
+  };
+}
+
+export function calculateChannelScenario({
+  retailPrice,
+  fulfillmentCost,
+  paymentFeeRate,
+  aiComputeCost,
+  monthlyOrders,
+  customerAcquisitionCost,
+  purchasesPerCustomer,
+}: ChannelScenarioInput) {
+  const economics = calculatePrintEconomics({
+    retailPrice,
+    fulfillmentCost,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+  const safePurchasesPerCustomer = Math.max(purchasesPerCustomer, 0.01);
+  const monthlyNewCustomers = monthlyOrders / safePurchasesPerCustomer;
+  const monthlyMarketingSpend = roundCurrency(monthlyNewCustomers * customerAcquisitionCost);
+  const monthlyPlatformGross = roundCurrency(monthlyOrders * economics.platformShare);
+  const monthlyArtistPayout = roundCurrency(monthlyOrders * economics.artistShare);
+  const lifetimePlatformGross = roundCurrency(economics.platformShare * safePurchasesPerCustomer);
+  const profitAfterCAC = roundCurrency(lifetimePlatformGross - customerAcquisitionCost);
+  const ltvToCacRatio =
+    customerAcquisitionCost > 0 ? roundCurrency(lifetimePlatformGross / customerAcquisitionCost) : 0;
+
+  return {
+    platformGrossPerOrder: economics.platformShare,
+    artistPayoutPerOrder: economics.artistShare,
+    lifetimePlatformGross,
+    profitAfterCAC,
+    paybackOrders:
+      economics.platformShare > 0
+        ? Math.ceil(customerAcquisitionCost / economics.platformShare)
+        : Number.POSITIVE_INFINITY,
+    ltvToCacRatio,
+    monthlyMarketingSpend,
+    monthlyPlatformGross,
+    monthlyArtistPayout,
+    monthlyContributionAfterCAC: roundCurrency(monthlyPlatformGross - monthlyMarketingSpend),
   };
 }
 

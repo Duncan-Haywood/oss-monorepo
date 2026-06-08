@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic)
-**Last updated:** 2026-06-08 (shared catalog + launch readiness run)
+**Company phase:** 1 (interactive prototype with shared business logic and finance stress tests)
+**Last updated:** 2026-06-08 (channel CAC sensitivity run)
 
 ## Subsystem maturity
 
@@ -16,6 +16,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings and shows artist payout per print | Product detail + room preview state |
 | Outreach / CRM | 0 | Static copy in sales-portal | Prospect table + sequences |
 | Marketing hub | 0 | Static UI | Ad variant generator wired to mock catalog |
+| Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
 | CI | 1 | `ci.yml` build workflow exists; local `npm test` added for catalog math | Add PR check status tracking to PROGRESS |
@@ -30,8 +31,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Payments | Stripe + Connect | Artist payouts per RevenueModel | — |
 | Catalog data | Typed in-repo mock (`src/lib/marketplace.ts`) | Enables Phase 1 shared demos before persistence | 2026-06-08 |
 | Test runner | `tsx --test` | Lightweight TypeScript unit coverage without changing app runtime | 2026-06-08 |
+| Finance scenarios | Pure TypeScript calculators in `src/lib/marketplace.ts` | Keeps CAC, payout, and POD assumptions testable across UI surfaces | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence
-**Definition of done:** Shared catalog data powers artist and buyer surfaces; payout and readiness math is covered by tests; next step is persistence plus real upload/AI metadata.
+**Focus:** Catalog intelligence + finance stress testing
+**Definition of done:** Shared catalog data powers artist and buyer surfaces; payout, readiness, and channel CAC math are covered by tests; next step is persistence plus real upload/AI metadata and actual channel cohorts.

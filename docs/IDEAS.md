@@ -33,3 +33,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-competitor-payouts.md` for payout positioning against Society6, Saatchi Art, Artfinder, and Redbubble.
 - Strategic implication: Print Atelier should make per-print payout math visible in artist and buyer surfaces because the 30% net-profit share is more credible when tied to transparent fulfillment, payment, and AI costs.
+
+## Ten-lens invention pass (2026-06-08 16:30 UTC — channel economics run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Channel CAC payback simulator tied to shared catalog economics | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Buyer room preview A/B test that adjusts expected conversion lift in finance model | Product | 4 | 3 | 4 | 5 | 27 | ready |
+| Scenario API contract for demand-channel assumptions and monthly operating metrics | Engineering | 4 | 2 | 3 | 5 | 30 | backlog |
+| AI creative scoring that predicts CAC reduction from tags, mockups, and copy variants | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Weekly channel budget planner that caps spend when LTV:CAC drops below target | GTM | 5 | 2 | 4 | 5 | 50 | ready |
+| Artist-led referral sequence that turns each onboarded artist into a buyer-acquisition node | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Programmatic ad brief generator for each catalog segment using payout proof and room mockups | Marketing | 4 | 2 | 4 | 5 | 40 | ready |
+| Ops exception queue for channels with negative contribution after CAC | Operations | 4 | 2 | 3 | 5 | 30 | backlog |
+| CAC, payout, and POD sensitivity simulator tied to shared catalog economics | Finance | 5 | 2 | 4 | 5 | 50 | shipped |
+| Artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+
+## Research-backed notes (2026-06-08 16:30 UTC)
+
+- See `docs/research/2026-06-08-cac-pod-benchmarks.md` for CAC, POD, and competitor-payout assumptions.
+- Strategic implication: Finance tooling should model contribution after acquisition, not just per-print margin, because high paid CAC can make an otherwise healthy print SKU unprofitable until repeat purchase behavior catches up.
