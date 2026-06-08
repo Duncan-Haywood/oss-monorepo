@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 18:52 UTC — Guarded channel budget allocator
+
+- **Gate:** Restored the latest campaign state by fast-forwarding to `origin/cursor/orchestrator-campaign-flow-f806`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~5.20 hours remaining; continued.
+- **Orient:** `git fetch --all --prune` ran; checked `main`, pulled `origin/main`, ran `npm ci && npm run build` successfully, then returned to `cursor/orchestrator-campaign-flow-2ed1`.
+- **Hygiene:** Merged the live orchestration/product branch into this assigned branch. No remaining live `origin/cursor/*` branch met the strict `ahead=0` / `behind>=10` deletion rule; older business-plan branches and `dev-env-setup-a621` still have unique ahead commits, so they were not deleted blindly.
+- **Theme shipped:** Finance/GTM weekly channel budget allocator.
+- **Shipped:** `allocateWeeklyChannelBudget` in `src/lib/marketplace.ts`; two TDD tests for capped allocations, LTV:CAC guardrails, holdback dollars, and room-preview CAC lift; `RevenueModel` now has an interactive allocator with weekly budget and LTV:CAC sliders, allocated/held-back summary, lead channel, and channel cards showing eligible vs hold-spend blockers.
+- **Invention shipped:** Weekly channel budget allocator that makes "do not spend" a first-class software decision when channels fail contribution or LTV:CAC guardrails.
+- **Research:** Added `docs/research/2026-06-08-channel-budget-allocation.md`; `parallel-cli` was unavailable, so the note synthesizes existing sourced CAC/POD, creative-diversity, and room-preview research instead of adding uncited live-search claims.
+- **Maturity changes:** Added GTM budget allocation at Phase 1; active slice now includes guarded budget allocation and the next step is persisted weekly budget plans with actual spend, CAC, orders, and measured preview lift.
+- **Validation:** TDD red run failed on missing `allocateWeeklyChannelBudget`; `npm test` passed (15 tests); `npm run build` passed (15 routes); browser walkthrough verified the allocator updates from `$5,250` budget / `1.5x` guardrail (`$4,600` allocated, `$650` held back) to `$8,000` budget (`$3,400` held back) and stricter `2.6x` guardrail (`$3,000` allocated, `$5,000` held back), with paid social/search held and artist/designer channels eligible (`finance_channel_budget_allocator_final_proof.mp4`).
+- **Top 3 ideas for next run:** persist weekly channel budget plans with actual spend/CAC/orders/source channel; add budget exception queue for held-back channels; replace assumed room-preview lift with measured channel cohort feedback.
+
+---
+
 ## 2026-06-08 18:31 UTC — Room preview conversion lab
 
 - **Gate:** Restored missing campaign control files by merging `origin/cursor/orchestrator-campaign-flow-cf44`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~5.48 hours remaining; continued.
