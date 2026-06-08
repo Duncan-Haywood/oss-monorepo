@@ -77,3 +77,16 @@ src/
 ## Stack
 
 Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide icons.
+
+## Autonomous orchestrator
+
+Hourly **[Cursor Automation](https://cursor.com/automations)** runs the full business + product dev cycle (see [ORCHESTRATOR.md](ORCHESTRATOR.md)).
+
+| Component | Location |
+|-----------|----------|
+| Campaign window (3 days active, 1 year pause) | `docs/ORCHESTRATOR_CAMPAIGN.json` |
+| Agent prompt | `.cursor/automations/print-atelier-orchestrator.md` |
+| Dashboard setup | `.cursor/automations/README.md` |
+| Setup guide | [docs/AUTOMATION_SETUP.md](docs/AUTOMATION_SETUP.md) |
+
+**One-time setup:** [cursor.com/automations](https://cursor.com/automations) → scheduled `0 * * * *` → attach this repo → paste the prompt file → enable Open pull request.
