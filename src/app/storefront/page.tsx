@@ -47,7 +47,7 @@ export default function StorefrontPage() {
       <section className="relative bg-stone-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/95 to-transparent z-10" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-br from-indigo-900 to-purple-900 opacity-60" />
-        <div className="relative z-20 max-w-7xl mx-auto px-4 py-20">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 py-12 md:py-16">
           <p className="text-indigo-300 text-sm font-medium mb-3 tracking-wide uppercase">AI-Curated Collection</p>
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 max-w-xl">
             Museum-quality prints from independent artists
@@ -66,8 +66,8 @@ export default function StorefrontPage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
             <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog listings in this view</p>
@@ -97,32 +97,32 @@ export default function StorefrontPage() {
             });
 
             return (
-            <div key={art.id} className="group cursor-pointer">
-              <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
-                {art.badge && (
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
-                    {art.badge}
-                  </span>
-                )}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
-                  <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-stone-600" />
-                  </button>
+              <div key={art.id} className="group cursor-pointer">
+                <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
+                  {art.badge && (
+                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
+                      {art.badge}
+                    </span>
+                  )}
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                    <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-stone-600" />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
+                    <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
+                    <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
+                      Quick View — ${art.retailPrice}
+                    </button>
+                  </div>
                 </div>
-                <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
-                  <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
-                </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
-                  <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                    Quick View — ${art.retailPrice}
-                  </button>
-                </div>
+                <h3 className="font-semibold text-stone-900">{art.title}</h3>
+                <p className="text-sm text-stone-500">{art.artistName}</p>
+                <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
+                <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
               </div>
-              <h3 className="font-semibold text-stone-900">{art.title}</h3>
-              <p className="text-sm text-stone-500">{art.artistName}</p>
-              <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
-              <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
-            </div>
             );
           })}
         </div>
