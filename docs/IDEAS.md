@@ -73,3 +73,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-creative-diversity-demand.md` for creative-diversity, room mockup, and long-tail SEO sources.
 - Strategic implication: demand tooling should decide whether a catalog item is safe to spend against before generating more ads, because similar or under-proofed creative can inflate CAC even when per-print margins look healthy.
+
+## Ten-lens invention pass (2026-06-08 17:38 UTC — outreach reply triage run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Response-to-live-listing compression metric that tracks how fast a replied artist can become a sellable catalog item | Strategy | 5 | 3 | 4 | 5 | 33 | ready |
+| Reply-to-onboarding next-best-action queue for upload, payout/legal, proof mockup, nurture, and referral-kit work | Product | 5 | 2 | 4 | 5 | 50 | shipped |
+| Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| Audited LLM reply classifier with deterministic fallback categories and confidence thresholds | AI/ML | 5 | 3 | 4 | 5 | 33 | ready |
+| Artist cohort launch planner that converts hot replies into a 7-day zero-CAC supply campaign | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Reply SLA workbench that prioritizes high-fit artists before passive opens and drafts | Sales | 5 | 2 | 4 | 5 | 50 | shipped |
+| Proof-mockup response kit that turns "send examples" replies into room scenes and payout proof | Marketing | 4 | 2 | 4 | 5 | 40 | ready |
+| Stale-reply rescue queue for opened/sent prospects that need better personalization | Operations | 4 | 2 | 3 | 5 | 30 | backlog |
+| Outreach cohort payout forecast that sums expected artist earnings before onboarding spend | Finance | 4 | 2 | 3 | 5 | 30 | shipped |
+| Payout/licensing objection explainer templates for artists asking about rights and terms | Legal | 4 | 2 | 3 | 5 | 30 | ready |
+
+## Research-backed notes (2026-06-08 17:38 UTC)
+
+- See `docs/research/2026-06-08-outreach-reply-triage.md` for the outreach reply-triage rationale and the tooling limitation on live web research.
+- Strategic implication: artist acquisition should be measured by reply-to-live-listing speed, not raw message volume, because the marketplace only compounds when replies become capture uploads, proofed listings, artist referral kits, and buyer demand.

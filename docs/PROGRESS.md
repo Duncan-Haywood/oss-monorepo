@@ -4,6 +4,20 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 17:38 UTC — Outreach reply triage
+
+- **Gate:** `allowed=true`, phase `active`, ~6.47 hours remaining; continued.
+- **Hygiene:** Fast-forwarded this run branch to `origin/cursor/orchestrator-campaign-flow-9998`, restoring the latest orchestrator docs, campaign gate, shared catalog, CAC simulator, and creative engine work. `git fetch --all --prune` pruned two already-deleted branches, then deleted superseded remote branch `cursor/orchestrator-automation-6103` because it was fully contained in current HEAD and >10 commits behind. Open PRs were inspected with read-only `gh`; older PR branches still have unique commits or remain below the strict deletion threshold.
+- **Theme shipped:** Sales/outreach reply-to-onboarding CRM.
+- **Shipped:** `src/lib/outreach.ts` with prospect data, reply classification, priority scoring, next-action routing, and cohort payout summary; `/sales-portal` now shows summary metrics, status filters, prioritized prospect rows, and next-best-action handoffs instead of static outreach copy.
+- **Invention shipped:** Reply-to-onboarding next-best-action queue that routes artists into upload, payout/legal, proof mockup, nurture, or referral-kit work.
+- **Research:** Added `docs/research/2026-06-08-outreach-reply-triage.md`; `parallel-cli` was unavailable, so the note reuses existing sourced CAC/POD and creative-demand research rather than adding uncited live-search claims.
+- **Maturity changes:** Outreach / CRM `0 → 1`; active slice expanded to include outreach reply triage; CI notes updated for outreach tests.
+- **Validation:** TDD red run failed on missing `src/lib/outreach.ts`; `npm test` passed (11 tests); `npm run build` passed (15 routes); browser walkthrough verified summary metrics, Replied and Draft filters, and the green invented next-action callout (`sales_outreach_reply_triage_walkthrough.mp4`).
+- **Top 3 ideas for next run:** persist outreach prospects/replies with source-channel timestamps; add audited LLM reply classifier with confidence thresholds; buyer room-preview conversion experiment feeding CAC forecasts.
+
+---
+
 ## 2026-06-08 17:10 UTC — Creative demand engine
 
 - **Gate:** `allowed=true`, phase `active`, ~6.85 hours remaining; continued.
