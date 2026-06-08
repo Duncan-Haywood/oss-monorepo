@@ -18,6 +18,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
     activeFilter === "All"
       ? liveArtworks
       : liveArtworks.filter((artwork) => artwork.style === activeFilter);
+  const listingLabel = visibleArtworks.length === 1 ? "listing" : "listings";
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -74,14 +75,14 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
-            <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog listings in this view</p>
+            <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog {listingLabel} in this view</p>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
             {filters.map((f) => (
               <a
                 key={f}
-                href={f === "All" ? "/storefront#catalog" : `/storefront?style=${encodeURIComponent(f)}#catalog`}
-                className={`px-3 py-1.5 rounded-full text-sm transition ${
+                href={f === "All" ? "/storefront" : `/storefront?style=${encodeURIComponent(f)}`}
+                className={`mr-2 mb-2 px-3 py-1.5 rounded-full text-sm transition last:mr-0 ${
                   activeFilter === f
                     ? "bg-stone-900 text-white"
                     : "bg-white border border-stone-200 text-stone-600 hover:border-stone-400"
