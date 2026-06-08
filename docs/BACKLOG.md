@@ -32,7 +32,9 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
 - [ ] [platform] Persist listing release decisions with owner, status, override reason, and artist-facing copy snapshot
 - [ ] [ops] Add release SLA aging for finance override reviews and ops holds
-- [ ] [legal] Add listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement
+- [ ] [platform] Persist consent ledger events with signer, timestamp, source, copy version, and accepted channel rights
+- [ ] [legal] Add channel-specific artist terms copy preview for storefront, outreach, paid ads, and AI room-scene use
+- [ ] [ops] Add consent SLA aging for release-ready listings blocked by missing rights
 
 ## in_progress
 
@@ -40,6 +42,8 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [legal] Listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement in `/admin-portal`
+- [x] [platform] Shared listing consent gate contract with tests for cleared, missing-consent, and release-blocked states
 - [x] [product] Listing hold/release workflow with override reasons and artist-facing trust copy preview in `/admin-portal`
 - [x] [platform] Shared listing release decision contract with tests for release-ready, finance review, and ops hold states
 - [x] [ops] Payout exception queue in `/admin-portal` for listings where POD cost, proof, or mockup gaps make the 30% promise unsafe

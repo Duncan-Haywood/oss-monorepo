@@ -195,3 +195,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-listing-release-workflow.md` for artist marketplace terms, copyright-retention, license-grant, and payout-transparency sources from INPRNT, BetterShared, and Society6.
 - Strategic implication: Print Atelier should treat payout proof and rights language as a release artifact, not generic copy, because artist-facing promises need current SKU economics and clear license/payout context before outreach.
+
+## Ten-lens invention pass (2026-06-08 22:05 UTC — listing consent gate run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Channel consent gate that separates storefront, outreach, paid-ad, and AI room-scene rights before release | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Operator consent desk that shows allowed channels, missing rights, and release blockers per listing | Product | 5 | 2 | 4 | 5 | 50 | shipped |
+| Persist consent ledger events with signer, source, copy version, and accepted channel rights | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI-assisted rights-risk reviewer that flags ad copy or room scenes whose usage exceeds accepted consent | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Release-gated cohort launcher that enrolls only listings with both payout proof and required channel rights | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Rights-aware outreach personalization that explains why a specific artist is safe to launch now | Sales | 4 | 2 | 4 | 5 | 40 | backlog |
+| Paid creative eligibility badge that only appears for listings with accepted ad and AI room-scene rights | Marketing | 4 | 2 | 4 | 5 | 40 | backlog |
+| Consent SLA aging queue for release-ready listings blocked only by missing rights | Operations | 5 | 2 | 3 | 5 | 38 | ready |
+| Consent-to-revenue leakage report that estimates demand dollars blocked by missing channel rights | Finance | 4 | 2 | 4 | 5 | 40 | backlog |
+| Channel-specific artist terms preview for POD license, ad rights, AI room scenes, and payout acknowledgement | Legal | 5 | 2 | 4 | 5 | 50 | ready |
+
+## Research-backed notes (2026-06-08 22:05 UTC)
+
+- `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
+- See `docs/research/2026-06-08-listing-consent-gate.md`, which reuses the existing source-backed artist terms and payout research from INPRNT, BetterShared, and Society6.
+- Strategic implication: consent should be a channel-specific release contract, not one generic checkbox, because a listing can be safe for storefront publication while still blocked from paid ads or AI room-scene previews.

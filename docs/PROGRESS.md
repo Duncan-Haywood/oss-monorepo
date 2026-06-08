@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 22:05 UTC — Listing consent gate
+
+- **Gate:** This assigned branch started without campaign docs, so the latest gate-bearing branch was inspected in a temporary worktree first; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~1.95 hours remaining. After fast-forwarding the latest orchestrator state into this branch, the in-branch gate returned `allowed=true`, phase `active`, ~1.92 hours remaining; not the final active-window run.
+- **Orient:** `git fetch --all --prune` ran; checked `main`, pulled `origin/main`, and `npm ci && npm run build` passed. Fast-forwarded `cursor/orchestrator-campaign-flow-4016` to the latest consolidated state from `origin/cursor/orchestrator-campaign-flow-59b3`, pushed it, then reinstalled branch dependencies and verified `npm test` plus `npm run build` before new work.
+- **Hygiene:** Deleted superseded remote branch `cursor/orchestrator-campaign-flow-59b3` after this branch reached the same commit. Remote `cursor/*` branch count dropped to 8. Older open PR branches still have unique ahead commits and cannot be closed with this automation's read-only GitHub CLI.
+- **Theme shipped:** Listing consent gate for legal/ops channel eligibility.
+- **Shipped:** `buildListingConsentGate` in `src/lib/marketplace.ts`; TDD coverage for cleared, missing-consent, and release-blocked states; `/admin-portal` now has an interactive Listing Consent Gate with current-ledger vs collected-rights toggle, counts for fully cleared / need consent / release blocked, per-listing allowed channels, missing consent chips, and owner routing.
+- **Invention shipped:** Channel consent gate that separates storefront, artist outreach, paid ads, and AI room-preview rights before demand channels can use a listing.
+- **Research:** Added `docs/research/2026-06-08-listing-consent-gate.md`; `parallel-cli` was unavailable, so the note reuses existing source-backed INPRNT, BetterShared, and Society6 terms/payout research rather than adding uncited live-search claims.
+- **Maturity changes:** Added Legal / rights at Phase 1; active slice now includes channel consent gates and next-step persistence of consent ledger events with signer, timestamp, source, and copy version.
+- **Validation:** TDD red run failed on missing `buildListingConsentGate`; after implementation, `npm test` passed (26 tests) and `npm run build` passed (15 routes). Browser walkthrough verified baseline consent counts `1/4/1` and final counts `2/3/1` after collecting Urban Geometry ad + AI rights; screenshots saved as `admin_consent_gate_baseline.webp` and `admin_consent_gate_final.webp`.
+- **Top 3 ideas for next run:** persist consent ledger events with signer/timestamp/source/copy version/channel rights; add channel-specific artist terms copy preview; add consent SLA aging for release-ready listings blocked by missing rights.
+
+---
+
 ## 2026-06-08 21:20 UTC — Listing release workflow
 
 - **Gate:** Restored campaign control files from the latest orchestrator branch because this assigned branch started at `main`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~2.90 hours remaining; not the final active-window run.
