@@ -93,3 +93,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-outreach-reply-triage.md` for the outreach reply-triage rationale and the tooling limitation on live web research.
 - Strategic implication: artist acquisition should be measured by reply-to-live-listing speed, not raw message volume, because the marketplace only compounds when replies become capture uploads, proofed listings, artist referral kits, and buyer demand.
+
+## Ten-lens invention pass (2026-06-08 18:00 UTC — room preview conversion run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Buyer room-preview experiment that converts visualization lift into adjusted CAC and artist payout upside | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Product detail preview CTA that compares flat listing vs in-room preview behavior by artwork | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI mockup asset generator that prioritizes room scenes by style tag, margin, and missing-preview demand | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Retargeting audience builder for buyers who opened preview but did not add to cart | GTM | 4 | 3 | 4 | 5 | 27 | backlog |
+| Designer-trade preview share link for decorators to send client-ready room scenes | Sales | 4 | 2 | 4 | 5 | 40 | ready |
+| Programmatic landing blocks showing room scenes by decor intent, artwork tag, and payout proof | Marketing | 5 | 3 | 4 | 5 | 33 | ready |
+| Ops queue for listings where paid demand is blocked by missing proofed room mockups | Operations | 4 | 2 | 3 | 5 | 30 | backlog |
+| Room-preview CAC feedback loop that feeds actual lift into weekly channel budget allocation | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Consent gate for using artist artwork in AI-generated room scenes and paid ad previews | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 18:00 UTC)
+
+- See `docs/research/2026-06-08-room-preview-conversion.md` for Saatchi Art WebAR, Shopify 3D ecommerce, Rebecca Minkoff, and Interior Define references.
+- Strategic implication: room visualization should be measured as a conversion-quality and CAC lever, not a decorative buyer feature; listings without approved proofs or room mockups should be blocked from paid-preview lift assumptions.

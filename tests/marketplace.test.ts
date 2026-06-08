@@ -7,6 +7,7 @@ import {
   calculateCreativeReadiness,
   calculateLaunchReadiness,
   calculatePrintEconomics,
+  calculateRoomPreviewExperiment,
   catalogArtworks,
   generateAdCreativeConcepts,
 } from "../src/lib/marketplace";
@@ -134,4 +135,45 @@ test("generateAdCreativeConcepts creates distinct demand concepts from catalog t
   );
   assert.match(concepts[1].message, /\$21\.10 artist payout/);
   assert.match(concepts[2].message, /urban geometry monochrome wall art/);
+});
+
+test("calculateRoomPreviewExperiment converts preview lift into lower effective CAC", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "midnight-coast");
+
+  assert.ok(artwork);
+  const experiment = calculateRoomPreviewExperiment(artwork, {
+    monthlyVisitors: 10000,
+    baselineConversionRate: 2,
+    baselineCAC: 68,
+    previewEngagementRate: 30,
+    conversionLiftPercent: 50,
+    purchasesPerCustomer: 1.6,
+  });
+
+  assert.equal(experiment.baselineOrders, 200);
+  assert.equal(experiment.projectedOrders, 230);
+  assert.equal(experiment.incrementalOrders, 30);
+  assert.equal(experiment.blendedConversionRate, 2.3);
+  assert.equal(experiment.adjustedCAC, 59.13);
+  assert.equal(experiment.channelScenario.profitAfterCAC, 1.46);
+  assert.equal(experiment.monthlyIncrementalArtistPayout, 486.9);
+});
+
+test("calculateRoomPreviewExperiment blocks uplift when mockups are missing", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "abstract-no-4");
+
+  assert.ok(artwork);
+  const experiment = calculateRoomPreviewExperiment(artwork, {
+    monthlyVisitors: 10000,
+    baselineConversionRate: 2,
+    baselineCAC: 68,
+    previewEngagementRate: 40,
+    conversionLiftPercent: 80,
+    purchasesPerCustomer: 1.6,
+  });
+
+  assert.equal(experiment.projectedOrders, 200);
+  assert.equal(experiment.incrementalOrders, 0);
+  assert.equal(experiment.adjustedCAC, 68);
+  assert.deepEqual(experiment.blockers, ["Generate room mockups", "Approve artist proof"]);
 });

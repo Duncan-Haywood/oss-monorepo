@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, and outreach reply triage)
-**Last updated:** 2026-06-08 (outreach reply triage run)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, and buyer room-preview CAC feedback)
+**Last updated:** 2026-06-08 (room preview conversion run)
 
 ## Subsystem maturity
 
@@ -13,7 +13,8 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Capture pipeline | 0 | `setTimeout` simulation | Real file upload + job queue stub |
 | Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
 | Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
-| Storefront / buyer | 1 | Storefront filters live shared-catalog listings and shows artist payout per print | Product detail + room preview state |
+| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
+| Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies and sync real channel events |
 | Marketing hub | 1 | Catalog-driven creative readiness scorer and channel concepts in `/marketing-portal` | Persist creative tests and compare predicted CAC to actual cohorts |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
@@ -34,8 +35,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance scenarios | Pure TypeScript calculators in `src/lib/marketplace.ts` | Keeps CAC, payout, and POD assumptions testable across UI surfaces | 2026-06-08 |
 | Creative scoring | Pure TypeScript scorer in `src/lib/marketplace.ts` | Gates paid demand by proof, room mockups, SEO tags, margin, and predicted CAC lift before persistence | 2026-06-08 |
 | Outreach scoring | Pure TypeScript scorer in `src/lib/outreach.ts` | Turns artist replies into deterministic upload, payout/legal, proof mockup, nurture, and referral-kit actions before persistence | 2026-06-08 |
+| Room preview experiments | Pure TypeScript calculator in `src/lib/marketplace.ts` | Connects buyer visualization lift to adjusted CAC forecasts before adding persisted analytics | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage
-**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, and sales surfaces; payout, readiness, channel CAC, creative scoring, and reply triage math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback
+**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, and sales surfaces; payout, readiness, channel CAC, creative scoring, reply triage, and room-preview conversion math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, and actual channel cohorts.

@@ -4,6 +4,20 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 18:31 UTC — Room preview conversion lab
+
+- **Gate:** Restored missing campaign control files by merging `origin/cursor/orchestrator-campaign-flow-cf44`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~5.48 hours remaining; continued.
+- **Hygiene:** `git fetch --all --prune` ran; merged the latest orchestrator/product work into this assigned branch; deleted fully superseded remote branches `cursor/orchestrator-campaign-flow-7aca`, `cursor/orchestrator-campaign-flow-1408`, `cursor/orchestrator-campaign-flow-9998`, and `cursor/orchestrator-campaign-flow-cf44`. Older business-plan PR branches still have unique, conflicted commits, so they were inspected but not deleted blindly; open PRs were inspected with read-only `gh`.
+- **Theme shipped:** Buyer room-preview conversion lab in `/storefront`.
+- **Shipped:** `calculateRoomPreviewExperiment` in `src/lib/marketplace.ts`; tests for CAC reduction and no-mockup blocker behavior; `RoomPreviewExperiment` client component embedded in `/storefront` with artwork selection, preview engagement/conversion/CAC controls, incremental artist payout, adjusted CAC, and blocker state for unproofed listings.
+- **Invention shipped:** Buyer room-preview experiment that turns visualization lift into adjusted CAC forecasts and artist payout upside before paid spend scales.
+- **Research:** Added `docs/research/2026-06-08-room-preview-conversion.md` with Saatchi Art WebAR, Shopify 3D ecommerce, Rebecca Minkoff, and Interior Define references.
+- **Maturity changes:** Added Buyer conversion analytics at Phase 1; storefront/buyer notes now include room-preview CAC feedback; active slice expanded to include preview events as the next persistence target.
+- **Validation:** TDD red run failed on missing `calculateRoomPreviewExperiment`; `npm test` passed (13 tests); `npm run build` passed (15 routes); browser walkthrough verified visible lab copy, live slider recalculation, and `Abstract No. 4` amber blocker state (`storefront_room_preview_lab_clean.mp4`). A stale dev-server chunk issue after `next build` was resolved by restarting the tmux dev server.
+- **Top 3 ideas for next run:** persist room-preview opens/add-to-cart/orders with source channel; AI room mockup generator prioritized by missing-preview demand and margin; room-preview actual-lift feedback into weekly channel budget allocation.
+
+---
+
 ## 2026-06-08 17:38 UTC — Outreach reply triage
 
 - **Gate:** `allowed=true`, phase `active`, ~6.47 hours remaining; continued.

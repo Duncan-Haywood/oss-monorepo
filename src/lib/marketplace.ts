@@ -40,6 +40,15 @@ export type CreativeReadinessOptions = {
   baselineCAC?: number;
 };
 
+export type RoomPreviewExperimentInput = {
+  monthlyVisitors: number;
+  baselineConversionRate: number;
+  baselineCAC: number;
+  previewEngagementRate: number;
+  conversionLiftPercent: number;
+  purchasesPerCustomer: number;
+};
+
 export type CreativeSimilarityRisk = "Low" | "Moderate" | "High";
 
 export type AdCreativeConcept = {
@@ -232,6 +241,61 @@ export function calculateChannelScenario({
     monthlyPlatformGross,
     monthlyArtistPayout,
     monthlyContributionAfterCAC: roundCurrency(monthlyPlatformGross - monthlyMarketingSpend),
+  };
+}
+
+export function calculateRoomPreviewExperiment(
+  artwork: CatalogArtwork,
+  {
+    monthlyVisitors,
+    baselineConversionRate,
+    baselineCAC,
+    previewEngagementRate,
+    conversionLiftPercent,
+    purchasesPerCustomer,
+  }: RoomPreviewExperimentInput,
+) {
+  const economics = calculatePrintEconomics({
+    retailPrice: artwork.retailPrice,
+    fulfillmentCost: artwork.fulfillmentCost,
+  });
+  const blockers: string[] = [];
+
+  if (!artwork.hasRoomMockups) {
+    blockers.push("Generate room mockups");
+  }
+  if (!artwork.hasApprovedProof || artwork.status !== "Live") {
+    blockers.push("Approve artist proof");
+  }
+
+  const baselineOrders = roundCurrency(monthlyVisitors * (baselineConversionRate / 100));
+  const previewVisitors = monthlyVisitors * (Math.max(previewEngagementRate, 0) / 100);
+  const previewBaselineOrders = previewVisitors * (baselineConversionRate / 100);
+  const eligibleLiftPercent = blockers.length === 0 ? Math.max(conversionLiftPercent, 0) : 0;
+  const incrementalOrders = roundCurrency(previewBaselineOrders * (eligibleLiftPercent / 100));
+  const projectedOrders = roundCurrency(baselineOrders + incrementalOrders);
+  const blendedConversionRate =
+    monthlyVisitors > 0 ? roundCurrency((projectedOrders / monthlyVisitors) * 100) : 0;
+  const adjustedCAC =
+    blendedConversionRate > 0
+      ? roundCurrency(baselineCAC * (baselineConversionRate / blendedConversionRate))
+      : baselineCAC;
+
+  return {
+    baselineOrders,
+    projectedOrders,
+    incrementalOrders,
+    blendedConversionRate,
+    adjustedCAC,
+    monthlyIncrementalArtistPayout: roundCurrency(incrementalOrders * economics.artistShare),
+    blockers,
+    channelScenario: calculateChannelScenario({
+      retailPrice: artwork.retailPrice,
+      fulfillmentCost: artwork.fulfillmentCost,
+      monthlyOrders: projectedOrders,
+      customerAcquisitionCost: adjustedCAC,
+      purchasesPerCustomer,
+    }),
   };
 }
 

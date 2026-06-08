@@ -12,7 +12,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
 - [ ] [gtm] Add weekly channel budget planner with LTV:CAC guardrails from the finance simulator
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
-- [ ] [product] Add buyer room-preview experiment that feeds conversion lift back into CAC forecasts
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
 - [ ] [gtm] Generate programmatic SEO pages from artwork tags, room intent, and artist payout proof
 - [ ] [finance] Add channel spend allocator that shifts budget toward positive contribution after CAC
@@ -21,6 +20,11 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [marketing] Generate proof-mockup response kits for artists asking to see examples
 - [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
 - [ ] [gtm] Add response-to-live-listing metric and 7-day artist cohort launch planner
+- [ ] [product] Add product detail preview CTA that compares flat listing vs in-room preview behavior by artwork
+- [ ] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
+- [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
+- [ ] [finance] Feed actual room-preview lift into weekly channel budget allocation
+- [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
 
 ## in_progress
 
@@ -30,6 +34,7 @@ _(agent assigns at run start)_
 
 - [x] [sales] Outreach CRM table with reply classification and next-step queue in `/sales-portal`
 - [x] [sales] Reply-to-onboarding next-best-action engine in `src/lib/outreach.ts`
+- [x] [product] Buyer room-preview experiment in `/storefront` that feeds conversion lift into adjusted CAC forecasts
 - [x] [marketing] Creative diversity scorer + catalog-generated ad concepts in `/marketing-portal`
 - [x] [ai-ml] AI creative scoring that estimates CAC reduction from tags, mockups, proof, and margin
 - [x] [finance] CAC, payout, and POD sensitivity simulator tied to shared catalog economics
