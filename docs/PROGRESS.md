@@ -4,6 +4,17 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 16:30 UTC — Channel CAC finance simulator
+
+- **Gate:** `allowed=true`, phase `active`, ~7.46 hours remaining; continued.
+- **Hygiene:** Restored missing campaign gate/docs into the active branch; merged valuable shared-catalog work from `origin/cursor/orchestrator-campaign-flow-7aca`; deleted two fully merged remote branches (`cursor/business-plan-demo-fix-685f`, `cursor/business-plan-tsx-expansion-a39c`). Open PRs still have unique ahead commits or are active streams, so they were left open with read-only `gh`.
+- **Theme shipped:** Finance/GTM channel economics stress testing.
+- **Shipped:** `calculateChannelScenario` shared CAC/payback math; interactive Channel CAC stress test in `RevenueModel`; sourced CAC/POD benchmark note; fresh ten-lens idea pass; Tailwind PostCSS fix so the app renders styled UI in dev/build.
+- **Invention shipped:** CAC, payout, and POD sensitivity simulator tied to shared catalog economics.
+- **Maturity changes:** Finance / unit economics added at Phase 1; active slice expanded to catalog intelligence + finance stress testing.
+- **Validation:** `npm test` passed (5 tests); `npm run build` passed (15 static routes); browser walkthrough verified styled UI and live simulator updates (`styled_finance_cac_simulator_walkthrough.mp4`).
+- **Top 3 ideas for next run:** weekly channel budget planner with LTV:CAC guardrails; AI creative scoring for CAC reduction; artist consent ledger for referral/payout/ad rights.
+
 ## 2026-06-08 15:00 UTC — Shared catalog + launch readiness
 
 - **Gate:** `allowed=true`, phase `active`, ~9 hours remaining; continued.
