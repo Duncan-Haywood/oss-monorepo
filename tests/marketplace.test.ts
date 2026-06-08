@@ -9,6 +9,7 @@ import {
   calculateLaunchReadiness,
   calculatePrintEconomics,
   calculateRoomPreviewExperiment,
+  compareArtistPayoutModels,
   catalogArtworks,
   generateAdCreativeConcepts,
 } from "../src/lib/marketplace";
@@ -260,4 +261,40 @@ test("allocateWeeklyChannelBudget lets room-preview lift rescue an otherwise mar
   assert.equal(previewChannel?.recommendedWeeklyBudget, 2000);
   assert.equal(flatListingChannel?.recommendedWeeklyBudget, 0);
   assert.equal(flatListingChannel?.eligible, false);
+});
+
+test("compareArtistPayoutModels shows Print Atelier payout advantage against POD marketplace royalties", () => {
+  const comparison = compareArtistPayoutModels({
+    retailPrice: 100,
+    fulfillmentCost: 30,
+    monthlyOrders: 25,
+    paymentFeeRate: 0.03,
+    aiComputeCost: 1,
+  });
+
+  const society6 = comparison.models.find((model) => model.id === "society6-wall-art");
+  const redbubbleStandard = comparison.models.find((model) => model.id === "redbubble-standard");
+
+  assert.equal(comparison.printAtelier.artistPayoutPerOrder, 19.8);
+  assert.equal(comparison.printAtelier.monthlyArtistPayout, 495);
+  assert.equal(society6?.artistPayoutPerOrder, 10);
+  assert.equal(redbubbleStandard?.artistPayoutPerOrder, 10);
+  assert.equal(comparison.bestPodAlternative?.id, "redbubble-premium");
+  assert.equal(comparison.podAdvantagePerOrder, 3.8);
+  assert.equal(comparison.recommendation, "Lead with transparent payout proof");
+});
+
+test("compareArtistPayoutModels flags weak Print Atelier economics before artist outreach", () => {
+  const comparison = compareArtistPayoutModels({
+    retailPrice: 55,
+    fulfillmentCost: 40,
+    monthlyOrders: 12,
+    aiComputeCost: 1.35,
+  });
+
+  assert.equal(comparison.printAtelier.artistPayoutPerOrder, 3.6);
+  assert.equal(comparison.bestPodAlternative?.id, "redbubble-premium");
+  assert.equal(comparison.podAdvantagePerOrder, -5.2);
+  assert.deepEqual(comparison.blockers, ["Raise price or reduce POD cost before promising payout advantage"]);
+  assert.equal(comparison.recommendation, "Fix economics before outreach");
 });

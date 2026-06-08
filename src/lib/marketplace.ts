@@ -34,6 +34,21 @@ export type ChannelScenarioInput = PrintEconomicsInput & {
   purchasesPerCustomer: number;
 };
 
+export type ArtistPayoutComparisonInput = PrintEconomicsInput & {
+  monthlyOrders: number;
+};
+
+export type ArtistPayoutModelComparison = {
+  id: string;
+  label: string;
+  basis: string;
+  artistPayoutPerOrder: number;
+  monthlyArtistPayout: number;
+  operatorBurden: "Low" | "Medium" | "High";
+  sourceNote: string;
+  isPodAlternative: boolean;
+};
+
 export type BudgetChannelInput = {
   id: string;
   label: string;
@@ -230,6 +245,103 @@ export function calculatePrintEconomics({
     artistShare,
     platformShare,
     marginPercent,
+  };
+}
+
+export function compareArtistPayoutModels({
+  retailPrice,
+  fulfillmentCost,
+  paymentFeeRate,
+  aiComputeCost,
+  monthlyOrders,
+}: ArtistPayoutComparisonInput) {
+  const economics = calculatePrintEconomics({
+    retailPrice,
+    fulfillmentCost,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+  const safeMonthlyOrders = Math.max(monthlyOrders, 0);
+  const toModel = (
+    id: string,
+    label: string,
+    basis: string,
+    artistPayoutPerOrder: number,
+    operatorBurden: ArtistPayoutModelComparison["operatorBurden"],
+    sourceNote: string,
+    isPodAlternative = true,
+  ): ArtistPayoutModelComparison => ({
+    id,
+    label,
+    basis,
+    artistPayoutPerOrder: roundCurrency(Math.max(artistPayoutPerOrder, 0)),
+    monthlyArtistPayout: roundCurrency(Math.max(artistPayoutPerOrder, 0) * safeMonthlyOrders),
+    operatorBurden,
+    sourceNote,
+    isPodAlternative,
+  });
+
+  const printAtelier = toModel(
+    "print-atelier",
+    "Print Atelier",
+    "30% of net profit after POD, payment, and AI costs",
+    economics.artistShare,
+    "Low",
+    "Internal marketplace promise",
+    false,
+  );
+  const models = [
+    toModel(
+      "society6-wall-art",
+      "Society6 wall art",
+      "10% fixed wall-art royalty",
+      retailPrice * 0.1,
+      "Low",
+      "Society6 March 2025 artist earnings update",
+    ),
+    toModel(
+      "redbubble-standard",
+      "Redbubble Standard",
+      "20% markup less 50% account fee",
+      retailPrice * 0.2 * 0.5,
+      "Low",
+      "Redbubble tiered fee benchmark",
+    ),
+    toModel(
+      "redbubble-premium",
+      "Redbubble Premium",
+      "20% markup less 20% account fee",
+      retailPrice * 0.2 * 0.8,
+      "Low",
+      "Redbubble premium-tier benchmark",
+    ),
+    toModel(
+      "artfinder-original",
+      "Artfinder original sale",
+      "60% after 40% marketplace commission, before artist fulfillment labor",
+      retailPrice * 0.6,
+      "High",
+      "Original-art marketplace benchmark; not a POD equivalent",
+      false,
+    ),
+  ];
+  const podModels = models.filter((model) => model.isPodAlternative);
+  const bestPodAlternative = podModels.sort((a, b) => b.artistPayoutPerOrder - a.artistPayoutPerOrder)[0];
+  const podAdvantagePerOrder = roundCurrency(
+    printAtelier.artistPayoutPerOrder - (bestPodAlternative?.artistPayoutPerOrder ?? 0),
+  );
+  const blockers =
+    podAdvantagePerOrder > 0
+      ? []
+      : ["Raise price or reduce POD cost before promising payout advantage"];
+
+  return {
+    printAtelier,
+    models,
+    bestPodAlternative,
+    podAdvantagePerOrder,
+    blockers,
+    recommendation: blockers.length === 0 ? "Lead with transparent payout proof" : "Fix economics before outreach",
   };
 }
 
