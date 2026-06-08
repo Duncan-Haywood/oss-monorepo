@@ -82,6 +82,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
               <a
                 key={f}
                 href={f === "All" ? "/storefront" : `/storefront?style=${encodeURIComponent(f)}`}
+                style={{ marginRight: 8, marginBottom: 8 }}
                 className={`mr-2 mb-2 px-3 py-1.5 rounded-full text-sm transition last:mr-0 ${
                   activeFilter === f
                     ? "bg-stone-900 text-white"
