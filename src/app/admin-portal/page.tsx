@@ -286,13 +286,13 @@ export default function AdminPortal() {
                     <h3 className="mt-3 text-lg font-semibold text-white">{decision.artwork.title}</h3>
                     <p className="text-sm text-slate-500">by {decision.artwork.artistName}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 text-right text-xs">
-                    <div>
-                      <p className="uppercase tracking-wide text-slate-500">Payout</p>
+                  <div className="mt-1 grid w-full grid-cols-2 gap-2 rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-xs md:mt-0 md:w-56">
+                    <div className="text-left">
+                      <p className="uppercase tracking-wide text-slate-400">Payout</p>
                       <p className="text-lg font-bold text-white">${decision.currentArtistPayoutPerOrder.toFixed(2)}</p>
                     </div>
-                    <div>
-                      <p className="uppercase tracking-wide text-slate-500">POD edge</p>
+                    <div className="text-right">
+                      <p className="uppercase tracking-wide text-slate-400">POD edge</p>
                       <p className={decision.podAdvantagePerOrder >= 0 ? "text-lg font-bold text-emerald-200" : "text-lg font-bold text-rose-200"}>
                         ${decision.podAdvantagePerOrder.toFixed(2)}
                       </p>
