@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   allocateWeeklyChannelBudget,
+  buildListingConsentGate,
   buildListingReleaseDecisions,
   buildPayoutExceptionQueue,
   calculateCatalogSummary,
@@ -396,4 +397,42 @@ test("buildListingReleaseDecisions separates finance override review from operat
   assert.deepEqual(springBloom.overrideReasons, [
     "Finance may approve lower POD advantage for strategic artist or cohort test",
   ]);
+});
+
+test("buildListingConsentGate blocks release channels until license, ads, AI room scenes, and payout acknowledgement are recorded", () => {
+  const consentGate = buildListingConsentGate(catalogArtworks, [
+    {
+      artworkSlug: "midnight-coast",
+      podLicenseAccepted: true,
+      paidAdRightsAccepted: true,
+      aiRoomSceneAccepted: true,
+      payoutAcknowledged: true,
+    },
+    {
+      artworkSlug: "urban-geometry",
+      podLicenseAccepted: true,
+      paidAdRightsAccepted: false,
+      aiRoomSceneAccepted: false,
+      payoutAcknowledged: true,
+    },
+  ]);
+  const midnightCoast = consentGate.items.find((item) => item.artwork.slug === "midnight-coast");
+  const urbanGeometry = consentGate.items.find((item) => item.artwork.slug === "urban-geometry");
+  const abstractNo4 = consentGate.items.find((item) => item.artwork.slug === "abstract-no-4");
+
+  assert.equal(consentGate.clearedCount, 1);
+  assert.equal(consentGate.blockedCount, 5);
+  assert.equal(consentGate.missingConsentCount, 4);
+  assert.ok(midnightCoast);
+  assert.equal(midnightCoast.consentStatus, "cleared");
+  assert.deepEqual(midnightCoast.allowedChannels, ["storefront", "artist-outreach", "paid-ads", "ai-room-preview"]);
+  assert.ok(urbanGeometry);
+  assert.equal(urbanGeometry.consentStatus, "missing-consent");
+  assert.deepEqual(urbanGeometry.allowedChannels, ["storefront", "artist-outreach"]);
+  assert.deepEqual(urbanGeometry.missingConsents, ["Paid advertising rights", "AI room-scene use"]);
+  assert.match(urbanGeometry.operatorAction, /Collect paid advertising rights and AI room-scene use/);
+  assert.ok(abstractNo4);
+  assert.equal(abstractNo4.consentStatus, "release-blocked");
+  assert.deepEqual(abstractNo4.allowedChannels, []);
+  assert.match(abstractNo4.operatorAction, /Resolve release hold before collecting consent/);
 });

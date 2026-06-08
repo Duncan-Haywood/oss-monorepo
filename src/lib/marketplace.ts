@@ -98,6 +98,33 @@ export type ListingReleaseDecisionQueue = {
   overrideReviewCount: number;
 };
 
+export type ListingConsentRecord = {
+  artworkSlug: string;
+  podLicenseAccepted: boolean;
+  paidAdRightsAccepted: boolean;
+  aiRoomSceneAccepted: boolean;
+  payoutAcknowledged: boolean;
+};
+
+export type ListingConsentStatus = "cleared" | "missing-consent" | "release-blocked";
+
+export type ListingConsentGateItem = {
+  artwork: CatalogArtwork;
+  consentStatus: ListingConsentStatus;
+  owner: ListingReleaseOwner | "Legal";
+  missingConsents: string[];
+  allowedChannels: string[];
+  operatorAction: string;
+  releaseStatus: ListingReleaseStatus;
+};
+
+export type ListingConsentGateQueue = {
+  items: ListingConsentGateItem[];
+  clearedCount: number;
+  blockedCount: number;
+  missingConsentCount: number;
+};
+
 export type BudgetChannelInput = {
   id: string;
   label: string;
@@ -595,6 +622,78 @@ export function buildListingReleaseDecisions(
     releaseReadyCount: decisions.filter((decision) => decision.releaseStatus === "release-ready").length,
     holdCount: decisions.filter((decision) => decision.releaseStatus === "hold").length,
     overrideReviewCount: decisions.filter((decision) => decision.releaseStatus === "override-review").length,
+  };
+}
+
+export function buildListingConsentGate(
+  artworks: CatalogArtwork[],
+  consentRecords: ListingConsentRecord[] = [],
+  options: PayoutExceptionQueueOptions = {},
+): ListingConsentGateQueue {
+  const consentBySlug = new Map(consentRecords.map((record) => [record.artworkSlug, record]));
+  const releaseBySlug = new Map(
+    buildListingReleaseDecisions(artworks, options).decisions.map((decision) => [decision.artwork.slug, decision]),
+  );
+  const consentRequirements = [
+    ["podLicenseAccepted", "POD license"] as const,
+    ["paidAdRightsAccepted", "Paid advertising rights"] as const,
+    ["aiRoomSceneAccepted", "AI room-scene use"] as const,
+    ["payoutAcknowledged", "Payout acknowledgement"] as const,
+  ];
+  const channelRequirements = [
+    ["storefront", "podLicenseAccepted"] as const,
+    ["artist-outreach", "payoutAcknowledged"] as const,
+    ["paid-ads", "paidAdRightsAccepted"] as const,
+    ["ai-room-preview", "aiRoomSceneAccepted"] as const,
+  ];
+  const items = artworks.map((artwork) => {
+    const releaseDecision = releaseBySlug.get(artwork.slug);
+    const releaseStatus = releaseDecision?.releaseStatus ?? "hold";
+
+    if (releaseStatus !== "release-ready") {
+      return {
+        artwork,
+        consentStatus: "release-blocked",
+        owner: releaseDecision?.owner ?? "Ops",
+        missingConsents: [],
+        allowedChannels: [],
+        operatorAction: "Resolve release hold before collecting consent or exposing artist rights language.",
+        releaseStatus,
+      } satisfies ListingConsentGateItem;
+    }
+
+    const record = consentBySlug.get(artwork.slug);
+    const missingConsents = consentRequirements
+      .filter(([field]) => !record?.[field])
+      .map(([, label]) => label);
+    const allowedChannels = channelRequirements
+      .filter(([, field]) => Boolean(record?.[field]))
+      .map(([channel]) => channel);
+    const consentStatus: ListingConsentStatus = missingConsents.length === 0 ? "cleared" : "missing-consent";
+    const missingConsentCopy = missingConsents
+      .map((label) => (label === "AI room-scene use" ? label : label.charAt(0).toLowerCase() + label.slice(1)))
+      .join(" and ");
+    const operatorAction =
+      consentStatus === "cleared"
+        ? "Release to storefront, artist outreach, paid ads, and AI room-preview demand."
+        : `Collect ${missingConsentCopy} before using this listing in blocked channels.`;
+
+    return {
+      artwork,
+      consentStatus,
+      owner: consentStatus === "cleared" ? "Growth" : "Legal",
+      missingConsents,
+      allowedChannels,
+      operatorAction,
+      releaseStatus,
+    } satisfies ListingConsentGateItem;
+  });
+
+  return {
+    items,
+    clearedCount: items.filter((item) => item.consentStatus === "cleared").length,
+    blockedCount: items.filter((item) => item.consentStatus !== "cleared").length,
+    missingConsentCount: items.filter((item) => item.consentStatus === "missing-consent").length,
   };
 }
 

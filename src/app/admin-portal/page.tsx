@@ -15,6 +15,7 @@ import {
   LockKeyhole,
 } from "lucide-react";
 import {
+  buildListingConsentGate,
   buildListingReleaseDecisions,
   buildPayoutExceptionQueue,
   calculateCatalogSummary,
@@ -22,6 +23,7 @@ import {
 } from "@/lib/marketplace";
 
 type ReleaseStatusFilter = "all" | "hold" | "override-review" | "release-ready";
+type ConsentScenario = "current" | "urban-cleared";
 
 const releaseFilters: { id: ReleaseStatusFilter; label: string }[] = [
   { id: "all", label: "All listings" },
@@ -36,10 +38,36 @@ const releaseStatusStyles = {
   "release-ready": "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
 };
 
+const consentStatusStyles = {
+  cleared: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+  "missing-consent": "border-amber-500/30 bg-amber-500/10 text-amber-200",
+  "release-blocked": "border-rose-500/30 bg-rose-500/10 text-rose-200",
+};
+
 export default function AdminPortal() {
   const [minimumArtistPayout, setMinimumArtistPayout] = useState(8);
   const [targetPodAdvantage, setTargetPodAdvantage] = useState(0);
   const [releaseStatusFilter, setReleaseStatusFilter] = useState<ReleaseStatusFilter>("all");
+  const [consentScenario, setConsentScenario] = useState<ConsentScenario>("current");
+  const consentRecords = useMemo(
+    () => [
+      {
+        artworkSlug: "midnight-coast",
+        podLicenseAccepted: true,
+        paidAdRightsAccepted: true,
+        aiRoomSceneAccepted: true,
+        payoutAcknowledged: true,
+      },
+      {
+        artworkSlug: "urban-geometry",
+        podLicenseAccepted: true,
+        paidAdRightsAccepted: consentScenario === "urban-cleared",
+        aiRoomSceneAccepted: consentScenario === "urban-cleared",
+        payoutAcknowledged: true,
+      },
+    ],
+    [consentScenario],
+  );
   const payoutQueue = useMemo(
     () =>
       buildPayoutExceptionQueue(catalogArtworks, {
@@ -57,6 +85,15 @@ export default function AdminPortal() {
         targetPodAdvantagePerOrder: targetPodAdvantage,
       }),
     [minimumArtistPayout, targetPodAdvantage],
+  );
+  const consentGate = useMemo(
+    () =>
+      buildListingConsentGate(catalogArtworks, consentRecords, {
+        monthlyOrders: 12,
+        minimumArtistPayoutPerOrder: minimumArtistPayout,
+        targetPodAdvantagePerOrder: targetPodAdvantage,
+      }),
+    [consentRecords, minimumArtistPayout, targetPodAdvantage],
   );
   const filteredReleaseDecisions = releaseQueue.decisions.filter(
     (decision) => releaseStatusFilter === "all" || decision.releaseStatus === releaseStatusFilter,
@@ -87,7 +124,7 @@ export default function AdminPortal() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
             { label: "Active Artists", value: "2,405", trend: "+12", icon: <Users className="w-5 h-5 text-blue-400" /> },
-            { label: "AI Processed Images", value: "148.2k", trend: "+1,240", icon: <ImageIcon className="w-5 h-5 text-purple-400" /> },
+            { label: "Consent Blocks", value: `${consentGate.blockedCount}`, trend: `${consentGate.clearedCount} cleared`, icon: <ImageIcon className="w-5 h-5 text-purple-400" /> },
             { label: "Pending Fulfillment", value: "412", trend: "-5%", icon: <Box className="w-5 h-5 text-amber-400" /> },
             { label: "Payout Exceptions", value: `${payoutQueue.length}`, trend: `${criticalPayoutItems} critical`, icon: <ShieldCheck className="w-5 h-5 text-emerald-400" /> }
           ].map((kpi, i) => (
@@ -332,6 +369,99 @@ export default function AdminPortal() {
                 No listings match this release filter under the current payout guardrails.
               </p>
             )}
+          </div>
+        </section>
+
+        {/* Consent Gate */}
+        <section className="rounded-xl border border-slate-700/50 bg-slate-800/50 overflow-hidden">
+          <div className="border-b border-slate-700/50 bg-slate-800 px-5 py-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 font-semibold text-white">
+                  <LockKeyhole className="h-4 w-4 text-amber-300" /> Listing Consent Gate
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Blocks storefront, outreach, paid ads, and AI room-preview use until the artist has accepted the exact
+                  rights needed for that channel.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs sm:min-w-[420px]">
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
+                  <p className="text-2xl font-bold text-emerald-200">{consentGate.clearedCount}</p>
+                  <p className="text-emerald-100/70">Fully cleared</p>
+                </div>
+                <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
+                  <p className="text-2xl font-bold text-amber-200">{consentGate.missingConsentCount}</p>
+                  <p className="text-amber-100/70">Need consent</p>
+                </div>
+                <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3">
+                  <p className="text-2xl font-bold text-rose-200">
+                    {consentGate.items.filter((item) => item.consentStatus === "release-blocked").length}
+                  </p>
+                  <p className="text-rose-100/70">Release blocked</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setConsentScenario("current")}
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                  consentScenario === "current"
+                    ? "border-amber-400 bg-amber-500/20 text-amber-100"
+                    : "border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-500 hover:text-white"
+                }`}
+              >
+                Current consent ledger
+              </button>
+              <button
+                type="button"
+                onClick={() => setConsentScenario("urban-cleared")}
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                  consentScenario === "urban-cleared"
+                    ? "border-emerald-400 bg-emerald-500/20 text-emerald-100"
+                    : "border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-500 hover:text-white"
+                }`}
+              >
+                Collect Urban Geometry ad + AI rights
+              </button>
+            </div>
+          </div>
+          <div className="grid gap-4 p-5 lg:grid-cols-2">
+            {consentGate.items.map((item) => (
+              <article key={item.artwork.slug} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full border px-2 py-1 text-xs font-semibold ${consentStatusStyles[item.consentStatus]}`}>
+                        {item.consentStatus.replace("-", " ")}
+                      </span>
+                      <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">
+                        Owner: {item.owner}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-lg font-semibold text-white">{item.artwork.title}</h3>
+                    <p className="text-sm text-slate-500">by {item.artwork.artistName}</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-xs md:w-56">
+                    <p className="uppercase tracking-wide text-slate-500">Allowed channels</p>
+                    <p className="mt-1 font-semibold text-white">
+                      {item.allowedChannels.length > 0 ? item.allowedChannels.join(", ") : "None yet"}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm font-medium text-blue-200">{item.operatorAction}</p>
+                {item.missingConsents.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.missingConsents.map((consent) => (
+                      <span key={consent} className="rounded-lg bg-slate-800 px-3 py-2 text-xs text-slate-300">
+                        Missing: {consent}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
           </div>
         </section>
 
