@@ -4,13 +4,12 @@ import DemoNav from "@/components/shared/DemoNav";
 import { BarChart3, Image as ImageIcon, Settings, Wallet, Bell, Upload, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-
-const portfolio = [
-  { title: "Midnight Ocean", status: "Active", sales: 42, earnings: 687, image: "bg-blue-900" },
-  { title: "Summer Valley", status: "Active", sales: 28, earnings: 483, image: "bg-emerald-700" },
-  { title: "Abstract No. 4", status: "Proof Pending", sales: 0, earnings: 0, image: "bg-purple-900" },
-  { title: "Winter Light", status: "Processing", sales: 0, earnings: 0, image: "bg-slate-600" },
-];
+import {
+  calculateCatalogSummary,
+  calculateLaunchReadiness,
+  calculatePrintEconomics,
+  catalogArtworks,
+} from "@/lib/marketplace";
 
 const payouts = [
   { date: "Oct 1, 2026", amount: 842.10, status: "Scheduled", prints: 52 },
@@ -20,6 +19,16 @@ const payouts = [
 
 export default function ArtistPortal() {
   const [activeTab, setActiveTab] = useState("overview");
+  const summary = calculateCatalogSummary(catalogArtworks);
+  const totalSales = catalogArtworks.reduce((sum, artwork) => sum + artwork.salesLast30Days, 0);
+  const proofQueue = catalogArtworks.filter((artwork) => artwork.status === "Proof pending");
+  const readinessQueue = catalogArtworks
+    .map((artwork) => ({ artwork, readiness: calculateLaunchReadiness(artwork) }))
+    .sort((a, b) => a.readiness.score - b.readiness.score);
+  const nextCatalogFix = readinessQueue.find((item) => item.readiness.blockers.length > 0);
+  const recentSales = catalogArtworks
+    .filter((artwork) => artwork.status === "Live" && artwork.salesLast30Days > 0)
+    .slice(0, 3);
 
   return (
     <div className="flex flex-col h-screen bg-stone-50 overflow-hidden dark:bg-gray-900">
@@ -78,20 +87,20 @@ export default function ArtistPortal() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
-                    <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Total Earnings</p>
-                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">$4,250.00</h3>
-                    <p className="text-sm text-green-600 mt-2">+12% this month</p>
+                    <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Projected Monthly Payout</p>
+                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">${summary.projectedMonthlyArtistPayout.toLocaleString()}</h3>
+                    <p className="text-sm text-green-600 mt-2">From shared catalog economics</p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
                     <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Prints Sold</p>
-                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">142</h3>
-                    <p className="text-sm text-green-600 mt-2">+5 this week</p>
+                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">{totalSales}</h3>
+                    <p className="text-sm text-green-600 mt-2">Last 30 days</p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm">
-                    <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Active Pieces</p>
-                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">18</h3>
+                    <p className="text-sm text-stone-500 dark:text-gray-400 font-medium mb-1">Catalog Readiness</p>
+                    <h3 className="text-3xl font-bold text-stone-900 dark:text-white">{summary.averageReadinessScore}%</h3>
                     <Link href="/capture" className="text-sm text-blue-600 dark:text-blue-400 mt-2 hover:underline inline-block">
-                      Schedule new capture →
+                      {summary.liveArtworks} live / {summary.totalArtworks} total pieces →
                     </Link>
                   </div>
                 </div>
@@ -99,7 +108,11 @@ export default function ArtistPortal() {
                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <p className="font-bold text-stone-900 dark:text-white">Proof Approval Required</p>
-                    <p className="text-sm text-stone-600 dark:text-gray-300">&quot;Abstract No. 4&quot; has been digitized and needs your review.</p>
+                    <p className="text-sm text-stone-600 dark:text-gray-300">
+                      {proofQueue.length > 0
+                        ? `"${proofQueue[0].title}" has been digitized and needs your review.`
+                        : "No proofs are waiting on the artist."}
+                    </p>
                   </div>
                   <button
                     onClick={() => setActiveTab("portfolio")}
@@ -109,32 +122,57 @@ export default function ArtistPortal() {
                   </button>
                 </div>
 
+                {nextCatalogFix && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm p-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-300">AI catalog launch queue</p>
+                        <h3 className="mt-1 font-bold text-stone-900 dark:text-white">
+                          Next fix: {nextCatalogFix.artwork.title} ({nextCatalogFix.readiness.score}% ready)
+                        </h3>
+                        <p className="mt-1 text-sm text-stone-600 dark:text-gray-300">
+                          Blockers: {nextCatalogFix.readiness.blockers.join(", ")}.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab("portfolio")}
+                        className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700 dark:bg-white dark:text-stone-900"
+                      >
+                        Open catalog queue
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm overflow-hidden">
                   <div className="px-6 py-4 border-b border-stone-200 dark:border-gray-700">
                     <h3 className="font-bold text-stone-900 dark:text-white">Recent Sales</h3>
                   </div>
                   <div className="divide-y divide-stone-100 dark:divide-gray-700">
-                    {[
-                      { piece: "Midnight Ocean", size: "16x20", price: "$85", royalty: "$16.34", time: "2 hours ago" },
-                      { piece: "Summer Valley", size: "24x36", price: "$150", royalty: "$34.50", time: "5 hours ago" },
-                      { piece: "Abstract No. 4", size: "11x14", price: "$55", royalty: "$9.80", time: "1 day ago" },
-                    ].map((sale, i) => (
-                      <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-gray-750">
+                    {recentSales.map((sale, i) => {
+                      const economics = calculatePrintEconomics({
+                        retailPrice: sale.retailPrice,
+                        fulfillmentCost: sale.fulfillmentCost,
+                      });
+
+                      return (
+                      <div key={sale.slug} className="px-6 py-4 flex items-center justify-between hover:bg-stone-50 dark:hover:bg-gray-750">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-stone-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                             <ImageIcon className="w-6 h-6 text-stone-400" />
                           </div>
                           <div>
-                            <p className="font-medium text-stone-900 dark:text-white">{sale.piece}</p>
-                            <p className="text-sm text-stone-500 dark:text-gray-400">{sale.size} Archival Print • Sold {sale.time}</p>
+                            <p className="font-medium text-stone-900 dark:text-white">{sale.title}</p>
+                            <p className="text-sm text-stone-500 dark:text-gray-400">16x20 Archival Print • {sale.salesLast30Days} sold this month</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-green-600 dark:text-green-400">+{sale.royalty}</p>
-                          <p className="text-xs text-stone-400 font-mono">Net 30% of {sale.price}</p>
+                          <p className="font-medium text-green-600 dark:text-green-400">+${economics.artistShare.toFixed(2)}</p>
+                          <p className="text-xs text-stone-400 font-mono">Net 30% of ${sale.retailPrice}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -143,33 +181,40 @@ export default function ArtistPortal() {
             {activeTab === "portfolio" && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <p className="text-sm text-stone-500">{portfolio.length} pieces in catalog</p>
+                  <p className="text-sm text-stone-500">{catalogArtworks.length} pieces in catalog</p>
                   <Link href="/capture" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700">
                     <Upload className="w-4 h-4" /> Upload New Piece
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {portfolio.map((piece) => (
-                    <div key={piece.title} className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 overflow-hidden flex">
-                      <div className={`w-24 ${piece.image}`} />
+                  {catalogArtworks.map((piece) => {
+                    const readiness = calculateLaunchReadiness(piece);
+
+                    return (
+                    <div key={piece.slug} className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 overflow-hidden flex">
+                      <div className={`w-24 ${piece.imageClass}`} />
                       <div className="p-4 flex-1">
                         <div className="flex justify-between items-start">
                           <h3 className="font-bold text-stone-900 dark:text-white">{piece.title}</h3>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            piece.status === "Active" ? "bg-green-100 text-green-700" :
-                            piece.status === "Proof Pending" ? "bg-amber-100 text-amber-700" :
+                            piece.status === "Live" ? "bg-green-100 text-green-700" :
+                            piece.status === "Proof pending" ? "bg-amber-100 text-amber-700" :
                             "bg-blue-100 text-blue-700"
                           }`}>
                             {piece.status}
                           </span>
                         </div>
-                        <p className="text-sm text-stone-500 mt-2">{piece.sales} sold • ${piece.earnings} earned</p>
-                        {piece.status === "Proof Pending" && (
-                          <button className="text-xs text-blue-600 mt-2 hover:underline">Review AI proof →</button>
+                        <p className="text-sm text-stone-500 mt-2">
+                          {piece.salesLast30Days} sold • ${piece.projectedMonthlyArtistPayout.toLocaleString()} projected payout
+                        </p>
+                        <p className="text-xs text-stone-400 mt-1">Launch readiness: {readiness.score}% • {readiness.label}</p>
+                        {readiness.blockers.length > 0 && (
+                          <button className="text-xs text-blue-600 mt-2 hover:underline">{readiness.blockers[0]} →</button>
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

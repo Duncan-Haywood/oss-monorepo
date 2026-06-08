@@ -1,5 +1,6 @@
 "use client";
 
+import { calculatePrintEconomics } from "@/lib/marketplace";
 import { useState } from "react";
 
 type PrintSize = { name: string; price: number; cost: number };
@@ -11,12 +12,10 @@ export default function RevenueModel() {
   const [monthlyOrders, setMonthlyOrders] = useState(500);
   const [avgOrderValue, setAvgOrderValue] = useState(85);
 
-  const paymentFee = retailPrice * 0.03;
   const aiComputeCost = 0.35;
-  const netProfit = retailPrice - paymentFee - podCost - aiComputeCost;
-  const artistShare = netProfit * 0.3;
-  const platformGross = netProfit * 0.7;
-  const margin = retailPrice > 0 ? ((netProfit / retailPrice) * 100).toFixed(1) : "0";
+  const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost: podCost, aiComputeCost });
+  const platformGross = economics.platformShare;
+  const margin = economics.marginPercent.toFixed(1);
 
   const sizes: PrintSize[] = [
     { name: "8x10", price: 45, cost: 12 },
@@ -122,7 +121,7 @@ export default function RevenueModel() {
               <span>Sale Price</span> <span>${retailPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b pb-1 text-red-600 dark:text-red-400">
-              <span>Payment Processing (~3%)</span> <span>-${paymentFee.toFixed(2)}</span>
+              <span>Payment Processing (~3%)</span> <span>-${economics.paymentFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b pb-1 text-red-600 dark:text-red-400">
               <span>POD Print + Shipping</span> <span>-${podCost.toFixed(2)}</span>
@@ -131,10 +130,10 @@ export default function RevenueModel() {
               <span>AI Compute (upscale + mockups)</span> <span>-${aiComputeCost.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold pt-2 border-t mt-1 text-gray-800 dark:text-gray-200">
-              <span>Net Profit</span> <span>${netProfit.toFixed(2)} ({margin}% margin)</span>
+              <span>Net Profit</span> <span>${economics.netProfit.toFixed(2)} ({margin}% margin)</span>
             </div>
             <div className="flex justify-between text-blue-600 dark:text-blue-400 mt-2">
-              <span>Artist Share (30%)</span> <span>${artistShare.toFixed(2)}</span>
+              <span>Artist Share (30%)</span> <span>${economics.artistShare.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-green-600 dark:text-green-400 font-bold">
               <span>Platform Gross (70%)</span> <span>${platformGross.toFixed(2)}</span>
