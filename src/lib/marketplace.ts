@@ -49,6 +49,29 @@ export type ArtistPayoutModelComparison = {
   isPodAlternative: boolean;
 };
 
+export type PayoutExceptionSeverity = "critical" | "review";
+
+export type PayoutExceptionQueueOptions = {
+  monthlyOrders?: number;
+  minimumArtistPayoutPerOrder?: number;
+  targetPodAdvantagePerOrder?: number;
+  maxSuggestedRetailPrice?: number;
+  paymentFeeRate?: number;
+  aiComputeCost?: number;
+};
+
+export type PayoutExceptionQueueItem = {
+  artwork: CatalogArtwork;
+  severity: PayoutExceptionSeverity;
+  currentArtistPayoutPerOrder: number;
+  bestPodAlternativeLabel: string;
+  podAdvantagePerOrder: number;
+  suggestedRetailPrice: number;
+  blockers: string[];
+  nextAction: string;
+  holdMessage: string;
+};
+
 export type BudgetChannelInput = {
   id: string;
   label: string;
@@ -343,6 +366,131 @@ export function compareArtistPayoutModels({
     blockers,
     recommendation: blockers.length === 0 ? "Lead with transparent payout proof" : "Fix economics before outreach",
   };
+}
+
+function findSuggestedRetailPrice(
+  artwork: CatalogArtwork,
+  {
+    monthlyOrders,
+    minimumArtistPayoutPerOrder,
+    targetPodAdvantagePerOrder,
+    maxSuggestedRetailPrice,
+    paymentFeeRate,
+    aiComputeCost,
+  }: Required<PayoutExceptionQueueOptions>,
+) {
+  for (let price = Math.ceil(artwork.retailPrice); price <= maxSuggestedRetailPrice; price += 1) {
+    const comparison = compareArtistPayoutModels({
+      retailPrice: price,
+      fulfillmentCost: artwork.fulfillmentCost,
+      monthlyOrders,
+      paymentFeeRate,
+      aiComputeCost,
+    });
+
+    if (
+      comparison.printAtelier.artistPayoutPerOrder >= minimumArtistPayoutPerOrder &&
+      comparison.podAdvantagePerOrder >= targetPodAdvantagePerOrder
+    ) {
+      return price;
+    }
+  }
+
+  return maxSuggestedRetailPrice;
+}
+
+export function buildPayoutExceptionQueue(
+  artworks: CatalogArtwork[],
+  {
+    monthlyOrders = 12,
+    minimumArtistPayoutPerOrder = 8,
+    targetPodAdvantagePerOrder = 0,
+    maxSuggestedRetailPrice = 250,
+    paymentFeeRate = 0.03,
+    aiComputeCost = 0.35,
+  }: PayoutExceptionQueueOptions = {},
+): PayoutExceptionQueueItem[] {
+  return artworks
+    .map((artwork) => {
+      const comparison = compareArtistPayoutModels({
+        retailPrice: artwork.retailPrice,
+        fulfillmentCost: artwork.fulfillmentCost,
+        monthlyOrders,
+        paymentFeeRate,
+        aiComputeCost,
+      });
+      const blockers: string[] = [];
+      const bestPodLabel = comparison.bestPodAlternative?.label ?? "best POD benchmark";
+
+      if (comparison.podAdvantagePerOrder < 0) {
+        blockers.push(`Trails ${bestPodLabel} by $${Math.abs(comparison.podAdvantagePerOrder).toFixed(2)}/order`);
+      } else if (comparison.podAdvantagePerOrder < targetPodAdvantagePerOrder) {
+        blockers.push(`Payout advantage below $${targetPodAdvantagePerOrder.toFixed(2)}/order target`);
+      }
+      if (comparison.printAtelier.artistPayoutPerOrder < minimumArtistPayoutPerOrder) {
+        blockers.push(`Artist payout below $${minimumArtistPayoutPerOrder.toFixed(2)}/order floor`);
+      }
+      if (!artwork.hasApprovedProof || artwork.status !== "Live") {
+        blockers.push("Proof is not approved");
+      }
+      if (!artwork.hasRoomMockups) {
+        blockers.push("Room mockups missing");
+      }
+
+      if (blockers.length === 0) {
+        return null;
+      }
+
+      const suggestedRetailPrice = findSuggestedRetailPrice(artwork, {
+        monthlyOrders,
+        minimumArtistPayoutPerOrder,
+        targetPodAdvantagePerOrder,
+        maxSuggestedRetailPrice,
+        paymentFeeRate,
+        aiComputeCost,
+      });
+      const severity: PayoutExceptionSeverity =
+        comparison.podAdvantagePerOrder < 0 ||
+        comparison.printAtelier.artistPayoutPerOrder < minimumArtistPayoutPerOrder ||
+        !artwork.hasApprovedProof ||
+        artwork.status !== "Live" ||
+        !artwork.hasRoomMockups
+          ? "critical"
+          : "review";
+      const priceAction =
+        suggestedRetailPrice > artwork.retailPrice
+          ? `Raise retail price to $${suggestedRetailPrice} or reduce POD cost before outreach`
+          : "Keep price, but review payout proof before outreach";
+      const proofAction = [
+        !artwork.hasApprovedProof || artwork.status !== "Live" ? "approve proof" : null,
+        !artwork.hasRoomMockups ? "generate room mockups" : null,
+      ]
+        .filter(Boolean)
+        .join(" and ");
+
+      return {
+        artwork,
+        severity,
+        currentArtistPayoutPerOrder: comparison.printAtelier.artistPayoutPerOrder,
+        bestPodAlternativeLabel: bestPodLabel,
+        podAdvantagePerOrder: comparison.podAdvantagePerOrder,
+        suggestedRetailPrice,
+        blockers,
+        nextAction: proofAction ? `${priceAction}; then ${proofAction}.` : `${priceAction}.`,
+        holdMessage:
+          severity === "critical"
+            ? `Do not use the 30% payout promise for ${artwork.title} until economics, proof, and mockups clear guardrails.`
+            : `Hold ${artwork.title} until payout advantage reaches $${targetPodAdvantagePerOrder.toFixed(2)}/order target.`,
+      };
+    })
+    .filter((item): item is PayoutExceptionQueueItem => item !== null)
+    .sort((a, b) => {
+      if (a.severity !== b.severity) {
+        return a.severity === "critical" ? -1 : 1;
+      }
+
+      return a.podAdvantagePerOrder - b.podAdvantagePerOrder;
+    });
 }
 
 export function calculateChannelScenario({

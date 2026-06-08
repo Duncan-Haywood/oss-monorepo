@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   allocateWeeklyChannelBudget,
+  buildPayoutExceptionQueue,
   calculateCatalogSummary,
   calculateChannelScenario,
   calculateCreativeReadiness,
@@ -297,4 +298,45 @@ test("compareArtistPayoutModels flags weak Print Atelier economics before artist
   assert.equal(comparison.podAdvantagePerOrder, -5.2);
   assert.deepEqual(comparison.blockers, ["Raise price or reduce POD cost before promising payout advantage"]);
   assert.equal(comparison.recommendation, "Fix economics before outreach");
+});
+
+test("buildPayoutExceptionQueue prioritizes listings where POD cost breaks the payout promise", () => {
+  const queue = buildPayoutExceptionQueue(catalogArtworks, {
+    monthlyOrders: 12,
+    minimumArtistPayoutPerOrder: 8,
+    targetPodAdvantagePerOrder: 0,
+  });
+
+  assert.equal(queue.length, 1);
+  assert.equal(queue[0].artwork.slug, "abstract-no-4");
+  assert.equal(queue[0].severity, "critical");
+  assert.equal(queue[0].currentArtistPayoutPerOrder, 3.9);
+  assert.equal(queue[0].podAdvantagePerOrder, -4.9);
+  assert.equal(queue[0].suggestedRetailPrice, 93);
+  assert.deepEqual(queue[0].blockers, [
+    "Trails Redbubble Premium by $4.90/order",
+    "Artist payout below $8.00/order floor",
+    "Proof is not approved",
+    "Room mockups missing",
+  ]);
+  assert.equal("trustMessage" in queue[0], false);
+  assert.match(queue[0].holdMessage, /Do not use the 30% payout promise/);
+  assert.match(queue[0].nextAction, /Raise retail price to \$93/);
+});
+
+test("buildPayoutExceptionQueue creates review items when payout advantage is positive but thin", () => {
+  const queue = buildPayoutExceptionQueue(catalogArtworks, {
+    monthlyOrders: 20,
+    targetPodAdvantagePerOrder: 4,
+  });
+  const springBloom = queue.find((item) => item.artwork.slug === "spring-bloom");
+
+  assert.ok(springBloom);
+  assert.equal(springBloom.severity, "review");
+  assert.equal(springBloom.podAdvantagePerOrder, 3.01);
+  assert.equal(springBloom.suggestedRetailPrice, 73);
+  assert.match(
+    springBloom.holdMessage,
+    /Hold Spring Bloom until payout advantage reaches \$4\.00\/order target/,
+  );
 });

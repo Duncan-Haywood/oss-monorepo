@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 20:09 UTC — Payout exception guardrail queue
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~3.95 hours remaining; not the final active-window run.
+- **Orient:** `git fetch --all --prune` ran; checked `main`, pulled `origin/main`, ran `npm ci && npm run build` successfully, then returned to `cursor/orchestrator-campaign-flow-6176`.
+- **Hygiene:** Fast-forwarded this assigned branch to the latest orchestrator/product state from `origin/cursor/orchestrator-campaign-flow-be20`, pushed `cursor/orchestrator-campaign-flow-6176`, and deleted superseded remote branch `cursor/orchestrator-campaign-flow-be20`. Older open PR branches still have unique ahead commits or read-only PRs, so they were not deleted blindly.
+- **Theme shipped:** Payout promise guardrails for operations and outreach.
+- **Shipped:** `buildPayoutExceptionQueue` in `src/lib/marketplace.ts`; two TDD tests for unsafe POD economics and thin positive payout advantage; `buildOutreachQueue` now holds draft and upload-link outreach when the associated SKU fails payout guardrails; `/admin-portal` now has an interactive payout guardrail with artist payout floor and POD advantage sliders, held listing count, blocker chips, suggested retail price, and operator hold actions.
+- **Invention shipped:** Payout promise guardrail queue that converts the 30% net-profit promise into a hold/release workflow before artist outreach.
+- **Research:** Added `docs/research/2026-06-08-payout-exception-queue.md`; `parallel-cli` was unavailable, so the note reuses the existing source-backed payout benchmark research rather than adding uncited live-search claims.
+- **Maturity changes:** Added Payout promise guardrails at Phase 1; Operations `— → 1`; active slice now includes payout exception guardrails and next-step persistence of exception decisions, overrides, and remediation history.
+- **Validation:** TDD red run failed on missing `buildPayoutExceptionQueue`; review regression red runs failed until unsafe trust copy was removed, outreach routing consumed payout exceptions for draft/replied prospects, and held replies were excluded from onboarding-ready metrics; after implementation, `npm test` passed (22 tests); `npm run build` passed (15 routes).
+- **Top 3 ideas for next run:** persist payout exception decisions with current economics/suggested retail/override reason; add listing hold/release workflow with artist-facing trust copy preview; add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails.
+
+---
+
 ## 2026-06-08 19:30 UTC — Artist payout trust battlecard
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~4.45 hours remaining; not the final active-window run.

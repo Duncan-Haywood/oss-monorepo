@@ -1,3 +1,5 @@
+import { buildPayoutExceptionQueue, catalogArtworks, type PayoutExceptionQueueItem } from "./marketplace";
+
 export type ProspectStatus = "Draft" | "Sent" | "Opened" | "Replied" | "Onboarded";
 
 export type ReplyClassification =
@@ -17,12 +19,17 @@ export type OutreachProspect = {
   styleSignal: string;
   replyText?: string;
   projectedMonthlyArtistPayout: number;
+  catalogArtworkSlug?: string;
 };
 
 export type OutreachQueueItem = OutreachProspect & {
   priorityScore: number;
   replyClassification: ReplyClassification;
   nextAction: string;
+  payoutGuardrail?: Pick<
+    PayoutExceptionQueueItem,
+    "severity" | "blockers" | "nextAction" | "suggestedRetailPrice"
+  >;
 };
 
 export const outreachProspects: OutreachProspect[] = [
@@ -36,6 +43,7 @@ export const outreachProspects: OutreachProspect[] = [
     styleSignal: "Coastal oil series over-indexes with moody blue room searches",
     replyText: "I love this, send me the upload link and earnings estimate.",
     projectedMonthlyArtistPayout: 720,
+    catalogArtworkSlug: "midnight-coast",
   },
   {
     name: "Marcus Chen",
@@ -46,6 +54,7 @@ export const outreachProspects: OutreachProspect[] = [
     fitScore: 87,
     styleSignal: "Geometric abstracts match high-margin monochrome interiors",
     projectedMonthlyArtistPayout: 432,
+    catalogArtworkSlug: "urban-geometry",
   },
   {
     name: "Sarah Jenkins",
@@ -56,6 +65,7 @@ export const outreachProspects: OutreachProspect[] = [
     fitScore: 85,
     styleSignal: "Botanical reels convert into spring wall-art searches",
     projectedMonthlyArtistPayout: 348,
+    catalogArtworkSlug: "spring-bloom",
   },
   {
     name: "David Okonkwo",
@@ -66,6 +76,7 @@ export const outreachProspects: OutreachProspect[] = [
     fitScore: 90,
     styleSignal: "Warm landscape catalog already has proof-approved demand",
     projectedMonthlyArtistPayout: 540,
+    catalogArtworkSlug: "desert-sun",
   },
   {
     name: "Luna Martinez",
@@ -87,6 +98,7 @@ export const outreachProspects: OutreachProspect[] = [
     styleSignal: "Minimal city scenes fit B2B designer sourcing",
     replyText: "What are the artist payout terms and do I keep the original rights?",
     projectedMonthlyArtistPayout: 120,
+    catalogArtworkSlug: "city-at-dusk",
   },
 ];
 
@@ -122,7 +134,14 @@ function getStatusWeight(status: ProspectStatus) {
   return weights[status];
 }
 
-function getNextAction(classification: ReplyClassification, status: ProspectStatus) {
+function getNextAction(
+  classification: ReplyClassification,
+  status: ProspectStatus,
+  payoutGuardrail?: OutreachQueueItem["payoutGuardrail"],
+) {
+  if (payoutGuardrail) {
+    return `Hold outreach: ${payoutGuardrail.nextAction}`;
+  }
   if (classification === "Ready for upload link") {
     return "Send capture upload link + payout calculator";
   }
@@ -146,15 +165,31 @@ function getNextAction(classification: ReplyClassification, status: ProspectStat
 }
 
 export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueueItem[] {
+  const payoutExceptionBySlug = new Map(
+    buildPayoutExceptionQueue(catalogArtworks).map((exception) => [exception.artwork.slug, exception]),
+  );
+
   return prospects
     .map((prospect) => {
       const replyClassification = classifyProspectReply(prospect.replyText);
+      const payoutException = prospect.catalogArtworkSlug
+        ? payoutExceptionBySlug.get(prospect.catalogArtworkSlug)
+        : undefined;
+      const payoutGuardrail = payoutException
+        ? {
+            severity: payoutException.severity,
+            blockers: payoutException.blockers,
+            nextAction: payoutException.nextAction,
+            suggestedRetailPrice: payoutException.suggestedRetailPrice,
+          }
+        : undefined;
 
       return {
         ...prospect,
         priorityScore: prospect.fitScore + getStatusWeight(prospect.status),
         replyClassification,
-        nextAction: getNextAction(replyClassification, prospect.status),
+        nextAction: getNextAction(replyClassification, prospect.status, payoutGuardrail),
+        payoutGuardrail,
       };
     })
     .sort((a, b) => b.priorityScore - a.priorityScore);
@@ -164,7 +199,7 @@ export function calculateOutreachSummary(prospects: OutreachProspect[]) {
   const queue = buildOutreachQueue(prospects);
   const repliedProspects = queue.filter((prospect) => prospect.status === "Replied").length;
   const readyForOnboarding = queue.filter(
-    (prospect) => prospect.replyClassification === "Ready for upload link",
+    (prospect) => prospect.replyClassification === "Ready for upload link" && !prospect.payoutGuardrail,
   ).length;
 
   return {

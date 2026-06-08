@@ -1,8 +1,24 @@
 "use client";
 
-import { Activity, Users, Image as ImageIcon, Box, AlertCircle, Database, Server, Zap } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Users, Image as ImageIcon, Box, AlertCircle, Database, Server, Zap, ShieldCheck } from "lucide-react";
+import { buildPayoutExceptionQueue, calculateCatalogSummary, catalogArtworks } from "@/lib/marketplace";
 
 export default function AdminPortal() {
+  const [minimumArtistPayout, setMinimumArtistPayout] = useState(8);
+  const [targetPodAdvantage, setTargetPodAdvantage] = useState(0);
+  const payoutQueue = useMemo(
+    () =>
+      buildPayoutExceptionQueue(catalogArtworks, {
+        monthlyOrders: 12,
+        minimumArtistPayoutPerOrder: minimumArtistPayout,
+        targetPodAdvantagePerOrder: targetPodAdvantage,
+      }),
+    [minimumArtistPayout, targetPodAdvantage],
+  );
+  const catalogSummary = calculateCatalogSummary(catalogArtworks);
+  const criticalPayoutItems = payoutQueue.filter((item) => item.severity === "critical").length;
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-sans">
       {/* Header */}
@@ -28,7 +44,7 @@ export default function AdminPortal() {
             { label: "Active Artists", value: "2,405", trend: "+12", icon: <Users className="w-5 h-5 text-blue-400" /> },
             { label: "AI Processed Images", value: "148.2k", trend: "+1,240", icon: <ImageIcon className="w-5 h-5 text-purple-400" /> },
             { label: "Pending Fulfillment", value: "412", trend: "-5%", icon: <Box className="w-5 h-5 text-amber-400" /> },
-            { label: "API Requests / min", value: "1,204", trend: "Normal", icon: <Activity className="w-5 h-5 text-emerald-400" /> }
+            { label: "Payout Exceptions", value: `${payoutQueue.length}`, trend: `${criticalPayoutItems} critical`, icon: <ShieldCheck className="w-5 h-5 text-emerald-400" /> }
           ].map((kpi, i) => (
             <div key={i} className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50 backdrop-blur flex items-start justify-between">
               <div>
@@ -39,6 +55,129 @@ export default function AdminPortal() {
               <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">{kpi.icon}</div>
             </div>
           ))}
+        </div>
+
+        {/* Payout Guardrails */}
+        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-700/50 flex flex-col gap-3 bg-slate-800 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="font-semibold text-white flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Payout Promise Guardrail
+              </h2>
+              <p className="text-sm text-slate-400 mt-1">
+                Blocks artist outreach when POD cost, proof status, or missing mockups make the 30% net-profit promise unsafe.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 text-xs md:grid-cols-2 md:min-w-[380px]">
+              <label className="space-y-2">
+                <span className="flex justify-between text-slate-400">
+                  Artist payout floor <strong className="text-white">${minimumArtistPayout}/print</strong>
+                </span>
+                <input
+                  type="range"
+                  min="4"
+                  max="16"
+                  value={minimumArtistPayout}
+                  onChange={(event) => setMinimumArtistPayout(Number(event.target.value))}
+                  className="w-full accent-emerald-400"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="flex justify-between text-slate-400">
+                  POD advantage target <strong className="text-white">${targetPodAdvantage}/print</strong>
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  value={targetPodAdvantage}
+                  onChange={(event) => setTargetPodAdvantage(Number(event.target.value))}
+                  className="w-full accent-blue-400"
+                />
+              </label>
+              <div className="flex gap-2 md:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinimumArtistPayout(11);
+                    setTargetPodAdvantage(4);
+                  }}
+                  className="flex-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
+                >
+                  Stress test guardrails
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinimumArtistPayout(8);
+                    setTargetPodAdvantage(0);
+                  }}
+                  className="rounded-lg border border-slate-600 px-3 py-2 font-semibold text-slate-300 transition hover:bg-slate-700"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 p-5 lg:grid-cols-[0.85fr_1.15fr]">
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Catalog risk summary</p>
+              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-white">{catalogSummary.totalArtworks}</p>
+                  <p className="text-xs text-slate-500">SKUs</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-300">{catalogSummary.liveArtworks}</p>
+                  <p className="text-xs text-slate-500">Live SKUs</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-amber-300">{payoutQueue.length}</p>
+                  <p className="text-xs text-slate-500">Guardrail holds</p>
+                </div>
+              </div>
+              <p className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+                Safe listings can use transparent payout proof in sales copy. Held listings must fix price, POD cost,
+                proof approval, or room scenes before an artist sees the promise.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {payoutQueue.map((item) => (
+                <div key={item.artwork.slug} className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                            item.severity === "critical"
+                              ? "bg-rose-500/10 text-rose-300 border border-rose-500/20"
+                              : "bg-amber-500/10 text-amber-300 border border-amber-500/20"
+                          }`}
+                        >
+                          {item.severity}
+                        </span>
+                        <h3 className="text-lg font-semibold text-white">{item.artwork.title}</h3>
+                        <span className="text-sm text-slate-500">by {item.artwork.artistName}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-400">{item.holdMessage}</p>
+                    </div>
+                    <div className="text-left md:text-right">
+                      <p className="text-xs uppercase tracking-wide text-slate-500">Suggested retail</p>
+                      <p className="text-2xl font-bold text-white">${item.suggestedRetailPrice}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid gap-2 text-xs md:grid-cols-2">
+                    {item.blockers.map((blocker) => (
+                      <span key={blocker} className="rounded-lg bg-slate-800 px-3 py-2 text-slate-300">
+                        {blocker}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-blue-200">{item.nextAction}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Two Columns */}

@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, and artist payout trust proof)
-**Last updated:** 2026-06-08 (artist payout trust run)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, and payout exception guardrails)
+**Last updated:** 2026-06-08 (payout exception guardrail run)
 
 ## Subsystem maturity
 
@@ -14,10 +14,12 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
 | Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
 | Artist payout trust | 1 | Tested payout comparator powers an interactive artist-facing battlecard against POD royalty benchmarks | Persist artist-specific payout proof in outreach CRM |
+| Payout promise guardrails | 1 | Tested payout exception queue holds unsafe listings, recommends retail-price fixes, and powers `/admin-portal` operator actions | Persist exception decisions, overrides, and price/POD-cost remediation history |
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
-| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies and sync real channel events |
+| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Catalog-driven creative readiness scorer and channel concepts in `/marketing-portal` | Persist creative tests and compare predicted CAC to actual cohorts |
+| Operations | 1 | Admin console includes payout promise guardrail queue for unsafe listing economics before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Payments | — | Not started | Stripe test mode after catalog |
@@ -40,8 +42,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Room preview experiments | Pure TypeScript calculator in `src/lib/marketplace.ts` | Connects buyer visualization lift to adjusted CAC forecasts before adding persisted analytics | 2026-06-08 |
 | Channel budget allocation | Pure TypeScript allocator in `src/lib/marketplace.ts` | Makes "do not spend" a software-first decision when channels fail contribution or LTV:CAC guardrails | 2026-06-08 |
 | Payout benchmark comparison | Pure TypeScript comparator in `src/lib/marketplace.ts` | Lets outreach lead with 30% net-profit proof only when SKU economics beat POD royalty benchmarks | 2026-06-08 |
+| Payout exception guardrail | Pure TypeScript queue builder in `src/lib/marketplace.ts` | Converts payout trust into an ops workflow that holds unsafe listings and recommends price/POD fixes before outreach | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof
-**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, and sales surfaces; payout, readiness, channel CAC, creative scoring, reply triage, room-preview conversion, weekly budget allocation, and payout benchmark comparison math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, budget plans, payout proof snapshots, and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof + payout exception guardrails
+**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, sales, and ops surfaces; payout, readiness, channel CAC, creative scoring, reply triage, outreach payout holds, room-preview conversion, weekly budget allocation, payout benchmark comparison, and payout exception queue math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, budget plans, payout proof snapshots, payout exception decisions, and actual channel cohorts.

@@ -48,7 +48,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/sales-portal` | Sales outreach command center |
 | `/marketing-portal` | Marketing automation hub |
 | `/ops` | Internal outreach CRM for artist acquisition |
-| `/admin-portal` | Operations command center for AI pipeline and infrastructure |
+| `/admin-portal` | Operations command center for AI pipeline, infrastructure, and payout promise guardrails |
 
 All demo pages share navigation via `DemoNav` and link back to the business plan.
 

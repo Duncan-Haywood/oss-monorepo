@@ -26,8 +26,11 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
 - [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
 - [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
-- [ ] [ops] Add payout exception queue for listings where POD cost makes the 30% promise unsafe
 - [ ] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
+- [ ] [product] Add listing hold/release workflow with override reasons and artist-facing trust copy preview
+- [ ] [platform] Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history
+- [ ] [gtm] Add payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails
+- [ ] [ai-ml] Add POD cost sensitivity recommender for cheaper fulfillment options before raising retail price
 
 ## in_progress
 
@@ -35,6 +38,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [ops] Payout exception queue in `/admin-portal` for listings where POD cost, proof, or mockup gaps make the 30% promise unsafe
+- [x] [platform] Shared payout exception guardrail contract with tested suggested retail price and blocker output
+- [x] [sales] Outreach queue holds upload-link replies when the associated catalog SKU fails payout guardrails
 - [x] [finance] Artist payout trust battlecard comparing Print Atelier against POD marketplace royalty benchmarks
 - [x] [platform] Shared payout comparison contract with tested benchmark assumptions and blocker output
 - [x] [sales] Outreach CRM table with reply classification and next-step queue in `/sales-portal`

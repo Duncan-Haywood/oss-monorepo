@@ -154,3 +154,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-artist-payout-trust.md` for Society6, Redbubble, Artfinder, Hunter, and PitchBrand sources used to ground payout benchmarks and supply-side outreach positioning.
 - Strategic implication: Print Atelier should only lead with the 30% net-profit promise when the software can prove it beats realistic POD alternatives for that SKU; otherwise ops should fix price or POD cost before outreach.
+
+## Ten-lens invention pass (2026-06-08 20:09 UTC — payout exception guardrail run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Payout promise guardrail queue that holds unsafe listings before outreach and recommends price/POD fixes | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Listing hold/release workflow with override reasons, owner, and artist-facing trust copy preview | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Persist payout exception decisions with current economics, suggested retail, override reason, and remediation history | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI-assisted POD cost sensitivity recommender that proposes cheaper fulfillment options before raising retail price | AI/ML | 4 | 3 | 5 | 5 | 33 | ready |
+| Payout-safe outreach segment builder that only enrolls artists whose SKU economics clear trust guardrails | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Artist-specific payout trust line injected into outbound copy only after guardrail pass | Sales | 5 | 2 | 4 | 5 | 50 | ready |
+| Payout-proof creative eligibility badge for artist recruitment ads and landing pages | Marketing | 4 | 2 | 4 | 5 | 40 | backlog |
+| Payout exception SLA board for proof approval, room mockups, retail price, and POD cost remediation | Operations | 5 | 2 | 3 | 5 | 38 | shipped |
+| Price-floor optimizer that balances artist trust, CAC, POD cost, and conversion risk | Finance | 5 | 2 | 4 | 5 | 50 | ready |
+| Terms acknowledgement gate tying copyright retention, POD license, ad rights, and payout proof disclosure to listing release | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 20:09 UTC)
+
+- `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
+- See `docs/research/2026-06-08-payout-exception-queue.md`, which reuses the existing source-backed artist payout benchmark research for the payout exception guardrail.
+- Strategic implication: payout trust must become a hold/release workflow, not a static calculator, because artist acquisition copy should only lead with the 30% net-profit promise when SKU economics, proof approval, and room mockups are defensible.
