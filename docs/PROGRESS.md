@@ -13,7 +13,7 @@ Orchestrator runs append here (newest first).
 - **Invention shipped:** Creative diversity scorer that gates paid spend by proof, room mockups, SEO tags, margin, and similarity risk.
 - **Research:** Added `docs/research/2026-06-08-creative-diversity-demand.md` covering creative diversification, wall-art room mockups, and long-tail SEO.
 - **Maturity changes:** Marketing hub `0 → 1`; active slice expanded to catalog intelligence + finance stress testing + creative demand engine.
-- **Validation:** `npm test` passed (8 tests); `npm run build` passed (15 static routes). Browser walkthrough pending in this run.
+- **Validation:** `npm test` passed (8 tests); `npm run build` passed (15 static routes); browser walkthrough verified styled UI, artwork selection, CAC slider updates, channel-specific concept copy, and blocker warnings (`marketing_creative_demand_engine_walkthrough.mp4`, `marketing_creative_blockers_final.webp`).
 - **Top 3 ideas for next run:** persist creative tests with predicted vs actual CAC; buyer room-preview conversion experiment; consent check before paid ads.
 
 ---
