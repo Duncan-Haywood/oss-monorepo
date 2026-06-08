@@ -1,6 +1,6 @@
 # Orchestrator Automation Setup (Cursor only)
 
-Hourly **Cursor Automation** for **3 days**, then **self-paused for 1 year** (configurable).
+**Cursor Automation** every **30 minutes** for **1 day**, then **self-paused for 1 year** (configurable).
 
 No GitHub Actions required for the orchestrator.
 
@@ -9,15 +9,15 @@ No GitHub Actions required for the orchestrator.
 1. Open **[cursor.com/automations](https://cursor.com/automations)** → **New automation**
 2. Configure using [.cursor/automations/README.md](../.cursor/automations/README.md)
 3. Paste prompt from [.cursor/automations/print-atelier-orchestrator.md](../.cursor/automations/print-atelier-orchestrator.md)
-4. Set cron: `0 * * * *` (every hour UTC)
+4. Set cron: **`*/30 * * * *`** (every 30 minutes UTC)
 5. Attach **this repository**, branch `main`
 6. Enable **Open pull request** + **Memories**
 7. Save and enable
 
-## How the 3-day / 1-year window works
+## How the 1-day / 1-year window works
 
 ```
-Cursor cron (hourly, always on in dashboard)
+Cursor cron (*/30 * * * *, always on in dashboard)
         │
         ▼
 Cloud Agent starts
@@ -32,9 +32,10 @@ Step 0: node scripts/orchestrator-gate.mjs --status
 
 | Window | Default | Config |
 |--------|---------|--------|
-| Active | 3 days from start | `active_days` in `docs/ORCHESTRATOR_CAMPAIGN.json` |
+| Active | 1 day from start | `active_days` in `docs/ORCHESTRATOR_CAMPAIGN.json` |
+| Schedule | Every 30 min | `*/30 * * * *` in Cursor dashboard |
 | Pause | 365 days | `pause_days` |
-| Hard stop | Agent sets `enabled: false` on last active hour | automatic |
+| Hard stop | Agent sets `enabled: false` on last active run | automatic |
 | Zero-cost pause | Disable automation in Cursor dashboard | manual (agent reminds you) |
 
 ### Campaign config
@@ -44,8 +45,9 @@ Step 0: node scripts/orchestrator-gate.mjs --status
 ```json
 {
   "campaign_start": "2026-06-08T00:00:00Z",
-  "active_days": 3,
+  "active_days": 1,
   "pause_days": 365,
+  "schedule_cron": "*/30 * * * *",
   "enabled": true,
   "on_resume": "stop"
 }
@@ -54,10 +56,11 @@ Step 0: node scripts/orchestrator-gate.mjs --status
 | Field | Meaning |
 |-------|---------|
 | `campaign_start` | First allowed run |
-| `active_days` | Full work window (default 3) |
+| `active_days` | Full work window (default **1**) |
+| `schedule_cron` | Documented Cursor cron (set in dashboard) |
 | `pause_days` | Idle window after active (default 365) |
 | `enabled` | `false` = agent always skips |
-| `on_resume` | `stop` = stay idle after pause; `new_campaign` = agent starts new 3-day window when pause ends |
+| `on_resume` | `stop` = stay idle after pause; `new_campaign` = agent starts new 1-day window when pause ends |
 
 ### Test gate locally
 
@@ -68,12 +71,12 @@ node scripts/orchestrator-gate.mjs          # exit 0 = active, 1 = skip
 
 ## Optional parallel automation
 
-Hygiene-only runs at `:30` each hour — see [print-atelier-hygiene.md](../.cursor/automations/print-atelier-hygiene.md).
+Hygiene-only at `:15` and `:45` each hour — see [print-atelier-hygiene.md](../.cursor/automations/print-atelier-hygiene.md).
 
 ## Cost control
 
-- ~72 full runs per 3-day campaign (hourly)
-- During 1-year pause: agent exits at step 0 (small cost per hourly trigger)
+- ~**48** full runs per 1-day campaign (30 min × 24 h)
+- During 1-year pause: agent exits at step 0 (small cost per trigger)
 - **To pay nothing during pause:** disable the automation in Cursor dashboard when the agent logs campaign end
 - Emergency stop: set `"enabled": false` in campaign JSON and push to `main`
 

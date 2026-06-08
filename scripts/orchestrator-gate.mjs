@@ -47,7 +47,7 @@ function evaluate(campaign, now = new Date()) {
   }
 
   const start = parseDate(campaign.campaign_start);
-  const activeDays = campaign.active_days ?? 3;
+  const activeDays = campaign.active_days ?? 1;
   const pauseDays = campaign.pause_days ?? 365;
   const activeUntil = addDays(start, activeDays);
   const resumeAt = addDays(activeUntil, pauseDays);

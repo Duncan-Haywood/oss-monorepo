@@ -1,6 +1,6 @@
 # Print Atelier — Full-Stack Business Orchestrator
 
-Autonomous **Cursor Automation** (hourly cloud agent) owns the full company dev cycle: business strategy, product, engineering, GTM, sales, marketing, operations, and unit economics.
+Autonomous **Cursor Automation** (every 30 minutes) owns the full company dev cycle: business strategy, product, engineering, GTM, sales, marketing, operations, and unit economics.
 
 ## Pillars
 
@@ -17,7 +17,7 @@ Autonomous **Cursor Automation** (hourly cloud agent) owns the full company dev 
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Curated work queue |
 | [docs/IDEAS.md](docs/IDEAS.md) | Scored invention parking lot |
 | [docs/PROGRESS.md](docs/PROGRESS.md) | Run log + next-run recommendation |
-| [docs/ORCHESTRATOR_CAMPAIGN.json](docs/ORCHESTRATOR_CAMPAIGN.json) | 3-day active / 1-year pause window |
+| [docs/ORCHESTRATOR_CAMPAIGN.json](docs/ORCHESTRATOR_CAMPAIGN.json) | 1-day active / 1-year pause window |
 
 ## Automation (Cursor — not GitHub Actions)
 
@@ -29,7 +29,7 @@ Autonomous **Cursor Automation** (hourly cloud agent) owns the full company dev 
 | Gate script | [scripts/orchestrator-gate.mjs](scripts/orchestrator-gate.mjs) |
 | Setup guide | [docs/AUTOMATION_SETUP.md](docs/AUTOMATION_SETUP.md) |
 
-**Schedule:** `0 * * * *` (hourly) at [cursor.com/automations](https://cursor.com/automations)
+**Schedule:** `*/30 * * * *` (every 30 min) at [cursor.com/automations](https://cursor.com/automations)
 
 ## Product map
 

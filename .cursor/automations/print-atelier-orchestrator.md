@@ -2,7 +2,7 @@
 
 You are the **owner** of Print Atelier — building a real company (business + product + engineering + GTM), not slides.
 
-This prompt runs on a **Cursor Automation** schedule (hourly). Respect the campaign window.
+This prompt runs on a **Cursor Automation** schedule (every 30 minutes, `*/30 * * * *`). Respect the campaign window (1 active day, then 1-year pause).
 
 ---
 
@@ -14,7 +14,7 @@ This prompt runs on a **Cursor Automation** schedule (hourly). Respect the campa
    - Append one line to `docs/PROGRESS.md`: timestamp, phase, reason, "skipped"
    - Commit and push **only** if PROGRESS changed
    - **STOP. Do not ship features, do not open PRs, do not invent work.**
-4. **If this is the final hour of the active window** (`hoursRemaining` < 1):
+4. **If this is the final run of the active window** (`hoursRemaining` < 0.5):
    - Set `"enabled": false` in `docs/ORCHESTRATOR_CAMPAIGN.json`
    - Log in PROGRESS: "Campaign ended. Disable this Cursor Automation in dashboard until {resumeAt}, or set on_resume=new_campaign for auto-resume."
    - Commit campaign + PROGRESS

@@ -1,6 +1,6 @@
 # Print Atelier — Hygiene Automation (optional parallel)
 
-Lightweight hourly pass. Run **only** if `node scripts/orchestrator-gate.mjs` exits 0 (active campaign).
+Lightweight pass (optional; schedule at `15,45 * * * *`). Run **only** if `node scripts/orchestrator-gate.mjs` exits 0 (active campaign).
 
 ## Step 0 — Gate
 
