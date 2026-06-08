@@ -89,6 +89,26 @@ export default function StorefrontPage() {
           </div>
         </div>
 
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {visibleArtworks.slice(0, 3).map((art) => {
+            const economics = calculatePrintEconomics({
+              retailPrice: art.retailPrice,
+              fulfillmentCost: art.fulfillmentCost,
+            });
+
+            return (
+              <div key={`${art.slug}-preview`} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+                <div className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-900">{art.title}</p>
+                  <p className="text-xs text-stone-500">{art.artistName} • ${art.retailPrice}</p>
+                  <p className="text-xs font-medium text-emerald-700">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {visibleArtworks.map((art) => {
             const economics = calculatePrintEconomics({
