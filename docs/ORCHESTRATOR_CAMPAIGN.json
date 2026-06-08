@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "description": "Hourly Cursor Automation campaign window. Agent runs scripts/orchestrator-gate.mjs at step 0.",
+  "campaign_start": "2026-06-08T00:00:00Z",
+  "active_days": 1,
+  "pause_days": 365,
+  "schedule_cron": "*/30 * * * *",
+  "timezone": "UTC",
+  "enabled": true,
+  "on_resume": "stop",
+  "max_parallel_agents": 2,
+  "notes": "Active for 1 day from campaign_start, every 30 min (*/30 * * * *). Then paused until campaign_start + active_days + pause_days. Set enabled:false to halt immediately. Set on_resume to 'new_campaign' to auto-start a fresh 1-day window after the pause."
+}

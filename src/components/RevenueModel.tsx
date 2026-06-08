@@ -1,8 +1,40 @@
 "use client";
 
+import { calculateChannelScenario, calculatePrintEconomics } from "@/lib/marketplace";
 import { useState } from "react";
 
 type PrintSize = { name: string; price: number; cost: number };
+type AcquisitionChannel = {
+  id: string;
+  label: string;
+  customerAcquisitionCost: number;
+  purchasesPerCustomer: number;
+  note: string;
+};
+
+const acquisitionChannels: AcquisitionChannel[] = [
+  {
+    id: "artist-community",
+    label: "Artist community loop",
+    customerAcquisitionCost: 12,
+    purchasesPerCustomer: 1.4,
+    note: "Artist posts, email captures, and collection drops where software scales the audience without heavy paid spend.",
+  },
+  {
+    id: "paid-social",
+    label: "Paid social prospecting",
+    customerAcquisitionCost: 68,
+    purchasesPerCustomer: 1.6,
+    note: "Cold buyer demand through Meta/TikTok/Pinterest where first-order CAC must be paid back by repeat purchases.",
+  },
+  {
+    id: "designer-trade",
+    label: "Designer trade referrals",
+    customerAcquisitionCost: 35,
+    purchasesPerCustomer: 2.4,
+    note: "Higher-intent decorators and B2B referrals with larger repeat order potential across rooms and projects.",
+  },
+];
 
 export default function RevenueModel() {
   const [printSize, setPrintSize] = useState("16x20");
@@ -10,13 +42,15 @@ export default function RevenueModel() {
   const [podCost, setPodCost] = useState(28);
   const [monthlyOrders, setMonthlyOrders] = useState(500);
   const [avgOrderValue, setAvgOrderValue] = useState(85);
+  const [selectedChannelId, setSelectedChannelId] = useState("artist-community");
+  const selectedChannel = acquisitionChannels.find((channel) => channel.id === selectedChannelId) ?? acquisitionChannels[0];
+  const [channelCAC, setChannelCAC] = useState(selectedChannel.customerAcquisitionCost);
+  const [purchasesPerCustomer, setPurchasesPerCustomer] = useState(selectedChannel.purchasesPerCustomer);
 
-  const paymentFee = retailPrice * 0.03;
   const aiComputeCost = 0.35;
-  const netProfit = retailPrice - paymentFee - podCost - aiComputeCost;
-  const artistShare = netProfit * 0.3;
-  const platformGross = netProfit * 0.7;
-  const margin = retailPrice > 0 ? ((netProfit / retailPrice) * 100).toFixed(1) : "0";
+  const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost: podCost, aiComputeCost });
+  const platformGross = economics.platformShare;
+  const margin = economics.marginPercent.toFixed(1);
 
   const sizes: PrintSize[] = [
     { name: "8x10", price: 45, cost: 12 },
@@ -31,13 +65,32 @@ export default function RevenueModel() {
     setPodCost(size.cost);
   };
 
+  const selectChannel = (channel: AcquisitionChannel) => {
+    setSelectedChannelId(channel.id);
+    setChannelCAC(channel.customerAcquisitionCost);
+    setPurchasesPerCustomer(channel.purchasesPerCustomer);
+  };
+
   const monthlyGMV = monthlyOrders * avgOrderValue;
-  const monthlyNetProfit = monthlyOrders * (avgOrderValue - avgOrderValue * 0.03 - 28 - 0.35);
-  const monthlyPlatformRevenue = monthlyNetProfit * 0.7;
-  const monthlyArtistPayouts = monthlyNetProfit * 0.3;
+  const channelScenario = calculateChannelScenario({
+    retailPrice: avgOrderValue,
+    fulfillmentCost: podCost,
+    monthlyOrders,
+    customerAcquisitionCost: channelCAC,
+    purchasesPerCustomer,
+    aiComputeCost,
+  });
+  const monthlyPlatformRevenue = channelScenario.monthlyPlatformGross;
+  const monthlyArtistPayouts = channelScenario.monthlyArtistPayout;
   const monthlyFixedCosts = 3500;
-  const monthlyMarketing = monthlyOrders * 8;
-  const monthlyEBITDA = monthlyPlatformRevenue - monthlyFixedCosts - monthlyMarketing;
+  const monthlyMarketing = channelScenario.monthlyMarketingSpend;
+  const monthlyEBITDA = channelScenario.monthlyContributionAfterCAC - monthlyFixedCosts;
+  const contributionAfterCACPerOrder =
+    channelScenario.platformGrossPerOrder - channelCAC / Math.max(purchasesPerCustomer, 0.01);
+  const breakEvenOrders =
+    contributionAfterCACPerOrder > 0
+      ? Math.ceil(monthlyFixedCosts / contributionAfterCACPerOrder)
+      : Number.POSITIVE_INFINITY;
 
   return (
     <div className="space-y-6 prose dark:prose-invert max-w-none">
@@ -122,7 +175,7 @@ export default function RevenueModel() {
               <span>Sale Price</span> <span>${retailPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b pb-1 text-red-600 dark:text-red-400">
-              <span>Payment Processing (~3%)</span> <span>-${paymentFee.toFixed(2)}</span>
+              <span>Payment Processing (~3%)</span> <span>-${economics.paymentFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-b pb-1 text-red-600 dark:text-red-400">
               <span>POD Print + Shipping</span> <span>-${podCost.toFixed(2)}</span>
@@ -131,10 +184,10 @@ export default function RevenueModel() {
               <span>AI Compute (upscale + mockups)</span> <span>-${aiComputeCost.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold pt-2 border-t mt-1 text-gray-800 dark:text-gray-200">
-              <span>Net Profit</span> <span>${netProfit.toFixed(2)} ({margin}% margin)</span>
+              <span>Net Profit</span> <span>${economics.netProfit.toFixed(2)} ({margin}% margin)</span>
             </div>
             <div className="flex justify-between text-blue-600 dark:text-blue-400 mt-2">
-              <span>Artist Share (30%)</span> <span>${artistShare.toFixed(2)}</span>
+              <span>Artist Share (30%)</span> <span>${economics.artistShare.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-green-600 dark:text-green-400 font-bold">
               <span>Platform Gross (70%)</span> <span>${platformGross.toFixed(2)}</span>
@@ -167,18 +220,104 @@ export default function RevenueModel() {
               />
             </div>
           </div>
+          <div className="mb-6 rounded-lg border border-blue-100 bg-white p-4 dark:border-blue-900 dark:bg-gray-900">
+            <div className="mb-3 flex flex-col gap-1">
+              <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                Channel CAC stress test
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Pick a demand channel, then stress CAC and repeat purchases to see whether the software-first growth loop pays back.
+              </p>
+            </div>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {acquisitionChannels.map((channel) => (
+                <button
+                  key={channel.id}
+                  onClick={() => selectChannel(channel)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                    selectedChannelId === channel.id
+                      ? "bg-blue-600 text-white"
+                      : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  }`}
+                >
+                  {channel.label}
+                </button>
+              ))}
+            </div>
+            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">{selectedChannel.note}</p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="flex justify-between text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <span>Customer acquisition cost</span>
+                  <span>${channelCAC}</span>
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="120"
+                  value={channelCAC}
+                  onChange={(e) => setChannelCAC(Number(e.target.value))}
+                  className="mt-2 w-full accent-blue-600"
+                />
+              </label>
+              <label className="block">
+                <span className="flex justify-between text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <span>Purchases per customer</span>
+                  <span>{purchasesPerCustomer.toFixed(1)}x</span>
+                </span>
+                <input
+                  type="range"
+                  min="1"
+                  max="4"
+                  step="0.1"
+                  value={purchasesPerCustomer}
+                  onChange={(e) => setPurchasesPerCustomer(Number(e.target.value))}
+                  className="mt-2 w-full accent-blue-600"
+                />
+              </label>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">Payback</p>
+                <p className="mt-1 font-mono text-lg font-bold text-gray-900 dark:text-white">
+                  {channelScenario.paybackOrders === Number.POSITIVE_INFINITY ? "Never" : `${channelScenario.paybackOrders} order${channelScenario.paybackOrders === 1 ? "" : "s"}`}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">LTV:CAC</p>
+                <p className={`mt-1 font-mono text-lg font-bold ${channelScenario.ltvToCacRatio >= 3 ? "text-green-600" : channelScenario.ltvToCacRatio >= 1 ? "text-amber-600" : "text-red-600"}`}>
+                  {channelScenario.ltvToCacRatio.toFixed(2)}x
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">Profit after CAC</p>
+                <p className={`mt-1 font-mono text-lg font-bold ${channelScenario.profitAfterCAC >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  ${channelScenario.profitAfterCAC.toFixed(2)}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">Break-even orders</p>
+                <p className="mt-1 font-mono text-lg font-bold text-gray-900 dark:text-white">
+                  {Number.isFinite(breakEvenOrders) ? breakEvenOrders.toLocaleString() : "No payback"}
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="font-mono text-sm space-y-1 text-gray-800 dark:text-gray-200">
             <div className="flex justify-between"><span>GMV</span><span>${monthlyGMV.toLocaleString()}</span></div>
             <div className="flex justify-between text-green-600 dark:text-green-400"><span>Platform Revenue (70% net)</span><span>${monthlyPlatformRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
             <div className="flex justify-between text-blue-600 dark:text-blue-400"><span>Artist Payouts (30% net)</span><span>${monthlyArtistPayouts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
             <div className="flex justify-between text-red-600 dark:text-red-400"><span>Fixed Costs (infra, tools, 1 FTE)</span><span>-${monthlyFixedCosts.toLocaleString()}</span></div>
-            <div className="flex justify-between text-red-600 dark:text-red-400"><span>Marketing (@ $8/order blended)</span><span>-${monthlyMarketing.toLocaleString()}</span></div>
+            <div className="flex justify-between text-red-600 dark:text-red-400"><span>Marketing ({selectedChannel.label})</span><span>-${monthlyMarketing.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
             <div className={`flex justify-between font-bold pt-2 border-t mt-2 ${monthlyEBITDA >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
               <span>Est. Monthly EBITDA</span>
               <span>${monthlyEBITDA.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
           </div>
-          <p className="text-xs mt-3 text-gray-500">Break-even at ~{Math.ceil((monthlyFixedCosts + monthlyMarketing) / (platformGross || 1))} orders/mo at current unit economics. Scales sub-linearly as artist-driven CAC dominates.</p>
+          <p className="text-xs mt-3 text-gray-500">
+            Break-even at {Number.isFinite(breakEvenOrders) ? `~${breakEvenOrders.toLocaleString()} orders/mo` : "no positive payback"} after channel CAC.
+            Artist payouts remain tied to net profit before marketing so acquisition experiments do not rewrite the artist contract.
+          </p>
         </div>
       </section>
 

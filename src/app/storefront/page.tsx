@@ -1,25 +1,24 @@
-"use client";
-
 import DemoNav from "@/components/shared/DemoNav";
+import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
-import { useState } from "react";
 
-const artworks = [
-  { id: 1, title: "Midnight Coast", artist: "Elena Rostova", price: 85, image: "bg-gradient-to-br from-blue-950 to-indigo-800", tag: "Bestseller" },
-  { id: 2, title: "Urban Geometry", artist: "Marcus Chen", price: 110, image: "bg-gradient-to-br from-gray-800 to-gray-600", tag: "New" },
-  { id: 3, title: "Spring Bloom", artist: "Sarah Jenkins", price: 65, image: "bg-gradient-to-br from-emerald-800 to-green-600" },
-  { id: 4, title: "Desert Sun", artist: "Elena Rostova", price: 95, image: "bg-gradient-to-br from-orange-900 to-amber-700" },
-  { id: 5, title: "Abstract No. 4", artist: "Marcus Chen", price: 120, image: "bg-gradient-to-br from-purple-950 to-violet-700" },
-  { id: 6, title: "Morning Light", artist: "Sarah Jenkins", price: 75, image: "bg-gradient-to-br from-yellow-700 to-amber-500" },
-  { id: 7, title: "Coastal Mist", artist: "Elena Rostova", price: 90, image: "bg-gradient-to-br from-slate-700 to-blue-900" },
-  { id: 8, title: "City at Dusk", artist: "Marcus Chen", price: 105, image: "bg-gradient-to-br from-rose-900 to-purple-900", tag: "Trending" },
-];
+type StorefrontPageProps = {
+  searchParams?: {
+    style?: string;
+  };
+};
 
-const filters = ["All", "Abstract", "Landscape", "Portrait", "Minimal"];
-
-export default function StorefrontPage() {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [cartCount] = useState(2);
+export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
+  const cartCount = 2;
+  const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
+  const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
+  const requestedFilter = searchParams?.style;
+  const activeFilter = filters.includes(requestedFilter ?? "") ? requestedFilter ?? "All" : "All";
+  const visibleArtworks =
+    activeFilter === "All"
+      ? liveArtworks
+      : liveArtworks.filter((artwork) => artwork.style === activeFilter);
+  const listingLabel = visibleArtworks.length === 1 ? "listing" : "listings";
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -53,13 +52,13 @@ export default function StorefrontPage() {
       <section className="relative bg-stone-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/95 to-transparent z-10" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-br from-indigo-900 to-purple-900 opacity-60" />
-        <div className="relative z-20 max-w-7xl mx-auto px-4 py-20">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 py-12 md:py-16">
           <p className="text-indigo-300 text-sm font-medium mb-3 tracking-wide uppercase">AI-Curated Collection</p>
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 max-w-xl">
             Museum-quality prints from independent artists
           </h1>
           <p className="text-stone-300 max-w-lg mb-8">
-            Every piece digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of profits go to the artist.
+            {liveArtworks.length} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
           </p>
           <div className="flex gap-3">
             <button className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">
@@ -72,54 +71,86 @@ export default function StorefrontPage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
-          <div className="flex gap-2">
+      <section id="catalog" className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
+            <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog {listingLabel} in this view</p>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2">
             {filters.map((f) => (
-              <button
+              <a
                 key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`px-3 py-1.5 rounded-full text-sm transition ${
+                href={f === "All" ? "/storefront" : `/storefront?style=${encodeURIComponent(f)}`}
+                style={{ marginRight: 8, marginBottom: 8 }}
+                className={`mr-2 mb-2 px-3 py-1.5 rounded-full text-sm transition last:mr-0 ${
                   activeFilter === f
                     ? "bg-stone-900 text-white"
                     : "bg-white border border-stone-200 text-stone-600 hover:border-stone-400"
                 }`}
               >
                 {f}
-              </button>
+              </a>
             ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {artworks.map((art) => (
-            <div key={art.id} className="group cursor-pointer">
-              <div className={`relative aspect-[4/5] ${art.image} rounded-lg overflow-hidden mb-3`}>
-                {art.tag && (
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
-                    {art.tag}
-                  </span>
-                )}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
-                  <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                    <Heart className="w-4 h-4 text-stone-600" />
-                  </button>
-                </div>
-                <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
-                  <ImageIcon className="w-3 h-3" /> Room Preview
-                </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
-                  <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                    Quick View — ${art.price}
-                  </button>
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {visibleArtworks.slice(0, 3).map((art) => {
+            const economics = calculatePrintEconomics({
+              retailPrice: art.retailPrice,
+              fulfillmentCost: art.fulfillmentCost,
+            });
+
+            return (
+              <div key={`${art.slug}-preview`} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+                <div className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-900">{art.title}</p>
+                  <p className="text-xs text-stone-500">{art.artistName} • ${art.retailPrice}</p>
+                  <p className="text-xs font-medium text-emerald-700">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
                 </div>
               </div>
-              <h3 className="font-semibold text-stone-900">{art.title}</h3>
-              <p className="text-sm text-stone-500">{art.artist}</p>
-              <p className="text-sm font-medium text-stone-900 mt-1">From ${art.price}</p>
-            </div>
-          ))}
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {visibleArtworks.map((art) => {
+            const economics = calculatePrintEconomics({
+              retailPrice: art.retailPrice,
+              fulfillmentCost: art.fulfillmentCost,
+            });
+
+            return (
+              <div key={art.id} className="group cursor-pointer">
+                <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
+                  {art.badge && (
+                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
+                      {art.badge}
+                    </span>
+                  )}
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                    <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-stone-600" />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
+                    <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
+                    <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
+                      Quick View — ${art.retailPrice}
+                    </button>
+                  </div>
+                </div>
+                <h3 className="font-semibold text-stone-900">{art.title}</h3>
+                <p className="text-sm text-stone-500">{art.artistName}</p>
+                <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
+                <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
