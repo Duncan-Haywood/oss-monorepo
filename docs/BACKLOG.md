@@ -8,7 +8,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
 - [ ] [content] Add `/investor` condensed dashboard route
 - [ ] [demo] Wire capture upload to persist file metadata (Phase 2 prep)
-- [ ] [finance] Add competitor payout comparator: Print Atelier vs Society6, Saatchi Art, Artfinder, Redbubble
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
@@ -25,6 +24,10 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
 - [ ] [finance] Feed actual room-preview lift into weekly channel budget allocation
 - [ ] [legal] Add consent gate for artist artwork in AI-generated room scenes and paid ad previews
+- [ ] [sales] Add outreach personalization field for why each artist should trust the payout math
+- [ ] [finance] Add payout sensitivity price-floor optimizer by artist trust, CAC, and POD cost
+- [ ] [ops] Add payout exception queue for listings where POD cost makes the 30% promise unsafe
+- [ ] [legal] Add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement
 
 ## in_progress
 
@@ -32,6 +35,8 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [finance] Artist payout trust battlecard comparing Print Atelier against POD marketplace royalty benchmarks
+- [x] [platform] Shared payout comparison contract with tested benchmark assumptions and blocker output
 - [x] [sales] Outreach CRM table with reply classification and next-step queue in `/sales-portal`
 - [x] [sales] Reply-to-onboarding next-best-action engine in `src/lib/outreach.ts`
 - [x] [product] Buyer room-preview experiment in `/storefront` that feeds conversion lift into adjusted CAC forecasts

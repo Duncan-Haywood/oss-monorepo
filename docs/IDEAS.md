@@ -134,3 +134,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 - `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
 - See `docs/research/2026-06-08-channel-budget-allocation.md`, which synthesizes existing sourced CAC, POD, creative-diversity, and room-preview research into the channel-budget allocation decision.
 - Strategic implication: Print Atelier should make "do not spend" a first-class product outcome, because software-first growth should protect artist payouts and marketplace margin before scaling paid channels.
+
+## Ten-lens invention pass (2026-06-08 19:30 UTC — artist payout trust run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Artist payout trust battlecard that compares Print Atelier against POD marketplace royalty benchmarks before outreach | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Payout objection simulator that drafts artist-specific answers when the 30% net-profit promise is weaker than a benchmark | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Shared payout comparison contract with tested benchmark assumptions and blocker output | Engineering | 4 | 2 | 3 | 5 | 30 | shipped |
+| AI-assisted payout proof copy generator that only uses approved economics and source-backed benchmark language | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| High-intent artist landing pages by payout wedge: low-burden POD, transparent net profit, or original-sale alternatives | GTM | 4 | 3 | 4 | 5 | 27 | backlog |
+| Outreach personalization field for "why this artist should trust our payout math" | Sales | 5 | 2 | 4 | 5 | 50 | ready |
+| Competitor battlecard ad concepts aimed at artists frustrated by fixed royalties or tiered account fees | Marketing | 4 | 2 | 4 | 5 | 40 | ready |
+| Ops review queue for listings where POD cost makes the payout promise unsafe to lead with | Operations | 5 | 2 | 3 | 5 | 38 | ready |
+| Payout sensitivity model that optimizes price floors by artist trust, CAC, and POD cost | Finance | 5 | 2 | 4 | 5 | 50 | ready |
+| Artist terms explainer that separates copyright retention, POD license, ad rights, and payout acknowledgement | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 19:30 UTC)
+
+- See `docs/research/2026-06-08-artist-payout-trust.md` for Society6, Redbubble, Artfinder, Hunter, and PitchBrand sources used to ground payout benchmarks and supply-side outreach positioning.
+- Strategic implication: Print Atelier should only lead with the 30% net-profit promise when the software can prove it beats realistic POD alternatives for that SKU; otherwise ops should fix price or POD cost before outreach.

@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 19:30 UTC — Artist payout trust battlecard
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~4.45 hours remaining; not the final active-window run.
+- **Orient:** `git fetch --all --prune` ran; checked `main`, pulled `origin/main`, ran `npm ci && npm run build` successfully, then returned to `cursor/orchestrator-campaign-flow-be20`.
+- **Hygiene:** Fast-forwarded this assigned branch to the latest orchestrator campaign state from `origin/cursor/orchestrator-campaign-flow-2ed1`; pushed the branch; deleted superseded remote branches `cursor/orchestrator-campaign-flow-2ed1` and `cursor/orchestrator-campaign-flow-f806`. Fetch pruning also removed four already-deleted remote refs. Open PRs #33 and #34 still appear in read-only `gh pr list` after branch deletion; this automation cannot close PRs with `gh`.
+- **Theme shipped:** Artist payout trust and competitor benchmark proof.
+- **Shipped:** `compareArtistPayoutModels` in `src/lib/marketplace.ts`; two TDD tests for POD royalty advantage and weak-economics blockers; `ArtistPitch` now has an interactive payout trust lab with retail price, POD cost, and monthly order controls comparing Print Atelier against Society6, Redbubble Standard, Redbubble Premium, and Artfinder context.
+- **Invention shipped:** Artist payout trust battlecard that only leads with the 30% net-profit promise when SKU economics beat POD marketplace royalty benchmarks.
+- **Research:** Added `docs/research/2026-06-08-artist-payout-trust.md` with Society6, Redbubble, Artfinder, Hunter, and PitchBrand sources for payout and outreach assumptions.
+- **Maturity changes:** Added Artist payout trust at Phase 1; active slice now includes payout benchmark comparison and next-step persistence of artist-specific payout proof snapshots in outreach CRM.
+- **Validation:** TDD red run failed on missing `compareArtistPayoutModels`; `npm test` passed (17 tests); `npm run build` passed (15 routes).
+- **Top 3 ideas for next run:** persist artist-specific payout proof in outreach CRM; add payout exception queue for listings where POD cost makes the 30% promise unsafe; add artist terms explainer for copyright retention, POD license, ad rights, and payout acknowledgement.
+
+---
+
 ## 2026-06-08 18:52 UTC — Guarded channel budget allocator
 
 - **Gate:** Restored the latest campaign state by fast-forwarding to `origin/cursor/orchestrator-campaign-flow-f806`; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~5.20 hours remaining; continued.
