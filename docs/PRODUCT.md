@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 0 → 1 (narrative → interactive prototype)  
-**Last updated:** 2026-06-08 (initial scaffold)
+**Company phase:** 1 (interactive prototype with shared business logic)  
+**Last updated:** 2026-06-08 (shared catalog + launch readiness run)
 
 ## Subsystem maturity
 
@@ -9,15 +9,16 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 
 | Subsystem | Phase | Notes | Next step |
 |-----------|-------|-------|-----------|
-| Business plan TSX | 1 | All sections + portal routes exist | `/investor` condensed route |
+| Business plan TSX | 1 | All sections + portal routes exist; unit economics uses shared formula | `/investor` condensed route |
 | Capture pipeline | 0 | `setTimeout` simulation | Real file upload + job queue stub |
-| Artist portal | 0 | Hardcoded portfolio | Shared `src/lib/mock-data.ts` + CRUD path |
-| Storefront / buyer | 0 | Static UI | Catalog from shared lib |
+| Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout math | Persist catalog records and AI metadata confidence |
+| Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
+| Storefront / buyer | 1 | Storefront filters live shared-catalog listings and shows artist payout per print | Product detail + room preview state |
 | Outreach / CRM | 0 | Static copy in sales-portal | Prospect table + sequences |
 | Marketing hub | 0 | Static UI | Ad variant generator wired to mock catalog |
 | Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 0 | Orchestrator workflow only | `ci.yml` build on PR |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` added for catalog math | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -27,8 +28,10 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Hosting | Vercel | Matches Next.js | — |
 | DB | _TBD_ | Agent decides at Phase 2 with vertical slice | — |
 | Payments | Stripe + Connect | Artist payouts per RevenueModel | — |
+| Catalog data | Typed in-repo mock (`src/lib/marketplace.ts`) | Enables Phase 1 shared demos before persistence | 2026-06-08 |
+| Test runner | `tsx --test` | Lightweight TypeScript unit coverage without changing app runtime | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** _None yet — orchestrator will set on first product run_  
-**Definition of done:** _TBD_
+**Focus:** Catalog intelligence  
+**Definition of done:** Shared catalog data powers artist and buyer surfaces; payout and readiness math is covered by tests; next step is persistence plus real upload/AI metadata.
