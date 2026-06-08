@@ -1,25 +1,19 @@
 "use client";
 
 import DemoNav from "@/components/shared/DemoNav";
+import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
 import { useState } from "react";
-
-const artworks = [
-  { id: 1, title: "Midnight Coast", artist: "Elena Rostova", price: 85, image: "bg-gradient-to-br from-blue-950 to-indigo-800", tag: "Bestseller" },
-  { id: 2, title: "Urban Geometry", artist: "Marcus Chen", price: 110, image: "bg-gradient-to-br from-gray-800 to-gray-600", tag: "New" },
-  { id: 3, title: "Spring Bloom", artist: "Sarah Jenkins", price: 65, image: "bg-gradient-to-br from-emerald-800 to-green-600" },
-  { id: 4, title: "Desert Sun", artist: "Elena Rostova", price: 95, image: "bg-gradient-to-br from-orange-900 to-amber-700" },
-  { id: 5, title: "Abstract No. 4", artist: "Marcus Chen", price: 120, image: "bg-gradient-to-br from-purple-950 to-violet-700" },
-  { id: 6, title: "Morning Light", artist: "Sarah Jenkins", price: 75, image: "bg-gradient-to-br from-yellow-700 to-amber-500" },
-  { id: 7, title: "Coastal Mist", artist: "Elena Rostova", price: 90, image: "bg-gradient-to-br from-slate-700 to-blue-900" },
-  { id: 8, title: "City at Dusk", artist: "Marcus Chen", price: 105, image: "bg-gradient-to-br from-rose-900 to-purple-900", tag: "Trending" },
-];
-
-const filters = ["All", "Abstract", "Landscape", "Portrait", "Minimal"];
 
 export default function StorefrontPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [cartCount] = useState(2);
+  const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
+  const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
+  const visibleArtworks =
+    activeFilter === "All"
+      ? liveArtworks
+      : liveArtworks.filter((artwork) => artwork.style === activeFilter);
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -59,7 +53,7 @@ export default function StorefrontPage() {
             Museum-quality prints from independent artists
           </h1>
           <p className="text-stone-300 max-w-lg mb-8">
-            Every piece digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of profits go to the artist.
+            {liveArtworks.length} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
           </p>
           <div className="flex gap-3">
             <button className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">
@@ -74,7 +68,10 @@ export default function StorefrontPage() {
 
       <section className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
+            <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog listings in this view</p>
+          </div>
           <div className="flex gap-2">
             {filters.map((f) => (
               <button
@@ -93,12 +90,18 @@ export default function StorefrontPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {artworks.map((art) => (
+          {visibleArtworks.map((art) => {
+            const economics = calculatePrintEconomics({
+              retailPrice: art.retailPrice,
+              fulfillmentCost: art.fulfillmentCost,
+            });
+
+            return (
             <div key={art.id} className="group cursor-pointer">
-              <div className={`relative aspect-[4/5] ${art.image} rounded-lg overflow-hidden mb-3`}>
-                {art.tag && (
+              <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
+                {art.badge && (
                   <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
-                    {art.tag}
+                    {art.badge}
                   </span>
                 )}
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
@@ -107,19 +110,21 @@ export default function StorefrontPage() {
                   </button>
                 </div>
                 <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
-                  <ImageIcon className="w-3 h-3" /> Room Preview
+                  <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
                 </div>
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
                   <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                    Quick View — ${art.price}
+                    Quick View — ${art.retailPrice}
                   </button>
                 </div>
               </div>
               <h3 className="font-semibold text-stone-900">{art.title}</h3>
-              <p className="text-sm text-stone-500">{art.artist}</p>
-              <p className="text-sm font-medium text-stone-900 mt-1">From ${art.price}</p>
+              <p className="text-sm text-stone-500">{art.artistName}</p>
+              <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
+              <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
