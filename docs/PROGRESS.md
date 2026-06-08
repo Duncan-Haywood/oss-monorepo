@@ -4,6 +4,20 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-08 17:10 UTC — Creative demand engine
+
+- **Gate:** `allowed=true`, phase `active`, ~6.85 hours remaining; continued.
+- **Hygiene:** Fast-forwarded the active branch from `origin/cursor/orchestrator-campaign-flow-1408`, preserving the latest campaign gate, shared catalog, and CAC simulator work. `git fetch --all --prune` pruned two already-deleted remote branches. No remaining remote `cursor/*` branches matched the strict `ahead=0` / `behind>=10` deletion rule. Open PRs #19–#30 were inspected with read-only `gh`; superseded PRs cannot be closed from this automation.
+- **Theme shipped:** Catalog-driven creative demand engine.
+- **Shipped:** `calculateCreativeReadiness` and `generateAdCreativeConcepts` in `src/lib/marketplace.ts`; `/marketing-portal` now lets operators select a catalog artwork, adjust baseline CAC, switch demand channels, see similarity risk / predicted CAC, and generate three distinct creative concepts.
+- **Invention shipped:** Creative diversity scorer that gates paid spend by proof, room mockups, SEO tags, margin, and similarity risk.
+- **Research:** Added `docs/research/2026-06-08-creative-diversity-demand.md` covering creative diversification, wall-art room mockups, and long-tail SEO.
+- **Maturity changes:** Marketing hub `0 → 1`; active slice expanded to catalog intelligence + finance stress testing + creative demand engine.
+- **Validation:** `npm test` passed (8 tests); `npm run build` passed (15 static routes). Browser walkthrough pending in this run.
+- **Top 3 ideas for next run:** persist creative tests with predicted vs actual CAC; buyer room-preview conversion experiment; consent check before paid ads.
+
+---
+
 ## 2026-06-08 16:30 UTC — Channel CAC finance simulator
 
 - **Gate:** `allowed=true`, phase `active`, ~7.46 hours remaining; continued.

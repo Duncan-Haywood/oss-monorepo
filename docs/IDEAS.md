@@ -53,3 +53,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-cac-pod-benchmarks.md` for CAC, POD, and competitor-payout assumptions.
 - Strategic implication: Finance tooling should model contribution after acquisition, not just per-print margin, because high paid CAC can make an otherwise healthy print SKU unprofitable until repeat purchase behavior catches up.
+
+## Ten-lens invention pass (2026-06-08 17:10 UTC — creative demand engine run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Creative diversity scorer that gates paid spend by proof, mockups, SEO tags, margin, and similarity risk | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Buyer room-preview experiment that feeds conversion lift back into CAC forecasts | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Persist creative tests as first-class records with predicted CAC, actual CAC, and winning concept | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI mockup coverage dashboard that identifies which listings need more room scenes before spend | AI/ML | 4 | 2 | 4 | 5 | 40 | ready |
+| Programmatic SEO pages generated from artwork tags, room intent, and artist payout proof | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Artist referral kit that converts each approved listing into creator-led posts and collector emails | Sales | 4 | 2 | 4 | 5 | 40 | ready |
+| Creative concept pipeline with weekly quota for new visual angles, hooks, and formats | Marketing | 5 | 2 | 4 | 5 | 50 | shipped |
+| Ops queue for creative blockers: missing proof, room mockups, SEO tags, or weak margin | Operations | 4 | 2 | 3 | 5 | 30 | backlog |
+| Channel spend allocator that shifts budget toward concepts with positive contribution after CAC | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Consent check that prevents paid ads until artist marketing-rights acceptance is recorded | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 17:10 UTC)
+
+- See `docs/research/2026-06-08-creative-diversity-demand.md` for creative-diversity, room mockup, and long-tail SEO sources.
+- Strategic implication: demand tooling should decide whether a catalog item is safe to spend against before generating more ads, because similar or under-proofed creative can inflate CAC even when per-print margins look healthy.

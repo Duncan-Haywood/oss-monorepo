@@ -4,9 +4,11 @@ import test from "node:test";
 import {
   calculateCatalogSummary,
   calculateChannelScenario,
+  calculateCreativeReadiness,
   calculateLaunchReadiness,
   calculatePrintEconomics,
   catalogArtworks,
+  generateAdCreativeConcepts,
 } from "../src/lib/marketplace";
 
 test("calculatePrintEconomics splits net profit 30/70 after fulfillment, payment, and AI costs", () => {
@@ -87,4 +89,49 @@ test("calculateChannelScenario flags channels that need repeat purchases to brea
   assert.equal(scenario.paybackOrders, 3);
   assert.equal(scenario.ltvToCacRatio, 0.42);
   assert.equal(scenario.monthlyContributionAfterCAC, -13113);
+});
+
+test("calculateCreativeReadiness rewards proofed listings with SEO copy and room mockups", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "midnight-coast");
+
+  assert.ok(artwork);
+  assert.deepEqual(calculateCreativeReadiness(artwork, { baselineCAC: 68 }), {
+    score: 100,
+    label: "Scale paid concepts",
+    similarityRisk: "Low",
+    predictedCacReductionPercent: 28,
+    predictedCAC: 48.96,
+    blockers: [],
+  });
+});
+
+test("calculateCreativeReadiness blocks spend when proof, mockups, or margin are weak", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "abstract-no-4");
+
+  assert.ok(artwork);
+  const readiness = calculateCreativeReadiness(artwork, { baselineCAC: 68 });
+
+  assert.equal(readiness.score, 33);
+  assert.equal(readiness.label, "Fix before spend");
+  assert.equal(readiness.similarityRisk, "High");
+  assert.deepEqual(readiness.blockers, [
+    "Approve artist proof",
+    "Generate room mockups",
+    "Raise price or reduce POD cost",
+  ]);
+});
+
+test("generateAdCreativeConcepts creates distinct demand concepts from catalog tags and payout math", () => {
+  const artwork = catalogArtworks.find((item) => item.slug === "urban-geometry");
+
+  assert.ok(artwork);
+  const concepts = generateAdCreativeConcepts(artwork, "paid-social");
+
+  assert.equal(concepts.length, 3);
+  assert.deepEqual(
+    concepts.map((concept) => concept.format),
+    ["Room mockup carousel", "Artist payout proof", "Search-intent static"],
+  );
+  assert.match(concepts[1].message, /\$21\.10 artist payout/);
+  assert.match(concepts[2].message, /urban geometry monochrome wall art/);
 });

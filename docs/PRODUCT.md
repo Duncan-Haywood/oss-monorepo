@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic and finance stress tests)
-**Last updated:** 2026-06-08 (channel CAC sensitivity run)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, and demand creative scoring)
+**Last updated:** 2026-06-08 (creative demand engine run)
 
 ## Subsystem maturity
 
@@ -11,11 +11,11 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 |-----------|-------|-------|-----------|
 | Business plan TSX | 1 | All sections + portal routes exist; unit economics uses shared formula | `/investor` condensed route |
 | Capture pipeline | 0 | `setTimeout` simulation | Real file upload + job queue stub |
-| Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout math | Persist catalog records and AI metadata confidence |
+| Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
 | Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings and shows artist payout per print | Product detail + room preview state |
 | Outreach / CRM | 0 | Static copy in sales-portal | Prospect table + sequences |
-| Marketing hub | 0 | Static UI | Ad variant generator wired to mock catalog |
+| Marketing hub | 1 | Catalog-driven creative readiness scorer and channel concepts in `/marketing-portal` | Persist creative tests and compare predicted CAC to actual cohorts |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
@@ -32,8 +32,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Catalog data | Typed in-repo mock (`src/lib/marketplace.ts`) | Enables Phase 1 shared demos before persistence | 2026-06-08 |
 | Test runner | `tsx --test` | Lightweight TypeScript unit coverage without changing app runtime | 2026-06-08 |
 | Finance scenarios | Pure TypeScript calculators in `src/lib/marketplace.ts` | Keeps CAC, payout, and POD assumptions testable across UI surfaces | 2026-06-08 |
+| Creative scoring | Pure TypeScript scorer in `src/lib/marketplace.ts` | Gates paid demand by proof, room mockups, SEO tags, margin, and predicted CAC lift before persistence | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing
-**Definition of done:** Shared catalog data powers artist and buyer surfaces; payout, readiness, and channel CAC math are covered by tests; next step is persistence plus real upload/AI metadata and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine
+**Definition of done:** Shared catalog data powers artist, buyer, finance, and marketing surfaces; payout, readiness, channel CAC, and creative scoring math are covered by tests; next step is persistence plus real upload/AI metadata and actual channel cohorts.

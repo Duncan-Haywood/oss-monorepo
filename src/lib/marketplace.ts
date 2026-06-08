@@ -34,6 +34,20 @@ export type ChannelScenarioInput = PrintEconomicsInput & {
   purchasesPerCustomer: number;
 };
 
+export type CreativeChannel = "paid-social" | "search" | "artist-referral";
+
+export type CreativeReadinessOptions = {
+  baselineCAC?: number;
+};
+
+export type CreativeSimilarityRisk = "Low" | "Moderate" | "High";
+
+export type AdCreativeConcept = {
+  format: string;
+  hook: string;
+  message: string;
+};
+
 export const catalogArtworks: CatalogArtwork[] = [
   {
     id: 1,
@@ -219,6 +233,83 @@ export function calculateChannelScenario({
     monthlyArtistPayout,
     monthlyContributionAfterCAC: roundCurrency(monthlyPlatformGross - monthlyMarketingSpend),
   };
+}
+
+export function calculateCreativeReadiness(
+  artwork: CatalogArtwork,
+  { baselineCAC = 68 }: CreativeReadinessOptions = {},
+) {
+  const economics = calculatePrintEconomics({
+    retailPrice: artwork.retailPrice,
+    fulfillmentCost: artwork.fulfillmentCost,
+  });
+  const metadataScore = Math.min(30, artwork.tags.length * 5 + (artwork.hasSeoCopy ? 10 : 0));
+  const mockupScore = artwork.hasRoomMockups ? 30 : 8;
+  const proofScore = artwork.hasApprovedProof && artwork.status === "Live" ? 20 : 5;
+  const marginScore = economics.marginPercent >= 45 ? 20 : economics.marginPercent >= 35 ? 12 : 0;
+  const score = metadataScore + mockupScore + proofScore + marginScore;
+  const blockers: string[] = [];
+
+  if (!artwork.hasApprovedProof || artwork.status !== "Live") {
+    blockers.push("Approve artist proof");
+  }
+  if (!artwork.hasRoomMockups) {
+    blockers.push("Generate room mockups");
+  }
+  if (artwork.tags.length < 2 || !artwork.hasSeoCopy) {
+    blockers.push("Improve SEO tags/copy");
+  }
+  if (economics.marginPercent < 35) {
+    blockers.push("Raise price or reduce POD cost");
+  }
+
+  const predictedCacReductionPercent = roundCurrency(Math.min(28, score * 0.28));
+
+  return {
+    score,
+    label: score >= 85 ? "Scale paid concepts" : score >= 60 ? "Test with limits" : "Fix before spend",
+    similarityRisk: (score >= 85 ? "Low" : score >= 60 ? "Moderate" : "High") as CreativeSimilarityRisk,
+    predictedCacReductionPercent,
+    predictedCAC: roundCurrency(baselineCAC * (1 - predictedCacReductionPercent / 100)),
+    blockers,
+  };
+}
+
+export function generateAdCreativeConcepts(
+  artwork: CatalogArtwork,
+  channel: CreativeChannel = "paid-social",
+): AdCreativeConcept[] {
+  const economics = calculatePrintEconomics({
+    retailPrice: artwork.retailPrice,
+    fulfillmentCost: artwork.fulfillmentCost,
+  });
+  const tagPhrase = artwork.tags.join(" ");
+  const channelHook =
+    channel === "search"
+      ? "Intent-matched wall art"
+      : channel === "artist-referral"
+        ? `${artwork.artistName}'s collector proof`
+        : "Distinct room-led concept";
+
+  return [
+    {
+      format: "Room mockup carousel",
+      hook: channelHook,
+      message: artwork.hasRoomMockups
+        ? `Show ${artwork.title} in three ${artwork.style.toLowerCase()} room scenes built from ${tagPhrase} cues.`
+        : `Generate room scenes before spend so ${artwork.title} is not tested as a flat product image.`,
+    },
+    {
+      format: "Artist payout proof",
+      hook: "Transparent marketplace economics",
+      message: `${artwork.artistName} earns $${economics.artistShare.toFixed(2)} artist payout on each ${artwork.title} print at today's POD cost.`,
+    },
+    {
+      format: "Search-intent static",
+      hook: "Long-tail buyer language",
+      message: `${tagPhrase} wall art for buyers comparing room-ready prints under $${artwork.retailPrice}.`,
+    },
+  ];
 }
 
 export function calculateLaunchReadiness(artwork: CatalogArtwork) {
