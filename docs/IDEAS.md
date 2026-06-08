@@ -113,3 +113,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-08-room-preview-conversion.md` for Saatchi Art WebAR, Shopify 3D ecommerce, Rebecca Minkoff, and Interior Define references.
 - Strategic implication: room visualization should be measured as a conversion-quality and CAC lever, not a decorative buyer feature; listings without approved proofs or room mockups should be blocked from paid-preview lift assumptions.
+
+## Ten-lens invention pass (2026-06-08 18:52 UTC — channel budget allocator run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Weekly channel budget allocator that caps spend by contribution after CAC, LTV:CAC, and room-preview lift | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Operator budget holdback panel that shows why unsafe dollars remain unspent instead of forcing full allocation | Product | 4 | 2 | 4 | 5 | 40 | shipped |
+| Persist weekly budget plans with actual spend, CAC, orders, and source channel cohorts | Engineering | 5 | 4 | 4 | 5 | 25 | ready |
+| AI-assisted bid recommendation that proposes channel caps from creative readiness, preview lift, and cohort quality | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| 7-day launch budget calendar that shifts spend from artist loops into paid demand only after proofed listings clear guardrails | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Designer-trade spend lane that prioritizes high-repeat buyer channels before cold paid-social tests | Sales | 4 | 2 | 4 | 5 | 40 | ready |
+| Channel-specific creative quota that ties budget eligibility to enough distinct room mockups and hooks | Marketing | 4 | 2 | 4 | 5 | 40 | ready |
+| Budget exception queue for channels held back by low LTV:CAC or negative contribution after CAC | Operations | 5 | 2 | 3 | 5 | 38 | ready |
+| Actual-lift feedback loop that replaces assumed room-preview lift with measured channel cohorts | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Spend approval audit log for artist consent, ad rights, and payout-impact disclosure before paid scaling | Legal | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-08 18:52 UTC)
+
+- `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
+- See `docs/research/2026-06-08-channel-budget-allocation.md`, which synthesizes existing sourced CAC, POD, creative-diversity, and room-preview research into the channel-budget allocation decision.
+- Strategic implication: Print Atelier should make "do not spend" a first-class product outcome, because software-first growth should protect artist payouts and marketplace margin before scaling paid channels.

@@ -1,6 +1,6 @@
 "use client";
 
-import { calculateChannelScenario, calculatePrintEconomics } from "@/lib/marketplace";
+import { allocateWeeklyChannelBudget, calculateChannelScenario, calculatePrintEconomics } from "@/lib/marketplace";
 import { useState } from "react";
 
 type PrintSize = { name: string; price: number; cost: number };
@@ -36,6 +36,41 @@ const acquisitionChannels: AcquisitionChannel[] = [
   },
 ];
 
+const budgetChannels = [
+  {
+    id: "artist-community",
+    label: "Artist community loop",
+    weeklyBudgetCap: 1200,
+    baselineCAC: 12,
+    purchasesPerCustomer: 1.4,
+    previewLiftPercent: 0,
+  },
+  {
+    id: "paid-social-preview",
+    label: "Paid social + room preview",
+    weeklyBudgetCap: 2200,
+    baselineCAC: 68,
+    purchasesPerCustomer: 1.6,
+    previewLiftPercent: 35,
+  },
+  {
+    id: "search-intent",
+    label: "Search intent pages",
+    weeklyBudgetCap: 1600,
+    baselineCAC: 42,
+    purchasesPerCustomer: 1.5,
+    previewLiftPercent: 10,
+  },
+  {
+    id: "designer-trade",
+    label: "Designer trade referrals",
+    weeklyBudgetCap: 1800,
+    baselineCAC: 35,
+    purchasesPerCustomer: 2.4,
+    previewLiftPercent: 15,
+  },
+];
+
 export default function RevenueModel() {
   const [printSize, setPrintSize] = useState("16x20");
   const [retailPrice, setRetailPrice] = useState(85);
@@ -46,6 +81,8 @@ export default function RevenueModel() {
   const selectedChannel = acquisitionChannels.find((channel) => channel.id === selectedChannelId) ?? acquisitionChannels[0];
   const [channelCAC, setChannelCAC] = useState(selectedChannel.customerAcquisitionCost);
   const [purchasesPerCustomer, setPurchasesPerCustomer] = useState(selectedChannel.purchasesPerCustomer);
+  const [weeklyGrowthBudget, setWeeklyGrowthBudget] = useState(5000);
+  const [minLtvToCacRatio, setMinLtvToCacRatio] = useState(1.5);
 
   const aiComputeCost = 0.35;
   const economics = calculatePrintEconomics({ retailPrice, fulfillmentCost: podCost, aiComputeCost });
@@ -91,6 +128,17 @@ export default function RevenueModel() {
     contributionAfterCACPerOrder > 0
       ? Math.ceil(monthlyFixedCosts / contributionAfterCACPerOrder)
       : Number.POSITIVE_INFINITY;
+  const weeklyBudgetPlan = allocateWeeklyChannelBudget({
+    retailPrice: avgOrderValue,
+    fulfillmentCost: podCost,
+    aiComputeCost,
+    totalWeeklyBudget: weeklyGrowthBudget,
+    minLtvToCacRatio,
+    channels: budgetChannels,
+  });
+  const recommendedChannel = weeklyBudgetPlan.allocations.find(
+    (allocation) => allocation.id === weeklyBudgetPlan.recommendedChannelId,
+  );
 
   return (
     <div className="space-y-6 prose dark:prose-invert max-w-none">
@@ -317,6 +365,121 @@ export default function RevenueModel() {
           <p className="text-xs mt-3 text-gray-500">
             Break-even at {Number.isFinite(breakEvenOrders) ? `~${breakEvenOrders.toLocaleString()} orders/mo` : "no positive payback"} after channel CAC.
             Artist payouts remain tied to net profit before marketing so acquisition experiments do not rewrite the artist contract.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-semibold">Weekly Channel Budget Allocator</h2>
+        <p>
+          Operators should shift spend toward channels that clear contribution and LTV:CAC guardrails, then leave dollars unspent when every safe channel hits its cap.
+        </p>
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-6 not-prose dark:border-emerald-900 dark:bg-emerald-950/20">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className="block rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900">
+              <span className="flex justify-between text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                <span>Weekly growth budget</span>
+                <span>${weeklyGrowthBudget.toLocaleString()}</span>
+              </span>
+              <input
+                type="range"
+                min="1000"
+                max="10000"
+                step="250"
+                value={weeklyGrowthBudget}
+                onChange={(e) => setWeeklyGrowthBudget(Number(e.target.value))}
+                className="mt-3 w-full accent-emerald-600"
+              />
+            </label>
+            <label className="block rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900">
+              <span className="flex justify-between text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                <span>Minimum LTV:CAC guardrail</span>
+                <span>{minLtvToCacRatio.toFixed(1)}x</span>
+              </span>
+              <input
+                type="range"
+                min="1"
+                max="4"
+                step="0.1"
+                value={minLtvToCacRatio}
+                onChange={(e) => setMinLtvToCacRatio(Number(e.target.value))}
+                className="mt-3 w-full accent-emerald-600"
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900">
+              <p className="text-[11px] uppercase tracking-wide text-gray-500">Allocated</p>
+              <p className="mt-1 font-mono text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+                ${weeklyBudgetPlan.allocatedBudget.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900">
+              <p className="text-[11px] uppercase tracking-wide text-gray-500">Held back</p>
+              <p className="mt-1 font-mono text-2xl font-bold text-amber-600">
+                ${weeklyBudgetPlan.unallocatedBudget.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900">
+              <p className="text-[11px] uppercase tracking-wide text-gray-500">Lead channel</p>
+              <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
+                {recommendedChannel?.label ?? "No safe channel"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {weeklyBudgetPlan.allocations.map((allocation) => {
+              const allocationPercent =
+                weeklyGrowthBudget > 0
+                  ? Math.round((allocation.recommendedWeeklyBudget / weeklyGrowthBudget) * 100)
+                  : 0;
+
+              return (
+                <div key={allocation.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{allocation.label}</h3>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                          allocation.eligible
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-200"
+                        }`}>
+                          {allocation.eligible ? "Eligible" : "Hold spend"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500">
+                        CAC ${allocation.baselineCAC} → ${allocation.adjustedCAC} after {allocation.previewLiftPercent}% preview lift · LTV:CAC {allocation.ltvToCacRatio.toFixed(2)}x · Profit after CAC ${allocation.profitAfterCAC.toFixed(2)}
+                      </p>
+                      {allocation.blockers.length > 0 && (
+                        <p className="mt-1 text-xs font-medium text-red-600">
+                          Blocked: {allocation.blockers.join(", ")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-left md:text-right">
+                      <p className="font-mono text-xl font-bold text-gray-900 dark:text-white">
+                        ${allocation.recommendedWeeklyBudget.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {allocationPercent}% of budget · cap ${allocation.weeklyBudgetCap.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                    <div
+                      className={`h-2 rounded-full ${allocation.eligible ? "bg-emerald-500" : "bg-red-300"}`}
+                      style={{ width: `${Math.min(allocationPercent, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 text-xs text-gray-600 dark:text-gray-300">
+            This is a Phase 1 allocator: it uses the shared finance math and room-preview assumptions today; the Phase 2 path is persisted channel cohorts with actual CAC and conversion lift.
           </p>
         </div>
       </section>

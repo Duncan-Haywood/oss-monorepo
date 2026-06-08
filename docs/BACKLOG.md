@@ -10,11 +10,11 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [demo] Wire capture upload to persist file metadata (Phase 2 prep)
 - [ ] [finance] Add competitor payout comparator: Print Atelier vs Society6, Saatchi Art, Artfinder, Redbubble
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
-- [ ] [gtm] Add weekly channel budget planner with LTV:CAC guardrails from the finance simulator
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
 - [ ] [gtm] Generate programmatic SEO pages from artwork tags, room intent, and artist payout proof
-- [ ] [finance] Add channel spend allocator that shifts budget toward positive contribution after CAC
+- [ ] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
+- [ ] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
 - [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
 - [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
 - [ ] [marketing] Generate proof-mockup response kits for artists asking to see examples
@@ -35,6 +35,7 @@ _(agent assigns at run start)_
 - [x] [sales] Outreach CRM table with reply classification and next-step queue in `/sales-portal`
 - [x] [sales] Reply-to-onboarding next-best-action engine in `src/lib/outreach.ts`
 - [x] [product] Buyer room-preview experiment in `/storefront` that feeds conversion lift into adjusted CAC forecasts
+- [x] [finance] Channel spend allocator that shifts weekly budget toward positive contribution after CAC
 - [x] [marketing] Creative diversity scorer + catalog-generated ad concepts in `/marketing-portal`
 - [x] [ai-ml] AI creative scoring that estimates CAC reduction from tags, mockups, proof, and margin
 - [x] [finance] CAC, payout, and POD sensitivity simulator tied to shared catalog economics

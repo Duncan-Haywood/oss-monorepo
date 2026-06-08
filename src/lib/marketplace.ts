@@ -34,6 +34,37 @@ export type ChannelScenarioInput = PrintEconomicsInput & {
   purchasesPerCustomer: number;
 };
 
+export type BudgetChannelInput = {
+  id: string;
+  label: string;
+  weeklyBudgetCap: number;
+  baselineCAC: number;
+  purchasesPerCustomer: number;
+  previewLiftPercent: number;
+};
+
+export type WeeklyChannelBudgetInput = PrintEconomicsInput & {
+  totalWeeklyBudget: number;
+  minLtvToCacRatio: number;
+  channels: BudgetChannelInput[];
+};
+
+export type ChannelBudgetAllocation = {
+  id: string;
+  label: string;
+  weeklyBudgetCap: number;
+  baselineCAC: number;
+  adjustedCAC: number;
+  previewLiftPercent: number;
+  purchasesPerCustomer: number;
+  ltvToCacRatio: number;
+  profitAfterCAC: number;
+  score: number;
+  eligible: boolean;
+  blockers: string[];
+  recommendedWeeklyBudget: number;
+};
+
 export type CreativeChannel = "paid-social" | "search" | "artist-referral";
 
 export type CreativeReadinessOptions = {
@@ -241,6 +272,102 @@ export function calculateChannelScenario({
     monthlyPlatformGross,
     monthlyArtistPayout,
     monthlyContributionAfterCAC: roundCurrency(monthlyPlatformGross - monthlyMarketingSpend),
+  };
+}
+
+export function allocateWeeklyChannelBudget({
+  retailPrice,
+  fulfillmentCost,
+  paymentFeeRate,
+  aiComputeCost,
+  totalWeeklyBudget,
+  minLtvToCacRatio,
+  channels,
+}: WeeklyChannelBudgetInput) {
+  const allocations: ChannelBudgetAllocation[] = channels.map((channel) => {
+    const previewLift = Math.max(channel.previewLiftPercent, 0);
+    const adjustedCAC = roundCurrency(channel.baselineCAC * (1 - Math.min(previewLift, 100) / 100));
+    const scenario = calculateChannelScenario({
+      retailPrice,
+      fulfillmentCost,
+      paymentFeeRate,
+      aiComputeCost,
+      monthlyOrders: 100,
+      customerAcquisitionCost: adjustedCAC,
+      purchasesPerCustomer: channel.purchasesPerCustomer,
+    });
+    const blockers: string[] = [];
+
+    if (scenario.ltvToCacRatio < minLtvToCacRatio) {
+      blockers.push(`LTV:CAC below ${minLtvToCacRatio}x`);
+    }
+    if (scenario.profitAfterCAC < 0) {
+      blockers.push("Negative contribution after CAC");
+    }
+
+    return {
+      id: channel.id,
+      label: channel.label,
+      weeklyBudgetCap: Math.max(channel.weeklyBudgetCap, 0),
+      baselineCAC: channel.baselineCAC,
+      adjustedCAC,
+      previewLiftPercent: previewLift,
+      purchasesPerCustomer: channel.purchasesPerCustomer,
+      ltvToCacRatio: scenario.ltvToCacRatio,
+      profitAfterCAC: scenario.profitAfterCAC,
+      score: blockers.length === 0 ? roundCurrency(Math.max(scenario.profitAfterCAC, 0) * Math.max(scenario.ltvToCacRatio, 0)) : 0,
+      eligible: blockers.length === 0,
+      blockers,
+      recommendedWeeklyBudget: 0,
+    };
+  });
+
+  let remainingBudget = Math.max(totalWeeklyBudget, 0);
+  let eligibleAllocations = allocations.filter((allocation) => allocation.eligible && allocation.weeklyBudgetCap > 0);
+
+  while (remainingBudget > 0.005 && eligibleAllocations.length > 0) {
+    const roundBudget = remainingBudget;
+    const totalScore = eligibleAllocations.reduce((sum, allocation) => sum + allocation.score, 0);
+    let allocatedThisRound = 0;
+
+    eligibleAllocations.forEach((allocation) => {
+      const weightedShare =
+        totalScore > 0
+          ? roundBudget * (allocation.score / totalScore)
+          : roundBudget / eligibleAllocations.length;
+      const roomToCap = allocation.weeklyBudgetCap - allocation.recommendedWeeklyBudget;
+      const increment = Math.min(roomToCap, weightedShare);
+
+      if (increment > 0) {
+        allocation.recommendedWeeklyBudget += increment;
+        remainingBudget -= increment;
+        allocatedThisRound += increment;
+      }
+    });
+
+    eligibleAllocations = eligibleAllocations.filter(
+      (allocation) => allocation.weeklyBudgetCap - allocation.recommendedWeeklyBudget > 0.005,
+    );
+
+    if (allocatedThisRound === 0) {
+      break;
+    }
+  }
+
+  allocations.forEach((allocation) => {
+    allocation.recommendedWeeklyBudget = Math.round(allocation.recommendedWeeklyBudget);
+  });
+
+  const allocatedBudget = allocations.reduce((sum, allocation) => sum + allocation.recommendedWeeklyBudget, 0);
+  const recommended = allocations
+    .filter((allocation) => allocation.recommendedWeeklyBudget > 0)
+    .sort((a, b) => b.recommendedWeeklyBudget - a.recommendedWeeklyBudget || b.score - a.score)[0];
+
+  return {
+    allocations,
+    allocatedBudget,
+    unallocatedBudget: Math.max(Math.round(totalWeeklyBudget - allocatedBudget), 0),
+    recommendedChannelId: recommended?.id ?? null,
   };
 }
 

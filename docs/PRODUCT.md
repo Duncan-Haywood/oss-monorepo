@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, and buyer room-preview CAC feedback)
-**Last updated:** 2026-06-08 (room preview conversion run)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, and guarded channel budget allocation)
+**Last updated:** 2026-06-08 (channel budget allocator run)
 
 ## Subsystem maturity
 
@@ -18,6 +18,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies and sync real channel events |
 | Marketing hub | 1 | Catalog-driven creative readiness scorer and channel concepts in `/marketing-portal` | Persist creative tests and compare predicted CAC to actual cohorts |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
+| GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
 | CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, and outreach math | Add PR check status tracking to PROGRESS |
@@ -36,8 +37,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Creative scoring | Pure TypeScript scorer in `src/lib/marketplace.ts` | Gates paid demand by proof, room mockups, SEO tags, margin, and predicted CAC lift before persistence | 2026-06-08 |
 | Outreach scoring | Pure TypeScript scorer in `src/lib/outreach.ts` | Turns artist replies into deterministic upload, payout/legal, proof mockup, nurture, and referral-kit actions before persistence | 2026-06-08 |
 | Room preview experiments | Pure TypeScript calculator in `src/lib/marketplace.ts` | Connects buyer visualization lift to adjusted CAC forecasts before adding persisted analytics | 2026-06-08 |
+| Channel budget allocation | Pure TypeScript allocator in `src/lib/marketplace.ts` | Makes "do not spend" a software-first decision when channels fail contribution or LTV:CAC guardrails | 2026-06-08 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback
-**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, and sales surfaces; payout, readiness, channel CAC, creative scoring, reply triage, and room-preview conversion math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation
+**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, and sales surfaces; payout, readiness, channel CAC, creative scoring, reply triage, room-preview conversion, and weekly budget allocation math are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, budget plans, and actual channel cohorts.

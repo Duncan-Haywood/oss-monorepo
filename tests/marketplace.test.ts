@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  allocateWeeklyChannelBudget,
   calculateCatalogSummary,
   calculateChannelScenario,
   calculateCreativeReadiness,
@@ -176,4 +177,87 @@ test("calculateRoomPreviewExperiment blocks uplift when mockups are missing", ()
   assert.equal(experiment.incrementalOrders, 0);
   assert.equal(experiment.adjustedCAC, 68);
   assert.deepEqual(experiment.blockers, ["Generate room mockups", "Approve artist proof"]);
+});
+
+test("allocateWeeklyChannelBudget caps spend and blocks channels below contribution guardrails", () => {
+  const plan = allocateWeeklyChannelBudget({
+    retailPrice: 85,
+    fulfillmentCost: 28,
+    totalWeeklyBudget: 4000,
+    minLtvToCacRatio: 1.5,
+    channels: [
+      {
+        id: "artist-loop",
+        label: "Artist community loop",
+        weeklyBudgetCap: 1200,
+        baselineCAC: 12,
+        purchasesPerCustomer: 1.4,
+        previewLiftPercent: 0,
+      },
+      {
+        id: "paid-social",
+        label: "Paid social prospecting",
+        weeklyBudgetCap: 2000,
+        baselineCAC: 90,
+        purchasesPerCustomer: 1.3,
+        previewLiftPercent: 0,
+      },
+      {
+        id: "designer-trade",
+        label: "Designer trade referrals",
+        weeklyBudgetCap: 1800,
+        baselineCAC: 35,
+        purchasesPerCustomer: 2.4,
+        previewLiftPercent: 15,
+      },
+    ],
+  });
+
+  const artistLoop = plan.allocations.find((channel) => channel.id === "artist-loop");
+  const paidSocial = plan.allocations.find((channel) => channel.id === "paid-social");
+  const designerTrade = plan.allocations.find((channel) => channel.id === "designer-trade");
+
+  assert.equal(plan.allocatedBudget, 3000);
+  assert.equal(plan.unallocatedBudget, 1000);
+  assert.equal(artistLoop?.recommendedWeeklyBudget, 1200);
+  assert.equal(designerTrade?.recommendedWeeklyBudget, 1800);
+  assert.equal(paidSocial?.recommendedWeeklyBudget, 0);
+  assert.equal(paidSocial?.eligible, false);
+  assert.deepEqual(paidSocial?.blockers, ["LTV:CAC below 1.5x", "Negative contribution after CAC"]);
+});
+
+test("allocateWeeklyChannelBudget lets room-preview lift rescue an otherwise marginal paid channel", () => {
+  const plan = allocateWeeklyChannelBudget({
+    retailPrice: 85,
+    fulfillmentCost: 28,
+    totalWeeklyBudget: 2000,
+    minLtvToCacRatio: 1.5,
+    channels: [
+      {
+        id: "paid-social-preview",
+        label: "Paid social with room preview",
+        weeklyBudgetCap: 2000,
+        baselineCAC: 68,
+        purchasesPerCustomer: 1.6,
+        previewLiftPercent: 50,
+      },
+      {
+        id: "search-flat-listing",
+        label: "Search flat listing",
+        weeklyBudgetCap: 2000,
+        baselineCAC: 42,
+        purchasesPerCustomer: 1.5,
+        previewLiftPercent: 0,
+      },
+    ],
+  });
+
+  const previewChannel = plan.allocations.find((channel) => channel.id === "paid-social-preview");
+  const flatListingChannel = plan.allocations.find((channel) => channel.id === "search-flat-listing");
+
+  assert.equal(plan.recommendedChannelId, "paid-social-preview");
+  assert.equal(previewChannel?.adjustedCAC, 34);
+  assert.equal(previewChannel?.recommendedWeeklyBudget, 2000);
+  assert.equal(flatListingChannel?.recommendedWeeklyBudget, 0);
+  assert.equal(flatListingChannel?.eligible, false);
 });
