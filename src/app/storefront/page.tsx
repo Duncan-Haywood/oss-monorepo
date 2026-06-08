@@ -1,15 +1,20 @@
-"use client";
-
 import DemoNav from "@/components/shared/DemoNav";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
 
-export default function StorefrontPage() {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [cartCount] = useState(2);
+type StorefrontPageProps = {
+  searchParams?: {
+    style?: string;
+  };
+};
+
+export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
+  const cartCount = 2;
   const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
   const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
+  const requestedFilter = searchParams?.style;
+  const activeFilter = filters.includes(requestedFilter ?? "") ? requestedFilter ?? "All" : "All";
   const visibleArtworks =
     activeFilter === "All"
       ? liveArtworks
@@ -66,7 +71,7 @@ export default function StorefrontPage() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <section id="catalog" className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
@@ -74,9 +79,9 @@ export default function StorefrontPage() {
           </div>
           <div className="flex gap-2">
             {filters.map((f) => (
-              <button
+              <Link
                 key={f}
-                onClick={() => setActiveFilter(f)}
+                href={f === "All" ? "/storefront#catalog" : `/storefront?style=${encodeURIComponent(f)}#catalog`}
                 className={`px-3 py-1.5 rounded-full text-sm transition ${
                   activeFilter === f
                     ? "bg-stone-900 text-white"
@@ -84,7 +89,7 @@ export default function StorefrontPage() {
                 }`}
               >
                 {f}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
