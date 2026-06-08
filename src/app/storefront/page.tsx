@@ -1,7 +1,6 @@
 import DemoNav from "@/components/shared/DemoNav";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
-import Link from "next/link";
 
 type StorefrontPageProps = {
   searchParams?: {
@@ -77,9 +76,9 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
             <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
             <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog listings in this view</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             {filters.map((f) => (
-              <Link
+              <a
                 key={f}
                 href={f === "All" ? "/storefront#catalog" : `/storefront?style=${encodeURIComponent(f)}#catalog`}
                 className={`px-3 py-1.5 rounded-full text-sm transition ${
@@ -89,7 +88,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
                 }`}
               >
                 {f}
-              </Link>
+              </a>
             ))}
           </div>
         </div>
