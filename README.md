@@ -22,6 +22,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 
 | Tab | Component | Content |
 |-----|-----------|---------|
+| Business Overview | `BusinessOverview.tsx` | Visual product map, launch scores, portal links |
 | Strategy & Vision | `Strategy.tsx` | Problem, AI-first solution, positioning, dual-sided tracks |
 | Sales & Outreach | `SalesOutreach.tsx` | Digital-first dual-sided outreach, channel mix |
 | Tech Strategy | `TechStrategy.tsx` | Architecture, stack, build phases, infra costs |
@@ -38,6 +39,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 
 | Route | Description |
 |-------|-------------|
+| `/investor` | Condensed owner/investor dashboard — unit economics, pipeline, partner readiness |
 | `/storefront` | Consumer e-commerce storefront (demand side) |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |

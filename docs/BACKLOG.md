@@ -6,7 +6,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
-- [ ] [content] Add `/investor` condensed dashboard route
 - [ ] [demo] Wire capture upload to persist file metadata (Phase 2 prep)
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
@@ -42,6 +41,10 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [content] `/investor` condensed dashboard + visual Business Overview tab on home
+- [x] [platform] Partner readiness scoring for fulfillment (Printful/Gelato) and ad platforms (Meta/Google/Pinterest)
+- [x] [platform] Market launch score blending supply, demand, ops, and fulfillment readiness
+- [x] [hygiene] Merged orchestrator-campaign-flow-4016 to main; renewed campaign window; deleted 22 stale remote `cursor/*` branches
 - [x] [legal] Listing release consent checklist for POD license, ad rights, AI room-scene use, and payout acknowledgement in `/admin-portal`
 - [x] [platform] Shared listing consent gate contract with tests for cleared, missing-consent, and release-blocked states
 - [x] [product] Listing hold/release workflow with override reasons and artist-facing trust copy preview in `/admin-portal`

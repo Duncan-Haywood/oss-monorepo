@@ -216,3 +216,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 - `parallel-cli` was unavailable in this cloud environment, so no new live-search claims were added.
 - See `docs/research/2026-06-08-listing-consent-gate.md`, which reuses the existing source-backed artist terms and payout research from INPRNT, BetterShared, and Society6.
 - Strategic implication: consent should be a channel-specific release contract, not one generic checkbox, because a listing can be safe for storefront publication while still blocked from paid ads or AI room-scene previews.
+
+## Ten-lens invention pass (2026-06-11 UTC — investor + market launch run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Investor dashboard aggregating catalog, outreach, finance, and partner readiness | Strategy | 5 | 2 | 5 | 5 | 63 | shipped |
+| Visual Business Overview tab with product-map cards and launch score | Product | 5 | 2 | 4 | 5 | 50 | shipped |
+| `buildInvestorSnapshot` contract with tests for pipeline stages | Engineering | 4 | 2 | 3 | 5 | 30 | shipped |
+| AI metadata confidence dashboard for tags, SEO copy, and mockup coverage | AI/ML | 5 | 3 | 4 | 5 | 33 | ready |
+| Programmatic SEO pages from artwork tags + payout proof | GTM | 5 | 3 | 4 | 5 | 33 | ready |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | backlog |
+| Competitive battlecards (Saatchi, Artfinder, Society6, Redbubble) | Strategy | 4 | 2 | 3 | 5 | 30 | ready |
+| Stripe Connect payout simulator for artist onboarding | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Wire capture upload to persist file metadata (Phase 2 prep) | Product | 5 | 4 | 5 | 5 | 31 | ready |
+
+## Research-backed notes (2026-06-11 UTC)
+
+- See `docs/research/2026-06-11-market-launch-readiness.md` for fulfillment API and programmatic ad catalog requirements.
+- Strategic implication: market launch should be a single scored decision (supply + demand + ops + fulfillment) before scaling outreach or ad spend.

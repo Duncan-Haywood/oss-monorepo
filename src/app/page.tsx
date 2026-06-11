@@ -13,9 +13,11 @@ import SalesOutreach from "@/components/SalesOutreach";
 import MarketingSales from "@/components/MarketingSales";
 import FinancialProjections from "@/components/FinancialProjections";
 import PlatformDemo from "@/components/PlatformDemo";
+import BusinessOverview from "@/components/BusinessOverview";
 import { Menu, X, ExternalLink } from "lucide-react";
 
 const tabs = [
+  { id: "overview", label: "Business Overview" },
   { id: "strategy", label: "Strategy & Vision" },
   { id: "sales", label: "Sales & Outreach" },
   { id: "tech", label: "Tech Strategy" },
@@ -30,6 +32,7 @@ const tabs = [
 ];
 
 const demoLinks = [
+  { href: "/investor", label: "Investor Dashboard", badge: "New" },
   { href: "/storefront", label: "Storefront" },
   { href: "/buyer-portal", label: "Buyer Portal", badge: "New" },
   { href: "/artist-portal", label: "Artist Portal" },
@@ -44,7 +47,7 @@ const demoLinks = [
 ];
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("strategy");
+  const [activeTab, setActiveTab] = useState("overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -116,6 +119,7 @@ export default function Home() {
               activeTab === "demo" ? "max-w-6xl" : "max-w-4xl"
             }`}
           >
+            {activeTab === "overview" && <BusinessOverview />}
             {activeTab === "strategy" && <Strategy />}
             {activeTab === "sales" && <SalesOutreach />}
             {activeTab === "tech" && <TechStrategy />}

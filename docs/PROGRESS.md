@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-11 23:05 UTC — Investor dashboard + market launch readiness
+
+- **Gate:** Previous campaign window ended 2026-06-09; renewed `campaign_start` to `2026-06-11T23:02:48Z`. `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~24 hours remaining.
+- **Orient:** `main` was 31 commits behind orchestrator work; fast-forwarded from `origin/cursor/orchestrator-campaign-flow-4016`. `npm ci && npm run build && npm test` passed (30 tests, 16 routes).
+- **Hygiene:** Merged orchestrator branch to `main`; deleted 22 stale remote `cursor/*` branches (ahead≤1, behind≥10). Open draft PRs #23–#39 remain (read-only `gh` cannot close); their branches were deleted where superseded.
+- **Theme shipped:** Production-ready owner view — investor dashboard, visual docs, fulfillment + ad partner readiness.
+- **Shipped:** `/investor` route with `InvestorDashboard`; `BusinessOverview` as default home tab; `src/lib/investor.ts` + `src/lib/partners.ts` with tested market-launch, fulfillment, and ad-readiness scoring; DemoNav + README updates.
+- **Invention shipped:** Market launch score blending supply, demand, ops, and fulfillment partner readiness into one owner dashboard.
+- **Research:** `docs/research/2026-06-11-market-launch-readiness.md`.
+- **Maturity changes:** Investor dashboard `0→1`; Business plan TSX visual overview `0→1`; Partner integrations `0→1`; Market launch scoring `0→1`; CI test count 26→30.
+- **Validation:** `npm test` passed (30 tests); `npm run build` passed (16 static routes including `/investor`).
+- **Top 3 ideas for next run:** competitive battlecards page; wire capture upload metadata stub (Phase 2); programmatic SEO landing page generator from catalog tags.
+
+---
+
 ## 2026-06-08 22:05 UTC — Listing consent gate
 
 - **Gate:** This assigned branch started without campaign docs, so the latest gate-bearing branch was inspected in a temporary worktree first; `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~1.95 hours remaining. After fast-forwarding the latest orchestrator state into this branch, the in-branch gate returned `allowed=true`, phase `active`, ~1.92 hours remaining; not the final active-window run.
