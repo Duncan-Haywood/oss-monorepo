@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 07:05 UTC — Buyer checkout slice + Stripe session scaffold
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~16 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (42 commits fast-forward); `npm ci && npm run build && npm test` passed (68 tests baseline).
+- **Hygiene:** Deleted remote `origin/cursor/print-atelier-business-orchestration-e8b1` (0 ahead / 0 behind main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready buyer purchase path — consent-gated checkout before ad traffic.
+- **Shipped:** `src/lib/checkout.ts` with cart eligibility, totals, fulfillment routing, and session payload; `CheckoutLab` at `/checkout`; `POST/GET /api/stripe/checkout`; storefront cart link; VisualDocsHub + DemoNav; `.env.example` `STRIPE_PUBLISHABLE_KEY`; 7 new tests (75 total).
+- **Invention shipped:** Checkout lab with region-based Printful/Gelato routing and Stripe test-mode readiness gates.
+- **Research:** `docs/research/2026-06-12-checkout-stripe-slice.md`.
+- **Maturity changes:** Storefront/buyer advanced (checkout slice); Payments advanced (checkout session scaffold); CI test count 68→75; routes + `/checkout`, `/api/stripe/checkout`.
+- **Validation:** `npm test` passed (75 tests); `npm run build` passed (44 routes including `/checkout`).
+- **Top 3 ideas for next run:** Wire live `stripe.checkout.sessions.create`; Convex artist onboarding vertical slice; Connect Meta/Google/Pinterest catalog APIs.
+
+---
+
 ## 2026-06-12 06:00 UTC — Product preview CTA + partner vault + artist earnings
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~17 hours remaining.

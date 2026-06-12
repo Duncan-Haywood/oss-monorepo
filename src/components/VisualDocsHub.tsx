@@ -6,6 +6,7 @@ import { buildInvestorSnapshot } from "@/lib/investor";
 import { getPublishableSeoSlugs } from "@/lib/seo";
 import Link from "next/link";
 import { useMemo } from "react";
+import { buildSampleCheckoutCart } from "@/lib/checkout";
 import { buildPartnerCredentialVault } from "@/lib/partner-credentials";
 import {
   ArrowRight,
@@ -17,6 +18,7 @@ import {
   Layers,
   Megaphone,
   Swords,
+  ShoppingCart,
   Wallet,
 } from "lucide-react";
 
@@ -70,6 +72,14 @@ const toolCards = [
     metricKey: "metadataScore" as const,
   },
   {
+    href: "/checkout",
+    title: "Checkout lab",
+    description: "Consent-gated cart, Stripe Checkout session scaffold, and POD fulfillment routing by region.",
+    icon: ShoppingCart,
+    gradient: "from-violet-500 to-purple-700",
+    metricKey: "checkoutEligible" as const,
+  },
+  {
     href: "/payout-simulator",
     title: "Stripe Connect simulator",
     description: "Per-order waterfall, artist transfer timing, and negative-economics guardrails.",
@@ -121,6 +131,7 @@ export default function VisualDocsHub() {
       consentCleared: snapshot.consent.clearedCount,
       partnerScore: partners.overallScore,
       partnerLabel: partners.label,
+      checkoutEligible: buildSampleCheckoutCart().length,
     };
   }, []);
 
@@ -140,6 +151,8 @@ export default function VisualDocsHub() {
         return `${stats.metadataScore}% avg confidence · ${stats.metadataGaps} gaps`;
       case "artistPayout":
         return `$${stats.artistPayout.toFixed(2)} / print`;
+      case "checkoutEligible":
+        return `${stats.checkoutEligible} consent-cleared SKUs ready to sell`;
       case "partnerScore":
         return `${stats.partnerScore} — ${stats.partnerLabel}`;
       case "sitemapUrls":
@@ -248,6 +261,15 @@ export default function VisualDocsHub() {
           <li className="flex gap-3">
             <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 text-xs font-bold flex items-center justify-center">
               4
+            </span>
+            <span>
+              <strong>Checkout lab</strong> — validate consent-gated cart, Stripe test-mode session, and POD routing
+              before paid traffic hits storefront.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 text-xs font-bold flex items-center justify-center">
+              5
             </span>
             <span>
               <strong>Investor dashboard</strong> — single owner view before scaling programmatic ads or fulfillment

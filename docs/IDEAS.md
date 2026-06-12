@@ -384,3 +384,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-product-preview-partner-vault.md` for preview CTA and partner credential rationale.
 - Strategic implication: market launch requires buyer conversion tooling (preview CTA), artist trust tooling (earnings calculator), and ops credential visibility (partner vault) as parallel gates before scaling ads or outreach.
+
+## Ten-lens invention pass (2026-06-12 07:00 UTC — buyer checkout slice run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Checkout lab with consent-gated cart and Stripe session scaffold | Product | 5 | 3 | 4 | 5 | 33 | shipped |
+| POD fulfillment routing by region (Printful vs Gelato margin) | Operations | 5 | 2 | 4 | 5 | 50 | shipped |
+| Stripe Checkout session API wired to test-mode keys | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Convex order persistence from payment_intent.succeeded webhook | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
+| Buyer retargeting pixel events from checkout abandon | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist onboarding intake form with localStorage → Convex migration path | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+| Checkout terms + refund policy explainer linked to artist POD license | Legal | 4 | 2 | 3 | 4 | 24 | ready |
+| Investor dashboard live checkout funnel metric (cart → session → paid) | Strategy | 5 | 2 | 4 | 5 | 50 | ready |
+
+## Research-backed notes (2026-06-12 07:00 UTC)
+
+- See `docs/research/2026-06-12-checkout-stripe-slice.md` for Stripe Checkout + Connect transfer requirements.
+- Strategic implication: "ready to sell" means consent-gated cart eligibility, visible Stripe/POD blockers, and fulfillment routing — not just a pretty storefront.

@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, proof-mockup response kits, buyer room-preview CAC feedback, product detail preview CTA comparison, guarded channel budget allocation, artist payout trust proof, artist earnings calculator, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, partner credential vault, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator + webhook scaffold, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (product preview CTA + partner vault + artist earnings calculator)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, proof-mockup response kits, buyer room-preview CAC feedback, product detail preview CTA comparison, buyer checkout lab with Stripe session scaffold, guarded channel budget allocation, artist payout trust proof, artist earnings calculator, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, partner credential vault, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator + webhook scaffold, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (buyer checkout slice + Stripe test-mode session scaffold)
 
 ## Subsystem maturity
 
@@ -21,7 +21,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Payout promise guardrails | 1 | Tested payout exception queue holds unsafe listings, recommends retail-price fixes, and powers `/admin-portal` operator actions | Persist exception decisions, overrides, and price/POD-cost remediation history |
 | Listing release workflow | 1 | Tested release-decision queue classifies listings as release-ready, finance override review, or ops hold and previews artist-facing trust copy in `/admin-portal` | Persist release/hold/override decisions with owner, reason, and artist-facing copy snapshot |
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
-| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), and room-preview conversion lab; print landing pages embed preview CTA | Persisted preview events + checkout slice |
+| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), room-preview conversion lab, and `/checkout` consent-gated cart with POD routing; print landing pages embed preview CTA | Persisted preview events + live Stripe Checkout Sessions |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits with room scenes + payout proof in `/sales-portal`, battlecard reply snippets | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health at `/ad-sync-health` | Persist creative tests and sync live catalog feeds to Meta/Google/Pinterest APIs |
@@ -35,7 +35,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (68 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (75 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -74,6 +74,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Product detail preview CTA | `compareProductDetailPreviewModes` in `src/lib/marketplace.ts` | Flat vs room-preview conversion comparison on storefront and print pages | 2026-06-12 |
 | Partner credential vault | `src/lib/partner-credentials.ts` + `/partner-setup` | Env-key readiness for fulfillment, ads, and Stripe before API integration | 2026-06-12 |
 | Artist earnings calculator | `calculateArtistEarningsForecast` in `src/lib/marketplace.ts` | Interactive 30% net-profit forecast in artist portal payouts tab | 2026-06-12 |
+| Buyer checkout lab | `src/lib/checkout.ts` + `/checkout` + `/api/stripe/checkout` | Consent-gated cart, fulfillment routing, Stripe session payload before Phase 3 | 2026-06-12 |
 
 ## Active vertical slice
 

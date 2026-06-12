@@ -4,6 +4,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Wire `POST /api/stripe/checkout` to `stripe.checkout.sessions.create` when test-mode keys present
 - [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
 - [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
 - [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
@@ -39,6 +40,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [product] Checkout lab at `/checkout` with consent-gated cart, fulfillment routing, and Stripe session scaffold
+- [x] [platform] `POST/GET /api/stripe/checkout` with session payload preview and env readiness checks
+- [x] [platform] Shared checkout contracts with tests for eligibility, totals, routing, and session payload (75 total)
 - [x] [product] Product detail preview CTA comparing flat vs in-room preview on `/storefront` and `/prints/[slug]`
 - [x] [ops] Partner credential vault at `/partner-setup` for Printful, Gelato, Meta, Google, Pinterest, and Stripe env keys
 - [x] [demo] Artist earnings calculator in `/artist-portal` payouts tab with 30% net-profit forecast

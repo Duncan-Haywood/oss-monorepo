@@ -8,6 +8,7 @@ const demos = [
   { href: "/catalog-intelligence", label: "Catalog AI" },
   { href: "/payout-simulator", label: "Payout Sim" },
   { href: "/storefront", label: "Storefront" },
+  { href: "/checkout", label: "Checkout" },
   { href: "/buyer-portal", label: "Buyer Portal" },
   { href: "/artist-portal", label: "Artist Portal" },
   { href: "/b2b-portal", label: "B2B Portal" },

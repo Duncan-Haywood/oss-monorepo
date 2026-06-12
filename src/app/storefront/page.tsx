@@ -39,14 +39,14 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
           <div className="flex items-center gap-4 text-sm">
             <button className="text-stone-600 hover:text-stone-900">Artists</button>
             <button className="text-stone-600 hover:text-stone-900">Collections</button>
-            <button className="relative">
+            <a href="/checkout" className="relative" aria-label="View checkout">
               <ShoppingBag className="w-5 h-5 text-stone-700" />
               {cartCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
-            </button>
+            </a>
           </div>
         </div>
       </div>
