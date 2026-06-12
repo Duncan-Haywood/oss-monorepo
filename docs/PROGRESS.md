@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 06:00 UTC — Product preview CTA + partner vault + artist earnings
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~17 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (41 commits fast-forward); `npm ci && npm run build && npm test` passed (63 tests baseline).
+- **Hygiene:** Deleted remote `origin/cursor/print-atelier-business-orchestration-a380` (0 ahead / same tip as main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready buyer conversion + partner ops + artist onboarding trust.
+- **Shipped:** `compareProductDetailPreviewModes` + `ProductDetailPreviewCTA` on `/storefront` and `/prints/[slug]`; `buildPartnerCredentialVault` + `/partner-setup`; `calculateArtistEarningsForecast` + `ArtistEarningsCalculator` in `/artist-portal`; VisualDocsHub + DemoNav links; `.env.example` partner keys; 5 new tests (68 total).
+- **Invention shipped:** Product detail preview CTA (flat vs room); fulfillment/ad/Stripe credential vault; artist earnings calculator.
+- **Research:** `docs/research/2026-06-12-product-preview-partner-vault.md`.
+- **Maturity changes:** Storefront/buyer advanced (preview CTA); Partner integrations advanced (credential vault); Artist portal advanced (earnings calculator); CI test count 63→68; routes + `/partner-setup`.
+- **Validation:** `npm test` passed (68 tests); `npm run build` passed (43 routes including `/partner-setup`).
+- **Top 3 ideas for next run:** Convex artist onboarding vertical slice; Connect Meta/Google/Pinterest catalog APIs; checkout slice with Stripe test mode.
+
+---
+
 ## 2026-06-12 05:05 UTC — Proof-mockup kits + Stripe webhook scaffold
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~18 hours remaining.

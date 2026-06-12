@@ -5,6 +5,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 ## ready
 
 - [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
+- [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
 - [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
@@ -16,7 +17,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
 - [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
 - [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
-- [ ] [product] Add product detail preview CTA that compares flat listing vs in-room preview behavior by artwork
 - [ ] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
 - [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
 - [ ] [finance] Feed actual room-preview lift into weekly channel budget allocation
@@ -39,6 +39,10 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [product] Product detail preview CTA comparing flat vs in-room preview on `/storefront` and `/prints/[slug]`
+- [x] [ops] Partner credential vault at `/partner-setup` for Printful, Gelato, Meta, Google, Pinterest, and Stripe env keys
+- [x] [demo] Artist earnings calculator in `/artist-portal` payouts tab with 30% net-profit forecast
+- [x] [platform] Shared product preview, partner credentials, and artist earnings contracts with tests (68 total)
 - [x] [sales] Proof-mockup response kits in `/sales-portal` with room scenes, payout proof, and copy-paste DM/email drafts
 - [x] [platform] Stripe Connect webhook scaffold at `/api/stripe/webhook` with signature verification + `.env.example`
 - [x] [platform] Shared proof-mockup kit + stripe webhook contracts with tests (63 total)

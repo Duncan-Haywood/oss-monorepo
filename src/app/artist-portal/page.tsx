@@ -4,6 +4,7 @@ import DemoNav from "@/components/shared/DemoNav";
 import { BarChart3, Image as ImageIcon, Settings, Wallet, Bell, Upload, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import ArtistEarningsCalculator from "@/components/ArtistEarningsCalculator";
 import {
   calculateCatalogSummary,
   calculateLaunchReadiness,
@@ -221,6 +222,7 @@ export default function ArtistPortal() {
 
             {activeTab === "payouts" && (
               <div className="space-y-6">
+                <ArtistEarningsCalculator />
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 p-6">
                   <p className="text-sm text-stone-500">Next Payout (Net-15 via Stripe Connect)</p>
                   <p className="text-3xl font-bold text-stone-900 dark:text-white mt-1">$842.10</p>

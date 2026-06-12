@@ -364,3 +364,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-proof-mockup-stripe-webhook.md` for mockup kit rationale and Stripe webhook requirements.
 - Strategic implication: artist acquisition closes when "send examples" gets economics-backed room scenes in minutes; payments close when webhooks bridge buyer checkout to Connect transfers.
+
+## Ten-lens invention pass (2026-06-12 06:00 UTC — market-ready buyer + partner ops run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Product detail preview CTA comparing flat vs in-room preview by artwork | Product | 5 | 3 | 4 | 5 | 33 | shipped |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | shipped |
+| Artist earnings calculator with monthly/annual 30% net-profit forecast | Finance | 5 | 2 | 4 | 5 | 50 | shipped |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
+| Buyer retargeting audience for preview-opens without add-to-cart | GTM | 4 | 3 | 4 | 5 | 27 | backlog |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Checkout slice with Stripe test mode + room-preview attribution | Product | 5 | 4 | 4 | 5 | 25 | ready |
+| Search Console sitemap ping on consent ledger updates | GTM | 4 | 2 | 3 | 5 | 30 | ready |
+
+## Research-backed notes (2026-06-12 06:00 UTC)
+
+- See `docs/research/2026-06-12-product-preview-partner-vault.md` for preview CTA and partner credential rationale.
+- Strategic implication: market launch requires buyer conversion tooling (preview CTA), artist trust tooling (earnings calculator), and ops credential visibility (partner vault) as parallel gates before scaling ads or outreach.

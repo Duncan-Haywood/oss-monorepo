@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, proof-mockup response kits, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator + webhook scaffold, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (proof-mockup kits + Stripe webhook scaffold)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, proof-mockup response kits, buyer room-preview CAC feedback, product detail preview CTA comparison, guarded channel budget allocation, artist payout trust proof, artist earnings calculator, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, partner credential vault, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator + webhook scaffold, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (product preview CTA + partner vault + artist earnings calculator)
 
 ## Subsystem maturity
 
@@ -12,16 +12,16 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; links to `/docs` visual hub; unit economics uses shared formula and artist payout trust battlecard | Embed live metrics previews in plan tabs |
 | Visual docs hub | 1 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, and sitemap with live shared-lib metrics | Persist owner bookmarks and cohort snapshots |
 | Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, and ad readiness from shared libs | Persist live metrics + cohort trends |
-| Partner integrations | 1 | `src/lib/partners.ts` scores Printful/Gelato fulfillment and Meta/Google/Pinterest ad readiness | Connect real API credentials + webhooks |
+| Partner integrations | 1 | `src/lib/partners.ts` scores readiness; `src/lib/partner-credentials.ts` + `/partner-setup` vault tracks env keys for fulfillment, ads, and Stripe | Connect real API credentials + webhooks |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
 | Capture pipeline | 1 | Real file picker + localStorage metadata persistence; simulated AI stages | Backend upload + job queue (Convex/Supabase + R2) |
 | Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
-| Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
+| Artist portal | 1 | Shared catalog drives portfolio, payout forecast, interactive earnings calculator, and launch queue | Artist proof approval action + CRUD path |
 | Artist payout trust | 1 | Tested payout comparator powers an interactive artist-facing battlecard against POD royalty benchmarks | Persist artist-specific payout proof in outreach CRM |
 | Payout promise guardrails | 1 | Tested payout exception queue holds unsafe listings, recommends retail-price fixes, and powers `/admin-portal` operator actions | Persist exception decisions, overrides, and price/POD-cost remediation history |
 | Listing release workflow | 1 | Tested release-decision queue classifies listings as release-ready, finance override review, or ops hold and previews artist-facing trust copy in `/admin-portal` | Persist release/hold/override decisions with owner, reason, and artist-facing copy snapshot |
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
-| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
+| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), and room-preview conversion lab; print landing pages embed preview CTA | Persisted preview events + checkout slice |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits with room scenes + payout proof in `/sales-portal`, battlecard reply snippets | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health at `/ad-sync-health` | Persist creative tests and sync live catalog feeds to Meta/Google/Pinterest APIs |
@@ -35,7 +35,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (63 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (68 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -71,6 +71,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Ad sync health monitor | `buildAdCatalogSyncHealth` in `src/lib/ad-catalog.ts` | Pixel + feed + creative-quota checks before catalog API sync | 2026-06-12 |
 | Proof-mockup response kit | `buildProofMockupResponseKit` in `src/lib/outreach.ts` | Room scenes + payout proof + DM/email drafts for mockup-classified replies | 2026-06-12 |
 | Stripe webhook scaffold | `src/app/api/stripe/webhook` + `src/lib/stripe-webhook-server.ts` | Signature-verified Connect event routing before Phase 3 persistence | 2026-06-12 |
+| Product detail preview CTA | `compareProductDetailPreviewModes` in `src/lib/marketplace.ts` | Flat vs room-preview conversion comparison on storefront and print pages | 2026-06-12 |
+| Partner credential vault | `src/lib/partner-credentials.ts` + `/partner-setup` | Env-key readiness for fulfillment, ads, and Stripe before API integration | 2026-06-12 |
+| Artist earnings calculator | `calculateArtistEarningsForecast` in `src/lib/marketplace.ts` | Interactive 30% net-profit forecast in artist portal payouts tab | 2026-06-12 |
 
 ## Active vertical slice
 

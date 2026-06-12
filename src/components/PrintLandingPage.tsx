@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import {
   evaluateSeoPagePublishability,
   getSeoIntentLabel,
@@ -118,6 +119,10 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
             </div>
           </div>
         </div>
+
+        {artwork && (
+          <ProductDetailPreviewCTA artwork={artwork} compact />
+        )}
       </main>
     </div>
   );

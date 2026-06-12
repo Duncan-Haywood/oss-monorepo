@@ -18,6 +18,7 @@ const demos = [
   { href: "/marketing-portal", label: "Marketing Hub" },
   { href: "/ad-catalog", label: "Ad Catalog" },
   { href: "/ad-sync-health", label: "Ad Sync" },
+  { href: "/partner-setup", label: "Partners" },
   { href: "/ops", label: "Ops Console" },
   { href: "/admin-portal", label: "Admin Console" },
 ];

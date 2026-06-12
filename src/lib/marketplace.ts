@@ -171,6 +171,32 @@ export type RoomPreviewExperimentInput = {
   purchasesPerCustomer: number;
 };
 
+export type ProductDetailPreviewMode = "flat" | "room-preview";
+
+export type ProductDetailPreviewComparisonInput = {
+  baselineConversionRate?: number;
+  previewEngagementRate?: number;
+  conversionLiftPercent?: number;
+  addToCartMultiplier?: number;
+};
+
+export type ProductDetailPreviewComparison = {
+  mode: ProductDetailPreviewMode;
+  label: string;
+  estimatedConversionRate: number;
+  estimatedAddToCartRate: number;
+  ctaLabel: string;
+  ctaEnabled: boolean;
+  blockers: string[];
+  conversionLiftVsFlat: number;
+  recommended: boolean;
+};
+
+export type ArtistEarningsForecastInput = PrintEconomicsInput & {
+  monthlyOrders: number;
+  artistShareRate?: number;
+};
+
 export type CreativeSimilarityRisk = "Low" | "Moderate" | "High";
 
 export type AdCreativeConcept = {
@@ -998,6 +1024,103 @@ export function calculateLaunchReadiness(artwork: CatalogArtwork) {
     score,
     label: score >= 85 ? "Launch-ready" : score >= 65 ? "Improve listing" : "Needs work",
     blockers,
+  };
+}
+
+export function compareProductDetailPreviewModes(
+  artwork: CatalogArtwork,
+  {
+    baselineConversionRate = 2.4,
+    previewEngagementRate = 30,
+    conversionLiftPercent = 50,
+    addToCartMultiplier = 1.35,
+  }: ProductDetailPreviewComparisonInput = {},
+) {
+  const flatConversionRate = baselineConversionRate;
+  const flatAddToCartRate = roundCurrency(flatConversionRate * addToCartMultiplier);
+  const roomBlockers: string[] = [];
+
+  if (!artwork.hasRoomMockups) {
+    roomBlockers.push("Generate room mockups");
+  }
+  if (!artwork.hasApprovedProof || artwork.status !== "Live") {
+    roomBlockers.push("Approve artist proof");
+  }
+
+  const eligibleLift = roomBlockers.length === 0 ? Math.max(conversionLiftPercent, 0) : 0;
+  const engagedShare = Math.max(previewEngagementRate, 0) / 100;
+  const roomConversionRate = roundCurrency(
+    flatConversionRate * (1 + engagedShare * (eligibleLift / 100)),
+  );
+  const roomAddToCartRate = roundCurrency(roomConversionRate * addToCartMultiplier);
+  const conversionLiftVsFlat =
+    flatConversionRate > 0
+      ? roundCurrency(((roomConversionRate - flatConversionRate) / flatConversionRate) * 100)
+      : 0;
+  const recommended = roomBlockers.length === 0 && conversionLiftVsFlat > 0;
+
+  const flat: ProductDetailPreviewComparison = {
+    mode: "flat",
+    label: "Flat product image",
+    estimatedConversionRate: flatConversionRate,
+    estimatedAddToCartRate: flatAddToCartRate,
+    ctaLabel: "Add to cart",
+    ctaEnabled: artwork.status === "Live",
+    blockers: artwork.status !== "Live" ? ["Listing not live"] : [],
+    conversionLiftVsFlat: 0,
+    recommended: !recommended,
+  };
+
+  const roomPreview: ProductDetailPreviewComparison = {
+    mode: "room-preview",
+    label: "In-room preview",
+    estimatedConversionRate: roomConversionRate,
+    estimatedAddToCartRate: roomAddToCartRate,
+    ctaLabel: roomBlockers.length === 0 ? "Preview on my wall" : "Preview unavailable",
+    ctaEnabled: roomBlockers.length === 0 && artwork.status === "Live",
+    blockers: roomBlockers,
+    conversionLiftVsFlat,
+    recommended,
+  };
+
+  return {
+    flat,
+    roomPreview,
+    recommendedMode: recommended ? ("room-preview" as const) : ("flat" as const),
+    conversionLiftPercent: conversionLiftVsFlat,
+  };
+}
+
+export function calculateArtistEarningsForecast({
+  retailPrice,
+  fulfillmentCost,
+  monthlyOrders,
+  paymentFeeRate,
+  aiComputeCost,
+  artistShareRate = 0.3,
+}: ArtistEarningsForecastInput) {
+  const economics = calculatePrintEconomics({
+    retailPrice,
+    fulfillmentCost,
+    paymentFeeRate,
+    aiComputeCost,
+  });
+  const perPrintArtistShare = economics.artistShare;
+  const monthlyEarnings = roundCurrency(perPrintArtistShare * Math.max(monthlyOrders, 0));
+  const annualEarnings = roundCurrency(monthlyEarnings * 12);
+  const platformShare = roundCurrency(economics.platformShare * Math.max(monthlyOrders, 0));
+  const breakEvenOrders =
+    economics.netProfit > 0 ? Math.ceil(1 / (economics.netProfit * artistShareRate)) : 0;
+
+  return {
+    perPrintArtistShare,
+    monthlyEarnings,
+    annualEarnings,
+    platformShare,
+    netProfitPerPrint: economics.netProfit,
+    marginPercent: economics.marginPercent,
+    breakEvenOrders,
+    payoutProofLine: `You earn $${perPrintArtistShare.toFixed(2)} per print (30% of $${economics.netProfit.toFixed(2)} net profit)`,
   };
 }
 

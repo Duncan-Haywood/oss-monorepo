@@ -6,12 +6,14 @@ import { buildInvestorSnapshot } from "@/lib/investor";
 import { getPublishableSeoSlugs } from "@/lib/seo";
 import Link from "next/link";
 import { useMemo } from "react";
+import { buildPartnerCredentialVault } from "@/lib/partner-credentials";
 import {
   ArrowRight,
   BarChart3,
   BookOpen,
   FileSearch,
   Globe,
+  KeyRound,
   Layers,
   Megaphone,
   Swords,
@@ -76,6 +78,14 @@ const toolCards = [
     metricKey: "artistPayout" as const,
   },
   {
+    href: "/partner-setup",
+    title: "Partner credential vault",
+    description: "Fulfillment, ad platform, and Stripe Connect env keys with margin routing readiness.",
+    icon: KeyRound,
+    gradient: "from-slate-600 to-zinc-800",
+    metricKey: "partnerScore" as const,
+  },
+  {
     href: "/sitemap.xml",
     title: "Live sitemap",
     description: "Consent-gated index of market routes and publishable `/prints/[slug]` pages.",
@@ -92,6 +102,7 @@ export default function VisualDocsHub() {
     const publishable = getPublishableSeoSlugs();
     const adCatalog = buildAdCatalogFeed();
     const adSync = buildAdCatalogSyncHealth();
+    const partners = buildPartnerCredentialVault({});
 
     return {
       launchScore: snapshot.marketLaunch.overall,
@@ -108,6 +119,8 @@ export default function VisualDocsHub() {
       sitemapUrls: publishable.length + 6,
       liveSkus: snapshot.catalog.liveArtworks,
       consentCleared: snapshot.consent.clearedCount,
+      partnerScore: partners.overallScore,
+      partnerLabel: partners.label,
     };
   }, []);
 
@@ -127,6 +140,8 @@ export default function VisualDocsHub() {
         return `${stats.metadataScore}% avg confidence · ${stats.metadataGaps} gaps`;
       case "artistPayout":
         return `$${stats.artistPayout.toFixed(2)} / print`;
+      case "partnerScore":
+        return `${stats.partnerScore} — ${stats.partnerLabel}`;
       case "sitemapUrls":
         return `${stats.sitemapUrls} URLs in sitemap`;
       default: {

@@ -1,4 +1,5 @@
 import DemoNav from "@/components/shared/DemoNav";
+import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
@@ -154,6 +155,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
           })}
         </div>
 
+        <ProductDetailPreviewCTA />
         <RoomPreviewExperiment />
       </section>
 
