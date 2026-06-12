@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 14:05 UTC — Meta CAPI live fire + Gelato mapping + fulfillment ops
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~9 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (50 commits fast-forward); `npm ci && npm run build && npm test` passed (111 tests baseline).
+- **Hygiene:** Remote `cursor/*` count 0 (29 stale refs pruned on fetch). Deleted local stale branch `cursor/print-atelier-business-orchestration-88e9`.
+- **Theme shipped:** Market-ready demand + EU fulfillment — live Meta CAPI, Gelato variant mapping, fulfillment submission ops.
+- **Shipped:** `src/lib/retargeting-events-http.ts` fires Meta CAPI on checkout; `src/lib/gelato-variant-map.ts` + `GelatoVariantMapper` on `/partner-setup`; `src/lib/fulfillment-submissions.ts` + `FulfillmentSubmissionsPanel` on `/admin-portal`; `GET /api/fulfillment/submissions`; 7 new tests (118 total).
+- **Invention shipped:** Live Meta CAPI InitiateCheckout; Gelato variant mapping table; fulfillment submission ops dashboard.
+- **Research:** `docs/research/2026-06-12-meta-capi-gelato-fulfillment.md`.
+- **Maturity changes:** Marketing hub `1→2` (live CAPI); Partner integrations advanced (Gelato mapping); Operations `1→2` (fulfillment panel); CI test count 111→118; routes + `/api/fulfillment/submissions`.
+- **Validation:** `npm test` passed (118 tests); `npm run build` passed (49 routes).
+- **Top 3 ideas for next run:** Gelato order API from webhook; Google/Pinterest CAPI parity; Convex order + fulfillment persistence.
+
+---
+
 ## 2026-06-12 13:05 UTC — Printful variant mapping + checkout abandon retargeting
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~10 hours remaining.

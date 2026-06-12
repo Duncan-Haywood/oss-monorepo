@@ -7,6 +7,7 @@ import {
   getPartnerCredentialEnvFromProcess,
   type PartnerCredential,
 } from "@/lib/partner-credentials";
+import GelatoVariantMapper from "@/components/GelatoVariantMapper";
 import PrintfulVariantMapper from "@/components/PrintfulVariantMapper";
 import { fulfillmentPartners } from "@/lib/partners";
 
@@ -146,6 +147,8 @@ export default function PartnerCredentialVault() {
       </section>
 
       <PrintfulVariantMapper />
+
+      <GelatoVariantMapper />
 
       <section>
         <h3 className="mb-3 text-lg font-bold text-stone-900">Payments</h3>

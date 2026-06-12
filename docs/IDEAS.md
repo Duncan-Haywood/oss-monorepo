@@ -531,3 +531,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-printful-variant-retargeting.md` for Printful variant ID requirements and platform checkout abandon event specs.
 - Strategic implication: fulfillment and demand retargeting share the partner credential vault — variant mapping unblocks real POD orders; session-created pixels build abandon audiences before scaling paid spend.
+
+## Ten-lens invention pass (2026-06-12 14:00 UTC — Meta CAPI + Gelato + fulfillment ops run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Live Meta CAPI InitiateCheckout on checkout session when pixel credentials pass | Marketing | 5 | 2 | 4 | 5 | 50 | shipped |
+| Gelato variant mapping parity with Printful slug table on `/partner-setup` | Operations | 4 | 2 | 3 | 5 | 30 | shipped |
+| Fulfillment submission ops panel on `/admin-portal` with webhook history | Operations | 4 | 2 | 3 | 5 | 30 | shipped |
+| Gelato order API scaffold from Stripe webhook metadata | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Google/Pinterest CAPI HTTP fire on checkout session | Marketing | 4 | 3 | 4 | 5 | 27 | ready |
+| Convex migration for orders + fulfillment + variant map audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Investor retargeting funnel (session → CAPI fired → abandon → recover) | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+| Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+
+## Research-backed notes (2026-06-12 14:00 UTC)
+
+- See `docs/research/2026-06-12-meta-capi-gelato-fulfillment.md` for Meta CAPI, Gelato mapping, and fulfillment ops rationale.
+- Strategic implication: market launch requires server-side demand signals (CAPI) and POD variant coverage on both Printful and Gelato before scaling programmatic ads — ops visibility into fulfillment HTTP status closes the loop between checkout and delivery.

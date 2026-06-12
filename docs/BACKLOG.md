@@ -4,6 +4,8 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Gelato order API scaffold from Stripe webhook (parity with Printful)
+- [ ] [platform] Google/Pinterest CAPI HTTP fire on checkout session
 - [ ] [platform] Persist outreach cohort attribution events with stage timestamps and source channel
 - [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
 - [ ] [platform] Persist Printful fulfillment submissions with HTTP status, payload snapshot, and retry queue
@@ -42,6 +44,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [ops] Fulfillment submissions dashboard on `/admin-portal` with `GET /api/fulfillment/submissions`
+- [x] [platform] Gelato variant mapping UI at `/partner-setup` with slug → product UID table and EU routing coverage
+- [x] [marketing] Live Meta CAPI InitiateCheckout fire on `POST /api/stripe/checkout` when pixel credentials pass
 - [x] [platform] Printful variant mapping UI at `/partner-setup` with slug → variant ID table and coverage dashboard
 - [x] [gtm] Checkout abandon retargeting pixel events from `POST /api/stripe/checkout` session.created
 - [x] [sales] Outreach cohort attribution dashboard (reply → onboard → live) on `/sales-portal` and `/investor`

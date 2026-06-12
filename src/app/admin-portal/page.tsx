@@ -14,6 +14,7 @@ import {
   CircleDollarSign,
   LockKeyhole,
 } from "lucide-react";
+import FulfillmentSubmissionsPanel from "@/components/FulfillmentSubmissionsPanel";
 import {
   buildListingConsentGate,
   buildListingReleaseDecisions,
@@ -138,6 +139,8 @@ export default function AdminPortal() {
             </div>
           ))}
         </div>
+
+        <FulfillmentSubmissionsPanel />
 
         {/* Payout Guardrails */}
         <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">

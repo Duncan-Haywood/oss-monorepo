@@ -152,6 +152,7 @@ export function buildCheckoutSessionRetargetingEvents(
 export type RetargetingEventSummary = {
   totalEvents: number;
   pixelReadyEvents: number;
+  liveFiredEvents: number;
   uniqueSessions: number;
   platformsReady: number;
   recentEvents: CheckoutAbandonEvent[];
@@ -180,9 +181,14 @@ export function buildRetargetingEventSummary(
   const envStatus = getRetargetingEnvStatus(env);
   const uniqueSessions = new Set(eventStore.map((event) => event.sessionId)).size;
 
+  const liveFiredEvents = eventStore.filter(
+    (event) => event.payloadPreview.live_fired === 1,
+  ).length;
+
   return {
     totalEvents: eventStore.length,
     pixelReadyEvents: eventStore.filter((event) => event.pixelReady).length,
+    liveFiredEvents,
     uniqueSessions,
     platformsReady: envStatus.platformsReady,
     recentEvents: eventStore.slice(0, 12),

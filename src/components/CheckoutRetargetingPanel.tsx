@@ -28,7 +28,8 @@ export default function CheckoutRetargetingPanel() {
           <h3 className="text-lg font-bold text-stone-900">Checkout abandon retargeting</h3>
           <p className="mt-1 max-w-2xl text-sm text-stone-600">
             When <code className="text-xs">POST /api/stripe/checkout</code> creates a session,
-            Meta/Google/Pinterest pixel payloads are generated for abandoned-cart audiences.
+            Meta CAPI fires live when credentials pass; Google/Pinterest payloads queue for
+            abandon audiences.
           </p>
         </div>
       </div>
@@ -47,8 +48,10 @@ export default function CheckoutRetargetingPanel() {
           <p className="text-2xl font-bold">{summary?.totalEvents ?? 0}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-3">
-          <p className="text-xs text-stone-500">Ready to fire</p>
-          <p className="text-2xl font-bold text-emerald-700">{summary?.pixelReadyEvents ?? 0}</p>
+          <p className="text-xs text-stone-500">Meta CAPI live</p>
+          <p className="text-2xl font-bold text-emerald-700">
+            {summary?.liveFiredEvents ?? 0}
+          </p>
         </div>
       </div>
 

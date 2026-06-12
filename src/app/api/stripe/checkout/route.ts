@@ -11,6 +11,7 @@ import {
   buildCheckoutSessionRetargetingEvents,
   recordCheckoutSessionRetargetingEvents,
 } from "@/lib/retargeting-events";
+import { executeCheckoutRetargetingLive } from "@/lib/retargeting-events-http";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout-server";
 import { NextResponse } from "next/server";
 
@@ -96,14 +97,21 @@ export async function POST(request: Request) {
     region,
     env,
   );
-  recordCheckoutSessionRetargetingEvents(retargetingEvents);
+  const liveRetargeting = await executeCheckoutRetargetingLive(
+    retargetingEvents,
+    env,
+    env.META_PIXEL_ID && env.META_ACCESS_TOKEN ? fetch : undefined,
+  );
+  recordCheckoutSessionRetargetingEvents(liveRetargeting.events);
 
   if (!envStatus.readyForTestCheckout) {
     return NextResponse.json({
       ...envStatus,
       simulated: true,
       session: sessionPayload,
-      retargetingEvents,
+      retargetingEvents: liveRetargeting.events,
+      retargetingLiveFired: liveRetargeting.liveFired,
+      retargetingSimulated: liveRetargeting.simulated,
       hint: "Test-mode Stripe keys missing — session payload preview only. Add keys to .env.local to create live Checkout Sessions.",
     });
   }
@@ -122,7 +130,9 @@ export async function POST(request: Request) {
       sessionId: liveSession.sessionId,
       checkoutUrl: liveSession.checkoutUrl,
       livemode: liveSession.livemode,
-      retargetingEvents,
+      retargetingEvents: liveRetargeting.events,
+      retargetingLiveFired: liveRetargeting.liveFired,
+      retargetingSimulated: liveRetargeting.simulated,
       hint: "Redirect buyer to checkoutUrl. Webhook at /api/stripe/webhook handles payment_intent.succeeded → POD + Connect transfer.",
     });
   } catch (error) {
