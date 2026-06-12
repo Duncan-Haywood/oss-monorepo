@@ -652,6 +652,206 @@ export function buildProofMockupKitsForQueue(
     .map((prospect) => buildProofMockupResponseKit(prospect));
 }
 
+export type OutreachAttributionStage =
+  | "outreach"
+  | "replied"
+  | "onboard-intake"
+  | "capture-linked"
+  | "live-listing"
+  | "stalled";
+
+export type OutreachCohortAttributionRow = {
+  handle: string;
+  name: string;
+  platform: OutreachProspect["platform"];
+  attributionStage: OutreachAttributionStage;
+  prospectStatus: ProspectStatus;
+  pipelineStage: PipelineStage | null;
+  hoursSinceOutreach: number | null;
+  projectedMonthlyPayout: number;
+  catalogArtworkSlug: string | null;
+  dropOffReason: string | null;
+  deepLinkEligible: boolean;
+};
+
+export type OutreachCohortAttribution = {
+  generatedAt: string;
+  rows: OutreachCohortAttributionRow[];
+  funnelCounts: Record<OutreachAttributionStage, number>;
+  conversionRates: {
+    replyRate: number;
+    onboardRate: number;
+    liveRate: number;
+  };
+  platformBreakdown: Array<{
+    platform: OutreachProspect["platform"];
+    prospects: number;
+    replied: number;
+    live: number;
+    projectedPayout: number;
+  }>;
+  attributedPayoutLive: number;
+  attributedPayoutPipeline: number;
+  summaryLabel: string;
+};
+
+export type OutreachCohortAttributionOptions = {
+  now?: string;
+  prospects?: OutreachProspect[];
+  cohort?: OutreachPipelineEntry[];
+};
+
+function mapPipelineToAttributionStage(
+  pipelineStage: PipelineStage | null,
+  prospectStatus: ProspectStatus,
+): OutreachAttributionStage {
+  if (pipelineStage === "live-listing") {
+    return "live-listing";
+  }
+  if (pipelineStage === "capture-uploaded" || pipelineStage === "ai-processing" || pipelineStage === "proof-pending") {
+    return pipelineStage === "capture-uploaded" ? "capture-linked" : "onboard-intake";
+  }
+  if (prospectStatus === "Onboarded") {
+    return "onboard-intake";
+  }
+  if (prospectStatus === "Replied" || pipelineStage === "replied") {
+    return "replied";
+  }
+  if (prospectStatus === "Draft" || prospectStatus === "Sent" || prospectStatus === "Opened") {
+    return prospectStatus === "Opened" || prospectStatus === "Sent" ? "outreach" : "outreach";
+  }
+  return "stalled";
+}
+
+function dropOffReasonForRow(
+  row: Pick<OutreachCohortAttributionRow, "attributionStage" | "prospectStatus" | "pipelineStage">,
+  payoutGuardrail: boolean,
+): string | null {
+  if (row.attributionStage === "live-listing") {
+    return null;
+  }
+  if (payoutGuardrail) {
+    return "Payout guardrail hold — fix SKU economics before onboarding";
+  }
+  if (row.prospectStatus === "Draft") {
+    return "Outreach draft not sent";
+  }
+  if (row.prospectStatus === "Sent" || row.prospectStatus === "Opened") {
+    return "Awaiting artist reply";
+  }
+  if (row.pipelineStage === "proof-pending") {
+    return "Proof approval pending";
+  }
+  if (row.pipelineStage === "ai-processing") {
+    return "AI tagging and mockups in progress";
+  }
+  if (row.attributionStage === "replied") {
+    return "Reply received — send onboarding deep-link";
+  }
+  return null;
+}
+
+export function buildOutreachCohortAttribution(
+  options: OutreachCohortAttributionOptions = {},
+): OutreachCohortAttribution {
+  const {
+    now = new Date().toISOString(),
+    prospects = outreachProspects,
+    cohort = outreachPipelineCohort,
+  } = options;
+  const nowMs = Date.parse(now);
+  const queue = buildOutreachQueue(prospects);
+  const cohortByHandle = new Map(cohort.map((entry) => [entry.prospectHandle, entry]));
+
+  const rows: OutreachCohortAttributionRow[] = prospects.map((prospect) => {
+    const queueItem = queue.find((item) => item.handle === prospect.handle);
+    const cohortEntry = cohortByHandle.get(prospect.handle) ?? null;
+    const pipelineStage = cohortEntry?.currentStage ?? null;
+    const attributionStage = mapPipelineToAttributionStage(pipelineStage, prospect.status);
+    const outreachAt = cohortEntry?.stageTimestamps["outreach-sent"];
+    const hoursSinceOutreach =
+      outreachAt !== undefined ? Math.round((nowMs - Date.parse(outreachAt)) / (1000 * 60 * 60)) : null;
+
+    return {
+      handle: prospect.handle,
+      name: prospect.name,
+      platform: prospect.platform,
+      attributionStage,
+      prospectStatus: prospect.status,
+      pipelineStage,
+      hoursSinceOutreach,
+      projectedMonthlyPayout: prospect.projectedMonthlyArtistPayout,
+      catalogArtworkSlug: prospect.catalogArtworkSlug ?? cohortEntry?.catalogArtworkSlug ?? null,
+      dropOffReason: dropOffReasonForRow(
+        { attributionStage, prospectStatus: prospect.status, pipelineStage },
+        Boolean(queueItem?.payoutGuardrail),
+      ),
+      deepLinkEligible: queueItem ? isOnboardingDeepLinkEligible(queueItem) : false,
+    };
+  });
+
+  const funnelCounts: Record<OutreachAttributionStage, number> = {
+    outreach: 0,
+    replied: 0,
+    "onboard-intake": 0,
+    "capture-linked": 0,
+    "live-listing": 0,
+    stalled: 0,
+  };
+  for (const row of rows) {
+    funnelCounts[row.attributionStage] += 1;
+  }
+
+  const sentOrBeyond = prospects.filter((prospect) => prospect.status !== "Draft").length;
+  const replied = rows.filter((row) =>
+    ["replied", "onboard-intake", "capture-linked", "live-listing"].includes(row.attributionStage),
+  ).length;
+  const onboarded = funnelCounts["onboard-intake"] + funnelCounts["capture-linked"] + funnelCounts["live-listing"];
+  const live = funnelCounts["live-listing"];
+
+  const conversionRates = {
+    replyRate: sentOrBeyond > 0 ? Math.round((replied / sentOrBeyond) * 100) : 0,
+    onboardRate: replied > 0 ? Math.round((onboarded / replied) * 100) : 0,
+    liveRate: onboarded > 0 ? Math.round((live / onboarded) * 100) : 0,
+  };
+
+  const platformBreakdown = (["Instagram", "TikTok", "Pinterest"] as const).map((platform) => {
+    const platformRows = rows.filter((row) => row.platform === platform);
+    return {
+      platform,
+      prospects: platformRows.length,
+      replied: platformRows.filter((row) =>
+        ["replied", "onboard-intake", "capture-linked", "live-listing"].includes(row.attributionStage),
+      ).length,
+      live: platformRows.filter((row) => row.attributionStage === "live-listing").length,
+      projectedPayout: platformRows.reduce((sum, row) => sum + row.projectedMonthlyPayout, 0),
+    };
+  });
+
+  const attributedPayoutLive = rows
+    .filter((row) => row.attributionStage === "live-listing")
+    .reduce((sum, row) => sum + row.projectedMonthlyPayout, 0);
+  const attributedPayoutPipeline = rows
+    .filter((row) => row.attributionStage !== "outreach" && row.attributionStage !== "stalled")
+    .reduce((sum, row) => sum + row.projectedMonthlyPayout, 0);
+
+  const summaryLabel =
+    live > 0
+      ? `${live} live from outreach • $${attributedPayoutLive.toLocaleString()}/mo attributed • ${conversionRates.replyRate}% reply rate`
+      : `${onboarded} in onboarding pipeline • $${attributedPayoutPipeline.toLocaleString()}/mo projected • ${conversionRates.replyRate}% reply rate`;
+
+  return {
+    generatedAt: now,
+    rows,
+    funnelCounts,
+    conversionRates,
+    platformBreakdown,
+    attributedPayoutLive,
+    attributedPayoutPipeline,
+    summaryLabel,
+  };
+}
+
 export function calculateOutreachSummary(prospects: OutreachProspect[]) {
   const queue = buildOutreachQueue(prospects);
   const repliedProspects = queue.filter((prospect) => prospect.status === "Replied").length;

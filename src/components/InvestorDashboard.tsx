@@ -148,14 +148,20 @@ export default function InvestorDashboard() {
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Supply pipeline</h2>
           <p className="text-2xl font-bold mt-2">
-            {snapshot.outreach.readyForOnboarding}
-            <span className="text-sm font-normal text-gray-500"> onboarding-ready</span>
+            {snapshot.outreachCohortAttribution.funnelCounts["live-listing"]}
+            <span className="text-sm font-normal text-gray-500"> live from outreach</span>
           </p>
           <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-            <li>{snapshot.outreach.totalProspects} prospects in CRM</li>
-            <li>{snapshot.outreach.repliedProspects} active replies</li>
-            <li>Avg fit score: {snapshot.outreach.averageFitScore}/100</li>
-            <li className="text-indigo-600 dark:text-indigo-400">{snapshot.outreach.automationLabel}</li>
+            <li>
+              {snapshot.outreachCohortAttribution.conversionRates.replyRate}% reply ·{" "}
+              {snapshot.outreachCohortAttribution.conversionRates.onboardRate}% onboard ·{" "}
+              {snapshot.outreachCohortAttribution.conversionRates.liveRate}% live
+            </li>
+            <li>
+              ${snapshot.outreachCohortAttribution.attributedPayoutLive.toLocaleString()}/mo attributed live
+            </li>
+            <li>{snapshot.outreach.readyForOnboarding} onboarding-ready replies</li>
+            <li className="text-indigo-600 dark:text-indigo-400">{snapshot.outreachCohortAttribution.summaryLabel}</li>
           </ul>
         </div>
       </section>

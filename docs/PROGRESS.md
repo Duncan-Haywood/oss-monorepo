@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 12:05 UTC — Outreach cohort attribution + pipeline merge
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~11 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (47 commits fast-forward); `npm ci && npm run build && npm test` passed (94 tests baseline).
+- **Hygiene:** Cherry-picked `cae396e` from `origin/cursor/platform-pipeline-fulfillment-6103` and `origin/cursor/print-atelier-business-orchestration-022d` (duplicate branches with same commit). Will delete both remotes after merge.
+- **Theme shipped:** Market-ready GTM attribution — reply → onboard → live funnel with platform breakdown.
+- **Shipped:** `buildOutreachCohortAttribution` in `src/lib/outreach.ts`; sales-portal attribution table with deep-links; investor supply pipeline wired to cohort conversion rates; merged visual pipeline + live ad HTTP + Printful fulfillment from hygiene branch; 3 new tests (105 total).
+- **Invention shipped:** Outreach cohort attribution dashboard (reply/onboard/live rates, platform breakdown, attributed payout).
+- **Research:** `docs/research/2026-06-12-outreach-cohort-attribution.md`.
+- **Maturity changes:** Outreach/CRM `1→2` (cohort attribution); Visual docs hub `1→2`; Ad sync health `2`; Partner integrations `1→2`; CI test count 94→105.
+- **Validation:** `npm test` passed (105 tests); `npm run build` passed (47 routes).
+- **Top 3 ideas for next run:** Convex order + fulfillment persistence; catalog slug → Printful variant mapping; checkout abandon retargeting pixel events.
+
+---
+
 ## 2026-06-12 11:05 UTC — Visual pipeline + live ad HTTP + Printful fulfillment
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~12 hours remaining.

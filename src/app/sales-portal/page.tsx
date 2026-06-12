@@ -5,6 +5,7 @@ import { ArrowUpRight, CheckCircle, Clock, Mail, MessageSquare, Target, Trending
 import Link from "next/link";
 import {
   buildArtistOnboardingDeepLink,
+  buildOutreachCohortAttribution,
   buildOutreachQueue,
   calculateOutreachSummary,
   calculateReplyToListingCompression,
@@ -20,7 +21,8 @@ export default function SalesPortal() {
   const [statusFilter, setStatusFilter] = useState<ProspectStatus | "All">("All");
 
   const summary = calculateOutreachSummary(outreachProspects);
-  const compression = calculateReplyToListingCompression({ now: "2026-06-12T04:00:00Z" });
+  const compression = calculateReplyToListingCompression({ now: "2026-06-12T12:00:00Z" });
+  const attribution = buildOutreachCohortAttribution({ now: "2026-06-12T12:00:00Z" });
   const outreachQueue = buildOutreachQueue(outreachProspects);
   const visibleQueue =
     statusFilter === "All" ? outreachQueue : outreachQueue.filter((prospect) => prospect.status === statusFilter);
@@ -137,6 +139,83 @@ export default function SalesPortal() {
                     <td className="px-4 py-3 font-mono">{item.hoursSinceReply ?? "—"}</td>
                     <td className="px-4 py-3 font-mono">{item.projectedDaysToLive}</td>
                     <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">{item.nextMilestone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mb-8 rounded-xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-emerald-900 dark:text-emerald-100">
+                <Users className="h-5 w-5" />
+                Outreach cohort attribution
+              </h2>
+              <p className="mt-1 text-sm text-emerald-800/80 dark:text-emerald-200/80">{attribution.summaryLabel}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center text-sm">
+              <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
+                <p className="text-xs text-gray-500 uppercase">Reply rate</p>
+                <p className="text-xl font-bold">{attribution.conversionRates.replyRate}%</p>
+              </div>
+              <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
+                <p className="text-xs text-gray-500 uppercase">Onboard rate</p>
+                <p className="text-xl font-bold">{attribution.conversionRates.onboardRate}%</p>
+              </div>
+              <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 px-3 py-2">
+                <p className="text-xs text-gray-500 uppercase">Live rate</p>
+                <p className="text-xl font-bold">{attribution.conversionRates.liveRate}%</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+            {attribution.platformBreakdown.map((platform) => (
+              <div key={platform.platform} className="rounded-lg border border-emerald-200/60 bg-white/70 p-3 dark:border-emerald-900/30 dark:bg-gray-900/40">
+                <p className="text-xs font-medium text-gray-500">{platform.platform}</p>
+                <p className="text-lg font-bold">{platform.live}/{platform.replied} live</p>
+                <p className="text-xs text-gray-500">${platform.projectedPayout.toLocaleString()}/mo projected</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-emerald-200 dark:border-emerald-900/50">
+            <table className="min-w-full text-sm">
+              <thead className="bg-white/60 dark:bg-gray-900/60">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Artist</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Attribution</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Platform</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Drop-off</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Onboard</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-emerald-100 dark:divide-emerald-900/30">
+                {attribution.rows.map((row) => (
+                  <tr key={row.handle} className="bg-white/40 dark:bg-gray-900/20">
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{row.name}</div>
+                      <div className="text-xs text-gray-500">{row.handle}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                        {row.attributionStage.replace(/-/g, " ")}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs">{row.platform}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">{row.dropOffReason ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      {row.deepLinkEligible ? (
+                        <Link
+                          href={buildArtistOnboardingDeepLink({ handle: row.handle, name: row.name })}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-900 dark:text-emerald-300"
+                        >
+                          Open intake <ArrowUpRight className="h-3 w-3" />
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

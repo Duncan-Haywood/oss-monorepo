@@ -12,7 +12,12 @@ import {
   catalogArtworks,
   type CatalogArtwork,
 } from "./marketplace";
-import { calculateOutreachSummary, outreachProspects } from "./outreach";
+import {
+  buildOutreachCohortAttribution,
+  calculateOutreachSummary,
+  outreachProspects,
+  type OutreachCohortAttribution,
+} from "./outreach";
 import {
   adPlatformPartners,
   calculateAdCampaignReadiness,
@@ -48,6 +53,7 @@ export type InvestorSnapshot = {
   launchCommandCenter: MarketLaunchCommandCenter;
   payoutLedger: StripePayoutLedgerSummary;
   orderSummary: OrderSummary;
+  outreachCohortAttribution: OutreachCohortAttribution;
 };
 
 export function buildInvestorSnapshot(
@@ -116,6 +122,7 @@ export function buildInvestorSnapshot(
   const launchCommandCenter = buildMarketLaunchCommandCenter(artworks, env);
   const payoutLedger = buildStripePayoutLedgerSummary();
   const orderSummary = buildOrderSummary();
+  const outreachCohortAttribution = buildOutreachCohortAttribution();
 
   const pipelineStages = [
     {
@@ -177,5 +184,6 @@ export function buildInvestorSnapshot(
     launchCommandCenter,
     payoutLedger,
     orderSummary,
+    outreachCohortAttribution,
   };
 }

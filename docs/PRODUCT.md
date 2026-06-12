@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
 **Company phase:** 1→2 (live Stripe Checkout + webhook orders + live ad catalog HTTP + Printful fulfillment scaffold; Convex next)
-**Last updated:** 2026-06-12 (visual pipeline diagram + live ad HTTP + Printful order API)
+**Last updated:** 2026-06-12 (outreach cohort attribution + visual pipeline + live ad HTTP + Printful order API)
 
 ## Subsystem maturity
 
@@ -25,7 +25,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
 | Storefront / buyer | 2 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), room-preview conversion lab, and `/checkout` consent-gated cart with POD routing + live Stripe Checkout redirect when keys present; print landing pages embed preview CTA; in-memory order records from `payment_intent.succeeded` webhooks | Persisted preview events + Convex order records |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
-| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits, battlecard reply snippets, and deep-links from `/sales-portal` to `/artist-onboard?handle=` | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
+| Outreach / CRM | 2 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits, battlecard reply snippets, deep-links to `/artist-onboard`, and `buildOutreachCohortAttribution` with reply/onboard/live rates + platform breakdown on `/sales-portal` and `/investor` | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health + API sync trigger at `/ad-sync-health` | Persist creative tests and wire live catalog API credentials |
 | Ad catalog feed | 1 | `buildAdCatalogFeed` generates Meta/Google/Pinterest rows from publishable SEO slugs + creative readiness + paid-ad consent | Live API push when credentials configured |
 | Ad sync health | 2 | `buildAdCatalogSyncHealth` + `executeAdCatalogSync` + `executeAdCatalogSyncLive` + `POST /api/ad-catalog/sync` orchestrates simulated or live HTTP catalog push per platform | Webhook refresh on consent updates + error retry |
@@ -37,7 +37,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach deep-links, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad catalog sync, ad catalog sync HTTP, ad sync health, capture, stripe-connect, stripe webhooks, metadata confidence, artist onboarding, market launch command center, stripe ledger, orders, product pipeline, and printful orders (102 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach deep-links, outreach velocity, outreach cohort attribution, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad catalog sync, ad catalog sync HTTP, ad sync health, capture, stripe-connect, stripe webhooks, metadata confidence, artist onboarding, market launch command center, stripe ledger, orders, product pipeline, and printful orders (105 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 

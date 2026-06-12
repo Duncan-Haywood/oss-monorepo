@@ -459,7 +459,7 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Checkout abandon retargeting from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
 | Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
 | AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
-| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | shipped |
 | Room-preview attribution on checkout line items | Product | 4 | 3 | 4 | 5 | 27 | ready |
 | Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
 | Visual docs hub animated pipeline diagram (capture → sell) | Strategy | 4 | 2 | 4 | 4 | 32 | ready |
@@ -477,7 +477,7 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Live HTTP catalog push to Meta/Google/Pinterest batch APIs | Marketing | 5 | 3 | 4 | 5 | 33 | shipped |
 | Printful order API trigger from Stripe webhook fulfillment metadata | Operations | 5 | 3 | 4 | 5 | 33 | shipped |
 | Convex migration for orders + fulfillment + ad sync audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
-| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | shipped |
 | Checkout abandon retargeting from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
 | Map catalog slugs to Printful variant IDs in partner setup | Product | 5 | 2 | 4 | 5 | 50 | ready |
 | Gelato order API parity with Printful webhook scaffold | Operations | 4 | 3 | 3 | 5 | 20 | backlog |
@@ -489,3 +489,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-pipeline-fulfillment-ad-http.md` for pipeline diagram, ad catalog HTTP, and Printful API rationale.
 - Strategic implication: market launch requires visible pipeline blockers and real partner HTTP scaffolds — simulated sync and in-memory orders are stepping stones, not the finish line.
+
+## Ten-lens invention pass (2026-06-12 12:00 UTC — outreach cohort attribution run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Outreach cohort attribution with reply/onboard/live rates and platform breakdown | Sales | 5 | 2 | 4 | 5 | 50 | shipped |
+| Convex migration for orders + fulfillment + ad sync audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Map catalog slugs to Printful variant IDs in partner setup | Product | 5 | 2 | 4 | 5 | 50 | ready |
+| Checkout abandon retargeting from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Persist outreach cohort stage timestamps with source channel | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Gelato order API parity with Printful webhook scaffold | Operations | 4 | 3 | 3 | 5 | 20 | backlog |
+| Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+
+## Research-backed notes (2026-06-12 12:00 UTC)
+
+- See `docs/research/2026-06-12-outreach-cohort-attribution.md` for reply→onboard→live attribution rationale.
+- Strategic implication: artist acquisition GTM should measure attributed payout per platform, not just reply volume — compression metrics without attribution hide which channels produce live inventory.

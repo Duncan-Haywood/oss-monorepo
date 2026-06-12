@@ -4,6 +4,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Persist outreach cohort attribution events with stage timestamps and source channel
 - [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
 - [ ] [platform] Persist Printful fulfillment submissions with HTTP status, payload snapshot, and retry queue
 - [ ] [platform] Map catalog slugs to Printful variant IDs in partner setup UI
@@ -41,6 +42,7 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [sales] Outreach cohort attribution dashboard (reply → onboard → live) on `/sales-portal` and `/investor`
 - [x] [marketing] Live Meta/Google/Pinterest catalog HTTP push via `executeAdCatalogSyncLive` when credentials present
 - [x] [ops] Printful order API scaffold from Stripe `payment_intent.succeeded` webhook metadata
 - [x] [content] Visual product pipeline diagram on `/docs` and `/investor` with live stage metrics
