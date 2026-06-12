@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 00:10 UTC — Competitive battlecards + programmatic SEO + capture metadata
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~23 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled; `npm ci && npm run build && npm test` passed (38 tests, 18 routes).
+- **Hygiene:** Deleted 3 stale remote `cursor/*` branches (`orchestrator-campaign-flow-0e3a`, `print-atelier-business-orchestration-4c7f`, `ai-first-digital-gtm-demo-41c5`). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready GTM enablement — competitive positioning, programmatic SEO, capture Phase 2 prep.
+- **Shipped:** `/battlecards` with `buildCompetitorBattlecards`; `/seo-lab` with `generateSeoLandingPages`; capture page real file upload + `src/lib/capture.ts` localStorage metadata; 8 new tests; DemoNav + business plan demo links.
+- **Invention shipped:** Competitive battlecard deck combining payout math and software moat; SEO lab that blocks publish on proof/mockup gaps.
+- **Research:** `docs/research/2026-06-12-competitive-battlecards-seo.md`.
+- **Maturity changes:** Capture pipeline `0→1`; Competitive positioning `—→1`; Programmatic SEO `—→1`; CI test count 30→38; routes 16→18.
+- **Validation:** `npm test` passed (38 tests); `npm run build` passed (18 static routes including `/battlecards`, `/seo-lab`).
+- **Top 3 ideas for next run:** static `/prints/[slug]` from SEO lab; Stripe Connect payout simulator; AI metadata confidence dashboard.
+
+---
+
 ## 2026-06-11 23:05 UTC — Investor dashboard + market launch readiness
 
 - **Gate:** Previous campaign window ended 2026-06-09; renewed `campaign_start` to `2026-06-11T23:02:48Z`. `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~24 hours remaining.

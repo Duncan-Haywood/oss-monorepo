@@ -228,11 +228,32 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Programmatic SEO pages from artwork tags + payout proof | GTM | 5 | 3 | 4 | 5 | 33 | ready |
 | Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
 | Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | backlog |
-| Competitive battlecards (Saatchi, Artfinder, Society6, Redbubble) | Strategy | 4 | 2 | 3 | 5 | 30 | ready |
+| Competitive battlecards (Saatchi, Artfinder, Society6, Redbubble) | Strategy | 4 | 2 | 3 | 5 | 30 | shipped |
+| Programmatic SEO pages from artwork tags + payout proof | GTM | 5 | 3 | 4 | 5 | 33 | shipped |
+| Wire capture upload to persist file metadata (Phase 2 prep) | Product | 5 | 4 | 5 | 5 | 31 | shipped |
 | Stripe Connect payout simulator for artist onboarding | Finance | 5 | 3 | 4 | 5 | 33 | ready |
-| Wire capture upload to persist file metadata (Phase 2 prep) | Product | 5 | 4 | 5 | 5 | 31 | ready |
 
 ## Research-backed notes (2026-06-11 UTC)
 
 - See `docs/research/2026-06-11-market-launch-readiness.md` for fulfillment API and programmatic ad catalog requirements.
 - Strategic implication: market launch should be a single scored decision (supply + demand + ops + fulfillment) before scaling outreach or ad spend.
+
+## Ten-lens invention pass (2026-06-12 UTC — battlecards + SEO + capture run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Competitive battlecards with payout + software moat for sales enablement | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Programmatic SEO lab with publish blockers tied to proof/consent readiness | GTM | 5 | 3 | 4 | 5 | 33 | shipped |
+| Capture upload metadata stub with localStorage before R2/Convex job queue | Product | 5 | 3 | 5 | 5 | 42 | shipped |
+| Static `/prints/[slug]` route generator from SEO lab output | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| AI metadata confidence dashboard for tags, SEO copy, and mockup coverage | AI/ML | 5 | 3 | 4 | 5 | 33 | ready |
+| Battlecard objection snippets injected into outreach CRM reply drafts | Sales | 5 | 2 | 4 | 5 | 50 | ready |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | backlog |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Stripe Connect payout simulator for artist onboarding | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Visual docs hub embedding investor, battlecards, and SEO lab in business plan | Legal | 4 | 2 | 3 | 4 | 24 | backlog |
+
+## Research-backed notes (2026-06-12 UTC)
+
+- See `docs/research/2026-06-12-competitive-battlecards-seo.md` for battlecard sources and SEO publish-gate rationale.
+- Strategic implication: GTM tooling should block publish/spend until listings clear the same consent and proof gates used in admin and investor dashboards — digital stock building is a software workflow, not a content dump.

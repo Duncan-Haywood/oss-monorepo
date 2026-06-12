@@ -6,11 +6,11 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
-- [ ] [demo] Wire capture upload to persist file metadata (Phase 2 prep)
+- [ ] [gtm] Wire battlecard objection handlers into sales-portal reply personalization
+- [ ] [platform] Publish eligible SEO lab pages as static `/prints/[slug]` routes with consent gate
 - [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
-- [ ] [gtm] Generate programmatic SEO pages from artwork tags, room intent, and artist payout proof
 - [ ] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
 - [ ] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
 - [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
@@ -41,6 +41,10 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [content] Competitive battlecards page at `/battlecards` vs Society6, Redbubble, Saatchi, Artfinder
+- [x] [gtm] Programmatic SEO lab at `/seo-lab` generating landing pages from catalog tags + payout proof
+- [x] [demo] Capture upload persists file metadata locally (Phase 2 prep)
+- [x] [platform] Shared competitor battlecard + SEO + capture contracts with tests (38 total)
 - [x] [content] `/investor` condensed dashboard + visual Business Overview tab on home
 - [x] [platform] Partner readiness scoring for fulfillment (Printful/Gelato) and ad platforms (Meta/Google/Pinterest)
 - [x] [platform] Market launch score blending supply, demand, ops, and fulfillment readiness

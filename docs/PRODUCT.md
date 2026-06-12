@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, and partner readiness scoring)
-**Last updated:** 2026-06-11 (investor dashboard + market launch readiness run)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, partner readiness scoring, competitive battlecards, programmatic SEO lab, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (competitive battlecards + programmatic SEO + capture Phase 2 prep)
 
 ## Subsystem maturity
 
@@ -9,11 +9,11 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 
 | Subsystem | Phase | Notes | Next step |
 |-----------|-------|-------|-----------|
-| Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; unit economics uses shared formula and artist payout trust battlecard | Competitive battlecards page |
+| Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; unit economics uses shared formula and artist payout trust battlecard | Visual docs hub with embedded GTM tools |
 | Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, and ad readiness from shared libs | Persist live metrics + cohort trends |
 | Partner integrations | 1 | `src/lib/partners.ts` scores Printful/Gelato fulfillment and Meta/Google/Pinterest ad readiness | Connect real API credentials + webhooks |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
-| Capture pipeline | 0 | `setTimeout` simulation | Real file upload + job queue stub |
+| Capture pipeline | 1 | Real file picker + localStorage metadata persistence; simulated AI stages | Backend upload + job queue (Convex/Supabase + R2) |
 | Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
 | Artist portal | 1 | Shared catalog drives portfolio, payout forecast, and launch queue | Artist proof approval action + CRUD path |
 | Artist payout trust | 1 | Tested payout comparator powers an interactive artist-facing battlecard against POD royalty benchmarks | Persist artist-specific payout proof in outreach CRM |
@@ -23,13 +23,15 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies, payout exception state, and sync real channel events |
-| Marketing hub | 1 | Catalog-driven creative readiness scorer and channel concepts in `/marketing-portal` | Persist creative tests and compare predicted CAC to actual cohorts |
+| Marketing hub | 1 | Creative readiness in `/marketing-portal` + programmatic SEO lab at `/seo-lab` | Persist creative tests and publish eligible SEO pages |
+| Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
+| Programmatic SEO | 1 | `generateSeoLandingPages` from catalog tags, room intent, payout proof | Static route generation + publish gate tied to consent |
 | Operations | 1 | Admin console includes payout promise guardrail queue and listing hold/release workflow before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, and partner math (30 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO, and capture math (38 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -51,8 +53,11 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Listing release decisions | Pure TypeScript release builder in `src/lib/marketplace.ts` | Turns payout guardrails into release-ready, finance-review, and ops-hold decisions with artist-facing copy preview before persistence | 2026-06-08 |
 | Listing consent gate | Pure TypeScript consent-gate builder in `src/lib/marketplace.ts` | Keeps POD license, paid-ad rights, AI room-scene use, and payout acknowledgement as channel-specific release checks before persistence | 2026-06-08 |
 | Investor snapshot | `src/lib/investor.ts` + `src/lib/partners.ts` | Single owner view of pipeline, unit economics, partner readiness, and guarded channel budget | 2026-06-11 |
+| Competitive battlecards | `src/lib/competitors.ts` | Payout + moat battlecards for GTM and artist outreach | 2026-06-12 |
+| Programmatic SEO | `src/lib/seo.ts` | Landing page generator from catalog with readiness blockers | 2026-06-12 |
+| Capture metadata | `src/lib/capture.ts` | localStorage session stub before backend upload | 2026-06-12 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof + payout exception guardrails + listing release workflow + channel consent gate + investor/market-launch readiness
-**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, sales, legal, ops, and investor surfaces; payout, readiness, channel CAC, creative scoring, reply triage, outreach payout holds, room-preview conversion, weekly budget allocation, payout benchmark comparison, payout exception queue math, listing release decisions, consent-gated channel eligibility, fulfillment partner scoring, and ad campaign readiness are covered by tests; next step is persistence plus real uploads, AI metadata, reply sync, preview events, budget plans, payout proof snapshots, partner API credentials, and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof + payout exception guardrails + listing release workflow + channel consent gate + investor/market-launch readiness + competitive battlecards + programmatic SEO + capture metadata stub
+**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, sales, legal, ops, investor, battlecard, and SEO surfaces; payout, readiness, channel CAC, creative scoring, reply triage, outreach payout holds, room-preview conversion, weekly budget allocation, payout benchmark comparison, payout exception queue math, listing release decisions, consent-gated channel eligibility, fulfillment partner scoring, ad campaign readiness, competitor positioning, SEO page generation, and capture metadata are covered by tests; next step is persistence plus backend uploads, AI metadata, reply sync, preview events, budget plans, payout proof snapshots, partner API credentials, published SEO routes, and actual channel cohorts.
