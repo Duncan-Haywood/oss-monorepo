@@ -539,8 +539,8 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Live Meta CAPI InitiateCheckout on checkout session when pixel credentials pass | Marketing | 5 | 2 | 4 | 5 | 50 | shipped |
 | Gelato variant mapping parity with Printful slug table on `/partner-setup` | Operations | 4 | 2 | 3 | 5 | 30 | shipped |
 | Fulfillment submission ops panel on `/admin-portal` with webhook history | Operations | 4 | 2 | 3 | 5 | 30 | shipped |
-| Gelato order API scaffold from Stripe webhook metadata | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
-| Google/Pinterest CAPI HTTP fire on checkout session | Marketing | 4 | 3 | 4 | 5 | 27 | ready |
+| Gelato order API scaffold from Stripe webhook metadata | Engineering | 5 | 3 | 4 | 5 | 33 | shipped |
+| Google/Pinterest CAPI HTTP fire on checkout session | Marketing | 4 | 3 | 4 | 5 | 27 | shipped |
 | Convex migration for orders + fulfillment + variant map audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
 | Investor retargeting funnel (session → CAPI fired → abandon → recover) | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
 | Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
@@ -552,3 +552,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-meta-capi-gelato-fulfillment.md` for Meta CAPI, Gelato mapping, and fulfillment ops rationale.
 - Strategic implication: market launch requires server-side demand signals (CAPI) and POD variant coverage on both Printful and Gelato before scaling programmatic ads — ops visibility into fulfillment HTTP status closes the loop between checkout and delivery.
+
+## Ten-lens invention pass (2026-06-12 15:00 UTC — Gelato orders + multi-platform CAPI run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Gelato order API scaffold from Stripe webhook (v4 payload + slug mapping) | Engineering | 5 | 3 | 4 | 5 | 33 | shipped |
+| Google/Pinterest CAPI HTTP fire on checkout session | Marketing | 4 | 3 | 4 | 5 | 27 | shipped |
+| Convex migration for orders + fulfillment + variant map audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Investor retargeting funnel (session → CAPI fired per platform → abandon → recover) | Strategy | 4 | 2 | 3 | 4 | 24 | ready |
+| Persist Printful/Gelato fulfillment HTTP responses with retry queue | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
+| Room-preview attribution on checkout line items for CAPI content_ids | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+| Gelato shipment method UID mapping by region | Operations | 4 | 2 | 3 | 5 | 30 | ready |
+
+## Research-backed notes (2026-06-12 15:00 UTC)
+
+- See `docs/research/2026-06-12-gelato-orders-google-pinterest-capi.md` for Gelato v4 orders, Google uploadClickConversions, and Pinterest v5 events.
+- Strategic implication: symmetric fulfillment (Printful US + Gelato EU) and symmetric demand signals (Meta + Google + Pinterest CAPI) are prerequisites for scaling programmatic catalog sync — next bottleneck is Convex persistence for orders and fulfillment retry.

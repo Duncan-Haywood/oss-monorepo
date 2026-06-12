@@ -28,8 +28,7 @@ export default function CheckoutRetargetingPanel() {
           <h3 className="text-lg font-bold text-stone-900">Checkout abandon retargeting</h3>
           <p className="mt-1 max-w-2xl text-sm text-stone-600">
             When <code className="text-xs">POST /api/stripe/checkout</code> creates a session,
-            Meta CAPI fires live when credentials pass; Google/Pinterest payloads queue for
-            abandon audiences.
+            Meta, Google, and Pinterest server-side events fire live when credentials pass.
           </p>
         </div>
       </div>

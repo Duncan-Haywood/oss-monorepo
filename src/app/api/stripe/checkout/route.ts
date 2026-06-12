@@ -30,9 +30,23 @@ function readEnv() {
     META_PIXEL_ID: process.env.META_PIXEL_ID,
     META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN,
     GOOGLE_ADS_CUSTOMER_ID: process.env.GOOGLE_ADS_CUSTOMER_ID,
+    GOOGLE_ADS_ACCESS_TOKEN: process.env.GOOGLE_ADS_ACCESS_TOKEN,
+    GOOGLE_ADS_CONVERSION_ACTION_ID: process.env.GOOGLE_ADS_CONVERSION_ACTION_ID,
+    GOOGLE_ADS_DEVELOPER_TOKEN: process.env.GOOGLE_ADS_DEVELOPER_TOKEN,
     PINTEREST_AD_ACCOUNT_ID: process.env.PINTEREST_AD_ACCOUNT_ID,
     PINTEREST_ACCESS_TOKEN: process.env.PINTEREST_ACCESS_TOKEN,
   };
+}
+
+function shouldFireRetargetingHttp(env: ReturnType<typeof readEnv>): boolean {
+  const metaReady = Boolean(env.META_PIXEL_ID && env.META_ACCESS_TOKEN);
+  const googleReady = Boolean(
+    env.GOOGLE_ADS_CUSTOMER_ID &&
+      env.GOOGLE_ADS_ACCESS_TOKEN &&
+      env.GOOGLE_ADS_CONVERSION_ACTION_ID,
+  );
+  const pinterestReady = Boolean(env.PINTEREST_AD_ACCOUNT_ID && env.PINTEREST_ACCESS_TOKEN);
+  return metaReady || googleReady || pinterestReady;
 }
 
 function resolveBaseUrl(request: Request): string {
@@ -100,7 +114,7 @@ export async function POST(request: Request) {
   const liveRetargeting = await executeCheckoutRetargetingLive(
     retargetingEvents,
     env,
-    env.META_PIXEL_ID && env.META_ACCESS_TOKEN ? fetch : undefined,
+    shouldFireRetargetingHttp(env) ? fetch : undefined,
   );
   recordCheckoutSessionRetargetingEvents(liveRetargeting.events);
 

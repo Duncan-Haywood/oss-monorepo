@@ -21,8 +21,9 @@ export default function FulfillmentSubmissionsPanel() {
         <div>
           <h3 className="text-lg font-bold text-stone-900">Fulfillment submissions</h3>
           <p className="mt-1 max-w-2xl text-sm text-stone-600">
-            Printful order payloads from Stripe <code className="text-xs">payment_intent.succeeded</code>{" "}
-            webhooks — tracks dry-run vs live API submit status.
+            Printful and Gelato order payloads from Stripe{" "}
+            <code className="text-xs">payment_intent.succeeded</code> webhooks — tracks dry-run vs
+            live API submit status by partner.
           </p>
         </div>
       </div>
@@ -44,6 +45,12 @@ export default function FulfillmentSubmissionsPanel() {
           <p className="text-xs text-stone-500">Blocked</p>
           <p className="text-2xl font-bold text-rose-700">{summary?.blockedCount ?? 0}</p>
         </div>
+        <div className="rounded-xl border border-stone-200 bg-white p-3">
+          <p className="text-xs text-stone-500">Printful / Gelato</p>
+          <p className="text-2xl font-bold">
+            {summary?.printfulCount ?? 0}/{summary?.gelatoCount ?? 0}
+          </p>
+        </div>
       </div>
 
       {summary && summary.blockers.length > 0 && (
@@ -60,32 +67,43 @@ export default function FulfillmentSubmissionsPanel() {
             <PackageCheck className="h-3 w-3" />
             Recent submissions
           </p>
-          {summary.recentSubmissions.slice(0, 6).map((submission) => (
-            <div
-              key={`${submission.orderId}-${submission.status}`}
-              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-mono text-stone-700">{submission.orderId}</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 font-bold uppercase ${
-                    submission.status === "submitted"
-                      ? "bg-emerald-50 text-emerald-700"
-                      : submission.status === "blocked"
-                        ? "bg-rose-50 text-rose-700"
-                        : "bg-stone-100 text-stone-600"
-                  }`}
-                >
-                  {submission.status}
-                </span>
+          {summary.recentSubmissions.slice(0, 6).map((submission) => {
+            const countryCode =
+              submission.partner === "gelato"
+                ? submission.payload.shippingAddress.country
+                : submission.payload.recipient.countryCode;
+
+            return (
+              <div
+                key={`${submission.partner}-${submission.orderId}-${submission.status}`}
+                className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-mono text-stone-700">{submission.orderId}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-stone-100 px-2 py-0.5 font-semibold uppercase text-stone-600">
+                      {submission.partner}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 font-bold uppercase ${
+                        submission.status === "submitted"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : submission.status === "blocked"
+                            ? "bg-rose-50 text-rose-700"
+                            : "bg-stone-100 text-stone-600"
+                      }`}
+                    >
+                      {submission.status}
+                    </span>
+                  </div>
+                </div>
+                <p className="mt-1 text-stone-500">
+                  {submission.mode} · {submission.payload.items.length} item(s) · {countryCode}
+                  {submission.httpStatus ? ` · HTTP ${submission.httpStatus}` : ""}
+                </p>
               </div>
-              <p className="mt-1 text-stone-500">
-                {submission.mode} · {submission.payload.items.length} item(s) ·{" "}
-                {submission.payload.recipient.countryCode}
-                {submission.httpStatus ? ` · HTTP ${submission.httpStatus}` : ""}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>

@@ -6,6 +6,10 @@ import {
 } from "@/lib/stripe-connect";
 import { recordOrderFromPaymentWebhook } from "@/lib/orders";
 import {
+  queueGelatoFulfillmentFromOrder,
+  recordGelatoFulfillmentSubmission,
+} from "@/lib/gelato-orders";
+import {
   queuePrintfulFulfillmentFromOrder,
   recordPrintfulFulfillmentSubmission,
 } from "@/lib/printful-orders";
@@ -63,17 +67,32 @@ export async function POST(request: Request) {
 
   let fulfillmentSubmission = null;
   if (orderRecord) {
-    fulfillmentSubmission = await queuePrintfulFulfillmentFromOrder(
-      orderRecord,
-      paymentMetadata,
-      {
-        PRINTFUL_API_KEY: process.env.PRINTFUL_API_KEY,
-        PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
-      },
-      process.env.PRINTFUL_API_KEY && process.env.PRINTFUL_STORE_ID ? fetch : undefined,
-    );
-    if (fulfillmentSubmission) {
-      recordPrintfulFulfillmentSubmission(fulfillmentSubmission);
+    if (orderRecord.fulfillmentPartnerId === "gelato") {
+      fulfillmentSubmission = await queueGelatoFulfillmentFromOrder(
+        orderRecord,
+        paymentMetadata,
+        {
+          GELATO_API_KEY: process.env.GELATO_API_KEY,
+          GELATO_STORE_ID: process.env.GELATO_STORE_ID,
+        },
+        process.env.GELATO_API_KEY && process.env.GELATO_STORE_ID ? fetch : undefined,
+      );
+      if (fulfillmentSubmission) {
+        recordGelatoFulfillmentSubmission(fulfillmentSubmission);
+      }
+    } else {
+      fulfillmentSubmission = await queuePrintfulFulfillmentFromOrder(
+        orderRecord,
+        paymentMetadata,
+        {
+          PRINTFUL_API_KEY: process.env.PRINTFUL_API_KEY,
+          PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
+        },
+        process.env.PRINTFUL_API_KEY && process.env.PRINTFUL_STORE_ID ? fetch : undefined,
+      );
+      if (fulfillmentSubmission) {
+        recordPrintfulFulfillmentSubmission(fulfillmentSubmission);
+      }
     }
   }
 
@@ -84,6 +103,7 @@ export async function POST(request: Request) {
     orderRecorded: Boolean(orderRecord),
     orderId: orderRecord?.orderId ?? null,
     fulfillmentQueued: Boolean(fulfillmentSubmission),
+    fulfillmentPartner: fulfillmentSubmission?.partner ?? null,
     fulfillmentStatus: fulfillmentSubmission?.status ?? null,
     ...result,
   });

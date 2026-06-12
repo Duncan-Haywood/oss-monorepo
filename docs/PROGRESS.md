@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 15:05 UTC — Gelato order API + Google/Pinterest CAPI parity
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~8 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (51 commits fast-forward); `npm ci && npm run build && npm test` passed (118 tests baseline).
+- **Hygiene:** No `cursor/*` branches ahead of `main`; deleted 30 stale remote `cursor/*` refs (0 ahead / 10+ behind). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready EU fulfillment + multi-platform demand — Gelato webhook orders and Google/Pinterest CAPI on checkout.
+- **Shipped:** `src/lib/gelato-orders.ts` + Stripe webhook wiring; extended `src/lib/retargeting-events-http.ts` for Google `uploadClickConversions` + Pinterest v5 events; `FulfillmentSubmissionsPanel` shows Printful/Gelato partner badges; `.env.example` adds Google Ads conversion env vars; 10 new tests (128 total).
+- **Invention shipped:** Gelato v4 order API scaffold from webhook; Google/Pinterest CAPI parity with Meta on checkout session.
+- **Research:** `docs/research/2026-06-12-gelato-orders-google-pinterest-capi.md`.
+- **Maturity changes:** Partner integrations `2→3` (Gelato orders); Marketing hub `2→3` (tri-platform CAPI); CI test count 118→128.
+- **Validation:** `npm test` passed (128 tests); `npm run build` passed (49 routes).
+- **Top 3 ideas for next run:** Convex order + fulfillment persistence; fulfillment HTTP retry queue; investor retargeting funnel panel.
+
+---
+
 ## 2026-06-12 14:05 UTC — Meta CAPI live fire + Gelato mapping + fulfillment ops
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~9 hours remaining.
