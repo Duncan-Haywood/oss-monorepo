@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, CheckCircle, Mail, MessageSquare, Target, Users, Zap } from "lucide-react";
+import { ArrowUpRight, CheckCircle, Clock, Mail, MessageSquare, Target, TrendingUp, Users, Zap } from "lucide-react";
 import {
   buildOutreachQueue,
   calculateOutreachSummary,
+  calculateReplyToListingCompression,
   outreachProspects,
   type ProspectStatus,
 } from "@/lib/outreach";
@@ -15,6 +16,7 @@ export default function SalesPortal() {
   const [statusFilter, setStatusFilter] = useState<ProspectStatus | "All">("All");
 
   const summary = calculateOutreachSummary(outreachProspects);
+  const compression = calculateReplyToListingCompression({ now: "2026-06-12T04:00:00Z" });
   const outreachQueue = buildOutreachQueue(outreachProspects);
   const visibleQueue =
     statusFilter === "All" ? outreachQueue : outreachQueue.filter((prospect) => prospect.status === statusFilter);
@@ -68,6 +70,73 @@ export default function SalesPortal() {
             <div className="text-sm text-gray-500 dark:text-gray-400">Ready to Onboard</div>
             <div className="text-4xl font-bold mt-1 text-gray-900 dark:text-white">{summary.readyForOnboarding}</div>
             <div className="text-xs text-emerald-500 mt-1">{summary.automationLabel}</div>
+          </div>
+        </div>
+
+        <div className="mb-8 rounded-xl border border-indigo-200 bg-indigo-50 p-6 dark:border-indigo-900/40 dark:bg-indigo-950/30">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-indigo-900 dark:text-indigo-100">
+                <TrendingUp className="h-5 w-5" />
+                Reply-to-live-listing compression
+              </h2>
+              <p className="mt-1 text-sm text-indigo-800/80 dark:text-indigo-200/80">{compression.summaryLabel}</p>
+            </div>
+            <div className="text-right">
+              <div className="text-4xl font-bold text-indigo-900 dark:text-indigo-100">{compression.compressionScore}</div>
+              <div className="text-xs text-indigo-700 dark:text-indigo-300">Compression score (0–100)</div>
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
+              <p className="text-xs text-gray-500 uppercase">Median reply → live</p>
+              <p className="text-2xl font-bold">{compression.medianHoursReplyToLive ?? "—"}h</p>
+            </div>
+            <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
+              <p className="text-xs text-gray-500 uppercase">7-day track</p>
+              <p className="text-2xl font-bold">{compression.onTrackCount}/{compression.cohortPlan.length}</p>
+            </div>
+            <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
+              <p className="text-xs text-gray-500 uppercase">Live listings</p>
+              <p className="text-2xl font-bold">{compression.liveCount}</p>
+            </div>
+            <div className="rounded-lg bg-white/80 dark:bg-gray-900/40 p-4">
+              <p className="text-xs text-gray-500 uppercase">In pipeline</p>
+              <p className="text-2xl font-bold">{compression.inPipelineCount}</p>
+            </div>
+          </div>
+          <div className="mt-6 overflow-hidden rounded-lg border border-indigo-200 dark:border-indigo-900/50">
+            <table className="min-w-full text-sm">
+              <thead className="bg-white/60 dark:bg-gray-900/60">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Artist</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Stage</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Hours since reply</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Proj. days to live</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase text-gray-500">Next milestone</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-indigo-100 dark:divide-indigo-900/40">
+                {compression.cohortPlan.map((item) => (
+                  <tr key={item.prospectHandle} className="bg-white/40 dark:bg-gray-900/20">
+                    <td className="px-4 py-3 font-medium">{item.artistName}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        item.onTrack
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                      }`}>
+                        <Clock className="h-3 w-3" />
+                        {item.currentStage.replace(/-/g, " ")}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-mono">{item.hoursSinceReply ?? "—"}</td>
+                    <td className="px-4 py-3 font-mono">{item.projectedDaysToLive}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">{item.nextMilestone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -190,11 +259,12 @@ export default function SalesPortal() {
           <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-100">
             <div className="mb-1 flex items-center gap-2 font-semibold">
               <CheckCircle className="h-4 w-4" />
-              Invented this run: next-best-action handoff
+              Reply-to-live compression metric
             </div>
             <p>
-              The queue is no longer static copy: each prospect is scored, classified, and routed into upload,
-              payout/legal, proof mockup, nurture, or referral-kit work.
+              Supply-side GTM is measured by how fast a replied artist becomes a sellable catalog item — not raw
+              message volume. The 7-day cohort planner above tracks stage velocity from reply through capture,
+              AI processing, proof, and live listing.
             </p>
           </div>
 

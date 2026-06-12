@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, Stripe Connect payout simulator, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (ad catalog feed `/ad-catalog`)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (reply velocity + ad sync health)
 
 ## Subsystem maturity
 
@@ -23,9 +23,10 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
-| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, battlecard reply snippets in `/sales-portal` | Persist prospects/replies, payout exception state, and sync real channel events |
-| Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog` | Persist creative tests and sync live catalog feeds to Meta/Google/Pinterest APIs |
+| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner in `/sales-portal`, battlecard reply snippets | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
+| Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health at `/ad-sync-health` | Persist creative tests and sync live catalog feeds to Meta/Google/Pinterest APIs |
 | Ad catalog feed | 1 | `buildAdCatalogFeed` generates Meta/Google/Pinterest rows from publishable SEO slugs + creative readiness + paid-ad consent | Connect platform catalog APIs and webhook sync on consent updates |
+| Ad sync health | 1 | `buildAdCatalogSyncHealth` monitors pixel, feed, creative-quota, and consent checks per platform at `/ad-sync-health` | Wire platform catalog APIs + webhook refresh on consent updates |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
 | Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` + `sitemap.xml` from publishable slugs | Persist published pages + search console sync |
 | Payments | 1 | `simulateStripeConnectPayout` models per-order waterfall and Connect transfer timing | Wire Stripe test mode + webhooks |
@@ -34,7 +35,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO sitemap, ad catalog feed, capture, stripe-connect, and metadata confidence (52 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, investor, partner, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, and metadata confidence (56 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -66,6 +67,8 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Metadata confidence | `src/lib/catalog-intelligence.ts` | AI-ready scoring across tags, SEO, mockups, proof | 2026-06-12 |
 | Battlecard outreach snippets | `buildBattlecardReplySnippet` in `src/lib/competitors.ts` | Personalizes payout/proof replies in sales portal | 2026-06-12 |
 | Ad catalog feed | `src/lib/ad-catalog.ts` | Meta/Google/Pinterest product rows from consent-cleared SEO slugs | 2026-06-12 |
+| Reply-to-live compression | `calculateReplyToListingCompression` in `src/lib/outreach.ts` | Supply-side GTM velocity from reply through live listing | 2026-06-12 |
+| Ad sync health monitor | `buildAdCatalogSyncHealth` in `src/lib/ad-catalog.ts` | Pixel + feed + creative-quota checks before catalog API sync | 2026-06-12 |
 
 ## Active vertical slice
 

@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 04:05 UTC — Reply velocity + ad sync health
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~19 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (38 commits fast-forward); `npm ci && npm run build && npm test` passed (52 tests baseline).
+- **Hygiene:** Deleted remote `cursor/print-atelier-business-orchestration-01bf` (0 ahead / 0 behind main). Remote `cursor/*` count now 0. Open draft PRs #19–#39 remain (read-only `gh` cannot close).
+- **Theme shipped:** Market-ready supply velocity + demand sync gates.
+- **Shipped:** `calculateReplyToListingCompression` + cohort pipeline mock in `src/lib/outreach.ts`; reply-to-live panel in `/sales-portal`; `buildAdCatalogSyncHealth` in `src/lib/ad-catalog.ts`; `/ad-sync-health` monitor; VisualDocsHub + DemoNav + marketing portal links; 4 new tests (56 total).
+- **Invention shipped:** Reply-to-live-listing compression metric with 7-day cohort planner; ad catalog sync health monitor for pixel, feed, and creative-quota checks per platform.
+- **Research:** `docs/research/2026-06-12-reply-velocity-ad-sync.md`.
+- **Maturity changes:** Outreach/CRM advanced (compression metric); Ad sync health `—→1`; Marketing hub advanced; CI test count 52→56; routes + `/ad-sync-health`.
+- **Validation:** `npm test` passed (56 tests); `npm run build` passed (41 static routes including `/ad-sync-health`).
+- **Top 3 ideas for next run:** Stripe Connect test-mode keys + webhooks; Convex artist onboarding vertical slice; proof-mockup response kit for sales portal.
+
+---
+
 ## 2026-06-12 03:05 UTC — Ad catalog feed lab
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~20 hours remaining.

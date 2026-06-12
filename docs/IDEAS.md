@@ -320,3 +320,25 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-ad-catalog-feed.md` for ad catalog gate stack and platform minimums.
 - Strategic implication: paid demand requires a second index (ad catalog feed) generated from the same consent-cleared slug list as the sitemap — sync only when creative quotas are met per platform.
+
+## Ten-lens invention pass (2026-06-12 04:00 UTC — reply velocity + ad sync health run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Reply-to-live-listing compression metric with 7-day cohort launch planner | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | shipped |
+| Stripe Connect test-mode keys + `transfer.created` webhook handlers | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Proof-mockup response kit for artists asking to see examples | Sales | 4 | 2 | 4 | 5 | 40 | ready |
+| Product detail preview CTA comparing flat listing vs in-room preview | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Search Console sitemap ping on consent ledger updates | GTM | 4 | 2 | 3 | 5 | 30 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Competitive positioning one-pager export (PDF) from battlecards | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+| Buyer retargeting audience for preview-opens without add-to-cart | GTM | 4 | 3 | 4 | 5 | 27 | backlog |
+
+## Research-backed notes (2026-06-12 04:00 UTC)
+
+- See `docs/research/2026-06-12-reply-velocity-ad-sync.md` for supply velocity and demand sync health rationale.
+- Strategic implication: digital stock launch requires measuring supply compression (reply→live) and demand sync readiness (pixel+feed+quota) as paired gates before scaling outreach or ad spend.

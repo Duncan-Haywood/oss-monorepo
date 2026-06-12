@@ -1,6 +1,6 @@
 "use client";
 
-import { buildAdCatalogFeed } from "@/lib/ad-catalog";
+import { buildAdCatalogFeed, buildAdCatalogSyncHealth } from "@/lib/ad-catalog";
 import { buildCatalogMetadataDashboard } from "@/lib/catalog-intelligence";
 import { buildInvestorSnapshot } from "@/lib/investor";
 import { getPublishableSeoSlugs } from "@/lib/seo";
@@ -52,6 +52,14 @@ const toolCards = [
     metricKey: "adCatalogEligible" as const,
   },
   {
+    href: "/ad-sync-health",
+    title: "Ad sync health",
+    description: "Pixel, feed, and creative-quota checks before catalog API sync to paid platforms.",
+    icon: Megaphone,
+    gradient: "from-pink-500 to-rose-600",
+    metricKey: "adSyncHealth" as const,
+  },
+  {
     href: "/catalog-intelligence",
     title: "Catalog AI metadata",
     description: "Tags, SEO copy, mockups, and proof confidence before digital stock goes live.",
@@ -83,6 +91,7 @@ export default function VisualDocsHub() {
     const metadata = buildCatalogMetadataDashboard();
     const publishable = getPublishableSeoSlugs();
     const adCatalog = buildAdCatalogFeed();
+    const adSync = buildAdCatalogSyncHealth();
 
     return {
       launchScore: snapshot.marketLaunch.overall,
@@ -91,6 +100,8 @@ export default function VisualDocsHub() {
       seoPublishable: publishable.length,
       adCatalogEligible: adCatalog.eligibleCount,
       adCatalogHealth: adCatalog.feedHealthScore,
+      adSyncScore: adSync.overallScore,
+      adSyncReady: Object.values(adSync.platformReadiness).filter((entry) => entry.syncReady).length,
       metadataScore: metadata.averageConfidence,
       metadataGaps: metadata.needsAttentionCount,
       artistPayout: snapshot.unitEconomics.artistShare,
@@ -110,6 +121,8 @@ export default function VisualDocsHub() {
         return `${stats.seoPublishable} indexable pages`;
       case "adCatalogEligible":
         return `${stats.adCatalogEligible} feed rows · ${stats.adCatalogHealth} health`;
+      case "adSyncHealth":
+        return `${stats.adSyncScore} health · ${stats.adSyncReady}/3 platforms sync-ready`;
       case "metadataScore":
         return `${stats.metadataScore}% avg confidence · ${stats.metadataGaps} gaps`;
       case "artistPayout":

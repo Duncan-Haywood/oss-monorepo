@@ -55,6 +55,9 @@ export default function MarketingPortal() {
             <a href="/ad-catalog" className="text-sm font-medium px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition">
               Ad catalog feed
             </a>
+            <a href="/ad-sync-health" className="text-sm font-medium px-4 py-2 border border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-950/30 transition">
+              Sync health
+            </a>
             <a href="/docs" className="text-sm font-medium px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition">
               Docs hub
             </a>

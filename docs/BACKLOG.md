@@ -4,7 +4,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
-- [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogFeed` output with webhook refresh on consent updates
+- [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
 - [ ] [platform] Wire Stripe Connect test-mode keys and webhook handlers for `transfer.created`
@@ -16,7 +16,6 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 - [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
 - [ ] [marketing] Generate proof-mockup response kits for artists asking to see examples
 - [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
-- [ ] [gtm] Add response-to-live-listing metric and 7-day artist cohort launch planner
 - [ ] [product] Add product detail preview CTA that compares flat listing vs in-room preview behavior by artwork
 - [ ] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
 - [ ] [ai-ml] Generate prioritized room mockup assets by style tag, margin, and missing-preview demand
@@ -40,6 +39,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [sales] Reply-to-live-listing compression metric + 7-day cohort launch planner in `/sales-portal`
+- [x] [marketing] Ad catalog sync health monitor at `/ad-sync-health` with pixel, feed, and creative-quota checks
+- [x] [platform] Shared outreach velocity + ad sync health contracts with tests (56 total)
 - [x] [marketing] Ad catalog feed lab at `/ad-catalog` with JSON/CSV export from publishable SEO slugs + creative readiness
 - [x] [platform] Shared ad-catalog contract with tests for eligibility, platform sync readiness, and feed serialization (52 total)
 - [x] [platform] Generate sitemap.xml from publishable `/prints/[slug]` routes + robots.txt

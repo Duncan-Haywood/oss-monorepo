@@ -1,4 +1,4 @@
-import { adPlatformPartners } from "./partners";
+import { adPlatformPartners, calculateAdCampaignReadiness } from "./partners";
 import {
   buildListingConsentGate,
   calculateCreativeReadiness,
@@ -287,4 +287,166 @@ export function serializeMetaCatalogFeedCsv(
     .join("\n");
 
   return `${header}\n${body}`;
+}
+
+export type SyncHealthStatus = "healthy" | "degraded" | "blocked";
+
+export type SyncHealthCheck = {
+  id: string;
+  category: "pixel" | "feed" | "creative-quota" | "consent";
+  platform?: AdCatalogPlatform;
+  label: string;
+  status: SyncHealthStatus;
+  detail: string;
+};
+
+export type AdCatalogSyncHealth = {
+  overallScore: number;
+  overallStatus: SyncHealthStatus;
+  checks: SyncHealthCheck[];
+  platformReadiness: Record<
+    AdCatalogPlatform,
+    { score: number; syncReady: boolean; blockers: string[] }
+  >;
+  feedHealthScore: number;
+  eligibleFeedRows: number;
+  recommendedActions: string[];
+  summaryLabel: string;
+};
+
+export type AdCatalogSyncHealthOptions = AdCatalogFeedOptions & {
+  generatedAt?: string;
+};
+
+function statusFromScore(score: number): SyncHealthStatus {
+  if (score >= 75) return "healthy";
+  if (score >= 45) return "degraded";
+  return "blocked";
+}
+
+export function buildAdCatalogSyncHealth(
+  options: AdCatalogSyncHealthOptions = {},
+): AdCatalogSyncHealth {
+  const { generatedAt = new Date().toISOString(), ...feedOptions } = options;
+  const feed = buildAdCatalogFeed(feedOptions);
+  const adReadiness = calculateAdCampaignReadiness(
+    feedOptions.artworks ?? catalogArtworks,
+  );
+  const checks: SyncHealthCheck[] = [];
+
+  for (const platform of platformIds) {
+    const partner = adPlatformPartners.find((entry) => entry.id === platform);
+    const summary = feed.platformSummary[platform];
+    const platformReadiness = adReadiness.platforms.find((entry) => entry.id === platform);
+
+    const pixelOk =
+      partner?.pixelStatus === "configured" || partner?.pixelStatus === "ready";
+    checks.push({
+      id: `${platform}-pixel`,
+      category: "pixel",
+      platform,
+      label: `${partner?.name ?? platform} pixel`,
+      status: pixelOk ? "healthy" : partner?.pixelStatus === "blocked" ? "blocked" : "degraded",
+      detail: pixelOk
+        ? `Pixel ${partner?.pixelStatus}`
+        : partner?.setupBlockers[0] ?? "Pixel not configured",
+    });
+
+    const feedOk = summary.minCreativesMet && partner?.catalogSyncStatus !== "blocked";
+    checks.push({
+      id: `${platform}-feed`,
+      category: "feed",
+      platform,
+      label: `${partner?.name ?? platform} catalog feed`,
+      status: feedOk ? "healthy" : summary.eligible > 0 ? "degraded" : "blocked",
+      detail: feedOk
+        ? `${summary.eligible} eligible rows (min ${summary.minCreativesRequired})`
+        : `Only ${summary.eligible}/${summary.minCreativesRequired} creatives; sync blocked`,
+    });
+
+    const creativeOk = summary.minCreativesMet;
+    checks.push({
+      id: `${platform}-creative-quota`,
+      category: "creative-quota",
+      platform,
+      label: `${partner?.name ?? platform} creative quota`,
+      status: creativeOk ? "healthy" : summary.eligible >= summary.minCreativesRequired / 2 ? "degraded" : "blocked",
+      detail: creativeOk
+        ? "Minimum distinct creatives met"
+        : `Need ${summary.minCreativesRequired - summary.eligible} more eligible SKUs`,
+    });
+
+    if (platformReadiness && !platformReadiness.launchReady) {
+      checks.push({
+        id: `${platform}-launch-readiness`,
+        category: "consent",
+        platform,
+        label: `${partner?.name ?? platform} launch readiness`,
+        status: platformReadiness.readinessPercent >= 55 ? "degraded" : "blocked",
+        detail: platformReadiness.setupBlockers[0] ?? adReadiness.blockers[0] ?? "Launch checks incomplete",
+      });
+    }
+  }
+
+  if (adReadiness.consentClearedCount < 3) {
+    checks.push({
+      id: "consent-cleared-minimum",
+      category: "consent",
+      label: "Consent-cleared listings",
+      status: adReadiness.consentClearedCount >= 1 ? "degraded" : "blocked",
+      detail: `${adReadiness.consentClearedCount} cleared (need 3+ for catalog sync)`,
+    });
+  }
+
+  if (adReadiness.mockupCoveragePercent < 80) {
+    checks.push({
+      id: "mockup-coverage",
+      category: "creative-quota",
+      label: "Room mockup coverage",
+      status: adReadiness.mockupCoveragePercent >= 50 ? "degraded" : "blocked",
+      detail: `${adReadiness.mockupCoveragePercent}% on live SKUs (target 80%+)`,
+    });
+  }
+
+  const healthyCount = checks.filter((check) => check.status === "healthy").length;
+  const overallScore = Math.round(
+    (feed.feedHealthScore * 0.4 + adReadiness.score * 0.3 + (healthyCount / Math.max(checks.length, 1)) * 100 * 0.3),
+  );
+
+  const platformReadiness = {} as AdCatalogSyncHealth["platformReadiness"];
+  for (const platform of platformIds) {
+    const platformChecks = checks.filter((check) => check.platform === platform);
+    const platformHealthy = platformChecks.filter((check) => check.status === "healthy").length;
+    const score = Math.round((platformHealthy / Math.max(platformChecks.length, 1)) * 100);
+    const blockers = platformChecks
+      .filter((check) => check.status !== "healthy")
+      .map((check) => check.detail);
+
+    platformReadiness[platform] = {
+      score,
+      syncReady: feed.platformSummary[platform].syncReady && score >= 75,
+      blockers,
+    };
+  }
+
+  const recommendedActions = [
+    ...adReadiness.blockers.slice(0, 2),
+    ...Object.entries(platformReadiness)
+      .filter(([, readiness]) => !readiness.syncReady)
+      .map(([platform, readiness]) => `${platform}: ${readiness.blockers[0] ?? "Complete sync setup"}`),
+    feed.eligibleCount === 0 ? "Clear consent and creative blockers before any catalog API sync" : "",
+  ].filter(Boolean);
+
+  const syncReadyPlatforms = Object.values(platformReadiness).filter((entry) => entry.syncReady).length;
+
+  return {
+    overallScore,
+    overallStatus: statusFromScore(overallScore),
+    checks,
+    platformReadiness,
+    feedHealthScore: feed.feedHealthScore,
+    eligibleFeedRows: feed.eligibleCount,
+    recommendedActions: Array.from(new Set(recommendedActions)).slice(0, 5),
+    summaryLabel: `${syncReadyPlatforms}/3 platforms sync-ready • ${feed.eligibleCount} feed rows • generated ${generatedAt.slice(0, 10)}`,
+  };
 }
