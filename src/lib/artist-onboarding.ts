@@ -249,3 +249,43 @@ export function upsertArtistOnboardingIntake(intake: ArtistOnboardingIntake): Ar
   saveArtistOnboardingIntakesToStorage(next);
   return next;
 }
+
+const ONBOARDING_SOURCES: ArtistOnboardingSource[] = [
+  "outreach",
+  "organic",
+  "referral",
+  "direct",
+];
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+export function parseArtistOnboardingDeepLinkParams(
+  params: Record<string, string | string[] | undefined>,
+): {
+  handle?: string;
+  name?: string;
+  source: ArtistOnboardingSource;
+} {
+  const rawHandle = firstParam(params.handle)?.trim();
+  const rawName = firstParam(params.name)?.trim();
+  const rawSource = firstParam(params.source)?.trim() as ArtistOnboardingSource | undefined;
+
+  const handle = rawHandle
+    ? rawHandle.startsWith("@")
+      ? rawHandle
+      : `@${rawHandle}`
+    : undefined;
+  const source =
+    rawSource && ONBOARDING_SOURCES.includes(rawSource) ? rawSource : "direct";
+
+  return {
+    handle,
+    name: rawName,
+    source,
+  };
+}

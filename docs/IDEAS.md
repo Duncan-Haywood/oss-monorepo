@@ -435,8 +435,8 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Market launch command center combining funnel + ad sync + supply velocity | Strategy | 5 | 2 | 5 | 5 | 63 | shipped |
 | Stripe webhook payout ledger scaffold before Convex persistence | Engineering | 5 | 2 | 4 | 5 | 50 | shipped |
 | Convex order persistence from `payment_intent.succeeded` webhook ledger | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
-| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
-| Outreach deep-link to `/artist-onboard?handle=` from sales-portal queue | Sales | 4 | 2 | 3 | 5 | 30 | ready |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | shipped |
+| Outreach deep-link to `/artist-onboard?handle=` from sales-portal queue | Sales | 4 | 2 | 3 | 5 | 30 | shipped |
 | Printful order API trigger from webhook fulfillment metadata | Operations | 5 | 4 | 4 | 5 | 25 | ready |
 | Checkout abandon retargeting pixel events from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
 | Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
@@ -448,3 +448,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-artist-onboard-launch-command.md` for onboarding intake and launch command center rationale.
 - Strategic implication: market launch is a gated decision across supply intake, demand sync, and checkout — the command center surfaces blockers before ad spend or outreach scale.
+
+## Ten-lens invention pass (2026-06-12 10:00 UTC — GTM orders + catalog sync run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Printful order API trigger from webhook fulfillment metadata | Operations | 5 | 4 | 4 | 5 | 25 | ready |
+| Convex migration for orders + payout ledger | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Live HTTP catalog push to Meta/Google/Pinterest APIs | Marketing | 5 | 3 | 4 | 5 | 33 | ready |
+| Checkout abandon retargeting from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Room-preview attribution on checkout line items | Product | 4 | 3 | 4 | 5 | 27 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+| Visual docs hub animated pipeline diagram (capture → sell) | Strategy | 4 | 2 | 4 | 4 | 32 | ready |
+
+## Research-backed notes (2026-06-12 10:00 UTC)
+
+- See `docs/research/2026-06-12-gtm-orders-catalog-sync.md` for outreach deep-links, order persistence, and ad catalog API sync rationale.
+- Strategic implication: GTM readiness closes when sales can hand artists a one-click onboarding path, marketing can dry-run catalog pushes, and payments record orders from webhooks — all testable before Convex.

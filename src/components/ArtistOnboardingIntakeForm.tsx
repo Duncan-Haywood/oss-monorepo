@@ -33,17 +33,21 @@ const CONSENT_LABELS = {
 
 type ArtistOnboardingIntakeFormProps = {
   initialOutreachHandle?: string;
+  initialName?: string;
   initialSource?: ArtistOnboardingSource;
 };
 
 export default function ArtistOnboardingIntakeForm({
   initialOutreachHandle,
+  initialName,
   initialSource = "direct",
 }: ArtistOnboardingIntakeFormProps) {
   const [intake, setIntake] = useState<ArtistOnboardingIntake>(() =>
     createEmptyArtistOnboardingIntake({
       sourceChannel: initialSource,
       outreachHandle: initialOutreachHandle ?? null,
+      name: initialName ?? "",
+      handle: initialOutreachHandle ?? "",
     }),
   );
   const [savedIntakes, setSavedIntakes] = useState<ArtistOnboardingIntake[]>([]);

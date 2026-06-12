@@ -4,6 +4,7 @@ import {
   processStripeConnectWebhookEvent,
   type StripeConnectWebhookEvent,
 } from "@/lib/stripe-connect";
+import { recordOrderFromPaymentWebhook } from "@/lib/orders";
 import { recordStripeWebhookToLedger } from "@/lib/stripe-ledger";
 import { verifyStripeWebhookSignature } from "@/lib/stripe-webhook-server";
 
@@ -43,11 +44,19 @@ export async function POST(request: Request) {
 
   const result = processStripeConnectWebhookEvent(event);
   const ledgerEntry = recordStripeWebhookToLedger(event.id, event.type, result);
+  const orderRecord = recordOrderFromPaymentWebhook(
+    event.id,
+    event.type,
+    event.data.object as Record<string, unknown>,
+    !event.livemode,
+  );
 
   return NextResponse.json({
     received: true,
     ledgerRecorded: Boolean(ledgerEntry),
     ledgerId: ledgerEntry?.ledgerId ?? null,
+    orderRecorded: Boolean(orderRecord),
+    orderId: orderRecord?.orderId ?? null,
     ...result,
   });
 }

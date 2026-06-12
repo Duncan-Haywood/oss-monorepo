@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { ArrowUpRight, CheckCircle, Clock, Mail, MessageSquare, Target, TrendingUp, Users, Zap } from "lucide-react";
+import Link from "next/link";
 import {
+  buildArtistOnboardingDeepLink,
   buildOutreachQueue,
   calculateOutreachSummary,
   calculateReplyToListingCompression,
+  isOnboardingDeepLinkEligible,
   outreachProspects,
   type ProspectStatus,
 } from "@/lib/outreach";
@@ -238,10 +241,20 @@ export default function SalesPortal() {
                       <div className="text-xs text-gray-500 dark:text-gray-400">Fit {prospect.fitScore}</div>
                     </td>
                     <td className="px-4 py-4 align-top">
-                      <button className="group inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600 dark:bg-white dark:text-gray-900 dark:hover:bg-blue-100">
-                        {prospect.nextAction}
-                        <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      </button>
+                      {isOnboardingDeepLinkEligible(prospect) ? (
+                        <Link
+                          href={buildArtistOnboardingDeepLink(prospect)}
+                          className="group inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600 dark:bg-white dark:text-gray-900 dark:hover:bg-blue-100"
+                        >
+                          {prospect.nextAction}
+                          <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </Link>
+                      ) : (
+                        <button className="group inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600 dark:bg-white dark:text-gray-900 dark:hover:bg-blue-100">
+                          {prospect.nextAction}
+                          <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </button>
+                      )}
                       {prospect.replyClassification === "Needs payout/licensing answer" && (
                         <p className="mt-2 max-w-xs text-xs text-indigo-700 dark:text-indigo-300 italic">
                           Battlecard: {buildBattlecardReplySnippet("payout")}

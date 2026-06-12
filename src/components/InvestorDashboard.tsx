@@ -321,6 +321,37 @@ export default function InvestorDashboard() {
       )}
 
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-lg font-semibold mb-1">Order records (webhook scaffold)</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          In-memory orders from payment_intent.succeeded — persists to Convex in Phase 3
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500">Total orders</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.totalOrders}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Paid</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.paidOrders}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Fulfillment queued</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.fulfillmentQueued}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Revenue (cents)</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.orderSummary.totalRevenueCents}</p>
+          </div>
+        </div>
+        <Link
+          href="/checkout"
+          className="inline-block mt-4 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          Open checkout lab →
+        </Link>
+      </section>
+
+      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <h2 className="text-lg font-semibold mb-1">Stripe payout ledger (webhook scaffold)</h2>
         <p className="text-sm text-gray-500 mb-4">
           In-memory ledger from verified webhooks — persists to Convex in Phase 3

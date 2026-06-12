@@ -1,5 +1,6 @@
 import { buildCheckoutFunnelMetrics, type CheckoutFunnelMetrics } from "./checkout";
 import { buildMarketLaunchCommandCenter, type MarketLaunchCommandCenter } from "./market-launch";
+import { buildOrderSummary, type OrderSummary } from "./orders";
 import { buildStripePayoutLedgerSummary, type StripePayoutLedgerSummary } from "./stripe-ledger";
 import {
   allocateWeeklyChannelBudget,
@@ -46,6 +47,7 @@ export type InvestorSnapshot = {
   checkoutFunnel: CheckoutFunnelMetrics;
   launchCommandCenter: MarketLaunchCommandCenter;
   payoutLedger: StripePayoutLedgerSummary;
+  orderSummary: OrderSummary;
 };
 
 export function buildInvestorSnapshot(
@@ -113,6 +115,7 @@ export function buildInvestorSnapshot(
   const checkoutFunnel = buildCheckoutFunnelMetrics(artworks, undefined, env);
   const launchCommandCenter = buildMarketLaunchCommandCenter(artworks, env);
   const payoutLedger = buildStripePayoutLedgerSummary();
+  const orderSummary = buildOrderSummary();
 
   const pipelineStages = [
     {
@@ -173,5 +176,6 @@ export function buildInvestorSnapshot(
     checkoutFunnel,
     launchCommandCenter,
     payoutLedger,
+    orderSummary,
   };
 }

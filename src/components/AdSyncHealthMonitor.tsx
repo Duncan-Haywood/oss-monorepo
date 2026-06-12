@@ -1,6 +1,7 @@
 "use client";
 
 import { buildAdCatalogSyncHealth, type SyncHealthStatus } from "@/lib/ad-catalog";
+import type { AdCatalogSyncResult } from "@/lib/ad-catalog-sync";
 import { useMemo, useState } from "react";
 
 const statusStyles: Record<SyncHealthStatus, string> = {
@@ -11,10 +12,25 @@ const statusStyles: Record<SyncHealthStatus, string> = {
 
 export default function AdSyncHealthMonitor() {
   const [baselineCAC, setBaselineCAC] = useState(68);
+  const [syncResult, setSyncResult] = useState<AdCatalogSyncResult | null>(null);
+  const [syncLoading, setSyncLoading] = useState(false);
   const health = useMemo(
     () => buildAdCatalogSyncHealth({ baselineCAC, baseUrl: "https://printatelier.com" }),
     [baselineCAC],
   );
+
+  const runCatalogSync = async () => {
+    setSyncLoading(true);
+    try {
+      const response = await fetch("/api/ad-catalog/sync?baseUrl=https://printatelier.com", {
+        method: "POST",
+      });
+      const data = (await response.json()) as AdCatalogSyncResult;
+      setSyncResult(data);
+    } finally {
+      setSyncLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -127,15 +143,45 @@ export default function AdSyncHealthMonitor() {
       </section>
 
       <section className="rounded-xl border border-fuchsia-100 bg-fuchsia-50 p-5 dark:border-fuchsia-900/40 dark:bg-fuchsia-950/30">
-        <h2 className="font-semibold text-fuchsia-900 dark:text-fuchsia-100">Recommended actions</h2>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="font-semibold text-fuchsia-900 dark:text-fuchsia-100">Catalog API sync</h2>
+            <p className="mt-1 text-sm text-fuchsia-900/90 dark:text-fuchsia-100/90">
+              Push consent-cleared feed rows to Meta, Google, and Pinterest when sync health passes.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={runCatalogSync}
+            disabled={syncLoading}
+            className="rounded-lg bg-fuchsia-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-fuchsia-800 disabled:opacity-60"
+          >
+            {syncLoading ? "Syncing…" : "Run catalog sync"}
+          </button>
+        </div>
+        {syncResult && (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm font-medium text-fuchsia-900 dark:text-fuchsia-100">{syncResult.summaryLabel}</p>
+            <div className="grid gap-2 md:grid-cols-3">
+              {syncResult.platforms.map((platform) => (
+                <div
+                  key={platform.platform}
+                  className="rounded-lg border border-fuchsia-200 bg-white/70 p-3 text-sm dark:border-fuchsia-900/50 dark:bg-gray-900/40"
+                >
+                  <p className="font-semibold capitalize">{platform.platform}</p>
+                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">{platform.message}</p>
+                  <p className="mt-2 text-xs text-gray-500">{platform.apiEndpoint}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <h3 className="mt-6 font-semibold text-fuchsia-900 dark:text-fuchsia-100">Recommended actions</h3>
         <ul className="mt-3 space-y-2 text-sm text-fuchsia-900/90 dark:text-fuchsia-100/90">
           {health.recommendedActions.map((action) => (
             <li key={action}>• {action}</li>
           ))}
         </ul>
-        <p className="mt-4 text-xs text-fuchsia-800/70 dark:text-fuchsia-200/70">
-          Next: connect platform catalog APIs with webhook refresh on consent updates (see backlog).
-        </p>
       </section>
     </div>
   );

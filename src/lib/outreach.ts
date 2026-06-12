@@ -1,3 +1,4 @@
+import type { ArtistOnboardingSource } from "./artist-onboarding";
 import {
   buildPayoutExceptionQueue,
   calculatePrintEconomics,
@@ -169,6 +170,34 @@ function getNextAction(
   }
 
   return "Draft AI-personalized first touch";
+}
+
+export type ArtistOnboardingDeepLinkParams = {
+  handle: string;
+  name: string;
+  source: ArtistOnboardingSource;
+};
+
+export function buildArtistOnboardingDeepLink(
+  prospect: Pick<OutreachProspect, "name" | "handle">,
+  basePath = "/artist-onboard",
+): string {
+  const params = new URLSearchParams({
+    handle: prospect.handle.replace(/^@/, ""),
+    name: prospect.name,
+    source: "outreach",
+  });
+  return `${basePath}?${params.toString()}`;
+}
+
+export function isOnboardingDeepLinkEligible(item: OutreachQueueItem): boolean {
+  if (item.payoutGuardrail) {
+    return false;
+  }
+  return (
+    item.replyClassification === "Ready for upload link" ||
+    (item.status === "Replied" && item.replyClassification !== "Needs human review")
+  );
 }
 
 export function buildOutreachQueue(prospects: OutreachProspect[]): OutreachQueueItem[] {

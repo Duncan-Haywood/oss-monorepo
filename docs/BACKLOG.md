@@ -4,8 +4,8 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
-- [ ] [platform] Convex order persistence from `payment_intent.succeeded` webhook ledger entries
-- [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
+- [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
+- [ ] [platform] Live Meta/Google/Pinterest catalog API HTTP calls from `executeAdCatalogSync` when credentials present
 - [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
 - [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
@@ -40,6 +40,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [sales] Outreach deep-link from `/sales-portal` queue to `/artist-onboard?handle=&name=&source=outreach`
+- [x] [platform] Order records scaffold from `payment_intent.succeeded` webhook metadata (`src/lib/orders.ts`, 94 tests)
+- [x] [marketing] Ad catalog API sync orchestrator at `POST /api/ad-catalog/sync` with simulated/live push modes
 - [x] [product] Artist onboarding intake at `/artist-onboard` with profile, consent, capture link, and localStorage persistence
 - [x] [content] Market launch command center on `/investor` combining supply, demand, payments, and ops gates
 - [x] [platform] Stripe webhook payout ledger scaffold with in-memory `recordStripeWebhookToLedger` (86 tests)

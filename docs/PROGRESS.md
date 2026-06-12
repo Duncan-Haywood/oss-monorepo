@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 10:05 UTC — GTM deep-links + order persistence + ad catalog sync
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~13 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (46 commits fast-forward); `npm ci && npm run build && npm test` passed (86 tests baseline).
+- **Hygiene:** Remote `cursor/*` branch count 0 (28 stale refs pruned on fetch). No merge/cherry-pick needed.
+- **Theme shipped:** Market-ready GTM orchestration — sales-to-onboard path, webhook orders, programmatic ad catalog sync.
+- **Shipped:** `buildArtistOnboardingDeepLink` + sales-portal queue links; `parseArtistOnboardingDeepLinkParams` + pre-filled `/artist-onboard`; `src/lib/orders.ts` + webhook order recording; `src/lib/ad-catalog-sync.ts` + `POST /api/ad-catalog/sync`; AdSyncHealthMonitor sync trigger; investor order summary panel; 8 new tests (94 total).
+- **Invention shipped:** Outreach deep-link to artist onboard; order records from payment webhooks; ad catalog API sync orchestrator.
+- **Research:** `docs/research/2026-06-12-gtm-orders-catalog-sync.md`.
+- **Maturity changes:** Outreach/CRM advanced (deep-links); Ad sync health `1→2`; Payments advanced (order records); Storefront/buyer advanced (order scaffold); CI test count 86→94; routes + `/api/ad-catalog/sync`.
+- **Validation:** `npm test` passed (94 tests); `npm run build` passed (47 routes).
+- **Top 3 ideas for next run:** Convex order + ledger persistence; live HTTP catalog push to Meta/Google/Pinterest; Printful order API from webhook fulfillment metadata.
+
+---
+
 ## 2026-06-12 09:05 UTC — Artist onboarding intake + launch command center
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~14 hours remaining.
