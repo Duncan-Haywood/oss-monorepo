@@ -277,3 +277,25 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-print-routes-payout-metadata.md` for Stripe Connect timing and publish-gate rationale.
 - Strategic implication: programmatic SEO is only market-ready when metadata confidence, consent, and payout math align — static routes should index only when all three gates pass.
+
+## Ten-lens invention pass (2026-06-12 02:00 UTC — sitemap + visual docs hub run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Consent-gated sitemap.xml synced to publishable `/prints/[slug]` slugs only | GTM | 5 | 2 | 4 | 5 | 50 | shipped |
+| Visual docs hub at `/docs` with live metrics from investor, SEO, and catalog AI | Product | 5 | 2 | 4 | 5 | 50 | shipped |
+| `buildSitemapXml` contract with tests for static routes + publishable prints | Engineering | 4 | 1 | 3 | 5 | 60 | shipped |
+| Ad catalog feed generator from publishable SEO slugs + creative readiness | Marketing | 5 | 3 | 4 | 5 | 33 | ready |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Stripe Connect test-mode keys + `transfer.created` webhook handlers | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | backlog |
+| Search Console sitemap ping on consent ledger updates | GTM | 4 | 2 | 3 | 5 | 30 | ready |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Competitive positioning one-pager export (PDF) from battlecards for investor decks | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+
+## Research-backed notes (2026-06-12 02:00 UTC)
+
+- See `docs/research/2026-06-12-sitemap-visual-docs-hub.md` for sitemap/robots conventions and docs-hub rationale.
+- Strategic implication: digital stock launch requires a single owner entry point (`/docs`) and an index that only lists consent-cleared inventory — blocked listings stay `noindex` and out of the sitemap.

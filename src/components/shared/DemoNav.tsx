@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const demos = [
+  { href: "/docs", label: "Docs Hub" },
   { href: "/investor", label: "Investor" },
   { href: "/battlecards", label: "Battlecards" },
   { href: "/seo-lab", label: "SEO Lab" },

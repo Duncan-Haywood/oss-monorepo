@@ -247,3 +247,60 @@ export function getPublishableSeoSlugs(
     .filter((page) => page.publishState.publishable)
     .map((page) => page.slug);
 }
+
+export type SitemapEntry = {
+  path: string;
+  changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
+  priority: number;
+};
+
+const staticMarketRoutes: SitemapEntry[] = [
+  { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/docs", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/investor", changeFrequency: "weekly", priority: 0.85 },
+  { path: "/storefront", changeFrequency: "daily", priority: 0.8 },
+  { path: "/artist-portal", changeFrequency: "weekly", priority: 0.75 },
+  { path: "/capture", changeFrequency: "weekly", priority: 0.7 },
+];
+
+/** Builds sitemap paths: static market routes + consent-gated `/prints/[slug]` pages only. */
+export function buildSitemapEntries(
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): SitemapEntry[] {
+  const publishableSlugs = getPublishableSeoSlugs(consentRecords, artworks);
+  const printEntries: SitemapEntry[] = publishableSlugs.map((slug) => ({
+    path: `/prints/${slug}`,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
+  return [...staticMarketRoutes, ...printEntries];
+}
+
+export function buildSitemapXml(
+  baseUrl: string,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+  lastModified: Date = new Date(),
+): string {
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  const entries = buildSitemapEntries(consentRecords, artworks);
+  const isoDate = lastModified.toISOString();
+
+  const urlNodes = entries
+    .map(
+      (entry) => `  <url>
+    <loc>${normalizedBase}${entry.path}</loc>
+    <lastmod>${isoDate}</lastmod>
+    <changefreq>${entry.changeFrequency}</changefreq>
+    <priority>${entry.priority.toFixed(2)}</priority>
+  </url>`,
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlNodes}
+</urlset>`;
+}

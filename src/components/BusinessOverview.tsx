@@ -24,6 +24,7 @@ const productFlow = [
 ];
 
 const portalLinks = [
+  { label: "Visual docs hub", href: "/docs", badge: "New" },
   { label: "Investor dashboard", href: "/investor", badge: "New" },
   { label: "Artist onboarding", href: "/artist-portal" },
   { label: "Sales outreach CRM", href: "/sales-portal" },
@@ -162,10 +163,17 @@ export default function BusinessOverview() {
 
       <section className="flex flex-wrap items-center gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
         <Link
-          href="/investor"
+          href="/docs"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
         >
-          Open investor dashboard
+          Open visual docs hub
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+        <Link
+          href="/investor"
+          className="inline-flex items-center gap-2 px-5 py-2.5 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-lg font-medium hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+        >
+          Investor dashboard
           <ArrowRight className="w-4 h-4" />
         </Link>
         <p className="text-sm text-gray-500">

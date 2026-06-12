@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, Stripe Connect payout simulator, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (static `/prints/[slug]` + payout simulator + metadata confidence)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, Stripe Connect payout simulator, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (sitemap.xml + visual docs hub `/docs`)
 
 ## Subsystem maturity
 
@@ -9,7 +9,8 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 
 | Subsystem | Phase | Notes | Next step |
 |-----------|-------|-------|-----------|
-| Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; unit economics uses shared formula and artist payout trust battlecard | Visual docs hub with embedded GTM tools |
+| Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; links to `/docs` visual hub; unit economics uses shared formula and artist payout trust battlecard | Embed live metrics previews in plan tabs |
+| Visual docs hub | 1 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, and sitemap with live shared-lib metrics | Persist owner bookmarks and cohort snapshots |
 | Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, and ad readiness from shared libs | Persist live metrics + cohort trends |
 | Partner integrations | 1 | `src/lib/partners.ts` scores Printful/Gelato fulfillment and Meta/Google/Pinterest ad readiness | Connect real API credentials + webhooks |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
@@ -25,14 +26,14 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, battlecard reply snippets in `/sales-portal` | Persist prospects/replies, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal` + programmatic SEO lab at `/seo-lab` | Persist creative tests and publish eligible SEO pages |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
-| Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` | Persist published pages + sitemap from SEO lab |
+| Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` + `sitemap.xml` from publishable slugs | Persist published pages + search console sync |
 | Payments | 1 | `simulateStripeConnectPayout` models per-order waterfall and Connect transfer timing | Wire Stripe test mode + webhooks |
 | Catalog AI metadata | 1 | `buildCatalogMetadataDashboard` scores tags, SEO copy, mockups, proof confidence | Connect to real AI tagging pipeline on capture upload |
 | Operations | 1 | Admin console includes payout promise guardrail queue and listing hold/release workflow before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO, capture, stripe-connect, and metadata confidence (45 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO sitemap, capture, stripe-connect, and metadata confidence (47 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -58,6 +59,8 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Programmatic SEO | `src/lib/seo.ts` | Landing page generator from catalog with readiness blockers | 2026-06-12 |
 | Capture metadata | `src/lib/capture.ts` | localStorage session stub before backend upload | 2026-06-12 |
 | Static print routes | `src/app/prints/[slug]` + `evaluateSeoPagePublishability` | Consent-gated programmatic SEO with noindex for blocked pages | 2026-06-12 |
+| Sitemap + robots | `buildSitemapEntries` + `src/app/sitemap.ts` + `robots.ts` | Only consent-cleared print slugs indexed; ops routes disallowed | 2026-06-12 |
+| Visual docs hub | `src/components/VisualDocsHub.tsx` + `/docs` | Owner GTM entry point wired to shared libs | 2026-06-12 |
 | Stripe Connect simulator | `src/lib/stripe-connect.ts` | Per-order waterfall before test-mode keys | 2026-06-12 |
 | Metadata confidence | `src/lib/catalog-intelligence.ts` | AI-ready scoring across tags, SEO, mockups, proof | 2026-06-12 |
 | Battlecard outreach snippets | `buildBattlecardReplySnippet` in `src/lib/competitors.ts` | Personalizes payout/proof replies in sales portal | 2026-06-12 |

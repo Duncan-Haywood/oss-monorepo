@@ -39,6 +39,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 
 | Route | Description |
 |-------|-------------|
+| `/docs` | Visual docs hub — investor, battlecards, SEO lab, catalog AI, payout sim, sitemap |
 | `/investor` | Condensed owner/investor dashboard — unit economics, pipeline, partner readiness |
 | `/battlecards` | Competitive positioning vs Society6, Redbubble, Saatchi, Artfinder |
 | `/seo-lab` | Programmatic SEO page generator with publish blockers |

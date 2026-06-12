@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { catalogArtworks } from "../src/lib/marketplace.ts";
 import {
+  buildSitemapEntries,
+  buildSitemapXml,
   evaluateSeoPagePublishability,
   formatSeoVolume,
   generateSeoLandingPages,
@@ -58,4 +60,30 @@ test("evaluateSeoPagePublishability blocks pages without consent records", () =>
   const state = evaluateSeoPagePublishability(page);
   assert.equal(state.publishable, false);
   assert.equal(state.consentBlocked, true);
+});
+
+test("buildSitemapEntries only includes publishable print slugs plus static market routes", () => {
+  const publishable = getPublishableSeoSlugs();
+  const entries = buildSitemapEntries();
+
+  assert.ok(entries.some((entry) => entry.path === "/"));
+  assert.ok(entries.some((entry) => entry.path === "/docs"));
+  assert.ok(entries.some((entry) => entry.path === "/investor"));
+  assert.equal(
+    entries.filter((entry) => entry.path.startsWith("/prints/")).length,
+    publishable.length,
+  );
+  for (const slug of publishable) {
+    assert.ok(entries.some((entry) => entry.path === `/prints/${slug}`));
+  }
+});
+
+test("buildSitemapXml emits valid urlset with consent-gated print locations", () => {
+  const xml = buildSitemapXml("https://printatelier.com", undefined, undefined, new Date("2026-06-12T00:00:00.000Z"));
+
+  assert.match(xml, /^<\?xml version="1.0" encoding="UTF-8"\?>/);
+  assert.match(xml, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0.9">/);
+  assert.match(xml, /<loc>https:\/\/printatelier\.com\/docs<\/loc>/);
+  assert.match(xml, /<lastmod>2026-06-12T00:00:00.000Z<\/lastmod>/);
+  assert.doesNotMatch(xml, /spring-bloom/);
 });

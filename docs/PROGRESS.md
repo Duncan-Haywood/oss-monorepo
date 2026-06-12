@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 02:05 UTC — Sitemap + visual docs hub
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~21 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (35 commits fast-forward); `npm ci && npm run build && npm test` passed (45 tests baseline).
+- **Hygiene:** Deleted remote `cursor/print-atelier-business-orchestration-084b` (0 ahead / 0 behind main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready SEO index + owner visual documentation.
+- **Shipped:** `buildSitemapEntries` + `buildSitemapXml` in `src/lib/seo.ts`; `src/app/sitemap.ts` + `robots.ts`; `/docs` visual docs hub with `VisualDocsHub`; Business Overview + DemoNav links; 2 new tests (47 total).
+- **Invention shipped:** Visual docs hub aggregating investor, battlecards, SEO lab, catalog AI, payout sim, and live sitemap metrics in one GTM entry point.
+- **Research:** `docs/research/2026-06-12-sitemap-visual-docs-hub.md`.
+- **Maturity changes:** Visual docs hub `—→1`; Programmatic SEO advanced (sitemap.xml); Business plan TSX links to `/docs`; CI test count 45→47; routes + `/docs`, `/sitemap.xml`, `/robots.txt`.
+- **Validation:** `npm test` passed (47 tests); `npm run build` passed (39 static routes including sitemap/robots).
+- **Top 3 ideas for next run:** Stripe Connect test-mode keys + webhooks; ad catalog feed from publishable SEO slugs; Convex artist onboarding vertical slice.
+
+---
+
 ## 2026-06-12 01:05 UTC — Static print routes + Stripe Connect + metadata confidence
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~22 hours remaining.

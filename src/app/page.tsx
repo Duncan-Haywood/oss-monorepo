@@ -32,6 +32,7 @@ const tabs = [
 ];
 
 const demoLinks = [
+  { href: "/docs", label: "Visual Docs Hub", badge: "New" },
   { href: "/investor", label: "Investor Dashboard", badge: "New" },
   { href: "/battlecards", label: "Competitive Battlecards", badge: "New" },
   { href: "/seo-lab", label: "Programmatic SEO Lab", badge: "New" },
