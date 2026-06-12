@@ -101,6 +101,51 @@ export default function InvestorDashboard() {
         </div>
       </section>
 
+      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-lg font-semibold">Buyer checkout funnel</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Cart → Stripe session → paid — readiness before scaling ad traffic
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-3xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400">
+              {snapshot.checkoutFunnel.overallReadiness}%
+            </p>
+            <p className="text-xs text-gray-500">checkout readiness</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {snapshot.checkoutFunnel.stages.map((stage) => (
+            <div
+              key={stage.stage}
+              className="border border-gray-100 dark:border-gray-700 rounded-lg px-4 py-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-gray-500">{stage.stage}</p>
+                <StatusBadge status={stage.status} />
+              </div>
+              <p className="text-xl font-bold tabular-nums mt-1">{stage.count}</p>
+              {stage.conversionFromPrevious !== null && (
+                <p className="text-xs text-gray-500 mt-1">{stage.conversionFromPrevious}% from prior</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <ul className="mt-4 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+          {snapshot.checkoutFunnel.nextActions.slice(0, 3).map((action) => (
+            <li key={action}>→ {action}</li>
+          ))}
+        </ul>
+        <Link
+          href="/checkout"
+          className="inline-block mt-4 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          Open checkout lab →
+        </Link>
+      </section>
+
       <section>
         <h2 className="text-lg font-semibold mb-3">Dual-sided pipeline</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

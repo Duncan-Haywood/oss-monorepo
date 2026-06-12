@@ -399,9 +399,30 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 | Artist onboarding intake form with localStorage → Convex migration path | Sales | 5 | 3 | 4 | 5 | 33 | ready |
 | Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
 | Checkout terms + refund policy explainer linked to artist POD license | Legal | 4 | 2 | 3 | 4 | 24 | ready |
-| Investor dashboard live checkout funnel metric (cart → session → paid) | Strategy | 5 | 2 | 4 | 5 | 50 | ready |
+| Investor dashboard live checkout funnel metric (cart → session → paid) | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
 
 ## Research-backed notes (2026-06-12 07:00 UTC)
 
 - See `docs/research/2026-06-12-checkout-stripe-slice.md` for Stripe Checkout + Connect transfer requirements.
 - Strategic implication: "ready to sell" means consent-gated cart eligibility, visible Stripe/POD blockers, and fulfillment routing — not just a pretty storefront.
+
+## Ten-lens invention pass (2026-06-12 08:00 UTC — live Stripe checkout run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Live Stripe Checkout Sessions via `stripe.checkout.sessions.create` | Engineering | 5 | 3 | 4 | 5 | 33 | shipped |
+| Investor checkout funnel metric (cart → Stripe → paid readiness) | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Convex order persistence from `payment_intent.succeeded` webhook | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
+| Artist onboarding intake form with localStorage → Convex migration path | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Checkout abandon retargeting pixel events from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| Multi-item shipping line item in Stripe session (tax + shipping) | Finance | 4 | 2 | 3 | 4 | 24 | ready |
+| Checkout terms + refund policy explainer linked to artist POD license | Legal | 4 | 2 | 3 | 4 | 24 | ready |
+| Market launch command center combining funnel + ad sync + outreach velocity | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Printful order API trigger from webhook fulfillment metadata | Operations | 5 | 4 | 4 | 5 | 25 | ready |
+
+## Research-backed notes (2026-06-12 08:00 UTC)
+
+- See `docs/research/2026-06-12-live-stripe-checkout-funnel.md` for live session wiring and investor funnel rationale.
+- Strategic implication: payments Phase 2 closes when buyers can complete Stripe Checkout in test mode; Phase 3 closes when webhooks persist orders and trigger POD + Connect transfers.

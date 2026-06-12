@@ -17,6 +17,8 @@ test("buildInvestorSnapshot aggregates catalog, outreach, finance, and partner r
   assert.ok(snapshot.channelBudget.allocations.length >= 3);
   assert.ok(snapshot.monthlyGrossRevenue > 0);
   assert.equal(snapshot.pipelineStages.length, 7);
+  assert.ok(snapshot.checkoutFunnel.stages.length === 5);
+  assert.ok(snapshot.checkoutFunnel.overallReadiness >= 0);
 });
 
 test("calculateFulfillmentReadiness scores configured POD partners", () => {

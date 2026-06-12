@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildCheckoutFunnelMetrics,
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
   buildFulfillmentRoute,
@@ -86,4 +87,27 @@ test("buildCheckoutReadiness surfaces cart and env blockers", () => {
   assert.equal(readiness.fulfillmentReady, false);
   assert.ok(readiness.blockers.length > 0);
   assert.ok(readiness.nextActions.length > 0);
+});
+
+test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () => {
+  const funnel = buildCheckoutFunnelMetrics();
+  assert.ok(funnel.eligibleListings > 0);
+  assert.equal(funnel.stages.length, 5);
+  assert.ok(funnel.overallReadiness >= 0 && funnel.overallReadiness <= 100);
+  assert.equal(funnel.checkoutSessionReady, false);
+});
+
+test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD configured", () => {
+  const funnel = buildCheckoutFunnelMetrics(catalogArtworks, defaultListingConsentRecords, {
+    STRIPE_SECRET_KEY: "sk_test_abc",
+    STRIPE_PUBLISHABLE_KEY: "pk_test_abc",
+    STRIPE_WEBHOOK_SECRET: "whsec_abc",
+    STRIPE_CONNECT_CLIENT_ID: "ca_abc",
+    PRINTFUL_API_KEY: "pf_test",
+    PRINTFUL_STORE_ID: "pf_store",
+  });
+  assert.equal(funnel.stripeEnvReady, true);
+  assert.equal(funnel.fulfillmentReady, true);
+  assert.equal(funnel.checkoutSessionReady, true);
+  assert.ok(funnel.overallReadiness >= 80);
 });

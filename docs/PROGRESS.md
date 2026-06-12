@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 08:05 UTC — Live Stripe Checkout + investor funnel
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~15 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (43 commits fast-forward); `npm ci && npm run build && npm test` passed (75 tests baseline).
+- **Hygiene:** Deleted remote `origin/cursor/print-atelier-business-orchestration-4219` (0 ahead / 0 behind main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready payments — live Stripe Checkout when test keys present.
+- **Shipped:** `stripe` SDK; `src/lib/stripe-checkout-server.ts` with `buildStripeCheckoutCreateParams` + `createStripeCheckoutSession`; `POST /api/stripe/checkout` creates live sessions and returns `checkoutUrl`; `CheckoutLab` redirects to Stripe when live; `buildCheckoutFunnelMetrics` + investor dashboard checkout funnel panel; 3 new tests (78 total).
+- **Invention shipped:** Investor checkout funnel metric (cart → Stripe env → POD → live session readiness).
+- **Research:** `docs/research/2026-06-12-live-stripe-checkout-funnel.md`.
+- **Maturity changes:** Storefront/buyer `1→2`; Payments `1→2`; Investor dashboard advanced (checkout funnel); CI test count 75→78.
+- **Validation:** `npm test` passed (78 tests); `npm run build` passed (45 routes).
+- **Top 3 ideas for next run:** Convex order persistence from webhooks; Connect Meta/Google/Pinterest catalog APIs; artist onboarding intake → Convex vertical slice.
+
+---
+
 ## 2026-06-12 07:05 UTC — Buyer checkout slice + Stripe session scaffold
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~16 hours remaining.

@@ -1,3 +1,4 @@
+import { buildCheckoutFunnelMetrics, type CheckoutFunnelMetrics } from "./checkout";
 import {
   allocateWeeklyChannelBudget,
   buildListingConsentGate,
@@ -40,9 +41,13 @@ export type InvestorSnapshot = {
   fulfillmentPartnerCount: number;
   adPlatformCount: number;
   pipelineStages: Array<{ stage: string; count: number; status: "healthy" | "watch" | "blocked" }>;
+  checkoutFunnel: CheckoutFunnelMetrics;
 };
 
-export function buildInvestorSnapshot(artworks: CatalogArtwork[] = catalogArtworks): InvestorSnapshot {
+export function buildInvestorSnapshot(
+  artworks: CatalogArtwork[] = catalogArtworks,
+  env: Record<string, string | undefined> = {},
+): InvestorSnapshot {
   const catalog = calculateCatalogSummary(artworks);
   const outreach = calculateOutreachSummary(outreachProspects);
   const release = buildListingReleaseDecisions(artworks);
@@ -101,6 +106,8 @@ export function buildInvestorSnapshot(artworks: CatalogArtwork[] = catalogArtwor
   const monthlyPlatformShare = defaultMonthlyOrders * unitEconomics.platformShare;
   const monthlyArtistPayouts = catalog.projectedMonthlyArtistPayout;
 
+  const checkoutFunnel = buildCheckoutFunnelMetrics(artworks, undefined, env);
+
   const pipelineStages = [
     {
       stage: "Outreach prospects",
@@ -157,5 +164,6 @@ export function buildInvestorSnapshot(artworks: CatalogArtwork[] = catalogArtwor
     fulfillmentPartnerCount: fulfillmentPartners.filter((p) => p.apiStatus !== "not_started").length,
     adPlatformCount: adPlatformPartners.length,
     pipelineStages,
+    checkoutFunnel,
   };
 }

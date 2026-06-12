@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, reply-to-live compression metric, proof-mockup response kits, buyer room-preview CAC feedback, product detail preview CTA comparison, buyer checkout lab with Stripe session scaffold, guarded channel budget allocation, artist payout trust proof, artist earnings calculator, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, visual docs hub, partner readiness scoring, partner credential vault, competitive battlecards, programmatic SEO lab, static print landing routes, consent-gated sitemap, ad catalog feed lab, ad sync health monitor, Stripe Connect payout simulator + webhook scaffold, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (buyer checkout slice + Stripe test-mode session scaffold)
+**Company phase:** 1→2 (live Stripe Checkout Sessions when test keys present; investor checkout funnel; persistence next)
+**Last updated:** 2026-06-12 (live Stripe Checkout + investor checkout funnel)
 
 ## Subsystem maturity
 
@@ -11,7 +11,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 |-----------|-------|-------|-----------|
 | Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; links to `/docs` visual hub; unit economics uses shared formula and artist payout trust battlecard | Embed live metrics previews in plan tabs |
 | Visual docs hub | 1 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, and sitemap with live shared-lib metrics | Persist owner bookmarks and cohort snapshots |
-| Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, and ad readiness from shared libs | Persist live metrics + cohort trends |
+| Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, ad readiness, and checkout funnel (cart → Stripe → paid) from shared libs | Persist live metrics + cohort trends |
 | Partner integrations | 1 | `src/lib/partners.ts` scores readiness; `src/lib/partner-credentials.ts` + `/partner-setup` vault tracks env keys for fulfillment, ads, and Stripe | Connect real API credentials + webhooks |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
 | Capture pipeline | 1 | Real file picker + localStorage metadata persistence; simulated AI stages | Backend upload + job queue (Convex/Supabase + R2) |
@@ -21,7 +21,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Payout promise guardrails | 1 | Tested payout exception queue holds unsafe listings, recommends retail-price fixes, and powers `/admin-portal` operator actions | Persist exception decisions, overrides, and price/POD-cost remediation history |
 | Listing release workflow | 1 | Tested release-decision queue classifies listings as release-ready, finance override review, or ops hold and previews artist-facing trust copy in `/admin-portal` | Persist release/hold/override decisions with owner, reason, and artist-facing copy snapshot |
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
-| Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), room-preview conversion lab, and `/checkout` consent-gated cart with POD routing; print landing pages embed preview CTA | Persisted preview events + live Stripe Checkout Sessions |
+| Storefront / buyer | 2 | Storefront filters live shared-catalog listings, shows artist payout per print, product detail preview CTA (flat vs room), room-preview conversion lab, and `/checkout` consent-gated cart with POD routing + live Stripe Checkout redirect when keys present; print landing pages embed preview CTA | Persisted preview events + order records from webhooks |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits with room scenes + payout proof in `/sales-portal`, battlecard reply snippets | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health at `/ad-sync-health` | Persist creative tests and sync live catalog feeds to Meta/Google/Pinterest APIs |
@@ -29,13 +29,13 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Ad sync health | 1 | `buildAdCatalogSyncHealth` monitors pixel, feed, creative-quota, and consent checks per platform at `/ad-sync-health` | Wire platform catalog APIs + webhook refresh on consent updates |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
 | Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` + `sitemap.xml` from publishable slugs | Persist published pages + search console sync |
-| Payments | 1 | `simulateStripeConnectPayout` models per-order waterfall; `POST /api/stripe/webhook` verifies signatures and routes Connect events; `.env.example` documents test-mode keys | Wire Stripe test mode keys + persist transfer/payout ledger |
+| Payments | 2 | `simulateStripeConnectPayout` models per-order waterfall; `POST /api/stripe/checkout` creates live Checkout Sessions via `stripe.checkout.sessions.create` when test keys present; `POST /api/stripe/webhook` verifies signatures and routes Connect events; `.env.example` documents test-mode keys | Persist transfer/payout ledger from webhooks |
 | Catalog AI metadata | 1 | `buildCatalogMetadataDashboard` scores tags, SEO copy, mockups, proof confidence | Connect to real AI tagging pipeline on capture upload |
 | Operations | 1 | Admin console includes payout promise guardrail queue and listing hold/release workflow before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (75 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (78 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -75,6 +75,8 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Partner credential vault | `src/lib/partner-credentials.ts` + `/partner-setup` | Env-key readiness for fulfillment, ads, and Stripe before API integration | 2026-06-12 |
 | Artist earnings calculator | `calculateArtistEarningsForecast` in `src/lib/marketplace.ts` | Interactive 30% net-profit forecast in artist portal payouts tab | 2026-06-12 |
 | Buyer checkout lab | `src/lib/checkout.ts` + `/checkout` + `/api/stripe/checkout` | Consent-gated cart, fulfillment routing, Stripe session payload before Phase 3 | 2026-06-12 |
+| Live Stripe Checkout | `src/lib/stripe-checkout-server.ts` + `stripe` SDK | Creates real Checkout Sessions when test-mode keys present; redirects buyer to Stripe | 2026-06-12 |
+| Checkout funnel metrics | `buildCheckoutFunnelMetrics` in `src/lib/checkout.ts` | Investor-facing cart → session → paid readiness before scaling ads | 2026-06-12 |
 
 ## Active vertical slice
 

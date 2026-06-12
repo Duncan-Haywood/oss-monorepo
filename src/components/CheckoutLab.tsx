@@ -29,6 +29,10 @@ type CheckoutApiResponse = CheckoutEnvStatus & {
   session?: ReturnType<typeof buildCheckoutSessionPayload>;
   simulated?: boolean;
   hint?: string;
+  checkoutUrl?: string;
+  sessionId?: string;
+  livemode?: boolean;
+  error?: string;
 };
 
 const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
@@ -97,6 +101,10 @@ export default function CheckoutLab() {
         body: JSON.stringify({ lineItems: cart, region }),
       });
       const data = (await response.json()) as CheckoutApiResponse;
+      if (data.checkoutUrl && !data.simulated) {
+        window.location.assign(data.checkoutUrl);
+        return;
+      }
       setSessionPreview(data);
     } finally {
       setLoading(false);
@@ -302,8 +310,19 @@ export default function CheckoutLab() {
             <Package className="w-4 h-4" />
             {sessionPreview.simulated ? "Simulated Checkout Session" : "Checkout Session"}
           </h3>
+          {sessionPreview.error && (
+            <p className="text-sm text-rose-700 mt-2">{sessionPreview.error}</p>
+          )}
           {sessionPreview.hint && (
             <p className="text-sm text-emerald-800 mt-2">{sessionPreview.hint}</p>
+          )}
+          {sessionPreview.checkoutUrl && (
+            <a
+              href={sessionPreview.checkoutUrl}
+              className="inline-flex items-center gap-2 mt-3 text-sm font-medium text-indigo-700 hover:text-indigo-900"
+            >
+              Open Stripe Checkout <ArrowRight className="w-4 h-4" />
+            </a>
           )}
           <pre className="mt-3 text-xs bg-white/80 rounded-lg p-4 overflow-x-auto text-stone-800">
             {JSON.stringify(sessionPreview.session, null, 2)}

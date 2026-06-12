@@ -6,6 +6,7 @@ import {
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
+import { createStripeCheckoutSession } from "@/lib/stripe-checkout-server";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -75,23 +76,45 @@ export async function POST(request: Request) {
     );
   }
 
-  const session = buildCheckoutSessionPayload(lineItems, region, baseUrl, env);
+  const sessionPayload = buildCheckoutSessionPayload(lineItems, region, baseUrl, env);
 
   if (!envStatus.readyForTestCheckout) {
     return NextResponse.json({
       ...envStatus,
       simulated: true,
-      session,
+      session: sessionPayload,
       hint: "Test-mode Stripe keys missing — session payload preview only. Add keys to .env.local to create live Checkout Sessions.",
     });
   }
 
-  return NextResponse.json({
-    ...envStatus,
-    simulated: false,
-    session,
-    hint: "Wire this payload to stripe.checkout.sessions.create in Phase 3 — webhook at /api/stripe/webhook handles payment_intent.succeeded.",
-  });
+  if (!env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "STRIPE_SECRET_KEY not configured" }, { status: 500 });
+  }
+
+  try {
+    const liveSession = await createStripeCheckoutSession(sessionPayload, env.STRIPE_SECRET_KEY);
+
+    return NextResponse.json({
+      ...envStatus,
+      simulated: false,
+      session: sessionPayload,
+      sessionId: liveSession.sessionId,
+      checkoutUrl: liveSession.checkoutUrl,
+      livemode: liveSession.livemode,
+      hint: "Redirect buyer to checkoutUrl. Webhook at /api/stripe/webhook handles payment_intent.succeeded → POD + Connect transfer.",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Stripe session creation failed";
+    return NextResponse.json(
+      {
+        error: message,
+        ...envStatus,
+        simulated: true,
+        session: sessionPayload,
+      },
+      { status: 502 },
+    );
+  }
 }
 
 export async function PUT(request: Request) {

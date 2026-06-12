@@ -428,3 +428,116 @@ export function saveCheckoutCartToStorage(lineItems: CheckoutLineItem[]): void {
 export function formatCheckoutCurrency(value: number): string {
   return formatStripeCurrency(value);
 }
+
+export type CheckoutFunnelStage = {
+  stage: string;
+  count: number;
+  conversionFromPrevious: number | null;
+  blockers: string[];
+  status: "healthy" | "watch" | "blocked";
+};
+
+export type CheckoutFunnelMetrics = {
+  eligibleListings: number;
+  sampleCartItems: number;
+  cartEligible: boolean;
+  stripeEnvReady: boolean;
+  fulfillmentReady: boolean;
+  checkoutSessionReady: boolean;
+  overallReadiness: number;
+  stages: CheckoutFunnelStage[];
+  nextActions: string[];
+};
+
+export function buildCheckoutFunnelMetrics(
+  artworks: CatalogArtwork[] = catalogArtworks,
+  consentRecords?: ListingConsentRecord[],
+  env: Record<string, string | undefined> = {},
+): CheckoutFunnelMetrics {
+  const consents = consentRecords ?? defaultListingConsentRecords;
+  const eligible = artworks.filter((artwork) => {
+    const result = validateCheckoutLineItem(artwork, consents);
+    return result.eligible;
+  });
+
+  const sampleCart = buildSampleCheckoutCart(artworks, consents);
+  const readiness = buildCheckoutReadiness(sampleCart, artworks, consents, env);
+  const envStatus = getCheckoutEnvStatus(env);
+  const printfulReady = Boolean(env.PRINTFUL_API_KEY && env.PRINTFUL_STORE_ID);
+  const gelatoReady = Boolean(env.GELATO_API_KEY && env.GELATO_STORE_ID);
+  const fulfillmentReady = printfulReady || gelatoReady;
+  const checkoutSessionReady =
+    readiness.cartEligible && envStatus.readyForTestCheckout && fulfillmentReady;
+
+  const stages: CheckoutFunnelStage[] = [
+    {
+      stage: "Consent-cleared listings",
+      count: eligible.length,
+      conversionFromPrevious: null,
+      blockers:
+        eligible.length < artworks.length
+          ? [`${artworks.length - eligible.length} listings blocked by consent or proof`]
+          : [],
+      status: eligible.length >= 3 ? "healthy" : eligible.length >= 1 ? "watch" : "blocked",
+    },
+    {
+      stage: "Sample cart eligible",
+      count: sampleCart.length,
+      conversionFromPrevious:
+        eligible.length > 0 ? Math.round((sampleCart.length / eligible.length) * 100) : 0,
+      blockers: readiness.cartEligible ? [] : readiness.blockers.filter((b) => !b.includes("STRIPE")),
+      status: readiness.cartEligible ? "healthy" : "blocked",
+    },
+    {
+      stage: "Stripe test env",
+      count: envStatus.readyForTestCheckout ? 1 : 0,
+      conversionFromPrevious: readiness.cartEligible
+        ? envStatus.readyForTestCheckout
+          ? 100
+          : 0
+        : null,
+      blockers: envStatus.blockers,
+      status: envStatus.readyForTestCheckout ? "healthy" : "watch",
+    },
+    {
+      stage: "POD fulfillment configured",
+      count: fulfillmentReady ? 1 : 0,
+      conversionFromPrevious: envStatus.readyForTestCheckout
+        ? fulfillmentReady
+          ? 100
+          : 0
+        : null,
+      blockers: fulfillmentReady
+        ? []
+        : ["Configure Printful or Gelato credentials at /partner-setup"],
+      status: fulfillmentReady ? "healthy" : "watch",
+    },
+    {
+      stage: "Live checkout session",
+      count: checkoutSessionReady ? 1 : 0,
+      conversionFromPrevious: fulfillmentReady ? (checkoutSessionReady ? 100 : 0) : null,
+      blockers: checkoutSessionReady ? [] : ["Complete cart, Stripe keys, and POD credentials"],
+      status: checkoutSessionReady ? "healthy" : "blocked",
+    },
+  ];
+
+  const healthyStages = stages.filter((stage) => stage.status === "healthy").length;
+  const overallReadiness = Math.round((healthyStages / stages.length) * 100);
+
+  const nextActions = [...readiness.nextActions];
+  if (checkoutSessionReady) {
+    nextActions.unshift("POST /api/stripe/checkout creates live Stripe Checkout Sessions");
+  }
+
+  return {
+    eligibleListings: eligible.length,
+    sampleCartItems: sampleCart.length,
+    cartEligible: readiness.cartEligible,
+    stripeEnvReady: envStatus.readyForTestCheckout,
+    fulfillmentReady,
+    checkoutSessionReady,
+    overallReadiness,
+    stages,
+    nextActions,
+  };
+}
