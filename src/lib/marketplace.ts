@@ -1018,3 +1018,21 @@ export function calculateCatalogSummary(artworks: CatalogArtwork[]) {
     projectedMonthlyArtistPayout: roundCurrency(projectedMonthlyArtistPayout),
   };
 }
+
+/** Default consent ledger used by static SEO routes and admin baseline scenario. */
+export const defaultListingConsentRecords: ListingConsentRecord[] = [
+  {
+    artworkSlug: "midnight-coast",
+    podLicenseAccepted: true,
+    paidAdRightsAccepted: true,
+    aiRoomSceneAccepted: true,
+    payoutAcknowledged: true,
+  },
+  {
+    artworkSlug: "urban-geometry",
+    podLicenseAccepted: true,
+    paidAdRightsAccepted: false,
+    aiRoomSceneAccepted: false,
+    payoutAcknowledged: true,
+  },
+];

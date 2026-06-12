@@ -4,6 +4,8 @@ const demos = [
   { href: "/investor", label: "Investor" },
   { href: "/battlecards", label: "Battlecards" },
   { href: "/seo-lab", label: "SEO Lab" },
+  { href: "/catalog-intelligence", label: "Catalog AI" },
+  { href: "/payout-simulator", label: "Payout Sim" },
   { href: "/storefront", label: "Storefront" },
   { href: "/buyer-portal", label: "Buyer Portal" },
   { href: "/artist-portal", label: "Artist Portal" },

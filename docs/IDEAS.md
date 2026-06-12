@@ -257,3 +257,23 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-competitive-battlecards-seo.md` for battlecard sources and SEO publish-gate rationale.
 - Strategic implication: GTM tooling should block publish/spend until listings clear the same consent and proof gates used in admin and investor dashboards — digital stock building is a software workflow, not a content dump.
+
+## Ten-lens invention pass (2026-06-12 01:00 UTC — print routes + payout + metadata run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Static `/prints/[slug]` routes with consent-gated noindex for blocked listings | GTM | 5 | 2 | 4 | 5 | 50 | shipped |
+| Stripe Connect payout simulator with per-order waterfall and transfer delay | Finance | 5 | 2 | 4 | 5 | 50 | shipped |
+| AI metadata confidence dashboard for tags, SEO copy, mockups, and proof | AI/ML | 5 | 2 | 4 | 5 | 50 | shipped |
+| Battlecard reply snippets injected into sales-portal payout/proof replies | Sales | 5 | 2 | 4 | 5 | 50 | shipped |
+| Sitemap.xml auto-generated from publishable SEO slugs | Engineering | 4 | 2 | 3 | 5 | 30 | ready |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | backlog |
+| Visual docs hub embedding investor, battlecards, SEO lab, and catalog AI | Product | 4 | 2 | 3 | 5 | 30 | backlog |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+
+## Research-backed notes (2026-06-12 01:00 UTC)
+
+- See `docs/research/2026-06-12-print-routes-payout-metadata.md` for Stripe Connect timing and publish-gate rationale.
+- Strategic implication: programmatic SEO is only market-ready when metadata confidence, consent, and payout math align — static routes should index only when all three gates pass.

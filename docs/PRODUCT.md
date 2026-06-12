@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, partner readiness scoring, competitive battlecards, programmatic SEO lab, and capture upload metadata stub)
-**Last updated:** 2026-06-12 (competitive battlecards + programmatic SEO + capture Phase 2 prep)
+**Company phase:** 1 (interactive prototype with shared business logic, finance stress tests, demand creative scoring, outreach reply triage, buyer room-preview CAC feedback, guarded channel budget allocation, artist payout trust proof, payout exception guardrails, listing release decisions, channel consent gates, investor dashboard, partner readiness scoring, competitive battlecards, programmatic SEO lab, static print landing routes, Stripe Connect payout simulator, AI metadata confidence dashboard, battlecard outreach snippets, and capture upload metadata stub)
+**Last updated:** 2026-06-12 (static `/prints/[slug]` + payout simulator + metadata confidence)
 
 ## Subsystem maturity
 
@@ -22,16 +22,17 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Legal / rights | 1 | Tested listing consent gate blocks storefront, outreach, paid ads, and AI room-preview channels until POD license, ad rights, AI room-scene use, and payout acknowledgement are recorded | Persist consent ledger events with signer, timestamp, source, and copy version |
 | Storefront / buyer | 1 | Storefront filters live shared-catalog listings, shows artist payout per print, and includes a room-preview conversion lab | Product detail + persisted preview events |
 | Buyer conversion analytics | 1 | Room-preview experiment translates preview engagement and conversion lift into adjusted CAC, incremental orders, and artist payout upside | Persist preview opens, add-to-cart, orders, and source channel |
-| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, and interactive `/sales-portal` filters | Persist prospects/replies, payout exception state, and sync real channel events |
+| Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, battlecard reply snippets in `/sales-portal` | Persist prospects/replies, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal` + programmatic SEO lab at `/seo-lab` | Persist creative tests and publish eligible SEO pages |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
-| Programmatic SEO | 1 | `generateSeoLandingPages` from catalog tags, room intent, payout proof | Static route generation + publish gate tied to consent |
+| Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` | Persist published pages + sitemap from SEO lab |
+| Payments | 1 | `simulateStripeConnectPayout` models per-order waterfall and Connect transfer timing | Wire Stripe test mode + webhooks |
+| Catalog AI metadata | 1 | `buildCatalogMetadataDashboard` scores tags, SEO copy, mockups, proof confidence | Connect to real AI tagging pipeline on capture upload |
 | Operations | 1 | Admin console includes payout promise guardrail queue and listing hold/release workflow before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
-| Payments | — | Not started | Stripe test mode after catalog |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO, and capture math (38 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, investor, partner, competitors, SEO, capture, stripe-connect, and metadata confidence (45 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -56,8 +57,12 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Competitive battlecards | `src/lib/competitors.ts` | Payout + moat battlecards for GTM and artist outreach | 2026-06-12 |
 | Programmatic SEO | `src/lib/seo.ts` | Landing page generator from catalog with readiness blockers | 2026-06-12 |
 | Capture metadata | `src/lib/capture.ts` | localStorage session stub before backend upload | 2026-06-12 |
+| Static print routes | `src/app/prints/[slug]` + `evaluateSeoPagePublishability` | Consent-gated programmatic SEO with noindex for blocked pages | 2026-06-12 |
+| Stripe Connect simulator | `src/lib/stripe-connect.ts` | Per-order waterfall before test-mode keys | 2026-06-12 |
+| Metadata confidence | `src/lib/catalog-intelligence.ts` | AI-ready scoring across tags, SEO, mockups, proof | 2026-06-12 |
+| Battlecard outreach snippets | `buildBattlecardReplySnippet` in `src/lib/competitors.ts` | Personalizes payout/proof replies in sales portal | 2026-06-12 |
 
 ## Active vertical slice
 
-**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof + payout exception guardrails + listing release workflow + channel consent gate + investor/market-launch readiness + competitive battlecards + programmatic SEO + capture metadata stub
-**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, sales, legal, ops, investor, battlecard, and SEO surfaces; payout, readiness, channel CAC, creative scoring, reply triage, outreach payout holds, room-preview conversion, weekly budget allocation, payout benchmark comparison, payout exception queue math, listing release decisions, consent-gated channel eligibility, fulfillment partner scoring, ad campaign readiness, competitor positioning, SEO page generation, and capture metadata are covered by tests; next step is persistence plus backend uploads, AI metadata, reply sync, preview events, budget plans, payout proof snapshots, partner API credentials, published SEO routes, and actual channel cohorts.
+**Focus:** Catalog intelligence + finance stress testing + creative demand engine + outreach reply triage + buyer room-preview CAC feedback + guarded channel budget allocation + artist payout trust proof + payout exception guardrails + listing release workflow + channel consent gate + investor/market-launch readiness + competitive battlecards + programmatic SEO + static print routes + Stripe Connect simulator + metadata confidence + capture metadata stub
+**Definition of done:** Shared catalog and outreach data power artist, buyer, finance, marketing, sales, legal, ops, investor, battlecard, SEO, and print landing surfaces; payout, readiness, channel CAC, creative scoring, reply triage, battlecard snippets, outreach payout holds, room-preview conversion, weekly budget allocation, payout benchmark comparison, payout exception queue math, listing release decisions, consent-gated channel eligibility, fulfillment partner scoring, ad campaign readiness, competitor positioning, SEO page generation, publish-state evaluation, Stripe Connect simulation, metadata confidence scoring, and capture metadata are covered by tests; next step is persistence plus backend uploads, real AI metadata pipeline, reply sync, preview events, budget plans, payout proof snapshots, partner API credentials, Stripe test mode, and actual channel cohorts.

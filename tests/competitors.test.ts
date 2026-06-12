@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildCompetitorBattlecards } from "../src/lib/competitors.ts";
+import { buildBattlecardReplySnippet, buildCompetitorBattlecards } from "../src/lib/competitors.ts";
 
 test("buildCompetitorBattlecards shows Print Atelier winning against POD benchmarks at healthy economics", () => {
   const deck = buildCompetitorBattlecards({
@@ -27,4 +27,14 @@ test("buildCompetitorBattlecards flags weak economics before competitive outreac
   assert.equal(deck.overallPosition, "lose");
   assert.ok(deck.podAdvantagePerOrder < 0);
   assert.match(deck.recommendation, /Fix economics/i);
+});
+
+test("buildBattlecardReplySnippet personalizes payout objections from battlecard deck", () => {
+  const snippet = buildBattlecardReplySnippet("payout", {
+    retailPrice: 85,
+    fulfillmentCost: 28,
+    monthlyOrders: 25,
+  });
+
+  assert.match(snippet, /10%|30%|retail/i);
 });

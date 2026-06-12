@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import {
   formatSeoVolume,
   generateSeoLandingPages,
+  getPublishableSeoSlugs,
   getSeoIntentLabel,
+  getSeoPagesWithPublishState,
   type SeoLandingIntent,
 } from "@/lib/seo";
 import { useMemo, useState } from "react";
@@ -21,10 +24,12 @@ export default function SeoLandingLab() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const result = useMemo(() => generateSeoLandingPages(), []);
+  const pagesWithState = useMemo(() => getSeoPagesWithPublishState(), []);
+  const publishableCount = useMemo(() => getPublishableSeoSlugs().length, []);
   const filtered =
     intentFilter === "all"
-      ? result.pages
-      : result.pages.filter((page) => page.intent === intentFilter);
+      ? pagesWithState
+      : pagesWithState.filter((page) => page.intent === intentFilter);
   const selected = filtered.find((page) => page.slug === selectedSlug) ?? filtered[0] ?? null;
 
   return (
@@ -46,8 +51,8 @@ export default function SeoLandingLab() {
           <p className="text-3xl font-bold">{result.pages.length}</p>
         </div>
         <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase">Eligible to publish</p>
-          <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{result.totalEligible}</p>
+          <p className="text-xs text-gray-500 uppercase">Live at /prints</p>
+          <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{publishableCount}</p>
         </div>
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-xl p-4">
           <p className="text-xs text-gray-500 uppercase">Blocked by readiness</p>
@@ -99,9 +104,11 @@ export default function SeoLandingLab() {
                 <span className="text-xs text-gray-500 shrink-0">{formatSeoVolume(page.estimatedMonthlySearchVolume)}</span>
               </div>
               <p className="text-xs text-gray-500 mt-1">/{page.slug}</p>
-              {page.blockers.length > 0 && (
+              {page.publishState.publishable ? (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Published</p>
+              ) : (
                 <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  Blocked: {page.blockers.join(", ")}
+                  Blocked: {page.publishState.blockers.join(", ")}
                 </p>
               )}
             </button>
@@ -130,7 +137,17 @@ export default function SeoLandingLab() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase">URL slug</p>
-                <p className="font-mono text-indigo-600 dark:text-indigo-400">/prints/{selected.slug}</p>
+                <Link
+                  href={`/prints/${selected.slug}`}
+                  className="font-mono text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  /prints/{selected.slug}
+                </Link>
+                {selected.publishState.publishable ? (
+                  <p className="text-xs text-emerald-600 mt-1">Indexable — consent + readiness cleared</p>
+                ) : (
+                  <p className="text-xs text-amber-600 mt-1">noindex preview — {selected.publishState.blockers[0]}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase">Tags</p>

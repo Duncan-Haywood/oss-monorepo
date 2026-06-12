@@ -40,6 +40,11 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | Route | Description |
 |-------|-------------|
 | `/investor` | Condensed owner/investor dashboard — unit economics, pipeline, partner readiness |
+| `/battlecards` | Competitive positioning vs Society6, Redbubble, Saatchi, Artfinder |
+| `/seo-lab` | Programmatic SEO page generator with publish blockers |
+| `/prints/[slug]` | Static long-tail print landing pages (consent-gated indexing) |
+| `/catalog-intelligence` | AI metadata confidence dashboard (tags, SEO, mockups, proof) |
+| `/payout-simulator` | Stripe Connect payout waterfall and transfer timing |
 | `/storefront` | Consumer e-commerce storefront (demand side) |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |

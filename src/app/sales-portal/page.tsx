@@ -8,6 +8,7 @@ import {
   outreachProspects,
   type ProspectStatus,
 } from "@/lib/outreach";
+import { buildBattlecardReplySnippet } from "@/lib/competitors";
 
 export default function SalesPortal() {
   const [activeCampaign, setActiveCampaign] = useState("artist-outreach");
@@ -169,6 +170,16 @@ export default function SalesPortal() {
                         {prospect.nextAction}
                         <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </button>
+                      {prospect.replyClassification === "Needs payout/licensing answer" && (
+                        <p className="mt-2 max-w-xs text-xs text-indigo-700 dark:text-indigo-300 italic">
+                          Battlecard: {buildBattlecardReplySnippet("payout")}
+                        </p>
+                      )}
+                      {prospect.replyClassification === "Send proof mockup" && (
+                        <p className="mt-2 max-w-xs text-xs text-indigo-700 dark:text-indigo-300 italic">
+                          Battlecard: {buildBattlecardReplySnippet("proof")}
+                        </p>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -1,7 +1,11 @@
 import {
+  buildListingConsentGate,
   calculatePrintEconomics,
   catalogArtworks,
+  defaultListingConsentRecords,
   type CatalogArtwork,
+  type ListingConsentGateItem,
+  type ListingConsentRecord,
   roundCurrency,
 } from "@/lib/marketplace";
 
@@ -172,4 +176,74 @@ export function formatSeoVolume(volume: number): string {
     return `${roundCurrency(volume / 1000)}k/mo`;
   }
   return `${volume}/mo`;
+}
+
+export type SeoPublishState = {
+  publishable: boolean;
+  blockers: string[];
+  consentBlocked: boolean;
+};
+
+export function evaluateSeoPagePublishability(
+  page: SeoLandingPage,
+  consentItem?: ListingConsentGateItem,
+): SeoPublishState {
+  const blockers = [...page.blockers];
+  let consentBlocked = false;
+
+  if (!consentItem) {
+    consentBlocked = true;
+    blockers.push("Consent record missing");
+  } else if (consentItem.consentStatus === "release-blocked") {
+    consentBlocked = true;
+    blockers.push("Listing release blocked");
+  } else if (consentItem.consentStatus === "missing-consent") {
+    consentBlocked = true;
+    for (const missing of consentItem.missingConsents) {
+      blockers.push(`Missing consent: ${missing}`);
+    }
+  } else if (!consentItem.allowedChannels.includes("storefront")) {
+    consentBlocked = true;
+    blockers.push("Storefront channel not cleared");
+  }
+
+  return {
+    publishable: blockers.length === 0,
+    blockers,
+    consentBlocked,
+  };
+}
+
+export function getSeoPageBySlug(
+  slug: string,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): SeoLandingPage | undefined {
+  return generateSeoLandingPages(artworks).pages.find((page) => page.slug === slug);
+}
+
+export function getSeoPagesWithPublishState(
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): Array<SeoLandingPage & { publishState: SeoPublishState }> {
+  const pages = generateSeoLandingPages(artworks).pages;
+  const consentGate = buildListingConsentGate(artworks, consentRecords);
+  const consentBySlug = new Map(consentGate.items.map((item) => [item.artwork.slug, item]));
+
+  return pages.map((page) => ({
+    ...page,
+    publishState: evaluateSeoPagePublishability(page, consentBySlug.get(page.artworkSlug)),
+  }));
+}
+
+export function getAllSeoSlugs(artworks: CatalogArtwork[] = catalogArtworks): string[] {
+  return generateSeoLandingPages(artworks).pages.map((page) => page.slug);
+}
+
+export function getPublishableSeoSlugs(
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): string[] {
+  return getSeoPagesWithPublishState(consentRecords, artworks)
+    .filter((page) => page.publishState.publishable)
+    .map((page) => page.slug);
 }

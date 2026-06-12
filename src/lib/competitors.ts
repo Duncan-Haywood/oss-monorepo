@@ -237,3 +237,26 @@ export function buildCompetitorBattlecards(
     cards: [printAtelierCard, ...podCards, ...galleryCards],
   };
 }
+
+export type BattlecardReplyIntent = "payout" | "rights" | "proof" | "general";
+
+export function buildBattlecardReplySnippet(
+  intent: BattlecardReplyIntent,
+  input: ArtistPayoutComparisonInput = { retailPrice: 85, fulfillmentCost: 28, monthlyOrders: 25 },
+): string {
+  const deck = buildCompetitorBattlecards(input);
+  const society6 = deck.cards.find((card) => card.id === "society6");
+  const redbubble = deck.cards.find((card) => card.id === "redbubble");
+  const payoutLine = `At $${input.retailPrice}/print you earn $${deck.printAtelierPayoutPerOrder.toFixed(2)} — ${deck.podAdvantagePerOrder >= 0 ? `${deck.podAdvantagePerOrder.toFixed(2)} more than` : "compare carefully to"} ${deck.bestPodLabel}.`;
+
+  if (intent === "payout") {
+    return society6?.objectionHandlers[0] ?? payoutLine;
+  }
+  if (intent === "rights") {
+    return society6?.objectionHandlers[1] ?? "You keep copyright; we only license POD and marketing rights with explicit consent gates.";
+  }
+  if (intent === "proof") {
+    return redbubble?.objectionHandlers[0] ?? deck.recommendation;
+  }
+  return `${payoutLine} ${deck.recommendation}`;
+}

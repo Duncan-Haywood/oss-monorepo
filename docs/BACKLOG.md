@@ -6,9 +6,8 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
-- [ ] [gtm] Wire battlecard objection handlers into sales-portal reply personalization
-- [ ] [platform] Publish eligible SEO lab pages as static `/prints/[slug]` routes with consent gate
-- [ ] [ai-ml] Add AI metadata confidence dashboard for tags, SEO copy, and mockup coverage
+- [ ] [platform] Generate sitemap.xml from publishable `/prints/[slug]` routes
+- [ ] [platform] Wire Stripe Connect test-mode keys and webhook handlers for `transfer.created`
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
 - [ ] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
@@ -41,6 +40,11 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [gtm] Wire battlecard objection handlers into sales-portal reply personalization
+- [x] [platform] Publish eligible SEO lab pages as static `/prints/[slug]` routes with consent gate
+- [x] [ai-ml] AI metadata confidence dashboard at `/catalog-intelligence`
+- [x] [finance] Stripe Connect payout simulator at `/payout-simulator`
+- [x] [platform] Shared SEO publish gate, stripe-connect, and catalog-intelligence contracts with tests (45 total)
 - [x] [content] Competitive battlecards page at `/battlecards` vs Society6, Redbubble, Saatchi, Artfinder
 - [x] [gtm] Programmatic SEO lab at `/seo-lab` generating landing pages from catalog tags + payout proof
 - [x] [demo] Capture upload persists file metadata locally (Phase 2 prep)
