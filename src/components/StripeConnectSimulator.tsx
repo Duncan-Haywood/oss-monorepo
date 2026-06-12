@@ -1,13 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { formatStripeCurrency, simulateStripeConnectPayout } from "@/lib/stripe-connect";
+import { useEffect, useMemo, useState } from "react";
+import {
+  formatStripeCurrency,
+  simulateStripeConnectPayout,
+  type StripeWebhookEnvStatus,
+} from "@/lib/stripe-connect";
 
 export default function StripeConnectSimulator() {
   const [retailPrice, setRetailPrice] = useState(85);
   const [fulfillmentCost, setFulfillmentCost] = useState(28);
   const [monthlyOrders, setMonthlyOrders] = useState(42);
   const [transferDelayDays, setTransferDelayDays] = useState(7);
+  const [webhookEnv, setWebhookEnv] = useState<StripeWebhookEnvStatus | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stripe/webhook")
+      .then((response) => response.json())
+      .then((data) => setWebhookEnv(data as StripeWebhookEnvStatus))
+      .catch(() => setWebhookEnv(null));
+  }, []);
 
   const simulation = useMemo(
     () =>
@@ -158,6 +170,24 @@ export default function StripeConnectSimulator() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+            <p className="font-medium text-sm">Webhook endpoint scaffold</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              <code className="text-xs bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded">POST /api/stripe/webhook</code>{" "}
+              verifies signatures and routes <code className="text-xs">transfer.created</code>,{" "}
+              <code className="text-xs">payout.paid</code>, and <code className="text-xs">account.updated</code>.
+            </p>
+            {webhookEnv ? (
+              <ul className="mt-3 text-sm list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
+                <li>Secret key: {webhookEnv.secretKeyConfigured ? "configured" : "missing"}</li>
+                <li>Webhook secret: {webhookEnv.webhookSecretConfigured ? "configured" : "missing"}</li>
+                <li>Connect client ID: {webhookEnv.connectClientIdConfigured ? "configured" : "missing"}</li>
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs text-gray-500">Load .env.local from .env.example to enable test-mode webhooks.</p>
             )}
           </div>
         </div>

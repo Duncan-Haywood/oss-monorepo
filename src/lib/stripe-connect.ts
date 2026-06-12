@@ -143,3 +143,135 @@ export function formatStripeCurrency(value: number): string {
     maximumFractionDigits: 2,
   }).format(value);
 }
+
+export type StripeConnectWebhookEventType =
+  | "transfer.created"
+  | "payout.paid"
+  | "account.updated"
+  | "payment_intent.succeeded";
+
+export type StripeConnectWebhookEvent = {
+  id: string;
+  type: StripeConnectWebhookEventType | string;
+  created: number;
+  livemode: boolean;
+  data: {
+    object: Record<string, unknown>;
+  };
+};
+
+export type StripeWebhookProcessingResult = {
+  handled: boolean;
+  eventType: string;
+  action: string;
+  artistAccountId?: string;
+  amountCents?: number;
+  testMode: boolean;
+};
+
+export type StripeWebhookEnvStatus = {
+  secretKeyConfigured: boolean;
+  webhookSecretConfigured: boolean;
+  connectClientIdConfigured: boolean;
+  readyForTestMode: boolean;
+  blockers: string[];
+};
+
+export function getStripeWebhookEnvStatus(env: {
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_CONNECT_CLIENT_ID?: string;
+}): StripeWebhookEnvStatus {
+  const secretKeyConfigured = Boolean(env.STRIPE_SECRET_KEY?.startsWith("sk_"));
+  const webhookSecretConfigured = Boolean(env.STRIPE_WEBHOOK_SECRET?.startsWith("whsec_"));
+  const connectClientIdConfigured = Boolean(env.STRIPE_CONNECT_CLIENT_ID?.startsWith("ca_"));
+
+  const blockers: string[] = [];
+  if (!secretKeyConfigured) {
+    blockers.push("STRIPE_SECRET_KEY missing or invalid (expect sk_test_…)");
+  }
+  if (!webhookSecretConfigured) {
+    blockers.push("STRIPE_WEBHOOK_SECRET missing or invalid (expect whsec_…)");
+  }
+  if (!connectClientIdConfigured) {
+    blockers.push("STRIPE_CONNECT_CLIENT_ID missing or invalid (expect ca_…)");
+  }
+
+  return {
+    secretKeyConfigured,
+    webhookSecretConfigured,
+    connectClientIdConfigured,
+    readyForTestMode: blockers.length === 0,
+    blockers,
+  };
+}
+
+export function processStripeConnectWebhookEvent(
+  event: StripeConnectWebhookEvent,
+): StripeWebhookProcessingResult {
+  const object = event.data.object;
+  const testMode = !event.livemode;
+
+  if (event.type === "transfer.created") {
+    const amount = typeof object.amount === "number" ? object.amount : undefined;
+    const destination =
+      typeof object.destination === "string" ? object.destination : undefined;
+
+    return {
+      handled: true,
+      eventType: event.type,
+      action: "Queue artist payout notification and update pending balance",
+      artistAccountId: destination,
+      amountCents: amount,
+      testMode,
+    };
+  }
+
+  if (event.type === "payout.paid") {
+    const amount = typeof object.amount === "number" ? object.amount : undefined;
+
+    return {
+      handled: true,
+      eventType: event.type,
+      action: "Mark artist payout as available and refresh dashboard balance",
+      amountCents: amount,
+      testMode,
+    };
+  }
+
+  if (event.type === "account.updated") {
+    const accountId = typeof object.id === "string" ? object.id : undefined;
+    const chargesEnabled = object.charges_enabled === true;
+    const payoutsEnabled = object.payouts_enabled === true;
+
+    return {
+      handled: true,
+      eventType: event.type,
+      action:
+        chargesEnabled && payoutsEnabled
+          ? "Artist Connect onboarding complete — enable listing release"
+          : "Artist Connect onboarding incomplete — hold listing release",
+      artistAccountId: accountId,
+      testMode,
+    };
+  }
+
+  if (event.type === "payment_intent.succeeded") {
+    const amount = typeof object.amount === "number" ? object.amount : undefined;
+
+    return {
+      handled: true,
+      eventType: event.type,
+      action: "Trigger POD fulfillment job and schedule Connect transfer after delay",
+      amountCents: amount,
+      testMode,
+    };
+  }
+
+  return {
+    handled: false,
+    eventType: event.type,
+    action: "Ignored unsupported Stripe event",
+    testMode,
+  };
+}

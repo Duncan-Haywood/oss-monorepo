@@ -10,6 +10,7 @@ import {
   type ProspectStatus,
 } from "@/lib/outreach";
 import { buildBattlecardReplySnippet } from "@/lib/competitors";
+import ProofMockupResponseKitPanel from "@/components/ProofMockupResponseKitPanel";
 
 export default function SalesPortal() {
   const [activeCampaign, setActiveCampaign] = useState("artist-outreach");
@@ -168,6 +169,8 @@ export default function SalesPortal() {
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Supply-side value if this cohort goes live</p>
           </div>
         </div>
+
+        <ProofMockupResponseKitPanel />
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

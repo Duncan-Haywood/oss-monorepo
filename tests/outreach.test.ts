@@ -79,11 +79,11 @@ test("calculateOutreachSummary measures reply pipeline health and onboarding val
   const summary = calculateOutreachSummary(outreachProspects);
 
   assert.equal(summary.totalProspects, 6);
-  assert.equal(summary.repliedProspects, 2);
+  assert.equal(summary.repliedProspects, 3);
   assert.equal(summary.readyForOnboarding, 1);
   assert.equal(summary.averageFitScore, 86);
   assert.equal(summary.projectedMonthlyArtistPayout, 2376);
-  assert.equal(summary.automationLabel, "2 replies need AI follow-up; 1 can enter onboarding now");
+  assert.equal(summary.automationLabel, "3 replies need AI follow-up; 1 can enter onboarding now");
 });
 
 test("calculateOutreachSummary excludes held payout-guardrail replies from onboarding-ready metrics", () => {

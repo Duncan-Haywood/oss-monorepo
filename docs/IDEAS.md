@@ -342,3 +342,25 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-reply-velocity-ad-sync.md` for supply velocity and demand sync health rationale.
 - Strategic implication: digital stock launch requires measuring supply compression (reply→live) and demand sync readiness (pixel+feed+quota) as paired gates before scaling outreach or ad spend.
+
+## Ten-lens invention pass (2026-06-12 05:00 UTC — proof-mockup kits + Stripe webhook run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Proof-mockup response kit with room scenes + payout proof for mockup-classified replies | Sales | 5 | 2 | 4 | 5 | 50 | shipped |
+| Stripe Connect webhook scaffold with signature verification and event routing | Engineering | 5 | 2 | 4 | 5 | 50 | shipped |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Product detail preview CTA comparing flat listing vs in-room preview | Product | 5 | 3 | 4 | 5 | 33 | ready |
+| Persist proof-mockup kit send events with channel and copy version | Engineering | 4 | 3 | 3 | 5 | 20 | ready |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Search Console sitemap ping on consent ledger updates | GTM | 4 | 2 | 3 | 5 | 30 | ready |
+| Buyer retargeting audience for preview-opens without add-to-cart | GTM | 4 | 3 | 4 | 5 | 27 | backlog |
+| Competitive positioning one-pager export (PDF) from battlecards | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+
+## Research-backed notes (2026-06-12 05:00 UTC)
+
+- See `docs/research/2026-06-12-proof-mockup-stripe-webhook.md` for mockup kit rationale and Stripe webhook requirements.
+- Strategic implication: artist acquisition closes when "send examples" gets economics-backed room scenes in minutes; payments close when webhooks bridge buyer checkout to Connect transfers.

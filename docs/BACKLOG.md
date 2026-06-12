@@ -5,16 +5,16 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 ## ready
 
 - [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
+- [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
-- [ ] [platform] Wire Stripe Connect test-mode keys and webhook handlers for `transfer.created`
+- [ ] [platform] Persist Stripe webhook events to artist payout ledger (transfer.created, payout.paid)
 - [ ] [legal] Add artist consent ledger for referral use, payout acknowledgement, and AI-generated ad rights
 - [ ] [platform] Persist creative tests with predicted CAC, actual CAC, winning concept, and channel
 - [ ] [platform] Persist weekly channel budget plans with actual spend, CAC, orders, and room-preview lift by source channel
 - [ ] [ops] Add budget exception queue for channels held back by LTV:CAC or negative contribution guardrails
 - [ ] [platform] Persist outreach prospects, replies, source channel, and next-action state as first-class CRM records
 - [ ] [ai-ml] Add audited LLM reply classifier with confidence thresholds and deterministic fallback categories
-- [ ] [marketing] Generate proof-mockup response kits for artists asking to see examples
 - [ ] [legal] Add payout/licensing objection templates for artists asking about rights and terms
 - [ ] [product] Add product detail preview CTA that compares flat listing vs in-room preview behavior by artwork
 - [ ] [platform] Persist room-preview experiment events with preview opens, add-to-cart, orders, and source channel
@@ -39,6 +39,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [sales] Proof-mockup response kits in `/sales-portal` with room scenes, payout proof, and copy-paste DM/email drafts
+- [x] [platform] Stripe Connect webhook scaffold at `/api/stripe/webhook` with signature verification + `.env.example`
+- [x] [platform] Shared proof-mockup kit + stripe webhook contracts with tests (63 total)
 - [x] [sales] Reply-to-live-listing compression metric + 7-day cohort launch planner in `/sales-portal`
 - [x] [marketing] Ad catalog sync health monitor at `/ad-sync-health` with pixel, feed, and creative-quota checks
 - [x] [platform] Shared outreach velocity + ad sync health contracts with tests (56 total)

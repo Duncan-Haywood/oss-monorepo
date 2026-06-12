@@ -45,7 +45,8 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/seo-lab` | Programmatic SEO page generator with publish blockers |
 | `/prints/[slug]` | Static long-tail print landing pages (consent-gated indexing) |
 | `/catalog-intelligence` | AI metadata confidence dashboard (tags, SEO, mockups, proof) |
-| `/payout-simulator` | Stripe Connect payout waterfall and transfer timing |
+| `/payout-simulator` | Stripe Connect payout waterfall, transfer timing, and webhook env status |
+| `/api/stripe/webhook` | Stripe Connect webhook endpoint (configure via `.env.example`) |
 | `/storefront` | Consumer e-commerce storefront (demand side) |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |

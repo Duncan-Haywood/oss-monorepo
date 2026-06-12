@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 05:05 UTC — Proof-mockup kits + Stripe webhook scaffold
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~18 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (39 commits fast-forward); `npm ci && npm run build && npm test` passed (56 tests baseline).
+- **Hygiene:** Deleted remote `cursor/print-atelier-business-orchestration-d08d` (0 ahead / 0 behind main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready sales enablement + Phase 3 payments prep.
+- **Shipped:** `buildProofMockupResponseKit` + `buildProofMockupKitsForQueue` in `src/lib/outreach.ts`; `ProofMockupResponseKitPanel` in `/sales-portal`; `POST/GET /api/stripe/webhook` with signature verification; `processStripeConnectWebhookEvent` + `getStripeWebhookEnvStatus`; `.env.example`; payout simulator webhook status panel; 7 new tests (63 total).
+- **Invention shipped:** Proof-mockup response kit turning "send examples" replies into room scenes, payout proof, and copy-paste DM/email drafts; Stripe Connect webhook scaffold before test-mode keys.
+- **Research:** `docs/research/2026-06-12-proof-mockup-stripe-webhook.md`.
+- **Maturity changes:** Outreach/CRM advanced (proof-mockup kits); Payments advanced (webhook scaffold); CI test count 56→63; routes + `/api/stripe/webhook`.
+- **Validation:** `npm test` passed (63 tests); `npm run build` passed (42 routes including API webhook).
+- **Top 3 ideas for next run:** Convex artist onboarding vertical slice; fulfillment partner credential vault; product detail preview CTA on storefront.
+
+---
+
 ## 2026-06-12 04:05 UTC — Reply velocity + ad sync health
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~19 hours remaining.

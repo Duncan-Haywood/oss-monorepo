@@ -1,4 +1,10 @@
-import { buildPayoutExceptionQueue, catalogArtworks, type PayoutExceptionQueueItem } from "./marketplace";
+import {
+  buildPayoutExceptionQueue,
+  calculatePrintEconomics,
+  catalogArtworks,
+  type CatalogArtwork,
+  type PayoutExceptionQueueItem,
+} from "./marketplace";
 
 export type ProspectStatus = "Draft" | "Sent" | "Opened" | "Replied" | "Onboarded";
 
@@ -50,9 +56,10 @@ export const outreachProspects: OutreachProspect[] = [
     handle: "@marcus.art",
     platform: "Instagram",
     followers: 8200,
-    status: "Opened",
+    status: "Replied",
     fitScore: 87,
     styleSignal: "Geometric abstracts match high-margin monochrome interiors",
+    replyText: "These look interesting — can you send room mockup examples before I commit?",
     projectedMonthlyArtistPayout: 432,
     catalogArtworkSlug: "urban-geometry",
   },
@@ -479,6 +486,141 @@ export function calculateReplyToListingCompression(
     cohortPlan,
     summaryLabel,
   };
+}
+
+export type ProofMockupScene = {
+  id: string;
+  roomLabel: string;
+  decorIntent: string;
+  previewLabel: string;
+  hasApprovedAsset: boolean;
+};
+
+export type ProofMockupResponseKit = {
+  prospectHandle: string;
+  artistName: string;
+  artworkTitle: string | null;
+  artworkSlug: string | null;
+  readyToSend: boolean;
+  blockers: string[];
+  roomScenes: ProofMockupScene[];
+  payoutProof: {
+    retailPrice: number;
+    artistPayoutPerOrder: number;
+    monthlyPayoutEstimate: number;
+    payoutLine: string;
+  } | null;
+  dmCopy: string;
+  emailCopy: string;
+  attachmentLabels: string[];
+};
+
+const ROOM_SCENE_TEMPLATES: Array<{ roomLabel: string; decorIntent: string }> = [
+  { roomLabel: "Living room", decorIntent: "gallery wall above sofa" },
+  { roomLabel: "Bedroom", decorIntent: "accent piece above nightstand" },
+  { roomLabel: "Home office", decorIntent: "minimal desk backdrop" },
+];
+
+function buildRoomScenes(artwork: CatalogArtwork): ProofMockupScene[] {
+  const primaryTag = artwork.tags[0] ?? artwork.style.toLowerCase();
+
+  return ROOM_SCENE_TEMPLATES.map((template, index) => ({
+    id: `${artwork.slug}-${index}`,
+    roomLabel: template.roomLabel,
+    decorIntent: template.decorIntent,
+    previewLabel: `${template.roomLabel} — ${primaryTag} ${template.decorIntent}`,
+    hasApprovedAsset: artwork.hasRoomMockups && artwork.hasApprovedProof,
+  }));
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+export function buildProofMockupResponseKit(
+  prospect: OutreachProspect,
+  options: { monthlyOrders?: number } = {},
+): ProofMockupResponseKit {
+  const monthlyOrders = options.monthlyOrders ?? 12;
+  const artwork = prospect.catalogArtworkSlug
+    ? catalogArtworks.find((item) => item.slug === prospect.catalogArtworkSlug)
+    : undefined;
+  const blockers: string[] = [];
+
+  if (!artwork) {
+    blockers.push("No catalog SKU linked — generate mockups after capture upload");
+  } else {
+    if (!artwork.hasApprovedProof) {
+      blockers.push(`${artwork.title} is missing an approved print proof`);
+    }
+    if (!artwork.hasRoomMockups) {
+      blockers.push(`${artwork.title} needs AI room mockups before sending examples`);
+    }
+  }
+
+  const roomScenes = artwork ? buildRoomScenes(artwork) : [];
+  const payoutProof = artwork
+    ? (() => {
+        const economics = calculatePrintEconomics({
+          retailPrice: artwork.retailPrice,
+          fulfillmentCost: artwork.fulfillmentCost,
+        });
+        const monthlyPayoutEstimate = economics.artistShare * monthlyOrders;
+
+        return {
+          retailPrice: artwork.retailPrice,
+          artistPayoutPerOrder: economics.artistShare,
+          monthlyPayoutEstimate,
+          payoutLine: `${formatCurrency(economics.artistShare)} per ${formatCurrency(artwork.retailPrice)} print (~${formatCurrency(monthlyPayoutEstimate)}/mo at ${monthlyOrders} orders)`,
+        };
+      })()
+    : null;
+
+  const artworkLabel = artwork?.title ?? "your work";
+  const sceneSummary =
+    roomScenes.length > 0
+      ? roomScenes.map((scene) => scene.previewLabel).join("; ")
+      : "living room, bedroom, and office previews";
+
+  const dmCopy = payoutProof
+    ? `Hi ${prospect.name.split(" ")[0]} — attached ${roomScenes.length} room scenes for ${artworkLabel} plus payout proof: ${payoutProof.payoutLine}. Upload link is ready when you want to go live.`
+    : `Hi ${prospect.name.split(" ")[0]} — we can generate room scenes (${sceneSummary}) once you upload one phone capture. I'll send payout proof with the mockups.`;
+
+  const emailCopy = payoutProof
+    ? `Subject: Room mockups + payout proof for ${artworkLabel}\n\nHi ${prospect.name},\n\nAs requested, here are proofed room scenes (${sceneSummary}) and transparent payout math: ${payoutProof.payoutLine}.\n\nPrint Atelier pays 30% of net profit after POD, payment, and AI costs — not a flat royalty. You keep copyright; we only license POD and marketing rights with explicit consent.\n\nReply "upload" and I'll send the capture link.`
+    : `Subject: Mockup examples for ${prospect.name}\n\nHi ${prospect.name},\n\nHappy to send room mockup examples. Upload one phone capture first and we'll return ${sceneSummary} plus an earnings estimate within 24h.\n\nReply when you're ready for the secure upload link.`;
+
+  const attachmentLabels = [
+    ...roomScenes.map((scene) => `${scene.roomLabel} mockup — ${artwork?.title ?? "preview"}`),
+    payoutProof ? `Payout proof — ${payoutProof.payoutLine}` : "Payout estimate — pending capture",
+    artwork?.hasSeoCopy ? "SEO listing preview" : "Listing draft — pending metadata",
+  ];
+
+  return {
+    prospectHandle: prospect.handle,
+    artistName: prospect.name,
+    artworkTitle: artwork?.title ?? null,
+    artworkSlug: artwork?.slug ?? null,
+    readyToSend: blockers.length === 0 && roomScenes.every((scene) => scene.hasApprovedAsset),
+    blockers,
+    roomScenes,
+    payoutProof,
+    dmCopy,
+    emailCopy,
+    attachmentLabels,
+  };
+}
+
+export function buildProofMockupKitsForQueue(
+  prospects: OutreachProspect[] = outreachProspects,
+): ProofMockupResponseKit[] {
+  return buildOutreachQueue(prospects)
+    .filter((prospect) => prospect.replyClassification === "Send proof mockup")
+    .map((prospect) => buildProofMockupResponseKit(prospect));
 }
 
 export function calculateOutreachSummary(prospects: OutreachProspect[]) {
