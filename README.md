@@ -57,8 +57,12 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/marketing-portal` | Marketing automation hub |
 | `/ops` | Internal outreach CRM for artist acquisition |
 | `/admin-portal` | Operations command center for AI pipeline, infrastructure, and payout promise guardrails |
+| `/sitemap.xml` | Consent-gated sitemap (publishable print pages + market routes) |
+| `/robots.txt` | Crawler rules referencing sitemap; ops routes disallowed |
 
 All demo pages share navigation via `DemoNav` and link back to the business plan.
+
+Optional: set `NEXT_PUBLIC_SITE_URL` for production sitemap/robots absolute URLs (defaults to `https://printatelier.com`).
 
 ## Architecture
 
