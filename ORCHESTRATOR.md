@@ -1,6 +1,6 @@
 # Print Atelier — Launch & Ads Orchestrator
 
-Autonomous **Cursor Automation** (every 30 minutes) hardens the product for **ads-ready launch**: production persistence, E2E onboarding/checkout/fulfillment, and owner visibility — not business-plan theater.
+Autonomous **Cursor Automation** (hourly, `0 * * * *` UTC) hardens the product for **ads-ready launch**: production persistence, E2E onboarding/checkout/fulfillment, and owner visibility — not business-plan theater.
 
 ## Pillars
 
@@ -17,7 +17,6 @@ Autonomous **Cursor Automation** (every 30 minutes) hardens the product for **ad
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Curated work queue |
 | [docs/IDEAS.md](docs/IDEAS.md) | Scored invention parking lot |
 | [docs/PROGRESS.md](docs/PROGRESS.md) | Run log + next-run recommendation |
-| [docs/ORCHESTRATOR_CAMPAIGN.json](docs/ORCHESTRATOR_CAMPAIGN.json) | 1-day active / 1-year pause window |
 
 ## Automation (Cursor — not GitHub Actions)
 
@@ -26,10 +25,9 @@ Autonomous **Cursor Automation** (every 30 minutes) hardens the product for **ad
 | Dashboard setup | [.cursor/automations/README.md](.cursor/automations/README.md) |
 | Agent prompt | [.cursor/automations/print-atelier-orchestrator.md](.cursor/automations/print-atelier-orchestrator.md) |
 | Hygiene prompt (optional) | [.cursor/automations/print-atelier-hygiene.md](.cursor/automations/print-atelier-hygiene.md) |
-| Gate script | [scripts/orchestrator-gate.mjs](scripts/orchestrator-gate.mjs) |
 | Setup guide | [docs/AUTOMATION_SETUP.md](docs/AUTOMATION_SETUP.md) |
 
-**Schedule:** `*/30 * * * *` (every 30 min) at [cursor.com/automations](https://cursor.com/automations)
+**Schedule:** `0 * * * *` (hourly, top of each hour UTC) at [cursor.com/automations](https://cursor.com/automations)
 
 ## Product map
 
