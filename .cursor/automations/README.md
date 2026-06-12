@@ -13,19 +13,7 @@ Configure at **[cursor.com/automations](https://cursor.com/automations)** (not G
 | **Tools** | Open pull request · Memories (recommended) |
 | **Prompt** | Paste **bootstrap** from [print-atelier-orchestrator.md](./print-atelier-orchestrator.md) (*Bootstrap prompt* section — agent reads full file from repo each run) |
 
-### Campaign window (1 day → pause 1 year)
-
-The **agent self-gates** via `docs/ORCHESTRATOR_CAMPAIGN.json`. The hourly cron can stay enabled in Cursor; outside the active window the agent exits in step 0 (minimal work).
-
-To **stop billing entirely** during the 1-year pause, disable the automation in the Cursor dashboard on the last active run (the agent will remind you in `docs/PROGRESS.md`).
-
-| Phase | Dates (default) | Agent behavior |
-|-------|-----------------|----------------|
-| Active | `campaign_start` → +1 day | Full orchestrator loop (~24 runs) |
-| Paused | +1 day → +1 year | Step 0 exit; log skip only |
-| After pause | If `on_resume: new_campaign` | Agent rolls `campaign_start` forward and resumes |
-
-Edit dates in [docs/ORCHESTRATOR_CAMPAIGN.json](../../docs/ORCHESTRATOR_CAMPAIGN.json).
+The hourly cron runs continuously. To stop orchestrator runs, disable the automation in the Cursor dashboard.
 
 ## Optional: parallel hygiene automation
 
@@ -35,11 +23,5 @@ Second automation for git/PR cleanup only (narrower, faster runs):
 |---------|--------|
 | **Trigger** | Scheduled → `15,45 * * * *` (every 30 min at :15 and :45, offset from main) |
 | **Prompt** | Copy [print-atelier-hygiene.md](./print-atelier-hygiene.md) |
-
-## Verify gate locally
-
-```bash
-node scripts/orchestrator-gate.mjs --status
-```
 
 Full setup: [docs/AUTOMATION_SETUP.md](../../docs/AUTOMATION_SETUP.md)

@@ -93,13 +93,12 @@ Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide icons.
 
 ## Autonomous orchestrator
 
-**[Cursor Automation](https://cursor.com/automations)** runs every **30 minutes** for the full business + product dev cycle (see [ORCHESTRATOR.md](ORCHESTRATOR.md)).
+**[Cursor Automation](https://cursor.com/automations)** runs **hourly** for the full business + product dev cycle (see [ORCHESTRATOR.md](ORCHESTRATOR.md)).
 
 | Component | Location |
 |-----------|----------|
-| Campaign window (1 day active, 1 year pause) | `docs/ORCHESTRATOR_CAMPAIGN.json` |
 | Agent prompt | `.cursor/automations/print-atelier-orchestrator.md` |
 | Dashboard setup | `.cursor/automations/README.md` |
 | Setup guide | [docs/AUTOMATION_SETUP.md](docs/AUTOMATION_SETUP.md) |
 
-**One-time setup:** [cursor.com/automations](https://cursor.com/automations) → scheduled `*/30 * * * *` → attach this repo → paste the prompt file → enable Open pull request.
+**One-time setup:** [cursor.com/automations](https://cursor.com/automations) → scheduled `0 * * * *` → attach this repo → paste the prompt file → enable Open pull request.
