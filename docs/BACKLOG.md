@@ -5,7 +5,8 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 ## ready
 
 - [ ] [platform] Convex order persistence — migrate in-memory `src/lib/orders.ts` records to database
-- [ ] [platform] Live Meta/Google/Pinterest catalog API HTTP calls from `executeAdCatalogSync` when credentials present
+- [ ] [platform] Persist Printful fulfillment submissions with HTTP status, payload snapshot, and retry queue
+- [ ] [platform] Map catalog slugs to Printful variant IDs in partner setup UI
 - [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
 - [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
@@ -40,6 +41,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [marketing] Live Meta/Google/Pinterest catalog HTTP push via `executeAdCatalogSyncLive` when credentials present
+- [x] [ops] Printful order API scaffold from Stripe `payment_intent.succeeded` webhook metadata
+- [x] [content] Visual product pipeline diagram on `/docs` and `/investor` with live stage metrics
 - [x] [sales] Outreach deep-link from `/sales-portal` queue to `/artist-onboard?handle=&name=&source=outreach`
 - [x] [platform] Order records scaffold from `payment_intent.succeeded` webhook metadata (`src/lib/orders.ts`, 94 tests)
 - [x] [marketing] Ad catalog API sync orchestrator at `POST /api/ad-catalog/sync` with simulated/live push modes

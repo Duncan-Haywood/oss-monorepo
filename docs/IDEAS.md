@@ -468,3 +468,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-gtm-orders-catalog-sync.md` for outreach deep-links, order persistence, and ad catalog API sync rationale.
 - Strategic implication: GTM readiness closes when sales can hand artists a one-click onboarding path, marketing can dry-run catalog pushes, and payments record orders from webhooks — all testable before Convex.
+
+## Ten-lens invention pass (2026-06-12 11:00 UTC — pipeline + partner HTTP run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Visual product pipeline diagram (capture → sell) on `/docs` and `/investor` | Strategy | 5 | 2 | 4 | 5 | 50 | shipped |
+| Live HTTP catalog push to Meta/Google/Pinterest batch APIs | Marketing | 5 | 3 | 4 | 5 | 33 | shipped |
+| Printful order API trigger from Stripe webhook fulfillment metadata | Operations | 5 | 3 | 4 | 5 | 33 | shipped |
+| Convex migration for orders + fulfillment + ad sync audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Outreach cohort attribution dashboard (reply → onboard → live) | Sales | 5 | 3 | 4 | 5 | 33 | ready |
+| Checkout abandon retargeting from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Map catalog slugs to Printful variant IDs in partner setup | Product | 5 | 2 | 4 | 5 | 50 | ready |
+| Gelato order API parity with Printful webhook scaffold | Operations | 4 | 3 | 3 | 5 | 20 | backlog |
+| Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+
+## Research-backed notes (2026-06-12 11:00 UTC)
+
+- See `docs/research/2026-06-12-pipeline-fulfillment-ad-http.md` for pipeline diagram, ad catalog HTTP, and Printful API rationale.
+- Strategic implication: market launch requires visible pipeline blockers and real partner HTTP scaffolds — simulated sync and in-memory orders are stepping stones, not the finish line.

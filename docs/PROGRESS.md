@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 11:05 UTC — Visual pipeline + live ad HTTP + Printful fulfillment
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~12 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (47 commits fast-forward); `npm ci && npm run build && npm test` passed (94 tests baseline).
+- **Hygiene:** Remote `cursor/*` branch count 0 (28 stale refs pruned on fetch). No merge/cherry-pick needed.
+- **Theme shipped:** Market-ready ops — visual pipeline, live ad catalog HTTP, Printful fulfillment from webhooks.
+- **Shipped:** `buildProductPipeline` + `ProductPipelineDiagram` on `/docs` and `/investor`; `executeAdCatalogSyncLive` + platform HTTP payloads; `queuePrintfulFulfillmentFromOrder` wired to Stripe webhook; 8 new tests (102 total).
+- **Invention shipped:** Animated product pipeline diagram; live HTTP ad catalog push; Printful order API scaffold.
+- **Research:** `docs/research/2026-06-12-pipeline-fulfillment-ad-http.md`.
+- **Maturity changes:** Visual docs hub `1→2`; Investor dashboard `1→2`; Ad sync health `1→2`; Partner integrations `1→2`; CI test count 94→102.
+- **Validation:** `npm test` passed (102 tests); `npm run build` passed (47 routes).
+- **Top 3 ideas for next run:** Convex order + fulfillment persistence; catalog slug → Printful variant mapping; outreach cohort attribution dashboard.
+
+---
+
 ## 2026-06-12 10:05 UTC — GTM deep-links + order persistence + ad catalog sync
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~13 hours remaining.

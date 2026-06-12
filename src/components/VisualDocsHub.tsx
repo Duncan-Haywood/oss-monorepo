@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { buildSampleCheckoutCart } from "@/lib/checkout";
 import { buildPartnerCredentialVault } from "@/lib/partner-credentials";
+import ProductPipelineDiagram from "@/components/ProductPipelineDiagram";
 import {
   ArrowRight,
   BarChart3,
@@ -211,6 +212,8 @@ export default function VisualDocsHub() {
           <p className="text-sm text-gray-500">avg confidence · {stats.metadataGaps} listings need work</p>
         </div>
       </section>
+
+      <ProductPipelineDiagram />
 
       <section>
         <h2 className="text-xl font-semibold mb-4">Interactive tools</h2>

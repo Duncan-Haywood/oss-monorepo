@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
-**Company phase:** 1→2 (live Stripe Checkout + webhook order records + ad catalog API sync scaffold; Convex next)
-**Last updated:** 2026-06-12 (outreach deep-links + order persistence + ad catalog sync API)
+**Company phase:** 1→2 (live Stripe Checkout + webhook orders + live ad catalog HTTP + Printful fulfillment scaffold; Convex next)
+**Last updated:** 2026-06-12 (visual pipeline diagram + live ad HTTP + Printful order API)
 
 ## Subsystem maturity
 
@@ -10,11 +10,11 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Subsystem | Phase | Notes | Next step |
 |-----------|-------|-------|-----------|
 | Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; links to `/docs` visual hub; unit economics uses shared formula and artist payout trust battlecard | Embed live metrics previews in plan tabs |
-| Visual docs hub | 1 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, and sitemap with live shared-lib metrics | Persist owner bookmarks and cohort snapshots |
-| Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, ad readiness, checkout funnel, market launch command center, and webhook payout ledger from shared libs | Persist live metrics + cohort trends |
+| Visual docs hub | 1→2 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, sitemap, and animated product pipeline diagram with live stage metrics | Persist owner bookmarks and cohort snapshots |
+| Investor / owner dashboard | 1→2 | `/investor` aggregates catalog, outreach, finance, fulfillment, ad readiness, checkout funnel, market launch command center, product pipeline, and webhook payout ledger from shared libs | Persist live metrics + cohort trends |
 | Artist onboarding intake | 1 | `/artist-onboard` self-serve profile, rights consent, capture session link with localStorage persistence | Convex vertical slice (capture → catalog → listing) |
 | Market launch command center | 1 | `buildMarketLaunchCommandCenter` blends supply compression, ad sync health, checkout readiness, and ops gates on `/investor` | Tie gates to automated spend caps and outreach enrollment |
-| Partner integrations | 1 | `src/lib/partners.ts` scores readiness; `src/lib/partner-credentials.ts` + `/partner-setup` vault tracks env keys for fulfillment, ads, and Stripe | Connect real API credentials + webhooks |
+| Partner integrations | 1→2 | `src/lib/partners.ts` scores readiness; `src/lib/partner-credentials.ts` + `/partner-setup` vault tracks env keys; `src/lib/printful-orders.ts` queues POD orders from Stripe webhooks when Printful keys present | Map catalog slugs to Printful variant IDs + Gelato parity |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
 | Capture pipeline | 1 | Real file picker + localStorage metadata persistence; simulated AI stages | Backend upload + job queue (Convex/Supabase + R2) |
 | Catalog intelligence | 1 | Shared `src/lib/marketplace.ts`, launch-readiness scoring, tested payout and creative-readiness math | Persist catalog records and AI metadata confidence |
@@ -28,7 +28,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Outreach / CRM | 1 | Tested `src/lib/outreach.ts` prospect scoring, reply classification, payout-guardrail holds, next-action queue, reply-to-live compression + 7-day cohort planner, proof-mockup response kits, battlecard reply snippets, and deep-links from `/sales-portal` to `/artist-onboard?handle=` | Persist prospects/replies, pipeline stage timestamps, payout exception state, and sync real channel events |
 | Marketing hub | 1 | Creative readiness in `/marketing-portal`, SEO lab at `/seo-lab`, ad catalog feed at `/ad-catalog`, sync health + API sync trigger at `/ad-sync-health` | Persist creative tests and wire live catalog API credentials |
 | Ad catalog feed | 1 | `buildAdCatalogFeed` generates Meta/Google/Pinterest rows from publishable SEO slugs + creative readiness + paid-ad consent | Live API push when credentials configured |
-| Ad sync health | 1→2 | `buildAdCatalogSyncHealth` + `executeAdCatalogSync` + `POST /api/ad-catalog/sync` orchestrates simulated or live catalog push per platform | Webhook refresh on consent updates + error retry |
+| Ad sync health | 2 | `buildAdCatalogSyncHealth` + `executeAdCatalogSync` + `executeAdCatalogSyncLive` + `POST /api/ad-catalog/sync` orchestrates simulated or live HTTP catalog push per platform | Webhook refresh on consent updates + error retry |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
 | Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` + `sitemap.xml` from publishable slugs | Persist published pages + search console sync |
 | Payments | 2 | `simulateStripeConnectPayout` models per-order waterfall; `POST /api/stripe/checkout` creates live Checkout Sessions when test keys present; `POST /api/stripe/webhook` verifies signatures, records payout ledger + order records from `payment_intent.succeeded`; investor dashboard shows order summary; `.env.example` documents test-mode keys | Persist orders + transfer/payout ledger to Convex from webhooks |
@@ -37,7 +37,7 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach deep-links, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad catalog sync, ad sync health, capture, stripe-connect, stripe webhooks, metadata confidence, artist onboarding, market launch command center, stripe ledger, and orders (94 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach deep-links, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad catalog sync, ad catalog sync HTTP, ad sync health, capture, stripe-connect, stripe webhooks, metadata confidence, artist onboarding, market launch command center, stripe ledger, orders, product pipeline, and printful orders (102 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -85,6 +85,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Outreach onboarding deep-links | `buildArtistOnboardingDeepLink` in `src/lib/outreach.ts` | Sales-portal queue links to pre-filled `/artist-onboard` intake | 2026-06-12 |
 | Order records scaffold | `src/lib/orders.ts` | In-memory orders from `payment_intent.succeeded` webhook metadata | 2026-06-12 |
 | Ad catalog API sync | `src/lib/ad-catalog-sync.ts` + `/api/ad-catalog/sync` | Programmatic Meta/Google/Pinterest catalog push with credential gating | 2026-06-12 |
+| Live ad catalog HTTP | `src/lib/ad-catalog-sync-http.ts` | Real `fetch` to Meta/Google/Pinterest batch endpoints when credentials + sync health pass | 2026-06-12 |
+| Product pipeline diagram | `src/lib/product-pipeline.ts` + `ProductPipelineDiagram` | Capture → catalog → storefront → fulfillment + growth engines on `/docs` and `/investor` | 2026-06-12 |
+| Printful fulfillment scaffold | `src/lib/printful-orders.ts` + Stripe webhook wiring | POD order payload + API submit from `payment_intent.succeeded` when Printful keys present | 2026-06-12 |
 
 ## Active vertical slice
 

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  executeAdCatalogSync,
-  getAdCatalogSyncEnvFromProcess,
-} from "@/lib/ad-catalog-sync";
+import { executeAdCatalogSyncLive } from "@/lib/ad-catalog-sync-http";
+import { executeAdCatalogSync, getAdCatalogSyncEnvFromProcess } from "@/lib/ad-catalog-sync";
 import type { AdCatalogPlatform } from "@/lib/ad-catalog";
 
 export const runtime = "nodejs";
@@ -30,7 +28,7 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SITE_URL ??
     "https://printatelier.com";
 
-  const result = executeAdCatalogSync(
+  const result = await executeAdCatalogSyncLive(
     platforms,
     getAdCatalogSyncEnvFromProcess(),
     { baseUrl },
@@ -47,11 +45,14 @@ export async function GET(request: Request) {
     process.env.NEXT_PUBLIC_SITE_URL ??
     "https://printatelier.com";
 
-  const result = executeAdCatalogSync(
-    platforms,
-    getAdCatalogSyncEnvFromProcess(),
-    { baseUrl },
-  );
+  const live = url.searchParams.get("live") === "true";
+  const result = live
+    ? await executeAdCatalogSyncLive(
+        platforms,
+        getAdCatalogSyncEnvFromProcess(),
+        { baseUrl },
+      )
+    : executeAdCatalogSync(platforms, getAdCatalogSyncEnvFromProcess(), { baseUrl });
 
   return NextResponse.json({
     endpoint: "/api/ad-catalog/sync",

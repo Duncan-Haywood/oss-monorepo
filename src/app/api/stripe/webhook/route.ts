@@ -5,6 +5,10 @@ import {
   type StripeConnectWebhookEvent,
 } from "@/lib/stripe-connect";
 import { recordOrderFromPaymentWebhook } from "@/lib/orders";
+import {
+  queuePrintfulFulfillmentFromOrder,
+  recordPrintfulFulfillmentSubmission,
+} from "@/lib/printful-orders";
 import { recordStripeWebhookToLedger } from "@/lib/stripe-ledger";
 import { verifyStripeWebhookSignature } from "@/lib/stripe-webhook-server";
 
@@ -44,12 +48,34 @@ export async function POST(request: Request) {
 
   const result = processStripeConnectWebhookEvent(event);
   const ledgerEntry = recordStripeWebhookToLedger(event.id, event.type, result);
+  const paymentObject = event.data.object as Record<string, unknown>;
+  const paymentMetadata =
+    typeof paymentObject.metadata === "object" && paymentObject.metadata !== null
+      ? (paymentObject.metadata as Record<string, unknown>)
+      : {};
+
   const orderRecord = recordOrderFromPaymentWebhook(
     event.id,
     event.type,
-    event.data.object as Record<string, unknown>,
+    paymentObject,
     !event.livemode,
   );
+
+  let fulfillmentSubmission = null;
+  if (orderRecord) {
+    fulfillmentSubmission = await queuePrintfulFulfillmentFromOrder(
+      orderRecord,
+      paymentMetadata,
+      {
+        PRINTFUL_API_KEY: process.env.PRINTFUL_API_KEY,
+        PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
+      },
+      process.env.PRINTFUL_API_KEY && process.env.PRINTFUL_STORE_ID ? fetch : undefined,
+    );
+    if (fulfillmentSubmission) {
+      recordPrintfulFulfillmentSubmission(fulfillmentSubmission);
+    }
+  }
 
   return NextResponse.json({
     received: true,
@@ -57,6 +83,8 @@ export async function POST(request: Request) {
     ledgerId: ledgerEntry?.ledgerId ?? null,
     orderRecorded: Boolean(orderRecord),
     orderId: orderRecord?.orderId ?? null,
+    fulfillmentQueued: Boolean(fulfillmentSubmission),
+    fulfillmentStatus: fulfillmentSubmission?.status ?? null,
     ...result,
   });
 }

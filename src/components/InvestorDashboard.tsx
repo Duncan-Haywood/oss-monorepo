@@ -1,5 +1,6 @@
 "use client";
 
+import ProductPipelineDiagram from "@/components/ProductPipelineDiagram";
 import { buildInvestorSnapshot } from "@/lib/investor";
 
 const defaultWeeklyBudget = 6800;
@@ -44,6 +45,8 @@ export default function InvestorDashboard() {
         </p>
         <p className="text-xs text-gray-400 mt-2">Generated {new Date(snapshot.generatedAt).toLocaleString()}</p>
       </header>
+
+      <ProductPipelineDiagram />
 
       <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
