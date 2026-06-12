@@ -51,9 +51,14 @@ export default function MarketingPortal() {
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Marketing Automation Hub</h1>
             <p className="text-gray-500 dark:text-gray-400">Turn shared catalog metadata into scored demand campaigns</p>
           </div>
-          <a href="/" className="text-sm font-medium px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition">
-            Return to Docs
-          </a>
+          <div className="flex gap-2">
+            <a href="/ad-catalog" className="text-sm font-medium px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition">
+              Ad catalog feed
+            </a>
+            <a href="/docs" className="text-sm font-medium px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition">
+              Docs hub
+            </a>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

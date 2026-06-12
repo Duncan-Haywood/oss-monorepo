@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 03:05 UTC — Ad catalog feed lab
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~20 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (37 commits fast-forward); `npm ci && npm run build && npm test` passed (47 tests baseline).
+- **Hygiene:** Deleted remote `cursor/print-atelier-business-orchestration-bb47` (0 ahead / 0 behind main). Remote `cursor/*` count now 0. Open draft PRs #19–#39 remain (read-only `gh` cannot close).
+- **Theme shipped:** Programmatic ad catalog feed for Meta, Google, and Pinterest.
+- **Shipped:** `buildAdCatalogFeed` + `serializeAdCatalogFeedJson` + `serializeMetaCatalogFeedCsv` in `src/lib/ad-catalog.ts`; `/ad-catalog` feed lab; VisualDocsHub + Marketing Hub + DemoNav links; 5 new tests (52 total).
+- **Invention shipped:** Ad catalog feed generator that only syncs consent-cleared SEO print slugs when paid-ad rights and creative readiness pass — per-platform sync readiness vs partner creative minimums.
+- **Research:** `docs/research/2026-06-12-ad-catalog-feed.md`.
+- **Maturity changes:** Ad catalog feed `—→1`; Marketing hub advanced; CI test count 47→52; routes + `/ad-catalog`.
+- **Validation:** `npm test` passed (52 tests); `npm run build` passed (40 static routes including `/ad-catalog`).
+- **Top 3 ideas for next run:** Stripe Connect test-mode keys + webhooks; response-to-live-listing compression metric; Convex artist onboarding vertical slice.
+
+---
+
 ## 2026-06-12 02:05 UTC — Sitemap + visual docs hub
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~21 hours remaining.

@@ -4,6 +4,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogFeed` output with webhook refresh on consent updates
 - [ ] [hygiene] Close superseded PRs #23–#26 outside automation write limits; cherry-pick any unique simulator work still valuable
 - [ ] [demo] Cherry-pick embedded outreach + marketing simulators into `PlatformDemo` if not on `main`
 - [ ] [platform] Wire Stripe Connect test-mode keys and webhook handlers for `transfer.created`
@@ -39,6 +40,8 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [marketing] Ad catalog feed lab at `/ad-catalog` with JSON/CSV export from publishable SEO slugs + creative readiness
+- [x] [platform] Shared ad-catalog contract with tests for eligibility, platform sync readiness, and feed serialization (52 total)
 - [x] [platform] Generate sitemap.xml from publishable `/prints/[slug]` routes + robots.txt
 - [x] [product] Visual docs hub at `/docs` embedding investor, battlecards, SEO lab, catalog AI, payout sim
 - [x] [gtm] Wire battlecard objection handlers into sales-portal reply personalization

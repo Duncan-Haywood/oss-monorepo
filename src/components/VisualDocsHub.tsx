@@ -1,5 +1,6 @@
 "use client";
 
+import { buildAdCatalogFeed } from "@/lib/ad-catalog";
 import { buildCatalogMetadataDashboard } from "@/lib/catalog-intelligence";
 import { buildInvestorSnapshot } from "@/lib/investor";
 import { getPublishableSeoSlugs } from "@/lib/seo";
@@ -12,6 +13,7 @@ import {
   FileSearch,
   Globe,
   Layers,
+  Megaphone,
   Swords,
   Wallet,
 } from "lucide-react";
@@ -40,6 +42,14 @@ const toolCards = [
     icon: Globe,
     gradient: "from-emerald-500 to-teal-600",
     metricKey: "seoPublishable" as const,
+  },
+  {
+    href: "/ad-catalog",
+    title: "Ad catalog feed",
+    description: "Meta, Google, and Pinterest product feeds from publishable SEO slugs and creative readiness.",
+    icon: Megaphone,
+    gradient: "from-fuchsia-500 to-pink-600",
+    metricKey: "adCatalogEligible" as const,
   },
   {
     href: "/catalog-intelligence",
@@ -72,12 +82,15 @@ export default function VisualDocsHub() {
     const snapshot = buildInvestorSnapshot();
     const metadata = buildCatalogMetadataDashboard();
     const publishable = getPublishableSeoSlugs();
+    const adCatalog = buildAdCatalogFeed();
 
     return {
       launchScore: snapshot.marketLaunch.overall,
       launchLabel: snapshot.marketLaunch.label,
       battlecards: 4,
       seoPublishable: publishable.length,
+      adCatalogEligible: adCatalog.eligibleCount,
+      adCatalogHealth: adCatalog.feedHealthScore,
       metadataScore: metadata.averageConfidence,
       metadataGaps: metadata.needsAttentionCount,
       artistPayout: snapshot.unitEconomics.artistShare,
@@ -95,6 +108,8 @@ export default function VisualDocsHub() {
         return `${stats.battlecards} competitors`;
       case "seoPublishable":
         return `${stats.seoPublishable} indexable pages`;
+      case "adCatalogEligible":
+        return `${stats.adCatalogEligible} feed rows · ${stats.adCatalogHealth} health`;
       case "metadataScore":
         return `${stats.metadataScore}% avg confidence · ${stats.metadataGaps} gaps`;
       case "artistPayout":

@@ -299,3 +299,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-sitemap-visual-docs-hub.md` for sitemap/robots conventions and docs-hub rationale.
 - Strategic implication: digital stock launch requires a single owner entry point (`/docs`) and an index that only lists consent-cleared inventory — blocked listings stay `noindex` and out of the sitemap.
+
+## Ten-lens invention pass (2026-06-12 03:00 UTC — ad catalog feed run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Ad catalog feed from publishable SEO slugs + creative readiness gates | Marketing | 5 | 2 | 4 | 5 | 50 | shipped |
+| Response-to-live-listing compression metric for outreach cohort velocity | Strategy | 5 | 2 | 4 | 5 | 50 | ready |
+| Convex artist onboarding vertical slice (capture → catalog → listing) | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
+| Stripe Connect test-mode keys + `transfer.created` webhook handlers | Finance | 5 | 3 | 4 | 5 | 33 | ready |
+| Ad catalog sync health monitor (pixel + feed + creative quota) | Marketing | 5 | 2 | 4 | 5 | 50 | ready |
+| Search Console sitemap ping on consent ledger updates | GTM | 4 | 2 | 3 | 5 | 30 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Fulfillment partner API credential vault with margin routing rules | Operations | 5 | 3 | 4 | 5 | 33 | ready |
+| Artist consent ledger persistence with signer, timestamp, and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Proof-mockup response kit for artists asking to see examples | Sales | 4 | 2 | 4 | 5 | 40 | ready |
+| Product detail preview CTA comparing flat listing vs in-room preview | Product | 5 | 3 | 4 | 5 | 33 | ready |
+
+## Research-backed notes (2026-06-12 03:00 UTC)
+
+- See `docs/research/2026-06-12-ad-catalog-feed.md` for ad catalog gate stack and platform minimums.
+- Strategic implication: paid demand requires a second index (ad catalog feed) generated from the same consent-cleared slug list as the sitemap — sync only when creative quotas are met per platform.
