@@ -1,7 +1,7 @@
 # Product Maturity — Print Atelier
 
 **Company phase:** 1→2 (live Stripe Checkout Sessions when test keys present; investor checkout funnel; persistence next)
-**Last updated:** 2026-06-12 (live Stripe Checkout + investor checkout funnel)
+**Last updated:** 2026-06-12 (artist onboarding intake + launch command center + webhook ledger)
 
 ## Subsystem maturity
 
@@ -11,7 +11,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 |-----------|-------|-------|-----------|
 | Business plan TSX | 1 | Visual Business Overview tab + all sections + portal routes; links to `/docs` visual hub; unit economics uses shared formula and artist payout trust battlecard | Embed live metrics previews in plan tabs |
 | Visual docs hub | 1 | `/docs` aggregates investor, battlecards, SEO lab, catalog AI, payout sim, and sitemap with live shared-lib metrics | Persist owner bookmarks and cohort snapshots |
-| Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, ad readiness, and checkout funnel (cart → Stripe → paid) from shared libs | Persist live metrics + cohort trends |
+| Investor / owner dashboard | 1 | `/investor` aggregates catalog, outreach, finance, fulfillment, ad readiness, checkout funnel, market launch command center, and webhook payout ledger from shared libs | Persist live metrics + cohort trends |
+| Artist onboarding intake | 1 | `/artist-onboard` self-serve profile, rights consent, capture session link with localStorage persistence | Convex vertical slice (capture → catalog → listing) |
+| Market launch command center | 1 | `buildMarketLaunchCommandCenter` blends supply compression, ad sync health, checkout readiness, and ops gates on `/investor` | Tie gates to automated spend caps and outreach enrollment |
 | Partner integrations | 1 | `src/lib/partners.ts` scores readiness; `src/lib/partner-credentials.ts` + `/partner-setup` vault tracks env keys for fulfillment, ads, and Stripe | Connect real API credentials + webhooks |
 | Market launch scoring | 1 | `calculateMarketLaunchScore` blends supply, demand, ops, and fulfillment into one launch score | Tie score to automated spend caps |
 | Capture pipeline | 1 | Real file picker + localStorage metadata persistence; simulated AI stages | Backend upload + job queue (Convex/Supabase + R2) |
@@ -29,13 +31,13 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Ad sync health | 1 | `buildAdCatalogSyncHealth` monitors pixel, feed, creative-quota, and consent checks per platform at `/ad-sync-health` | Wire platform catalog APIs + webhook refresh on consent updates |
 | Competitive positioning | 1 | `/battlecards` interactive deck vs Society6, Redbubble, Saatchi, Artfinder | Wire battlecards into sales-portal personalization |
 | Programmatic SEO | 1 | `generateSeoLandingPages` + static `/prints/[slug]` with consent-gated `noindex` + `sitemap.xml` from publishable slugs | Persist published pages + search console sync |
-| Payments | 2 | `simulateStripeConnectPayout` models per-order waterfall; `POST /api/stripe/checkout` creates live Checkout Sessions via `stripe.checkout.sessions.create` when test keys present; `POST /api/stripe/webhook` verifies signatures and routes Connect events; `.env.example` documents test-mode keys | Persist transfer/payout ledger from webhooks |
+| Payments | 2 | `simulateStripeConnectPayout` models per-order waterfall; `POST /api/stripe/checkout` creates live Checkout Sessions via `stripe.checkout.sessions.create` when test keys present; `POST /api/stripe/webhook` verifies signatures, routes Connect events, and records in-memory payout ledger; `.env.example` documents test-mode keys | Persist transfer/payout ledger to Convex from webhooks |
 | Catalog AI metadata | 1 | `buildCatalogMetadataDashboard` scores tags, SEO copy, mockups, proof confidence | Connect to real AI tagging pipeline on capture upload |
 | Operations | 1 | Admin console includes payout promise guardrail queue and listing hold/release workflow before outreach | Persist ops queues and assign owners/SLA |
 | Finance / unit economics | 1 | CAC payback, LTV:CAC, payout, and POD sensitivity simulator uses shared economics | Persist channel assumptions and compare actual cohorts |
 | GTM budget allocation | 1 | Weekly channel allocator in `RevenueModel` shifts spend by contribution after CAC, LTV:CAC guardrails, caps, and room-preview lift | Persist weekly budget plans with actual spend, CAC, orders, and measured preview lift |
 | Database | — | Not started | Choose Supabase or Convex for onboarding slice |
-| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, and metadata confidence (78 tests) | Add PR check status tracking to PROGRESS |
+| CI | 1 | `ci.yml` build workflow exists; local `npm test` covers catalog, finance, creative, outreach, outreach velocity, proof-mockup kits, investor, partner, partner credentials, product preview CTA, artist earnings, checkout funnel, stripe checkout server, competitors, SEO sitemap, ad catalog feed, ad sync health, capture, stripe-connect, stripe webhooks, metadata confidence, artist onboarding, market launch command center, and stripe ledger (86 tests) | Add PR check status tracking to PROGRESS |
 
 ## Tech decisions
 
@@ -77,6 +79,9 @@ Phases: `0` narrative · `1` interactive prototype · `2` functional MVP · `3` 
 | Buyer checkout lab | `src/lib/checkout.ts` + `/checkout` + `/api/stripe/checkout` | Consent-gated cart, fulfillment routing, Stripe session payload before Phase 3 | 2026-06-12 |
 | Live Stripe Checkout | `src/lib/stripe-checkout-server.ts` + `stripe` SDK | Creates real Checkout Sessions when test-mode keys present; redirects buyer to Stripe | 2026-06-12 |
 | Checkout funnel metrics | `buildCheckoutFunnelMetrics` in `src/lib/checkout.ts` | Investor-facing cart → session → paid readiness before scaling ads | 2026-06-12 |
+| Artist onboarding intake | `src/lib/artist-onboarding.ts` + `/artist-onboard` | Self-serve profile, consent, capture link before Convex persistence | 2026-06-12 |
+| Market launch command center | `buildMarketLaunchCommandCenter` in `src/lib/market-launch.ts` | Single owner gate for supply, demand, payments, and ops readiness | 2026-06-12 |
+| Stripe payout ledger scaffold | `src/lib/stripe-ledger.ts` | In-memory webhook event ledger before Convex order persistence | 2026-06-12 |
 
 ## Active vertical slice
 

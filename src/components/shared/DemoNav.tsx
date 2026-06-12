@@ -11,6 +11,7 @@ const demos = [
   { href: "/checkout", label: "Checkout" },
   { href: "/buyer-portal", label: "Buyer Portal" },
   { href: "/artist-portal", label: "Artist Portal" },
+  { href: "/artist-onboard", label: "Artist Onboard" },
   { href: "/b2b-portal", label: "B2B Portal" },
   { href: "/designer-portal", label: "Designer Portal" },
   { href: "/capture", label: "Capture App" },

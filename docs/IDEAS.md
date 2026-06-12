@@ -426,3 +426,25 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-live-stripe-checkout-funnel.md` for live session wiring and investor funnel rationale.
 - Strategic implication: payments Phase 2 closes when buyers can complete Stripe Checkout in test mode; Phase 3 closes when webhooks persist orders and trigger POD + Connect transfers.
+
+## Ten-lens invention pass (2026-06-12 09:00 UTC — artist onboard + launch command center run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Artist onboarding intake with localStorage → Convex migration path | Sales | 5 | 3 | 4 | 5 | 33 | shipped |
+| Market launch command center combining funnel + ad sync + supply velocity | Strategy | 5 | 2 | 5 | 5 | 63 | shipped |
+| Stripe webhook payout ledger scaffold before Convex persistence | Engineering | 5 | 2 | 4 | 5 | 50 | shipped |
+| Convex order persistence from `payment_intent.succeeded` webhook ledger | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
+| Outreach deep-link to `/artist-onboard?handle=` from sales-portal queue | Sales | 4 | 2 | 3 | 5 | 30 | ready |
+| Printful order API trigger from webhook fulfillment metadata | Operations | 5 | 4 | 4 | 5 | 25 | ready |
+| Checkout abandon retargeting pixel events from session.created | GTM | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| AI-assisted bid recommendation from creative readiness + preview lift | AI/ML | 5 | 3 | 5 | 5 | 42 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+| Competitive positioning one-pager export (PDF) from battlecards | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+
+## Research-backed notes (2026-06-12 09:00 UTC)
+
+- See `docs/research/2026-06-12-artist-onboard-launch-command.md` for onboarding intake and launch command center rationale.
+- Strategic implication: market launch is a gated decision across supply intake, demand sync, and checkout — the command center surfaces blockers before ad spend or outreach scale.

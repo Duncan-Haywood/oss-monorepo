@@ -45,6 +45,62 @@ export default function InvestorDashboard() {
         <p className="text-xs text-gray-400 mt-2">Generated {new Date(snapshot.generatedAt).toLocaleString()}</p>
       </header>
 
+      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-lg font-semibold">Market launch command center</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Supply velocity + demand sync + checkout — single gate before scaling ads or outreach
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-3xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400">
+              {snapshot.launchCommandCenter.overallLaunchScore}
+            </p>
+            <p className="text-xs text-gray-500 capitalize">{snapshot.launchCommandCenter.overallStatus}</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4 text-xs">
+          <span
+            className={`px-2 py-1 rounded-full ${snapshot.launchCommandCenter.readyToOnboardArtists ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-600"}`}
+          >
+            {snapshot.launchCommandCenter.readyToOnboardArtists ? "✓" : "○"} Onboard artists
+          </span>
+          <span
+            className={`px-2 py-1 rounded-full ${snapshot.launchCommandCenter.readyToAcceptPayments ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-600"}`}
+          >
+            {snapshot.launchCommandCenter.readyToAcceptPayments ? "✓" : "○"} Accept payments
+          </span>
+          <span
+            className={`px-2 py-1 rounded-full ${snapshot.launchCommandCenter.readyToScaleAds ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-600"}`}
+          >
+            {snapshot.launchCommandCenter.readyToScaleAds ? "✓" : "○"} Scale ads
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {snapshot.launchCommandCenter.gates.map((gate) => (
+            <div
+              key={gate.id}
+              className="border border-gray-100 dark:border-gray-700 rounded-lg px-4 py-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-gray-500">{gate.label}</p>
+                <StatusBadge status={gate.status === "ready" ? "healthy" : gate.status === "watch" ? "watch" : "blocked"} />
+              </div>
+              <p className="text-xl font-bold tabular-nums mt-1">{gate.score}</p>
+              <p className="text-xs text-gray-500 mt-1">{gate.summary}</p>
+            </div>
+          ))}
+        </div>
+        {snapshot.launchCommandCenter.topBlockers.length > 0 && (
+          <ul className="mt-4 text-sm text-amber-800 dark:text-amber-200 space-y-1">
+            {snapshot.launchCommandCenter.topBlockers.map((blocker) => (
+              <li key={blocker}>→ {blocker}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-xl p-5 shadow-lg">
           <p className="text-xs uppercase tracking-wider opacity-80">Market launch</p>
@@ -264,7 +320,44 @@ export default function InvestorDashboard() {
         </section>
       )}
 
+      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+        <h2 className="text-lg font-semibold mb-1">Stripe payout ledger (webhook scaffold)</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          In-memory ledger from verified webhooks — persists to Convex in Phase 3
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500">Entries</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.totalEntries}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Transfers</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.transferCount}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Payments</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.paymentCount}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Artist accounts</p>
+            <p className="text-xl font-bold tabular-nums">{snapshot.payoutLedger.artistAccounts.length}</p>
+          </div>
+        </div>
+        <Link
+          href="/payout-simulator"
+          className="inline-block mt-4 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          Open payout simulator →
+        </Link>
+      </section>
+
       <section className="flex flex-wrap gap-3 pt-2">
+        <Link
+          href="/artist-onboard"
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+        >
+          Artist onboarding
+        </Link>
         <Link
           href="/storefront"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"

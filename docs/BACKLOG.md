@@ -4,6 +4,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## ready
 
+- [ ] [platform] Convex order persistence from `payment_intent.succeeded` webhook ledger entries
 - [ ] [platform] Connect Meta/Google/Pinterest catalog APIs to `buildAdCatalogSyncHealth`-cleared feeds with webhook refresh on consent updates
 - [ ] [platform] Wire partner credential vault to Vercel env pull and mask secrets in admin UI
 - [ ] [platform] Persist proof-mockup kit send events with channel, artwork slug, and copy version
@@ -39,6 +40,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [product] Artist onboarding intake at `/artist-onboard` with profile, consent, capture link, and localStorage persistence
+- [x] [content] Market launch command center on `/investor` combining supply, demand, payments, and ops gates
+- [x] [platform] Stripe webhook payout ledger scaffold with in-memory `recordStripeWebhookToLedger` (86 tests)
 - [x] [platform] Wire `POST /api/stripe/checkout` to `stripe.checkout.sessions.create` when test-mode keys present
 - [x] [content] Investor checkout funnel metric (cart → Stripe → paid readiness) on `/investor`
 - [x] [product] Checkout lab at `/checkout` with consent-gated cart, fulfillment routing, and Stripe session scaffold

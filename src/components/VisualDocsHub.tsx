@@ -72,6 +72,14 @@ const toolCards = [
     metricKey: "metadataScore" as const,
   },
   {
+    href: "/artist-onboard",
+    title: "Artist onboarding intake",
+    description: "Self-serve profile, rights consent, and capture link — localStorage until Convex ships.",
+    icon: BookOpen,
+    gradient: "from-sky-500 to-blue-700",
+    metricKey: "onboardingReady" as const,
+  },
+  {
     href: "/checkout",
     title: "Checkout lab",
     description: "Consent-gated cart, Stripe Checkout session scaffold, and POD fulfillment routing by region.",
@@ -132,6 +140,7 @@ export default function VisualDocsHub() {
       partnerScore: partners.overallScore,
       partnerLabel: partners.label,
       checkoutEligible: buildSampleCheckoutCart().length,
+      onboardingReady: snapshot.outreach.readyForOnboarding,
     };
   }, []);
 
@@ -153,6 +162,8 @@ export default function VisualDocsHub() {
         return `$${stats.artistPayout.toFixed(2)} / print`;
       case "checkoutEligible":
         return `${stats.checkoutEligible} consent-cleared SKUs ready to sell`;
+      case "onboardingReady":
+        return `${stats.onboardingReady} artists ready for intake now`;
       case "partnerScore":
         return `${stats.partnerScore} — ${stats.partnerLabel}`;
       case "sitemapUrls":

@@ -19,6 +19,8 @@ test("buildInvestorSnapshot aggregates catalog, outreach, finance, and partner r
   assert.equal(snapshot.pipelineStages.length, 7);
   assert.ok(snapshot.checkoutFunnel.stages.length === 5);
   assert.ok(snapshot.checkoutFunnel.overallReadiness >= 0);
+  assert.equal(snapshot.launchCommandCenter.gates.length, 4);
+  assert.equal(typeof snapshot.payoutLedger.totalEntries, "number");
 });
 
 test("calculateFulfillmentReadiness scores configured POD partners", () => {

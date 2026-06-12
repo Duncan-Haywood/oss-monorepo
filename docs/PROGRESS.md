@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 09:05 UTC — Artist onboarding intake + launch command center
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~14 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (45 commits fast-forward); `npm ci && npm run build && npm test` passed (78 tests baseline).
+- **Hygiene:** Remote `cursor/*` branch count 0 after prune (28 stale refs removed on fetch). No merge/cherry-pick needed.
+- **Theme shipped:** Market-ready artist onboarding + owner launch gates.
+- **Shipped:** `src/lib/artist-onboarding.ts` + `/artist-onboard` intake form (profile, consent, capture link, localStorage); `buildMarketLaunchCommandCenter` + investor dashboard command center panel; `src/lib/stripe-ledger.ts` + webhook route ledger recording; VisualDocsHub + DemoNav + BusinessOverview links; 8 new tests (86 total).
+- **Invention shipped:** Artist onboarding intake form; market launch command center; Stripe webhook payout ledger scaffold.
+- **Research:** `docs/research/2026-06-12-artist-onboard-launch-command.md`.
+- **Maturity changes:** Artist onboarding intake `—→1`; Market launch command center `—→1`; Investor dashboard advanced; Payments advanced (webhook ledger); CI test count 78→86; routes + `/artist-onboard`.
+- **Validation:** `npm test` passed (86 tests); `npm run build` passed (46 routes).
+- **Top 3 ideas for next run:** Convex order persistence from webhook ledger; Connect Meta/Google/Pinterest catalog APIs; outreach deep-link to artist-onboard from sales-portal.
+
+---
+
 ## 2026-06-12 08:05 UTC — Live Stripe Checkout + investor funnel
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~15 hours remaining.

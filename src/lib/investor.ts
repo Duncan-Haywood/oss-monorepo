@@ -1,4 +1,6 @@
 import { buildCheckoutFunnelMetrics, type CheckoutFunnelMetrics } from "./checkout";
+import { buildMarketLaunchCommandCenter, type MarketLaunchCommandCenter } from "./market-launch";
+import { buildStripePayoutLedgerSummary, type StripePayoutLedgerSummary } from "./stripe-ledger";
 import {
   allocateWeeklyChannelBudget,
   buildListingConsentGate,
@@ -42,6 +44,8 @@ export type InvestorSnapshot = {
   adPlatformCount: number;
   pipelineStages: Array<{ stage: string; count: number; status: "healthy" | "watch" | "blocked" }>;
   checkoutFunnel: CheckoutFunnelMetrics;
+  launchCommandCenter: MarketLaunchCommandCenter;
+  payoutLedger: StripePayoutLedgerSummary;
 };
 
 export function buildInvestorSnapshot(
@@ -107,6 +111,8 @@ export function buildInvestorSnapshot(
   const monthlyArtistPayouts = catalog.projectedMonthlyArtistPayout;
 
   const checkoutFunnel = buildCheckoutFunnelMetrics(artworks, undefined, env);
+  const launchCommandCenter = buildMarketLaunchCommandCenter(artworks, env);
+  const payoutLedger = buildStripePayoutLedgerSummary();
 
   const pipelineStages = [
     {
@@ -165,5 +171,7 @@ export function buildInvestorSnapshot(
     adPlatformCount: adPlatformPartners.length,
     pipelineStages,
     checkoutFunnel,
+    launchCommandCenter,
+    payoutLedger,
   };
 }

@@ -26,7 +26,7 @@ const productFlow = [
 const portalLinks = [
   { label: "Visual docs hub", href: "/docs", badge: "New" },
   { label: "Investor dashboard", href: "/investor", badge: "New" },
-  { label: "Artist onboarding", href: "/artist-portal" },
+  { label: "Artist onboarding", href: "/artist-onboard" },
   { label: "Sales outreach CRM", href: "/sales-portal" },
   { label: "Marketing hub", href: "/marketing-portal" },
   { label: "Admin / legal ops", href: "/admin-portal" },
