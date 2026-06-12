@@ -1,6 +1,6 @@
-# Print Atelier — Full-Stack Business Orchestrator
+# Print Atelier — Launch & Ads Orchestrator
 
-Autonomous **Cursor Automation** (every 30 minutes) owns the full company dev cycle: business strategy, product, engineering, GTM, sales, marketing, operations, and unit economics.
+Autonomous **Cursor Automation** (every 30 minutes) hardens the product for **ads-ready launch**: production persistence, E2E onboarding/checkout/fulfillment, and owner visibility — not business-plan theater.
 
 ## Pillars
 
@@ -34,9 +34,11 @@ Autonomous **Cursor Automation** (every 30 minutes) owns the full company dev cy
 ## Product map
 
 ```
-CAPTURE → CATALOG → STOREFRONT → FULFILLMENT
+CAPTURE → CATALOG → STOREFRONT → CHECKOUT → FULFILLMENT → PAYOUT
               ↓
-        GROWTH ENGINE (outreach, ads, CRM)
+        GROWTH ENGINE (outreach CRM, ad catalog, retargeting, SEO)
+              ↓
+        OWNER DASHBOARD (/investor, /docs)
 ```
 
-Pick **one vertical slice** per run when advancing engineering (Phase 2+).
+Pick **one launch vertical slice** per run (artist onboard, buyer→fulfillment, ads catalog, outreach CRM, or owner dashboard truth).
