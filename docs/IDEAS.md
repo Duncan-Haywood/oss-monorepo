@@ -391,7 +391,7 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 |------|------|---|---|---|---|-------|--------|
 | Checkout lab with consent-gated cart and Stripe session scaffold | Product | 5 | 3 | 4 | 5 | 33 | shipped |
 | POD fulfillment routing by region (Printful vs Gelato margin) | Operations | 5 | 2 | 4 | 5 | 50 | shipped |
-| Stripe Checkout session API wired to test-mode keys | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Stripe Checkout session API wired to test-mode keys | Engineering | 5 | 3 | 4 | 5 | 33 | shipped |
 | Convex order persistence from payment_intent.succeeded webhook | Engineering | 5 | 4 | 5 | 5 | 31 | backlog |
 | Connect Meta/Google/Pinterest catalog APIs to sync-health-cleared feeds | Marketing | 5 | 4 | 4 | 5 | 25 | ready |
 | Buyer retargeting pixel events from checkout abandon | GTM | 4 | 3 | 4 | 5 | 27 | ready |
