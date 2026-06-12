@@ -4,6 +4,21 @@ Orchestrator runs append here (newest first).
 
 ---
 
+## 2026-06-12 13:05 UTC — Printful variant mapping + checkout abandon retargeting
+
+- **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~10 hours remaining.
+- **Orient:** `git fetch --all --prune`; checked out `main`, pulled (49 commits fast-forward); `npm ci && npm run build && npm test` passed (105 tests baseline).
+- **Hygiene:** Deleted remote `cursor/platform-pipeline-fulfillment-6103` and `cursor/print-atelier-business-orchestration-b5b1` (both 0 ahead / 0 behind main). Remote `cursor/*` count now 0.
+- **Theme shipped:** Market-ready fulfillment + demand retargeting — catalog slug → Printful variant IDs and checkout abandon pixel scaffolds.
+- **Shipped:** `src/lib/printful-variant-map.ts` + `PrintfulVariantMapper` on `/partner-setup`; `printful-orders` resolves mapped variant IDs; `src/lib/retargeting-events.ts` + `POST /api/stripe/checkout` records Meta/Google/Pinterest abandon events; `GET /api/retargeting/events`; `CheckoutRetargetingPanel` on `/marketing-portal`; checkout metadata includes per-line catalog slugs; 6 new tests (111 total).
+- **Invention shipped:** Printful variant mapping table with coverage dashboard; checkout abandon retargeting pixel events on session.created.
+- **Research:** `docs/research/2026-06-12-printful-variant-retargeting.md`.
+- **Maturity changes:** Partner integrations `1→2` (variant mapping); Marketing hub `1→2` (retargeting panel); CI test count 105→111; routes + `/api/retargeting/events`.
+- **Validation:** `npm test` passed (111 tests); `npm run build` passed (48 routes).
+- **Top 3 ideas for next run:** Convex order + fulfillment persistence; live Meta CAPI fire on checkout session; Gelato variant mapping parity.
+
+---
+
 ## 2026-06-12 12:05 UTC — Outreach cohort attribution + pipeline merge
 
 - **Gate:** `node scripts/orchestrator-gate.mjs --status` returned `allowed=true`, phase `active`, ~11 hours remaining.

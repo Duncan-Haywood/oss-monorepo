@@ -7,6 +7,7 @@ import {
   generateAdCreativeConcepts,
   type CreativeChannel,
 } from "@/lib/marketplace";
+import CheckoutRetargetingPanel from "@/components/CheckoutRetargetingPanel";
 import { BarChart3, Palette, ShieldAlert, Sparkles, Target, Users } from "lucide-react";
 import { useState } from "react";
 
@@ -88,6 +89,10 @@ export default function MarketingPortal() {
               {readiness.similarityRisk} similarity risk
             </div>
           </div>
+        </div>
+
+        <div className="mb-8">
+          <CheckoutRetargetingPanel />
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">

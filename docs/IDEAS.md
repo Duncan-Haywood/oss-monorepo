@@ -510,3 +510,24 @@ Score each idea: **Impact** (1–5), **Effort** (1–5), **Novelty** (1–5), **
 
 - See `docs/research/2026-06-12-outreach-cohort-attribution.md` for reply→onboard→live attribution rationale.
 - Strategic implication: artist acquisition GTM should measure attributed payout per platform, not just reply volume — compression metrics without attribution hide which channels produce live inventory.
+
+## Ten-lens invention pass (2026-06-12 13:00 UTC — Printful variant map + checkout retargeting run)
+
+| Idea | Lens | I | E | N | P | Score | Status |
+|------|------|---|---|---|---|-------|--------|
+| Catalog slug → Printful variant ID mapper with coverage dashboard on `/partner-setup` | Operations | 5 | 2 | 4 | 5 | 50 | shipped |
+| Checkout abandon retargeting pixel events on Stripe session.created | GTM | 4 | 2 | 4 | 5 | 40 | shipped |
+| Convex migration for orders + fulfillment + variant map audit log | Engineering | 5 | 4 | 5 | 5 | 31 | ready |
+| Gelato variant mapping parity with Printful slug table | Operations | 4 | 3 | 3 | 5 | 20 | backlog |
+| Live Meta CAPI fire on checkout session when pixel credentials pass | Marketing | 5 | 3 | 4 | 5 | 33 | ready |
+| Persist Printful fulfillment HTTP responses with retry queue | Engineering | 5 | 3 | 4 | 5 | 33 | ready |
+| Room-preview attribution on checkout line items | AI/ML | 4 | 3 | 4 | 5 | 27 | ready |
+| Artist consent ledger persistence with signer and copy version | Legal | 5 | 3 | 4 | 4 | 27 | ready |
+| Ad sync retry queue with exponential backoff on HTTP failures | Engineering | 4 | 3 | 4 | 5 | 27 | ready |
+| Multi-currency tax estimator for EU/UK/APAC launch | Finance | 4 | 3 | 3 | 4 | 16 | backlog |
+| Investor dashboard retargeting funnel (session → abandon → recover) | Strategy | 4 | 2 | 3 | 4 | 24 | backlog |
+
+## Research-backed notes (2026-06-12 13:00 UTC)
+
+- See `docs/research/2026-06-12-printful-variant-retargeting.md` for Printful variant ID requirements and platform checkout abandon event specs.
+- Strategic implication: fulfillment and demand retargeting share the partner credential vault — variant mapping unblocks real POD orders; session-created pixels build abandon audiences before scaling paid spend.

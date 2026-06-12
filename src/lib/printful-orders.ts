@@ -1,4 +1,9 @@
 import type { OrderRecord } from "./orders";
+import {
+  defaultPrintfulVariantMappings,
+  resolvePrintfulVariantId,
+  type PrintfulVariantMapping,
+} from "./printful-variant-map";
 
 export type PrintfulOrderRecipient = {
   name: string;
@@ -66,6 +71,7 @@ function readMetadataString(
 export function buildPrintfulOrderPayload(
   order: OrderRecord,
   paymentMetadata: Record<string, unknown> = {},
+  variantMappings: PrintfulVariantMapping[] = defaultPrintfulVariantMappings,
 ): PrintfulOrderPayload {
   const region = order.shippingRegion ?? "US";
   const countryCode = region === "UK" ? "GB" : region.slice(0, 2).toUpperCase();
@@ -84,12 +90,23 @@ export function buildPrintfulOrderPayload(
       countryCode,
       zip: readMetadataString(paymentMetadata, "shippingZip") ?? "94105",
     },
-    items: Array.from({ length: Math.max(order.lineItemCount, 1) }, (_, index) => ({
-      variantId: readMetadataString(paymentMetadata, `variantId_${index}`) ?? `pf_${catalogSlug}`,
-      quantity: 1,
-      retailPrice: subtotal,
-      name: readMetadataString(paymentMetadata, `lineItemName_${index}`) ?? `Print — ${catalogSlug}`,
-    })),
+    items: Array.from({ length: Math.max(order.lineItemCount, 1) }, (_, index) => {
+      const lineSlug =
+        readMetadataString(paymentMetadata, `catalogSlug_${index}`) ??
+        (index === 0 ? catalogSlug : null) ??
+        catalogSlug;
+      const mappedVariantId = resolvePrintfulVariantId(lineSlug, variantMappings);
+      return {
+        variantId:
+          readMetadataString(paymentMetadata, `variantId_${index}`) ??
+          mappedVariantId ??
+          `pf_${lineSlug}`,
+        quantity: 1,
+        retailPrice: subtotal,
+        name:
+          readMetadataString(paymentMetadata, `lineItemName_${index}`) ?? `Print — ${lineSlug}`,
+      };
+    }),
     retailCosts: {
       currency: order.currency.toUpperCase(),
       subtotal,

@@ -288,6 +288,13 @@ export function buildCheckoutSessionPayload(
       artistTransferTotal: totals.artistTransfers.toFixed(2),
       platformRetainedTotal: totals.platformRetained.toFixed(2),
       lineItemCount: String(lineItems.length),
+      catalogSlug: lineItems[0]?.artworkSlug ?? "",
+      ...Object.fromEntries(
+        lineItems.flatMap((item, index) => [
+          [`catalogSlug_${index}`, item.artworkSlug],
+          [`lineItemName_${index}`, `${item.title} — ${item.artistName}`],
+        ]),
+      ),
     },
     fulfillmentPartnerId: route.partnerId,
     shippingRegion: region,

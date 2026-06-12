@@ -33,7 +33,7 @@ test("buildPrintfulOrderPayload maps Stripe order metadata", () => {
 
   assert.equal(payload.externalId, sampleOrder.orderId);
   assert.equal(payload.recipient.name, "Test Buyer");
-  assert.equal(payload.items[0]?.variantId, "pf_midnight-coast");
+  assert.equal(payload.items[0]?.variantId, "4011");
   assert.equal(payload.retailCosts.subtotal, "85.00");
 });
 

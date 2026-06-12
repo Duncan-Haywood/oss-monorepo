@@ -1,11 +1,16 @@
 import {
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
+  calculateCheckoutTotals,
   getCheckoutEnvStatus,
   parseCheckoutCart,
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
+import {
+  buildCheckoutSessionRetargetingEvents,
+  recordCheckoutSessionRetargetingEvents,
+} from "@/lib/retargeting-events";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout-server";
 import { NextResponse } from "next/server";
 
@@ -21,6 +26,11 @@ function readEnv() {
     PRINTFUL_STORE_ID: process.env.PRINTFUL_STORE_ID,
     GELATO_API_KEY: process.env.GELATO_API_KEY,
     GELATO_STORE_ID: process.env.GELATO_STORE_ID,
+    META_PIXEL_ID: process.env.META_PIXEL_ID,
+    META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN,
+    GOOGLE_ADS_CUSTOMER_ID: process.env.GOOGLE_ADS_CUSTOMER_ID,
+    PINTEREST_AD_ACCOUNT_ID: process.env.PINTEREST_AD_ACCOUNT_ID,
+    PINTEREST_ACCESS_TOKEN: process.env.PINTEREST_ACCESS_TOKEN,
   };
 }
 
@@ -77,12 +87,23 @@ export async function POST(request: Request) {
   }
 
   const sessionPayload = buildCheckoutSessionPayload(lineItems, region, baseUrl, env);
+  const totals = calculateCheckoutTotals(lineItems, region);
+  const cartValueCents = Math.round(totals.total * 100);
+  const retargetingEvents = buildCheckoutSessionRetargetingEvents(
+    sessionPayload.sessionId,
+    lineItems,
+    cartValueCents,
+    region,
+    env,
+  );
+  recordCheckoutSessionRetargetingEvents(retargetingEvents);
 
   if (!envStatus.readyForTestCheckout) {
     return NextResponse.json({
       ...envStatus,
       simulated: true,
       session: sessionPayload,
+      retargetingEvents,
       hint: "Test-mode Stripe keys missing — session payload preview only. Add keys to .env.local to create live Checkout Sessions.",
     });
   }
@@ -101,6 +122,7 @@ export async function POST(request: Request) {
       sessionId: liveSession.sessionId,
       checkoutUrl: liveSession.checkoutUrl,
       livemode: liveSession.livemode,
+      retargetingEvents,
       hint: "Redirect buyer to checkoutUrl. Webhook at /api/stripe/webhook handles payment_intent.succeeded → POD + Connect transfer.",
     });
   } catch (error) {

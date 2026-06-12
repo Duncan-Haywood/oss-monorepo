@@ -7,6 +7,7 @@ import {
   getPartnerCredentialEnvFromProcess,
   type PartnerCredential,
 } from "@/lib/partner-credentials";
+import PrintfulVariantMapper from "@/components/PrintfulVariantMapper";
 import { fulfillmentPartners } from "@/lib/partners";
 
 function statusColor(status: PartnerCredential["status"]): string {
@@ -143,6 +144,8 @@ export default function PartnerCredentialVault() {
           ))}
         </div>
       </section>
+
+      <PrintfulVariantMapper />
 
       <section>
         <h3 className="mb-3 text-lg font-bold text-stone-900">Payments</h3>
