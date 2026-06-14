@@ -17,6 +17,11 @@ real-estate-agent-photo-app/
 ├── .gitignore
 ├── docs/
 │   └── REPLICATION_PROMPT.md
+├── docs-site/
+│   ├── content/
+│   ├── infra/access-policy.json
+│   ├── scripts/setup-cloudflare-access.sh
+│   └── wrangler.toml
 ├── scripts/
 │   └── push-to-github.sh
 └── research/
@@ -40,6 +45,33 @@ real-estate-agent-photo-app/
         └── lib/
             └── data.ts
 ```
+
+## Docs site (private)
+
+The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Pages** and is protected by **Cloudflare Access** with a single-email allowlist (`duncan.andrew.haywood@gmail.com`).
+
+```bash
+cd docs-site
+npm install
+npm run dev
+```
+
+Build and deploy:
+
+```bash
+cd docs-site
+npm run build          # static export → docs-site/out/
+npm run pages:deploy   # requires CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
+```
+
+After the first deploy, apply the Access policy:
+
+```bash
+export DOCS_HOSTNAME=listing-lens-docs.pages.dev
+./docs-site/scripts/setup-cloudflare-access.sh
+```
+
+See `docs-site/content/deployment.md` for full setup details.
 
 ## Research report commands
 

@@ -1,0 +1,21 @@
+{
+  "name": "Listing Lens Docs",
+  "type": "self_hosted",
+  "session_duration": "24h",
+  "allowed_identities": [
+  {
+    "email": "duncan.andrew.haywood@gmail.com"
+  }
+  ],
+  "policy": {
+    "name": "Allow Duncan only",
+    "decision": "allow",
+    "include": [
+      {
+        "email": {
+          "email": "duncan.andrew.haywood@gmail.com"
+        }
+      }
+    ]
+  }
+}
