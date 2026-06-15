@@ -18,7 +18,7 @@ Private documentation deployed to **Cloudflare Pages** with **Cloudflare Access*
 - **Run (dev):** `cd docs-site && npm run dev` → http://localhost:3000
 - **Build:** `cd docs-site && npm run build` → static export in `docs-site/out/`
 - **Deploy:** `cd docs-site && npm run pages:deploy` (requires `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`)
-- **Live URL:** https://listing-lens-docs.duncan-andrew-haywood.workers.dev
-- **Access policy:** `DOCS_HOSTNAME=listing-lens-docs.duncan-andrew-haywood.workers.dev ./docs-site/scripts/setup-cloudflare-access.sh`
+- **Live URL:** https://listing-lens-docs.pages.dev
+- **Access policy:** `DOCS_HOSTNAME=listing-lens-docs.pages.dev ./docs-site/scripts/setup-cloudflare-access.sh`
 - GitHub Actions deploy: `.github/workflows/deploy-docs.yml` (secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`)
 - Local dev does not enforce Access; production is gated at the Cloudflare edge.

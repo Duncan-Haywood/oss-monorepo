@@ -48,9 +48,9 @@ real-estate-agent-photo-app/
 
 ## Docs site (private)
 
-The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Workers** (static assets) and is protected by **Cloudflare Access** with a single-email allowlist (`duncan.andrew.haywood@gmail.com`).
+The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Pages** and is protected by **Cloudflare Access** with a single-email allowlist (`duncan.andrew.haywood@gmail.com`).
 
-**Live:** https://listing-lens-docs.duncan-andrew-haywood.workers.dev
+**Live:** https://listing-lens-docs.pages.dev
 
 ```bash
 cd docs-site
@@ -66,10 +66,10 @@ npm run build          # static export → docs-site/out/
 npm run pages:deploy   # requires CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
 ```
 
-Access policy is applied automatically on deploy. To re-apply manually:
+After deploy, apply Access:
 
 ```bash
-export DOCS_HOSTNAME=listing-lens-docs.duncan-andrew-haywood.workers.dev
+export DOCS_HOSTNAME=listing-lens-docs.pages.dev
 ./docs-site/scripts/setup-cloudflare-access.sh
 ```
 

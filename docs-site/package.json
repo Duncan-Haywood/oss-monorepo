@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:deploy": "npm run build && wrangler deploy"
+    "pages:deploy": "npm run build && wrangler pages deploy out --project-name=listing-lens-docs --branch=main"
   },
   "dependencies": {
     "lucide-react": "^0.331.0",

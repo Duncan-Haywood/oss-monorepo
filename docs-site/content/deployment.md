@@ -1,12 +1,12 @@
 # Deployment
 
-This site is a **Next.js** static export deployed to **Cloudflare Workers** (static assets) and protected by **Cloudflare Access**.
+This site is a **Next.js** static export deployed to **Cloudflare Pages** and protected by **Cloudflare Access**.
 
 Access is restricted to a single email allowlist. No other identities can reach the docs.
 
 ## Live URL
 
-**https://listing-lens-docs.duncan-andrew-haywood.workers.dev**
+**https://listing-lens-docs.pages.dev**
 
 ## Allowed identity
 
@@ -17,7 +17,7 @@ Access is restricted to a single email allowlist. No other identities can reach 
 ## Architecture
 
 ```text
-Browser → Cloudflare Access (email gate) → Cloudflare Workers (static Next.js export)
+Browser → Cloudflare Access (email gate) → Cloudflare Pages (static Next.js export)
 ```
 
 Cloudflare Access runs at the edge before any page is served. Unauthenticated visitors are prompted to authenticate via Cloudflare Access (one-time PIN to the whitelisted email). Only `duncan.andrew.haywood@gmail.com` can complete authentication.
@@ -47,11 +47,11 @@ Static files are written to `docs-site/out/`.
 
 Push to `main` triggers `.github/workflows/deploy-docs.yml` when `docs-site/**` changes.
 
-Required repository secrets (already configured):
+Required repository secrets:
 
 | Secret | Description |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | API token with Workers deploy + Zero Trust edit permissions |
+| `CLOUDFLARE_API_TOKEN` | API token with Cloudflare Pages + Zero Trust edit permissions |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 
 ### Manual deploy
@@ -63,24 +63,28 @@ npm run pages:deploy
 
 ## Cloudflare Access setup
 
-Access is applied automatically by CI. To re-apply manually:
+After the first Pages deploy, apply the Access policy:
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...
 export CLOUDFLARE_ACCOUNT_ID=...
-export DOCS_HOSTNAME=listing-lens-docs.duncan-andrew-haywood.workers.dev
+export DOCS_HOSTNAME=listing-lens-docs.pages.dev
 ./docs-site/scripts/setup-cloudflare-access.sh
 ```
 
-The script reads `infra/access-policy.json` and creates an Access application plus allow/deny policies for the single whitelisted email.
+The script attaches reusable Zero Trust policies (`duncan-only` allow + `whitelist-only` deny) and the one-time PIN identity provider for `duncan.andrew.haywood@gmail.com`.
+
+**Important:** Do not create self-hosted Access apps for `*.workers.dev` hostnames — use Workers Settings → Enable Cloudflare Access instead. For Pages, use the script above or the dashboard steps below.
 
 ### Dashboard alternative
 
 1. Cloudflare Zero Trust → **Access** → **Applications** → **Add an application**
 2. Type: **Self-hosted**
-3. Application domain: your Pages hostname (e.g. `listing-lens-docs.pages.dev`)
-4. Add policy: **Allow** → Include → **Emails** → `duncan.andrew.haywood@gmail.com`
-5. Do not add any other include rules
+3. Application domain: `listing-lens-docs.pages.dev`
+4. Identity provider: **One-time PIN**
+5. Policy: **Allow** → Include → **Emails** → `duncan.andrew.haywood@gmail.com`
+6. Policy: **Deny** → Include → **Everyone**
+7. Enable the **Access App Launcher** in Zero Trust settings so the login flow works
 
 ## Security notes
 

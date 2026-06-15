@@ -1,8 +1,6 @@
 name = "listing-lens-docs"
 compatibility_date = "2024-11-01"
-
-[assets]
-directory = "out"
+pages_build_output_dir = "out"
 
 [vars]
 # Site is private via Cloudflare Access — see infra/access-policy.json
