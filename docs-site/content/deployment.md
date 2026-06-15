@@ -1,8 +1,12 @@
 # Deployment
 
-This site is deployed to **Cloudflare Pages** and protected by **Cloudflare Access**.
+This site is a **Next.js** static export deployed to **Cloudflare Workers** (static assets) and protected by **Cloudflare Access**.
 
 Access is restricted to a single email allowlist. No other identities can reach the docs.
+
+## Live URL
+
+**https://listing-lens-docs.duncan-andrew-haywood.workers.dev**
 
 ## Allowed identity
 
@@ -13,10 +17,10 @@ Access is restricted to a single email allowlist. No other identities can reach 
 ## Architecture
 
 ```text
-Browser → Cloudflare Access (email gate) → Cloudflare Pages (static Next.js export)
+Browser → Cloudflare Access (email gate) → Cloudflare Workers (static Next.js export)
 ```
 
-Cloudflare Access runs at the edge before any page is served. Unauthenticated visitors are redirected to the Cloudflare login flow. Only the whitelisted email can complete authentication.
+Cloudflare Access runs at the edge before any page is served. Unauthenticated visitors are prompted to authenticate via Cloudflare Access (one-time PIN to the whitelisted email). Only `duncan.andrew.haywood@gmail.com` can complete authentication.
 
 ## Local development
 
@@ -43,11 +47,11 @@ Static files are written to `docs-site/out/`.
 
 Push to `main` triggers `.github/workflows/deploy-docs.yml` when `docs-site/**` changes.
 
-Required repository secrets:
+Required repository secrets (already configured):
 
 | Secret | Description |
 | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | API token with Cloudflare Pages edit permission |
+| `CLOUDFLARE_API_TOKEN` | API token with Workers deploy + Zero Trust edit permissions |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 
 ### Manual deploy
@@ -59,17 +63,16 @@ npm run pages:deploy
 
 ## Cloudflare Access setup
 
-After the first Pages deploy, apply the Access policy:
+Access is applied automatically by CI. To re-apply manually:
 
 ```bash
-cd docs-site
 export CLOUDFLARE_API_TOKEN=...
 export CLOUDFLARE_ACCOUNT_ID=...
-export DOCS_HOSTNAME=docs.yourdomain.com   # or *.pages.dev hostname
-./scripts/setup-cloudflare-access.sh
+export DOCS_HOSTNAME=listing-lens-docs.duncan-andrew-haywood.workers.dev
+./docs-site/scripts/setup-cloudflare-access.sh
 ```
 
-The script reads `infra/access-policy.json` and creates an Access application plus an allow policy for the single whitelisted email.
+The script reads `infra/access-policy.json` and creates an Access application plus allow/deny policies for the single whitelisted email.
 
 ### Dashboard alternative
 

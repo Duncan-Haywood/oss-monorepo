@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:deploy": "npm run build && wrangler pages deploy out"
+    "pages:deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "lucide-react": "^0.331.0",

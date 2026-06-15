@@ -2,10 +2,23 @@
 
 ## Cursor Cloud specific instructions
 
-This repo is currently a single runnable artifact: the **Listing Lens market research report**, a Next.js 14 (App Router) static-export site. There is no backend, database, or auth — the strategy docs intentionally scope those out for now.
+This repo has two Next.js 14 (App Router) static-export sites — no backend, database, or app auth.
 
-- **All app code and the `package.json` live in `research/`** (not the repo root). Run npm commands from there (e.g. `npm run dev`) or use `--prefix research`. Dependencies are installed automatically on startup by the update script.
-- **Run (dev):** `cd research && npm run dev` → serves on http://localhost:3000.
-- **Build:** `cd research && npm run build` → produces a static export in `research/out/` (`next.config.js` sets `output: "export"`). `npm run start` is not meaningful for a static export.
-- **Lint/typecheck gotcha:** `npm run lint` (`next lint`) hangs because no ESLint config is committed — it tries to prompt interactively to create one. Instead, validate lint + TypeScript via `npm run build`, which runs the "Linting and checking validity of types" step non-interactively and fails on errors.
-- No environment variables are required for dev or build.
+### Research report (`research/`)
+
+- **Run (dev):** `cd research && npm run dev` → http://localhost:3000
+- **Build:** `cd research && npm run build` → static export in `research/out/`
+- **Lint/typecheck gotcha:** `npm run lint` hangs without an ESLint config. Use `npm run build` instead (runs typecheck + lint non-interactively).
+- No environment variables required for dev or build.
+
+### Docs site (`docs-site/`)
+
+Private documentation deployed to **Cloudflare Pages** with **Cloudflare Access** (single-email allowlist: `duncan.andrew.haywood@gmail.com`).
+
+- **Run (dev):** `cd docs-site && npm run dev` → http://localhost:3000
+- **Build:** `cd docs-site && npm run build` → static export in `docs-site/out/`
+- **Deploy:** `cd docs-site && npm run pages:deploy` (requires `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`)
+- **Live URL:** https://listing-lens-docs.duncan-andrew-haywood.workers.dev
+- **Access policy:** `DOCS_HOSTNAME=listing-lens-docs.duncan-andrew-haywood.workers.dev ./docs-site/scripts/setup-cloudflare-access.sh`
+- GitHub Actions deploy: `.github/workflows/deploy-docs.yml` (secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`)
+- Local dev does not enforce Access; production is gated at the Cloudflare edge.

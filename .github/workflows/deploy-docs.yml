@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and deploy to Cloudflare Pages
+    name: Build and deploy to Cloudflare Workers
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,17 +38,17 @@ jobs:
         working-directory: docs-site
         run: npm run build
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy docs-site/out --project-name=listing-lens-docs
+          workingDirectory: docs-site
+          command: deploy
 
       - name: Apply Cloudflare Access policy
-        if: ${{ vars.DOCS_HOSTNAME != '' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          DOCS_HOSTNAME: ${{ vars.DOCS_HOSTNAME }}
+          DOCS_HOSTNAME: listing-lens-docs.duncan-andrew-haywood.workers.dev
         run: docs-site/scripts/setup-cloudflare-access.sh
