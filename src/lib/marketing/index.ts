@@ -1,11 +1,17 @@
 export type {
+  ApprovalMode,
   AutomationLevel,
+  BusinessContext,
   GenerateMarketingRequest,
   GenerateMarketingResponse,
-  GeneratedContentItem,
-  MarketingBusinessContext,
   MarketingContentType,
+  MarketingContentVariant,
   MarketingGenerator,
+  MarketingPackageTier,
 } from "./types";
 
-export { createMarketingGenerator, PlaceholderMarketingGenerator } from "./generators";
+export {
+  getMarketingGenerator,
+  setMarketingGenerator,
+  StubMarketingGenerator,
+} from "./generators";
