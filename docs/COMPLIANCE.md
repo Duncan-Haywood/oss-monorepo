@@ -1,6 +1,10 @@
 # Compliance
 
-This document outlines legal and ethical considerations for Local Site Studio. **This is not legal advice.** Consult qualified counsel before scraping, emailing, or storing personal data in your target jurisdictions.
+Legal and ethical considerations for **Maris Stella Labs** (Colorado, USA), operator of the **Local Site Studio** product. **This is not legal advice.** Consult qualified counsel before scraping, emailing, placing automated voice calls, or storing personal data.
+
+## Operating entity
+
+All outreach, payments, and customer data processing should be conducted in the name of **Maris Stella Labs**, Colorado, USA. See [LEGAL.md](./LEGAL.md) for Terms, Privacy Policy, and CAN-SPAM address requirements.
 
 ## Data gathering & scraping
 
@@ -23,50 +27,80 @@ This document outlines legal and ethical considerations for Local Site Studio. *
 
 ### Recommended approach at launch
 
-- **Manual + semi-automated:** Export lists from chambers of commerce, industry associations, or paid B2B data providers compliant with their licenses.
 - **Google Places API:** Legitimate path for business metadata; budget for API costs.
+- **Licensed B2B data providers** with documented license terms.
 - **No headless browser scraping** of Maps/Facebook in production without legal review.
 
 ## Email outreach
 
-### United States — CAN-SPAM Act
+### United States — CAN-SPAM Act (federal)
 
-- Identify message as an advertisement where applicable.
-- Include valid physical postal address.
-- Provide clear opt-out (unsubscribe) honored within 10 business days.
-- Don't use deceptive subject lines or header information.
-- Honor opt-outs permanently for that campaign/brand.
+Applies to all commercial email to US recipients. **Critical for Maris Stella Labs:**
+
+- **Identify sender:** Maris Stella Labs (Local Site Studio service)
+- **Valid physical postal address** of Maris Stella Labs in Colorado — see [LEGAL.md](./LEGAL.md)
+- Clear opt-out (unsubscribe) honored within 10 business days
+- Non-deceptive subject lines and header information
+- Honor opt-outs permanently (suppression list)
+
+**Note:** CAN-SPAM is federal law; Colorado does not replace it with a separate email marketing statute for B2B, but general Colorado consumer protection laws still apply to unfair practices.
+
+### Colorado considerations
+
+- **Colorado Privacy Act (CPA):** Colorado has a comprehensive privacy law. Assess applicability with counsel — especially if processing personal data of Colorado residents beyond pure B2B business contact info. **CCPA (California)** applies only if your business meets California revenue/volume thresholds; document your assessment.
+- **Colorado Unfair Trade Practices:** Avoid deceptive outreach claims about preview sites or pricing.
+- **Entity compliance:** Ensure Maris Stella Labs is properly registered with the Colorado Secretary of State.
 
 ### EU / UK — GDPR & ePrivacy
 
-- **B2B email** to corporate addresses may be permitted under legitimate interest in some contexts, but rules vary by country (e.g., UK PECR, Germany strict opt-in for cold email).
-- Document lawful basis (legitimate interest assessment recommended).
-- Provide privacy notice: what data you hold, why, retention, rights.
-- Easy opt-out; don't email individuals who objected.
+If expanding beyond the US:
+
+- B2B email rules vary by country; legitimate interest may apply in some contexts.
+- Document lawful basis; provide privacy notice and opt-out.
 
 ### Canada — CASL
 
-- Generally requires consent for commercial electronic messages unless a narrow exemption applies (e.g., conspicuous publication of business email for relevant inquiry).
-- Keep records of consent or exemption basis.
+- Consent or narrow exemption required for commercial electronic messages.
 
 ### Best practices (all regions)
 
-- Email **business contact addresses** only when relevant to their business needs.
-- Personalize; avoid spammy bulk blasts.
-- Rate-limit sends; warm up new domains.
-- Use SPF, DKIM, DMARC on sending domain.
-- Maintain suppression list across campaigns.
+- Email **business contact addresses** relevant to the offer.
+- Rate-limit sends; authenticate domain (SPF, DKIM, DMARC).
+- Every email footer: Maris Stella Labs physical address + unsubscribe.
 
-## Telemarketing / AI discovery calls
+## Telemarketing / AI voice agents — TCPA (critical)
 
-If using outbound or AI phone calls:
+Automated and AI voice outreach is **high-risk** under the Telephone Consumer Protection Act (TCPA). This is the primary US federal law governing calls to cell phones and use of autodialers/AI voice systems.
 
-- **US TCPA:** Prior express consent often required for autodialed marketing calls to cell phones; state mini-TTCPA rules vary (Florida, etc.).
-- **UK TPS / CTPS:** Do not call numbers registered on Telephone Preference Service without consent.
-- Record consent and call logs.
-- AI voice disclosure requirements evolving — disclose automated nature where required.
+### TCPA requirements (summary — not legal advice)
 
-**Recommendation:** Start with **email only**; add calls only with compliance workflow.
+| Scenario | Typical requirement |
+|----------|---------------------|
+| **Marketing calls to cell phones** using autodialer / AI / prerecorded voice | **Prior express written consent** in most cases |
+| **Marketing calls to landlines** | Less restricted federally; state laws may apply |
+| **Informational / transactional** | Narrower exemptions — marketing preview sites is generally **marketing** |
+| **Inbound calls** (customer calls you) | Lower risk — customer initiated contact |
+| **Established business relationship** | Limited exemptions; do not rely on this for cold outbound AI calls without counsel |
+
+### State law (including Colorado)
+
+- TCPA is federal baseline; states may impose additional restrictions.
+- **Colorado:** No separate mini-TCPA as strict as Florida, but comply with federal TCPA and general telemarketing rules.
+- **Do Not Call Registry:** Scrub against National DNC for telemarketing calls where applicable.
+
+### AI voice disclosure
+
+- Disclose that the caller is an **automated AI assistant** calling on behalf of **Maris Stella Labs**.
+- Honor verbal opt-out immediately ("stop calling," "remove me") — sync to suppression list.
+- If recording calls or storing transcripts, disclose in Privacy Policy and where required by state law (Colorado is one-party consent for recording, but disclosure is still best practice).
+
+### Recommended launch sequence
+
+1. **Phase A:** Email outreach only (CAN-SPAM compliant with Maris Stella Labs address).
+2. **Phase B:** **Inbound-only** voice — customer calls number from email/preview (lower TCPA risk).
+3. **Phase C:** Outbound AI voice only after **TCPA consent strategy** approved by attorney (e.g., leads who opted in, or landline-only with legal review).
+
+**Do not** launch automated outbound AI marketing calls to cell phones without explicit legal sign-off.
 
 ## Data retention & privacy
 
@@ -75,8 +109,8 @@ If using outbound or AI phone calls:
 Store only fields needed for outreach and site generation:
 
 - Business name, category, location, public contact email/phone
-- Preview slug, pipeline status, outreach timestamps
-- Avoid storing unnecessary personal data about owners
+- Preview slug, pipeline status, outreach timestamps, voice session summaries
+- Avoid unnecessary owner personal data
 
 ### Retention policy (suggested)
 
@@ -86,45 +120,55 @@ Store only fields needed for outreach and site generation:
 | Opted-out / do-not-contact | Indefinitely (suppression list) |
 | Paid customer records | Duration of service + legal/tax requirements |
 | Email logs | 24 months |
+| Voice transcripts | 90 days (adjust per Privacy Policy and counsel) |
 
 ### Security
 
 - Encrypt data at rest (database provider default).
 - Restrict dashboard access (auth + RBAC).
-- Don't log full payment card data (Stripe handles PCI).
+- Stripe handles PCI — Maris Stella Labs merchant account.
 
 ### Privacy policy & terms
 
-Before public launch, publish:
+Before public launch, publish at `/privacy` and `/terms`:
 
-- Privacy policy (what you collect, why, sharing, rights)
+- Privacy policy naming **Maris Stella Labs** as controller
 - Terms of service for purchased websites
 - Cookie notice if using analytics
 
+See [LEGAL.md](./LEGAL.md) for outlines.
+
 ## Stripe & payments
 
+- Merchant of record: **Maris Stella Labs**, Colorado, USA
 - Use Stripe Checkout (PCI scope minimized).
 - Clear refund policy on checkout page.
-- Collect only necessary billing info via Stripe.
+- Statement descriptor recognizable to customers.
 
 ## Intellectual property
 
-- Templates: you own; grant client license on payment.
+- Templates: Maris Stella Labs owns; grant client license on payment.
 - Client-provided assets: client warrants they have rights.
-- Stock images: use licensed libraries (Unsplash license, paid stock) documented per site.
+- Stock images: licensed libraries only.
 
 ## Checklist before first outreach batch
 
-- [ ] Legal review for target country/state
-- [ ] Privacy policy and unsubscribe mechanism live
+- [ ] Maris Stella Labs entity registered (Colorado SOS)
+- [ ] CAN-SPAM physical address live (not placeholder)
+- [ ] Privacy policy and Terms published
+- [ ] Unsubscribe mechanism and suppression list implemented
 - [ ] Sending domain authenticated (SPF/DKIM/DMARC)
+- [ ] Stripe verified as Maris Stella Labs
 - [ ] Data source documented (API license or manual)
-- [ ] Suppression list implemented
-- [ ] No scraping of Maps/Facebook UI without approval
+- [ ] TCPA strategy documented before any outbound voice
+- [ ] Voice agent scripts identify Maris Stella Labs + AI disclosure
+- [ ] No Maps/Facebook UI scraping without legal approval
 
 ## References
 
 - [FTC CAN-SPAM](https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business)
-- [ICO direct marketing (UK)](https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/)
+- [FCC TCPA](https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts)
+- [Colorado Privacy Act (overview)](https://coag.gov/resources/colorado-privacy-act/)
 - [Google Maps Platform Terms](https://cloud.google.com/maps-platform/terms)
 - [Stripe compliance](https://stripe.com/guides/general-data-protection-regulation)
+- [LEGAL.md](./LEGAL.md) — entity, Terms/Privacy outlines, voice disclosures

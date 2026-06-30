@@ -40,7 +40,9 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
           >
             Claim this site — $500
           </Link>
-          <span className="text-sm text-zinc-500">Questions? Reply to your outreach email.</span>
+          <span className="text-sm text-zinc-500">
+            Questions? Call our AI assistant or reply to your Maris Stella Labs email.
+          </span>
         </div>
       </section>
     </main>

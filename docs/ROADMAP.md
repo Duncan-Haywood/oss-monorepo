@@ -1,13 +1,14 @@
 # Roadmap
 
-Phased plan to take Local Site Studio from scaffold to revenue. Designed for continuation in Cursor Cloud or local dev.
+Phased plan for **Maris Stella Labs** (Colorado, USA) operating **Local Site Studio**. Designed for continuation in Cursor Cloud or local dev.
 
 ## Phase 0 — Scaffold (complete)
 
 - [x] Next.js + TypeScript + Tailwind project
 - [x] Agency marketing landing page (`/`)
 - [x] Placeholder dashboard, leads, preview, checkout routes
-- [x] Architecture, business, compliance, and roadmap docs
+- [x] Architecture, business, compliance, legal, and roadmap docs
+- [x] Maris Stella Labs branding (Colorado, USA) across site and docs
 - [x] `.env.example` with Stripe and hosting placeholders
 - [x] Private GitHub repository
 

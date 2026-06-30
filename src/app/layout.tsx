@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { company } from "@/lib/company";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Local Site Studio — Pre-built websites for local businesses",
-  description:
-    "Professional websites for local businesses, built before you buy. Preview your site, pay $500, go live.",
+  title: `${company.productName} — Pre-built websites for local businesses`,
+  description: `${company.productName} by ${company.legalName} (${company.location}). Professional websites built before you buy. Preview your site, pay $500, go live.`,
 };
 
 export default function RootLayout({

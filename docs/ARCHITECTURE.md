@@ -1,13 +1,13 @@
 # Architecture
 
-Local Site Studio is an **automation-first**, sales-led SaaS for pre-building websites for local businesses. The operator (owner) runs a **zero-touch pipeline**: leads are discovered, sites are generated, outreach is sent, and **AI voice agents** handle all customer interaction. Prospects receive a preview link, customize via voice or self-serve checkout, and pay without human sales involvement.
+**Local Site Studio** is a product operated by **Maris Stella Labs** (Colorado, USA). It is an **automation-first**, sales-led service for pre-building websites for local businesses. The operator runs a **zero-touch pipeline**: leads are discovered, sites are generated, outreach is sent under the Maris Stella Labs brand, and **AI voice agents** handle all customer interaction. Prospects receive a preview link, customize via voice or self-serve checkout, and pay Maris Stella Labs via Stripe without human sales involvement.
 
 ## Design principles
 
 | Stakeholder | Goal |
 |-------------|------|
 | **Local business owner (customer)** | Low friction — preview link, optional AI call, self-serve Stripe checkout |
-| **Operator (Duncan)** | Zero touch — no discovery calls, no manual outreach replies, automated funnel end-to-end |
+| **Operator (Maris Stella Labs)** | Zero touch — no discovery calls, no manual outreach replies, automated funnel end-to-end |
 | **System** | Voice agent gathers branding/content, updates preview, handles objections, hands off to payment |
 
 ## Automated funnel (zero-touch operator)

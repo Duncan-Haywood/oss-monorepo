@@ -1,8 +1,10 @@
 # Local Site Studio
 
-Pre-built websites for local businesses — preview before you buy, $500 flat.
+**Operated by Maris Stella Labs · Colorado, USA**
 
-Local Site Studio is a productized web agency: discover local businesses, generate branded preview sites, outreach via email with a preview link, and convert with Stripe checkout. This repository contains the marketing site, operator dashboard scaffold, preview templates, and project documentation.
+Pre-built websites for local businesses — preview before you buy, $500 flat, zero sales calls.
+
+Local Site Studio is an automated website service from **Maris Stella Labs**: discover local businesses, generate preview sites, outreach via email and AI voice agents, and convert with self-serve Stripe checkout. All payments and legal obligations are under Maris Stella Labs.
 
 ## Quick start
 
@@ -18,46 +20,52 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Agency landing — explains the $500 pre-built website offer |
-| `/dashboard` | Operator console overview (placeholder) |
-| `/dashboard/leads` | Lead pipeline funnel (placeholder) |
-| `/preview/[slug]` | Client preview site template |
+| `/` | Service landing — $500 pre-built website offer |
+| `/privacy` | Privacy Policy placeholder |
+| `/terms` | Terms of Service placeholder |
+| `/dashboard` | Operator monitoring console (placeholder) |
+| `/dashboard/leads` | Automated funnel stages (placeholder) |
+| `/preview/[slug]` | Client preview site + self-serve checkout CTA |
 | `/checkout` | Stripe checkout UI (not connected) |
 | `/docs` | Documentation index |
-| `POST /api/stripe/checkout` | Checkout session stub (returns 501) |
+| `POST /api/stripe/checkout` | Checkout session stub (501) |
 
 ## Documentation
 
-- [Architecture](./docs/ARCHITECTURE.md) — data ingestion, site generation, preview hosting, outreach, payments
-- [Business model](./docs/BUSINESS-MODEL.md) — pricing, funnel, outreach scripts
-- [Compliance](./docs/COMPLIANCE.md) — scraping ToS, CAN-SPAM, GDPR, data retention
+- [Legal](./docs/LEGAL.md) — entity, Terms/Privacy outlines, CAN-SPAM, Stripe, voice disclosures
+- [Architecture](./docs/ARCHITECTURE.md) — automated funnel, voice agents, zero-touch operator
+- [Business model](./docs/BUSINESS-MODEL.md) — pricing, automated funnel
+- [Compliance](./docs/COMPLIANCE.md) — CAN-SPAM, TCPA, Colorado CPA, scraping ToS
 - [Roadmap](./docs/ROADMAP.md) — phased implementation plan
 
 ## Business model (summary)
 
-1. Gather public business info (APIs and manual research — see compliance notes).
-2. Pre-build a website from templates.
-3. Email the owner a preview link on a trustworthy subdomain.
-4. Optional discovery call to refine the site.
-5. Collect $500 via Stripe; deploy to custom domain.
+1. Ingest public business data (Places API, licensed data — not UI scrapers).
+2. Auto-generate preview site from templates.
+3. Email from **Maris Stella Labs** with preview link (+ optional AI voice).
+4. Customer self-serves via preview checkout or AI voice assistant.
+5. Stripe payment to **Maris Stella Labs** → automated deploy.
 
 ## Tech stack
 
 - **Next.js 16** (App Router) + **TypeScript**
 - **Tailwind CSS v4**
 - **Vercel** (hosting)
-- **Stripe** (payments — to be integrated)
+- **Stripe** (payments — merchant: Maris Stella Labs)
 - Database TBD (see roadmap)
 
 ## Environment variables
 
 Copy `.env.example` to `.env.local`. Never commit secrets.
 
-Key variables: `STRIPE_*`, `RESEND_API_KEY`, `VERCEL_*`, `NEXT_PUBLIC_PREVIEW_DOMAIN`.
+Key branding: `NEXT_PUBLIC_COMPANY_NAME`, `NEXT_PUBLIC_COMPANY_ADDRESS`, `NEXT_PUBLIC_APP_NAME`.
+
+Key integrations: `STRIPE_*`, `RESEND_*`, `VERCEL_*`.
 
 ## Compliance reminder
 
-Do **not** implement scrapers against Google Maps or Facebook without reviewing platform ToS and obtaining legal advice. Prefer Google Places API, licensed data, or manual research. See [docs/COMPLIANCE.md](./docs/COMPLIANCE.md).
+- Outreach emails must identify **Maris Stella Labs** and include a valid Colorado postal address (CAN-SPAM).
+- Do not launch outbound AI voice to cell phones without TCPA legal review. See [docs/COMPLIANCE.md](./docs/COMPLIANCE.md) and [docs/LEGAL.md](./docs/LEGAL.md).
 
 ## Deploy
 
@@ -65,8 +73,8 @@ Do **not** implement scrapers against Google Maps or Facebook without reviewing 
 npm run build
 ```
 
-Deploy to Vercel and connect your production domain. Configure wildcard DNS for preview subdomains when ready.
+Deploy to Vercel; configure wildcard DNS for preview subdomains.
 
 ## License
 
-Private — all rights reserved.
+Private — Maris Stella Labs. All rights reserved.

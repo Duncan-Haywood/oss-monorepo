@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>
       <p className="mt-3 text-zinc-600">
-        Operator tools for Local Site Studio. Not yet connected to a database or
+        Operator tools for Maris Stella Labs (Local Site Studio). Not yet connected to a database or
         external services.
       </p>
 

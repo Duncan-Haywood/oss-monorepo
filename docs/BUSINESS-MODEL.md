@@ -1,8 +1,11 @@
 # Business model
 
+**Legal entity:** Maris Stella Labs · Colorado, USA  
+**Product:** Local Site Studio
+
 ## Value proposition
 
-Local Site Studio sells **pre-built websites** to local businesses. The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pay $500 self-serve — no waiting on a salesperson.
+Maris Stella Labs sells **pre-built websites** through the Local Site Studio service to local businesses. The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pay $500 self-serve — no waiting on a salesperson.
 
 ## Operating model: zero-touch operator
 
@@ -77,11 +80,11 @@ flowchart TD
 
 **Body outline:**
 
-1. We build sites for local businesses — yours is ready to preview.
+1. **Maris Stella Labs** builds sites for local businesses — yours is ready to preview.
 2. Link: `https://{slug}.preview.yourdomain.com`
-3. **Call us anytime:** `{VOICE_CALLBACK_NUMBER}` — AI assistant can walk you through and make changes.
-4. **Or buy now:** checkout link on preview page — $500, no call required.
-5. CAN-SPAM footer: address, unsubscribe.
+3. **Call us anytime:** `{VOICE_CALLBACK_NUMBER}` — AI assistant from Maris Stella Labs can walk you through and make changes.
+4. **Or buy now:** checkout link on preview page — $500 to Maris Stella Labs via Stripe, no call required.
+5. CAN-SPAM footer: **Maris Stella Labs** physical address (Colorado), unsubscribe.
 
 ### Email 2 — Follow-up (automated, 3–5 days)
 
@@ -96,7 +99,7 @@ flowchart TD
 
 Triggered when lead has phone and consent basis documented.
 
-**Opening (see VOICE-AGENT-FLOW.md):** "Hi, this is [Assistant] from Local Site Studio. We built a preview website for {BusinessName}. I can text you the link or walk you through it now — takes about two minutes."
+**Opening:** "Hi, this is [Assistant], an automated assistant from **Maris Stella Labs**. We built a preview website for {BusinessName} through our Local Site Studio service. I can text you the link or walk you through it now — takes about two minutes."
 
 If no answer: voicemail with preview URL (where legally permitted) + email backup.
 

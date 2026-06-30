@@ -5,7 +5,7 @@ export default function CheckoutPage() {
     <main className="mx-auto max-w-lg px-6 py-16">
       <PlaceholderBanner
         title="Stripe checkout (not connected)"
-        description="Configure STRIPE_SECRET_KEY and STRIPE_PRICE_ID_WEBSITE in .env.local to enable payments."
+        description="Configure STRIPE_SECRET_KEY and STRIPE_PRICE_ID_WEBSITE in .env.local. Stripe merchant: Maris Stella Labs."
         docsHref="/docs/ARCHITECTURE.md#payments"
       />
 

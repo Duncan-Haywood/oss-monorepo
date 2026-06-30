@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { company } from "@/lib/company";
 
 const steps = [
   {
@@ -9,12 +10,12 @@ const steps = [
   {
     title: "Preview before you buy",
     description:
-      "Receive a link to your pre-built website. Review it, request tweaks on a discovery call, or buy as-is.",
+      "Receive a link to your pre-built website. Talk to our AI assistant for tweaks, or buy as-is — no sales calls.",
   },
   {
     title: "Go live in days",
     description:
-      "Pay once, connect your domain, and launch a professional landing page or simple storefront.",
+      "Pay once via secure checkout, connect your domain, and launch a professional landing page or simple storefront.",
   },
 ];
 
@@ -32,15 +33,16 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
         <div className="max-w-3xl">
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-zinc-500">
-            Websites for local businesses
+            {company.productName} · {company.legalName}
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl sm:leading-tight">
             Your website, built before you buy
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
-            Local Site Studio creates professional websites for restaurants, salons,
-            trades, and other local businesses. Preview your site first — pay $500
-            only when you love it.
+            {company.productName} by {company.legalName} creates professional websites
+            for restaurants, salons, trades, and other local businesses. Preview your
+            site first — pay $500 only when you love it. Self-serve checkout, optional
+            AI voice assistant for changes.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -79,8 +81,8 @@ export default function Home() {
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Simple, flat pricing</h2>
             <p className="mt-4 text-zinc-600">
-              One price covers design, build, hosting setup, and launch support. No
-              monthly retainers unless you want ongoing updates.
+              One price covers design, build, hosting setup, and launch support. Payments
+              processed securely by {company.legalName} via Stripe.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-zinc-700">
               {features.map((feature) => (
@@ -94,7 +96,9 @@ export default function Home() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
             <p className="text-sm font-medium text-zinc-500">Standard package</p>
             <p className="mt-2 text-5xl font-semibold tracking-tight">$500</p>
-            <p className="mt-2 text-sm text-zinc-600">One-time payment via Stripe</p>
+            <p className="mt-2 text-sm text-zinc-600">
+              One-time payment · {company.legalName}
+            </p>
             <Link
               href="/checkout"
               className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full bg-zinc-900 font-medium text-white transition-colors hover:bg-zinc-700"
@@ -102,7 +106,7 @@ export default function Home() {
               Start checkout
             </Link>
             <p className="mt-4 text-center text-xs text-zinc-500">
-              E-commerce add-ons available. Discovery call optional.
+              E-commerce add-ons available. AI assistant optional — no human sales calls.
             </p>
           </div>
         </div>
