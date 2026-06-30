@@ -4,6 +4,18 @@ Phased plan for **Maris Stella Labs** (Colorado, USA) operating **Local Site Stu
 
 See [PRODUCT-BUNDLES.md](./PRODUCT-BUNDLES.md) for tier definitions.
 
+## Phased bundle rollout
+
+| Phase | Delivers | Bundle tier |
+|-------|----------|-------------|
+| 1, 3, 5 | Website foundation, Stripe, production deploy | **Starter** ($500) |
+| 2 | Platform voice sells bundles on preview | All tiers (sales) |
+| 6 | Marketing engine + recurring billing | **Growth** ($500 + $99/mo) |
+| 7 | Client AI phone agent provisioning | **Complete** ($500 + $199/mo) |
+| 8 | Stripe catalog + checkout | **Commerce** (+$300 + $49/mo) |
+
+Phases 4 (ingestion) and 9 (scale) run in parallel once the core funnel works.
+
 ## Phase 0 — Scaffold (complete)
 
 - [x] Next.js + TypeScript + Tailwind project

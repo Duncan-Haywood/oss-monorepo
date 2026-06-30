@@ -173,7 +173,7 @@ Upsell acceptance triggers the appropriate module (see [MARKETING-AUTOMATION.md]
 ## Competitive positioning
 
 - **vs DIY:** Done for you, preview first, AI help if needed — no learning curve.
-- **vs agencies:** $500 flat, instant preview, no sales calls.
+- **vs agencies:** Bundles from $500 flat, instant preview, no sales calls.
 - **vs freelancers:** Productized, automated, consistent quality.
 
 ## Metrics to track
