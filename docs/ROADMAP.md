@@ -9,7 +9,8 @@ Phased plan for **Maris Stella Labs** (Colorado, USA) operating **Local Site Stu
 - [x] Placeholder dashboard, leads, preview, checkout routes
 - [x] Architecture, business, compliance, legal, and roadmap docs
 - [x] Maris Stella Labs branding (Colorado, USA) across site and docs
-- [x] `.env.example` with Stripe and hosting placeholders
+- [x] `.env.example` with Stripe, marketing LLM, and scheduling placeholders
+- [x] Marketing Engine docs + code scaffold (`src/lib/marketing/`, `/api/marketing/generate`)
 - [x] Private GitHub repository
 
 ## Phase 1 — Foundation (1–2 weeks)

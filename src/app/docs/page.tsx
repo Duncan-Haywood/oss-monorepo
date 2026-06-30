@@ -3,6 +3,11 @@ import { brand } from "@/lib/brand";
 
 const docs = [
   {
+    title: "Marketing automation",
+    href: "/docs/MARKETING-AUTOMATION.md",
+    description: "AI-only copy, scheduling tiers, compliance, platform priority.",
+  },
+  {
     title: "Legal",
     href: "/docs/LEGAL.md",
     description:

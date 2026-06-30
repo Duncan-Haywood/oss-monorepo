@@ -278,18 +278,18 @@ src/
     checkout/                   # Self-serve Stripe checkout UI
     api/
       stripe/checkout/          # Checkout session API (stub)
+      marketing/generate/       # POST — generate marketing copy (stub)
       voice/
         webhook/route.ts        # Voice provider webhooks (stub)
   lib/
+    marketing/
+      types.ts                  # Content types, automation levels
+      generators.ts             # LLM generator interface (stub)
+      index.ts                  # Public exports
     voice/
       config.ts                 # Provider env config
       types.ts                  # Call events, tool payloads
       handlers.ts               # Event routing (stub)
-    marketing/
-      types.ts                  # Content types, automation levels
-      generators.ts             # LLM generator interface (stub)
-  app/api/marketing/
-    generate/route.ts           # POST — generate marketing copy (stub)
 docs/
   VOICE-AGENT-FLOW.md           # Call scripts and state machine
   MARKETING-AUTOMATION.md       # Content types, automation, compliance
