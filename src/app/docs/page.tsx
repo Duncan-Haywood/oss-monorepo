@@ -1,10 +1,17 @@
 import Link from "next/link";
+import { brand } from "@/lib/brand";
 
 const docs = [
   {
     title: "Legal",
     href: "/docs/LEGAL.md",
-    description: "Maris Stella Labs entity, Terms/Privacy outlines, CAN-SPAM, Stripe, voice disclosures.",
+    description:
+      "Legal entity vs public brand, DBA, Terms/Privacy outlines, CAN-SPAM, Stripe.",
+  },
+  {
+    title: "Voice agent flow",
+    href: "/docs/VOICE-AGENT-FLOW.md",
+    description: "Call scripts — agent uses public brand, not legal entity name.",
   },
   {
     title: "Architecture",
@@ -33,8 +40,8 @@ export default function DocsIndexPage() {
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight">Documentation</h1>
       <p className="mt-3 text-zinc-600">
-        Maris Stella Labs · Colorado, USA — Local Site Studio project docs in{" "}
-        <code className="text-sm">docs/</code>.
+        {brand.name} · operated by {brand.legalEntity} ({brand.legalLocation}) — project
+        docs in <code className="text-sm">docs/</code>.
       </p>
 
       <div className="mt-10 space-y-4">
