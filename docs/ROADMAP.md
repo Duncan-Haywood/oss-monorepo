@@ -76,6 +76,34 @@ Phased plan for **Maris Stella Labs** (Colorado, USA) operating **Local Site Stu
 
 **Exit criteria:** One paying customer live on custom domain.
 
+## Phase 7 — Marketing Engine (2–3 weeks, after Phase 5)
+
+**Goal:** AI-generated marketing add-on — copy packs and optional scheduled publishing.
+
+**Prerequisites:** Website MVP live (Phase 5), ingestion or manual lead data with business fields, LLM API key.
+
+- [ ] Implement `src/lib/marketing/` types and generator interface
+- [ ] Wire `POST /api/marketing/generate` to OpenAI or Anthropic
+- [ ] Brand voice extractor from site config + ingestion JSON
+- [ ] Category prompt templates (restaurant, salon, trades, retail)
+- [ ] Quality gates: fact check, forbidden phrase filter, character limits
+- [ ] Stripe Products for copy pack ($49), Social + email ($99/mo), Full marketing ($149/mo)
+- [ ] Voice agent tool: `offerMarketingPackage`
+- [ ] Preview site CTA for marketing add-on
+- [ ] Buffer API integration for schedule tier
+- [ ] Optional customer review link (`/marketing/review/[token]`)
+- [ ] CAN-SPAM compliant email sequences via Resend
+
+**Platform priority (local SMB):**
+
+1. **Google Business Profile** — highest local SEO impact; many SMBs already have a listing
+2. **Facebook** — dominant for restaurants, salons, retail in US metros
+3. **Email (review requests)** — owned channel, no algorithm; high ROI for reputation
+4. **Instagram** — visual categories (food, beauty, retail); schedule via Buffer with Facebook
+5. **Google/Meta ad copy** — Pro tier; copy-only until ad account OAuth is productized
+
+**Exit criteria:** One paying client receives scheduled GBP + social posts for 30 days without operator editing.
+
 ## Phase 6 — Scale & optimize (ongoing)
 
 - [ ] A/B test email subject lines
@@ -117,8 +145,9 @@ npm run dev
 ## Dependencies between phases
 
 ```
-Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 5
+Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 5 → Phase 7
                     ↘ Phase 4 (parallel after Phase 1, after legal review)
 ```
 
 Phase 4 can run in parallel with Phase 2–3 once manual lead entry works.
+Phase 7 requires Phase 5 (production deploy) so marketing pulls from live site content.

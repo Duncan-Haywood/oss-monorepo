@@ -29,9 +29,14 @@ We sell **pre-built websites** to local businesses under a **public brand** (TBD
 |---------|-------|----------|
 | Standard landing site | **$500** one-time | Marketing site, mobile responsive, contact form, map embed, basic SEO, subdomain hosting, domain connection docs |
 | E-commerce lite add-on | **+$200–400** (TBD) | Product catalog, Stripe checkout |
+| **Marketing copy pack** | **$49** one-time | AI-generated GBP posts, social captions, review-request email, local SEO meta — downloadable pack, no scheduling (L1) |
+| **Social + email** | **$99/mo** | 8 social/GBP posts + 2 emails per month, auto-scheduled, brand voice from your site data (L2) |
+| **Full marketing** | **$149/mo** | L2 plus seasonal promos, A/B variants, optional approve-before-publish, GBP + Facebook + Instagram (L3) |
 | Rush / custom | Quote | Only if automated flow cannot satisfy (exception path) |
 
-**Optional recurring (future):** Hosting + minor updates at $29–49/mo.
+**Optional recurring (future):** Hosting + minor site updates at $29–49/mo (separate from marketing tiers).
+
+All marketing content is **100% AI-generated** — no human copywriter. Quality comes from business-specific data (hours, services, location) and category templates, not generic prompts.
 
 Invoices and Stripe receipts show **Maris Stella Labs** as seller. Marketing and outreach use the **public brand**.
 
@@ -118,6 +123,22 @@ If no answer: voicemail with preview URL (where legally permitted) + email backu
 
 Both paths converge on the same Stripe checkout — voice agent can SMS/email the link during the call.
 
+## Marketing add-on upsell (automated)
+
+Marketing packages are offered **without operator involvement** at three touchpoints:
+
+| Touchpoint | Script / CTA | Action |
+|------------|----------------|--------|
+| **Preview site** | "Keep customers coming back — automated social posts and emails from $99/mo" | Link to marketing checkout or voice callback |
+| **Voice agent (discovery)** | After site customization: "Want us to handle your Google posts and social media too? It's $99 a month, fully automated." | Voice tool adds marketing SKU to Stripe checkout |
+| **Post-purchase email** | "Your site is live. Add Marketing Essentials?" | One-click Stripe subscription link |
+
+Upsell acceptance triggers the Marketing Engine (see [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md)). Customer can choose:
+
+- **Generate-only** — copy pack delivered as link/PDF ($49 one-time)
+- **Generate + schedule** — Social + email tier ($99/mo recurring)
+- **Generate + schedule + optimize** — Full marketing tier ($149/mo)
+
 ## Operator workflow (monitoring only)
 
 1. Weekly: review dashboard conversion metrics.
@@ -129,10 +150,12 @@ Both paths converge on the same Stripe checkout — voice agent can SMS/email th
 
 | Item | Estimate |
 |------|----------|
-| Revenue per sale | $500 |
-| Stripe fees | ~$15 |
+| Revenue per sale | $500 (site) + $49–149/mo (marketing upsell) |
+| Stripe fees | ~$15 (site) + ~3% recurring |
 | Voice (2–5 min call) | ~$0.10–0.50 (Vapi/Retell) |
 | Email | ~$0.01–0.05 per lead |
+| Marketing LLM | ~$0.50–2/mo per client (batch generation) |
+| Scheduling (Buffer) | ~$6–12/mo shared across clients |
 | Hosting | ~$0–20/mo shared |
 | Operator time | Near-zero at scale |
 

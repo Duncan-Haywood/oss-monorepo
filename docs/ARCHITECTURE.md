@@ -175,6 +175,83 @@ After payment (no operator step):
 2. Send automated DNS instructions (CNAME to Vercel).
 3. Remove preview banner; route contact form to client email.
 
+### 8. Marketing Engine (future add-on)
+
+**Purpose:** Generate and optionally publish ongoing marketing for paying clients — fully AI-driven, zero operator copywriting. Upsold during voice discovery, on the preview site, or post-purchase.
+
+```mermaid
+flowchart LR
+  subgraph inputs [Inputs]
+    ING[Ingestion pipeline]
+    SITE[Website content]
+    VOICE[Voice discovery answers]
+  end
+
+  subgraph engine [Marketing Engine]
+    BRAND[Brand voice extractor]
+    GEN[Content generators]
+    QA[Quality gates]
+    SCHED[Scheduler]
+  end
+
+  subgraph outputs [Outputs]
+    COPY[Copy variants]
+    POSTS[Scheduled posts]
+    EMAIL[Email sequences]
+  end
+
+  ING --> BRAND
+  SITE --> BRAND
+  VOICE --> BRAND
+  BRAND --> GEN
+  GEN --> QA
+  QA -->|approve or auto| SCHED
+  QA --> COPY
+  SCHED --> POSTS
+  SCHED --> EMAIL
+```
+
+**Inputs:**
+
+| Source | Data used |
+|--------|-----------|
+| **Ingestion pipeline** | Business name, category, address, hours, phone, services, public reviews |
+| **Website content** | Tagline, service pages, hero copy, CTAs, location pages |
+| **Voice agent discovery** | Brand tone preferences, seasonal promos, owner quotes, photo URLs, opt-out of topics |
+
+**Outputs:**
+
+| Output | Format | Delivery |
+|--------|--------|----------|
+| Copy variants | GBP posts, social captions, ad copy, email subject/body | Stored in `marketingContent` table; review link for customer |
+| Scheduled posts | Platform-specific payloads + publish time | Buffer API or direct platform APIs (Google Business Profile, Meta) |
+| Email sequences | Review requests, seasonal promos, re-engagement | Resend (transactional) with CAN-SPAM footer |
+
+**Suggested stack:**
+
+| Layer | Choice | Notes |
+|-------|--------|-------|
+| LLM | OpenAI or Anthropic | Structured JSON output; brand voice system prompt from scraped data |
+| Scheduling | Buffer API (MVP) | Multi-platform queue; upgrade to direct GBP/Meta APIs where OAuth permits |
+| Image gen | Optional (DALL·E / Flux) | Promo graphics; prefer client photos from ingestion when available |
+| Review | Customer approval link | Optional approve-before-publish; default auto within compliance bounds |
+
+**Quality gates:**
+
+1. **Templates** — Category-specific prompts (restaurant vs trades vs salon); slot real business data, never generic placeholders.
+2. **Brand voice** — Derived from website copy + voice discovery; reject outputs missing location, hours, or service names.
+3. **Fact check** — Cross-reference generated claims against ingestion record (no invented discounts or fake awards).
+4. **Human-readable review** — Optional customer link (`/marketing/review/[token]`) to approve, edit, or skip before publish.
+5. **Compliance filter** — Block prohibited claims, missing unsubscribe on email, platform character limits.
+
+**Integration points:**
+
+- Voice agent tool: `offerMarketingPackage()` → explain tiers, add to Stripe subscription or one-time checkout.
+- Preview site CTA: "Add automated marketing from $99/mo" on claim page.
+- Post-payment webhook: if marketing add-on purchased, enqueue first content batch within 24h.
+
+See [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md) for content types, automation levels, and compliance.
+
 ## Tech stack
 
 | Layer | Choice |
@@ -184,8 +261,10 @@ After payment (no operator step):
 | Hosting | Vercel |
 | Payments | Stripe Checkout |
 | Voice | Vapi / Retell / Bland (TBD) — see roadmap |
-| Email | Resend (transactional + outreach) |
-| Database | TBD — Convex or PostgreSQL for leads + voice session logs |
+| Marketing LLM | OpenAI or Anthropic — content generation |
+| Marketing scheduling | Buffer API (MVP); direct GBP/Meta APIs (Phase 2) |
+| Email | Resend (transactional + outreach + marketing sequences) |
+| Database | TBD — Convex or PostgreSQL for leads + voice session logs + marketing queue |
 | Auth (dashboard) | Clerk / NextAuth — operator monitoring only |
 
 ## Repository structure
@@ -206,8 +285,14 @@ src/
       config.ts                 # Provider env config
       types.ts                  # Call events, tool payloads
       handlers.ts               # Event routing (stub)
+    marketing/
+      types.ts                  # Content types, automation levels
+      generators.ts             # LLM generator interface (stub)
+  app/api/marketing/
+    generate/route.ts           # POST — generate marketing copy (stub)
 docs/
   VOICE-AGENT-FLOW.md           # Call scripts and state machine
+  MARKETING-AUTOMATION.md       # Content types, automation, compliance
 ```
 
 ## Security notes

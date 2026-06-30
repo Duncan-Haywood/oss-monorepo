@@ -27,6 +27,13 @@ const features = [
   "Hosted on a trustworthy subdomain until you connect your domain",
 ];
 
+const marketingFeatures = [
+  "Google Business posts and social captions — written for your city and services",
+  "Review-request emails and seasonal promos from your real business data",
+  "Fully automated — no copywriter, optional approve-before-publish",
+  "Add during checkout or when you talk to our AI assistant",
+];
+
 export default function Home() {
   return (
     <main>
@@ -112,6 +119,46 @@ export default function Home() {
               Sold by {brand.legalEntity}. E-commerce add-ons available. AI assistant
               optional — no human sales calls.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="marketing" className="border-t border-zinc-200 bg-zinc-50">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
+                Add-on
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                Automated marketing, zero copywriter
+              </h2>
+              <p className="mt-4 text-zinc-600">
+                After your site goes live, keep customers coming back with AI-generated
+                Google posts, social captions, and emails — built from your hours, services,
+                and location. Schedule it and forget it, or grab a one-time copy pack.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-zinc-700">
+                {marketingFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <span className="mt-1 text-zinc-400">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <p className="text-sm font-medium text-zinc-500">Copy pack</p>
+                <p className="mt-2 text-3xl font-semibold">$149</p>
+                <p className="mt-2 text-sm text-zinc-600">One-time · GBP, social, email templates</p>
+              </div>
+              <div className="rounded-2xl border border-zinc-900 bg-zinc-900 p-6 text-white shadow-sm">
+                <p className="text-sm font-medium text-zinc-400">Essentials</p>
+                <p className="mt-2 text-3xl font-semibold">$99<span className="text-lg font-normal text-zinc-400">/mo</span></p>
+                <p className="mt-2 text-sm text-zinc-300">Auto-scheduled posts and emails each month</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
