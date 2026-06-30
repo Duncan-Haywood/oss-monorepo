@@ -18,7 +18,11 @@ const VALID_CONTENT_TYPES: MarketingContentType[] = [
   "ad_copy",
 ];
 
-const VALID_AUTOMATION_LEVELS: AutomationLevel[] = ["generate", "schedule", "optimize"];
+const VALID_AUTOMATION_LEVELS: AutomationLevel[] = [
+  "generate_only",
+  "generate_schedule",
+  "generate_schedule_optimize",
+];
 
 function isBusinessContext(value: unknown): value is BusinessContext {
   if (!value || typeof value !== "object") return false;
@@ -81,7 +85,7 @@ export async function POST(request: Request) {
     !VALID_AUTOMATION_LEVELS.includes(automationLevel as AutomationLevel)
   ) {
     return NextResponse.json(
-      { error: "automationLevel must be generate, schedule, or optimize" },
+      { error: "automationLevel must be generate_only, generate_schedule, or generate_schedule_optimize" },
       { status: 400 },
     );
   }

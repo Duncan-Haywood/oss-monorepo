@@ -12,14 +12,14 @@ export type MarketingContentType =
   | "seasonal_promo"
   | "ad_copy";
 
-export type AutomationLevel = "generate" | "schedule" | "optimize";
+export type AutomationLevel = "generate_only" | "generate_schedule" | "generate_schedule_optimize";
 
 export type ApprovalMode = "none" | "optional" | "required";
 
 export type MarketingPackageTier =
   | "copy_pack"
-  | "essentials"
-  | "pro";
+  | "social_email"
+  | "full_marketing";
 
 export interface BusinessContext {
   businessName: string;

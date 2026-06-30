@@ -4,15 +4,15 @@ AI-only marketing for local business clients — no human copywriter, zero opera
 
 ## Content types
 
-| Type | Platform / channel | Frequency (Essentials) | Notes |
+| Type | Platform / channel | Frequency (Social + email) | Notes |
 |------|-------------------|------------------------|-------|
 | **Google Business Profile posts** | GBP | 2/mo | Offers, updates, events; link to site |
 | **Facebook / Instagram captions** | Meta (via Buffer) | 4/mo | Short, local hooks; use real hours/location |
 | **Local SEO meta** | Website / GBP | One-time + quarterly refresh | Title, description, service-area keywords |
 | **Seasonal promos** | Social + email | As calendar triggers | Holidays, weather, local events (e.g. "AC tune-up season") |
 | **Review request emails** | Email (Resend) | 1/mo | Post-visit template; CAN-SPAM compliant |
-| **Ad copy variants** | Google/Meta ads (copy only) | On request / Pro tier | Headlines + descriptions for local campaigns |
-| **Re-engagement email** | Email | Pro: 1/mo | "We miss you" + current offer from business data |
+| **Ad copy variants** | Google/Meta ads (copy only) | Full marketing tier | Headlines + descriptions for local campaigns |
+| **Re-engagement email** | Email | Full marketing: 1/mo | "We miss you" + current offer from business data |
 
 All outputs must reference **specific** business facts: city/neighborhood, services, hours, phone, differentiators from scraped or voice-collected data.
 
@@ -20,11 +20,11 @@ All outputs must reference **specific** business facts: city/neighborhood, servi
 
 | Level | Code | Behavior | Best for |
 |-------|------|----------|------------|
-| **Generate-only** | `generate` | LLM produces copy pack; customer downloads or copies manually | One-time buyers, low budget |
-| **Generate + schedule** | `schedule` | Content queued via Buffer (or direct API); publishes on calendar | Essentials / Pro subscribers |
-| **Generate + schedule + optimize** | `optimize` | A/B subject lines or post hooks; winner promoted after 7 days | Pro tier; higher engagement |
+| **Generate-only** | `generate_only` | LLM produces copy pack; customer downloads or copies manually | Copy pack ($49 one-time) |
+| **Generate + schedule** | `generate_schedule` | Content queued via Buffer (or direct API); publishes on calendar | Social + email ($99/mo) |
+| **Generate + schedule + optimize** | `generate_schedule_optimize` | A/B subject lines or post hooks; winner promoted after 7 days | Full marketing ($149/mo) |
 
-Default for zero-touch customers: **`schedule`** with compliance filters — no approve step unless customer opts in via voice or checkout flag.
+Default for zero-touch customers: **`generate_schedule`** with compliance filters — no approve step unless customer opts in via voice or checkout flag.
 
 ### Customer approval modes
 

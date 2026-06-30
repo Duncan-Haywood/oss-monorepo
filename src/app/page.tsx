@@ -128,7 +128,7 @@ export default function Home() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
-                Add-on
+                Optional add-on
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
                 Automated marketing, zero copywriter
@@ -136,7 +136,7 @@ export default function Home() {
               <p className="mt-4 text-zinc-600">
                 After your site goes live, keep customers coming back with AI-generated
                 Google posts, social captions, and emails — built from your hours, services,
-                and location. Schedule it and forget it, or grab a one-time copy pack.
+                and location. Review before publish, or run fully automated.
               </p>
               <ul className="mt-6 space-y-3 text-sm text-zinc-700">
                 {marketingFeatures.map((feature) => (
@@ -147,65 +147,28 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
               <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
                 <p className="text-sm font-medium text-zinc-500">Copy pack</p>
-                <p className="mt-2 text-3xl font-semibold">$149</p>
+                <p className="mt-2 text-3xl font-semibold">$49</p>
                 <p className="mt-2 text-sm text-zinc-600">One-time · GBP, social, email templates</p>
               </div>
               <div className="rounded-2xl border border-zinc-900 bg-zinc-900 p-6 text-white shadow-sm">
-                <p className="text-sm font-medium text-zinc-400">Essentials</p>
-                <p className="mt-2 text-3xl font-semibold">$99<span className="text-lg font-normal text-zinc-400">/mo</span></p>
+                <p className="text-sm font-medium text-zinc-400">Social + email</p>
+                <p className="mt-2 text-3xl font-semibold">
+                  $99<span className="text-lg font-normal text-zinc-400">/mo</span>
+                </p>
                 <p className="mt-2 text-sm text-zinc-300">Auto-scheduled posts and emails each month</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="marketing" className="border-y border-zinc-200 bg-zinc-50">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
-                Optional add-on
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-                Automated marketing, written for your business
-              </h2>
-              <p className="mt-4 text-zinc-600">
-                After your site goes live, add AI-generated Google posts, social captions,
-                and email campaigns — built from your real hours, services, and location. No
-                copywriter, no daily posting. Review before publish, or run fully automated.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm text-zinc-700">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Google Business Profile posts and local social captions
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Review-request and promo emails (CAN-SPAM compliant)
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  From $49 copy pack or $99/mo scheduled automation
-                </li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-              <p className="text-sm font-medium text-zinc-500">Marketing add-on</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight">From $49</p>
-              <p className="mt-2 text-sm text-zinc-600">
-                One-time copy pack or monthly automation — offered on your preview site or
-                via our AI assistant. No sales calls.
-              </p>
-              <Link
-                href="/checkout"
-                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-300 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
-              >
-                View all pricing
-              </Link>
+              <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:col-span-2 xl:col-span-2">
+                <p className="text-sm font-medium text-zinc-500">Full marketing</p>
+                <p className="mt-2 text-3xl font-semibold">
+                  $149<span className="text-lg font-normal text-zinc-500">/mo</span>
+                </p>
+                <p className="mt-2 text-sm text-zinc-600">
+                  Seasonal promos, A/B optimization, GBP + Facebook + Instagram
+                </p>
+              </div>
             </div>
           </div>
         </div>
