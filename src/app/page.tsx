@@ -15,65 +15,58 @@ const steps = [
   {
     title: "Go live in days",
     description:
-      "Pick your bundle, pay via secure checkout, connect your domain, and launch — website, marketing, even an AI phone agent.",
+      "Pay via secure checkout, connect your domain, and launch — with optional marketing and AI phone support.",
   },
 ];
 
 const bundles = [
   {
     name: "Starter",
-    tagline: "Website only",
-    oneTime: "$500",
-    recurring: null,
-    highlight: false,
+    tagline: "Your site, live in days",
+    setup: "$500",
+    recurring: null as string | null,
     features: [
-      "Mobile-responsive landing page",
+      "Professional landing page",
       "Contact form and Google Maps embed",
       "Basic SEO and fast hosting",
-      "Preview before you buy",
-      "Optional AI assistant for tweaks",
+      "Preview subdomain → custom domain handoff",
     ],
+    highlighted: false,
   },
   {
     name: "Growth",
-    tagline: "Website + AI marketing",
-    oneTime: "$500",
+    tagline: "Site + customers on autopilot",
+    setup: "$500",
     recurring: "$99/mo",
-    highlight: false,
     features: [
       "Everything in Starter",
-      "8 social & Google posts per month",
-      "2 automated emails per month",
-      "Brand voice from your business data",
-      "Review-request campaigns",
+      "8 social/GBP posts + 2 emails per month",
+      "Auto-scheduled to Google, Facebook, Instagram",
+      "Brand voice from your site data",
     ],
+    highlighted: true,
   },
   {
     name: "Complete",
-    tagline: "Website + marketing + AI phone",
-    oneTime: "$500",
+    tagline: "Never miss a call or a customer",
+    setup: "$500",
     recurring: "$199/mo",
-    highlight: true,
     features: [
       "Everything in Growth",
-      "AI answers your business phone",
-      "Appointment booking & lead capture",
-      "Missed-call text-back",
-      "After-hours FAQ for customers",
+      "Full marketing — seasonal promos, A/B variants",
+      "AI phone agent for your business line",
+      "Appointment booking and lead capture",
     ],
+    highlighted: false,
   },
 ];
 
-const commerceAddOn = {
-  oneTime: "+$299",
-  recurring: "+$49/mo",
-  features: [
-    "Stripe checkout & simple catalog",
-    "Online ordering or booking deposits",
-    "Order confirmation emails",
-    "Best for retail, restaurants, salons",
-  ],
-};
+const commerceFeatures = [
+  "Stripe checkout and simple catalog (≤50 SKUs)",
+  "Retail, restaurant ordering, booking deposits, or gift cards",
+  "Order notification emails to you",
+  "Stacks on Starter, Growth, or Complete",
+];
 
 export default function Home() {
   return (
@@ -81,15 +74,16 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
         <div className="max-w-3xl">
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-zinc-500">
-            Digital presence for local businesses
+            Pre-built websites for local businesses
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl sm:leading-tight">
-            Your website, marketing, and phone — built before you buy
+            Your website, built before you buy
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
-            and other local businesses. Preview your site first, pick a bundle, and pay
-            only when you&apos;re ready. From $500 — no sales calls.
+            and other local businesses. Preview your site first — choose Starter from $500,
+            or add automated marketing and an AI phone agent. Self-serve checkout, no sales
+            calls.
           </p>
           {!brand.isConfigured && (
             <p className="mt-4 text-sm text-amber-700">
@@ -99,7 +93,7 @@ export default function Home() {
           )}
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
-              href="/checkout"
+              href="#pricing"
               className="inline-flex h-12 items-center justify-center rounded-full bg-zinc-900 px-8 font-medium text-white transition-colors hover:bg-zinc-700"
             >
               View pricing
@@ -131,64 +125,61 @@ export default function Home() {
 
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-2xl">
-          <h2 className="text-2xl font-semibold tracking-tight">Bundle pricing</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Choose your bundle</h2>
           <p className="mt-4 text-zinc-600">
-            One-time site fee plus optional monthly automation. All plans include preview
-            before purchase and self-serve Stripe checkout.
+            Every bundle includes a professional website. Add marketing automation or an AI
+            phone agent when your business needs them. Payments processed securely via Stripe.
           </p>
         </div>
-
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {bundles.map((bundle) => (
             <div
               key={bundle.name}
-              className={`relative rounded-2xl border p-6 shadow-sm ${
-                bundle.highlight
+              className={`flex flex-col rounded-2xl border p-8 shadow-sm ${
+                bundle.highlighted
                   ? "border-zinc-900 bg-zinc-900 text-white"
                   : "border-zinc-200 bg-white"
               }`}
             >
-              {bundle.highlight && (
-                <p className="absolute -top-3 left-6 rounded-full bg-white px-3 py-0.5 text-xs font-medium text-zinc-900">
-                  Most popular
-                </p>
-              )}
               <p
                 className={`text-sm font-medium ${
-                  bundle.highlight ? "text-zinc-400" : "text-zinc-500"
+                  bundle.highlighted ? "text-zinc-400" : "text-zinc-500"
                 }`}
               >
                 {bundle.name}
               </p>
-              <p className="mt-1 text-lg font-semibold">{bundle.tagline}</p>
-              <div className="mt-4">
-                <span className="text-3xl font-semibold tracking-tight">
-                  {bundle.oneTime}
-                </span>
-                {bundle.recurring && (
-                  <span
-                    className={`ml-1 text-lg ${
-                      bundle.highlight ? "text-zinc-300" : "text-zinc-500"
-                    }`}
-                  >
-                    + {bundle.recurring}
-                  </span>
-                )}
-              </div>
               <p
-                className={`mt-1 text-xs ${
-                  bundle.highlight ? "text-zinc-400" : "text-zinc-500"
+                className={`mt-1 text-sm ${
+                  bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
                 }`}
               >
-                {bundle.recurring ? "Site fee + monthly" : "One-time · no subscription"}
+                {bundle.tagline}
               </p>
-              <ul className="mt-6 space-y-2.5 text-sm">
+              <p className="mt-4 text-4xl font-semibold tracking-tight">{bundle.setup}</p>
+              {bundle.recurring ? (
+                <p
+                  className={`mt-1 text-sm ${
+                    bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
+                  }`}
+                >
+                  + {bundle.recurring} after go-live
+                </p>
+              ) : (
+                <p
+                  className={`mt-1 text-sm ${
+                    bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
+                  }`}
+                >
+                  One-time payment
+                </p>
+              )}
+              <ul className="mt-6 flex-1 space-y-3 text-sm">
                 {bundle.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <span className={bundle.highlight ? "text-zinc-400" : "text-zinc-400"}>
+                    <span className={bundle.highlighted ? "text-zinc-500" : "text-zinc-400"}>
                       ✓
                     </span>
-                    <span className={bundle.highlight ? "text-zinc-200" : "text-zinc-700"}>
+                    <span className={bundle.highlighted ? "text-zinc-200" : "text-zinc-700"}>
                       {feature}
                     </span>
                   </li>
@@ -197,103 +188,61 @@ export default function Home() {
               <Link
                 href="/checkout"
                 className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-full font-medium transition-colors ${
-                  bundle.highlight
+                  bundle.highlighted
                     ? "bg-white text-zinc-900 hover:bg-zinc-100"
                     : "bg-zinc-900 text-white hover:bg-zinc-700"
                 }`}
               >
-                Get started
+                Get {bundle.name}
               </Link>
             </div>
           ))}
         </div>
-
-        <div className="mt-8 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-6 lg:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-sm font-medium text-zinc-500">Optional add-on</p>
-              <h3 className="mt-1 text-lg font-semibold">Commerce</h3>
-              <p className="mt-2 max-w-xl text-sm text-zinc-600">
-                Online ordering, product catalog, or booking deposits — for retail,
-                restaurants, and salons that sell before the visit.
-              </p>
-            </div>
-            <div className="shrink-0 text-right">
-              <p className="text-2xl font-semibold">
-                {commerceAddOn.oneTime}{" "}
-                <span className="text-base font-normal text-zinc-500">
-                  {commerceAddOn.recurring}
-                </span>
-              </p>
-              <p className="mt-1 text-xs text-zinc-500">Add to any bundle</p>
-            </div>
-          </div>
-          <ul className="mt-6 grid gap-2 text-sm text-zinc-700 sm:grid-cols-2">
-            {commerceAddOn.features.map((feature) => (
-              <li key={feature} className="flex items-start gap-2">
-                <span className="text-zinc-400">✓</span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="mt-6 text-center text-xs text-zinc-500">
-          Sold by {brand.legalEntity}. Payments via Stripe. AI assistant optional — no
-          human sales calls.
+        <p className="mt-8 text-center text-xs text-zinc-500">
+          Sold by {brand.legalEntity}. Call our AI assistant to compare tiers — no human sales
+          calls.
         </p>
       </section>
 
-      <section id="marketing" className="border-t border-zinc-200 bg-zinc-50">
+      <section id="commerce" className="border-t border-zinc-200 bg-zinc-50">
         <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
-                Why Complete?
+                Optional add-on
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-                Never miss a customer call again
+                Commerce — sell online, not just inform
               </h2>
               <p className="mt-4 text-zinc-600">
-                Most local businesses lose jobs to missed calls. The Complete bundle adds
-                an AI assistant that answers your business line — booking appointments,
-                answering FAQs, and capturing leads while you&apos;re on the job.
+                Add online ordering, retail checkout, booking deposits, or gift cards to any
+                bundle. Best for restaurants with pickup, retail shops, and salons that take
+                deposits.
               </p>
               <ul className="mt-6 space-y-3 text-sm text-zinc-700">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Answers during and after business hours
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Texts back missed callers with your booking link
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Includes automated Google posts and social marketing
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 text-zinc-400">✓</span>
-                  Replaces $200–400/mo answering services
-                </li>
+                {commerceFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <span className="mt-1 text-zinc-400">✓</span>
+                    {feature}
+                  </li>
+                ))}
               </ul>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-              <p className="text-sm font-medium text-zinc-500">Complete bundle</p>
-              <p className="mt-2 text-4xl font-semibold tracking-tight">
-                $500{" "}
-                <span className="text-xl font-normal text-zinc-500">+ $199/mo</span>
-              </p>
+              <p className="text-sm font-medium text-zinc-500">Commerce add-on</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight">+$300</p>
               <p className="mt-2 text-sm text-zinc-600">
-                Website, marketing automation, and AI phone agent — offered on your
-                preview site or when you talk to our assistant.
+                One-time setup + $49/mo · stacks on any bundle
               </p>
               <Link
                 href="/checkout"
-                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full bg-zinc-900 font-medium text-white transition-colors hover:bg-zinc-700"
+                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-300 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
               >
-                View all pricing
+                Add at checkout
               </Link>
+              <p className="mt-4 text-center text-xs text-zinc-500">
+                Quote-based trades? Starter or Complete fits better than Commerce.
+              </p>
             </div>
           </div>
         </div>
