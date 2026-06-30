@@ -1,6 +1,6 @@
 # Architecture
 
-**Local Site Studio** is a product operated by **Maris Stella Labs** (Colorado, USA). It is an **automation-first**, sales-led service for pre-building websites for local businesses. The operator runs a **zero-touch pipeline**: leads are discovered, sites are generated, outreach is sent under the Maris Stella Labs brand, and **AI voice agents** handle all customer interaction. Prospects receive a preview link, customize via voice or self-serve checkout, and pay Maris Stella Labs via Stripe without human sales involvement.
+**Local Site Studio** is a product operated by **Maris Stella Labs** (Colorado, USA). It is an **automation-first** platform selling **digital presence + sales bundles** to local businesses: website, AI marketing, client AI phone agent, and optional e-commerce. The operator runs a **zero-touch pipeline**: leads are discovered, sites are generated, outreach is sent under the public brand, and **platform voice** handles sales interaction. **Client voice** (Complete tier) answers the customer's business phone. Prospects receive a preview link, select a bundle, and pay Maris Stella Labs via Stripe without human sales involvement.
 
 ## Design principles
 
@@ -110,9 +110,9 @@ No operator-written emails or calls. Templates + voice agent scripts are version
 
 **Tracking:** Webhooks update lead status — `outreach_sent`, `preview_viewed`, `voice_started`, `voice_completed`, `checkout_started`, `paid`.
 
-### 5. Voice agent layer (core differentiator)
+### 5. Platform voice agent (sells TO the local business)
 
-**Purpose:** Replace human discovery calls with AI voice agents for info gathering, Q&A, objections, and checkout handoff.
+**Purpose:** Replace human discovery/sales calls with AI voice agents for info gathering, bundle explanation, Q&A, objections, and checkout handoff. This is **not** the client's phone agent — see §9.
 
 ```mermaid
 flowchart LR
@@ -167,7 +167,7 @@ See [VOICE-AGENT-FLOW.md](./VOICE-AGENT-FLOW.md) for scripts and state machine.
 
 **Current scaffold:** `/checkout` UI + `/api/stripe/checkout` returns 501 until configured.
 
-### 7. Production deploy (automated)
+### 9. Production deploy (automated)
 
 After payment (no operator step):
 
@@ -175,7 +175,7 @@ After payment (no operator step):
 2. Send automated DNS instructions (CNAME to Vercel).
 3. Remove preview banner; route contact form to client email.
 
-### 8. Marketing Engine (future add-on)
+### 10. Marketing Engine (Growth + Complete)
 
 **Purpose:** Generate and optionally publish ongoing marketing for paying clients — fully AI-driven, zero operator copywriting. Upsold during voice discovery, on the preview site, or post-purchase.
 
@@ -252,6 +252,121 @@ flowchart LR
 
 See [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md) for content types, automation levels, and compliance.
 
+### 9. Client AI phone agent (Complete tier — sold AS product)
+
+**Purpose:** Answer the **client's business phone** for their customers — receptionist, booking, FAQ, lead capture. Provisioned automatically after Complete tier payment.
+
+```mermaid
+flowchart LR
+  subgraph telephony [Telephony]
+    TWILIO[Twilio — client number or forward]
+    VAPI[Vapi / Retell assistant]
+  end
+
+  subgraph clientApp [Per-client config]
+    CFG[Client site config + hours + services]
+    CAL[Cal.com or native booking slots]
+    CRM[Lead stub — email + webhook]
+  end
+
+  subgraph handlers [This app]
+    PROV["/api/client-phone/provision"]
+    WH2["/api/client-phone/webhook"]
+    LIB2["src/lib/client-phone/"]
+  end
+
+  TWILIO --> VAPI
+  VAPI --> WH2
+  WH2 --> LIB2
+  LIB2 --> CFG
+  LIB2 --> CAL
+  LIB2 --> CRM
+  PROV --> TWILIO
+  PROV --> VAPI
+```
+
+**Responsibilities:**
+
+| Capability | Implementation |
+|------------|----------------|
+| Inbound on client line | Twilio number + call forwarding from client's existing number, or new local DID |
+| Business hours FAQ | Assistant prompt from `sites` config (hours, address, services) |
+| Appointment booking | Tool call → Cal.com API or internal `bookings` table + availability rules |
+| Lead qualification | Structured fields → `leads` stub + Resend email to client |
+| Missed-call SMS follow-up | Twilio SMS with booking link (optional) |
+| Transcript + summary | Post-call webhook → store + email digest to client |
+
+**Provisioning flow (automated):**
+
+1. Stripe webhook: Complete subscription active → enqueue `provisionClientPhone`.
+2. Create Twilio sub-account or shared pool number per client.
+3. Clone assistant template by business category; inject site JSON.
+4. Send client email: "Forward your line to {number}" or porting instructions.
+
+**Env vars:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `VAPI_API_KEY`, `CLIENT_PHONE_WEBHOOK_SECRET`.
+
+See [VOICE-AGENT-FLOW.md](./VOICE-AGENT-FLOW.md) — Client voice section.
+
+### 10. Digital sales module (Growth / Complete)
+
+**Purpose:** Turn website traffic into leads and revenue without operator involvement — contact capture, routing, and optional Stripe products.
+
+```mermaid
+flowchart TB
+  FORM[Contact / quote forms] --> LEAD[Lead stub table]
+  CHAT[Optional chat widget — future] --> LEAD
+  PHONE[Client AI phone — Complete] --> LEAD
+  LEAD --> ROUTE[Lead routing]
+  ROUTE --> EMAIL[Email to client]
+  ROUTE --> WEBHOOK[Optional Zapier webhook]
+  STRIPE_PROD[Stripe Products — Commerce] --> CHECKOUT[Embedded checkout]
+  CHECKOUT --> ORDER[Order notification]
+```
+
+**Components:**
+
+| Component | Tier | Notes |
+|-----------|------|-------|
+| Contact form → email | All | Resend or Formspree; spam honeypot |
+| Lead stub (`clientLeads` table) | Growth+ | name, phone, source, status, transcript ref |
+| Quote request workflow | Growth+ | Multi-step form for trades; AI phone can complete |
+| Stripe Payment Links | Commerce | Simple SKUs, no custom cart logic |
+| Embedded Stripe Checkout | Commerce | Cart with ≤50 products from `catalog` JSON |
+| Booking deposits | Commerce | Stripe `mode: payment` for deposit; balance on arrival |
+
+**Integration:** Platform voice can create checkout sessions with bundle + Commerce line items. Client phone agent can SMS payment links for deposits.
+
+### 11. E-commerce module (Commerce add-on — optional)
+
+**Purpose:** Lightweight online selling for local SMBs — not a Shopify replacement.
+
+**Scope:**
+
+- Product/service catalog stored as JSON on `sites` record (≤50 items)
+- Stripe Products/Prices synced on publish (or Payment Links per SKU for MVP)
+- Category templates: retail grid, restaurant menu + modifiers, salon service menu + deposit
+- Order confirmation email to customer + notification to client
+- Pickup time slots (restaurants) or appointment hold (salons)
+
+**Out of scope (refer elsewhere):**
+
+- Inventory sync with Square/Toast/Shopify
+- Shipping rate calculation (flat rate only)
+- Multi-location franchises
+- Subscription boxes
+
+**Architecture:**
+
+```
+src/lib/commerce/
+  catalog.ts       # CRUD for site catalog JSON
+  stripe-sync.ts   # Create/update Stripe Products
+  checkout.ts      # Checkout Session with line items
+  orders.ts        # Webhook handler for fulfillment emails
+```
+
+**When to provision:** Commerce add-on purchased at initial checkout or upsold post-purchase; triggers catalog editor seed from ingestion data (menu items from GBP category defaults).
+
 ## Tech stack
 
 | Layer | Choice |
@@ -260,7 +375,10 @@ See [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md) for content types, auto
 | Styling | Tailwind CSS v4 |
 | Hosting | Vercel |
 | Payments | Stripe Checkout |
-| Voice | Vapi / Retell / Bland (TBD) — see roadmap |
+| Platform voice | Vapi / Retell — sells bundles, customizes preview |
+| Client AI phone | Twilio + Vapi / Retell — Complete tier inbound for client's business |
+| Digital sales | Stripe Checkout + lead stub + Resend notifications |
+| E-commerce | Stripe Products + catalog JSON (Commerce add-on) |
 | Marketing LLM | OpenAI or Anthropic — content generation |
 | Marketing scheduling | Buffer API (MVP); direct GBP/Meta APIs (Phase 2) |
 | Email | Resend (transactional + outreach + marketing sequences) |
@@ -277,10 +395,11 @@ src/
     preview/[slug]/             # Client preview sites
     checkout/                   # Self-serve Stripe checkout UI
     api/
-      stripe/checkout/          # Checkout session API (stub)
+      stripe/checkout/          # Bundle checkout session API (stub)
       marketing/generate/       # POST — generate marketing copy (stub)
       voice/
-        webhook/route.ts        # Voice provider webhooks (stub)
+        platform/webhook/       # Platform voice webhooks (stub)
+        client/webhook/         # Client AI phone webhooks (stub)
   lib/
     marketing/
       types.ts                  # Content types, automation levels
@@ -289,9 +408,16 @@ src/
     voice/
       config.ts                 # Provider env config
       types.ts                  # Call events, tool payloads
-      handlers.ts               # Event routing (stub)
+      platform/                 # Outreach + sales voice handlers (stub)
+      client/                   # Client receptionist handlers (stub)
+    commerce/
+      catalog.ts                # Product catalog types (stub)
+      orders.ts                 # Order notification handlers (stub)
+    sales/
+      crm.ts                    # Lead routing stub
 docs/
-  VOICE-AGENT-FLOW.md           # Call scripts and state machine
+  PRODUCT-BUNDLES.md            # Tier definitions and use cases
+  VOICE-AGENT-FLOW.md           # Platform vs client voice scripts
   MARKETING-AUTOMATION.md       # Content types, automation, compliance
 ```
 

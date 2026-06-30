@@ -2,7 +2,9 @@
 
 ## Value proposition
 
-We sell **pre-built websites** to local businesses under a **public brand** (TBD — set `NEXT_PUBLIC_BRAND_NAME`). The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pay $500 self-serve — no waiting on a salesperson.
+We sell **digital presence bundles** to local businesses under a **public brand** (TBD — set `NEXT_PUBLIC_BRAND_NAME`). The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pick a bundle (Starter from $500) self-serve — no waiting on a salesperson.
+
+See [PRODUCT-BUNDLES.md](./PRODUCT-BUNDLES.md) for full tier definitions.
 
 **Legal entity:** Maris Stella Labs (Colorado, USA) — handles Stripe, contracts, and compliance. **Public brand** — used in marketing, outreach, and voice agent persona.
 
@@ -12,7 +14,7 @@ We sell **pre-built websites** to local businesses under a **public brand** (TBD
 |--------------------|--------------|
 | Operator discovery calls | **AI voice agent** gathers branding and answers questions |
 | Manual email replies | Automated sequences + voice callback number |
-| Custom quotes | Fixed $500 (+ optional e-commerce add-on) |
+| Custom quotes | Fixed bundle tiers ($500 setup + optional monthly) |
 | Operator deploys site | Automated post-payment deploy |
 
 **Operator role:** Configure automation, monitor dashboard metrics, handle edge-case alerts (failed payments, deploy errors) — not day-to-day sales.
@@ -23,18 +25,25 @@ We sell **pre-built websites** to local businesses under a **public brand** (TBD
 - **Segments:** Restaurants, salons, trades, retail, gyms, professional services with weak or no web presence.
 - **Profile:** Listed on Google Maps, reachable phone/email, would benefit from a simple landing page.
 
-## Pricing
+## Pricing — product bundles
 
-| Package | Price | Includes |
-|---------|-------|----------|
-| Standard landing site | **$500** one-time | Marketing site, mobile responsive, contact form, map embed, basic SEO, subdomain hosting, domain connection docs |
-| E-commerce lite add-on | **+$200–400** (TBD) | Product catalog, Stripe checkout |
-| **Marketing copy pack** | **$49** one-time | AI-generated GBP posts, social captions, review-request email, local SEO meta — downloadable pack, no scheduling (L1) |
-| **Social + email** | **$99/mo** | 8 social/GBP posts + 2 emails per month, auto-scheduled, brand voice from your site data (L2) |
-| **Full marketing** | **$149/mo** | L2 plus seasonal promos, A/B variants, optional approve-before-publish, GBP + Facebook + Instagram (L3) |
+Sold as **bundles**, not à la carte packages. See [PRODUCT-BUNDLES.md](./PRODUCT-BUNDLES.md) for full scope.
+
+| Bundle | Price | Includes |
+|--------|-------|----------|
+| **Starter** | **$500** one-time | Professional landing page, mobile responsive, contact form, Google Maps embed, basic SEO, preview → custom domain handoff, self-serve Stripe checkout |
+| **Growth** | **$500** + **$99/mo** | Everything in Starter, plus AI marketing engine — 8 social/GBP posts + 2 emails per month, auto-scheduled, brand voice from site data |
+| **Complete** | **$500** + **$199/mo** | Everything in Growth, plus full marketing tier (seasonal promos, A/B variants) and **client AI phone agent** — answers their business line, books appointments, captures leads |
+| **Commerce** *(add-on)* | **+$300** one-time + **$49/mo** | Stacks on any bundle — Stripe checkout, simple catalog (≤50 SKUs), order notifications; retail, restaurant ordering, booking deposits, or gift cards |
+| **Copy pack** *(legacy upsell)* | **$49** one-time | Download-only GBP posts, social captions, review email — no scheduling; nurtured toward Growth |
 | Rush / custom | Quote | Only if automated flow cannot satisfy (exception path) |
 
-**Optional recurring (future):** Hosting + minor site updates at $29–49/mo (separate from marketing tiers).
+**Recommendation logic (preview + voice):**
+
+- Quote-based trades, price-sensitive → **Starter**
+- Wants visibility but won't post themselves → **Growth**
+- Phone-heavy, appointment-based → **Complete**
+- Online orders, menu sales, deposits → add **Commerce**
 
 All marketing content is **100% AI-generated** — no human copywriter. Quality comes from business-specific data (hours, services, location) and category templates, not generic prompts.
 
@@ -93,7 +102,7 @@ Outreach uses the **public brand** in subject lines, From name, and voice script
 1. We build sites for local businesses — yours is ready to preview.
 2. Link: `https://{slug}.preview.yourdomain.com`
 3. **Call us anytime:** `{VOICE_CALLBACK_NUMBER}` — AI assistant can walk you through and make changes.
-4. **Or buy now:** checkout link on preview page — $500, no call required.
+4. **Or buy now:** checkout link on preview page — bundles from $500, no call required.
 5. CAN-SPAM footer: public brand + Maris Stella Labs address, unsubscribe.
 
 ### Email 2 — Follow-up (automated, 3–5 days)
@@ -123,21 +132,22 @@ If no answer: voicemail with preview URL (where legally permitted) + email backu
 
 Both paths converge on the same Stripe checkout — voice agent can SMS/email the link during the call.
 
-## Marketing add-on upsell (automated)
+## Bundle upsell path (automated)
 
-Marketing packages are offered **without operator involvement** at three touchpoints:
+Bundles are offered **without operator involvement** at three touchpoints:
 
 | Touchpoint | Script / CTA | Action |
 |------------|----------------|--------|
-| **Preview site** | "Keep customers coming back — automated social posts and emails from $99/mo" | Link to marketing checkout or voice callback |
-| **Voice agent (discovery)** | After site customization: "Want us to handle your Google posts and social media too? It's $99 a month, fully automated." | Voice tool adds marketing SKU to Stripe checkout |
-| **Post-purchase email** | "Your site is live. Add Marketing Essentials?" | One-click Stripe subscription link |
+| **Preview site** | Tier comparison cards — Starter / Growth / Complete + optional Commerce | Self-serve Stripe checkout per tier |
+| **Voice agent (discovery)** | After customization: explain Starter ($500), Growth (+$99/mo marketing), Complete (+$199/mo with AI phone), Commerce add-on | Voice tool `explainBundles` → `createCheckoutSession` |
+| **Post-purchase email** | Starter buyers: "Add Growth marketing?" Complete buyers: "Add Commerce?" | One-click Stripe upgrade link |
 
-Upsell acceptance triggers the Marketing Engine (see [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md)). Customer can choose:
+Upsell acceptance triggers the appropriate module (see [MARKETING-AUTOMATION.md](./MARKETING-AUTOMATION.md), [VOICE-AGENT-FLOW.md](./VOICE-AGENT-FLOW.md)). Upgrade paths:
 
-- **Generate-only** — copy pack delivered as link/PDF ($49 one-time)
-- **Generate + schedule** — Social + email tier ($99/mo recurring)
-- **Generate + schedule + optimize** — Full marketing tier ($149/mo)
+- **Starter → Growth** — marketing engine at go-live
+- **Growth → Complete** — client AI phone agent provisioning
+- **Any tier + Commerce** — catalog + Stripe checkout add-on
+- **Copy pack ($49)** — legacy entry; email sequence nurtures to Growth
 
 ## Operator workflow (monitoring only)
 
@@ -150,9 +160,10 @@ Upsell acceptance triggers the Marketing Engine (see [MARKETING-AUTOMATION.md](.
 
 | Item | Estimate |
 |------|----------|
-| Revenue per sale | $500 (site) + $49–149/mo (marketing upsell) |
-| Stripe fees | ~$15 (site) + ~3% recurring |
-| Voice (2–5 min call) | ~$0.10–0.50 (Vapi/Retell) |
+| Revenue per sale | $500 (Starter) · $500 + $99/mo (Growth) · $500 + $199/mo (Complete) · +$300 + $49/mo (Commerce) |
+| Stripe fees | ~$15 (setup) + ~3% recurring |
+| Platform voice (2–5 min) | ~$0.10–0.50 (Vapi/Retell) |
+| Client AI phone (Complete) | ~$5–15/mo per client (Twilio + Vapi minutes) |
 | Email | ~$0.01–0.05 per lead |
 | Marketing LLM | ~$0.50–2/mo per client (batch generation) |
 | Scheduling (Buffer) | ~$6–12/mo shared across clients |
