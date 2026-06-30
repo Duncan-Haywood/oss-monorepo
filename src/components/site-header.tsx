@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { company } from "@/lib/company";
+import { brand } from "@/lib/brand";
 
 const navLinks = [
   { href: "/#how-it-works", label: "How it works" },
@@ -11,11 +11,8 @@ export function SiteHeader() {
   return (
     <header className="border-b border-zinc-200 bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex flex-col">
-          <span className="text-lg font-semibold tracking-tight text-zinc-900">
-            {company.productName}
-          </span>
-          <span className="text-xs text-zinc-500">{company.legalName}</span>
+        <Link href="/" className="text-lg font-semibold tracking-tight text-zinc-900">
+          {brand.name}
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-zinc-600 sm:flex">
           {navLinks.map((link) => (

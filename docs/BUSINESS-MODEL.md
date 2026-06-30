@@ -1,16 +1,15 @@
 # Business model
 
-**Legal entity:** Maris Stella Labs · Colorado, USA  
-**Product:** Local Site Studio
-
 ## Value proposition
 
-Maris Stella Labs sells **pre-built websites** through the Local Site Studio service to local businesses. The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pay $500 self-serve — no waiting on a salesperson.
+We sell **pre-built websites** to local businesses under a **public brand** (TBD — set `NEXT_PUBLIC_BRAND_NAME`). The differentiator is **preview before purchase** plus **zero human sales friction**: customers get a link, talk to an AI assistant if they want changes, and pay $500 self-serve — no waiting on a salesperson.
+
+**Legal entity:** Maris Stella Labs (Colorado, USA) — handles Stripe, contracts, and compliance. **Public brand** — used in marketing, outreach, and voice agent persona.
 
 ## Operating model: zero-touch operator
 
-| Traditional agency | Local Site Studio |
-|--------------------|-------------------|
+| Traditional agency | This product |
+|--------------------|--------------|
 | Operator discovery calls | **AI voice agent** gathers branding and answers questions |
 | Manual email replies | Automated sequences + voice callback number |
 | Custom quotes | Fixed $500 (+ optional e-commerce add-on) |
@@ -33,6 +32,8 @@ Maris Stella Labs sells **pre-built websites** through the Local Site Studio ser
 | Rush / custom | Quote | Only if automated flow cannot satisfy (exception path) |
 
 **Optional recurring (future):** Hosting + minor updates at $29–49/mo.
+
+Invoices and Stripe receipts show **Maris Stella Labs** as seller. Marketing and outreach use the **public brand**.
 
 ## Sales funnel (fully automated)
 
@@ -74,17 +75,21 @@ flowchart TD
 
 ## Outreach (automated)
 
+Outreach uses the **public brand** in subject lines, From name, and voice scripts. Email footers and checkout identify **Maris Stella Labs** for legal compliance.
+
 ### Email 1 — Preview delivery
+
+**From:** `{Public Brand}` (e.g. SitePreview)
 
 **Subject:** `{BusinessName} — we built your website (free preview)`
 
 **Body outline:**
 
-1. **Maris Stella Labs** builds sites for local businesses — yours is ready to preview.
+1. We build sites for local businesses — yours is ready to preview.
 2. Link: `https://{slug}.preview.yourdomain.com`
-3. **Call us anytime:** `{VOICE_CALLBACK_NUMBER}` — AI assistant from Maris Stella Labs can walk you through and make changes.
-4. **Or buy now:** checkout link on preview page — $500 to Maris Stella Labs via Stripe, no call required.
-5. CAN-SPAM footer: **Maris Stella Labs** physical address (Colorado), unsubscribe.
+3. **Call us anytime:** `{VOICE_CALLBACK_NUMBER}` — AI assistant can walk you through and make changes.
+4. **Or buy now:** checkout link on preview page — $500, no call required.
+5. CAN-SPAM footer: public brand + Maris Stella Labs address, unsubscribe.
 
 ### Email 2 — Follow-up (automated, 3–5 days)
 
@@ -99,7 +104,7 @@ flowchart TD
 
 Triggered when lead has phone and consent basis documented.
 
-**Opening:** "Hi, this is [Assistant], an automated assistant from **Maris Stella Labs**. We built a preview website for {BusinessName} through our Local Site Studio service. I can text you the link or walk you through it now — takes about two minutes."
+**Opening (see VOICE-AGENT-FLOW.md):** "Hi, this is [Assistant] from **{Public Brand}**. We built a preview website for {BusinessName}. I can text you the link or walk you through it now — takes about two minutes."
 
 If no answer: voicemail with preview URL (where legally permitted) + email backup.
 

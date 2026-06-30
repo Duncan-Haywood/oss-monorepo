@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { company } from "@/lib/company";
+import { brand } from "@/lib/brand";
 
 const steps = [
   {
@@ -33,17 +33,22 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
         <div className="max-w-3xl">
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-zinc-500">
-            {company.productName} · {company.legalName}
+            Pre-built websites for local businesses
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl sm:leading-tight">
             Your website, built before you buy
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
-            {company.productName} by {company.legalName} creates professional websites
-            for restaurants, salons, trades, and other local businesses. Preview your
-            site first — pay $500 only when you love it. Self-serve checkout, optional
-            AI voice assistant for changes.
+            {brand.name} creates professional websites for restaurants, salons, trades,
+            and other local businesses. Preview your site first — pay $500 only when you
+            love it. Self-serve checkout, optional AI voice assistant for changes.
           </p>
+          {!brand.isConfigured && (
+            <p className="mt-4 text-sm text-amber-700">
+              Operator note: set <code className="text-xs">NEXT_PUBLIC_BRAND_NAME</code>{" "}
+              in .env.local to replace the &ldquo;{brand.name}&rdquo; placeholder.
+            </p>
+          )}
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/checkout"
@@ -82,7 +87,7 @@ export default function Home() {
             <h2 className="text-2xl font-semibold tracking-tight">Simple, flat pricing</h2>
             <p className="mt-4 text-zinc-600">
               One price covers design, build, hosting setup, and launch support. Payments
-              processed securely by {company.legalName} via Stripe.
+              processed securely via Stripe.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-zinc-700">
               {features.map((feature) => (
@@ -96,9 +101,7 @@ export default function Home() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
             <p className="text-sm font-medium text-zinc-500">Standard package</p>
             <p className="mt-2 text-5xl font-semibold tracking-tight">$500</p>
-            <p className="mt-2 text-sm text-zinc-600">
-              One-time payment · {company.legalName}
-            </p>
+            <p className="mt-2 text-sm text-zinc-600">One-time payment · {brand.name}</p>
             <Link
               href="/checkout"
               className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full bg-zinc-900 font-medium text-white transition-colors hover:bg-zinc-700"
@@ -106,7 +109,8 @@ export default function Home() {
               Start checkout
             </Link>
             <p className="mt-4 text-center text-xs text-zinc-500">
-              E-commerce add-ons available. AI assistant optional — no human sales calls.
+              Sold by {brand.legalEntity}. E-commerce add-ons available. AI assistant
+              optional — no human sales calls.
             </p>
           </div>
         </div>
