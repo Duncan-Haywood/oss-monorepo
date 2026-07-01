@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 
 export default function CheckoutPage() {
@@ -6,7 +7,7 @@ export default function CheckoutPage() {
       <PlaceholderBanner
         title="Stripe checkout (not connected)"
         description="Configure STRIPE_SECRET_KEY and STRIPE_PRICE_ID_WEBSITE in .env.local. Stripe merchant: Maris Stella Labs."
-        docsHref="/docs/ARCHITECTURE.md#payments"
+        docsHref="/docs/architecture#payments"
       />
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Checkout</h1>
@@ -32,7 +33,11 @@ export default function CheckoutPage() {
         </button>
 
         <p className="mt-4 text-center text-xs text-zinc-500">
-          Secure payment powered by Stripe. See docs/ROADMAP.md for integration steps.
+          Secure payment powered by Stripe. See{" "}
+          <Link href="/docs/roadmap#phase-3-payments" className="underline">
+            Roadmap
+          </Link>{" "}
+          for integration steps.
         </p>
       </div>
     </main>

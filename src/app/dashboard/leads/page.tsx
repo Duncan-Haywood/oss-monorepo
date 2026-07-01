@@ -15,7 +15,7 @@ export default function LeadsPage() {
       <PlaceholderBanner
         title="Lead pipeline (placeholder)"
         description="Future: ingest leads from Google Maps, Facebook, and business directories. No scrapers implemented yet."
-        docsHref="/docs/ARCHITECTURE.md#data-ingestion"
+        docsHref="/docs/architecture#data-ingestion"
       />
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Lead pipeline</h1>

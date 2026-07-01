@@ -1,0 +1,78 @@
+import { DocLink, DocPage } from "@/components/docs/doc-page";
+import { brand } from "@/lib/brand";
+
+export default function MarketingAutomationDocPage() {
+  return (
+    <DocPage
+      title="Marketing automation"
+      subtitle="AI-only marketing — no human copywriter, zero operator touch at scale."
+      related={[
+        { href: "/docs/product-bundles", label: "Product bundles" },
+        { href: "/docs/architecture", label: "Architecture" },
+        { href: "/docs/compliance", label: "Compliance" },
+      ]}
+    >
+      <h2>Content types</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Channel</th>
+            <th>Frequency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GBP posts</td>
+            <td>Google Business Profile</td>
+            <td>2/mo</td>
+          </tr>
+          <tr>
+            <td>Social captions</td>
+            <td>Facebook / Instagram via Buffer</td>
+            <td>4/mo</td>
+          </tr>
+          <tr>
+            <td>Review request emails</td>
+            <td>Resend</td>
+            <td>1/mo</td>
+          </tr>
+          <tr>
+            <td>Seasonal promos</td>
+            <td>Social + email</td>
+            <td>Calendar triggers</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Automation levels</h2>
+      <ul>
+        <li>
+          <strong>Generate-only</strong> — copy pack ($49 one-time)
+        </li>
+        <li>
+          <strong>Generate + schedule</strong> — Growth tier ($99/mo)
+        </li>
+        <li>
+          <strong>Generate + schedule + optimize</strong> — Complete full marketing ($199/mo)
+        </li>
+      </ul>
+
+      <h2>Quality principles</h2>
+      <p>Every piece must include business name, city, concrete services, accurate hours, and a relevant CTA.</p>
+      <p>Forbidden: generic AI slop, invented awards, wrong city, hashtag spam.</p>
+
+      <h2>Compliance</h2>
+      <ul>
+        <li>Email From uses public brand; footer identifies {brand.legalEntity}</li>
+        <li>Physical address + unsubscribe on every marketing email</li>
+        <li>Follow GBP and Meta platform policies</li>
+        <li>SMS marketing requires separate TCPA opt-in (future)</li>
+      </ul>
+
+      <p>
+        Technical module: <DocLink href="/docs/architecture">Architecture</DocLink> § Marketing Engine
+      </p>
+    </DocPage>
+  );
+}

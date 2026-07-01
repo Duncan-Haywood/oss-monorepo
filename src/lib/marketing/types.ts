@@ -1,5 +1,5 @@
 /**
- * Marketing automation types — see docs/MARKETING-AUTOMATION.md
+ * Marketing automation types — see /docs/marketing-automation
  */
 
 export type MarketingContentType =

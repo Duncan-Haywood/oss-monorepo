@@ -25,7 +25,7 @@ export default function DashboardPage() {
       <PlaceholderBanner
         title="Internal ops dashboard (scaffold)"
         description="This area will become the operator console for lead management, site generation, and sales tracking."
-        docsHref="/docs/ARCHITECTURE.md"
+        docsHref="/docs/architecture"
       />
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>

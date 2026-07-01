@@ -19,8 +19,14 @@ export default function PrivacyPage() {
         </p>
         <p>
           Draft outline and compliance notes:{" "}
-          <code className="text-sm">docs/LEGAL.md</code> and{" "}
-          <code className="text-sm">docs/COMPLIANCE.md</code>.
+          <Link href="/docs/legal" className="underline">
+            Legal
+          </Link>{" "}
+          and{" "}
+          <Link href="/docs/compliance" className="underline">
+            Compliance
+          </Link>
+          .
         </p>
         <p>
           Questions:{" "}

@@ -3,39 +3,43 @@ import { brand } from "@/lib/brand";
 
 const docs = [
   {
+    title: "Product bundles",
+    href: "/docs/product-bundles",
+    description: "Starter, Growth, Complete, Commerce tiers and upsell paths.",
+  },
+  {
     title: "Marketing automation",
-    href: "/docs/MARKETING-AUTOMATION.md",
+    href: "/docs/marketing-automation",
     description: "AI-only copy, scheduling tiers, compliance, platform priority.",
   },
   {
     title: "Legal",
-    href: "/docs/LEGAL.md",
-    description:
-      "Legal entity vs public brand, DBA, Terms/Privacy outlines, CAN-SPAM, Stripe.",
+    href: "/docs/legal",
+    description: "Legal entity vs public brand, DBA, CAN-SPAM, Stripe, voice disclosures.",
   },
   {
     title: "Voice agent flow",
-    href: "/docs/VOICE-AGENT-FLOW.md",
-    description: "Call scripts — agent uses public brand, not legal entity name.",
+    href: "/docs/voice-agent-flow",
+    description: "Platform vs client voice — public brand persona, call scripts.",
   },
   {
     title: "Architecture",
-    href: "/docs/ARCHITECTURE.md",
+    href: "/docs/architecture",
     description: "Automated funnel, voice agents, preview hosting, payments.",
   },
   {
     title: "Business model",
-    href: "/docs/BUSINESS-MODEL.md",
+    href: "/docs/business-model",
     description: "Pricing, automated funnel, outreach copy.",
   },
   {
     title: "Compliance",
-    href: "/docs/COMPLIANCE.md",
+    href: "/docs/compliance",
     description: "CAN-SPAM, TCPA, Colorado CPA, scraping ethics, data retention.",
   },
   {
     title: "Roadmap",
-    href: "/docs/ROADMAP.md",
+    href: "/docs/roadmap",
     description: "Phased implementation plan.",
   },
 ];
@@ -45,22 +49,19 @@ export default function DocsIndexPage() {
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight">Documentation</h1>
       <p className="mt-3 text-zinc-600">
-        {brand.name} · operated by {brand.legalEntity} ({brand.legalLocation}) — project
-        docs in <code className="text-sm">docs/</code>.
+        {brand.name} · operated by {brand.legalEntity} ({brand.legalLocation}).
       </p>
 
       <div className="mt-10 space-y-4">
         {docs.map((doc) => (
-          <div
+          <Link
             key={doc.href}
-            className="rounded-xl border border-zinc-200 p-5"
+            href={doc.href}
+            className="block rounded-xl border border-zinc-200 p-5 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
           >
-            <h2 className="font-semibold">{doc.title}</h2>
+            <h2 className="font-semibold text-zinc-900">{doc.title}</h2>
             <p className="mt-1 text-sm text-zinc-600">{doc.description}</p>
-            <p className="mt-2 font-mono text-xs text-zinc-500">
-              {doc.href.replace("/docs/", "docs/")}
-            </p>
-          </div>
+          </Link>
         ))}
       </div>
 

@@ -125,6 +125,6 @@ export async function POST(request: Request) {
     message: llmConfigured
       ? "Generated with stub generator — wire LLM in Phase 7"
       : "Set OPENAI_API_KEY or ANTHROPIC_API_KEY for LLM generation",
-    docs: "/docs/MARKETING-AUTOMATION.md",
+    docs: "/docs/marketing-automation",
   });
 }

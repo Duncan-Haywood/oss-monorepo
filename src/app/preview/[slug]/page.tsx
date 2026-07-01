@@ -18,7 +18,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
         <PlaceholderBanner
           title="Client preview site (template placeholder)"
           description={`In production, this page would be deployed to ${slug}.preview.localsitestudio.com with business-specific content.`}
-          docsHref="/docs/ARCHITECTURE.md#preview-hosting"
+          docsHref="/docs/architecture#preview-hosting"
         />
       </div>
 

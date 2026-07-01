@@ -18,7 +18,11 @@ export default function TermsPage() {
           (Colorado, USA).
         </p>
         <p>
-          Draft outline: <code className="text-sm">docs/LEGAL.md</code>.
+          Draft outline:{" "}
+          <Link href="/docs/legal" className="underline">
+            Legal
+          </Link>
+          .
         </p>
         <p>
           Contact:{" "}
