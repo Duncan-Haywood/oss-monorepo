@@ -135,4 +135,16 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.slice(2),
   },
+  {
+    date: "2026-07-11",
+    branch: "claude/relaxed-galileo-0b6zp9",
+    summary:
+      "Follow-up fixes from Cursor Bugbot review of PR #1 (merged before all findings could land on that PR): checkout success page now verifies the Stripe session server-side instead of unconditionally claiming payment succeeded, and the preview → checkout flow now threads the lead's slug through to Stripe session metadata for attribution.",
+    shipped: [
+      "src/app/checkout/success/page.tsx — server-verifies session.status === 'complete' via Stripe before showing confirmation copy",
+      "src/app/checkout/checkout-form.tsx — extracted from page.tsx so useSearchParams() can sit behind a Suspense boundary (required by Next.js for prerendering)",
+      "src/app/preview/[slug]/page.tsx — checkout CTA now links to /checkout?slug={slug}",
+    ],
+    decisions: [],
+  },
 ];

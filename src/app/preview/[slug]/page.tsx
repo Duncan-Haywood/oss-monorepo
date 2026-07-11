@@ -35,7 +35,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
-            href="/checkout"
+            href={`/checkout?slug=${slug}`}
             className="inline-flex h-12 items-center justify-center rounded-full bg-zinc-900 px-8 font-medium text-white"
           >
             Claim this site — $500
