@@ -41,11 +41,13 @@ export interface ProcessIteration {
  */
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → scale ingestion → fulfill/deploy), unless another agent already owns it.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
   "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate.",
+  "Sibling automations (prompt-process-evolution + business-process-evolution) share this file — re-fetch main/NEXT_STEPS mid-run if a merge lands before you open your PR.",
+  "After database-touching changes: `npm run build` is not enough — start `npm run dev` and load the affected routes (see database backlog notes).",
 ] as const;
 
 /**
@@ -88,9 +90,18 @@ export const NEXT_STEPS: NextStep[] = [
   },
   {
     id: "lead-ingestion",
-    summary: "Google Places API ingestion or CSV import for manual lead entry — legal review first, see /docs/compliance.",
+    summary:
+      "Google Places API (or other licensed API) ingestion — legal review first, see /docs/compliance. CSV import split out as csv-lead-import.",
     status: "todo",
     phase: "Phase 4 — Data ingestion",
+  },
+  {
+    id: "csv-lead-import",
+    summary:
+      "Operator CSV bulk import for leads (businessName, category, city, state, phone, email, …) with dataSource tagging — compliant scale-up before Places API.",
+    status: "in_progress",
+    phase: "Phase 4 — Data ingestion",
+    owner: "cursor/prompt-process-evolution-6a76",
   },
   {
     id: "outbound-email",
@@ -106,6 +117,20 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/convex-database-persistence",
+  },
+  {
+    id: "production-deploy",
+    summary:
+      "After Stripe payment: mark lead live, stub/queue production deploy + DNS handoff (Phase 5). Webhook already marks paid — fulfillment next.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "dashboard-auth",
+    summary:
+      "Protect /dashboard/* (and lead write APIs) with operator auth before real outreach batches — currently open in local/demo mode.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 
