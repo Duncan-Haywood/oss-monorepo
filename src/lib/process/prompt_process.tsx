@@ -191,8 +191,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-attribution-polish",
     summary:
       "Prefill checkout from lead slug (email/business name), keep marketing CTAs on slug-aware paths, light trust/FAQ on the landing page.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-ffae",
   },
 ];
 
