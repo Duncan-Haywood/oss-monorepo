@@ -3,11 +3,18 @@
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
+import type { DeployHandoff } from "@/lib/deploy/types";
 import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
-import { updateLeadStageAction, addLeadAction, importLeadsCsvAction } from "./actions";
+import {
+  updateLeadStageAction,
+  addLeadAction,
+  importLeadsCsvAction,
+  markHandoffLiveAction,
+} from "./actions";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
+  initialHandoffs?: DeployHandoff[];
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -26,8 +33,9 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
   { id: "generic", label: "Generic / Other" },
 ];
 
-export function LeadsClient({ initialLeads }: LeadsClientProps) {
+export function LeadsClient({ initialLeads, initialHandoffs = [] }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -183,6 +191,22 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
     });
   };
 
+  const handleMarkHandoffLive = (slug: string) => {
+    startTransition(async () => {
+      const res = await markHandoffLiveAction(slug);
+      if (!res.success) {
+        alert(`Error marking live: ${res.error}`);
+        return;
+      }
+      setHandoffs((prev) =>
+        prev.map((h) => (h.leadSlug === slug ? { ...h, status: "live" } : h)),
+      );
+      setLeads((prev) =>
+        prev.map((l) => (l.slug === slug ? { ...l, stage: "live" } : l)),
+      );
+    });
+  };
+
   // Filtered Leads
   const filteredLeads = leads.filter((lead) => {
     const matchesStage = filterStage === "all" || lead.stage === filterStage;
@@ -193,8 +217,82 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
     return matchesStage && matchesSearch;
   });
 
+  const openHandoffs = handoffs.filter((h) => h.status !== "live");
+
   return (
     <div className="mt-8">
+      {openHandoffs.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Production deploy handoffs
+            </h2>
+            <Link
+              href="/docs/production-deploy"
+              className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+            >
+              Docs
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Created automatically after Stripe checkout. Confirm DNS, then mark live.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {openHandoffs.map((h) => (
+              <li
+                key={h.id}
+                className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {h.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({h.leadSlug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      Status: <code>{h.status}</code>
+                      {h.vercelDomainStatus ? (
+                        <>
+                          {" "}
+                          · Vercel: <code>{h.vercelDomainStatus}</code>
+                        </>
+                      ) : null}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      Host: <code>{h.suggestedHost}</code> ·{" "}
+                      <a
+                        href={h.previewUrl}
+                        className="underline underline-offset-2"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Preview
+                      </a>{" "}
+                      · Contact: <code>{h.contactFormUrl}</code>
+                    </p>
+                    <ul className="mt-2 space-y-0.5 text-xs text-zinc-500">
+                      {h.dnsInstructions.map((d) => (
+                        <li key={`${d.type}-${d.host}`}>
+                          <code>{d.type}</code> {d.host} → {d.value}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleMarkHandoffLive(h.leadSlug)}
+                    className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                  >
+                    Mark live
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Search and Action Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">

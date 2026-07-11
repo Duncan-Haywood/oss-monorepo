@@ -99,7 +99,13 @@ export default function RoadmapDocPage() {
       </p>
 
       <h2 id="phase-5">Phase 5 — Production deploy</h2>
-      <p>Custom domain handoff, contact form routing, clientLeads stub after paid checkout.</p>
+      <p>
+        Post-payment handoff: shipped as a stub — webhook enqueues DNS instructions + contact form
+        endpoint, optional Vercel domain API when tokens are set, operator{" "}
+        <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
+        See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Remaining:
+        per-client project isolation and registrar DNS automation.
+      </p>
 
       <h2>Phase 6 — Marketing engine</h2>
       <p>LLM generators, Buffer scheduling, Growth/Complete recurring billing.</p>

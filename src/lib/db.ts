@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadHours, LeadPipelineStage } from "./leads/types";
+import type { DeployHandoff, DeployHandoffStatus, DnsInstruction } from "./deploy/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -71,6 +72,26 @@ function getSqliteDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS suppression_list (
       email TEXT PRIMARY KEY,
       createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS deploy_handoffs (
+      id TEXT PRIMARY KEY,
+      leadSlug TEXT UNIQUE NOT NULL,
+      businessName TEXT NOT NULL,
+      tier TEXT NOT NULL,
+      commerceAddon INTEGER NOT NULL DEFAULT 0,
+      stripeSessionId TEXT NOT NULL,
+      customerEmail TEXT NOT NULL,
+      previewUrl TEXT NOT NULL,
+      suggestedHost TEXT NOT NULL,
+      customDomain TEXT,
+      contactFormUrl TEXT NOT NULL,
+      dnsInstructions TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      vercelDomainStatus TEXT,
+      notes TEXT NOT NULL DEFAULT '[]',
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
 
@@ -409,4 +430,147 @@ export async function getSuppressedEmails(): Promise<string[]> {
   const db = getSqliteDb();
   const rows = db.prepare("SELECT email FROM suppression_list").all() as { email: string }[];
   return rows.map((r) => r.email);
+}
+
+// --- Production deploy handoffs (Phase 5) ---
+
+interface SqliteDeployHandoffRow {
+  id: string;
+  leadSlug: string;
+  businessName: string;
+  tier: string;
+  commerceAddon: number;
+  stripeSessionId: string;
+  customerEmail: string;
+  previewUrl: string;
+  suggestedHost: string;
+  customDomain: string | null;
+  contactFormUrl: string;
+  dnsInstructions: string;
+  status: string;
+  vercelDomainStatus: string | null;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function mapDeployHandoffRow(row: SqliteDeployHandoffRow): DeployHandoff {
+  let dnsInstructions: DnsInstruction[] = [];
+  let notes: string[] = [];
+  try {
+    dnsInstructions = JSON.parse(row.dnsInstructions) as DnsInstruction[];
+  } catch {
+    dnsInstructions = [];
+  }
+  try {
+    notes = JSON.parse(row.notes) as string[];
+  } catch {
+    notes = [];
+  }
+
+  return {
+    id: row.id,
+    leadSlug: row.leadSlug,
+    businessName: row.businessName,
+    tier: row.tier,
+    commerceAddon: row.commerceAddon === 1,
+    stripeSessionId: row.stripeSessionId,
+    customerEmail: row.customerEmail,
+    previewUrl: row.previewUrl,
+    suggestedHost: row.suggestedHost,
+    customDomain: row.customDomain || undefined,
+    contactFormUrl: row.contactFormUrl,
+    dnsInstructions,
+    status: row.status as DeployHandoffStatus,
+    vercelDomainStatus: row.vercelDomainStatus || undefined,
+    notes,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void> {
+  const db = getSqliteDb();
+  db.prepare(`
+    INSERT INTO deploy_handoffs (
+      id, leadSlug, businessName, tier, commerceAddon, stripeSessionId, customerEmail,
+      previewUrl, suggestedHost, customDomain, contactFormUrl, dnsInstructions, status,
+      vercelDomainStatus, notes, createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(leadSlug) DO UPDATE SET
+      businessName = excluded.businessName,
+      tier = excluded.tier,
+      commerceAddon = excluded.commerceAddon,
+      stripeSessionId = excluded.stripeSessionId,
+      customerEmail = excluded.customerEmail,
+      previewUrl = excluded.previewUrl,
+      suggestedHost = excluded.suggestedHost,
+      customDomain = excluded.customDomain,
+      contactFormUrl = excluded.contactFormUrl,
+      dnsInstructions = excluded.dnsInstructions,
+      status = excluded.status,
+      vercelDomainStatus = excluded.vercelDomainStatus,
+      notes = excluded.notes,
+      updatedAt = excluded.updatedAt
+  `).run(
+    handoff.id,
+    handoff.leadSlug,
+    handoff.businessName,
+    handoff.tier,
+    handoff.commerceAddon ? 1 : 0,
+    handoff.stripeSessionId,
+    handoff.customerEmail,
+    handoff.previewUrl,
+    handoff.suggestedHost,
+    handoff.customDomain ?? null,
+    handoff.contactFormUrl,
+    JSON.stringify(handoff.dnsInstructions),
+    handoff.status,
+    handoff.vercelDomainStatus ?? null,
+    JSON.stringify(handoff.notes),
+    handoff.createdAt,
+    handoff.updatedAt,
+  );
+}
+
+export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandoff | null> {
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(slug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+  return mapDeployHandoffRow(row);
+}
+
+export async function listDeployHandoffs(): Promise<DeployHandoff[]> {
+  const db = getSqliteDb();
+  const rows = db
+    .prepare("SELECT * FROM deploy_handoffs ORDER BY createdAt DESC")
+    .all() as unknown as SqliteDeployHandoffRow[];
+  return rows.map(mapDeployHandoffRow);
+}
+
+export async function updateDeployHandoffStatus(
+  leadSlug: string,
+  status: DeployHandoffStatus,
+  extraNotes: string[] = [],
+): Promise<DeployHandoff | null> {
+  const existing = await getDeployHandoffBySlug(leadSlug);
+  if (!existing) return null;
+
+  const notes = [...existing.notes, ...extraNotes];
+  const updatedAt = new Date().toISOString();
+  const db = getSqliteDb();
+  db.prepare(`
+    UPDATE deploy_handoffs
+    SET status = ?, notes = ?, updatedAt = ?
+    WHERE leadSlug = ?
+  `).run(status, JSON.stringify(notes), updatedAt, leadSlug);
+
+  return {
+    ...existing,
+    status,
+    notes,
+    updatedAt,
+  };
 }

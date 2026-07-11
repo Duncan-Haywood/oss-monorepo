@@ -74,11 +74,19 @@ export default function ArchitectureDocPage() {
         <code>POST /api/stripe/checkout</code> creates a real Stripe Checkout Session (501 only
         when Price IDs / secret key are missing).{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
-        order, and sends a receipt email when Resend is configured. Operator bootstrap:{" "}
+        order, sends a receipt email when Resend is configured, and enqueues a production deploy
+        handoff (DNS + contact form). Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
-        bootstrap (or Dashboard) so Price ID env vars are set. Production deploy after payment is
-        Phase 5.
+        bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}
+        <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
+      </p>
+
+      <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
+      <p>
+        Handoff records live in SQLite (<code>deploy_handoffs</code>). Suggested host{" "}
+        <code>{"{slug}.domain"}</code>, contact stub at <code>/api/contact/[slug]</code>, optional
+        Vercel Domains API. Operators confirm DNS then mark the lead <code>live</code>.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

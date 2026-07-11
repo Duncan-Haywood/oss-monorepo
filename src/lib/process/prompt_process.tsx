@@ -41,7 +41,8 @@ export interface ProcessIteration {
  */
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → deploy handoff), unless another agent already owns it.",
+  "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy), unless another agent already owns it.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -139,10 +140,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "production-deploy-handoff",
     summary:
-      "After paid checkout: automated production deploy + custom domain / DNS handoff stub (Phase 5) — today webhook marks paid + sends receipt only.",
-    status: "in_progress",
+      "After paid checkout: enqueue production deploy handoff (DNS instructions, optional Vercel domain API, contact form stub) and operator Mark live — see /docs/production-deploy.",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-0e38",
+  },
+  {
+    id: "vercel-per-client-projects",
+    summary:
+      "Optional scale-up: isolate each paid client on its own Vercel project (or multi-tenant routing rules) instead of shared project + path/host conventions.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 
@@ -273,6 +281,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "This Next version renames the file convention; agents reading older training data will otherwise ship middleware that emits deprecation warnings or fails future upgrades.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Production deploy after payment is a durable handoff record + DNS checklist, not an automatic 'live' flip. Lead stays paid until an operator (or later automation) confirms DNS and marks live.",
+    rationale:
+      "Registrar DNS and Vercel domain verification are outside the app's control. Auto-marking live would lie to operators and customers. Persisting handoffs in SQLite (with optional Vercel API when tokens exist) unblocks fulfillment tracking without pretending DNS finished.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Client contact forms POST to /api/contact/[slug], which emails the lead (or support) — a stub CRM until clientLeads storage lands.",
+    rationale:
+      "Paid sites need a working inquiry path immediately. Email forwarding reuses Resend + suppression patterns already shipped, avoids a second database product decision, and keeps the Phase 5 surface small enough for one hourly iteration.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Claim commits must be pushed before feature work so concurrent hourly agents see remote ownership within ~1 minute.",
+    rationale:
+      "Local-only in_progress claims caused parallel CSV work earlier the same day. Pushing the claim is cheap and is now an explicit AGENT_PROTOCOL rule.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -402,7 +431,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Compliance docs note for Lead.dataSource",
       "AGENT_PROTOCOL — parallel-claim merge rule",
     ],
-    decisions: BUSINESS_DECISIONS.slice(13, 16),
+    decisions: BUSINESS_DECISIONS.slice(13, 15),
   },
   {
     date: "2026-07-11",
@@ -416,6 +445,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Lead mutation actions auth-guarded; auth chrome banner when unconfigured",
       "Docs: launch-checklist auth section; roadmap/architecture; .env.example",
     ],
-    decisions: BUSINESS_DECISIONS.slice(16),
+    decisions: BUSINESS_DECISIONS.slice(15, 17),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/prompt-process-evolution-0e38",
+    summary:
+      "Phase 5 unlock: after Stripe checkout.session.completed, enqueue a production deploy handoff (DNS instructions, suggested host, contact form URL), optionally call Vercel Domains API when tokens exist, email the buyer next steps, and let operators Mark live from /dashboard/leads. Contact form stub at /api/contact/[slug]. Process: push claim commits immediately; document at /docs/production-deploy. Merged sibling 8d74 dashboard-auth in the same PR window.",
+    shipped: [
+      "src/lib/deploy/* — handoff types + enqueue / mark-live / Vercel best-effort",
+      "src/lib/db.ts — deploy_handoffs SQLite table + CRUD",
+      "src/app/api/stripe/webhook — enqueue handoff + DNS email after receipt",
+      "src/app/api/contact/[slug] — inquiry stub for client sites",
+      "src/app/dashboard/leads — open handoffs panel + Mark live action",
+      "src/app/docs/production-deploy + roadmap/architecture/launch-checklist updates",
+      "AGENT_PROTOCOL — push claim before feature body",
+      "Merge of cursor/business-process-evolution-8d74 (dashboard auth)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(17),
   },
 ];

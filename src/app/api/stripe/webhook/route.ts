@@ -71,6 +71,39 @@ export async function POST(request: Request) {
           if (customerEmail) {
             await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
           }
+
+          // Phase 5: queue production deploy + DNS handoff (stub when Vercel unset)
+          const { enqueueProductionHandoff, formatDnsInstructionsForEmail } = await import(
+            "@/lib/deploy/handoff"
+          );
+          const handoff = await enqueueProductionHandoff({
+            leadSlug: slug,
+            businessName,
+            tier,
+            commerceAddon,
+            stripeSessionId: session.id,
+            customerEmail,
+          });
+          console.log(
+            `Production handoff queued for ${slug}: ${handoff.status} → ${handoff.suggestedHost}`,
+          );
+
+          if (customerEmail) {
+            const { sendEmail } = await import("@/lib/email/resend");
+            const { brand } = await import("@/lib/brand");
+            await sendEmail({
+              to: customerEmail,
+              subject: `Next steps: go live with ${businessName} — ${brand.name}`,
+              leadSlug: slug,
+              html: `
+                <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
+                <p style="margin-bottom: 16px;">Payment received for <strong>${businessName}</strong>. Here is your production handoff:</p>
+                ${formatDnsInstructionsForEmail(handoff)}
+                <p style="margin-bottom: 8px;">Reply to this email if you want us to finish DNS for you.</p>
+                <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+              `,
+            });
+          }
         } catch (dbError) {
           console.error(`Failed to record lead payment or send email for ${slug}:`, dbError);
         }
