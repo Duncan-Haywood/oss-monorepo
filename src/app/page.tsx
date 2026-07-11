@@ -102,7 +102,19 @@ export default function Home() {
               href="/preview/example-bakery"
               className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-8 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
             >
-              See example preview
+              See bakery preview
+            </Link>
+            <Link
+              href="/preview/serene-salon"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-8 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
+            >
+              Salon
+            </Link>
+            <Link
+              href="/preview/mountain-plumbing"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 px-8 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
+            >
+              Trades
             </Link>
           </div>
         </div>

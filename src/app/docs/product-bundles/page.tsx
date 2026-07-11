@@ -1,4 +1,4 @@
-import { DocLink, DocPage } from "@/components/docs/doc-page";
+import { DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 
 export default function ProductBundlesDocPage() {

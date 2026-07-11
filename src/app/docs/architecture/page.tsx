@@ -42,8 +42,14 @@ export default function ArchitectureDocPage() {
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
       </p>
 
-      <h2>2. Site generation (future)</h2>
-      <p>Category templates, merge public fields, preview slug, JSON config rendered at <code>/preview/[slug]</code>.</p>
+      <h2>2. Site generation</h2>
+      <p>
+        Category templates (restaurant, salon, trades, generic) render at{" "}
+        <code>/preview/[slug]</code> from the lead catalog (
+        <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
+        <code>serene-salon</code>, <code>mountain-plumbing</code>. Tier upsell cards link to
+        checkout with <code>slug</code> + recommended <code>tier</code>.
+      </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>
       <p>
@@ -58,8 +64,13 @@ export default function ArchitectureDocPage() {
 
       <h2 id="payments">6. Payments (self-serve)</h2>
       <p>
-        <code>POST /api/stripe/checkout</code> → Stripe Checkout → webhook → production deploy.
-        Current scaffold returns 501.
+        <code>POST /api/stripe/checkout</code> creates a real Stripe Checkout Session (501 only
+        when Price IDs / secret key are missing).{" "}
+        <code>POST /api/stripe/webhook</code> verifies signatures and logs{" "}
+        <code>checkout.session.completed</code>. Operator bootstrap:{" "}
+        <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
+        creates Products/Prices and returns env var snippets. Fulfillment (persist order →
+        production deploy) waits on Convex.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
@@ -77,7 +88,7 @@ export default function ArchitectureDocPage() {
         <li>Vercel hosting, Stripe Checkout</li>
         <li>Vapi/Retell (platform + client voice)</li>
         <li>Resend (email), Buffer (scheduling MVP)</li>
-        <li>Database TBD — Convex or PostgreSQL</li>
+        <li>Database: Convex (chosen) — demo leads in TypeScript until wired</li>
       </ul>
     </DocPage>
   );

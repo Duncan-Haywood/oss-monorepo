@@ -5,10 +5,17 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { BUNDLES, COMMERCE_ADDON, type BundleTier } from "@/lib/pricing/bundles";
 
+function parseTier(value: string | null): BundleTier {
+  if (value === "starter" || value === "growth" || value === "complete") {
+    return value;
+  }
+  return "starter";
+}
+
 export function CheckoutForm() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug") ?? undefined;
-  const [tier, setTier] = useState<BundleTier>("starter");
+  const [tier, setTier] = useState<BundleTier>(() => parseTier(searchParams.get("tier")));
   const [commerceAddon, setCommerceAddon] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
