@@ -64,7 +64,12 @@ export default function RoadmapDocPage() {
       </ul>
 
       <h2 id="phase-1">Phase 1 — Website foundation</h2>
-      <p>Database, auth, category templates, manual lead entry, preview subdomain, tier cards on preview.</p>
+      <p>
+        Category templates + tier cards on preview: shipped (restaurant / salon / trades +
+        generic fallback). Remaining: Convex persistence (decision recorded in{" "}
+        <DocLink href="/docs/process">process log</DocLink>), auth, manual lead entry, preview
+        subdomain hosting.
+      </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>Resend, CAN-SPAM templates, suppression list, Vapi/Retell, bundle explanation tools.</p>
@@ -75,10 +80,11 @@ export default function RoadmapDocPage() {
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
         selection UI live at <DocLink href="/checkout">/checkout</DocLink>.{" "}
         <code>/api/stripe/webhook</code> verifies signatures and logs{" "}
-        <code>checkout.session.completed</code> events. Remaining: create the Stripe Price
-        objects in the dashboard and set the <code>STRIPE_PRICE_ID_*</code> env vars, then wire
-        the webhook to persist paid orders (Phase 1 database) and send receipt emails (Phase 2
-        outbound email).
+        <code>checkout.session.completed</code> events. To create Prices without the Stripe UI: set{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
+        paste the returned <code>envSnippet</code> into secrets, then unset the flag. Remaining:
+        run bootstrap (or Dashboard) for test + live, then wire the webhook to persist paid
+        orders (Convex) and send receipt emails (Phase 2 outbound email).
       </p>
 
       <h2>Phase 4 — Data ingestion</h2>

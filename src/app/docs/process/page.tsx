@@ -1,5 +1,10 @@
 import { DocLink, DocPage } from "@/components/docs/doc-page";
-import { BUSINESS_DECISIONS, ITERATIONS, NEXT_STEPS } from "@/lib/process/prompt_process";
+import {
+  AGENT_PROTOCOL,
+  BUSINESS_DECISIONS,
+  ITERATIONS,
+  NEXT_STEPS,
+} from "@/lib/process/prompt_process";
 
 const statusLabel: Record<string, string> = {
   todo: "To do",
@@ -24,6 +29,13 @@ export default function ProcessDocPage() {
         (claim a backlog item by setting <code>status</code> and <code>owner</code>) in the same
         commit that does the work, so concurrent agents don&apos;t duplicate effort.
       </p>
+
+      <h2>Agent protocol</h2>
+      <ol>
+        {AGENT_PROTOCOL.map((rule) => (
+          <li key={rule}>{rule}</li>
+        ))}
+      </ol>
 
       <h2>Backlog</h2>
       <table>
@@ -60,7 +72,7 @@ export default function ProcessDocPage() {
 
       <h2>Iteration history</h2>
       {ITERATIONS.map((iteration) => (
-        <div key={iteration.date + iteration.branch}>
+        <div key={iteration.date + iteration.branch + iteration.summary.slice(0, 24)}>
           <h3>
             {iteration.date} — <code>{iteration.branch}</code>
           </h3>

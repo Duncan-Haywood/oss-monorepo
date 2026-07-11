@@ -36,6 +36,19 @@ export interface ProcessIteration {
 }
 
 /**
+ * How concurrent agents cooperate. Keep this short; evolve it when collisions
+ * or thrash show up in practice.
+ */
+export const AGENT_PROTOCOL = [
+  "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach), unless another agent already owns it.",
+  "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them.",
+  "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
+  "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
+  "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate.",
+] as const;
+
+/**
  * Prioritized backlog. When you pick one up: set status to "in_progress"
  * and owner to your branch name in the same commit you start the work in,
  * so concurrent agents on other branches don't duplicate it. Add new items
@@ -45,7 +58,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-price-objects",
     summary:
-      "Create Stripe Price objects (test + live) for Starter/Growth/Complete setup + monthly, and Commerce add-on; set STRIPE_PRICE_ID_* env vars.",
+      "Operator: run POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1 (test + live), paste envSnippet into secrets, unset the flag. Bootstrap code already shipped.",
     status: "todo",
     phase: "Phase 3 — Payments",
   },
@@ -53,20 +66,22 @@ export const NEXT_STEPS: NextStep[] = [
     id: "stripe-webhook",
     summary:
       "Add /api/stripe/webhook: verify signature, handle checkout.session.completed → mark lead paid, trigger production deploy + receipt email.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-nj7oy0",
   },
   {
-    id: "database",
+    id: "category-templates",
     summary:
-      "Pick a database (Postgres vs Convex — see /docs/architecture) and wire lead + order persistence; replace static pipeline counts in /dashboard/leads.",
-    status: "todo",
+      "Build category-specific preview templates (restaurant, salon, trades) beyond the generic placeholder at /preview/[slug], including tier upsell cards.",
+    status: "done",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-aec3",
   },
   {
-    id: "category-templates",
-    summary: "Build category-specific preview templates (restaurant, salon, trades) beyond the generic placeholder at /preview/[slug].",
+    id: "database",
+    summary:
+      "Stand up Convex (chosen over Postgres for this app) for lead + order persistence; replace demo catalog counts in /dashboard/leads; wire webhook fulfillment to mark leads paid.",
     status: "todo",
     phase: "Phase 1 — Website foundation",
   },
@@ -81,6 +96,13 @@ export const NEXT_STEPS: NextStep[] = [
     summary: "Wire Resend for outreach Email 1 (preview link) with CAN-SPAM footer and suppression list.",
     status: "todo",
     phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "manual-lead-entry",
+    summary:
+      "Operator UI or authenticated API to add/edit a lead (slug, category, stage) into Convex — unblocks non-demo previews without scraping.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 
@@ -105,6 +127,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "The Stripe webhook handler verifies signatures and logs checkout.session.completed events, but does not yet persist orders or send receipt emails — it returns 200 either way once verified.",
     rationale:
       "Durable fulfillment needs a database (see the 'database' backlog item) and outbound email (see 'outbound-email'); shipping signature verification now unblocks Stripe Price object setup and dashboard configuration without waiting on those larger, still-undecided pieces. Until fulfillment lands, Stripe's own dashboard is the source of truth for paid orders — do not rely on this app for that yet.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Use Convex for lead/order persistence (not Postgres) when the database backlog item is implemented.",
+    rationale:
+      "The funnel needs a reactive operator dashboard and webhook-driven stage updates with minimal ops surface. Convex keeps the backend in TypeScript beside the Next.js app, fits cloud-agent isolation via CONVEX_AGENT_MODE=anonymous, and avoids standing up a separate SQL service before the first paid order. Postgres remains acceptable later if analytics or multi-region SQL constraints appear.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Until Convex lands, demo leads and category preview content live in TypeScript modules (src/lib/leads/*), not ad-hoc Markdown or JSON files.",
+    rationale:
+      "Keeps types shared between /preview/[slug] and /dashboard/leads, stays consistent with the TSX-docs rule, and makes the later Convex schema a straight port of the Lead interface.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Stripe Price bootstrap is an opt-in POST /api/stripe/bootstrap-prices gated by ALLOW_STRIPE_BOOTSTRAP=1, not a always-on admin UI.",
+    rationale:
+      "Price creation is a rare operator action that talks to Stripe with the secret key. An env flag avoids accidental re-runs in production while still letting cloud agents and humans create test Prices without leaving the repo's TypeScript stack.",
   },
 ];
 
@@ -133,7 +176,7 @@ export const ITERATIONS: ProcessIteration[] = [
     shipped: [
       "src/app/api/stripe/webhook/route.ts — signature-verified webhook, handles checkout.session.completed, graceful 501 when unconfigured",
     ],
-    decisions: BUSINESS_DECISIONS.slice(2),
+    decisions: BUSINESS_DECISIONS.slice(2, 3),
   },
   {
     date: "2026-07-11",
@@ -146,5 +189,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/preview/[slug]/page.tsx — checkout CTA now links to /checkout?slug={slug}",
     ],
     decisions: [],
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-aec3",
+    summary:
+      "Conversion + payment unlock iteration: category preview templates with tier upsell cards, demo lead catalog feeding the dashboard, Stripe Price bootstrap endpoint, Convex chosen as the persistence target, and an explicit agent cooperation protocol in this file.",
+    shipped: [
+      "src/lib/leads/* — Lead types + demo catalog (bakery, salon, trades)",
+      "src/components/preview/* — category themes, template shell, tier upsell cards",
+      "src/app/preview/[slug]/page.tsx — renders category templates from slug/catalog",
+      "src/app/api/stripe/bootstrap-prices + src/lib/pricing/bootstrap-stripe-prices.ts",
+      "src/app/dashboard/leads — live counts from demo catalog + preview links",
+      "AGENT_PROTOCOL + Convex / TS-catalog / bootstrap business decisions",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(3),
   },
 ];
