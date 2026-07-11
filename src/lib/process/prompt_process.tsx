@@ -53,8 +53,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "stripe-webhook",
     summary:
       "Add /api/stripe/webhook: verify signature, handle checkout.session.completed → mark lead paid, trigger production deploy + receipt email.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-nj7oy0",
   },
   {
     id: "database",
@@ -98,7 +99,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "One Checkout Session and one customer action instead of two separate charges reduces drop-off at the point of highest purchase intent.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "The Stripe webhook handler verifies signatures and logs checkout.session.completed events, but does not yet persist orders or send receipt emails — it returns 200 either way once verified.",
+    rationale:
+      "Durable fulfillment needs a database (see the 'database' backlog item) and outbound email (see 'outbound-email'); shipping signature verification now unblocks Stripe Price object setup and dashboard configuration without waiting on those larger, still-undecided pieces. Until fulfillment lands, Stripe's own dashboard is the source of truth for paid orders — do not rely on this app for that yet.",
+  },
 ];
+
+const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
 
 export const ITERATIONS: ProcessIteration[] = [
   {
@@ -113,6 +123,16 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/checkout/success/page.tsx — post-payment landing page",
       "src/lib/process/prompt_process.tsx + /docs/process — this file",
     ],
-    decisions: BUSINESS_DECISIONS,
+    decisions: ITERATION_1_DECISIONS,
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/relaxed-galileo-nj7oy0",
+    summary:
+      "Merged the checkout PR to main, then added the Stripe webhook receiver so paid checkouts have somewhere to land once persistence and email are wired up.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — signature-verified webhook, handles checkout.session.completed, graceful 501 when unconfigured",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(2),
   },
 ];

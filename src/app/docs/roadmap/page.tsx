@@ -73,9 +73,12 @@ export default function RoadmapDocPage() {
       <p>
         Checkout API creates real Stripe Checkout Sessions per tier (see{" "}
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
-        selection UI live at <DocLink href="/checkout">/checkout</DocLink>. Remaining: create the
-        Stripe Price objects in the dashboard and set the <code>STRIPE_PRICE_ID_*</code> env vars,
-        add the webhook handler for production deploy + receipt emails.
+        selection UI live at <DocLink href="/checkout">/checkout</DocLink>.{" "}
+        <code>/api/stripe/webhook</code> verifies signatures and logs{" "}
+        <code>checkout.session.completed</code> events. Remaining: create the Stripe Price
+        objects in the dashboard and set the <code>STRIPE_PRICE_ID_*</code> env vars, then wire
+        the webhook to persist paid orders (Phase 1 database) and send receipt emails (Phase 2
+        outbound email).
       </p>
 
       <h2>Phase 4 — Data ingestion</h2>
