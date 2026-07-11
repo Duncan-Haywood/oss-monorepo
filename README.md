@@ -28,7 +28,16 @@ real-estate-agent-photo-app/
 │   ├── decisions-log.ts         # append-only business decisions
 │   ├── progress-log.ts          # append-only per-session log
 │   ├── interview-script.ts      # Phase 1 problem-interview script + rubric
-│   └── capture-checklist.ts     # Phase 2 concierge-MVP shoot checklist
+│   ├── capture-checklist.ts     # Phase 2 concierge-MVP shoot checklist
+│   ├── pricing-one-pager.tsx    # $19/listing concierge offer
+│   └── outreach-templates.ts    # manual outreach copy + booking intake
+├── pipeline/
+│   ├── package.json
+│   └── src/
+│       ├── enhance.ts           # batch photo enhancement (sharp)
+│       ├── coverage.ts          # checks output vs. capture-checklist.ts
+│       ├── cli.ts                # npm run enhance -- --in --out --listing
+│       └── enhance.test.ts      # npm test — synthetic-image self-test
 ├── scripts/
 │   └── push-to-github.sh
 └── research/
@@ -88,6 +97,20 @@ export DOCS_HOSTNAME=listing-lens-docs.pages.dev
 ```
 
 See `docs-site/content/deployment.md` for full setup details.
+
+## Enhancement pipeline (concierge MVP)
+
+`pipeline/` is the automated "Enhance" step for concierge deliveries: a
+local CLI that batch-processes a folder of raw shoot photos into resized,
+contrast/white-balance-normalized, sharpened, MLS-ready JPEGs, and checks
+the output count against `process/capture-checklist.ts`.
+
+```bash
+cd pipeline
+npm install
+npm test    # synthetic-image self-test, no real listing photos needed
+npm run enhance -- --in ./raw-photos --out ./delivery --listing "123 Main St"
+```
 
 ## Research report commands
 

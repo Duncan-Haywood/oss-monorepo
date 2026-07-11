@@ -55,4 +55,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-cpghie",
     relatedTaskIds: ["p2-pricing-page", "p2-outreach-templates", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-11",
+    title: "Enhancement pipeline is a local deterministic CLI, not a cloud AI API",
+    decision:
+      "The Phase 2 'manual AI pipeline' is a local Node/TypeScript CLI (pipeline/, using sharp) doing auto-orient, per-channel contrast/white-balance normalization, sharpening, resize, and MLS-ready renaming — not a call to a paid cloud vision/image API.",
+    rationale:
+      "Every prior session described the Enhance step in prose but none built it, leaving the 1-business-day turnaround claim in the pricing one-pager unbacked by anything runnable. A local pipeline is free to run (no per-image API cost, no API key setup) and fully agent-buildable/testable without real listing photos or human sign-off on spend, matching the 'no spend of real money' guardrail in prompt_process.tsx. It intentionally does not attempt virtual staging, twilight conversion, or object removal — those stay the human/cloud 'Polish' step per STRATEGY.md's 5-step workflow, and can graduate to a paid API once concierge revenue justifies the cost.",
+    madeBy: "claude/dazzling-allen-rkmj0x",
+    relatedTaskIds: ["p2-ai-pipeline", "p2-first-deliveries"],
+  },
 ];

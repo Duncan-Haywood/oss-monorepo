@@ -1,0 +1,19 @@
+{
+  "name": "listing-lens-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Automated photo enhancement CLI for the Listing Lens concierge MVP (Phase 2).",
+  "type": "module",
+  "scripts": {
+    "enhance": "tsx src/cli.ts",
+    "test": "tsx src/enhance.test.ts"
+  },
+  "dependencies": {
+    "sharp": "^0.33.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.7.1",
+    "typescript": "^5"
+  }
+}

@@ -83,4 +83,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once any real concierge deliveries or interview results are logged, tighten the turnaround claim in decisions-log.ts and pricing-one-pager.ts with real data; otherwise, prep Phase 3 app-scope framing (p3-app-scope) or improve this process itself.",
     ],
   },
+  {
+    date: "2026-07-11",
+    agent: "claude/dazzling-allen-rkmj0x",
+    summary:
+      "Merged PR #7 (concierge pricing + outreach, resolving its conflict with the just-merged PR #6/#8 progress-log entries), then closed the biggest actually-agent-buildable gap left in Phase 2: the 'manual AI pipeline' from STRATEGY.md existed only as prose across every prior session, so built it as a real, tested CLI.",
+    changes: [
+      "Merged PR #7 (claude/dazzling-allen-cpghie) into main: rebased it onto main first to resolve a progress-log.ts merge conflict against PR #6/#8, verified docs-site still builds clean, then merged.",
+      "New pipeline/ package (Node + TypeScript, run via tsx, no build step): src/enhance.ts (auto-orient, contrast/white-balance normalize, sharpen, resize, re-encode via sharp), src/coverage.ts (cross-checks output count against process/capture-checklist.ts's expected shot count), src/cli.ts (`npm run enhance -- --in <raw> --out <delivery> --listing \"<addr>\"`), src/enhance.test.ts (generates synthetic images, no real listing photos needed — `npm test` passes).",
+      "Verified end-to-end: `npm test` passes, `npx tsc --noEmit` is clean, and a manual CLI smoke run against synthetic photos correctly produced renamed/resized JPEGs and correctly flagged an under-count against the checklist (exit code 1).",
+      "roadmap.ts: added p2-ai-pipeline (done); p2-first-deliveries blockedReason updated to point at the new pipeline as the concrete unblock for the edit step.",
+      "decisions-log.ts: logged why the pipeline is a local deterministic CLI (sharp) instead of a paid cloud AI API — zero marginal cost, fully agent-testable, respects the 'no spend of real money' guardrail; virtual staging/twilight/object removal stay a future paid 'Polish' step once revenue justifies it.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries is now the single highest-leverage next step — shoot a real listing with process/capture-checklist.ts, run `npm run enhance` in pipeline/ on the raw photos, and use process/outreach-templates.ts + the /pricing page to book and deliver it. This exercises the whole concierge loop end-to-end for the first time.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) are still the other real unblocks; nothing agent-side is left to prep for either.",
+      "Agent (next session): once pipeline/ gets used on a real shoot, feed back any real timing/quality data into the turnaround claim in decisions-log.ts and pricing-one-pager.ts. Do not start p3-app-scope yet — STRATEGY.md sequences it after interview + concierge validation data exists, not before; jumping ahead would be scope creep against the phase-1-first plan. If nothing is agent-actionable, look for the next gap between STRATEGY.md prose and what's actually built/runnable, the way p2-ai-pipeline was found this session.",
+    ],
+  },
 ];

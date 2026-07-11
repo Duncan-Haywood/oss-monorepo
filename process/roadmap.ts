@@ -121,13 +121,24 @@ export const roadmap: RoadmapPhase[] = [
           "Email/DM/in-person templates plus a lightweight booking intake exist in process/. See process/outreach-templates.ts.",
       },
       {
+        id: "p2-ai-pipeline",
+        title: "Automated photo enhancement pipeline (CLI)",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "STRATEGY.md's Week 3-4 plan calls for a 'manual AI pipeline' to hit MLS-ready delivery in under 2 hours, but until now that step existed only as prose — every session described it, none built it. A local, deterministic CLI (auto-orient, contrast/white-balance normalization, sharpen, resize, sequential MLS-ready renaming) turns the slowest part of a concierge delivery into a one-command step and directly de-risks the turnaround-time claim in the pricing one-pager.",
+        doneWhen:
+          "A typed CLI exists at pipeline/ (npm run enhance -- --in <raw> --out <delivery> --listing \"<address>\"), batch-processes a folder of photos into renamed MLS-ready JPEGs, cross-checks output count against process/capture-checklist.ts's expected shot count, and has a passing self-test (npm test) with no real listing photos required. See pipeline/src/enhance.ts, cli.ts, coverage.ts, enhance.test.ts.",
+      },
+      {
         id: "p2-first-deliveries",
         title: "Deliver 5 concierge packs, collect payment",
         status: "blocked",
         owner: "human",
         rationale: "Real revenue is the strongest validation signal.",
         doneWhen: "5 paid concierge deliveries logged with turnaround time and customer feedback.",
-        blockedReason: "Requires a human to shoot/edit and take payment; not agent-executable yet.",
+        blockedReason:
+          "Requires a human to shoot/edit and take payment; not agent-executable yet. The edit step is now faster thanks to pipeline/ (p2-ai-pipeline) — shoot with the checklist, run `npm run enhance` in pipeline/, deliver the output folder.",
       },
     ],
   },

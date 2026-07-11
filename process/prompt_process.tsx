@@ -54,9 +54,14 @@ Each session:
    other agents may be working the same repo concurrently — prefer
    additive changes over ones likely to conflict with in-flight PRs.
 7. Build docs-site and research before committing (npm run build in each
-   that you touched). Push to your assigned branch, open a PR, and merge
-   it once it's green — this repo's convention is short-lived branches,
-   not long-running ones.
+   that you touched); run npm test in pipeline/ if you touched it. Push to
+   your assigned branch, open a PR, and merge it once it's green — this
+   repo's convention is short-lived branches, not long-running ones.
+8. Before merging your own PR, check for other open PRs touching the same
+   files (process/*.ts, docs-site nav, etc.) and merge/rebase against the
+   latest main first — process/progress-log.ts especially tends to
+   conflict since every session appends to the same array tail. Resolve
+   by keeping both entries in date order, never by dropping one.
 
 Guardrails (do not violate without explicit human sign-off in this
 session's actual conversation):

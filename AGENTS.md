@@ -26,12 +26,23 @@ outside an editor with TS tooling).
 
 When you finish a session that did real work: update the relevant
 roadmap.ts task status, log a decision if you made one, and always append
-one progress-log.ts entry — then build both `research/` and `docs-site/`
-before pushing.
+one progress-log.ts entry — then build `research/` and `docs-site/` (and
+run `npm test` in `pipeline/`) for anything you touched, before pushing.
 
 ## Cursor Cloud specific instructions
 
-This repo has two Next.js 14 (App Router) static-export sites — no backend, database, or app auth.
+This repo has two Next.js 14 (App Router) static-export sites and one Node CLI package — no backend, database, or app auth.
+
+### Enhancement pipeline (`pipeline/`)
+
+Local CLI (Node + TypeScript, run via `tsx`, no build step) for the
+concierge MVP's "Enhance" step — see `process/decisions-log.ts` for why
+it's a local `sharp` pipeline and not a paid cloud AI API.
+
+- **Test:** `cd pipeline && npm install && npm test` (generates synthetic
+  images in a temp dir; no real listing photos or network calls needed).
+- **Run:** `npm run enhance -- --in <raw-dir> --out <delivery-dir> --listing "<address>"`
+- **Typecheck:** `npx tsc --noEmit` (strict mode).
 
 ### Research report (`research/`)
 
