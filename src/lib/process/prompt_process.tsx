@@ -82,8 +82,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "database",
     summary:
       "Stand up Convex (chosen over Postgres for this app) for lead + order persistence; replace demo catalog counts in /dashboard/leads; wire webhook fulfillment to mark leads paid.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "claude/convex-database-persistence",
   },
   {
     id: "lead-ingestion",
