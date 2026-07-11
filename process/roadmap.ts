@@ -12,7 +12,7 @@ export const roadmap: RoadmapPhase[] = [
   {
     id: "phase-0-scaffold",
     title: "Phase 0 — Repo & docs scaffold",
-    status: "done",
+    status: "in_progress",
     window: "Pre-week 1",
     summary:
       "Bootstrap the repo, market research site, private docs site, and this process system.",
@@ -28,10 +28,12 @@ export const roadmap: RoadmapPhase[] = [
       {
         id: "p0-docs-site",
         title: "Private docs site on Cloudflare Pages + Access",
-        status: "done",
-        owner: "agent",
+        status: "blocked",
+        owner: "both",
         rationale: "Internal, access-gated home for strategy/process docs.",
         doneWhen: "docs-site deploys and Cloudflare Access blocks anonymous visitors.",
+        blockedReason:
+          "Site deploys fine, but Cloudflare Access isn't actually enforced on *.pages.dev yet — PR #4 (cursor/fix-pages-access-4a7e) needs Duncan to flip the Access policy on in the Cloudflare dashboard before this is really done.",
       },
       {
         id: "p0-process-system",
@@ -121,7 +123,7 @@ export const roadmap: RoadmapPhase[] = [
       {
         id: "p2-first-deliveries",
         title: "Deliver 5 concierge packs, collect payment",
-        status: "not_started",
+        status: "blocked",
         owner: "human",
         rationale: "Real revenue is the strongest validation signal.",
         doneWhen: "5 paid concierge deliveries logged with turnaround time and customer feedback.",
