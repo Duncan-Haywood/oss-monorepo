@@ -33,5 +33,7 @@ export default defineSchema({
     commerceAddon: v.boolean(),
     amountTotal: v.number(),
     createdAt: v.number(),
-  }).index("by_leadSlug", ["leadSlug"]),
+  })
+    .index("by_leadSlug", ["leadSlug"])
+    .index("by_stripeSessionId", ["stripeSessionId"]),
 });

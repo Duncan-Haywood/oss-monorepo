@@ -86,7 +86,8 @@ export default function RoadmapDocPage() {
         sends receipt email. To create Prices without the Stripe UI: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
         paste the returned <code>envSnippet</code> into secrets, then unset the flag. Remaining:
-        run bootstrap (or Dashboard) for test + live Price IDs.
+        run bootstrap (or Dashboard) for test + live Price IDs. Operator path:{" "}
+        <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.
       </p>
 
       <h2 id="phase-4">Phase 4 — Data ingestion</h2>
