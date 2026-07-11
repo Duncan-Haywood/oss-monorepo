@@ -53,6 +53,8 @@ export function LeadsClient({
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
   const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
+  /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
+  const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -278,8 +280,8 @@ export function LeadsClient({
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
-  // Client clock is fine for operator queue display; server re-checks on send.
-  const followUpsDue = listFollowUpsDue(leads, Date.now());
+  // Snapshot clock from mount — server re-checks cadence on send.
+  const followUpsDue = listFollowUpsDue(leads, nowMs);
 
   return (
     <div className="mt-8">
@@ -894,7 +896,7 @@ export function LeadsClient({
                 filteredLeads.map((lead) => {
                   const step = normalizeOutreachStep(lead.outreachStep);
                   const next = nextFollowUpStep(step);
-                  const due = isFollowUpDue(lead, Date.now());
+                  const due = isFollowUpDue(lead, nowMs);
                   return (
                     <tr key={lead.slug} className="hover:bg-zinc-50/50 transition">
                       <td className="px-6 py-4.5">
