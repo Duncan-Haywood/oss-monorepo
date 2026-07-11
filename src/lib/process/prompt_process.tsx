@@ -95,8 +95,9 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "outbound-email",
     summary: "Wire Resend for outreach Email 1 (preview link) with CAN-SPAM footer and suppression list.",
-    status: "todo",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/email-outreach-and-suppression",
   },
   {
     id: "manual-lead-entry",
@@ -165,6 +166,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "This guarantees developers can clone the repository, run the dev server, and interact with a fully functional dashboard and lead creation pipeline immediately with zero configuration. It integrates Convex dynamically via ConvexHttpClient using string-based query/mutation paths, preventing compilation failures in Next.js when Convex's auto-generated client files do not exist yet.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Store the email suppression list in the local SQLite database and add an optional email field to the Lead model.",
+    rationale:
+      "Compliance with CAN-SPAM is non-negotiable. Storing the opt-out list locally in SQLite allows background email workers and servers to query suppression instantly without round-trips or schema alterations on cloud services (Convex). Adding the optional email field directly to the Lead schema allows the operator to input the target contact when creating/editing leads, triggering automated outreach seamlessly when stage changes to outreach_sent.",
+  }
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -239,6 +247,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/layout.tsx + src/app/globals.css — Fixed Google Fonts build failures by specifying offline-friendly system font fallbacks",
     ],
     decisions: [BUSINESS_DECISIONS[6]],
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/email-outreach-and-suppression",
+    summary:
+      "Wired Resend for outreach and transactional receipt emails, created a local SQLite-based suppression list to honor unsubscribes, and added an opt-out unsubscribe endpoint to comply with CAN-SPAM. Integrated the new email field into the operator manual lead entry form, leads list table, and server actions to auto-send outreach upon stage transition.",
+    shipped: [
+      "src/lib/email/resend.ts — Resend email integration, suppression list checking, outreach + receipt templates",
+      "src/app/api/unsubscribe/route.ts — Opt-out unsubscribe endpoint that adds emails to the suppression list",
+      "src/lib/db.ts — Migrated SQLite tables to include email column and suppression_list table, added suppression list helpers",
+      "src/lib/leads/types.ts — Added optional email field to Lead interface",
+      "src/app/dashboard/leads/leads-client.tsx — Added Email Address field to manual lead entry form and table",
+      "src/app/dashboard/leads/actions.ts — Automated outreach email trigger when stage changes to outreach_sent",
+      "src/app/api/stripe/webhook/route.ts — Trigger transactional receipt email upon checkout.session.completed",
+    ],
+    decisions: [BUSINESS_DECISIONS[7]],
   },
 ];
 
