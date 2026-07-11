@@ -1,11 +1,11 @@
-import { getLeads } from "@/lib/db";
+import { getLeads, listDeployHandoffs } from "@/lib/db";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { LeadsClient } from "./leads-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function LeadsPage() {
-  const leads = await getLeads();
+  const [leads, handoffs] = await Promise.all([getLeads(), listDeployHandoffs()]);
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
   return (
@@ -30,7 +30,7 @@ export default async function LeadsPage() {
       </div>
 
       <div className="mt-8">
-        <LeadsClient initialLeads={leads} />
+        <LeadsClient initialLeads={leads} initialHandoffs={handoffs} />
       </div>
     </main>
   );

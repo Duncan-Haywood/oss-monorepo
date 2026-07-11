@@ -43,6 +43,11 @@ const docs = [
     description: "Operator steps from demo to first paid order (Stripe, email, legal).",
   },
   {
+    title: "Production deploy",
+    href: "/docs/production-deploy",
+    description: "Post-payment DNS handoff, contact form stub, mark-live operator flow.",
+  },
+  {
     title: "Roadmap",
     href: "/docs/roadmap",
     description: "Phased implementation plan.",

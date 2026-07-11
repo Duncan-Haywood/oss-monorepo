@@ -90,7 +90,26 @@ export default function LaunchChecklistDocPage() {
         <li>At least one outreach email can send (or clearly mock) with unsubscribe</li>
         <li>Operator can add leads via form or CSV without engineering help</li>
         <li>Public brand + Colorado postal address present on outbound email</li>
+        <li>
+          After a test payment, a deploy handoff appears on the leads dashboard (see{" "}
+          <DocLink href="/docs/production-deploy">Production deploy</DocLink>)
+        </li>
       </ul>
+
+      <h2>6. After the first paid order (Phase 5)</h2>
+      <ol>
+        <li>
+          Optional: set <code>VERCEL_TOKEN</code> + <code>VERCEL_PROJECT_ID</code> (and{" "}
+          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code>) so domain registration is attempted
+          automatically.
+        </li>
+        <li>
+          Complete DNS from the handoff panel, then <strong>Mark live</strong>.
+        </li>
+        <li>
+          Point client site forms at <code>/api/contact/[slug]</code> until a fuller CRM lands.
+        </li>
+      </ol>
 
       <p>
         Track engineering backlog in the <DocLink href="/docs/process">process log</DocLink>.

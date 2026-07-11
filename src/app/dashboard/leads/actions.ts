@@ -4,6 +4,32 @@ import { revalidatePath } from "next/cache";
 import { updateLeadStage, upsertLead } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
+import { markHandoffLive } from "@/lib/deploy/handoff";
+import type { DeployHandoff } from "@/lib/deploy/types";
+
+export async function markHandoffLiveAction(slug: string) {
+  try {
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+    const handoff = await markHandoffLive(slug);
+    if (!handoff) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+    revalidatePath("/dashboard/leads");
+    revalidatePath(`/preview/${slug}`);
+    return { success: true as const, handoff };
+  } catch (error) {
+    console.error("Error in markHandoffLiveAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/** Re-export for client typing convenience. */
+export type { DeployHandoff };
 
 export async function updateLeadStageAction(slug: string, stage: LeadPipelineStage) {
   try {
