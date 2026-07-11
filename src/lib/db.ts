@@ -447,7 +447,7 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
   return counts;
 }
 
-interface SqliteOrderRowRow {
+interface SqliteOrderJoinRow {
   id: string;
   leadSlug: string;
   stripeSessionId: string | null;
