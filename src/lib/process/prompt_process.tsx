@@ -41,7 +41,7 @@ export interface ProcessIteration {
  */
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → deploy handoff), unless another agent already owns it.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -49,6 +49,7 @@ export const AGENT_PROTOCOL = [
   "If two hourly automations claim the same free todo in the same window: merge the branches (keep both process iterations), do not open a second competing PR for the same feature surface.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
+  "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
 ] as const;
 
 /**
@@ -131,7 +132,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "dashboard-auth",
     summary:
       "Protect /dashboard/* (and lead mutation server actions) with operator auth before real customer data or outbound sends at scale.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-8d74",
   },
@@ -256,6 +257,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "When sibling hourly automations ship overlapping CSV/email work in the same window, merge both branches into one PR instead of racing two PRs for the same surface.",
     rationale:
       "Duplicated parsers and dashboard panels would thrash main and confuse ownership. Merging preserves both process iterations and launch-checklist docs while letting dataSource (prompt-process branch) and launch-checklist (business-process branch) land together.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Operator dashboard auth is a shared-secret password (OPERATOR_DASHBOARD_PASSWORD) with an HMAC-signed httpOnly cookie — not OAuth/Clerk — for the single-operator MVP.",
+    rationale:
+      "One human operator needs a gate before CSV import and outreach_sent mutations; a full IdP would delay revenue unlock. Password unset keeps the dashboard open for demos; production must set it (launch checklist). Proxy redirects unauthenticated /dashboard/* traffic; server actions call requireOperatorAuth() because Next.js 16 documents that proxy alone does not cover server functions reliably.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Use Next.js 16 proxy.ts (nodejs runtime) instead of deprecated middleware.ts for dashboard route gating.",
+    rationale:
+      "This Next version renames the file convention; agents reading older training data will otherwise ship middleware that emits deprecation warnings or fails future upgrades.",
   },
 ];
 
@@ -386,6 +401,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Compliance docs note for Lead.dataSource",
       "AGENT_PROTOCOL — parallel-claim merge rule",
     ],
-    decisions: BUSINESS_DECISIONS.slice(13),
+    decisions: BUSINESS_DECISIONS.slice(13, 16),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-8d74",
+    summary:
+      "Operator dashboard auth so real CSV/outreach can run safely: shared-secret login, signed session cookie, Next.js 16 proxy gate on /dashboard/*, server-action requireOperatorAuth on lead mutations, launch-checklist + roadmap updates, and AGENT_PROTOCOL note for proxy vs middleware.",
+    shipped: [
+      "src/lib/auth/operator.ts — HMAC session + requireOperatorAuth",
+      "src/proxy.ts — gate /dashboard/* when password configured",
+      "src/app/dashboard/login — sign-in form + logout",
+      "Lead mutation actions auth-guarded; auth chrome banner when unconfigured",
+      "Docs: launch-checklist auth section; roadmap/architecture; .env.example",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(16),
   },
 ];
