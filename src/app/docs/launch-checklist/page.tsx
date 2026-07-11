@@ -42,7 +42,20 @@ export default function LaunchChecklistDocPage() {
         </li>
       </ol>
 
-      <h2>2. Outreach (blocks top-of-funnel)</h2>
+      <h2>2. Operator dashboard auth (blocks safe outreach at scale)</h2>
+      <ol>
+        <li>
+          Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment.
+          Until set, <code>/dashboard</code> stays open for demos — do not import real contacts
+          or flip stages to <code>outreach_sent</code> without it.
+        </li>
+        <li>
+          Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign in, confirm
+          lead mutations still work, then use Sign out.
+        </li>
+      </ol>
+
+      <h2>3. Outreach (blocks top-of-funnel)</h2>
       <ol>
         <li>
           Set <code>RESEND_API_KEY</code>, <code>EMAIL_FROM</code>, and a real{" "}
@@ -56,7 +69,7 @@ export default function LaunchChecklistDocPage() {
         </li>
       </ol>
 
-      <h2>3. Persistence</h2>
+      <h2>4. Persistence</h2>
       <ol>
         <li>
           Optional but recommended for multi-instance deploys: provision Convex (
@@ -67,7 +80,7 @@ export default function LaunchChecklistDocPage() {
         </li>
       </ol>
 
-      <h2>4. Branding + legal</h2>
+      <h2>5. Branding + legal</h2>
       <ol>
         <li>
           Set <code>NEXT_PUBLIC_BRAND_NAME</code> before customer-facing launches.
@@ -84,9 +97,12 @@ export default function LaunchChecklistDocPage() {
         </li>
       </ol>
 
-      <h2>5. Definition of “ready for revenue”</h2>
+      <h2>6. Definition of “ready for revenue”</h2>
       <ul>
         <li>Test checkout completes and webhook marks the lead paid</li>
+        <li>
+          <code>OPERATOR_DASHBOARD_PASSWORD</code> set; dashboard login works
+        </li>
         <li>At least one outreach email can send (or clearly mock) with unsubscribe</li>
         <li>Operator can add leads via form or CSV without engineering help</li>
         <li>Public brand + Colorado postal address present on outbound email</li>
