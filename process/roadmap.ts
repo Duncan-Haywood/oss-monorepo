@@ -104,10 +104,21 @@ export const roadmap: RoadmapPhase[] = [
       {
         id: "p2-pricing-page",
         title: "$19/listing concierge offer one-pager",
-        status: "not_started",
+        status: "done",
         owner: "agent",
         rationale: "Needed to pitch the first paying concierge customers.",
-        doneWhen: "A shareable one-pager (site page or PDF-able doc) states offer, price, turnaround.",
+        doneWhen:
+          "A shareable one-pager (site page or PDF-able doc) states offer, price, turnaround. See process/pricing-one-pager.tsx, rendered at docs-site's /pricing page.",
+      },
+      {
+        id: "p2-outreach-templates",
+        title: "Cold outreach templates for mid-market agents",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The pricing one-pager needs a way to actually reach prospective agents; ready-to-send copy shortens the human's path from 'offer exists' to 'first booked shoot'.",
+        doneWhen:
+          "Email/DM/in-person templates plus a lightweight booking intake exist in process/. See process/outreach-templates.ts.",
       },
       {
         id: "p2-first-deliveries",
