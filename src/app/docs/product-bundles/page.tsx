@@ -47,7 +47,7 @@ export default function ProductBundlesDocPage() {
       <h2>Starter — $500 one-time</h2>
       <ul>
         <li>Category template landing page, mobile responsive</li>
-        <li>Contact form, Google Maps, hours, basic SEO</li>
+        <li>Contact form, Google Maps, hours, basic SEO (form + map live on /preview/[slug])</li>
         <li>Preview subdomain → custom domain handoff</li>
         <li>Self-serve Stripe checkout</li>
       </ul>

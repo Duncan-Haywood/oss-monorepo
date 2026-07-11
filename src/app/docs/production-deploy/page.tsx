@@ -37,8 +37,9 @@ export default function ProductionDeployDocPage() {
           Email the buyer DNS steps + preview URL (in addition to the receipt).
         </li>
         <li>
-          Contact form stub at <code>POST /api/contact/[slug]</code> forwards inquiries to the lead
-          email (or support) <strong>and</strong> persists them to the operator Inquiries inbox.
+          Contact form at <code>POST /api/contact/[slug]</code> (UI wired on{" "}
+          <code>/preview/[slug]</code>) forwards inquiries to the lead email (or support){" "}
+          <strong>and</strong> persists them to the operator Inquiries inbox.
         </li>
       </ol>
 
@@ -60,8 +61,8 @@ export default function ProductionDeployDocPage() {
         Every contact-form POST creates a <code>client_inquiries</code> row (SQLite always;
         Convex <code>clientInquiries</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set).
         Operators see new messages on the leads dashboard, can mark them read or archive, and
-        still get the email notify. Preview contact UI wiring is tracked separately (
-        <code>preview-conversion-finish</code>).
+        still get the email notify. Preview pages already include the contact form UI (
+        <code>preview-conversion-finish</code>, PR #12).
       </p>
 
       <h2>Env vars</h2>

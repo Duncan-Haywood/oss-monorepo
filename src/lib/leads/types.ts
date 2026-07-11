@@ -24,6 +24,8 @@ export interface Lead {
   category: BusinessCategory;
   city: string;
   state: string;
+  /** Optional street address for Maps embed pins (city/state used when absent). */
+  address?: string;
   tagline: string;
   description: string;
   phone: string;
