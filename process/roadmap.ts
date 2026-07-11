@@ -83,6 +83,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen: "20 listings collected and tagged mediocre/excellent with notes.",
         blockedReason: "Requires picking a target metro and manual collection from live listings.",
       },
+      {
+        id: "p1-mls-compliance",
+        title: "Answer STRATEGY.md's open 'MLS compliance by board' question",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "STRATEGY.md's open-questions checklist has carried this unanswered since the initial scaffold; general MLS-board photo/branding/disclosure rules are public and agent-researchable without any customer contact, and directly gate what the Brand step and a future Polish/virtual-staging step are allowed to do.",
+        doneWhen:
+          "Documented, sourced compliance rules exist in process/mls-compliance.ts, rendered on the docs site, with STRATEGY.md's open question checked off. See process/mls-compliance.ts.",
+      },
     ],
   },
   {
@@ -139,6 +149,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen: "5 paid concierge deliveries logged with turnaround time and customer feedback.",
         blockedReason:
           "Requires a human to shoot/edit and take payment; not agent-executable yet. The edit step is now faster thanks to pipeline/ (p2-ai-pipeline) — shoot with the checklist, run `npm run enhance` in pipeline/, deliver the output folder.",
+      },
+      {
+        id: "p2-leads-tracking",
+        title: "Typed leads/bookings funnel tracker",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "outreach-templates.ts gives a human copy to send and fields to collect, but nothing structured to log what actually happens after — every prior session left p2-first-deliveries as an opaque 'blocked on human' box with no visible funnel. A ready, empty, typed log lets the first real reply/booking/payment get recorded in one place instead of scattered across texts/DMs.",
+        doneWhen:
+          "process/leads-log.ts exists with a typed Lead/LeadStage schema, starts empty (no fabricated data), and renders a funnel-count view on the docs site. See process/leads-log.ts.",
       },
     ],
   },

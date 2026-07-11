@@ -101,4 +101,24 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once pipeline/ gets used on a real shoot, feed back any real timing/quality data into the turnaround claim in decisions-log.ts and pricing-one-pager.ts. Do not start p3-app-scope yet — STRATEGY.md sequences it after interview + concierge validation data exists, not before; jumping ahead would be scope creep against the phase-1-first plan. If nothing is agent-actionable, look for the next gap between STRATEGY.md prose and what's actually built/runnable, the way p2-ai-pipeline was found this session.",
     ],
   },
+  {
+    date: "2026-07-11",
+    agent: "claude/dazzling-allen-7i8o70",
+    summary:
+      "Confirmed all prior Phase 1-2 agent-doable work was already merged to main (this branch's own prior PR #9 included), then closed two more gaps flagged by the last session: STRATEGY.md's unanswered 'MLS compliance by board' open question, and the fact that p2-first-deliveries had no structured place to land a real lead/booking once outreach starts.",
+    changes: [
+      "Added process/mls-compliance.ts: sourced desk research on MLS photo rules — no agent/brokerage branding or watermarks on MLS-submitted photos (fineable per-board), virtual staging/digital-alteration disclosure required in most states as of 2026 (California's AB 723 strictest, effective Jan 1 2026), and photo-count best practice vs. what capture-checklist.ts currently specs.",
+      "decisions-log.ts: logged the resulting guardrail — pipeline/ and any future 'Brand' step must never brand MLS photo files; a future 'Polish'-step virtual staging feature must default to the strictest disclosure (visible caption + keep the original) regardless of state, since the pipeline can't detect the listing's board at run time.",
+      "STRATEGY.md: checked off the MLS-compliance open question with a pointer to the new file and a note that board-specific re-verification is still needed once a real listing is booked.",
+      "Added process/leads-log.ts: typed Lead/LeadStage schema and an intentionally empty leadsLog (agents must never fabricate lead/booking/revenue data here — only real entries from a human's actual outreach get appended).",
+      "prompt_process.tsx: ProcessDashboard now renders an 'MLS compliance notes' section and a 'Leads & bookings funnel' section (currently all-zero, correctly reflecting that no real outreach has happened yet).",
+      "roadmap.ts: added p1-mls-compliance (done) and p2-leads-tracking (done).",
+      "Verified: git ls-remote showed claude/dazzling-allen-{cpghie,rkmj0x} fully merged into main and claude/dazzling-allen-wg8i3m fully superseded (empty diff / strict subset) before starting, per this file's own process step 6.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries is still the single highest-leverage next step. Once a real prospect responds, log it in process/leads-log.ts (even a one-line entry) so the funnel section on the docs site reflects reality instead of staying at zero.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) remain the other real unblocks.",
+      "Agent (next session): do not start p3-app-scope yet (same reasoning as prior sessions — sequenced after validation data exists). If still nothing is human-unblocked, good next candidates are re-verifying process/mls-compliance.ts against a specific real MLS board once one is known, or tightening capture-checklist.ts's shot count toward the 15-25 photo range the pricing one-pager already promises.",
+    ],
+  },
 ];

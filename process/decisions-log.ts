@@ -65,4 +65,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-rkmj0x",
     relatedTaskIds: ["p2-ai-pipeline", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-11",
+    title: "MLS photos stay unbranded; virtual staging (when built) defaults to the strictest disclosure",
+    decision:
+      "Two guardrails going forward, based on public MLS-board rules research (process/mls-compliance.ts): (1) the pipeline/ enhancement CLI and any future 'Brand' step must never write agent/brokerage names, logos, watermarks, or contact info onto MLS-submitted photo files — branding stays confined to marketing collateral like a property microsite or flyer. (2) If/when a Polish-step virtual staging feature is built, it must default to the strictest disclosure behavior available (a visible 'Virtually Staged' caption on the altered image, plus keeping the original unaltered photo in the delivery) regardless of which state/board the listing is in, since the pipeline has no reliable way to detect that at run time.",
+    rationale:
+      "Roughly three-quarters of states now require some form of virtual-staging disclosure, several (including California, effective Jan 1 2026) require a per-image label, and MLS boards fine broker accounts automatically (no notice) for branding on submitted media — real financial and compliance risk to a business that doesn't exist yet to absorb it. The current pipeline already complies (no watermarking, no branding) by construction; this decision makes that an explicit constraint instead of an accident, so a future session adding the 'Brand' or 'Polish' step doesn't regress it.",
+    madeBy: "claude/dazzling-allen-7i8o70",
+    relatedTaskIds: ["p1-mls-compliance", "p2-ai-pipeline", "p3-app-scope"],
+  },
 ];

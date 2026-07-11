@@ -24,6 +24,8 @@ import { roadmap, nextActionableTasks } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
 import { captureChecklist, totalTargetMinutes } from "./capture-checklist";
+import { mlsComplianceRules } from "./mls-compliance";
+import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
 import type { PhaseStatus } from "./types";
 
 export const AGENT_PROCESS_INSTRUCTIONS = `
@@ -202,6 +204,43 @@ export function ProcessDashboard() {
                   </li>
                 ))}
               </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">MLS compliance notes</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          Desk research answering STRATEGY.md's open "MLS compliance by board" question. Not
+          legal advice or board-verified — see process/mls-compliance.ts for sources and caveats.
+        </p>
+        <div className="mt-4 space-y-4">
+          {mlsComplianceRules.map((rule) => (
+            <div key={rule.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <h3 className="font-medium text-white">{rule.topic}</h3>
+              <p className="mt-2 text-sm text-slate-300">{rule.rule}</p>
+              <p className="mt-2 text-xs text-slate-500">{rule.implication}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Leads &amp; bookings funnel</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          {leadsLog.length === 0
+            ? "No real outreach has been sent yet — this fills in once a human uses process/outreach-templates.ts against real prospects (see process/leads-log.ts)."
+            : `${leadsLog.length} lead(s) logged.`}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {LEAD_STAGE_ORDER.map((stage) => (
+            <div
+              key={stage}
+              className="rounded-lg border border-slate-800/80 bg-slate-950/40 px-3 py-2 text-xs text-slate-300"
+            >
+              <span className="text-slate-500">{stage.replace("_", " ")}:</span>{" "}
+              <span className="font-medium text-white">{funnelCounts()[stage]}</span>
             </div>
           ))}
         </div>
