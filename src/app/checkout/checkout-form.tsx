@@ -1,29 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { BUNDLES, COMMERCE_ADDON, type BundleTier } from "@/lib/pricing/bundles";
 
-function parseTier(value: string | null): BundleTier {
+export interface CheckoutPrefill {
+  slug?: string;
+  businessName?: string;
+  email?: string;
+  recommendedTier?: BundleTier;
+  initialTier?: BundleTier;
+  initialCommerce?: boolean;
+}
+
+function parseTier(value: string | undefined): BundleTier {
   if (value === "starter" || value === "growth" || value === "complete") {
     return value;
   }
   return "starter";
 }
 
-export function CheckoutForm() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("slug") ?? undefined;
-  const [tier, setTier] = useState<BundleTier>(() => parseTier(searchParams.get("tier")));
-  const [commerceAddon, setCommerceAddon] = useState(false);
-  const [email, setEmail] = useState("");
+export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
+  const slug = prefill.slug;
+  const [tier, setTier] = useState<BundleTier>(() =>
+    parseTier(prefill.initialTier ?? prefill.recommendedTier),
+  );
+  const [commerceAddon, setCommerceAddon] = useState(prefill.initialCommerce === true);
+  const [email, setEmail] = useState(prefill.email ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const bundle = BUNDLES.find((b) => b.id === tier)!;
   const setupTotal = bundle.setupPriceUsd + (commerceAddon ? COMMERCE_ADDON.setupPriceUsd : 0);
-  const monthlyTotal = (bundle.monthlyPriceUsd ?? 0) + (commerceAddon ? COMMERCE_ADDON.monthlyPriceUsd : 0);
+  const monthlyTotal =
+    (bundle.monthlyPriceUsd ?? 0) + (commerceAddon ? COMMERCE_ADDON.monthlyPriceUsd : 0);
 
   async function handleCheckout() {
     setLoading(true);
@@ -32,7 +42,12 @@ export function CheckoutForm() {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier, commerceAddon, customerEmail: email || undefined, slug }),
+        body: JSON.stringify({
+          tier,
+          commerceAddon,
+          customerEmail: email || undefined,
+          slug,
+        }),
       });
       const data = await response.json();
       if (!response.ok || !data.url) {
@@ -50,9 +65,37 @@ export function CheckoutForm() {
   return (
     <>
       <h1 className="text-3xl font-semibold tracking-tight">Checkout</h1>
-      <p className="mt-3 text-zinc-600">Choose your bundle. See details on the {" "}
-        <Link href="/docs/product-bundles" className="underline">product bundles</Link> page.
-      </p>
+      {prefill.businessName ? (
+        <p className="mt-3 text-zinc-600">
+          Claiming <span className="font-medium text-zinc-900">{prefill.businessName}</span>
+          {slug ? (
+            <>
+              {" "}
+              (
+              <Link
+                href={`/preview/${encodeURIComponent(slug)}`}
+                className="underline underline-offset-2"
+              >
+                preview
+              </Link>
+              )
+            </>
+          ) : null}
+          . Choose your bundle — details on the{" "}
+          <Link href="/docs/product-bundles" className="underline">
+            product bundles
+          </Link>{" "}
+          page.
+        </p>
+      ) : (
+        <p className="mt-3 text-zinc-600">
+          Choose your bundle. See details on the{" "}
+          <Link href="/docs/product-bundles" className="underline">
+            product bundles
+          </Link>{" "}
+          page.
+        </p>
+      )}
 
       <div className="mt-8 space-y-3">
         {BUNDLES.map((b) => (
@@ -71,6 +114,11 @@ export function CheckoutForm() {
                 onChange={() => setTier(b.id)}
               />
               <span className="font-medium">{b.name}</span>
+              {prefill.recommendedTier === b.id ? (
+                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600">
+                  Recommended
+                </span>
+              ) : null}
             </span>
             <span className="text-sm text-zinc-600">
               ${b.setupPriceUsd}
@@ -96,7 +144,7 @@ export function CheckoutForm() {
 
       <div className="mt-6">
         <label className="text-sm font-medium text-zinc-700" htmlFor="email">
-          Email (optional — prefills Stripe checkout)
+          Email {prefill.email ? "(from your preview lead)" : "(optional — prefills Stripe)"}
         </label>
         <input
           id="email"
@@ -133,12 +181,11 @@ export function CheckoutForm() {
 
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
-        <p className="mt-4 text-center text-xs text-zinc-500">
-          Secure payment powered by Stripe.{" "}
-          <Link href="/docs/roadmap#phase-3-payments" className="underline">
-            Roadmap
-          </Link>
-        </p>
+        <ul className="mt-4 space-y-1 text-xs text-zinc-500">
+          <li>Secure payment powered by Stripe.</li>
+          <li>Preview first — pay only when you are ready to claim the site.</li>
+          <li>Cancel anytime on Growth / Complete after the first month.</li>
+        </ul>
       </div>
     </>
   );

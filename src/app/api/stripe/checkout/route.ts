@@ -84,13 +84,18 @@ export async function POST(request: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const stripe = new Stripe(secretKey);
 
+  const cancelParams = new URLSearchParams({ cancelled: "1" });
+  if (body.slug) cancelParams.set("slug", body.slug);
+  cancelParams.set("tier", bundle.id);
+  if (commerceAddonApplied) cancelParams.set("commerce", "1");
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: hasRecurring ? "subscription" : "payment",
       line_items: lineItems,
       customer_email: body.customerEmail,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/checkout?cancelled=1`,
+      cancel_url: `${appUrl}/checkout?${cancelParams.toString()}`,
       metadata: {
         tier: bundle.id,
         commerceAddon: String(commerceAddonApplied),
