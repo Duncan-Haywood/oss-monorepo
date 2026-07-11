@@ -9,6 +9,20 @@ import type { Lead, LeadHours, LeadPipelineStage } from "./leads/types";
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
 
+// Local SQLite Lead Row structure
+interface SqliteLeadRow {
+  id: string;
+  slug: string;
+  businessName: string;
+  category: string;
+  city: string;
+  state?: string;
+  phone?: string;
+  hours?: string;
+  services?: string;
+  status: string;
+}
+
 // SQLite Database Setup (for local fallback persistence and suppression list)
 const dbPath = path.join(process.cwd(), "local.db");
 let sqliteDb: Database | null = null;
@@ -98,8 +112,7 @@ const api: any = {
 };
 
 // Map SQLite row to Lead object
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapSqliteRowToLead(row: any): Lead {
+function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
   let services: string[] = [];
   try {
     services = row.services ? JSON.parse(row.services) : [];
@@ -111,7 +124,7 @@ function mapSqliteRowToLead(row: any): Lead {
   };
   if (row.hours) {
     if (row.hours.includes("·")) {
-      const parts = row.hours.split("·").map((p: string) => p.trim());
+      const parts = row.hours.split("·").map((p) => p.trim());
       hours = { weekday: parts[0], weekend: parts[1] || "" };
     } else {
       hours = { weekday: row.hours, weekend: "" };
@@ -149,8 +162,7 @@ export async function getLeads(): Promise<Lead[]> {
 
   // SQLite Fallback
   const db = getSqliteDb();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows = db.prepare("SELECT * FROM leads ORDER BY createdAt DESC").all() as any[];
+  const rows = db.prepare("SELECT * FROM leads ORDER BY createdAt DESC").all() as SqliteLeadRow[];
   return rows.map(mapSqliteRowToLead);
 }
 
@@ -166,8 +178,7 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
 
   // SQLite Fallback
   const db = getSqliteDb();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const row = db.prepare("SELECT * FROM leads WHERE slug = ?").get(slug) as any | undefined;
+  const row = db.prepare("SELECT * FROM leads WHERE slug = ?").get(slug) as SqliteLeadRow | undefined;
   if (!row) return null;
   return mapSqliteRowToLead(row);
 }
