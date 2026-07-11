@@ -70,7 +70,10 @@ export default function RoadmapDocPage() {
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
-        (Starter promise): shipped. Remaining: preview subdomain hosting.
+        (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
+        handoffs, missing email) on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Remaining:
+        preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>

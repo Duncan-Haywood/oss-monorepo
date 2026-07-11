@@ -115,6 +115,10 @@ export default function LaunchChecklistDocPage() {
           After a test payment, a deploy handoff appears on the leads dashboard (see{" "}
           <DocLink href="/docs/production-deploy">Production deploy</DocLink>)
         </li>
+        <li>
+          <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
+          stage funnel, open handoffs, and leads missing email (no row-scanning required)
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>
@@ -125,7 +129,8 @@ export default function LaunchChecklistDocPage() {
           automatically.
         </li>
         <li>
-          Complete DNS from the handoff panel, then <strong>Mark live</strong>.
+          Complete DNS from the handoff panel, then <strong>Mark live</strong>. Confirm
+          paid-not-live and open-handoff counts drop on pipeline health.
         </li>
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions land in the

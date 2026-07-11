@@ -11,6 +11,7 @@ import type {
   ClientInquiryStatus,
   CreateClientInquiryInput,
 } from "./inquiries/types";
+import type { OrderRecord } from "./orders/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -200,6 +201,9 @@ const api: any = {
     list: "inquiries:list",
     listBySlug: "inquiries:listBySlug",
     updateStatus: "inquiries:updateStatus",
+  },
+  orders: {
+    list: "orders:list",
   },
 };
 
@@ -493,6 +497,80 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
     }
   }
   return counts;
+}
+
+interface SqliteOrderJoinRow {
+  id: string;
+  leadSlug: string;
+  stripeSessionId: string | null;
+  tier: string;
+  commerceAddon: number;
+  amountPaid: number;
+  status: string;
+  createdAt: string;
+}
+
+function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
+  return {
+    id: row.id,
+    leadSlug: row.leadSlug,
+    stripeSessionId: row.stripeSessionId || "",
+    tier: row.tier,
+    commerceAddon: row.commerceAddon === 1,
+    amountPaid: row.amountPaid,
+    status: row.status,
+    createdAt: row.createdAt,
+  };
+}
+
+/**
+ * List paid orders for operator pipeline health (revenue totals).
+ * Convex when configured; SQLite join otherwise.
+ */
+export async function listOrders(): Promise<OrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(api.orders.list)) as Array<{
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        tier: string;
+        commerceAddon: boolean;
+        amountTotal: number;
+        createdAt: number;
+      }>;
+      return rows.map((row) => ({
+        id: row._id,
+        leadSlug: row.leadSlug,
+        stripeSessionId: row.stripeSessionId,
+        tier: row.tier,
+        commerceAddon: row.commerceAddon,
+        amountPaid: row.amountTotal,
+        status: "paid",
+        createdAt: new Date(row.createdAt).toISOString(),
+      }));
+    } catch (e) {
+      console.warn("Failed to fetch orders from Convex, falling back to SQLite", e);
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.tier, o.commerceAddon,
+              o.amountPaid, o.status, o.createdAt
+       FROM orders o
+       LEFT JOIN leads l ON l.id = o.leadId
+       ORDER BY o.createdAt DESC`,
+    )
+    .all() as unknown as SqliteOrderJoinRow[];
+
+  return rows.map((row) =>
+    mapSqliteOrderRow({
+      ...row,
+      leadSlug: row.leadSlug || "unknown",
+    }),
+  );
 }
 
 // --- Suppression List Functions ---

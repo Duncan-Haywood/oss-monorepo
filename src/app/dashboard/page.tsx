@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
+import {
+  getLeads,
+  listDeployHandoffs,
+  listClientInquiries,
+  listOrders,
+} from "@/lib/db";
+import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -24,8 +31,17 @@ type DashboardPageProps = {
   searchParams: Promise<{ auth?: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = await searchParams;
+  const [leads, handoffs, inquiries, orders] = await Promise.all([
+    getLeads(),
+    listDeployHandoffs(),
+    listClientInquiries(20),
+    listOrders(),
+  ]);
+  const health = computePipelineHealth({ leads, orders, handoffs, inquiries });
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -41,6 +57,52 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <p className="mt-3 text-zinc-600">
         Operator tools for Maris Stella Labs (Local Site Studio). Lead mutations and CSV import
         require a signed operator session when auth is configured.
+      </p>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-200 px-4 py-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Revenue
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.revenueTotalUsd)}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.openHandoffCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Open handoffs
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.openHandoffCount}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.leadsMissingEmailCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Missing email
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.leadsMissingEmailCount}
+          </p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-zinc-500">
+        Full funnel breakdown on{" "}
+        <Link href="/dashboard/leads" className="underline underline-offset-2">
+          Lead pipeline
+        </Link>
+        .
       </p>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
