@@ -165,8 +165,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "outreach-follow-ups",
     summary:
       "Email 2/3 follow-up templates + outreachStep/lastOutreachAt on Lead + operator 'send follow-up' (and optional due queue) — multiplies conversion without new lead sources.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-375b",
   },
   {
     id: "pipeline-health-metrics",
