@@ -172,8 +172,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "pipeline-health-metrics",
     summary:
       "Operator dashboard metrics: revenue from orders, stage funnel counts, open deploy handoffs, leads missing email — surface stuck money without row-scanning.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-ffae",
   },
   {
     id: "client-leads-inbox",
