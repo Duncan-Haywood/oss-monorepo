@@ -152,9 +152,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "vercel-per-client-projects",
     summary:
-      "Optional scale-up: isolate each paid client on its own Vercel project (or multi-tenant routing rules) instead of shared project + path/host conventions.",
-    status: "todo",
+      "Optional scale-up: isolate each paid client on its own Vercel project (or multi-tenant routing rules) instead of shared project + path/host conventions. Shipped as an operator-assignable vercelProjectId per handoff (falls back to shared VERCEL_PROJECT_ID); automated Vercel project *creation* via API stays a manual operator step — see /docs/production-deploy.",
+    status: "done",
     phase: "Phase 5 — Production deploy",
+    owner: "claude/upbeat-dijkstra-4ugtxb",
   },
   {
     id: "preview-conversion-finish",
@@ -481,6 +482,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Reusing the existing app-URL convention avoids config drift between the app's own notion of its origin and its SEO surface; operators only need to set one variable before launch (documented in .env.example and /docs/architecture).",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Per-client Vercel project isolation is a manual, operator-assigned field (DeployHandoff.vercelProjectId) rather than automated Vercel Projects API calls to create a new project per client.",
+    rationale:
+      "Creating a real Vercel project unattended means choosing a build config, env vars, and a deploy source with no human review — too risky to automate for a one-off client site. The actual technical gap this backlog item names is 'which project does the Domains API call target,' and that's solvable by letting an operator paste an existing project's ID once they've created it in the Vercel dashboard. tryProvisionVercelDomain resolves handoff.vercelProjectId first, falling back to the shared VERCEL_PROJECT_ID, so nothing changes for clients who stay on the shared project.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Two collisions in one working window (outreach-follow-ups landed via cursor/prompt-process-evolution-375b+ffae while this branch was mid-iteration; checkout-attribution-polish landed via cursor/business-process-evolution-ffae before this branch had even claimed it) were resolved by discarding this branch's duplicate work and rebasing onto main, per AGENT_PROTOCOL's 'close competing PRs rather than merging a second backend' rule — not by merging two independently-built backends together.",
+    rationale:
+      "Both collisions produced a merged main version at least as complete as this branch's parallel attempt (the checkout one strictly more so — it also preserved attribution through the Stripe cancel URL, which this branch's version did not). Merging two full independent implementations of the same feature risks subtle bugs (duplicate DB columns, conflicting UI copy) for no user-facing benefit over picking the better one. The 'merge both branches' protocol line is best read as applying when the two implementations are complementary (different files/surfaces), not when they're two solutions to the identical problem — this file's own AGENT_PROTOCOL already says as much one line up ('close competing PRs'). Re-fetching origin/main immediately before opening a PR (not just at claim time) is what actually catches this in time.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -748,6 +763,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "docs/architecture — new '2b. SEO & discoverability' section",
       ".env.example — documented NEXT_PUBLIC_APP_URL's SEO/canonical-URL role",
     ],
-    decisions: BUSINESS_DECISIONS.slice(35),
+    decisions: BUSINESS_DECISIONS.slice(35, 37),
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/upbeat-dijkstra-4ugtxb",
+    summary:
+      "Two collisions this window: outreach-follow-ups and checkout-attribution-polish both landed on main from sibling branches while this branch had a duplicate implementation in flight (the second one before this branch had even pushed a claim commit for it). Both times, rebased onto main and discarded the duplicate rather than merging a second backend — see the process-cooperation decision below. Landed the last free (non-operator/legal-gated) backlog item instead: per-client Vercel project isolation as an operator-assignable field.",
+    shipped: [
+      "src/lib/deploy/types.ts — DeployHandoff.vercelProjectId",
+      "src/lib/db.ts — deploy_handoffs.vercelProjectId column + migration, updateDeployHandoffVercelProject()",
+      "src/lib/deploy/handoff.ts — tryProvisionVercelDomain resolves handoff.vercelProjectId before the shared VERCEL_PROJECT_ID; assignVercelProjectAndProvision() to set + retry",
+      "src/app/dashboard/leads/actions.ts — assignVercelProjectAction",
+      "src/app/dashboard/leads/leads-client.tsx — 'Dedicated Vercel project ID' input + 'Save + provision' button on each open handoff card",
+      "Docs: /docs/production-deploy per-client isolation section, /docs/roadmap Phase 5 note",
+      "Verified via npm run dev — loaded /dashboard/leads, inserted a synthetic deploy_handoffs row via node:sqlite to confirm the migration and the new UI render correctly",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(37),
   },
 ];

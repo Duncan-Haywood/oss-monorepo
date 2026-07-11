@@ -37,6 +37,13 @@ export interface DeployHandoff {
   status: DeployHandoffStatus;
   /** Best-effort Vercel domain API result, when configured. */
   vercelDomainStatus?: string;
+  /**
+   * Dedicated Vercel project for this client, when isolated onto its own
+   * project instead of the shared platform project (see
+   * vercel-per-client-projects in /docs/process). Operator-set from the
+   * dashboard; falls back to VERCEL_PROJECT_ID when unset.
+   */
+  vercelProjectId?: string;
   notes: string[];
   createdAt: string;
   updatedAt: string;

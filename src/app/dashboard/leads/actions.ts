@@ -11,7 +11,7 @@ import {
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
-import { markHandoffLive } from "@/lib/deploy/handoff";
+import { markHandoffLive, assignVercelProjectAndProvision } from "@/lib/deploy/handoff";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
@@ -39,6 +39,31 @@ export async function markHandoffLiveAction(slug: string) {
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in markHandoffLiveAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function assignVercelProjectAction(slug: string, vercelProjectId: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+    const trimmed = vercelProjectId.trim();
+    const handoff = await assignVercelProjectAndProvision(slug, trimmed || null);
+    if (!handoff) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, handoff };
+  } catch (error) {
+    console.error("Error in assignVercelProjectAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

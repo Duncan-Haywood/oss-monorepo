@@ -111,9 +111,11 @@ export default function RoadmapDocPage() {
         Post-payment handoff: shipped as a stub — webhook enqueues DNS instructions + contact form
         endpoint, optional Vercel domain API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
-        See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Remaining:
-        per-client project isolation and registrar DNS automation. Client inquiry inbox
-        (persist contact-form posts + operator panel): shipped.
+        See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
+        project isolation: shipped as an operator-assignable field per handoff (falls back to the
+        shared project when unset) — full automated project creation remains manual. Remaining:
+        registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
+        panel): shipped.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>
