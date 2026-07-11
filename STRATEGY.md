@@ -142,7 +142,7 @@ Unit economics are compelling if quality is sufficient. An agent with 6 listings
 
 ## Open questions checklist
 
-- [ ] MLS compliance by board
+- [x] MLS compliance by board — general rules researched and documented in `process/mls-compliance.ts` (no branding/watermarks on MLS photos; virtual staging disclosure required in most states as of 2026). Still needs re-verification against the specific board once a real listing is booked.
 - [ ] On-device vs cloud for virtual staging
 - [ ] v1 scope: photos only vs photos + 3D lite
 - [ ] Brokerage sales cycle vs agent PLG
