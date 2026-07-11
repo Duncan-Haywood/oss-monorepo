@@ -54,6 +54,7 @@ export const AGENT_PROTOCOL = [
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
   "Before merging: fetch sibling automation branches (`cursor/business-process-evolution-*`, `cursor/prompt-process-evolution-*`); if they shipped overlapping files, merge their branch into yours and keep both ITERATIONS entries.",
+  "Run `npm test` (Vitest) alongside build/lint before claiming done — it covers pure logic (outreach cadence, pipeline-health, CSV import, operator session sign/verify) that build+lint have twice missed real breakage on. Add/extend tests when you touch those modules; it's the fast layer, not a replacement for the `npm run dev` runtime check on database-touching changes.",
 ] as const;
 
 /**
@@ -194,6 +195,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-ffae",
+  },
+  {
+    id: "unit-test-coverage",
+    summary:
+      "Vitest + unit tests for the pure logic modules concurrent agents keep editing (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify) — a build+lint pass has twice missed a real runtime bug (wrong node:sqlite export; Date.now() in render), so a fast non-DB, non-browser test layer catches logic regressions before they reach `npm run dev`.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/quirky-davinci",
   },
   {
     id: "client-site-seo",
@@ -454,6 +463,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-11",
     decision:
+      "Add Vitest as a co-located `*.test.ts` unit layer for pure logic only (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify) — not a replacement for the existing `npm run dev` runtime check on database/Convex/SQLite-touching changes, and not component/integration testing.",
+    rationale:
+      "Two separate iterations already hit real runtime bugs that `npm run build`/`npm run lint` did not catch (wrong node:sqlite export; Date.now() called during render). Both were in logic simple unit tests would have caught immediately, cheaper than a full `npm run dev` + manual page load on every touch of these modules. Kept scope to pure, dependency-free modules so the suite stays fast (sub-second) and doesn't need a Convex/SQLite/Next.js runtime — that boundary is intentional, not a gap to fill by mocking the DB.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
       "When the only unclaimed revenue-facing todo (checkout-attribution-polish) is already in_progress on a sibling branch (ffae), ship the SEO product-promise gap instead of idling or duplicating: /preview/[slug] had zero metadata/structured data and there was no sitemap.xml or robots.txt, despite the landing page explicitly selling 'Basic SEO' on Starter.",
     rationale:
       "Per-lead generateMetadata + LocalBusiness JSON-LD directly backs a sold feature and helps organic discovery (Google/Maps) for client sites once live; sitemap.xml/robots.txt does the same for the marketing site's own lead generation. All pure TypeScript/Next.js route conventions, no new infra or operator secrets required, so it ships in one iteration without blocking on Stripe/legal-gated items.",
@@ -706,9 +722,24 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-11",
+    branch: "claude/quirky-davinci",
+    summary:
+      "Test-coverage iteration: added Vitest and unit tests for the pure logic modules concurrent agents edit most (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify). Also spent part of this run on a since-abandoned purity fix for the follow-ups Date.now() bug — a sibling branch merged the same fix first (PR #14), so that work was discarded in favor of this fresh, non-duplicate claim per AGENT_PROTOCOL.",
+    shipped: [
+      "vitest.config.ts + package.json test script (`npm run test` = `vitest run`)",
+      "src/lib/email/outreach-followups.test.ts — cadence/due-date edge cases",
+      "src/lib/metrics/pipeline-health.test.ts — aggregation + formatUsd",
+      "src/lib/leads/csv-import.test.ts — parsing, slugify, dedupe, row limits",
+      "src/lib/auth/operator.test.ts — session token round-trip, expiry, tamper detection",
+      "AGENT_PROTOCOL — run `npm test` alongside build/lint before claiming done",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(34, 35),
+  },
+  {
+    date: "2026-07-11",
     branch: "claude/relaxed-galileo-e0wc2i",
     summary:
-      "Sibling ffae had already claimed the only unclaimed revenue todo (checkout-attribution-polish, in_progress) by the time this run started; folded ffae's claim commit in (fast-forward, no conflicts) and shipped the SEO product-promise gap instead: /preview/[slug] previously had no metadata, no canonical URL, no Open Graph tags, and no structured data, and the app had no /sitemap.xml or /robots.txt at all — despite the landing page explicitly selling 'Basic SEO' on Starter. ffae's checkout-attribution-polish feature commit landed on main mid-run; merged it in before pushing.",
+      "Sibling ffae had already claimed the only unclaimed revenue todo (checkout-attribution-polish, in_progress) by the time this run started; folded ffae's claim commit in (fast-forward, no conflicts) and shipped the SEO product-promise gap instead: /preview/[slug] previously had no metadata, no canonical URL, no Open Graph tags, and no structured data, and the app had no /sitemap.xml or /robots.txt at all — despite the landing page explicitly selling 'Basic SEO' on Starter. ffae's checkout-attribution-polish feature commit and quirky-davinci's Vitest suite both landed on main mid-run; merged both in before pushing.",
     shipped: [
       "src/lib/seo.ts — siteUrl()/previewUrl() + per-lead title/description + LocalBusiness JSON-LD builder (schema.org subtype by category)",
       "src/app/preview/[slug]/page.tsx — generateMetadata (title/description/canonical/OG/Twitter) + JSON-LD script tag",
@@ -717,6 +748,6 @@ export const ITERATIONS: ProcessIteration[] = [
       "docs/architecture — new '2b. SEO & discoverability' section",
       ".env.example — documented NEXT_PUBLIC_APP_URL's SEO/canonical-URL role",
     ],
-    decisions: BUSINESS_DECISIONS.slice(34),
+    decisions: BUSINESS_DECISIONS.slice(35),
   },
 ];
