@@ -54,6 +54,7 @@ export const AGENT_PROTOCOL = [
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
   "Before merging: fetch sibling automation branches (`cursor/business-process-evolution-*`, `cursor/prompt-process-evolution-*`); if they shipped overlapping files, merge their branch into yours and keep both ITERATIONS entries.",
+  "Run `npm test` (Vitest) alongside build/lint before claiming done — it covers pure logic (outreach cadence, pipeline-health, CSV import, operator session sign/verify) that build+lint have twice missed real breakage on. Add/extend tests when you touch those modules; it's the fast layer, not a replacement for the `npm run dev` runtime check on database-touching changes.",
 ] as const;
 
 /**
@@ -199,7 +200,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "unit-test-coverage",
     summary:
       "Vitest + unit tests for the pure logic modules concurrent agents keep editing (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify) — a build+lint pass has twice missed a real runtime bug (wrong node:sqlite export; Date.now() in render), so a fast non-DB, non-browser test layer catches logic regressions before they reach `npm run dev`.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/quirky-davinci",
   },
@@ -444,6 +445,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Marketing traffic that skips previews still arrives with a chosen plan. FAQ reduces support friction without a sales call — matches the self-serve positioning.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Add Vitest as a co-located `*.test.ts` unit layer for pure logic only (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify) — not a replacement for the existing `npm run dev` runtime check on database/Convex/SQLite-touching changes, and not component/integration testing.",
+    rationale:
+      "Two separate iterations already hit real runtime bugs that `npm run build`/`npm run lint` did not catch (wrong node:sqlite export; Date.now() called during render). Both were in logic simple unit tests would have caught immediately, cheaper than a full `npm run dev` + manual page load on every touch of these modules. Kept scope to pure, dependency-free modules so the suite stays fast (sub-second) and doesn't need a Convex/SQLite/Next.js runtime — that boundary is intentional, not a gap to fill by mocking the DB.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -681,6 +689,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Demo catalog emails; header FAQ nav",
       "Architecture note for pipeline health (carry from earlier commit)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(32),
+    decisions: BUSINESS_DECISIONS.slice(32, 34),
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/quirky-davinci",
+    summary:
+      "Test-coverage iteration: added Vitest and unit tests for the pure logic modules concurrent agents edit most (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify). Also spent part of this run on a since-abandoned purity fix for the follow-ups Date.now() bug — a sibling branch merged the same fix first (PR #14), so that work was discarded in favor of this fresh, non-duplicate claim per AGENT_PROTOCOL.",
+    shipped: [
+      "vitest.config.ts + package.json test script (`npm run test` = `vitest run`)",
+      "src/lib/email/outreach-followups.test.ts — cadence/due-date edge cases",
+      "src/lib/metrics/pipeline-health.test.ts — aggregation + formatUsd",
+      "src/lib/leads/csv-import.test.ts — parsing, slugify, dedupe, row limits",
+      "src/lib/auth/operator.test.ts — session token round-trip, expiry, tamper detection",
+      "AGENT_PROTOCOL — run `npm test` alongside build/lint before claiming done",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(34),
   },
 ];
