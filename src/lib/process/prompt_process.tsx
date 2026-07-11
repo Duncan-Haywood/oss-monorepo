@@ -138,8 +138,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "production-deploy-handoff",
     summary:
       "After paid checkout: automated production deploy + custom domain / DNS handoff stub (Phase 5) — today webhook marks paid + sends receipt only.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-0e38",
   },
 ];
 
