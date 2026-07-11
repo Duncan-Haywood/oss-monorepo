@@ -99,7 +99,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "csv-lead-import",
     summary:
       "Operator CSV bulk import for leads (businessName, category, city, state, phone, email, …) with dataSource tagging — compliant scale-up before Places API.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 4 — Data ingestion",
     owner: "cursor/prompt-process-evolution-6a76",
   },
@@ -205,6 +205,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "This broke every route that touches the SQLite fallback (/dashboard/leads, /preview/[slug]) with a 500 at runtime — 'Database is not a constructor' — despite `next build`/`tsc --noEmit` reporting clean, because the import sat behind a `@ts-expect-error` comment that suppressed the type error TypeScript would otherwise have caught. `npm run build` and `npm run lint` passing is not sufficient evidence a database-touching change works; `npm run dev` and actually loading the page is. Left the `@ts-expect-error` off since @types/node already types node:sqlite correctly once the right export is used, and fixed the one resulting cast (`.all()` needs `as unknown as SqliteLeadRow[]`, not a direct cast, since the underlying driver types loosened once the import resolved).",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Ship CSV bulk lead import before Google Places API, and require a dataSource tag on every imported/manual lead.",
+    rationale:
+      "Compliance docs already forbid Maps/Facebook scraping and ask to document data source per lead. CSV from operator-owned lists (purchased licensed data, chamber directories, existing CRM exports) unblocks pipeline volume without waiting on Places API legal review, while dataSource makes provenance auditable when counsel reviews outreach batches.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Persist optional email + dataSource on leads in both Convex and the SQLite fallback (ALTER TABLE migrations for existing local.db files).",
+    rationale:
+      "Outreach auto-send on outreach_sent was shipping without storing email in SQLite/Convex, so operators could enter an address in the form and lose it after reload. Closing that gap is required before CSV-scale outreach; dataSource rides along because compliance needs the same write path.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -304,7 +318,22 @@ export const ITERATIONS: ProcessIteration[] = [
     shipped: [
       "src/lib/db.ts — fixed `import { Database } from \"node:sqlite\"` (wrong export name) to `DatabaseSync`, and the resulting `.all()` cast; verified via `npm run dev` hitting every route that touches the database, not just build/lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(9),
+    decisions: BUSINESS_DECISIONS.slice(9, 10),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/prompt-process-evolution-6a76",
+    summary:
+      "Revenue-scale iteration: CSV bulk lead import on the operator dashboard (compliant path before Places API), persist email + dataSource end-to-end (Convex + SQLite migrations), fix Convex markLeadPaid to write orders.leadSlug, refresh stale roadmap/architecture docs, and tighten AGENT_PROTOCOL for sibling automations.",
+    shipped: [
+      "src/lib/leads/csv-import.ts — CSV parser/validator + template (max 100 rows)",
+      "src/app/dashboard/leads — Import CSV UI + importLeadsCsvAction",
+      "Lead.dataSource + email persisted in Convex schema and SQLite (ALTER TABLE for existing local.db)",
+      "convex/leads.ts — email/dataSource on upsert; markLeadPaid uses leadSlug",
+      "/docs/roadmap + /docs/architecture + /docs/compliance — reflect shipped email/DB/CSV state",
+      "AGENT_PROTOCOL — sibling automation re-fetch + runtime DB smoke-test rules",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(10),
   },
 ];
 

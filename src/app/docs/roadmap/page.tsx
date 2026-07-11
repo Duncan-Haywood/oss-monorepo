@@ -66,32 +66,38 @@ export default function RoadmapDocPage() {
       <h2 id="phase-1">Phase 1 — Website foundation</h2>
       <p>
         Category templates + tier cards on preview: shipped (restaurant / salon / trades +
-        generic fallback). Remaining: Convex persistence (decision recorded in{" "}
-        <DocLink href="/docs/process">process log</DocLink>), auth, manual lead entry, preview
-        subdomain hosting.
+        generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
+        (see <DocLink href="/docs/process">process log</DocLink>). Remaining: operator auth on{" "}
+        <code>/dashboard</code>, preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
-      <p>Resend, CAN-SPAM templates, suppression list, Vapi/Retell, bundle explanation tools.</p>
+      <p>
+        Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
+        Remaining: Vapi/Retell platform voice and bundle explanation tools.
+      </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
       <p>
         Checkout API creates real Stripe Checkout Sessions per tier (see{" "}
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
         selection UI live at <DocLink href="/checkout">/checkout</DocLink>.{" "}
-        <code>/api/stripe/webhook</code> verifies signatures and logs{" "}
-        <code>checkout.session.completed</code> events. To create Prices without the Stripe UI: set{" "}
+        <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
+        sends receipt email. To create Prices without the Stripe UI: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
         paste the returned <code>envSnippet</code> into secrets, then unset the flag. Remaining:
-        run bootstrap (or Dashboard) for test + live, then wire the webhook to persist paid
-        orders (Convex) and send receipt emails (Phase 2 outbound email).
+        run bootstrap (or Dashboard) for test + live Price IDs.
       </p>
 
-      <h2>Phase 4 — Data ingestion</h2>
-      <p>Google Places API, CSV import — after legal review. No Maps/Facebook scrapers.</p>
+      <h2 id="phase-4">Phase 4 — Data ingestion</h2>
+      <p>
+        CSV bulk import on the leads dashboard: shipped (tagged <code>dataSource</code> per batch).
+        Google Places API and other licensed sources still require legal review — no Maps/Facebook
+        scrapers.
+      </p>
 
-      <h2>Phase 5 — Production deploy</h2>
-      <p>Custom domain handoff, contact form routing, clientLeads stub.</p>
+      <h2 id="phase-5">Phase 5 — Production deploy</h2>
+      <p>Custom domain handoff, contact form routing, clientLeads stub after paid checkout.</p>
 
       <h2>Phase 6 — Marketing engine</h2>
       <p>LLM generators, Buffer scheduling, Growth/Complete recurring billing.</p>

@@ -17,9 +17,14 @@ interface SqliteLeadRow {
   city: string;
   state?: string;
   phone?: string;
+  email?: string | null;
   hours?: string;
   services?: string;
   status: string;
+  tagline?: string | null;
+  description?: string | null;
+  recommendedTier?: string | null;
+  dataSource?: string | null;
 }
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
@@ -40,8 +45,13 @@ function getSqliteDb(): DatabaseSync {
       city TEXT NOT NULL,
       state TEXT,
       phone TEXT,
+      email TEXT,
       hours TEXT,
       services TEXT, -- JSON array of strings
+      tagline TEXT,
+      description TEXT,
+      recommendedTier TEXT,
+      dataSource TEXT,
       status TEXT NOT NULL DEFAULT 'discovered',
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
       updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
@@ -63,6 +73,21 @@ function getSqliteDb(): DatabaseSync {
       createdAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+  // Migrations for DBs created before email/dataSource columns existed
+  const leadCols = (
+    sqliteDb.prepare("PRAGMA table_info(leads)").all() as unknown as Array<{ name: string }>
+  ).map((c) => c.name);
+  const addLeadCol = (name: string, typeSql: string) => {
+    if (!leadCols.includes(name)) {
+      sqliteDb!.exec(`ALTER TABLE leads ADD COLUMN ${name} ${typeSql}`);
+    }
+  };
+  addLeadCol("email", "TEXT");
+  addLeadCol("tagline", "TEXT");
+  addLeadCol("description", "TEXT");
+  addLeadCol("recommendedTier", "TEXT");
+  addLeadCol("dataSource", "TEXT");
 
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
@@ -89,6 +114,17 @@ function getSqliteDb(): DatabaseSync {
         hoursStr,
         JSON.stringify(lead.services),
         lead.stage
+      );
+      sqliteDb!.prepare(`
+        UPDATE leads SET email = ?, tagline = ?, description = ?, recommendedTier = ?, dataSource = ?
+        WHERE id = ?
+      `).run(
+        lead.email ?? null,
+        lead.tagline,
+        lead.description,
+        lead.recommendedTier,
+        lead.dataSource ?? "demo_catalog",
+        id,
       );
     });
     console.log("Seeded SQLite database with initial demo leads.");
@@ -134,19 +170,40 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     ? row.category
     : "generic";
 
+  const recommendedTier =
+    row.recommendedTier === "starter" ||
+    row.recommendedTier === "growth" ||
+    row.recommendedTier === "complete"
+      ? row.recommendedTier
+      : category === "trades"
+        ? "starter"
+        : category === "salon"
+          ? "complete"
+          : "growth";
+
   return {
     slug: row.slug,
     businessName: row.businessName,
     category,
     city: row.city,
     state: row.state || "CO",
-    tagline: category === "trades" ? "Professional services you can count on" : category === "salon" ? "Tailored styling and care" : "Local favorites made fresh daily",
-    description: `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
+    tagline:
+      row.tagline ||
+      (category === "trades"
+        ? "Professional services you can count on"
+        : category === "salon"
+          ? "Tailored styling and care"
+          : "Local favorites made fresh daily"),
+    description:
+      row.description ||
+      `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
     phone: row.phone || "(555) 000-0000",
+    email: row.email || undefined,
     services,
     hours,
     stage: row.status as LeadPipelineStage,
-    recommendedTier: category === "trades" ? "starter" : category === "salon" ? "complete" : "growth",
+    recommendedTier,
+    dataSource: row.dataSource || undefined,
   };
 }
 
@@ -212,20 +269,53 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const db = getSqliteDb();
   const services = JSON.stringify(lead.services);
   const hoursStr = `${lead.hours.weekday} · ${lead.hours.weekend}`;
+  const dataSource = lead.dataSource ?? "manual_entry";
 
   const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
   if (check) {
     db.prepare(`
       UPDATE leads 
-      SET businessName = ?, category = ?, city = ?, state = ?, phone = ?, hours = ?, services = ?, status = ?, updatedAt = datetime('now')
+      SET businessName = ?, category = ?, city = ?, state = ?, phone = ?, email = ?, hours = ?, services = ?,
+          tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?, updatedAt = datetime('now')
       WHERE slug = ?
-    `).run(lead.businessName, lead.category, lead.city, lead.state, lead.phone, hoursStr, services, lead.stage, lead.slug);
+    `).run(
+      lead.businessName,
+      lead.category,
+      lead.city,
+      lead.state,
+      lead.phone,
+      lead.email ?? null,
+      hoursStr,
+      services,
+      lead.tagline,
+      lead.description,
+      lead.recommendedTier,
+      dataSource,
+      lead.stage,
+      lead.slug,
+    );
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, hours, services, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(id, lead.slug, lead.businessName, lead.category, lead.city, lead.state, lead.phone, hoursStr, services, lead.stage);
+      INSERT INTO leads (id, slug, businessName, category, city, state, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      lead.slug,
+      lead.businessName,
+      lead.category,
+      lead.city,
+      lead.state,
+      lead.phone,
+      lead.email ?? null,
+      hoursStr,
+      services,
+      lead.tagline,
+      lead.description,
+      lead.recommendedTier,
+      dataSource,
+      lead.stage,
+    );
   }
 }
 

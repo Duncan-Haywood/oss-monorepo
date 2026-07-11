@@ -11,6 +11,7 @@ export default defineSchema({
     tagline: v.string(),
     description: v.string(),
     phone: v.string(),
+    email: v.optional(v.string()),
     services: v.array(v.string()),
     hours: v.object({
       weekday: v.string(),
@@ -18,6 +19,8 @@ export default defineSchema({
     }),
     stage: v.string(), // "discovered" | "site_built" | "outreach_sent" | "discovery_call" | "paid" | "live"
     recommendedTier: v.string(), // "starter" | "growth" | "complete"
+    /** Provenance for compliance — see /docs/compliance */
+    dataSource: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

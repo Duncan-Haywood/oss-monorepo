@@ -34,4 +34,9 @@ export interface Lead {
   stage: LeadPipelineStage;
   /** Recommended bundle from product recommendation logic — see /docs/product-bundles. */
   recommendedTier: "starter" | "growth" | "complete";
+  /**
+   * Provenance for compliance ("Document data source per lead" — /docs/compliance).
+   * Examples: demo_catalog | manual_entry | csv_import | places_api
+   */
+  dataSource?: string;
 }

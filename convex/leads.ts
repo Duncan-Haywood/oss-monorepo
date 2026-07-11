@@ -1,8 +1,51 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+const categoryValidator = v.union(
+  v.literal("restaurant"),
+  v.literal("salon"),
+  v.literal("trades"),
+  v.literal("generic"),
+);
+
+const stageValidator = v.union(
+  v.literal("discovered"),
+  v.literal("site_built"),
+  v.literal("outreach_sent"),
+  v.literal("discovery_call"),
+  v.literal("paid"),
+  v.literal("live"),
+);
+
+const tierValidator = v.union(
+  v.literal("starter"),
+  v.literal("growth"),
+  v.literal("complete"),
+);
+
+const leadFields = {
+  slug: v.string(),
+  businessName: v.string(),
+  category: categoryValidator,
+  city: v.string(),
+  state: v.string(),
+  tagline: v.string(),
+  description: v.string(),
+  phone: v.string(),
+  email: v.optional(v.string()),
+  services: v.array(v.string()),
+  hours: v.object({
+    weekday: v.string(),
+    weekend: v.string(),
+  }),
+  stage: stageValidator,
+  recommendedTier: tierValidator,
+  dataSource: v.optional(v.string()),
+};
+
 export const list = query({
   args: {},
+  returns: v.array(v.any()),
   handler: async (ctx) => {
     return await ctx.db.query("leads").collect();
   },
@@ -10,6 +53,7 @@ export const list = query({
 
 export const getBySlug = query({
   args: { slug: v.string() },
+  returns: v.union(v.any(), v.null()),
   handler: async (ctx, args) => {
     return await ctx.db
       .query("leads")
@@ -21,15 +65,9 @@ export const getBySlug = query({
 export const updateStage = mutation({
   args: {
     slug: v.string(),
-    stage: v.union(
-      v.literal("discovered"),
-      v.literal("site_built"),
-      v.literal("outreach_sent"),
-      v.literal("discovery_call"),
-      v.literal("paid"),
-      v.literal("live")
-    ),
+    stage: stageValidator,
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const lead = await ctx.db
       .query("leads")
@@ -39,43 +77,13 @@ export const updateStage = mutation({
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
     await ctx.db.patch(lead._id, { stage: args.stage });
+    return null;
   },
 });
 
 export const upsertLead = mutation({
-  args: {
-    slug: v.string(),
-    businessName: v.string(),
-    category: v.union(
-      v.literal("restaurant"),
-      v.literal("salon"),
-      v.literal("trades"),
-      v.literal("generic")
-    ),
-    city: v.string(),
-    state: v.string(),
-    tagline: v.string(),
-    description: v.string(),
-    phone: v.string(),
-    services: v.array(v.string()),
-    hours: v.object({
-      weekday: v.string(),
-      weekend: v.string(),
-    }),
-    stage: v.union(
-      v.literal("discovered"),
-      v.literal("site_built"),
-      v.literal("outreach_sent"),
-      v.literal("discovery_call"),
-      v.literal("paid"),
-      v.literal("live")
-    ),
-    recommendedTier: v.union(
-      v.literal("starter"),
-      v.literal("growth"),
-      v.literal("complete")
-    ),
-  },
+  args: leadFields,
+  returns: v.null(),
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("leads")
@@ -86,6 +94,7 @@ export const upsertLead = mutation({
     } else {
       await ctx.db.insert("leads", args);
     }
+    return null;
   },
 });
 
@@ -94,27 +103,23 @@ export const markLeadPaid = mutation({
     slug: v.string(),
     stripeSessionId: v.string(),
     customerEmail: v.string(),
-    tier: v.union(
-      v.literal("starter"),
-      v.literal("growth"),
-      v.literal("complete")
-    ),
+    tier: tierValidator,
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
-    
+
     if (lead) {
       await ctx.db.patch(lead._id, { stage: "paid" });
     }
 
-    // Insert order record
     await ctx.db.insert("orders", {
-      slug: args.slug,
+      leadSlug: args.slug,
       tier: args.tier,
       commerceAddon: args.commerceAddon,
       stripeSessionId: args.stripeSessionId,
@@ -122,47 +127,18 @@ export const markLeadPaid = mutation({
       customerEmail: args.customerEmail,
       createdAt: Date.now(),
     });
+    return null;
   },
 });
 
 export const seed = mutation({
   args: {
-    leads: v.array(
-      v.object({
-        slug: v.string(),
-        businessName: v.string(),
-        category: v.union(
-          v.literal("restaurant"),
-          v.literal("salon"),
-          v.literal("trades"),
-          v.literal("generic")
-        ),
-        city: v.string(),
-        state: v.string(),
-        tagline: v.string(),
-        description: v.string(),
-        phone: v.string(),
-        services: v.array(v.string()),
-        hours: v.object({
-          weekday: v.string(),
-          weekend: v.string(),
-        }),
-        stage: v.union(
-          v.literal("discovered"),
-          v.literal("site_built"),
-          v.literal("outreach_sent"),
-          v.literal("discovery_call"),
-          v.literal("paid"),
-          v.literal("live")
-        ),
-        recommendedTier: v.union(
-          v.literal("starter"),
-          v.literal("growth"),
-          v.literal("complete")
-        ),
-      })
-    ),
+    leads: v.array(v.object(leadFields)),
   },
+  returns: v.object({
+    message: v.string(),
+    count: v.number(),
+  }),
   handler: async (ctx, args) => {
     const existingLeads = await ctx.db.query("leads").collect();
     if (existingLeads.length > 0) {

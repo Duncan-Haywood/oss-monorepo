@@ -36,8 +36,13 @@ export default function ArchitectureDocPage() {
         </tbody>
       </table>
 
-      <h2 id="data-ingestion">1. Data ingestion (future)</h2>
-      <p>Google Places API, CSV import, licensed data. No UI scraping without legal review.</p>
+      <h2 id="data-ingestion">1. Data ingestion</h2>
+      <p>
+        Operator CSV bulk import on <code>/dashboard/leads</code> (see{" "}
+        <code>src/lib/leads/csv-import.ts</code>) tags each lead with a <code>dataSource</code> for
+        compliance. Google Places API and other licensed sources remain future work after legal
+        review. No UI scraping.
+      </p>
       <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
       </p>
@@ -66,11 +71,12 @@ export default function ArchitectureDocPage() {
       <p>
         <code>POST /api/stripe/checkout</code> creates a real Stripe Checkout Session (501 only
         when Price IDs / secret key are missing).{" "}
-        <code>POST /api/stripe/webhook</code> verifies signatures and logs{" "}
-        <code>checkout.session.completed</code>. Operator bootstrap:{" "}
+        <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
+        order, and sends a receipt email when Resend is configured. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
-        creates Products/Prices and returns env var snippets. Fulfillment (persist order →
-        production deploy) waits on Convex.
+        creates Products/Prices and returns env var snippets. Remaining for first paid order: run
+        bootstrap (or Dashboard) so Price ID env vars are set. Production deploy after payment is
+        Phase 5.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
