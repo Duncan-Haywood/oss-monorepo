@@ -61,17 +61,32 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
   }
 }
 
-export async function importLeadsCsvAction(csvText: string) {
+export type ImportLeadsCsvResult =
+  | {
+      success: true;
+      imported: number;
+      slugs: string[];
+      errors: Array<{ row: number; message: string }>;
+      skipped: number;
+    }
+  | {
+      success: false;
+      error: string;
+      imported?: number;
+      errors?: Array<{ row: number; message: string }>;
+    };
+
+export async function importLeadsCsvAction(csvText: string): Promise<ImportLeadsCsvResult> {
   try {
     if (!csvText || csvText.trim().length === 0) {
-      return { success: false as const, error: "CSV text is empty" };
+      return { success: false, error: "CSV text is empty" };
     }
 
     const parsed = parseLeadCsv(csvText);
     if (parsed.leads.length === 0) {
       const firstError = parsed.errors[0]?.message ?? "No valid leads found in CSV";
       return {
-        success: false as const,
+        success: false,
         error: firstError,
         imported: 0,
         errors: parsed.errors,
@@ -87,7 +102,7 @@ export async function importLeadsCsvAction(csvText: string) {
 
     revalidatePath("/dashboard/leads");
     return {
-      success: true as const,
+      success: true,
       imported: importedSlugs.length,
       slugs: importedSlugs,
       errors: parsed.errors,
@@ -96,7 +111,7 @@ export async function importLeadsCsvAction(csvText: string) {
   } catch (error) {
     console.error("Error in importLeadsCsvAction:", error);
     return {
-      success: false as const,
+      success: false,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
