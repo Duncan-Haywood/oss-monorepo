@@ -19,6 +19,8 @@ export default defineSchema({
     }),
     stage: v.string(), // "discovered" | "site_built" | "outreach_sent" | "discovery_call" | "paid" | "live"
     recommendedTier: v.string(), // "starter" | "growth" | "complete"
+    /** Provenance for compliance — see /docs/compliance */
+    dataSource: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

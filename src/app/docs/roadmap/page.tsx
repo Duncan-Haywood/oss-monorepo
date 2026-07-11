@@ -9,7 +9,6 @@ export default function RoadmapDocPage() {
       related={[
         { href: "/docs/product-bundles", label: "Product bundles" },
         { href: "/docs/architecture", label: "Architecture" },
-        { href: "/docs/launch-checklist", label: "Launch checklist" },
         { href: "/docs/compliance", label: "Compliance" },
       ]}
     >
@@ -66,40 +65,40 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-1">Phase 1 — Website foundation</h2>
       <p>
-        Shipped: category templates + tier cards on preview; Convex + SQLite lead persistence;
-        manual lead entry; CSV import for operator-owned lists; lead email persistence for
-        outreach. Remaining: dashboard auth, preview subdomain hosting. See{" "}
-        <DocLink href="/docs/process">process log</DocLink>.
+        Category templates + tier cards on preview: shipped (restaurant / salon / trades +
+        generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
+        (see <DocLink href="/docs/process">process log</DocLink>). Remaining: operator auth on{" "}
+        <code>/dashboard</code>, preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>
-        Shipped: Resend outreach + receipt templates, CAN-SPAM footer, unsubscribe +
-        suppression list. Remaining: Vapi/Retell platform voice and bundle explanation tools.
+        Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
+        Remaining: Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
-      <h2 id="phase-3-payments">Phase 3 — Payments (code complete; operator config open)</h2>
+      <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
       <p>
         Checkout API creates real Stripe Checkout Sessions per tier (see{" "}
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
-        selection UI live at <DocLink href="/checkout">/checkout</DocLink>. Webhook verifies
-        signatures, marks leads paid, and sends receipt email when configured. Bootstrap Prices
-        via <code>ALLOW_STRIPE_BOOTSTRAP=1</code> + <code>POST /api/stripe/bootstrap-prices</code>
-        . Operator still must run bootstrap (or Dashboard) for test + live — see{" "}
-        <DocLink href="/docs/launch-checklist">launch checklist</DocLink>.
+        selection UI live at <DocLink href="/checkout">/checkout</DocLink>.{" "}
+        <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
+        sends receipt email. To create Prices without the Stripe UI: set{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
+        paste the returned <code>envSnippet</code> into secrets, then unset the flag. Remaining:
+        run bootstrap (or Dashboard) for test + live Price IDs. Operator path:{" "}
+        <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.
       </p>
 
-      <h2>Phase 4 — Data ingestion</h2>
+      <h2 id="phase-4">Phase 4 — Data ingestion</h2>
       <p>
-        CSV import shipped for operator-owned contacts. Google Places API remains after legal
-        review. No Maps/Facebook scrapers.
+        CSV bulk import on the leads dashboard: shipped (tagged <code>dataSource</code> per batch).
+        Google Places API and other licensed sources still require legal review — no Maps/Facebook
+        scrapers.
       </p>
 
-      <h2>Phase 5 — Production deploy</h2>
-      <p>
-        Custom domain handoff after paid checkout, contact form routing, clientLeads stub —
-        still open (webhook currently marks paid + receipt only).
-      </p>
+      <h2 id="phase-5">Phase 5 — Production deploy</h2>
+      <p>Custom domain handoff, contact form routing, clientLeads stub after paid checkout.</p>
 
       <h2>Phase 6 — Marketing engine</h2>
       <p>LLM generators, Buffer scheduling, Growth/Complete recurring billing.</p>

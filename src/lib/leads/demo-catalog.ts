@@ -19,6 +19,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     hours: { weekday: "Mon–Fri 7am–3pm", weekend: "Sat–Sun 8am–2pm" },
     stage: "site_built",
     recommendedTier: "growth",
+    dataSource: "demo_catalog",
   },
   {
     slug: "serene-salon",
@@ -34,6 +35,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     hours: { weekday: "Tue–Fri 9am–6pm", weekend: "Sat 9am–4pm · Closed Sun–Mon" },
     stage: "outreach_sent",
     recommendedTier: "complete",
+    dataSource: "demo_catalog",
   },
   {
     slug: "mountain-plumbing",
@@ -49,6 +51,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     hours: { weekday: "Mon–Fri 7am–6pm", weekend: "Sat emergency on-call" },
     stage: "discovered",
     recommendedTier: "starter",
+    dataSource: "demo_catalog",
   },
 ] as const;
 
@@ -91,6 +94,7 @@ export function resolvePreviewLead(slug: string): Lead {
     hours: { weekday: "Mon–Fri by appointment", weekend: "Weekend by request" },
     stage: "site_built",
     recommendedTier: category === "trades" ? "starter" : category === "salon" ? "complete" : "growth",
+    dataSource: "slug_inference",
   };
 }
 

@@ -17,7 +17,10 @@ export default function ComplianceDocPage() {
         <li>Use only publicly available business information</li>
         <li>Do not copy copyrighted photos, logos, or long-form text without permission</li>
         <li>Respect robots.txt and platform Terms of Service</li>
-        <li>Document data source per lead</li>
+        <li>
+          Document data source per lead (<code>Lead.dataSource</code> — e.g.{" "}
+          <code>manual_entry</code>, <code>csv_import</code>, <code>places_api</code>)
+        </li>
       </ul>
       <table>
         <thead>

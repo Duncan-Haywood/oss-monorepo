@@ -46,6 +46,7 @@ export const AGENT_PROTOCOL = [
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
   "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate. Close competing PRs rather than merging a second backend.",
+  "If two hourly automations claim the same free todo in the same window: merge the branches (keep both process iterations), do not open a second competing PR for the same feature surface.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
 ] as const;
@@ -98,10 +99,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "csv-lead-import",
     summary:
-      "Operator CSV import on /dashboard/leads for owned contact lists (businessName required; email/phone/category optional) — unblocks lead volume without Places API.",
+      "Operator CSV import on /dashboard/leads for owned contact lists (businessName required; email/phone/category optional) with Lead.dataSource tagging — unblocks lead volume without Places API.",
     status: "done",
     phase: "Phase 4 — Data ingestion",
-    owner: "cursor/business-process-evolution-a9c1",
+    owner: "cursor/business-process-evolution-a9c1 + cursor/prompt-process-evolution-6a76",
   },
   {
     id: "email-field-persistence",
@@ -241,6 +242,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Agents cannot paste Stripe secrets or complete counsel review. Keeping Price bootstrap as todo with a checklist avoids fake progress while still making the human path obvious each hourly run.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Require Lead.dataSource on CSV/manual writes (demo_catalog | manual_entry | csv_import | …) and persist it beside email in Convex + SQLite.",
+    rationale:
+      "Compliance already requires documenting data source per lead before outreach batches. Tagging at import time is cheaper than reconstructing provenance later, and makes counsel review of a CSV-sourced batch straightforward.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "When sibling hourly automations ship overlapping CSV/email work in the same window, merge both branches into one PR instead of racing two PRs for the same surface.",
+    rationale:
+      "Duplicated parsers and dashboard panels would thrash main and confuse ownership. Merging preserves both process iterations and launch-checklist docs while letting dataSource (prompt-process branch) and launch-checklist (business-process branch) land together.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -356,6 +371,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/docs/launch-checklist — operator path to first paid order",
       "Docs: roadmap + architecture brought current with shipped fulfillment",
     ],
-    decisions: BUSINESS_DECISIONS.slice(10),
+    decisions: BUSINESS_DECISIONS.slice(10, 13),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/prompt-process-evolution-6a76",
+    summary:
+      "Parallel hourly run also claimed csv-lead-import; merged with a9c1 rather than opening a competing PR. Kept dataSource tagging + richer SQLite column migrations from this branch, absorbed launch-checklist + order index fixes from a9c1, and documented the collision rule in AGENT_PROTOCOL.",
+    shipped: [
+      "Lead.dataSource on types + Convex + SQLite (ALTER TABLE migrations)",
+      "CSV import template/UI with per-batch dataSource field",
+      "Merge of cursor/business-process-evolution-a9c1 (launch-checklist, by_stripeSessionId)",
+      "Compliance docs note for Lead.dataSource",
+      "AGENT_PROTOCOL — parallel-claim merge rule",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(13),
   },
 ];

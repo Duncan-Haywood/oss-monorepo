@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
-import { CSV_TEMPLATE, parseLeadCsv } from "@/lib/leads/csv-import";
+import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
 import { updateLeadStageAction, addLeadAction, importLeadsCsvAction } from "./actions";
 
 interface LeadsClientProps {
@@ -32,8 +32,6 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCsvImport, setShowCsvImport] = useState(false);
-  const [csvText, setCsvText] = useState(CSV_TEMPLATE);
-  const [csvMessage, setCsvMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Form State
@@ -52,6 +50,13 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
   const [formWeekday, setFormWeekday] = useState("Mon–Fri 8am–5pm");
   const [formWeekend, setFormWeekend] = useState("Sat 9am–2pm · Closed Sun");
   const [formError, setFormError] = useState<string | null>(null);
+
+  // CSV import state
+  const [csvText, setCsvText] = useState(CSV_LEAD_TEMPLATE);
+  const [csvDataSource, setCsvDataSource] = useState("csv_import");
+  const [csvStage, setCsvStage] = useState<LeadPipelineStage>("discovered");
+  const [csvMessage, setCsvMessage] = useState<string | null>(null);
+  const [csvError, setCsvError] = useState<string | null>(null);
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,28 +84,37 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
     }
   };
 
+  const handleCsvFile = async (file: File | null) => {
+    if (!file) return;
+    const text = await file.text();
+    setCsvText(text);
+  };
+
   const handleCsvImport = (e: React.FormEvent) => {
     e.preventDefault();
+    setCsvError(null);
     setCsvMessage(null);
+
     startTransition(async () => {
-      const res = await importLeadsCsvAction(csvText);
+      const res = await importLeadsCsvAction({
+        csvText,
+        dataSource: csvDataSource || "csv_import",
+        defaultStage: csvStage,
+      });
+
       if (!res.success) {
-        setCsvMessage(res.error ?? "Import failed");
+        setCsvError(res.error ?? "Import failed");
         return;
       }
-      const warn =
-        res.errors && res.errors.length > 0
-          ? ` (${res.skipped ?? res.errors.length} row warning(s))`
-          : "";
-      setCsvMessage(`Imported ${res.imported} lead(s)${warn}.`);
-      const parsed = parseLeadCsv(csvText);
-      setLeads((prev) => {
-        const bySlug = new Map(prev.map((l) => [l.slug, l]));
-        for (const lead of parsed.leads) {
-          bySlug.set(lead.slug, lead);
-        }
-        return Array.from(bySlug.values());
-      });
+
+      setCsvMessage(
+        `Imported ${res.imported} lead${res.imported === 1 ? "" : "s"}` +
+          (res.skipped ? ` (${res.skipped} skipped)` : "") +
+          (res.errors.length ? `. ${res.errors.length} row warning(s).` : "."),
+      );
+
+      // Refresh list from optimistic parse by reloading — server owns truth
+      window.location.reload();
     });
   };
 
@@ -135,6 +149,7 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
       },
       recommendedTier: formTier,
       stage: formStage,
+      dataSource: "manual_entry" as const,
     };
 
     startTransition(async () => {
@@ -208,7 +223,7 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
               setShowCsvImport(!showCsvImport);
               if (!showCsvImport) setShowAddForm(false);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition hover:border-zinc-400 hover:bg-zinc-50"
           >
             {showCsvImport ? "Close CSV" : "Import CSV"}
           </button>
@@ -225,46 +240,88 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
         </div>
       </div>
 
+      {/* CSV bulk import */}
       {showCsvImport && (
         <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6">
           <h2 className="text-lg font-semibold tracking-tight">Import leads from CSV</h2>
           <p className="mt-1 text-xs text-zinc-500">
-            Operator-owned contact lists only. Required column:{" "}
-            <code className="text-zinc-700">businessName</code>. Optional: email, phone,
-            category, city, state, slug, recommendedTier, services. See{" "}
-            <Link href="/docs/launch-checklist" className="underline underline-offset-2">
-              launch checklist
+            Compliant scale-up before Places API — tag each batch with a data source. Max 100 rows.
+            Services use <code>;</code> inside a cell. See{" "}
+            <Link href="/docs/compliance" className="underline underline-offset-2">
+              Compliance
             </Link>
             .
           </p>
-          <form onSubmit={handleCsvImport} className="mt-4 space-y-3">
-            <textarea
-              value={csvText}
-              onChange={(e) => setCsvText(e.target.value)}
-              rows={8}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-xs outline-none transition focus:border-zinc-900"
-              spellCheck={false}
-            />
+
+          <form onSubmit={handleCsvImport} className="mt-6 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700">Data source</label>
+                <input
+                  type="text"
+                  value={csvDataSource}
+                  onChange={(e) => setCsvDataSource(e.target.value)}
+                  placeholder="csv_import"
+                  className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700">Initial stage</label>
+                <select
+                  value={csvStage}
+                  onChange={(e) => setCsvStage(e.target.value as LeadPipelineStage)}
+                  className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
+                >
+                  {STAGES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700">Upload file</label>
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(e) => void handleCsvFile(e.target.files?.[0] ?? null)}
+                className="mt-1.5 block w-full text-sm text-zinc-600 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700">CSV text</label>
+              <textarea
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+                rows={8}
+                spellCheck={false}
+                className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-xs leading-5 outline-none transition focus:border-zinc-900"
+              />
+            </div>
+
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-400"
+                className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:bg-zinc-400"
               >
-                {isPending ? "Importing…" : "Import leads"}
+                {isPending ? "Importing..." : "Import leads"}
               </button>
               <button
                 type="button"
-                onClick={() => setCsvText(CSV_TEMPLATE)}
-                className="text-xs font-medium text-zinc-600 underline underline-offset-2"
+                onClick={() => setCsvText(CSV_LEAD_TEMPLATE)}
+                className="text-xs font-medium text-zinc-600 underline-offset-2 hover:underline"
               >
                 Reset to template
               </button>
             </div>
           </form>
-          {csvMessage && (
-            <p className="mt-3 text-xs font-medium text-zinc-700">{csvMessage}</p>
-          )}
+
+          {csvError && <p className="mt-4 text-xs font-medium text-red-600">{csvError}</p>}
+          {csvMessage && <p className="mt-4 text-xs font-medium text-emerald-700">{csvMessage}</p>}
         </div>
       )}
 
