@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getLeadBySlug } from "@/lib/db";
+import { getLeadBySlug, insertClientInquiry } from "@/lib/db";
 import { brand } from "@/lib/brand";
 
 /**
- * Client site contact form stub (Phase 5).
- * Accepts JSON or form-urlencoded posts for a lead slug, logs/emails the lead,
- * and returns 200 so preview/production forms can wire up before full CRM.
+ * Client site contact form (Phase 5).
+ * Accepts JSON or form-urlencoded posts for a lead slug, persists an inquiry,
+ * emails the lead (or support), and returns 200 so preview/production forms work.
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -49,6 +49,7 @@ export async function POST(request: Request, context: RouteContext) {
   const email = readString(body.email);
   const phone = readString(body.phone);
   const message = readString(body.message) || readString(body.body);
+  const source = readString(body.source) || request.headers.get("referer") || undefined;
 
   if (!message && !email && !phone) {
     return NextResponse.json(
@@ -62,6 +63,22 @@ export async function POST(request: Request, context: RouteContext) {
 
   // Prefer forwarding to the business email when we have it; else operator support.
   const notifyTo = lead?.email || support;
+
+  let inquiryId: string | undefined;
+  try {
+    const inquiry = await insertClientInquiry({
+      leadSlug: slug,
+      businessName,
+      name: name || undefined,
+      email: email || undefined,
+      phone: phone || undefined,
+      message: message || "(no message — contact details only)",
+      source,
+    });
+    inquiryId = inquiry.id;
+  } catch (error) {
+    console.error(`contact form persist failed for ${slug}:`, error);
+  }
 
   try {
     const { sendEmail } = await import("@/lib/email/resend");
@@ -77,18 +94,26 @@ export async function POST(request: Request, context: RouteContext) {
         <p><strong>Phone:</strong> ${phone || "—"}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${message || "—"}</p>
+        ${inquiryId ? `<p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${inquiryId}</code></p>` : ""}
       `,
     });
   } catch (error) {
     console.error(`contact form email failed for ${slug}:`, error);
   }
 
-  console.log(`[contact/${slug}]`, { name, email, phone, message: message.slice(0, 200) });
+  console.log(`[contact/${slug}]`, {
+    inquiryId,
+    name,
+    email,
+    phone,
+    message: message.slice(0, 200),
+  });
 
   return NextResponse.json({
     ok: true,
     slug,
     businessName,
+    inquiryId,
     message: "Thanks — your message was received.",
   });
 }
@@ -99,7 +124,7 @@ export async function GET(_request: Request, context: RouteContext) {
     slug,
     method: "POST",
     accepts: ["application/json", "application/x-www-form-urlencoded"],
-    fields: ["name", "email", "phone", "message"],
+    fields: ["name", "email", "phone", "message", "source"],
     docs: "/docs/production-deploy",
   });
 }

@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOperatorAuth } from "@/lib/auth/operator";
-import { updateLeadStage, upsertLead } from "@/lib/db";
+import { updateLeadStage, upsertLead, updateClientInquiryStatus } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { markHandoffLive } from "@/lib/deploy/handoff";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -34,7 +35,37 @@ export async function markHandoffLiveAction(slug: string) {
 }
 
 /** Re-export for client typing convenience. */
-export type { DeployHandoff };
+export type { DeployHandoff, ClientInquiry };
+
+export async function updateInquiryStatusAction(
+  inquiryId: string,
+  status: ClientInquiryStatus,
+) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!inquiryId) {
+      return { success: false as const, error: "Inquiry id is required" };
+    }
+    if (status !== "new" && status !== "read" && status !== "archived") {
+      return { success: false as const, error: "Invalid status" };
+    }
+    const inquiry = await updateClientInquiryStatus(inquiryId, status);
+    if (!inquiry) {
+      return { success: false as const, error: "Inquiry not found" };
+    }
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, inquiry };
+  } catch (error) {
+    console.error("Error in updateInquiryStatusAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
 
 export async function updateLeadStageAction(slug: string, stage: LeadPipelineStage) {
   try {

@@ -85,8 +85,10 @@ export default function ArchitectureDocPage() {
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>
         Handoff records live in SQLite (<code>deploy_handoffs</code>). Suggested host{" "}
-        <code>{"{slug}.domain"}</code>, contact stub at <code>/api/contact/[slug]</code>, optional
-        Vercel Domains API. Operators confirm DNS then mark the lead <code>live</code>.
+        <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
+        (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
+        Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
+        <code>/dashboard/leads</code>.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

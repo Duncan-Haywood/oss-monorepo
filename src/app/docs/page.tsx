@@ -45,7 +45,7 @@ const docs = [
   {
     title: "Production deploy",
     href: "/docs/production-deploy",
-    description: "Post-payment DNS handoff, contact form stub, mark-live operator flow.",
+    description: "Post-payment DNS handoff, inquiry inbox, mark-live operator flow.",
   },
   {
     title: "Roadmap",

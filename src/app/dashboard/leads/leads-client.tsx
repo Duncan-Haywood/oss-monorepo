@@ -4,17 +4,20 @@ import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
 import {
   updateLeadStageAction,
   addLeadAction,
   importLeadsCsvAction,
   markHandoffLiveAction,
+  updateInquiryStatusAction,
 } from "./actions";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
   initialHandoffs?: DeployHandoff[];
+  initialInquiries?: ClientInquiry[];
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -33,9 +36,14 @@ const CATEGORIES: { id: BusinessCategory; label: string }[] = [
   { id: "generic", label: "Generic / Other" },
 ];
 
-export function LeadsClient({ initialLeads, initialHandoffs = [] }: LeadsClientProps) {
+export function LeadsClient({
+  initialLeads,
+  initialHandoffs = [],
+  initialInquiries = [],
+}: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
+  const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -207,6 +215,19 @@ export function LeadsClient({ initialLeads, initialHandoffs = [] }: LeadsClientP
     });
   };
 
+  const handleInquiryStatus = (inquiryId: string, status: ClientInquiryStatus) => {
+    startTransition(async () => {
+      const res = await updateInquiryStatusAction(inquiryId, status);
+      if (!res.success) {
+        alert(`Error updating inquiry: ${res.error}`);
+        return;
+      }
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === inquiryId ? { ...inq, status } : inq)),
+      );
+    });
+  };
+
   // Filtered Leads
   const filteredLeads = leads.filter((lead) => {
     const matchesStage = filterStage === "all" || lead.stage === filterStage;
@@ -218,6 +239,7 @@ export function LeadsClient({ initialLeads, initialHandoffs = [] }: LeadsClientP
   });
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
+  const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
 
   return (
     <div className="mt-8">
@@ -286,6 +308,107 @@ export function LeadsClient({ initialLeads, initialHandoffs = [] }: LeadsClientP
                   >
                     Mark live
                   </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {openInquiries.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-sky-200 bg-sky-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Website inquiries
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({openInquiries.filter((i) => i.status === "new").length} new)
+              </span>
+            </h2>
+            <Link
+              href="/docs/production-deploy"
+              className="text-xs font-medium text-sky-800 underline underline-offset-2"
+            >
+              Docs
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Contact-form posts from <code>/api/contact/[slug]</code> — persisted for follow-up
+            (not just emailed).
+          </p>
+          <ul className="mt-4 space-y-3">
+            {openInquiries.map((inq) => (
+              <li
+                key={inq.id}
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  inq.status === "new"
+                    ? "border-sky-200 bg-white"
+                    : "border-zinc-100 bg-white/80"
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-zinc-900">
+                      {inq.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({inq.leadSlug})</span>
+                      {inq.status === "new" ? (
+                        <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-800">
+                          New
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {inq.name || "Anonymous"}
+                      {inq.email ? (
+                        <>
+                          {" "}
+                          ·{" "}
+                          <a className="underline underline-offset-2" href={`mailto:${inq.email}`}>
+                            {inq.email}
+                          </a>
+                        </>
+                      ) : null}
+                      {inq.phone ? <> · {inq.phone}</> : null}
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-800">
+                      {inq.message}
+                    </p>
+                    <p className="mt-2 text-[11px] text-zinc-400">
+                      {new Date(inq.createdAt).toLocaleString()}
+                      {inq.source ? (
+                        <>
+                          {" "}
+                          · source: <code className="break-all">{inq.source.slice(0, 80)}</code>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {inq.status === "new" ? (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleInquiryStatus(inq.id, "read")}
+                        className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"
+                      >
+                        Mark read
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleInquiryStatus(inq.id, "archived")}
+                      className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60"
+                    >
+                      Archive
+                    </button>
+                    <Link
+                      href={`/preview/${inq.leadSlug}`}
+                      className="text-center text-[11px] font-medium text-sky-800 underline underline-offset-2"
+                      target="_blank"
+                    >
+                      Preview
+                    </Link>
+                  </div>
                 </div>
               </li>
             ))}

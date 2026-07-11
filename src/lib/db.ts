@@ -5,6 +5,11 @@ import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadHours, LeadPipelineStage } from "./leads/types";
 import type { DeployHandoff, DeployHandoffStatus, DnsInstruction } from "./deploy/types";
+import type {
+  ClientInquiry,
+  ClientInquiryStatus,
+  CreateClientInquiryInput,
+} from "./inquiries/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -93,6 +98,25 @@ function getSqliteDb(): DatabaseSync {
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
       updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS client_inquiries (
+      id TEXT PRIMARY KEY,
+      leadSlug TEXT NOT NULL,
+      businessName TEXT NOT NULL,
+      name TEXT,
+      email TEXT,
+      phone TEXT,
+      message TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'new',
+      source TEXT,
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_client_inquiries_slug
+      ON client_inquiries(leadSlug);
+    CREATE INDEX IF NOT EXISTS idx_client_inquiries_status
+      ON client_inquiries(status);
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -164,7 +188,13 @@ const api: any = {
     upsertLead: "leads:upsertLead",
     seed: "leads:seed",
     markLeadPaid: "leads:markLeadPaid",
-  }
+  },
+  inquiries: {
+    create: "inquiries:create",
+    list: "inquiries:list",
+    listBySlug: "inquiries:listBySlug",
+    updateStatus: "inquiries:updateStatus",
+  },
 };
 
 // Map SQLite row to Lead object
@@ -573,4 +603,178 @@ export async function updateDeployHandoffStatus(
     notes,
     updatedAt,
   };
+}
+
+// --- Client inquiries (contact form CRM) ---
+
+interface SqliteClientInquiryRow {
+  id: string;
+  leadSlug: string;
+  businessName: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  message: string;
+  status: string;
+  source: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function mapClientInquiryRow(row: SqliteClientInquiryRow): ClientInquiry {
+  return {
+    id: row.id,
+    leadSlug: row.leadSlug,
+    businessName: row.businessName,
+    name: row.name || undefined,
+    email: row.email || undefined,
+    phone: row.phone || undefined,
+    message: row.message,
+    status: row.status as ClientInquiryStatus,
+    source: row.source || undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function insertClientInquiry(
+  input: CreateClientInquiryInput,
+): Promise<ClientInquiry> {
+  const now = new Date().toISOString();
+  const inquiry: ClientInquiry = {
+    id: `inq_${input.leadSlug}_${Date.now()}`,
+    leadSlug: input.leadSlug,
+    businessName: input.businessName,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    message: input.message.slice(0, 5000),
+    status: "new",
+    source: input.source,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.inquiries.create, {
+        inquiryId: inquiry.id,
+        leadSlug: inquiry.leadSlug,
+        businessName: inquiry.businessName,
+        name: inquiry.name,
+        email: inquiry.email,
+        phone: inquiry.phone,
+        message: inquiry.message,
+        source: inquiry.source,
+      });
+      return inquiry;
+    } catch (e) {
+      console.warn("Failed to insert client inquiry on Convex, falling back to SQLite", e);
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(`
+    INSERT INTO client_inquiries (
+      id, leadSlug, businessName, name, email, phone, message, status, source, createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    inquiry.id,
+    inquiry.leadSlug,
+    inquiry.businessName,
+    inquiry.name ?? null,
+    inquiry.email ?? null,
+    inquiry.phone ?? null,
+    inquiry.message,
+    inquiry.status,
+    inquiry.source ?? null,
+    inquiry.createdAt,
+    inquiry.updatedAt,
+  );
+
+  return inquiry;
+}
+
+export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.inquiries.list, {
+        limit: safeLimit,
+      })) as ClientInquiry[];
+    } catch (e) {
+      console.warn("Failed to list client inquiries from Convex, falling back to SQLite", e);
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM client_inquiries ORDER BY createdAt DESC LIMIT ?",
+    )
+    .all(safeLimit) as unknown as SqliteClientInquiryRow[];
+  return rows.map(mapClientInquiryRow);
+}
+
+export async function listClientInquiriesBySlug(
+  leadSlug: string,
+  limit = 50,
+): Promise<ClientInquiry[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.inquiries.listBySlug, {
+        leadSlug,
+        limit: safeLimit,
+      })) as ClientInquiry[];
+    } catch (e) {
+      console.warn(
+        `Failed to list client inquiries for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM client_inquiries WHERE leadSlug = ? ORDER BY createdAt DESC LIMIT ?",
+    )
+    .all(leadSlug, safeLimit) as unknown as SqliteClientInquiryRow[];
+  return rows.map(mapClientInquiryRow);
+}
+
+export async function updateClientInquiryStatus(
+  inquiryId: string,
+  status: ClientInquiryStatus,
+): Promise<ClientInquiry | null> {
+  if (convexClient) {
+    try {
+      const updated = (await convexClient.mutation(api.inquiries.updateStatus, {
+        inquiryId,
+        status,
+      })) as ClientInquiry | null;
+      if (updated) return updated;
+    } catch (e) {
+      console.warn(
+        `Failed to update inquiry ${inquiryId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db
+    .prepare("SELECT * FROM client_inquiries WHERE id = ?")
+    .get(inquiryId) as SqliteClientInquiryRow | undefined;
+  if (!existing) return null;
+
+  const updatedAt = new Date().toISOString();
+  db.prepare(
+    "UPDATE client_inquiries SET status = ?, updatedAt = ? WHERE id = ?",
+  ).run(status, updatedAt, inquiryId);
+
+  return mapClientInquiryRow({ ...existing, status, updatedAt });
 }
