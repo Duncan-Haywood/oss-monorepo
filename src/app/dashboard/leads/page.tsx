@@ -1,4 +1,4 @@
-import { getLeads, listDeployHandoffs } from "@/lib/db";
+import { getLeads, listDeployHandoffs, listClientInquiries } from "@/lib/db";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
@@ -6,7 +6,11 @@ import { LeadsClient } from "./leads-client";
 export const dynamic = "force-dynamic";
 
 export default async function LeadsPage() {
-  const [leads, handoffs] = await Promise.all([getLeads(), listDeployHandoffs()]);
+  const [leads, handoffs, inquiries] = await Promise.all([
+    getLeads(),
+    listDeployHandoffs(),
+    listClientInquiries(50),
+  ]);
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
   return (
@@ -33,9 +37,12 @@ export default async function LeadsPage() {
       </div>
 
       <div className="mt-8">
-        <LeadsClient initialLeads={leads} initialHandoffs={handoffs} />
+        <LeadsClient
+          initialLeads={leads}
+          initialHandoffs={handoffs}
+          initialInquiries={inquiries}
+        />
       </div>
     </main>
   );
 }
-

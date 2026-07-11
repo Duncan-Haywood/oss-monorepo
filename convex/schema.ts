@@ -36,4 +36,23 @@ export default defineSchema({
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),
+
+  /** End-customer contact-form submissions (not outreach leads). */
+  clientInquiries: defineTable({
+    inquiryId: v.string(),
+    leadSlug: v.string(),
+    businessName: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    message: v.string(),
+    status: v.string(), // "new" | "read" | "archived"
+    source: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_inquiryId", ["inquiryId"])
+    .index("by_leadSlug", ["leadSlug"])
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
 });

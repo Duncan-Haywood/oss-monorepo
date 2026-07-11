@@ -104,7 +104,8 @@ export default function RoadmapDocPage() {
         endpoint, optional Vercel domain API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Remaining:
-        per-client project isolation and registrar DNS automation.
+        per-client project isolation and registrar DNS automation. Client inquiry inbox
+        (persist contact-form posts + operator panel): shipped.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>

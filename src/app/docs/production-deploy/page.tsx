@@ -38,7 +38,7 @@ export default function ProductionDeployDocPage() {
         </li>
         <li>
           Contact form stub at <code>POST /api/contact/[slug]</code> forwards inquiries to the lead
-          email (or support).
+          email (or support) <strong>and</strong> persists them to the operator Inquiries inbox.
         </li>
       </ol>
 
@@ -54,6 +54,15 @@ export default function ProductionDeployDocPage() {
           <code>live</code>.
         </li>
       </ol>
+
+      <h2>Client inquiry inbox</h2>
+      <p>
+        Every contact-form POST creates a <code>client_inquiries</code> row (SQLite always;
+        Convex <code>clientInquiries</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set).
+        Operators see new messages on the leads dashboard, can mark them read or archive, and
+        still get the email notify. Preview contact UI wiring is tracked separately (
+        <code>preview-conversion-finish</code>).
+      </p>
 
       <h2>Env vars</h2>
       <ul>
@@ -73,7 +82,9 @@ export default function ProductionDeployDocPage() {
       <ul>
         <li>Per-client Vercel project isolation (shared project + path/host routing for now).</li>
         <li>Automatic DNS at the registrar (buyer or operator must still create records).</li>
-        <li>Client CRM inbox beyond email forwarding of form posts.</li>
+        <li>
+          Per-client login to view their own inquiries (operator inbox only for the MVP).
+        </li>
       </ul>
 
       <p>

@@ -178,7 +178,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "client-leads-inbox",
     summary:
       "Persist contact-form submissions (clientInquiries) in SQLite (+ Convex when configured) and show an Inquiries panel on the operator dashboard — upgrade the email-only contact stub.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-109d",
   },
@@ -338,6 +338,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Claim commits must be pushed before feature work so concurrent hourly agents see remote ownership within ~1 minute.",
     rationale:
       "Local-only in_progress claims caused parallel CSV work earlier the same day. Pushing the claim is cheap and is now an explicit AGENT_PROTOCOL rule.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Supersedes the earlier 'email-only contact stub' decision: contact-form POSTs persist as clientInquiries (SQLite always; Convex when configured) and appear on the operator dashboard Inquiries panel.",
+    rationale:
+      "Paid Starter sites promise a working contact path. Email-only forwarding lost messages when Resend was misconfigured and gave operators no audit trail. Persisting inquiries unblocks follow-up without waiting on a full client CRM login, and pairs with the sibling preview-conversion-finish work that wires the form UI.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Client inquiries use app-owned string IDs (inq_*) in both SQLite and Convex, not Convex document IDs as the public key.",
+    rationale:
+      "Keeps the db.ts abstraction and dashboard actions identical across backends, and avoids depending on generated Id types in agent builds that may not have run convex codegen yet.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Split Phase 5 follow-ons across parallel hourly agents: 7f15 owns preview contact UI/maps; 109d owns inquiry persistence + inbox.",
+    rationale:
+      "Same revenue surface (Starter contact form) but different files — claiming both halves in one window maximizes throughput without a merge collision on category-preview.tsx vs db/contact/dashboard.",
   },
 ];
 
@@ -499,6 +520,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — push claim before feature body",
       "Merge of cursor/business-process-evolution-8d74 (dashboard auth)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(17),
+    decisions: BUSINESS_DECISIONS.slice(17, 20),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-109d",
+    summary:
+      "Post-payment customer value: persist website contact-form submissions as clientInquiries (SQLite + Convex schema/functions), show an Inquiries panel on /dashboard/leads with mark-read/archive, and document the split with sibling 7f15 (preview form UI). Extends AGENT_PROTOCOL revenue order past fulfill/deploy.",
+    shipped: [
+      "src/lib/inquiries/types.ts — ClientInquiry model",
+      "src/lib/db.ts — client_inquiries table + insert/list/updateStatus",
+      "convex/schema.ts + convex/inquiries.ts — clientInquiries with app-owned inquiryId",
+      "src/app/api/contact/[slug] — persist before email notify",
+      "src/app/dashboard/leads — Inquiries panel + updateInquiryStatusAction",
+      "Docs: production-deploy, launch-checklist, roadmap, architecture",
+      "Process: claim client-leads-inbox; absorb 7f15 backlog; peer note on preview-conversion-finish",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(20),
   },
 ];

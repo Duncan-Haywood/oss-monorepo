@@ -123,7 +123,8 @@ export default function LaunchChecklistDocPage() {
           Complete DNS from the handoff panel, then <strong>Mark live</strong>.
         </li>
         <li>
-          Point client site forms at <code>/api/contact/[slug]</code> until a fuller CRM lands.
+          Point client site forms at <code>/api/contact/[slug]</code>. Submissions land in the
+          operator Inquiries panel on the leads dashboard (and still email the business).
         </li>
       </ol>
 
