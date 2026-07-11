@@ -41,11 +41,13 @@ export interface ProcessIteration {
  */
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach), unless another agent already owns it.",
-  "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume), unless another agent already owns it.",
+  "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
-  "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate.",
+  "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate. Close competing PRs rather than merging a second backend.",
+  "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
+  "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
 ] as const;
 
 /**
@@ -58,7 +60,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-price-objects",
     summary:
-      "Operator: run POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1 (test + live), paste envSnippet into secrets, unset the flag. Bootstrap code already shipped.",
+      "Operator: run POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1 (test + live), paste envSnippet into secrets, unset the flag. Bootstrap code already shipped. Checklist: /docs/launch-checklist.",
     status: "todo",
     phase: "Phase 3 — Payments",
   },
@@ -88,9 +90,26 @@ export const NEXT_STEPS: NextStep[] = [
   },
   {
     id: "lead-ingestion",
-    summary: "Google Places API ingestion or CSV import for manual lead entry — legal review first, see /docs/compliance.",
+    summary:
+      "Google Places API ingestion for discovery at scale — legal review first, see /docs/compliance. CSV/manual paths shipped separately (csv-lead-import).",
     status: "todo",
     phase: "Phase 4 — Data ingestion",
+  },
+  {
+    id: "csv-lead-import",
+    summary:
+      "Operator CSV import on /dashboard/leads for owned contact lists (businessName required; email/phone/category optional) — unblocks lead volume without Places API.",
+    status: "done",
+    phase: "Phase 4 — Data ingestion",
+    owner: "cursor/business-process-evolution-a9c1",
+  },
+  {
+    id: "email-field-persistence",
+    summary:
+      "Persist optional lead.email in Convex schema + SQLite fallback (was UI-only; broke outreach_sent email sends after reload).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-a9c1",
   },
   {
     id: "outbound-email",
@@ -106,6 +125,20 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/convex-database-persistence",
+  },
+  {
+    id: "dashboard-auth",
+    summary:
+      "Protect /dashboard/* (and lead mutation server actions) with operator auth before real customer data or outbound sends at scale.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
+  {
+    id: "production-deploy-handoff",
+    summary:
+      "After paid checkout: automated production deploy + custom domain / DNS handoff stub (Phase 5) — today webhook marks paid + sends receipt only.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 
@@ -180,6 +213,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "This broke every route that touches the SQLite fallback (/dashboard/leads, /preview/[slug]) with a 500 at runtime — 'Database is not a constructor' — despite `next build`/`tsc --noEmit` reporting clean, because the import sat behind a `@ts-expect-error` comment that suppressed the type error TypeScript would otherwise have caught. `npm run build` and `npm run lint` passing is not sufficient evidence a database-touching change works; `npm run dev` and actually loading the page is. Left the `@ts-expect-error` off since @types/node already types node:sqlite correctly once the right export is used, and fixed the one resulting cast (`.all()` needs `as unknown as SqliteLeadRow[]`, not a direct cast, since the underlying driver types loosened once the import resolved).",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Supersedes the earlier 'webhook logs only' decision: checkout.session.completed now persists paid state (recordLeadPayment) and sends a receipt email when configured.",
+    rationale:
+      "Database + outbound email backlog items shipped. Stripe dashboard is no longer the sole source of truth for paid leads inside the app; operators should still reconcile Stripe for disputes/refunds.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Ship operator-owned CSV lead import now; keep Google Places / directory scraping gated on legal review.",
+    rationale:
+      "Lead volume is the next revenue bottleneck after payments/outreach code. CSV of contacts the operator already has does not require Places API ToS review, unblocks funnel testing and early outreach, and matches Compliance guidance to prefer official/licensed sources over scraping. Places remains a separate backlog item.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Lead.email must be stored in both Convex and SQLite schemas (optional string), not only in the dashboard form state.",
+    rationale:
+      "Outreach on stage=outreach_sent reads email from persistence. UI-only email looked done in an earlier iteration but silently dropped on upsert/reload, so no preview emails would send after a refresh — a false 'outbound ready' signal.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Document operator launch steps as a TSX page at /docs/launch-checklist rather than marking stripe-price-objects done in the backlog.",
+    rationale:
+      "Agents cannot paste Stripe secrets or complete counsel review. Keeping Price bootstrap as todo with a checklist avoids fake progress while still making the human path obvious each hourly run.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -253,7 +314,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/db.ts — compile-safe database helper supporting Convex and local memory fallback",
       "src/app/layout.tsx + src/app/globals.css — Fixed Google Fonts build failures by specifying offline-friendly system font fallbacks",
     ],
-    decisions: [BUSINESS_DECISIONS[6]],
+    decisions: [BUSINESS_DECISIONS[6], BUSINESS_DECISIONS[7]],
   },
   {
     date: "2026-07-11",
@@ -269,7 +330,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads/actions.ts — Automated outreach email trigger when stage changes to outreach_sent",
       "src/app/api/stripe/webhook/route.ts — Trigger transactional receipt email upon checkout.session.completed",
     ],
-    decisions: [BUSINESS_DECISIONS[7]],
+    decisions: [BUSINESS_DECISIONS[8]],
   },
   {
     date: "2026-07-11",
@@ -279,7 +340,22 @@ export const ITERATIONS: ProcessIteration[] = [
     shipped: [
       "src/lib/db.ts — fixed `import { Database } from \"node:sqlite\"` (wrong export name) to `DatabaseSync`, and the resulting `.all()` cast; verified via `npm run dev` hitting every route that touches the database, not just build/lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(9),
+    decisions: [BUSINESS_DECISIONS[9]],
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-a9c1",
+    summary:
+      "Growth iteration after core funnel code landed: fixed lead.email not actually persisting (Convex + SQLite), fixed orders insert field mismatch (leadSlug), shipped operator CSV import for owned contact lists, added /docs/launch-checklist, refreshed stale roadmap/architecture copy, and tightened AGENT_PROTOCOL for runtime verification + operator-gated todos.",
+    shipped: [
+      "src/lib/leads/csv-import.ts — CSV parser + template for operator-owned lists",
+      "src/app/dashboard/leads — Import CSV UI + importLeadsCsvAction",
+      "src/lib/db.ts — email column + PRAGMA migrate; upsert/read email",
+      "convex/schema.ts + convex/leads.ts — optional email; markLeadPaid uses leadSlug",
+      "convex/orders.ts — createOrder args aligned to leadSlug",
+      "src/app/docs/launch-checklist — operator path to first paid order",
+      "Docs: roadmap + architecture brought current with shipped fulfillment",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(10),
   },
 ];
-

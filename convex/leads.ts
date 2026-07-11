@@ -57,6 +57,7 @@ export const upsertLead = mutation({
     tagline: v.string(),
     description: v.string(),
     phone: v.string(),
+    email: v.optional(v.string()),
     services: v.array(v.string()),
     hours: v.object({
       weekday: v.string(),
@@ -107,14 +108,14 @@ export const markLeadPaid = mutation({
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
-    
+
     if (lead) {
       await ctx.db.patch(lead._id, { stage: "paid" });
     }
 
-    // Insert order record
+    // Insert order record — field name is leadSlug to match schema
     await ctx.db.insert("orders", {
-      slug: args.slug,
+      leadSlug: args.slug,
       tier: args.tier,
       commerceAddon: args.commerceAddon,
       stripeSessionId: args.stripeSessionId,
@@ -142,6 +143,7 @@ export const seed = mutation({
         tagline: v.string(),
         description: v.string(),
         phone: v.string(),
+        email: v.optional(v.string()),
         services: v.array(v.string()),
         hours: v.object({
           weekday: v.string(),

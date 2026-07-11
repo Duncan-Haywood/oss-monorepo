@@ -1,7 +1,6 @@
 /**
  * Lead domain model — shared by preview rendering and the operator dashboard.
- * Persistence will move to Convex (see business decision in prompt_process.tsx);
- * until then, demo/catalog data lives in TypeScript modules.
+ * Persisted via Convex when configured, otherwise SQLite fallback (see /docs/process).
  */
 
 export type BusinessCategory = "restaurant" | "salon" | "trades" | "generic";

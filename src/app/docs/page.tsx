@@ -38,6 +38,11 @@ const docs = [
     description: "CAN-SPAM, TCPA, Colorado CPA, scraping ethics, data retention.",
   },
   {
+    title: "Launch checklist",
+    href: "/docs/launch-checklist",
+    description: "Operator steps from demo to first paid order (Stripe, email, legal).",
+  },
+  {
     title: "Roadmap",
     href: "/docs/roadmap",
     description: "Phased implementation plan.",
