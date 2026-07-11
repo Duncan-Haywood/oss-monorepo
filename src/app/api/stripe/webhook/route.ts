@@ -61,8 +61,18 @@ export async function POST(request: Request) {
             amountTotal,
           });
           console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
+
+          // Trigger receipt email
+          const { getLeadBySlug } = await import("@/lib/db");
+          const { sendReceiptEmail } = await import("@/lib/email/resend");
+          const lead = await getLeadBySlug(slug);
+          const businessName = lead?.businessName || slug;
+          
+          if (customerEmail) {
+            await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+          }
         } catch (dbError) {
-          console.error(`Failed to record lead payment for ${slug} in SQLite:`, dbError);
+          console.error(`Failed to record lead payment or send email for ${slug}:`, dbError);
         }
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);

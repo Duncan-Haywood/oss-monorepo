@@ -154,6 +154,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-11",
     decision:
+      "Wire checkout.session.completed Stripe webhook directly to Convex database persistence via recordLeadPayment, creating a new lead if it does not yet exist.",
+    rationale:
+      "Allows the app to gracefully handle organic checkouts or leads generated directly through outbound links, ensuring attribution and order logging work even if the lead wasn't previously indexed by the scraper/operator.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
       "Implement a compile-safe dynamic database abstraction layer in src/lib/db.ts that falls back to memory.",
     rationale:
       "This guarantees developers can clone the repository, run the dev server, and interact with a fully functional dashboard and lead creation pipeline immediately with zero configuration. It integrates Convex dynamically via ConvexHttpClient using string-based query/mutation paths, preventing compilation failures in Next.js when Convex's auto-generated client files do not exist yet.",
@@ -220,7 +227,6 @@ export const ITERATIONS: ProcessIteration[] = [
     summary:
       "Stood up Convex schema and functions, and implemented a compile-safe unified database layer that falls back to local memory. Wired checkout webhook fulfillment to persist lead status, and replaced static counts on the operator dashboard with a highly interactive leads console featuring dynamic pipeline filtering, lead searching, manual lead insertion (unblocking manual-lead-entry), and stage updates.",
     shipped: [
-      "src/lib/db.ts — compile-safe database helper supporting Convex and local memory fallback",
       "convex/schema.ts — Convex schema for leads and orders tables",
       "convex/leads.ts — Convex query and mutation handlers for listing, fetching, updating, and seeding leads",
       "convex/tsconfig.json — typescript config for Convex",
@@ -229,7 +235,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads/actions.ts — Server Actions for stage updates and manual lead creation",
       "src/app/preview/[slug]/page.tsx — dynamic lead resolution checking the database before fallback",
       "src/app/api/stripe/webhook/route.ts — checkout webhook marked paid directly in database",
+      "src/lib/db.ts — compile-safe database helper supporting Convex and local memory fallback",
+      "src/app/layout.tsx + src/app/globals.css — Fixed Google Fonts build failures by specifying offline-friendly system font fallbacks",
     ],
     decisions: [BUSINESS_DECISIONS[6]],
   },
 ];
+
