@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics), unless another agent already owns it.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -151,6 +151,43 @@ export const NEXT_STEPS: NextStep[] = [
       "Optional scale-up: isolate each paid client on its own Vercel project (or multi-tenant routing rules) instead of shared project + path/host conventions.",
     status: "todo",
     phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "preview-conversion-finish",
+    summary:
+      "Close the Starter product promise on /preview/[slug]: wire contact form UI to POST /api/contact/[slug], embed Google Maps for the lead's city, soften demo-only placeholder copy for non-demo leads.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-7f15",
+  },
+  {
+    id: "outreach-follow-ups",
+    summary:
+      "Email 2/3 follow-up templates + outreachStep/lastOutreachAt on Lead + operator 'send follow-up' (and optional due queue) — multiplies conversion without new lead sources.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "pipeline-health-metrics",
+    summary:
+      "Operator dashboard metrics: revenue from orders, stage funnel counts, open deploy handoffs, leads missing email — surface stuck money without row-scanning.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
+  {
+    id: "client-leads-inbox",
+    summary:
+      "Persist contact-form submissions (clientInquiries) in SQLite (+ Convex when configured) and show an Inquiries panel on the operator dashboard — upgrade the email-only contact stub.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-109d",
+  },
+  {
+    id: "checkout-attribution-polish",
+    summary:
+      "Prefill checkout from lead slug (email/business name), keep marketing CTAs on slug-aware paths, light trust/FAQ on the landing page.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 
