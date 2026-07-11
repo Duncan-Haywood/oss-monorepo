@@ -12,6 +12,7 @@ type DocsShellProps = {
 
 const LIVE_PAGES: Array<{ slug: string; title: string; href: string }> = [
   { slug: "process", title: "Process", href: "/process/" },
+  { slug: "pricing", title: "Concierge pricing", href: "/pricing/" },
 ];
 
 export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
