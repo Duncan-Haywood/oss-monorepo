@@ -23,6 +23,7 @@
 import { roadmap, nextActionableTasks } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
+import { captureChecklist, totalTargetMinutes } from "./capture-checklist";
 import type { PhaseStatus } from "./types";
 
 export const AGENT_PROCESS_INSTRUCTIONS = `
@@ -165,6 +166,37 @@ export function ProcessDashboard() {
                   ))}
                 </ul>
               )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Capture checklist</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          Room-by-room guided shoot checklist for the Phase 2 concierge MVP. Target total time:{" "}
+          {totalTargetMinutes()} minutes.
+        </p>
+        <div className="mt-4 space-y-4">
+          {captureChecklist.map((room) => (
+            <div key={room.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-medium text-white">{room.room}</h3>
+                <span className="text-xs text-slate-500">~{room.targetMinutes} min</span>
+              </div>
+              <ul className="mt-4 space-y-2">
+                {room.shots.map((shot) => (
+                  <li
+                    key={shot.id}
+                    className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3"
+                  >
+                    <p className="text-sm text-slate-200">
+                      {shot.label} <span className="text-xs text-slate-500">({shot.bracket})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">{shot.instructions}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

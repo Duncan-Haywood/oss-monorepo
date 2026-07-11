@@ -33,7 +33,7 @@ export const decisionsLog: BusinessDecision[] = [
     rationale:
       "STRATEGY.md's 90-day plan is interview-first, concierge-MVP-second, app-third. Building the app before validation risks wasted engineering effort on the wrong wedge.",
     madeBy: "initial-scaffold",
-    relatedTaskIds: ["phase-2-concierge-mvp", "phase-3-smoke-test-app"],
+    relatedTaskIds: ["p2-first-deliveries", "p3-app-scope"],
   },
   {
     date: "2026-07-11",
