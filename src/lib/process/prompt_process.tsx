@@ -131,8 +131,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "dashboard-auth",
     summary:
       "Protect /dashboard/* (and lead mutation server actions) with operator auth before real customer data or outbound sends at scale.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-8d74",
   },
   {
     id: "production-deploy-handoff",
