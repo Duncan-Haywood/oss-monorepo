@@ -42,6 +42,11 @@ const docs = [
     href: "/docs/roadmap",
     description: "Phased implementation plan.",
   },
+  {
+    title: "Process log",
+    href: "/docs/process",
+    description: "Cross-agent backlog, business decisions, and iteration history.",
+  },
 ];
 
 export default function DocsIndexPage() {

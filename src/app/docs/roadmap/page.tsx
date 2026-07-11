@@ -69,8 +69,14 @@ export default function RoadmapDocPage() {
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>Resend, CAN-SPAM templates, suppression list, Vapi/Retell, bundle explanation tools.</p>
 
-      <h2 id="phase-3-payments">Phase 3 — Payments</h2>
-      <p>Stripe Products per tier, checkout API, webhooks, receipt emails.</p>
+      <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
+      <p>
+        Checkout API creates real Stripe Checkout Sessions per tier (see{" "}
+        <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
+        selection UI live at <DocLink href="/checkout">/checkout</DocLink>. Remaining: create the
+        Stripe Price objects in the dashboard and set the <code>STRIPE_PRICE_ID_*</code> env vars,
+        add the webhook handler for production deploy + receipt emails.
+      </p>
 
       <h2>Phase 4 — Data ingestion</h2>
       <p>Google Places API, CSV import — after legal review. No Maps/Facebook scrapers.</p>
