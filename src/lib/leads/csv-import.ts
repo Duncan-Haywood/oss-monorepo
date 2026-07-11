@@ -10,6 +10,7 @@ export const CSV_LEAD_HEADERS = [
   "category",
   "city",
   "state",
+  "address",
   "phone",
   "email",
   "services",
@@ -43,6 +44,7 @@ export const CSV_LEAD_TEMPLATE = [
     "salon",
     "Denver",
     "CO",
+    "1200 Blake St",
     "(303) 555-0100",
     "hello@blueriversalon.example",
     "Haircuts; Color; Blowouts",
@@ -243,6 +245,7 @@ export function parseLeadsCsv(
 
     const city = get("city") || "Denver";
     const state = get("state") || "CO";
+    const address = get("address") || undefined;
     const phone = get("phone") || "(555) 000-0000";
     const email = get("email") || undefined;
     const tagline = get("tagline") || defaultTagline(category);
@@ -257,6 +260,7 @@ export function parseLeadsCsv(
       category,
       city,
       state,
+      address,
       tagline,
       description,
       phone,

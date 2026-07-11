@@ -85,6 +85,14 @@ describe("parseLeadsCsv", () => {
     expect(result.leads[0]?.services).toEqual(["Haircuts", "Color", "Blowouts"]);
   });
 
+  it("parses an optional address column, leaving it undefined when absent", () => {
+    const withAddress = parseLeadsCsv("businessName,address\nAcme,1200 Blake St");
+    expect(withAddress.leads[0]?.address).toBe("1200 Blake St");
+
+    const withoutAddress = parseLeadsCsv("businessName\nAcme");
+    expect(withoutAddress.leads[0]?.address).toBeUndefined();
+  });
+
   it("tags the configured dataSource and defaultStage on every parsed lead", () => {
     const csv = "businessName\nAcme";
     const result = parseLeadsCsv(csv, { dataSource: "manual_entry", defaultStage: "site_built" });

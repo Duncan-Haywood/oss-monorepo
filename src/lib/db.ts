@@ -24,6 +24,7 @@ interface SqliteLeadRow {
   category: string;
   city: string;
   state?: string;
+  address?: string | null;
   phone?: string;
   email?: string | null;
   hours?: string;
@@ -54,6 +55,7 @@ function getSqliteDb(): DatabaseSync {
       category TEXT NOT NULL,
       city TEXT NOT NULL,
       state TEXT,
+      address TEXT,
       phone TEXT,
       email TEXT,
       hours TEXT,
@@ -134,6 +136,7 @@ function getSqliteDb(): DatabaseSync {
     }
   };
   addLeadCol("email", "TEXT");
+  addLeadCol("address", "TEXT");
   addLeadCol("tagline", "TEXT");
   addLeadCol("description", "TEXT");
   addLeadCol("recommendedTier", "TEXT");
@@ -175,10 +178,11 @@ function getSqliteDb(): DatabaseSync {
         lead.stage
       );
       sqliteDb!.prepare(`
-        UPDATE leads SET email = ?, tagline = ?, description = ?, recommendedTier = ?, dataSource = ?
+        UPDATE leads SET email = ?, address = ?, tagline = ?, description = ?, recommendedTier = ?, dataSource = ?
         WHERE id = ?
       `).run(
         lead.email ?? null,
+        lead.address ?? null,
         lead.tagline,
         lead.description,
         lead.recommendedTier,
@@ -256,6 +260,7 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     category,
     city: row.city,
     state: row.state || "CO",
+    address: row.address || undefined,
     tagline:
       row.tagline ||
       (category === "trades"
@@ -348,8 +353,8 @@ export async function upsertLead(lead: Lead): Promise<void> {
 
   if (check) {
     db.prepare(`
-      UPDATE leads 
-      SET businessName = ?, category = ?, city = ?, state = ?, phone = ?, email = ?, hours = ?, services = ?,
+      UPDATE leads
+      SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
           tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
           outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
       WHERE slug = ?
@@ -358,6 +363,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lead.category,
       lead.city,
       lead.state,
+      lead.address ?? null,
       lead.phone,
       lead.email ?? null,
       hoursStr,
@@ -374,8 +380,8 @@ export async function upsertLead(lead: Lead): Promise<void> {
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       lead.slug,
@@ -383,6 +389,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lead.category,
       lead.city,
       lead.state,
+      lead.address ?? null,
       lead.phone,
       lead.email ?? null,
       hoursStr,

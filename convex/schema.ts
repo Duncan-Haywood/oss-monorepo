@@ -8,6 +8,8 @@ export default defineSchema({
     category: v.string(), // "restaurant" | "salon" | "trades" | "generic"
     city: v.string(),
     state: v.string(),
+    /** Optional street address for Maps embed pins + LocalBusiness JSON-LD streetAddress. */
+    address: v.optional(v.string()),
     tagline: v.string(),
     description: v.string(),
     phone: v.string(),
