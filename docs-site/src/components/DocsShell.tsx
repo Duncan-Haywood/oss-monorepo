@@ -10,6 +10,10 @@ type DocsShellProps = {
   children: ReactNode;
 };
 
+const LIVE_PAGES: Array<{ slug: string; title: string; href: string }> = [
+  { slug: "process", title: "Process", href: "/process/" },
+];
+
 export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -43,6 +47,29 @@ export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
                 <Link
                   key={page.slug}
                   href={`/docs/${page.slug}/`}
+                  className={[
+                    "block rounded-lg px-3 py-2 text-sm transition-colors",
+                    isActive
+                      ? "bg-brand-600/15 text-brand-200"
+                      : "text-slate-400 hover:bg-slate-900 hover:text-slate-200",
+                  ].join(" ")}
+                >
+                  {page.title}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <p className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Live
+          </p>
+          <nav className="space-y-1">
+            {LIVE_PAGES.map((page) => {
+              const isActive = page.slug === activeSlug;
+              return (
+                <Link
+                  key={page.slug}
+                  href={page.href}
                   className={[
                     "block rounded-lg px-3 py-2 text-sm transition-colors",
                     isActive

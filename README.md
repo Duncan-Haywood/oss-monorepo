@@ -22,6 +22,13 @@ real-estate-agent-photo-app/
 │   ├── infra/access-policy.json
 │   ├── scripts/setup-cloudflare-access.sh
 │   └── wrangler.toml
+├── process/
+│   ├── prompt_process.tsx      # start here — agent playbook + live dashboard
+│   ├── roadmap.ts               # phases/tasks with status + owner
+│   ├── decisions-log.ts         # append-only business decisions
+│   ├── progress-log.ts          # append-only per-session log
+│   ├── interview-script.ts      # Phase 1 problem-interview script + rubric
+│   └── capture-checklist.ts     # Phase 2 concierge-MVP shoot checklist
 ├── scripts/
 │   └── push-to-github.sh
 └── research/
@@ -45,6 +52,13 @@ real-estate-agent-photo-app/
         └── lib/
             └── data.ts
 ```
+
+## Process
+
+Multiple agents work this repo independently. `process/prompt_process.tsx`
+is the shared playbook and the source of truth for what's done, what's
+blocked on a human, and what to do next — see `AGENTS.md` for the read/write
+convention. It's also rendered live at `/process/` on the private docs site.
 
 ## Docs site (private)
 
