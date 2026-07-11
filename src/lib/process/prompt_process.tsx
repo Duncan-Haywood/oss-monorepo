@@ -81,7 +81,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "database",
     summary:
-      "Stand up Convex (chosen over Postgres for this app) for lead + order persistence; replace demo catalog counts in /dashboard/leads; wire webhook fulfillment to mark leads paid.",
+      "Stand up Convex (chosen over Postgres for this app) for lead + order persistence; replace demo catalog counts in /dashboard/leads; wire webhook fulfillment to mark leads paid. Fixed post-merge: the SQLite fallback in src/lib/db.ts imported the wrong export ('Database' instead of 'DatabaseSync' from node:sqlite), which 500'd /dashboard/leads and /preview/[slug] at runtime despite a clean build — always run `npm run dev` and load the page for database-touching changes, not just build/lint.",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/convex-database-persistence",
@@ -172,7 +172,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Store the email suppression list in the local SQLite database and add an optional email field to the Lead model.",
     rationale:
       "Compliance with CAN-SPAM is non-negotiable. Storing the opt-out list locally in SQLite allows background email workers and servers to query suppression instantly without round-trips or schema alterations on cloud services (Convex). Adding the optional email field directly to the Lead schema allows the operator to input the target contact when creating/editing leads, triggering automated outreach seamlessly when stage changes to outreach_sent.",
-  }
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Fixed src/lib/db.ts importing 'Database' from node:sqlite — the module exports 'DatabaseSync', not 'Database'.",
+    rationale:
+      "This broke every route that touches the SQLite fallback (/dashboard/leads, /preview/[slug]) with a 500 at runtime — 'Database is not a constructor' — despite `next build`/`tsc --noEmit` reporting clean, because the import sat behind a `@ts-expect-error` comment that suppressed the type error TypeScript would otherwise have caught. `npm run build` and `npm run lint` passing is not sufficient evidence a database-touching change works; `npm run dev` and actually loading the page is. Left the `@ts-expect-error` off since @types/node already types node:sqlite correctly once the right export is used, and fixed the one resulting cast (`.all()` needs `as unknown as SqliteLeadRow[]`, not a direct cast, since the underlying driver types loosened once the import resolved).",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -263,6 +270,16 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/api/stripe/webhook/route.ts — Trigger transactional receipt email upon checkout.session.completed",
     ],
     decisions: [BUSINESS_DECISIONS[7]],
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/upbeat-dijkstra-g50ju8",
+    summary:
+      "Started this iteration by building a competing Postgres+Drizzle persistence layer for the 'database' backlog item, unaware it was being tackled concurrently. Two more agents (claude/convex-database-persistence, claude/email-outreach-and-suppression) landed a more complete Convex+SQLite-fallback implementation on main first, including the dashboard UI and outbound email this iteration hadn't built — so the Postgres PR was closed unmerged rather than pushed through as a competing backend (see AGENT_PROTOCOL and the resolution decision two entries up in a prior draft of this file, superseded by this simpler outcome once the fuller picture on main became clear). Rebased onto the merged result and, running it for real instead of trusting a clean build, found `/dashboard/leads` and `/preview/[slug]` both 500ing at runtime.",
+    shipped: [
+      "src/lib/db.ts — fixed `import { Database } from \"node:sqlite\"` (wrong export name) to `DatabaseSync`, and the resulting `.all()` cast; verified via `npm run dev` hitting every route that touches the database, not just build/lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(9),
   },
 ];
 

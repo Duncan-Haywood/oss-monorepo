@@ -1,7 +1,6 @@
 import "server-only";
 import { ConvexHttpClient } from "convex/browser";
-// @ts-expect-error - node:sqlite may not be defined in standard Node.js typings yet
-import { Database } from "node:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadHours, LeadPipelineStage } from "./leads/types";
@@ -25,11 +24,11 @@ interface SqliteLeadRow {
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
 const dbPath = path.join(process.cwd(), "local.db");
-let sqliteDb: Database | null = null;
+let sqliteDb: DatabaseSync | null = null;
 
-function getSqliteDb(): Database {
+function getSqliteDb(): DatabaseSync {
   if (sqliteDb) return sqliteDb;
-  sqliteDb = new Database(dbPath);
+  sqliteDb = new DatabaseSync(dbPath);
 
   // Initialize SQLite schema
   sqliteDb.exec(`
@@ -162,7 +161,7 @@ export async function getLeads(): Promise<Lead[]> {
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const rows = db.prepare("SELECT * FROM leads ORDER BY createdAt DESC").all() as SqliteLeadRow[];
+  const rows = db.prepare("SELECT * FROM leads ORDER BY createdAt DESC").all() as unknown as SqliteLeadRow[];
   return rows.map(mapSqliteRowToLead);
 }
 
