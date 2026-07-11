@@ -18,6 +18,9 @@ export interface LeadHours {
   weekend: string;
 }
 
+/** How far through the 3-email outreach sequence a lead has progressed (0 = none). */
+export type OutreachStep = 0 | 1 | 2 | 3;
+
 export interface Lead {
   slug: string;
   businessName: string;
@@ -40,4 +43,11 @@ export interface Lead {
    * Examples: demo_catalog | manual_entry | csv_import | places_api
    */
   dataSource?: string;
+  /**
+   * Last outreach email sent in the 1→2→3 sequence (Email 1 on stage=outreach_sent).
+   * Undefined/0 means no outreach recorded yet.
+   */
+  outreachStep?: OutreachStep;
+  /** ISO timestamp of the most recent outreach send (Email 1/2/3). */
+  lastOutreachAt?: string;
 }

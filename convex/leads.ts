@@ -41,6 +41,8 @@ const leadFields = {
   stage: stageValidator,
   recommendedTier: tierValidator,
   dataSource: v.optional(v.string()),
+  outreachStep: v.optional(v.number()),
+  lastOutreachAt: v.optional(v.string()),
 };
 
 export const list = query({
@@ -126,6 +128,29 @@ export const markLeadPaid = mutation({
       amountTotal: args.amountTotal,
       customerEmail: args.customerEmail,
       createdAt: Date.now(),
+    });
+    return null;
+  },
+});
+
+export const recordOutreach = mutation({
+  args: {
+    slug: v.string(),
+    outreachStep: v.union(v.literal(1), v.literal(2), v.literal(3)),
+    lastOutreachAt: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      outreachStep: args.outreachStep,
+      lastOutreachAt: args.lastOutreachAt,
     });
     return null;
   },

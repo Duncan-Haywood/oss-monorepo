@@ -79,7 +79,8 @@ export default function RoadmapDocPage() {
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>
         Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
-        Remaining: Email 2/3 follow-ups (claimed by sibling automation when in progress), plus
+        Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
+        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Remaining:
         Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
