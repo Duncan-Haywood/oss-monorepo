@@ -2,25 +2,34 @@ import Link from "next/link";
 import type { Lead } from "@/lib/leads/types";
 import { getCategoryTheme } from "@/lib/previews/themes";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
+import { PreviewContactForm } from "./contact-form";
+import { PreviewMapsEmbed } from "./maps-embed";
 import { TierUpsell } from "./tier-upsell";
 
 type CategoryPreviewProps = {
   lead: Lead;
 };
 
+function isDemoPreview(lead: Lead): boolean {
+  return lead.dataSource === "demo_catalog" || lead.dataSource === "slug_inference";
+}
+
 export function CategoryPreview({ lead }: CategoryPreviewProps) {
   const theme = getCategoryTheme(lead.category);
   const location = `${lead.city}, ${lead.state}`;
+  const showDemoBanner = isDemoPreview(lead);
 
   return (
     <main className={theme.shellClass}>
-      <div className="mx-auto max-w-5xl px-6 pt-6">
-        <PlaceholderBanner
-          title={`${theme.label} template`}
-          description={`Demo preview for ${lead.slug}. Production previews will deploy to ${lead.slug}.preview.localsitestudio.com with real photos and booking links.`}
-          docsHref="/docs/architecture#preview-hosting"
-        />
-      </div>
+      {showDemoBanner ? (
+        <div className="mx-auto max-w-5xl px-6 pt-6">
+          <PlaceholderBanner
+            title={`${theme.label} preview`}
+            description={`This is a working Starter-style preview for ${lead.businessName}: contact form and map included. Claim it to connect your domain and go live.`}
+            docsHref="/docs/product-bundles"
+          />
+        </div>
+      ) : null}
 
       <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
         <p className={`text-sm font-medium uppercase tracking-[0.2em] ${theme.accentTextClass}`}>
@@ -39,6 +48,12 @@ export function CategoryPreview({ lead }: CategoryPreviewProps) {
           >
             Claim this site — from $500
           </Link>
+          <a
+            href="#contact"
+            className="text-sm font-medium text-zinc-700 underline-offset-4 hover:underline"
+          >
+            Try the contact form
+          </a>
           <a
             href={`tel:${lead.phone.replace(/\D/g, "")}`}
             className="text-sm font-medium text-zinc-700 underline-offset-4 hover:underline"
@@ -79,10 +94,31 @@ export function CategoryPreview({ lead }: CategoryPreviewProps) {
             </div>
             <div>
               <dt className="font-medium text-zinc-900">Area</dt>
-              <dd>{location}</dd>
+              <dd>
+                {lead.address ? `${lead.address} · ` : null}
+                {location}
+              </dd>
             </div>
           </dl>
         </div>
+      </section>
+
+      <section className="mx-auto grid max-w-5xl gap-6 px-6 pb-10 lg:grid-cols-2">
+        <PreviewContactForm
+          slug={lead.slug}
+          businessName={lead.businessName}
+          panelClass={theme.panelClass}
+          ctaClass={theme.ctaClass}
+          accentTextClass={theme.accentTextClass}
+        />
+        <PreviewMapsEmbed
+          businessName={lead.businessName}
+          city={lead.city}
+          state={lead.state}
+          address={lead.address}
+          panelClass={theme.panelClass}
+          accentTextClass={theme.accentTextClass}
+        />
       </section>
 
       <TierUpsell lead={lead} />

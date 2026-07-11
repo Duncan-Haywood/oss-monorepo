@@ -37,8 +37,9 @@ export default function ProductionDeployDocPage() {
           Email the buyer DNS steps + preview URL (in addition to the receipt).
         </li>
         <li>
-          Contact form stub at <code>POST /api/contact/[slug]</code> forwards inquiries to the lead
-          email (or support).
+          Contact form at <code>POST /api/contact/[slug]</code> (UI wired on{" "}
+          <code>/preview/[slug]</code>) forwards inquiries to the lead email (or support).
+          Persisted clientLeads inbox is a follow-on backlog item.
         </li>
       </ol>
 
