@@ -88,7 +88,9 @@ export default function ArchitectureDocPage() {
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
-        <code>/dashboard/leads</code>.
+        <code>/dashboard/leads</code>. Pipeline health panel aggregates order revenue, stage
+        funnel counts, open handoffs, and leads missing email (
+        <code>src/lib/metrics/pipeline-health.ts</code>).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

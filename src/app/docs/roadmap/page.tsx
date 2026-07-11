@@ -88,7 +88,9 @@ export default function RoadmapDocPage() {
       <p>
         Checkout API creates real Stripe Checkout Sessions per tier (see{" "}
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
-        selection UI live at <DocLink href="/checkout">/checkout</DocLink>.{" "}
+        selection UI live at <DocLink href="/checkout">/checkout</DocLink> — prefills from{" "}
+        <code>?slug=</code> (business name / email / recommended tier) and marketing CTAs pass{" "}
+        <code>tier</code> / <code>commerce</code>.{" "}
         <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
         sends receipt email. To create Prices without the Stripe UI: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,

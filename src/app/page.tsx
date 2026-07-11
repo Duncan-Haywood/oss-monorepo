@@ -21,6 +21,7 @@ const steps = [
 
 const bundles = [
   {
+    id: "starter" as const,
     name: "Starter",
     tagline: "Your site, live in days",
     setup: "$500",
@@ -34,6 +35,7 @@ const bundles = [
     highlighted: false,
   },
   {
+    id: "growth" as const,
     name: "Growth",
     tagline: "Site + customers on autopilot",
     setup: "$500",
@@ -47,6 +49,7 @@ const bundles = [
     highlighted: true,
   },
   {
+    id: "complete" as const,
     name: "Complete",
     tagline: "Never miss a call or a customer",
     setup: "$500",
@@ -146,7 +149,7 @@ export default function Home() {
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {bundles.map((bundle) => (
             <div
-              key={bundle.name}
+              key={bundle.id}
               className={`flex flex-col rounded-2xl border p-8 shadow-sm ${
                 bundle.highlighted
                   ? "border-zinc-900 bg-zinc-900 text-white"
@@ -198,7 +201,7 @@ export default function Home() {
                 ))}
               </ul>
               <Link
-                href="/checkout"
+                href={`/checkout?tier=${bundle.id}`}
                 className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-full font-medium transition-colors ${
                   bundle.highlighted
                     ? "bg-white text-zinc-900 hover:bg-zinc-100"
@@ -247,7 +250,7 @@ export default function Home() {
                 One-time setup + $49/mo · stacks on any bundle
               </p>
               <Link
-                href="/checkout"
+                href="/checkout?commerce=1"
                 className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-300 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
               >
                 Add at checkout
@@ -258,6 +261,34 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section id="faq" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-2xl font-semibold tracking-tight">Before you buy</h2>
+        <dl className="mt-10 max-w-3xl space-y-8">
+          <div>
+            <dt className="font-semibold text-zinc-900">Do I see the site before paying?</dt>
+            <dd className="mt-2 text-sm leading-6 text-zinc-600">
+              Yes. Open a category preview (bakery, salon, or trades above), then claim it from
+              checkout. Your slug stays on the payment link so we know which site to hand off.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-zinc-900">What happens after Stripe?</dt>
+            <dd className="mt-2 text-sm leading-6 text-zinc-600">
+              You get a receipt, a deploy handoff with DNS steps, and a working contact form on
+              the preview. An operator marks you live once DNS is confirmed — usually days, not
+              weeks.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-zinc-900">Is there a sales call?</dt>
+            <dd className="mt-2 text-sm leading-6 text-zinc-600">
+              No. Self-serve checkout, optional AI assistant for questions. Sold by{" "}
+              {brand.legalEntity}.
+            </dd>
+          </div>
+        </dl>
       </section>
     </main>
   );

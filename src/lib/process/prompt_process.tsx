@@ -191,8 +191,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-attribution-polish",
     summary:
       "Prefill checkout from lead slug (email/business name), keep marketing CTAs on slug-aware paths, light trust/FAQ on the landing page.",
-    status: "todo",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-ffae",
   },
 ];
 
@@ -421,6 +422,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Parallel product surfaces compound revenue: follow-ups multiply conversion on existing leads; metrics surface fulfillment debt and data gaps that block that conversion. Protocol now states the skip-to-next-free rule explicitly.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Checkout prefills from the lead slug server-side (business name, email, recommended tier) rather than requiring the buyer to re-type identity Stripe already needs.",
+    rationale:
+      "Preview → checkout is the highest-intent path. Dropping attribution or forcing blank email increases abandon rate and orphans webhook fulfillment. Cancel URLs preserve slug/tier/commerce so a Stripe back-button does not lose context.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Landing-page pricing CTAs deep-link /checkout?tier=… (and commerce=1) instead of a bare /checkout; a short FAQ answers preview-before-pay and post-Stripe handoff.",
+    rationale:
+      "Marketing traffic that skips previews still arrives with a chosen plan. FAQ reduces support friction without a sales call — matches the self-serve positioning.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -643,6 +658,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — skip to next free todo when top is remotely claimed",
       "Docs: roadmap + launch-checklist metric check",
     ],
-    decisions: BUSINESS_DECISIONS.slice(29),
+    decisions: BUSINESS_DECISIONS.slice(30, 32),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-ffae",
+    summary:
+      "Payment conversion polish after PR #14 merged follow-ups+metrics: checkout prefills lead identity from slug, cancel URL keeps attribution, landing pricing CTAs pass tier/commerce, short FAQ, demo lead emails for realistic prefill demos.",
+    shipped: [
+      "src/app/checkout/page.tsx — server-load lead by slug → CheckoutPrefill",
+      "src/app/checkout/checkout-form.tsx — business name, email, recommended tier UI",
+      "src/app/api/stripe/checkout — cancel_url preserves slug/tier/commerce",
+      "src/app/page.tsx — tier/commerce deep-links + Before you buy FAQ",
+      "Demo catalog emails; header FAQ nav",
+      "Architecture note for pipeline health (carry from earlier commit)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(32),
   },
 ];
