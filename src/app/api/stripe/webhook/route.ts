@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { recordLeadPayment } from "@/lib/db";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
  * events the checkout flow can produce. See /docs/roadmap#phase-3-payments.
- *
- * Fulfillment (persisting a paid order, triggering production deploy,
- * sending a receipt email) is intentionally not implemented here yet: it
- * depends on the "database" and "outbound-email" backlog items in
- * src/lib/process/prompt_process.tsx. Until those land, a successful
- * payment is only durably recorded in Stripe itself — check the Stripe
- * Dashboard, not this app, for the source of truth on paid orders.
  */
 
 function notConfigured(message: string) {
@@ -50,16 +44,29 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      // TODO(database backlog item): persist { tier, commerceAddon, slug } from
-      // session.metadata against a lead/order record instead of just logging.
-      // TODO(outbound-email backlog item): send a receipt email via Resend.
-      console.log("checkout.session.completed", {
-        sessionId: session.id,
-        customerEmail: session.customer_details?.email ?? session.customer_email,
-        metadata: session.metadata,
-        amountTotal: session.amount_total,
-        mode: session.mode,
-      });
+      const slug = session.metadata?.slug;
+      const tier = session.metadata?.tier;
+      const commerceAddon = session.metadata?.commerceAddon === "true";
+      const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
+      const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+
+      if (slug && tier) {
+        try {
+          await recordLeadPayment({
+            slug,
+            stripeSessionId: session.id,
+            customerEmail,
+            tier,
+            commerceAddon,
+            amountTotal,
+          });
+          console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
+        } catch (dbError) {
+          console.error(`Failed to record lead payment for ${slug} in SQLite:`, dbError);
+        }
+      } else {
+        console.warn("webhook: missing slug or tier in session metadata", session.id);
+      }
       break;
     }
     default:

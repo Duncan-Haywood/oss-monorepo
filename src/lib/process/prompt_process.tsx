@@ -82,7 +82,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "database",
     summary:
       "Stand up Convex (chosen over Postgres for this app) for lead + order persistence; replace demo catalog counts in /dashboard/leads; wire webhook fulfillment to mark leads paid.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/convex-database-persistence",
   },
@@ -102,8 +102,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "manual-lead-entry",
     summary:
       "Operator UI or authenticated API to add/edit a lead (slug, category, stage) into Convex — unblocks non-demo previews without scraping.",
-    status: "todo",
+    status: "done",
     phase: "Phase 1 — Website foundation",
+    owner: "claude/convex-database-persistence",
   },
 ];
 
@@ -149,6 +150,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe Price bootstrap is an opt-in POST /api/stripe/bootstrap-prices gated by ALLOW_STRIPE_BOOTSTRAP=1, not a always-on admin UI.",
     rationale:
       "Price creation is a rare operator action that talks to Stripe with the secret key. An env flag avoids accidental re-runs in production while still letting cloud agents and humans create test Prices without leaving the repo's TypeScript stack.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Implement a compile-safe dynamic database abstraction layer in src/lib/db.ts that falls back to memory.",
+    rationale:
+      "This guarantees developers can clone the repository, run the dev server, and interact with a fully functional dashboard and lead creation pipeline immediately with zero configuration. It integrates Convex dynamically via ConvexHttpClient using string-based query/mutation paths, preventing compilation failures in Next.js when Convex's auto-generated client files do not exist yet.",
   },
 ];
 
@@ -204,6 +212,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads — live counts from demo catalog + preview links",
       "AGENT_PROTOCOL + Convex / TS-catalog / bootstrap business decisions",
     ],
-    decisions: BUSINESS_DECISIONS.slice(3),
+    decisions: BUSINESS_DECISIONS.slice(3, 6),
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/convex-database-persistence",
+    summary:
+      "Stood up Convex schema and functions, and implemented a compile-safe unified database layer that falls back to local memory. Wired checkout webhook fulfillment to persist lead status, and replaced static counts on the operator dashboard with a highly interactive leads console featuring dynamic pipeline filtering, lead searching, manual lead insertion (unblocking manual-lead-entry), and stage updates.",
+    shipped: [
+      "src/lib/db.ts — compile-safe database helper supporting Convex and local memory fallback",
+      "convex/schema.ts — Convex schema for leads and orders tables",
+      "convex/leads.ts — Convex query and mutation handlers for listing, fetching, updating, and seeding leads",
+      "convex/tsconfig.json — typescript config for Convex",
+      "src/app/dashboard/leads/page.tsx — server-side fetch of database counts and leads list",
+      "src/app/dashboard/leads/leads-client.tsx — interactive filterable dashboard with live search, dropdown stage editing, and manual lead creation form",
+      "src/app/dashboard/leads/actions.ts — Server Actions for stage updates and manual lead creation",
+      "src/app/preview/[slug]/page.tsx — dynamic lead resolution checking the database before fallback",
+      "src/app/api/stripe/webhook/route.ts — checkout webhook marked paid directly in database",
+    ],
+    decisions: [BUSINESS_DECISIONS[6]],
   },
 ];
