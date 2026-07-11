@@ -195,6 +195,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-ffae",
   },
+  {
+    id: "unit-test-coverage",
+    summary:
+      "Vitest + unit tests for the pure logic modules concurrent agents keep editing (outreach cadence, pipeline-health aggregation, CSV import parsing, operator session sign/verify) — a build+lint pass has twice missed a real runtime bug (wrong node:sqlite export; Date.now() in render), so a fast non-DB, non-browser test layer catches logic regressions before they reach `npm run dev`.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/quirky-davinci",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
