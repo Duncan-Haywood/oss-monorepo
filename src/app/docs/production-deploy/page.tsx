@@ -29,8 +29,9 @@ export default function ProductionDeployDocPage() {
           from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code>).
         </li>
         <li>
-          Best-effort Vercel Domains API call when <code>VERCEL_TOKEN</code> +{" "}
-          <code>VERCEL_PROJECT_ID</code> are set; otherwise status stays{" "}
+          Best-effort Vercel Domains API call when <code>VERCEL_TOKEN</code> is set and a project
+          resolves — either this handoff&apos;s dedicated <code>vercelProjectId</code> (see below)
+          or the shared <code>VERCEL_PROJECT_ID</code>; otherwise status stays{" "}
           <code>awaiting_dns</code> with operator notes.
         </li>
         <li>
@@ -55,6 +56,22 @@ export default function ProductionDeployDocPage() {
           <code>live</code>.
         </li>
       </ol>
+
+      <h2>Per-client Vercel project isolation</h2>
+      <p>
+        Every handoff has an optional <code>vercelProjectId</code>. Leave it blank and the shared{" "}
+        <code>VERCEL_PROJECT_ID</code> project is used, same as before. To isolate a client onto
+        their own Vercel project — for build/deploy independence, or a client who wants their own
+        Vercel account billed separately — create that project yourself in the Vercel dashboard
+        (or via <code>vercel projects add</code>), paste its ID into the{" "}
+        <strong>Dedicated Vercel project ID</strong> field on that handoff&apos;s card in{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, and click{" "}
+        <strong>Save + provision</strong>. Domain provisioning immediately retries against the new
+        project. This is deliberately manual: creating and configuring a full Vercel project
+        (build settings, env vars, deploy source) for a one-off client isn&apos;t something this
+        app should do unattended yet — assigning the ID just tells the domain API which project to
+        target once the project already exists.
+      </p>
 
       <h2>Client inquiry inbox</h2>
       <p>
@@ -81,7 +98,11 @@ export default function ProductionDeployDocPage() {
 
       <h2>What is still stubbed</h2>
       <ul>
-        <li>Per-client Vercel project isolation (shared project + path/host routing for now).</li>
+        <li>
+          Automated Vercel <em>project creation</em> per client — operators assign an existing
+          project&apos;s ID (see above); the app doesn&apos;t call the Vercel Projects API to
+          create one.
+        </li>
         <li>Automatic DNS at the registrar (buyer or operator must still create records).</li>
         <li>
           Per-client login to view their own inquiries (operator inbox only for the MVP).

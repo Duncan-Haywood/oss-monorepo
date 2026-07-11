@@ -13,6 +13,7 @@ import {
   markHandoffLiveAction,
   updateInquiryStatusAction,
   sendFollowUpAction,
+  assignVercelProjectAction,
 } from "./actions";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
@@ -237,6 +238,22 @@ export function LeadsClient({
     });
   };
 
+  const [vercelProjectInputs, setVercelProjectInputs] = useState<Record<string, string>>({});
+
+  const handleAssignVercelProject = (slug: string) => {
+    const value = vercelProjectInputs[slug] ?? "";
+    startTransition(async () => {
+      const res = await assignVercelProjectAction(slug, value);
+      if (!res.success) {
+        alert(`Error assigning Vercel project: ${res.error}`);
+        return;
+      }
+      setHandoffs((prev) =>
+        prev.map((h) => (h.leadSlug === slug ? res.handoff : h)),
+      );
+    });
+  };
+
   const handleInquiryStatus = (inquiryId: string, status: ClientInquiryStatus) => {
     startTransition(async () => {
       const res = await updateInquiryStatusAction(inquiryId, status);
@@ -400,6 +417,28 @@ export function LeadsClient({
                         </li>
                       ))}
                     </ul>
+                    <div className="mt-3 flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Dedicated Vercel project ID (optional isolation)"
+                        value={vercelProjectInputs[h.leadSlug] ?? h.vercelProjectId ?? ""}
+                        onChange={(e) =>
+                          setVercelProjectInputs((prev) => ({
+                            ...prev,
+                            [h.leadSlug]: e.target.value,
+                          }))
+                        }
+                        className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
+                      />
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleAssignVercelProject(h.leadSlug)}
+                        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
+                      >
+                        Save + provision
+                      </button>
+                    </div>
                   </div>
                   <button
                     type="button"

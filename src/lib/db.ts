@@ -98,6 +98,7 @@ function getSqliteDb(): DatabaseSync {
       dnsInstructions TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'pending',
       vercelDomainStatus TEXT,
+      vercelProjectId TEXT,
       notes TEXT NOT NULL DEFAULT '[]',
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
       updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
@@ -139,6 +140,13 @@ function getSqliteDb(): DatabaseSync {
   addLeadCol("dataSource", "TEXT");
   addLeadCol("outreachStep", "INTEGER");
   addLeadCol("lastOutreachAt", "TEXT");
+
+  const handoffCols = (
+    sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
+  ).map((c) => c.name);
+  if (!handoffCols.includes("vercelProjectId")) {
+    sqliteDb.exec("ALTER TABLE deploy_handoffs ADD COLUMN vercelProjectId TEXT");
+  }
 
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
@@ -609,6 +617,7 @@ interface SqliteDeployHandoffRow {
   dnsInstructions: string;
   status: string;
   vercelDomainStatus: string | null;
+  vercelProjectId: string | null;
   notes: string;
   createdAt: string;
   updatedAt: string;
@@ -643,6 +652,7 @@ function mapDeployHandoffRow(row: SqliteDeployHandoffRow): DeployHandoff {
     dnsInstructions,
     status: row.status as DeployHandoffStatus,
     vercelDomainStatus: row.vercelDomainStatus || undefined,
+    vercelProjectId: row.vercelProjectId || undefined,
     notes,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -655,8 +665,8 @@ export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void>
     INSERT INTO deploy_handoffs (
       id, leadSlug, businessName, tier, commerceAddon, stripeSessionId, customerEmail,
       previewUrl, suggestedHost, customDomain, contactFormUrl, dnsInstructions, status,
-      vercelDomainStatus, notes, createdAt, updatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      vercelDomainStatus, vercelProjectId, notes, createdAt, updatedAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(leadSlug) DO UPDATE SET
       businessName = excluded.businessName,
       tier = excluded.tier,
@@ -670,6 +680,7 @@ export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void>
       dnsInstructions = excluded.dnsInstructions,
       status = excluded.status,
       vercelDomainStatus = excluded.vercelDomainStatus,
+      vercelProjectId = excluded.vercelProjectId,
       notes = excluded.notes,
       updatedAt = excluded.updatedAt
   `).run(
@@ -687,6 +698,7 @@ export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void>
     JSON.stringify(handoff.dnsInstructions),
     handoff.status,
     handoff.vercelDomainStatus ?? null,
+    handoff.vercelProjectId ?? null,
     JSON.stringify(handoff.notes),
     handoff.createdAt,
     handoff.updatedAt,
@@ -731,6 +743,29 @@ export async function updateDeployHandoffStatus(
     ...existing,
     status,
     notes,
+    updatedAt,
+  };
+}
+
+/** Set (or clear) the dedicated Vercel project isolating this client's deploy. */
+export async function updateDeployHandoffVercelProject(
+  leadSlug: string,
+  vercelProjectId: string | null,
+): Promise<DeployHandoff | null> {
+  const existing = await getDeployHandoffBySlug(leadSlug);
+  if (!existing) return null;
+
+  const updatedAt = new Date().toISOString();
+  const db = getSqliteDb();
+  db.prepare(`
+    UPDATE deploy_handoffs
+    SET vercelProjectId = ?, updatedAt = ?
+    WHERE leadSlug = ?
+  `).run(vercelProjectId, updatedAt, leadSlug);
+
+  return {
+    ...existing,
+    vercelProjectId: vercelProjectId || undefined,
     updatedAt,
   };
 }

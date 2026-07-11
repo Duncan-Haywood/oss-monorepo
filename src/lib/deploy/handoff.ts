@@ -8,6 +8,7 @@ import {
   insertDeployHandoff,
   listDeployHandoffs,
   updateDeployHandoffStatus,
+  updateDeployHandoffVercelProject,
   updateLeadStage,
 } from "@/lib/db";
 
@@ -91,12 +92,17 @@ function buildHandoffRecord(input: CreateDeployHandoffInput): DeployHandoff {
 /**
  * Best-effort Vercel Domains API call. Never throws — failures become notes.
  * Full custom-domain automation stays operator-gated until tokens + project IDs exist.
+ *
+ * Resolves the target project per-handoff first (handoff.vercelProjectId — an
+ * operator-assigned dedicated Vercel project isolating this client, see
+ * vercel-per-client-projects in /docs/process) and falls back to the single
+ * shared VERCEL_PROJECT_ID when the client hasn't been isolated onto one.
  */
 async function tryProvisionVercelDomain(
   handoff: DeployHandoff,
 ): Promise<DeployHandoff> {
   const token = process.env.VERCEL_TOKEN?.trim();
-  const projectId = process.env.VERCEL_PROJECT_ID?.trim();
+  const projectId = handoff.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
   const teamId = process.env.VERCEL_TEAM_ID?.trim();
 
   if (!token || !projectId) {
@@ -105,7 +111,7 @@ async function tryProvisionVercelDomain(
       vercelDomainStatus: "skipped_unconfigured",
       notes: [
         ...handoff.notes,
-        "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID to enable).",
+        "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID, or assign a per-client Vercel project, to enable).",
       ],
     };
   }
@@ -189,6 +195,23 @@ export async function enqueueProductionHandoff(
   handoff = await tryProvisionVercelDomain(handoff);
   await insertDeployHandoff(handoff);
   return handoff;
+}
+
+/**
+ * Isolate a client onto their own Vercel project (or clear the override to
+ * fall back to the shared platform project), then retry domain provisioning
+ * against whichever project now resolves.
+ */
+export async function assignVercelProjectAndProvision(
+  leadSlug: string,
+  vercelProjectId: string | null,
+): Promise<DeployHandoff | null> {
+  const updated = await updateDeployHandoffVercelProject(leadSlug, vercelProjectId);
+  if (!updated) return null;
+
+  const provisioned = await tryProvisionVercelDomain(updated);
+  await insertDeployHandoff(provisioned);
+  return provisioned;
 }
 
 export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff | null> {
