@@ -79,6 +79,22 @@ export default function BusinessModelDocPage() {
         <li>CAN-SPAM footer: public brand + {brand.legalEntity} address</li>
       </ol>
 
+      <h2>Outreach — Email 2 / 3 (follow-ups)</h2>
+      <p>
+        Operator-triggered from <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>{" "}
+        (not an auto-cron). Persists <code>outreachStep</code> + <code>lastOutreachAt</code> on
+        the lead. Cadence defaults: Email 2 after 3 days, Email 3 after 4 more days. Suppression
+        list still blocks sends.
+      </p>
+      <ul>
+        <li>
+          <strong>Email 2</strong> — short nudge with preview + checkout links
+        </li>
+        <li>
+          <strong>Email 3</strong> — soft close / last note before the sequence stops
+        </li>
+      </ul>
+
       <h2>Bundle upsell touchpoints</h2>
       <ul>
         <li>Preview site tier comparison cards</li>

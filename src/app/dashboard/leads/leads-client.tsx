@@ -12,7 +12,16 @@ import {
   importLeadsCsvAction,
   markHandoffLiveAction,
   updateInquiryStatusAction,
+  sendFollowUpAction,
 } from "./actions";
+import {
+  FOLLOW_UP_2_AFTER_DAYS,
+  FOLLOW_UP_3_AFTER_DAYS,
+  isFollowUpDue,
+  listFollowUpsDue,
+  nextFollowUpStep,
+  normalizeOutreachStep,
+} from "@/lib/email/outreach-followups";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -89,7 +98,18 @@ export function LeadsClient({
   const handleStageChange = async (slug: string, newStage: LeadPipelineStage) => {
     // Optimistic UI update
     setLeads((prev) =>
-      prev.map((l) => (l.slug === slug ? { ...l, stage: newStage } : l))
+      prev.map((l) => {
+        if (l.slug !== slug) return l;
+        if (newStage === "outreach_sent" && l.email) {
+          return {
+            ...l,
+            stage: newStage,
+            outreachStep: 1,
+            lastOutreachAt: new Date().toISOString(),
+          };
+        }
+        return { ...l, stage: newStage };
+      }),
     );
 
     const res = await updateLeadStageAction(slug, newStage);
@@ -228,6 +248,24 @@ export function LeadsClient({
     });
   };
 
+  const handleSendFollowUp = (slug: string) => {
+    startTransition(async () => {
+      const res = await sendFollowUpAction(slug);
+      if (!res.success) {
+        alert(`Follow-up failed: ${res.error}`);
+        return;
+      }
+      const sentAt = new Date().toISOString();
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.slug === slug
+            ? { ...l, outreachStep: res.outreachStep, lastOutreachAt: sentAt }
+            : l,
+        ),
+      );
+    });
+  };
+
   // Filtered Leads
   const filteredLeads = leads.filter((lead) => {
     const matchesStage = filterStage === "all" || lead.stage === filterStage;
@@ -240,9 +278,70 @@ export function LeadsClient({
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
+  // Client clock is fine for operator queue display; server re-checks on send.
+  const followUpsDue = listFollowUpsDue(leads, Date.now());
 
   return (
     <div className="mt-8">
+      {followUpsDue.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Follow-ups due
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({followUpsDue.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/business-model"
+              className="text-xs font-medium text-violet-800 underline underline-offset-2"
+            >
+              Email 2/3 cadence
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Operator-triggered (not auto-cron): Email 2 after {FOLLOW_UP_2_AFTER_DAYS}d, Email 3
+            after {FOLLOW_UP_3_AFTER_DAYS}d more. Suppresses honor the unsubscribe list.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {followUpsDue.map((lead) => {
+              const next = nextFollowUpStep(lead.outreachStep);
+              return (
+                <li
+                  key={lead.slug}
+                  className="rounded-xl border border-violet-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Next: Email {next ?? "?"} · last step{" "}
+                        {normalizeOutreachStep(lead.outreachStep) || "—"}
+                        {lead.lastOutreachAt
+                          ? ` · last sent ${new Date(lead.lastOutreachAt).toLocaleDateString()}`
+                          : " · no timestamp (treat as due)"}
+                        {lead.email ? ` · ${lead.email}` : null}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending || !next}
+                      onClick={() => handleSendFollowUp(lead.slug)}
+                      className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-800 disabled:opacity-60"
+                    >
+                      Send Email {next ?? "?"}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       {openHandoffs.length > 0 && (
         <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -780,18 +879,22 @@ export function LeadsClient({
                 <th className="px-6 py-4">Category</th>
                 <th className="px-6 py-4">Recommended Tier</th>
                 <th className="px-6 py-4">Pipeline Stage</th>
+                <th className="px-6 py-4">Outreach</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200">
               {filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                     No leads found matching current filter or search.
                   </td>
                 </tr>
               ) : (
                 filteredLeads.map((lead) => {
+                  const step = normalizeOutreachStep(lead.outreachStep);
+                  const next = nextFollowUpStep(step);
+                  const due = isFollowUpDue(lead, Date.now());
                   return (
                     <tr key={lead.slug} className="hover:bg-zinc-50/50 transition">
                       <td className="px-6 py-4.5">
@@ -829,8 +932,35 @@ export function LeadsClient({
                           ))}
                         </select>
                       </td>
+                      <td className="px-6 py-4.5">
+                        <p className="text-xs font-medium text-zinc-700">
+                          Step {step || 0}/3
+                          {due ? (
+                            <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800">
+                              Due
+                            </span>
+                          ) : null}
+                        </p>
+                        {lead.lastOutreachAt ? (
+                          <p className="mt-0.5 text-[11px] text-zinc-400">
+                            {new Date(lead.lastOutreachAt).toLocaleDateString()}
+                          </p>
+                        ) : (
+                          <p className="mt-0.5 text-[11px] text-zinc-400">No sends yet</p>
+                        )}
+                      </td>
                       <td className="px-6 py-4.5 text-right">
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="flex items-center justify-end gap-2">
+                          {next && lead.email && lead.stage !== "paid" && lead.stage !== "live" ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleSendFollowUp(lead.slug)}
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
+                            >
+                              Email {next}
+                            </button>
+                          ) : null}
                           <Link
                             href={`/preview/${lead.slug}`}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"

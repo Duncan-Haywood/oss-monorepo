@@ -67,6 +67,11 @@ export default function LaunchChecklistDocPage() {
           with email), move stage to <code>outreach_sent</code>, confirm the email (or mock log)
           and unsubscribe path.
         </li>
+        <li>
+          After a few days (or by forcing <code>lastOutreachAt</code> older in SQLite for a
+          test lead), confirm the Follow-ups due panel offers Email 2 / Email 3 and that
+          suppression still blocks sends.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>

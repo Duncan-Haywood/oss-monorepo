@@ -21,6 +21,10 @@ export default defineSchema({
     recommendedTier: v.string(), // "starter" | "growth" | "complete"
     /** Provenance for compliance — see /docs/compliance */
     dataSource: v.optional(v.string()),
+    /** Last email in the 1→2→3 outreach sequence (0/undefined = none). */
+    outreachStep: v.optional(v.number()),
+    /** ISO timestamp of most recent outreach send. */
+    lastOutreachAt: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

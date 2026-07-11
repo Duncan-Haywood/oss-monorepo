@@ -85,13 +85,14 @@ Unsubscribe URL: ${unsubscribeUrl}`);
 }
 
 /**
- * Sends the initial outreach email with a preview link.
+ * Sends the initial outreach email with a preview link (Email 1).
  */
 export async function sendOutreachEmail(to: string, businessName: string, slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = `${baseUrl}/preview/${slug}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
-  const subject = `Preview site generated for ${businessName}`;
+  const subject = `${businessName} — we built your website (free preview)`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Hello ${businessName} Team,</h2>
     <p style="margin-bottom: 16px;">We've built a custom preview website for your business. It is fully mobile-responsive and tailored to your services.</p>
@@ -99,8 +100,68 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
     <div style="margin-bottom: 24px; text-align: center;">
       <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View Your Preview Site</a>
     </div>
-    <p style="margin-bottom: 16px;">If you'd like to launch this site under your own custom domain, set up contact forms, or enable online booking/payments, you can claim it directly from the preview page.</p>
+    <p style="margin-bottom: 16px;">If you'd like to launch this site under your own custom domain, set up contact forms, or enable online booking/payments, you can <a href="${checkoutUrl}" style="color: #2563eb;">claim it on checkout</a> from the preview page.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Email 2 — short reminder with preview + checkout. Operator-triggered after Email 1 gap.
+ */
+export async function sendOutreachFollowUp2(
+  to: string,
+  businessName: string,
+  slug: string,
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const previewUrl = `${baseUrl}/preview/${slug}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+
+  const subject = `Quick nudge: your ${businessName} preview is ready`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Still thinking it over?</h2>
+    <p style="margin-bottom: 16px;">Your preview for <strong>${businessName}</strong> is still live — contact form, map, and mobile layout included.</p>
+    <p style="margin-bottom: 24px;">Most owners pick a plan in a few minutes from the preview page:</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Open preview</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
+      Or go straight to <a href="${checkoutUrl}" style="color: #2563eb;">checkout</a>.
+    </p>
+    <p style="margin-bottom: 8px;">Best regards,</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Email 3 — final soft close before we stop the sequence.
+ */
+export async function sendOutreachFollowUp3(
+  to: string,
+  businessName: string,
+  slug: string,
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const previewUrl = `${baseUrl}/preview/${slug}`;
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+
+  const subject = `Last note about the ${businessName} site preview`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Closing the loop</h2>
+    <p style="margin-bottom: 16px;">This is our last automated note about the preview we built for <strong>${businessName}</strong>.</p>
+    <p style="margin-bottom: 16px;">If now isn't the right time, no worries — you can still open the preview later, or reply to this email if you have questions.</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View preview one more time</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
+      Ready to launch? <a href="${checkoutUrl}" style="color: #2563eb;">Choose a plan</a>.
+    </p>
+    <p style="margin-bottom: 8px;">Thank you,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
   `;
 
