@@ -28,6 +28,7 @@ export interface Lead {
   tagline: string;
   description: string;
   phone: string;
+  email?: string;
   services: string[];
   hours: LeadHours;
   stage: LeadPipelineStage;

@@ -41,6 +41,7 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
   const [formCity, setFormCity] = useState("Denver");
   const [formState, setFormState] = useState("CO");
   const [formPhone, setFormPhone] = useState("");
+  const [formEmail, setFormEmail] = useState("");
   const [formTagline, setFormTagline] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formServices, setFormServices] = useState("");
@@ -97,6 +98,7 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
       tagline: formTagline,
       description: formDesc,
       phone: formPhone,
+      email: formEmail || undefined,
       services: servicesArray.length > 0 ? servicesArray : ["Custom digital setup"],
       hours: {
         weekday: formWeekday,
@@ -126,6 +128,7 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
         setFormTier("starter");
         setFormStage("discovered");
         setFormPhone("");
+        setFormEmail("");
         setFormTagline("");
         setFormDesc("");
         setFormServices("");
@@ -260,6 +263,17 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
                 value={formPhone}
                 onChange={(e) => setFormPhone(e.target.value)}
                 placeholder="e.g. (303) 555-0199"
+                className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700">Email Address</label>
+              <input
+                type="email"
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+                placeholder="e.g. contact@blueriversalon.com"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>
@@ -418,7 +432,9 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
                         <div>
                           <p className="font-semibold text-zinc-900">{lead.businessName}</p>
                           <p className="text-xs text-zinc-400 mt-0.5">
-                            {lead.city}, {lead.state} · {lead.phone}
+                            {lead.city}, {lead.state}
+                            {lead.phone && ` · ${lead.phone}`}
+                            {lead.email && ` · ${lead.email}`}
                           </p>
                         </div>
                       </td>

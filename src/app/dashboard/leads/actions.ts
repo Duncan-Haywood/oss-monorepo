@@ -7,6 +7,17 @@ import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 export async function updateLeadStageAction(slug: string, stage: LeadPipelineStage) {
   try {
     await updateLeadStage(slug, stage);
+
+    // If stage is changed to outreach_sent, trigger outreach email
+    if (stage === "outreach_sent") {
+      const { getLeadBySlug } = await import("@/lib/db");
+      const { sendOutreachEmail } = await import("@/lib/email/resend");
+      const lead = await getLeadBySlug(slug);
+      if (lead && lead.email) {
+        await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+      }
+    }
+
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${slug}`);
     return { success: true };
@@ -33,6 +44,13 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     lead.slug = lead.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
     
     await upsertLead(lead);
+
+    // If added directly in outreach_sent stage, trigger outreach email
+    if (stage === "outreach_sent" && lead.email) {
+      const { sendOutreachEmail } = await import("@/lib/email/resend");
+      await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+    }
+
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${lead.slug}`);
     return { success: true, slug: lead.slug };

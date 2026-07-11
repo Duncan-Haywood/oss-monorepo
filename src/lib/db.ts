@@ -3,7 +3,7 @@ import { ConvexHttpClient } from "convex/browser";
 // @ts-expect-error - node:sqlite may not be defined in standard Node.js typings yet
 import { Database } from "node:sqlite";
 import path from "node:path";
-import { DEMO_LEADS, resolvePreviewLead } from "./leads/demo-catalog";
+import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadHours, LeadPipelineStage } from "./leads/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -98,6 +98,7 @@ const api: any = {
 };
 
 // Map SQLite row to Lead object
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapSqliteRowToLead(row: any): Lead {
   let services: string[] = [];
   try {
@@ -148,6 +149,7 @@ export async function getLeads(): Promise<Lead[]> {
 
   // SQLite Fallback
   const db = getSqliteDb();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows = db.prepare("SELECT * FROM leads ORDER BY createdAt DESC").all() as any[];
   return rows.map(mapSqliteRowToLead);
 }
@@ -164,6 +166,7 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
 
   // SQLite Fallback
   const db = getSqliteDb();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const row = db.prepare("SELECT * FROM leads WHERE slug = ?").get(slug) as any | undefined;
   if (!row) return null;
   return mapSqliteRowToLead(row);
