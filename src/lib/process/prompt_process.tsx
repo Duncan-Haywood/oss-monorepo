@@ -191,7 +191,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-attribution-polish",
     summary:
       "Prefill checkout from lead slug (email/business name), keep marketing CTAs on slug-aware paths, light trust/FAQ on the landing page.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-ffae",
   },
@@ -440,6 +440,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-11",
     decision:
+      "Checkout prefills from the lead slug server-side (business name, email, recommended tier) rather than requiring the buyer to re-type identity Stripe already needs.",
+    rationale:
+      "Preview → checkout is the highest-intent path. Dropping attribution or forcing blank email increases abandon rate and orphans webhook fulfillment. Cancel URLs preserve slug/tier/commerce so a Stripe back-button does not lose context.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Landing-page pricing CTAs deep-link /checkout?tier=… (and commerce=1) instead of a bare /checkout; a short FAQ answers preview-before-pay and post-Stripe handoff.",
+    rationale:
+      "Marketing traffic that skips previews still arrives with a chosen plan. FAQ reduces support friction without a sales call — matches the self-serve positioning.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
       "When the only unclaimed revenue-facing todo (checkout-attribution-polish) is already in_progress on a sibling branch (ffae), ship the SEO product-promise gap instead of idling or duplicating: /preview/[slug] had zero metadata/structured data and there was no sitemap.xml or robots.txt, despite the landing page explicitly selling 'Basic SEO' on Starter.",
     rationale:
       "Per-lead generateMetadata + LocalBusiness JSON-LD directly backs a sold feature and helps organic discovery (Google/Maps) for client sites once live; sitemap.xml/robots.txt does the same for the marketing site's own lead generation. All pure TypeScript/Next.js route conventions, no new infra or operator secrets required, so it ships in one iteration without blocking on Stripe/legal-gated items.",
@@ -677,9 +691,24 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-11",
+    branch: "cursor/business-process-evolution-ffae",
+    summary:
+      "Payment conversion polish after PR #14 merged follow-ups+metrics: checkout prefills lead identity from slug, cancel URL keeps attribution, landing pricing CTAs pass tier/commerce, short FAQ, demo lead emails for realistic prefill demos.",
+    shipped: [
+      "src/app/checkout/page.tsx — server-load lead by slug → CheckoutPrefill",
+      "src/app/checkout/checkout-form.tsx — business name, email, recommended tier UI",
+      "src/app/api/stripe/checkout — cancel_url preserves slug/tier/commerce",
+      "src/app/page.tsx — tier/commerce deep-links + Before you buy FAQ",
+      "Demo catalog emails; header FAQ nav",
+      "Architecture note for pipeline health (carry from earlier commit)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(32, 34),
+  },
+  {
+    date: "2026-07-11",
     branch: "claude/relaxed-galileo-e0wc2i",
     summary:
-      "Sibling ffae had already claimed the only unclaimed revenue todo (checkout-attribution-polish, in_progress) by the time this run started; folded ffae's claim commit in (fast-forward, no conflicts) and shipped the SEO product-promise gap instead: /preview/[slug] previously had no metadata, no canonical URL, no Open Graph tags, and no structured data, and the app had no /sitemap.xml or /robots.txt at all — despite the landing page explicitly selling 'Basic SEO' on Starter.",
+      "Sibling ffae had already claimed the only unclaimed revenue todo (checkout-attribution-polish, in_progress) by the time this run started; folded ffae's claim commit in (fast-forward, no conflicts) and shipped the SEO product-promise gap instead: /preview/[slug] previously had no metadata, no canonical URL, no Open Graph tags, and no structured data, and the app had no /sitemap.xml or /robots.txt at all — despite the landing page explicitly selling 'Basic SEO' on Starter. ffae's checkout-attribution-polish feature commit landed on main mid-run; merged it in before pushing.",
     shipped: [
       "src/lib/seo.ts — siteUrl()/previewUrl() + per-lead title/description + LocalBusiness JSON-LD builder (schema.org subtype by category)",
       "src/app/preview/[slug]/page.tsx — generateMetadata (title/description/canonical/OG/Twitter) + JSON-LD script tag",
@@ -688,6 +717,6 @@ export const ITERATIONS: ProcessIteration[] = [
       "docs/architecture — new '2b. SEO & discoverability' section",
       ".env.example — documented NEXT_PUBLIC_APP_URL's SEO/canonical-URL role",
     ],
-    decisions: BUSINESS_DECISIONS.slice(32),
+    decisions: BUSINESS_DECISIONS.slice(34),
   },
 ];

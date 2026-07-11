@@ -16,6 +16,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     description:
       "Neighborhood bakery known for same-day sourdough, seasonal pastries, and a calm weekend brunch counter. Pickup and limited seating.",
     phone: "(303) 555-0142",
+    email: "hello@hearthcrumb.example",
     services: ["Fresh bread daily", "Custom cakes", "Weekend brunch", "Coffee & espresso"],
     hours: { weekday: "Mon–Fri 7am–3pm", weekend: "Sat–Sun 8am–2pm" },
     stage: "site_built",
@@ -33,6 +34,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     description:
       "Appointment-only salon focused on lived-in color, precision cuts, and a quiet chair experience. Ideal for clients who book ahead.",
     phone: "(720) 555-0198",
+    email: "book@serenestudio.example",
     services: ["Haircuts", "Color & highlights", "Blowouts", "Bridal styling"],
     hours: { weekday: "Tue–Fri 9am–6pm", weekend: "Sat 9am–4pm · Closed Sun–Mon" },
     stage: "outreach_sent",
@@ -50,6 +52,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     description:
       "Licensed residential plumbers covering Fort Collins and nearby towns. Clear estimates, same-day emergency slots when available.",
     phone: "(970) 555-0166",
+    email: "dispatch@mountainpeak.example",
     services: ["Emergency repairs", "Water heaters", "Drain clearing", "Fixture installs"],
     hours: { weekday: "Mon–Fri 7am–6pm", weekend: "Sat emergency on-call" },
     stage: "discovered",

@@ -37,8 +37,9 @@ export default function LaunchChecklistDocPage() {
           <code>checkout.session.completed</code> (test mode first, then live).
         </li>
         <li>
-          Smoke-test: open a demo preview → Checkout → pay with a test card → confirm lead
-          stage becomes <code>paid</code> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
+          Smoke-test: open a demo preview → Checkout (confirm business name / email prefilled from
+          slug) → pay with a test card → confirm lead stage becomes <code>paid</code> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         </li>
       </ol>
 
