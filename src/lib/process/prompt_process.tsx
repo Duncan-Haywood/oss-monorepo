@@ -217,8 +217,23 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-address-persistence",
     summary:
       "Discovered while verifying client-site-seo: the SQLite fallback schema/mapping in src/lib/db.ts has no `address` column, so Lead.address (used by the Maps embed pin and now LocalBusiness JSON-LD streetAddress) silently drops to city/state-only for any lead not served from the in-memory demo catalog. Add the column + migration + read/write mapping.",
-    status: "todo",
+    status: "done",
     phase: "Phase 1 — Website foundation",
+    owner: "claude/quirky-davinci-8x9xi8",
+  },
+  {
+    id: "lead-quality-scoring",
+    summary:
+      "Pure TypeScript lead scoring (missing email/address/phone, stale outreach, category fit vs. recommendedTier) surfaced on the dashboard so the operator works the highest-probability leads first instead of scanning the full list top-to-bottom.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "outreach-open-tracking",
+    summary:
+      "Track preview-link opens (simple pixel or link-visit timestamp on /preview/[slug] for outreach-sourced traffic) so the follow-up due queue can prioritize leads who opened but didn't convert over ones who never saw the email.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 
@@ -495,6 +510,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Two collisions in one working window (outreach-follow-ups landed via cursor/prompt-process-evolution-375b+ffae while this branch was mid-iteration; checkout-attribution-polish landed via cursor/business-process-evolution-ffae before this branch had even claimed it) were resolved by discarding this branch's duplicate work and rebasing onto main, per AGENT_PROTOCOL's 'close competing PRs rather than merging a second backend' rule — not by merging two independently-built backends together.",
     rationale:
       "Both collisions produced a merged main version at least as complete as this branch's parallel attempt (the checkout one strictly more so — it also preserved attribution through the Stripe cancel URL, which this branch's version did not). Merging two full independent implementations of the same feature risks subtle bugs (duplicate DB columns, conflicting UI copy) for no user-facing benefit over picking the better one. The 'merge both branches' protocol line is best read as applying when the two implementations are complementary (different files/surfaces), not when they're two solutions to the identical problem — this file's own AGENT_PROTOCOL already says as much one line up ('close competing PRs'). Re-fetching origin/main immediately before opening a PR (not just at claim time) is what actually catches this in time.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Closed lead-address-persistence: added `address` to the Convex schema/leadFields, the SQLite `leads` table (+ migration for pre-existing local.db files), the seed insert, and both read (mapSqliteRowToLead) and write (upsertLead) paths. Also added `address` as an optional column to CSV import and the operator manual-entry form, since those are the only ways a non-demo lead gets an address today.",
+    rationale:
+      "Lead.address already existed on the TypeScript type and was consumed by the Maps embed pin and LocalBusiness JSON-LD streetAddress, but every persistence path silently dropped it outside the in-memory DEMO_LEADS array — confirmed by seeding a fresh local.db and reading the row back before this fix (address was NULL). Fixing only the demo catalog's address would have left the exact same silent-drop bug for every real client lead added via CSV or the dashboard, which is the more common path once outreach is running at volume.",
   },
 ];
 
@@ -779,6 +801,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: /docs/production-deploy per-client isolation section, /docs/roadmap Phase 5 note",
       "Verified via npm run dev — loaded /dashboard/leads, inserted a synthetic deploy_handoffs row via node:sqlite to confirm the migration and the new UI render correctly",
     ],
-    decisions: BUSINESS_DECISIONS.slice(37),
+    decisions: BUSINESS_DECISIONS.slice(37, -1),
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/quirky-davinci-8x9xi8",
+    summary:
+      "Closed the only unclaimed non-operator/legal-gated backlog item (lead-address-persistence): Lead.address now round-trips through Convex and the SQLite fallback instead of silently dropping outside the demo catalog. Extended the fix to the two real-world lead-creation paths (CSV import, manual entry form) so operators can actually set an address on a non-demo lead, not just the seeded examples. Added two new free backlog items (lead-quality-scoring, outreach-open-tracking) so the next hourly run has a clear, non-operator-gated next step.",
+    shipped: [
+      "convex/schema.ts + convex/leads.ts — address: v.optional(v.string()) on the leads table/leadFields",
+      "src/lib/db.ts — address column + migration on the SQLite leads table, seed insert, mapSqliteRowToLead, upsertLead UPDATE/INSERT",
+      "src/lib/leads/csv-import.ts (+ .test.ts) — optional address CSV column, template row, parsing",
+      "src/app/dashboard/leads/leads-client.tsx — Street Address input on the manual lead-entry form",
+      "NEXT_STEPS: lead-address-persistence done; lead-quality-scoring + outreach-open-tracking queued",
+      "Verified via npm run dev: seeded a fresh local.db, confirmed example-bakery's address (1837 Pearl St) renders in the Maps embed and LocalBusiness JSON-LD on /preview/example-bakery, and reads back correctly via node:sqlite",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(-1),
   },
 ];

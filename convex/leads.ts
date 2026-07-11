@@ -29,6 +29,7 @@ const leadFields = {
   category: categoryValidator,
   city: v.string(),
   state: v.string(),
+  address: v.optional(v.string()),
   tagline: v.string(),
   description: v.string(),
   phone: v.string(),

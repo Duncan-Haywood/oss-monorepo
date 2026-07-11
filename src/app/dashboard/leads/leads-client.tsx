@@ -70,6 +70,7 @@ export function LeadsClient({
   const [formStage, setFormStage] = useState<LeadPipelineStage>("discovered");
   const [formCity, setFormCity] = useState("Denver");
   const [formState, setFormState] = useState("CO");
+  const [formAddress, setFormAddress] = useState("");
   const [formPhone, setFormPhone] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formTagline, setFormTagline] = useState("");
@@ -177,6 +178,7 @@ export function LeadsClient({
       category: formCategory,
       city: formCity,
       state: formState,
+      address: formAddress || undefined,
       tagline: formTagline,
       description: formDesc,
       phone: formPhone,
@@ -210,6 +212,7 @@ export function LeadsClient({
         setFormCategory("generic");
         setFormTier("starter");
         setFormStage("discovered");
+        setFormAddress("");
         setFormPhone("");
         setFormEmail("");
         setFormTagline("");
@@ -802,6 +805,17 @@ export function LeadsClient({
                 value={formState}
                 onChange={(e) => setFormState(e.target.value)}
                 placeholder="CO"
+                className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700">Street Address (optional)</label>
+              <input
+                type="text"
+                value={formAddress}
+                onChange={(e) => setFormAddress(e.target.value)}
+                placeholder="e.g. 1200 Blake St"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>
