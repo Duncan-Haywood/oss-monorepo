@@ -42,8 +42,9 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox) — still claim it first.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
+  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -172,7 +173,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "pipeline-health-metrics",
     summary:
       "Operator dashboard metrics: revenue from orders, stage funnel counts, open deploy handoffs, leads missing email — surface stuck money without row-scanning.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-ffae",
   },
@@ -383,6 +384,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Same revenue surface (Starter contact form) but different files — claiming both halves in one window maximizes throughput without a merge collision on category-preview.tsx vs db/contact/dashboard.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Pipeline health metrics are computed in pure TypeScript (src/lib/metrics/pipeline-health.ts) from already-loaded leads/orders/handoffs/inquiries — not a separate analytics product.",
+    rationale:
+      "Operators need stuck-money signals (paid-not-live, open handoffs, missing email, revenue sum) in the same hourly loop that runs the CRM. A pure aggregator stays backend-agnostic (SQLite or Convex), avoids Date.now() in queries, and keeps the dashboard one page.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "When sibling hourly automation claims the top free todo first (375b → outreach-follow-ups), this agent claims the next free lever (pipeline-health-metrics) immediately rather than competing or idling.",
+    rationale:
+      "Parallel product surfaces compound revenue: follow-ups multiply conversion on existing leads; metrics surface fulfillment debt and data gaps that block that conversion. Protocol now states the skip-to-next-free rule explicitly.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -574,6 +589,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: production-deploy, launch-checklist, roadmap, architecture",
       "Merge of main (PR #12 preview-conversion-finish)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(23),
+    decisions: BUSINESS_DECISIONS.slice(23, 26),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-ffae",
+    summary:
+      "Operator leverage after inbox landed: pipeline health metrics (recorded revenue, stage funnel, open handoffs, paid-not-live, missing-email sample) on /dashboard and /dashboard/leads. Cooperated with sibling 375b which claimed outreach-follow-ups in the same hour.",
+    shipped: [
+      "src/lib/orders/types.ts + listOrders() in db.ts (SQLite join + Convex orders:list)",
+      "src/lib/metrics/pipeline-health.ts — pure aggregator",
+      "src/components/dashboard/pipeline-health-panel.tsx — funnel + stuck-money cards",
+      "Dashboard home teaser metrics linking to lead pipeline",
+      "AGENT_PROTOCOL — skip to next free todo when top is remotely claimed",
+      "Docs: roadmap + launch-checklist metric check",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(26),
   },
 ];
