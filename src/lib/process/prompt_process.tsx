@@ -152,6 +152,42 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 5 — Production deploy",
   },
+  {
+    id: "preview-conversion-finish",
+    summary:
+      "Close the Starter product promise on /preview/[slug]: wire contact form UI to POST /api/contact/[slug], embed Google Maps for the lead's city, soften demo-only placeholder copy for non-demo leads.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-7f15",
+  },
+  {
+    id: "outreach-follow-ups",
+    summary:
+      "Email 2/3 follow-up templates + outreachStep/lastOutreachAt on Lead + operator 'send follow-up' (and optional due queue) — multiplies conversion without new lead sources.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "pipeline-health-metrics",
+    summary:
+      "Operator dashboard metrics: revenue from orders, stage funnel counts, open deploy handoffs, leads missing email — surface stuck money without row-scanning.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
+  {
+    id: "client-leads-inbox",
+    summary:
+      "Persist contact-form submissions (clientLeads) in Convex + SQLite and show an Inquiries panel on the operator dashboard — upgrade the email-only contact stub.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "checkout-attribution-polish",
+    summary:
+      "Prefill checkout from lead slug (email/business name), keep marketing CTAs on slug-aware paths, light trust/FAQ on the landing page.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
