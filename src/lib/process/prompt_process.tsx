@@ -204,6 +204,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/quirky-davinci",
   },
+  {
+    id: "client-site-seo",
+    summary:
+      "Close the Starter 'Basic SEO' promise: per-lead generateMetadata (title/description/canonical/OG) + LocalBusiness JSON-LD on /preview/[slug], plus /sitemap.xml and /robots.txt for the marketing site and known lead slugs.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/relaxed-galileo-e0wc2i",
+  },
+  {
+    id: "lead-address-persistence",
+    summary:
+      "Discovered while verifying client-site-seo: the SQLite fallback schema/mapping in src/lib/db.ts has no `address` column, so Lead.address (used by the Maps embed pin and now LocalBusiness JSON-LD streetAddress) silently drops to city/state-only for any lead not served from the in-memory demo catalog. Add the column + migration + read/write mapping.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -452,6 +467,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Two separate iterations already hit real runtime bugs that `npm run build`/`npm run lint` did not catch (wrong node:sqlite export; Date.now() called during render). Both were in logic simple unit tests would have caught immediately, cheaper than a full `npm run dev` + manual page load on every touch of these modules. Kept scope to pure, dependency-free modules so the suite stays fast (sub-second) and doesn't need a Convex/SQLite/Next.js runtime — that boundary is intentional, not a gap to fill by mocking the DB.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "When the only unclaimed revenue-facing todo (checkout-attribution-polish) is already in_progress on a sibling branch (ffae), ship the SEO product-promise gap instead of idling or duplicating: /preview/[slug] had zero metadata/structured data and there was no sitemap.xml or robots.txt, despite the landing page explicitly selling 'Basic SEO' on Starter.",
+    rationale:
+      "Per-lead generateMetadata + LocalBusiness JSON-LD directly backs a sold feature and helps organic discovery (Google/Maps) for client sites once live; sitemap.xml/robots.txt does the same for the marketing site's own lead generation. All pure TypeScript/Next.js route conventions, no new infra or operator secrets required, so it ships in one iteration without blocking on Stripe/legal-gated items.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Canonical/OG URLs and the sitemap derive from NEXT_PUBLIC_APP_URL (already in .env.example for the app itself), falling back to VERCEL_URL then localhost, rather than introducing a second site-URL env var.",
+    rationale:
+      "Reusing the existing app-URL convention avoids config drift between the app's own notion of its origin and its SEO surface; operators only need to set one variable before launch (documented in .env.example and /docs/architecture).",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -674,7 +703,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — skip to next free todo when top is remotely claimed",
       "Docs: roadmap + launch-checklist metric check",
     ],
-    decisions: BUSINESS_DECISIONS.slice(30, 32),
+    decisions: BUSINESS_DECISIONS.slice(29, 32),
   },
   {
     date: "2026-07-11",
@@ -704,6 +733,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/auth/operator.test.ts — session token round-trip, expiry, tamper detection",
       "AGENT_PROTOCOL — run `npm test` alongside build/lint before claiming done",
     ],
-    decisions: BUSINESS_DECISIONS.slice(34),
+    decisions: BUSINESS_DECISIONS.slice(34, 35),
+  },
+  {
+    date: "2026-07-11",
+    branch: "claude/relaxed-galileo-e0wc2i",
+    summary:
+      "Sibling ffae had already claimed the only unclaimed revenue todo (checkout-attribution-polish, in_progress) by the time this run started; folded ffae's claim commit in (fast-forward, no conflicts) and shipped the SEO product-promise gap instead: /preview/[slug] previously had no metadata, no canonical URL, no Open Graph tags, and no structured data, and the app had no /sitemap.xml or /robots.txt at all — despite the landing page explicitly selling 'Basic SEO' on Starter. ffae's checkout-attribution-polish feature commit and quirky-davinci's Vitest suite both landed on main mid-run; merged both in before pushing.",
+    shipped: [
+      "src/lib/seo.ts — siteUrl()/previewUrl() + per-lead title/description + LocalBusiness JSON-LD builder (schema.org subtype by category)",
+      "src/app/preview/[slug]/page.tsx — generateMetadata (title/description/canonical/OG/Twitter) + JSON-LD script tag",
+      "src/app/sitemap.ts — marketing pages + every demo/persisted lead slug",
+      "src/app/robots.ts — allow all, disallow /dashboard + /api, points at sitemap.xml",
+      "docs/architecture — new '2b. SEO & discoverability' section",
+      ".env.example — documented NEXT_PUBLIC_APP_URL's SEO/canonical-URL role",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(35),
   },
 ];

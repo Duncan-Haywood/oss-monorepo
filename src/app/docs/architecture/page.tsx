@@ -58,6 +58,19 @@ export default function ArchitectureDocPage() {
         checkout with <code>slug</code> + recommended <code>tier</code>.
       </p>
 
+      <h2 id="seo">2b. SEO &amp; discoverability</h2>
+      <p>
+        Starter sells &ldquo;Basic SEO&rdquo; (see landing page copy) — <code>/preview/[slug]</code>{" "}
+        renders per-lead <code>generateMetadata</code> (title, description, canonical URL, Open
+        Graph/Twitter tags) plus a schema.org <code>LocalBusiness</code> JSON-LD block (subtype by
+        category: Restaurant, HairSalon, HomeAndConstructionBusiness). <code>/sitemap.xml</code>{" "}
+        lists marketing pages and every known lead slug (demo catalog + persisted leads);{" "}
+        <code>/robots.txt</code> allows crawling except <code>/dashboard</code> and{" "}
+        <code>/api</code>. Canonical origin comes from <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
+        <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap
+        don&apos;t point at localhost.
+      </p>
+
       <h2 id="preview-hosting">3. Preview hosting</h2>
       <p>
         Primary app on Vercel. Previews at <code>{"{slug}"}.preview.domain.com</code> via wildcard DNS.
