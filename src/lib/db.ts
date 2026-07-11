@@ -17,6 +17,7 @@ interface SqliteLeadRow {
   city: string;
   state?: string;
   phone?: string;
+  email?: string;
   hours?: string;
   services?: string;
   status: string;
@@ -40,6 +41,7 @@ function getSqliteDb(): DatabaseSync {
       city TEXT NOT NULL,
       state TEXT,
       phone TEXT,
+      email TEXT,
       hours TEXT,
       services TEXT, -- JSON array of strings
       status TEXT NOT NULL DEFAULT 'discovered',
@@ -64,13 +66,21 @@ function getSqliteDb(): DatabaseSync {
     );
   `);
 
+  // Migrate older local.db files that predate the email column
+  const leadCols = sqliteDb.prepare("PRAGMA table_info(leads)").all() as Array<{
+    name: string;
+  }>;
+  if (!leadCols.some((col) => col.name === "email")) {
+    sqliteDb.exec("ALTER TABLE leads ADD COLUMN email TEXT");
+  }
+
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
   const row = countStmt.get() as { count: number } | undefined;
   if (!row || row.count === 0) {
     const insertStmt = sqliteDb.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, hours, services, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (id, slug, businessName, category, city, state, phone, email, hours, services, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     DEMO_LEADS.forEach((lead, i) => {
@@ -86,6 +96,7 @@ function getSqliteDb(): DatabaseSync {
         lead.city,
         lead.state,
         lead.phone,
+        lead.email ?? null,
         hoursStr,
         JSON.stringify(lead.services),
         lead.stage
@@ -143,6 +154,7 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     tagline: category === "trades" ? "Professional services you can count on" : category === "salon" ? "Tailored styling and care" : "Local favorites made fresh daily",
     description: `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
     phone: row.phone || "(555) 000-0000",
+    email: row.email || undefined,
     services,
     hours,
     stage: row.status as LeadPipelineStage,
@@ -217,15 +229,38 @@ export async function upsertLead(lead: Lead): Promise<void> {
   if (check) {
     db.prepare(`
       UPDATE leads 
-      SET businessName = ?, category = ?, city = ?, state = ?, phone = ?, hours = ?, services = ?, status = ?, updatedAt = datetime('now')
+      SET businessName = ?, category = ?, city = ?, state = ?, phone = ?, email = ?, hours = ?, services = ?, status = ?, updatedAt = datetime('now')
       WHERE slug = ?
-    `).run(lead.businessName, lead.category, lead.city, lead.state, lead.phone, hoursStr, services, lead.stage, lead.slug);
+    `).run(
+      lead.businessName,
+      lead.category,
+      lead.city,
+      lead.state,
+      lead.phone,
+      lead.email ?? null,
+      hoursStr,
+      services,
+      lead.stage,
+      lead.slug
+    );
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, hours, services, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(id, lead.slug, lead.businessName, lead.category, lead.city, lead.state, lead.phone, hoursStr, services, lead.stage);
+      INSERT INTO leads (id, slug, businessName, category, city, state, phone, email, hours, services, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      lead.slug,
+      lead.businessName,
+      lead.category,
+      lead.city,
+      lead.state,
+      lead.phone,
+      lead.email ?? null,
+      hoursStr,
+      services,
+      lead.stage
+    );
   }
 }
 

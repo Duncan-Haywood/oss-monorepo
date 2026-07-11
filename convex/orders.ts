@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 export const createOrder = mutation({
   args: {
-    slug: v.string(),
+    leadSlug: v.string(),
     tier: v.union(
       v.literal("starter"),
       v.literal("growth"),

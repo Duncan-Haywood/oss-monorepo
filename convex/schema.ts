@@ -11,6 +11,7 @@ export default defineSchema({
     tagline: v.string(),
     description: v.string(),
     phone: v.string(),
+    email: v.optional(v.string()),
     services: v.array(v.string()),
     hours: v.object({
       weekday: v.string(),
@@ -30,5 +31,7 @@ export default defineSchema({
     commerceAddon: v.boolean(),
     amountTotal: v.number(),
     createdAt: v.number(),
-  }).index("by_leadSlug", ["leadSlug"]),
+  })
+    .index("by_leadSlug", ["leadSlug"])
+    .index("by_stripeSessionId", ["stripeSessionId"]),
 });

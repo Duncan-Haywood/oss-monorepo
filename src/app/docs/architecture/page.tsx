@@ -36,10 +36,14 @@ export default function ArchitectureDocPage() {
         </tbody>
       </table>
 
-      <h2 id="data-ingestion">1. Data ingestion (future)</h2>
-      <p>Google Places API, CSV import, licensed data. No UI scraping without legal review.</p>
+      <h2 id="data-ingestion">1. Data ingestion</h2>
       <p>
-        See <DocLink href="/docs/compliance">Compliance</DocLink>.
+        Operator CSV import and manual entry on <code>/dashboard/leads</code> (shipped). Google
+        Places API later — after legal review. No UI scraping without counsel.
+      </p>
+      <p>
+        See <DocLink href="/docs/compliance">Compliance</DocLink> and{" "}
+        <DocLink href="/docs/launch-checklist">launch checklist</DocLink>.
       </p>
 
       <h2>2. Site generation</h2>
@@ -57,7 +61,11 @@ export default function ArchitectureDocPage() {
       </p>
 
       <h2>4. Outreach (automated)</h2>
-      <p>Email primary; optional outbound voice; inbound callback routes to platform voice agent.</p>
+      <p>
+        Email primary via Resend (<code>src/lib/email/resend.ts</code>) with suppression list +{" "}
+        <code>/api/unsubscribe</code>. Optional outbound voice later; inbound callback routes to
+        platform voice agent.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
@@ -66,11 +74,11 @@ export default function ArchitectureDocPage() {
       <p>
         <code>POST /api/stripe/checkout</code> creates a real Stripe Checkout Session (501 only
         when Price IDs / secret key are missing).{" "}
-        <code>POST /api/stripe/webhook</code> verifies signatures and logs{" "}
-        <code>checkout.session.completed</code>. Operator bootstrap:{" "}
-        <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
-        creates Products/Prices and returns env var snippets. Fulfillment (persist order →
-        production deploy) waits on Convex.
+        <code>POST /api/stripe/webhook</code> verifies signatures, persists paid leads via{" "}
+        <code>recordLeadPayment</code>, and sends a receipt email when Resend is configured.
+        Operator bootstrap: <code>POST /api/stripe/bootstrap-prices</code> with{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP=1</code> creates Products/Prices and returns env var snippets.
+        Production domain handoff after payment is still Phase 5.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

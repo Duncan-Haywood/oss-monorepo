@@ -3,7 +3,8 @@
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Lead, LeadPipelineStage, BusinessCategory } from "@/lib/leads/types";
-import { updateLeadStageAction, addLeadAction } from "./actions";
+import { CSV_TEMPLATE, parseLeadCsv } from "@/lib/leads/csv-import";
+import { updateLeadStageAction, addLeadAction, importLeadsCsvAction } from "./actions";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -30,6 +31,9 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCsvImport, setShowCsvImport] = useState(false);
+  const [csvText, setCsvText] = useState(CSV_TEMPLATE);
+  const [csvMessage, setCsvMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Form State
@@ -73,6 +77,31 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
       // Revert if error
       setLeads(initialLeads);
     }
+  };
+
+  const handleCsvImport = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCsvMessage(null);
+    startTransition(async () => {
+      const res = await importLeadsCsvAction(csvText);
+      if (!res.success) {
+        setCsvMessage(res.error ?? "Import failed");
+        return;
+      }
+      const warn =
+        res.errors && res.errors.length > 0
+          ? ` (${res.skipped ?? res.errors.length} row warning(s))`
+          : "";
+      setCsvMessage(`Imported ${res.imported} lead(s)${warn}.`);
+      const parsed = parseLeadCsv(csvText);
+      setLeads((prev) => {
+        const bySlug = new Map(prev.map((l) => [l.slug, l]));
+        for (const lead of parsed.leads) {
+          bySlug.set(lead.slug, lead);
+        }
+        return Array.from(bySlug.values());
+      });
+    });
   };
 
   const handleAddLeadSubmit = async (e: React.FormEvent) => {
@@ -172,13 +201,72 @@ export function LeadsClient({ initialLeads }: LeadsClientProps) {
           </svg>
         </div>
 
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
-        >
-          {showAddForm ? "Close Form" : "Add Lead Manually"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowCsvImport(!showCsvImport);
+              if (!showCsvImport) setShowAddForm(false);
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50"
+          >
+            {showCsvImport ? "Close CSV" : "Import CSV"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddForm(!showAddForm);
+              if (!showAddForm) setShowCsvImport(false);
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          >
+            {showAddForm ? "Close Form" : "Add Lead Manually"}
+          </button>
+        </div>
       </div>
+
+      {showCsvImport && (
+        <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6">
+          <h2 className="text-lg font-semibold tracking-tight">Import leads from CSV</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Operator-owned contact lists only. Required column:{" "}
+            <code className="text-zinc-700">businessName</code>. Optional: email, phone,
+            category, city, state, slug, recommendedTier, services. See{" "}
+            <Link href="/docs/launch-checklist" className="underline underline-offset-2">
+              launch checklist
+            </Link>
+            .
+          </p>
+          <form onSubmit={handleCsvImport} className="mt-4 space-y-3">
+            <textarea
+              value={csvText}
+              onChange={(e) => setCsvText(e.target.value)}
+              rows={8}
+              className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-xs outline-none transition focus:border-zinc-900"
+              spellCheck={false}
+            />
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:bg-zinc-400"
+              >
+                {isPending ? "Importing…" : "Import leads"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCsvText(CSV_TEMPLATE)}
+                className="text-xs font-medium text-zinc-600 underline underline-offset-2"
+              >
+                Reset to template
+              </button>
+            </div>
+          </form>
+          {csvMessage && (
+            <p className="mt-3 text-xs font-medium text-zinc-700">{csvMessage}</p>
+          )}
+        </div>
+      )}
 
       {/* Manual Add Form (Collapse panel) */}
       {showAddForm && (
