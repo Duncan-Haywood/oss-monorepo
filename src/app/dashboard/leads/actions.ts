@@ -2,12 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOperatorAuth } from "@/lib/auth/operator";
-import { updateLeadStage, upsertLead, updateClientInquiryStatus } from "@/lib/db";
+import {
+  updateLeadStage,
+  upsertLead,
+  updateClientInquiryStatus,
+  getLeadBySlug,
+  recordLeadOutreach,
+} from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { markHandoffLive } from "@/lib/deploy/handoff";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
+import {
+  sendOutreachEmail,
+  sendOutreachFollowUp2,
+  sendOutreachFollowUp3,
+} from "@/lib/email/resend";
+import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -76,13 +88,14 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
 
     await updateLeadStage(slug, stage);
 
-    // If stage is changed to outreach_sent, trigger outreach email
+    // If stage is changed to outreach_sent, trigger Email 1 and record step
     if (stage === "outreach_sent") {
-      const { getLeadBySlug } = await import("@/lib/db");
-      const { sendOutreachEmail } = await import("@/lib/email/resend");
       const lead = await getLeadBySlug(slug);
-      if (lead && lead.email) {
-        await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+      if (lead?.email) {
+        const sent = await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+        if (sent.success) {
+          await recordLeadOutreach(slug, 1);
+        }
       }
     }
 
@@ -92,6 +105,78 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
   } catch (error) {
     console.error("Error in updateLeadStageAction:", error);
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+/**
+ * Send the next outreach follow-up (Email 2 or 3) for a lead that already received Email 1.
+ */
+export async function sendFollowUpAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+    if (!lead.email) {
+      return { success: false as const, error: "Lead has no email address" };
+    }
+    if (lead.stage === "paid" || lead.stage === "live") {
+      return { success: false as const, error: "Lead already paid or live — skip follow-ups" };
+    }
+
+    const next = nextFollowUpStep(lead.outreachStep);
+    if (!next) {
+      const step = lead.outreachStep ?? 0;
+      if (step >= 3) {
+        return {
+          success: false as const,
+          error: "Outreach sequence already complete (Email 3 sent)",
+        };
+      }
+      return {
+        success: false as const,
+        error: "Send Email 1 first by setting stage to Outreach Sent",
+      };
+    }
+
+    const sent =
+      next === 2
+        ? await sendOutreachFollowUp2(lead.email, lead.businessName, lead.slug)
+        : await sendOutreachFollowUp3(lead.email, lead.businessName, lead.slug);
+
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send follow-up email",
+      };
+    }
+
+    await recordLeadOutreach(slug, next);
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      outreachStep: next,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendFollowUpAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 
@@ -119,10 +204,12 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
 
     await upsertLead(lead);
 
-    // If added directly in outreach_sent stage, trigger outreach email
+    // If added directly in outreach_sent stage, trigger Email 1
     if (stage === "outreach_sent" && lead.email) {
-      const { sendOutreachEmail } = await import("@/lib/email/resend");
-      await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+      const sent = await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+      if (sent.success) {
+        await recordLeadOutreach(lead.slug, 1);
+      }
     }
 
     revalidatePath("/dashboard/leads");

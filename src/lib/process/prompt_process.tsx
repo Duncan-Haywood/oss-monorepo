@@ -42,8 +42,9 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox) — still claim it first.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
+  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -52,6 +53,7 @@ export const AGENT_PROTOCOL = [
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
+  "Before merging: fetch sibling automation branches (`cursor/business-process-evolution-*`, `cursor/prompt-process-evolution-*`); if they shipped overlapping files, merge their branch into yours and keep both ITERATIONS entries.",
 ] as const;
 
 /**
@@ -165,15 +167,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "outreach-follow-ups",
     summary:
       "Email 2/3 follow-up templates + outreachStep/lastOutreachAt on Lead + operator 'send follow-up' (and optional due queue) — multiplies conversion without new lead sources.",
-    status: "todo",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-375b",
   },
   {
     id: "pipeline-health-metrics",
     summary:
       "Operator dashboard metrics: revenue from orders, stage funnel counts, open deploy handoffs, leads missing email — surface stuck money without row-scanning.",
-    status: "todo",
+    status: "done",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-ffae",
   },
   {
     id: "client-leads-inbox",
@@ -382,6 +386,41 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Same revenue surface (Starter contact form) but different files — claiming both halves in one window maximizes throughput without a merge collision on category-preview.tsx vs db/contact/dashboard.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Outreach Email 2/3 are operator-triggered from the dashboard (due queue + per-row Send), not an automatic cron sender.",
+    rationale:
+      "Keeps a human in the loop for CAN-SPAM judgment and suppression edge cases while still multiplying conversion on existing leads. Cadence defaults (3d then 4d) live in TypeScript so agents can tune without a scheduler product; a later cron can call the same send helpers once volume justifies it.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Persist outreachStep (1|2|3) and lastOutreachAt (ISO) on Lead in both SQLite and Convex; Email 1 records step 1 when stage → outreach_sent succeeds.",
+    rationale:
+      "Without durable step/timestamp, operators cannot see who is due for a nudge after a refresh, and parallel agents would re-send Email 1. Shared fields keep the due queue honest across SQLite fallback and Convex.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "AGENT_PROTOCOL: before merge, fetch sibling automation branches and fold overlapping work into one PR (keep both ITERATIONS).",
+    rationale:
+      "Hourly prompt-process + business-process agents often land in the same window; discovering sibling commits only at PR time caused duplicate surfaces earlier. Making the fetch-and-fold step explicit reduces thrash.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Pipeline health metrics are computed in pure TypeScript (src/lib/metrics/pipeline-health.ts) from already-loaded leads/orders/handoffs/inquiries — not a separate analytics product.",
+    rationale:
+      "Operators need stuck-money signals (paid-not-live, open handoffs, missing email, revenue sum) in the same hourly loop that runs the CRM. A pure aggregator stays backend-agnostic (SQLite or Convex), avoids Date.now() in queries, and keeps the dashboard one page.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "When sibling hourly automation claims the top free todo first (375b → outreach-follow-ups), this agent claims the next free lever (pipeline-health-metrics) immediately rather than competing or idling.",
+    rationale:
+      "Parallel product surfaces compound revenue: follow-ups multiply conversion on existing leads; metrics surface fulfillment debt and data gaps that block that conversion. Protocol now states the skip-to-next-free rule explicitly.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -573,6 +612,37 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: production-deploy, launch-checklist, roadmap, architecture",
       "Merge of main (PR #12 preview-conversion-finish)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(23),
+    decisions: BUSINESS_DECISIONS.slice(23, 26),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/prompt-process-evolution-375b",
+    summary:
+      "Conversion multiplier after Email 1: Email 2/3 templates, Lead.outreachStep + lastOutreachAt (SQLite + Convex), operator due queue + Send follow-up on /dashboard/leads, business-model/roadmap/launch-checklist docs, and AGENT_PROTOCOL fetch-sibling-before-merge rule. Merged sibling ffae pipeline-health-metrics in the same PR window.",
+    shipped: [
+      "src/lib/email/outreach-followups.ts — cadence helpers + due detection",
+      "src/lib/email/resend.ts — sendOutreachFollowUp2/3 (+ Email 1 subject aligned to business-model)",
+      "Lead.outreachStep / lastOutreachAt on types + SQLite migrations + Convex schema/recordOutreach",
+      "sendFollowUpAction + Email 1 records step 1; Follow-ups due panel + Outreach column on leads table",
+      "Docs: business-model Email 2/3, roadmap Phase 2, launch-checklist follow-up test",
+      "AGENT_PROTOCOL — fetch sibling automation branches before merge",
+      "Merge of cursor/business-process-evolution-ffae (pipeline health metrics)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(26, 29),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/business-process-evolution-ffae",
+    summary:
+      "Operator leverage after inbox landed: pipeline health metrics (recorded revenue, stage funnel, open handoffs, paid-not-live, missing-email sample) on /dashboard and /dashboard/leads. Cooperated with sibling 375b which claimed outreach-follow-ups in the same hour.",
+    shipped: [
+      "src/lib/orders/types.ts + listOrders() in db.ts (SQLite join + Convex orders:list)",
+      "src/lib/metrics/pipeline-health.ts — pure aggregator",
+      "src/components/dashboard/pipeline-health-panel.tsx — funnel + stuck-money cards",
+      "Dashboard home teaser metrics linking to lead pipeline",
+      "AGENT_PROTOCOL — skip to next free todo when top is remotely claimed",
+      "Docs: roadmap + launch-checklist metric check",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(29),
   },
 ];

@@ -1,17 +1,21 @@
-import { getLeads, listDeployHandoffs, listClientInquiries } from "@/lib/db";
+import { getLeads, listDeployHandoffs, listClientInquiries, listOrders } from "@/lib/db";
+import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
+import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function LeadsPage() {
-  const [leads, handoffs, inquiries] = await Promise.all([
+  const [leads, handoffs, inquiries, orders] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
     listClientInquiries(50),
+    listOrders(),
   ]);
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
+  const health = computePipelineHealth({ leads, orders, handoffs, inquiries });
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -37,6 +41,7 @@ export default async function LeadsPage() {
       </div>
 
       <div className="mt-8">
+        <PipelineHealthPanel health={health} />
         <LeadsClient
           initialLeads={leads}
           initialHandoffs={handoffs}

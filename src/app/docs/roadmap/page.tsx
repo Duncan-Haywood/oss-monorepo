@@ -70,13 +70,18 @@ export default function RoadmapDocPage() {
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
-        (Starter promise): shipped. Remaining: preview subdomain hosting.
+        (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
+        handoffs, missing email) on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Remaining:
+        preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>
         Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
-        Remaining: Vapi/Retell platform voice and bundle explanation tools.
+        Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
+        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Remaining:
+        Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
