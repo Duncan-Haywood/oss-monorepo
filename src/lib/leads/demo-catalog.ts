@@ -11,6 +11,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     category: "restaurant",
     city: "Boulder",
     state: "CO",
+    address: "1837 Pearl St",
     tagline: "Sourdough, pastry, and weekend brunch",
     description:
       "Neighborhood bakery known for same-day sourdough, seasonal pastries, and a calm weekend brunch counter. Pickup and limited seating.",
@@ -27,6 +28,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     category: "salon",
     city: "Denver",
     state: "CO",
+    address: "2144 Larimer St",
     tagline: "Color, cuts, and calm appointments",
     description:
       "Appointment-only salon focused on lived-in color, precision cuts, and a quiet chair experience. Ideal for clients who book ahead.",
@@ -43,6 +45,7 @@ export const DEMO_LEADS: readonly Lead[] = [
     category: "trades",
     city: "Fort Collins",
     state: "CO",
+    address: "301 S College Ave",
     tagline: "Emergency and scheduled plumbing for Front Range homes",
     description:
       "Licensed residential plumbers covering Fort Collins and nearby towns. Clear estimates, same-day emergency slots when available.",

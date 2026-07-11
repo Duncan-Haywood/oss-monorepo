@@ -43,6 +43,7 @@ export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox) — still claim it first.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -156,7 +157,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "preview-conversion-finish",
     summary:
       "Close the Starter product promise on /preview/[slug]: wire contact form UI to POST /api/contact/[slug], embed Google Maps for the lead's city, soften demo-only placeholder copy for non-demo leads.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-7f15",
   },
@@ -338,6 +339,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Local-only in_progress claims caused parallel CSV work earlier the same day. Pushing the claim is cheap and is now an explicit AGENT_PROTOCOL rule.",
   },
+  {
+    date: "2026-07-11",
+    decision:
+      "Preview pages ship a real contact form UI + Google Maps embed (q= + output=embed, no Maps API key) before clientLeads CRM persistence.",
+    rationale:
+      "Starter explicitly sells contact form and Maps. The POST /api/contact/[slug] stub already existed; wiring the UI closes the credibility gap at the highest-intent page without waiting on a second storage product. Maps uses the public embed URL so demos work with zero Google Cloud setup; Places API ingestion remains legal-gated separately.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "Show the amber PlaceholderBanner only for demo_catalog / slug_inference previews; hide it for operator CSV/manual leads.",
+    rationale:
+      "Prospects viewing an outreach preview should see a credible site, not a 'demo template' disclaimer. Operators still need the banner on seeded demos so they know what is sample data.",
+  },
+  {
+    date: "2026-07-11",
+    decision:
+      "When NEXT_STEPS are blocked on operator secrets or legal review, agents prioritize free product-promise and operator-leverage todos (preview conversion, follow-ups, metrics, inbox) over idle process-only edits.",
+    rationale:
+      "Hourly automations were spinning once payments/auth/deploy code landed. Explicit backlog items + protocol rule keep revenue-facing iteration moving without fake-completing Stripe bootstrap or Places ingestion.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -498,6 +520,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — push claim before feature body",
       "Merge of cursor/business-process-evolution-8d74 (dashboard auth)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(17),
+    decisions: BUSINESS_DECISIONS.slice(17, 21),
+  },
+  {
+    date: "2026-07-11",
+    branch: "cursor/prompt-process-evolution-7f15",
+    summary:
+      "Conversion unlock after operator-gated todos blocked further payment/Places work: Starter preview now includes a working contact form (POST /api/contact/[slug]) and Google Maps embed, demo banner only on demo/slug-inference leads, optional Lead.address for tighter pins, and process backlog for follow-ups / metrics / inbox / checkout polish so sibling agents have free claims.",
+    shipped: [
+      "src/components/preview/contact-form.tsx — client form → /api/contact/[slug]",
+      "src/components/preview/maps-embed.tsx — Maps embed from city/state/address",
+      "src/components/preview/category-preview.tsx — form + map section; soft demo banner",
+      "Lead.address optional on types + demo catalog street pins",
+      "NEXT_STEPS: preview-conversion-finish done; outreach-follow-ups, pipeline-health-metrics, client-leads-inbox, checkout-attribution-polish queued",
+      "AGENT_PROTOCOL — prefer product-promise gaps when operator/legal todos block",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(21),
   },
 ];

@@ -69,7 +69,8 @@ export default function RoadmapDocPage() {
         generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
-        <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Remaining: preview subdomain hosting.
+        <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
+        (Starter promise): shipped. Remaining: preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
