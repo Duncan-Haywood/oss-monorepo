@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireOperatorAuth } from "@/lib/auth/operator";
 import { updateLeadStage, upsertLead } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -9,6 +10,10 @@ import type { DeployHandoff } from "@/lib/deploy/types";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
     if (!slug) {
       return { success: false as const, error: "Slug is required" };
     }
@@ -33,6 +38,11 @@ export type { DeployHandoff };
 
 export async function updateLeadStageAction(slug: string, stage: LeadPipelineStage) {
   try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false, error: auth.error };
+    }
+
     await updateLeadStage(slug, stage);
 
     // If stage is changed to outreach_sent, trigger outreach email
@@ -56,6 +66,11 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
 
 export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: LeadPipelineStage }) {
   try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false, error: auth.error };
+    }
+
     const stage = leadData.stage ?? "discovered";
     const lead: Lead = {
       ...leadData,
@@ -110,6 +125,11 @@ export async function importLeadsCsvAction(input: {
   defaultStage?: LeadPipelineStage;
 }): Promise<ImportLeadsCsvResult> {
   try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false, error: auth.error };
+    }
+
     if (!input.csvText || input.csvText.trim().length === 0) {
       return { success: false, error: "CSV text is empty" };
     }

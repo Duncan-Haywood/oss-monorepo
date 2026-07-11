@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
+import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
   {
@@ -19,19 +20,27 @@ const sections = [
   },
 ];
 
-export default function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{ auth?: string }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
+      <DashboardAuthChrome authNotice={params.auth} />
+
       <PlaceholderBanner
-        title="Internal ops dashboard (scaffold)"
-        description="This area will become the operator console for lead management, site generation, and sales tracking."
-        docsHref="/docs/architecture"
+        title="Internal ops dashboard"
+        description="Operator console for lead management, outreach, and sales tracking. Protected when OPERATOR_DASHBOARD_PASSWORD is set."
+        docsHref="/docs/launch-checklist"
       />
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>
       <p className="mt-3 text-zinc-600">
-        Operator tools for Maris Stella Labs (Local Site Studio). Not yet connected to a database or
-        external services.
+        Operator tools for Maris Stella Labs (Local Site Studio). Lead mutations and CSV import
+        require a signed operator session when auth is configured.
       </p>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">

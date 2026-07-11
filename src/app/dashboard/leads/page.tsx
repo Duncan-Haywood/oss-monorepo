@@ -1,5 +1,6 @@
 import { getLeads, listDeployHandoffs } from "@/lib/db";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
+import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,8 @@ export default async function LeadsPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <DashboardAuthChrome />
+
       <PlaceholderBanner
         title={isConvexActive ? "Lead pipeline (Convex)" : "Lead pipeline (Local DB)"}
         description={

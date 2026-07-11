@@ -67,8 +67,9 @@ export default function RoadmapDocPage() {
       <p>
         Category templates + tier cards on preview: shipped (restaurant / salon / trades +
         generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
-        (see <DocLink href="/docs/process">process log</DocLink>). Remaining: operator auth on{" "}
-        <code>/dashboard</code>, preview subdomain hosting.
+        (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
+        <code>/dashboard</code> (shared-secret session via{" "}
+        <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Remaining: preview subdomain hosting.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
