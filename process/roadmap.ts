@@ -212,6 +212,16 @@ export const roadmap: RoadmapPhase[] = [
           "process/leads-log.ts exists with a typed Lead/LeadStage schema, starts empty (no fabricated data), and renders a funnel-count view on the docs site. See process/leads-log.ts.",
       },
       {
+        id: "p2-booking-link",
+        title: "Replace the outreach templates' placeholder booking link with a real one",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "outreach-templates.ts's cold-email/brokerage-intro bodies and pricing-one-pager.tsx's callToAction have said '[Phone / booking link]' / 'scan the QR code' since they were written — neither a phone number nor a QR code nor any link ever existed, so a prospect who wanted to book from either surface had no way to do so. This sat unnoticed for weeks because every session focused on prep documents, not on what a prospect does after reading one.",
+        doneWhen:
+          "process/booking-link.ts exists with a real mailto: link (BOOKING_LINK) addressed to Duncan and pre-filled with bookingIntakeFields' questions; outreach-templates.ts's renderTemplateBody() substitutes it into the placeholder; pricing-one-pager.tsx renders an actual 'Book now' link; docs-site's /pricing page shows both with the real link substituted. See process/booking-link.ts.",
+      },
+      {
         id: "p2-lead-intake-tool",
         title: "CLI to append a real lead to leads-log.ts without hand-editing TypeScript",
         status: "done",

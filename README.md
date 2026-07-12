@@ -14,8 +14,9 @@ script) is ready and waiting. Nothing else agent-side moves the business forward
 of these happens:
 
 1. **Book and shoot one real concierge listing** (`process/capture-checklist.ts` +
-   `pipeline/` + `process/outreach-templates.ts`) — the single highest-leverage next step;
-   unblocks `p2-first-deliveries` and, eventually, `p3-app-scope`.
+   `pipeline/` + `process/outreach-templates.ts`, now with a real `process/booking-link.ts`
+   mailto: link instead of a placeholder) — the single highest-leverage next step; unblocks
+   `p2-first-deliveries` and, eventually, `p3-app-scope`.
 2. **Run the Phase 1 interviews** (`process/interview-script.ts`, 10 agents + 5 STR hosts)
    — unblocks `p1-run-interviews`.
 3. **Score 20 Zillow listings** in a chosen metro against `process/listing-audit-rubric.ts`
@@ -56,7 +57,8 @@ real-estate-agent-photo-app/
 │   ├── interview-script.ts      # Phase 1 problem-interview script + rubric
 │   ├── capture-checklist.ts     # Phase 2 concierge-MVP shoot checklist
 │   ├── pricing-one-pager.tsx    # $19/listing concierge offer
-│   └── outreach-templates.ts    # manual outreach copy + booking intake
+│   ├── outreach-templates.ts    # manual outreach copy + booking intake
+│   └── booking-link.ts          # real mailto: booking link (fills the outreach placeholder)
 ├── pipeline/
 │   ├── package.json
 │   └── src/

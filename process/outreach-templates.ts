@@ -124,3 +124,15 @@ export const bookingIntakeFields: IntakeField[] = [
 export function templatesFor(audience: OutreachTemplate["audience"]): OutreachTemplate[] {
   return outreachTemplates.filter((t) => t.audience === audience);
 }
+
+/**
+ * Fills in the "[Phone / booking link]" placeholder that agent-cold-email
+ * and brokerage-intro-email leave for a real link. Takes the link as a
+ * parameter instead of importing process/booking-link.ts directly, since
+ * that module already imports bookingIntakeFields from this file — an
+ * import the other way would form a cycle. Call sites (e.g. docs-site's
+ * /pricing page) pass booking-link.ts's BOOKING_LINK.
+ */
+export function renderTemplateBody(template: OutreachTemplate, bookingLink: string): string {
+  return template.body.replace("[Phone / booking link]", bookingLink);
+}

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { DocsShell } from "@/components/DocsShell";
 import { getDocPages } from "@/lib/docs";
 import { PricingOnePager } from "../../../../process/pricing-one-pager";
-import { outreachTemplates, bookingIntakeFields } from "../../../../process/outreach-templates";
+import { outreachTemplates, bookingIntakeFields, renderTemplateBody } from "../../../../process/outreach-templates";
+import { BOOKING_LINK } from "../../../../process/booking-link";
 
 export const metadata = {
   title: "Concierge pricing — Listing Lens Docs",
@@ -53,7 +54,7 @@ export default function PricingPage() {
                   </span>
                 </div>
                 <pre className="mt-3 whitespace-pre-wrap rounded-lg border border-slate-800/80 bg-slate-950/60 p-4 text-xs leading-relaxed text-slate-300">
-                  {t.body}
+                  {renderTemplateBody(t, BOOKING_LINK)}
                 </pre>
               </div>
             ))}
@@ -63,7 +64,14 @@ export default function PricingPage() {
         <div>
           <h2 className="font-display text-2xl font-semibold text-white">Booking intake</h2>
           <p className="mt-2 max-w-2xl text-sm text-slate-400">
-            Minimum info to collect before confirming a shoot slot.
+            Minimum info to collect before confirming a shoot slot. The templates above already have the
+            real booking link substituted in; paste{" "}
+            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-xs text-slate-300">{BOOKING_LINK}</code>{" "}
+            into DM/in-person follow-ups too — see{" "}
+            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-sm text-slate-300">
+              process/booking-link.ts
+            </code>
+            .
           </p>
           <ul className="mt-4 space-y-2">
             {bookingIntakeFields.map((f) => (

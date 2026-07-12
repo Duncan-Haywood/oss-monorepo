@@ -145,4 +145,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "real-estate-photography-continuous-improvement",
     relatedTaskIds: ["p3-app-scope", "p0-process-system"],
   },
+  {
+    date: "2026-07-12",
+    title: "Booking link is a mailto:, not a hosted landing page",
+    decision:
+      "Added process/booking-link.ts: a mailto: link addressed to Duncan's real inbox, pre-filled with outreach-templates.ts's bookingIntakeFields as fill-in-the-blank prompts. This replaces the literal '[Phone / booking link]' placeholder in the cold-email/brokerage-intro templates and pricing-one-pager.tsx's callToAction (which told prospects to 'scan the QR code' — no QR code has ever existed). Considered and deferred: a hosted public booking/landing page. research/ builds locally but is deployed nowhere; docs-site is deployed but access-gated to Duncan's email only, so it can't host a public booking page without either removing Access (a real Cloudflare Access production change, guardrailed against without confirmation) or standing up a second Cloudflare Pages project (a new domain/infra decision, plus doesn't fit here as a same-session code diff).",
+    rationale:
+      "This has been a real, silent gap for weeks: every prior session built prep material (checklist, pricing, outreach copy, pipeline, lead intake) on the assumption a prospect could eventually book, but nothing ever made that step possible — the templates and one-pager pointed at things that didn't exist. A mailto: link costs nothing, needs no new infrastructure, needs no domain/hosting decision, and doesn't touch the guardrailed Cloudflare Access policy, so it's fully agent-buildable within existing constraints. A hosted form (Formspree/Tally/a public Pages project) would convert somewhat better but is a bigger, separable decision (which service, whether it's worth a second public deploy before any revenue exists) that should wait for Duncan's input rather than an agent silently standing up new infrastructure.",
+    madeBy: "claude/dazzling-allen-ucfuio",
+    relatedTaskIds: ["p2-booking-link", "p2-outreach-templates", "p2-pricing-page"],
+  },
 ];

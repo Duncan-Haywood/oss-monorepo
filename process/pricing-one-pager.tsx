@@ -12,6 +12,8 @@
  * look used by prompt_process.tsx).
  */
 
+import { BOOKING_LINK, BOOKING_CONTACT_EMAIL } from "./booking-link";
+
 export type PricingLineItem = {
   label: string;
   detail: string;
@@ -81,7 +83,7 @@ export const conciergeOffer: ConciergeOffer = {
     },
   ],
   guarantee: "If you're not happy with the delivered photos, we'll redo the edit pass at no charge.",
-  callToAction: "Book your first listing for $19 — reply to this message or scan the QR code to grab a slot.",
+  callToAction: "Book your first listing for $19 — reply to this message or use the link below to grab a slot.",
 };
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
@@ -143,6 +145,12 @@ export function PricingOnePager() {
       <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 p-5 text-center">
         <p className="text-sm text-brand-200">{offer.guarantee}</p>
         <p className="mt-3 font-medium text-white">{offer.callToAction}</p>
+        <a
+          href={BOOKING_LINK}
+          className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-brand-400"
+        >
+          Book now — {BOOKING_CONTACT_EMAIL}
+        </a>
       </div>
     </div>
   );

@@ -251,4 +251,24 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real (non-empty) entries first — that's the actual signal anything changed. If still empty and nextActionableTasks() is still empty, don't invent another roadmap.ts/process/*.ts tweak just to have a diff; re-verify PR #4 and branch-deletion permissions (cheap, 30 seconds each) and stop there if nothing changed, rather than padding the session.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/dazzling-allen-ucfuio",
+    summary:
+      "Confirmed leads-log.ts/loggedInterviewResults/listingAuditLog are all still genuinely empty and PR #18 (the README human-action-needed banner) had already merged to main during this session's own investigation, so re-based onto it rather than duplicating it. Rather than stop at 'nothing agent-doable, re-verify and exit' for what would be the 9th consecutive session to do so, looked for the next gap between what prep material *says* and what actually works end-to-end (the way p1-listing-audit-rubric and p2-capture-checklist-scaling were found in earlier sessions) and found a real one: every outreach template and the pricing one-pager have told prospects to use a '[Phone / booking link]' or 'scan the QR code' since they were written — neither has ever existed, so a prospect who wanted to book from either surface had no way to.",
+    changes: [
+      "Added process/booking-link.ts: BOOKING_LINK, a mailto: link to Duncan's real inbox pre-filled with outreach-templates.ts's bookingIntakeFields as fill-in-the-blank prompts. Zero cost, zero new infrastructure, no Cloudflare Access/domain decision — deliberately not a hosted landing page (research/ builds but is deployed nowhere; docs-site is deployed but Access-gated to Duncan only, so it can't host a public booking page without a guardrailed Access change or a new public Pages project).",
+      "process/outreach-templates.ts: added renderTemplateBody(template, bookingLink) to substitute the placeholder (kept as a parameter, not an import, since booking-link.ts already imports bookingIntakeFields from this file and importing back would cycle).",
+      "process/pricing-one-pager.tsx: callToAction no longer references a nonexistent QR code; PricingOnePager now renders an actual 'Book now' link using BOOKING_LINK.",
+      "docs-site/src/app/pricing/page.tsx: outreach template previews now render with the real link substituted (renderTemplateBody(t, BOOKING_LINK)); Booking intake section now shows the raw link text for pasting into DM/in-person follow-ups that don't use the placeholder.",
+      "README.md: repo-structure tree lists the new file; bullet 1 of the 'Human action needed' section now notes the booking link is real, not a placeholder.",
+      "roadmap.ts: added p2-booking-link (done). decisions-log.ts: logged the mailto-vs-hosted-landing-page decision and why a hosted page was considered and deferred.",
+      "Verified: docs-site `npm run build` passes and the exported pricing/index.html contains the correctly URL-encoded mailto: link in both the one-pager button and the substituted template bodies; research `npm run build` passes (untouched); pipeline `npm test` + `npx tsc --noEmit` pass (untouched, run anyway since it imports process/capture-checklist.ts from the same package).",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries is still the single highest-leverage next step, and a prospect who replies to an outreach template or clicks 'Book now' on the one-pager now lands in a real, pre-filled email to Duncan instead of a dead end.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) remain the other real unblocks; PR #4 (Cloudflare Access dashboard step) and the ~12 stale branches (agent git credential 403s on ref deletion) are unchanged.",
+      "Agent (next session): if a hosted public booking page ever becomes worth it (e.g. Duncan wants a shareable link instead of a mailto:, or wants to A/B test copy), that's a real infra/domain decision for a human to weigh in on first — don't stand one up unilaterally. Otherwise check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first, same as every recent session's note.",
+    ],
+  },
 ];
