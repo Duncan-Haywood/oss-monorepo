@@ -45,6 +45,8 @@ export const AGENT_PROTOCOL = [
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
+  "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
+  "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -225,7 +227,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-quality-scoring",
     summary:
       "Pure TypeScript lead scoring (missing email/address/phone, stale outreach, category fit vs. recommendedTier) surfaced on the dashboard so the operator works the highest-probability leads first instead of scanning the full list top-to-bottom.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-f004",
   },
@@ -519,6 +521,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Lead.address already existed on the TypeScript type and was consumed by the Maps embed pin and LocalBusiness JSON-LD streetAddress, but every persistence path silently dropped it outside the in-memory DEMO_LEADS array — confirmed by seeding a fresh local.db and reading the row back before this fix (address was NULL). Fixing only the demo catalog's address would have left the exact same silent-drop bug for every real client lead added via CSV or the dashboard, which is the more common path once outreach is running at volume.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Lead quality is a pure TypeScript score (0–100) derived from already-loaded Lead fields — no new DB columns — and sorts the operator dashboard so hot/warm actionable leads float above cold and parked (paid/live).",
+    rationale:
+      "Operator time is the bottleneck once CSV + outreach exist: scanning an unsorted table wastes the conversion multiplier of Email 2/3. A pure scorer stays backend-agnostic (SQLite or Convex), is unit-testable beside outreach cadence, and unblocks prioritizing work without waiting on outreach-open-tracking persistence.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Score factors: contact completeness (email heavily weighted), phone/address, category template fit (restaurant/salon/trades > generic), recommended-tier revenue upside, stage/intent, follow-up-due boost, stale mid-sequence nudge; paid/live are non-actionable (parked).",
+    rationale:
+      "Matches how revenue actually moves: cannot email without addressable contact, category templates convert better than generic, higher tiers pay more when they close, and due/stale outreach is where operator clicks convert existing demand. Parking paid/live keeps the priority queue focused on acquisition, not fulfillment (handoffs panel already covers that).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-hour dual claim of lead-quality-scoring with cursor/business-process-evolution-8e65: this branch (f004) keeps the feature implementation; sibling should pivot to outreach-open-tracking (or fold complementary diffs). Documented as an AGENT_PROTOCOL rule.",
+    rationale:
+      "Both automations claimed within the same minute before either feature body landed. Protocol already forbids two backends for one surface; making the 'first feature commits win / sibling pivots' path explicit reduces idle thrash on the next hourly pair.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -802,7 +825,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: /docs/production-deploy per-client isolation section, /docs/roadmap Phase 5 note",
       "Verified via npm run dev — loaded /dashboard/leads, inserted a synthetic deploy_handoffs row via node:sqlite to confirm the migration and the new UI render correctly",
     ],
-    decisions: BUSINESS_DECISIONS.slice(37, -1),
+    decisions: BUSINESS_DECISIONS.slice(37, 39),
   },
   {
     date: "2026-07-11",
@@ -817,6 +840,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-address-persistence done; lead-quality-scoring + outreach-open-tracking queued",
       "Verified via npm run dev: seeded a fresh local.db, confirmed example-bakery's address (1837 Pearl St) renders in the Maps embed and LocalBusiness JSON-LD on /preview/example-bakery, and reads back correctly via node:sqlite",
     ],
-    decisions: BUSINESS_DECISIONS.slice(-1),
+    decisions: BUSINESS_DECISIONS.slice(39, 40),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-f004",
+    summary:
+      "Operator leverage: pure lead quality scoring (contact completeness, category/tier fit, follow-up due, stale outreach) with Priority leads panel + Score column + default table sort on /dashboard/leads. Cooperated with same-hour sibling business-process-evolution-8e65 which dual-claimed the same todo — kept one scorer, added protocol rules for dual claims and absolute decision slice indices. Queued sibling can take outreach-open-tracking next.",
+    shipped: [
+      "src/lib/leads/quality-score.ts — scoreLead / sortLeadsByQuality / bands (hot/warm/cold/parked)",
+      "src/lib/leads/quality-score.test.ts — Vitest coverage for factors, clamp, sort order",
+      "src/app/dashboard/leads/leads-client.tsx — Priority leads panel, Score column, quality sort",
+      "Docs: roadmap Phase 2 note for quality scoring",
+      "AGENT_PROTOCOL — dual-claim pivot rule + absolute BUSINESS_DECISIONS slice indices",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(40, 43),
   },
 ];
