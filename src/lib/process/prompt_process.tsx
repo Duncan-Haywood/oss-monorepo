@@ -660,6 +660,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 4 — Data ingestion",
   },
+  {
+    id: "deploy-handoffs-convex-persistence",
+    summary:
+      "Bug found auditing after suppression-list-convex-persistence while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated; upsert-lead-collision-guard claimed by sibling business-process-evolution-aa64): insertDeployHandoff / getDeployHandoffBySlug / listDeployHandoffs / updateDeployHandoffStatus / updateDeployHandoffVercelProject were the last persistence surface in src/lib/db.ts with no Convex branch — every other table (leads, orders, inquiries, checkout_sessions, marketing/voice packs, commerce catalogs/orders, suppressions) follows Convex-first-then-SQLite-fallback, but deploy handoffs wrote/read only the per-instance local SQLite file. On a multi-instance/serverless deployment with Convex configured, a paid checkout that queues a handoff on one instance would not show on another instance's /dashboard/leads, and Mark live / Vercel project assign would update a different store than listDeployHandoffs — breaking Phase 5 fulfillment visibility after the money already cleared. Ship: convex deployHandoffs table + mutations/queries (explicit handoffId column), register on the static Convex API map, and Convex-first wrappers for all five db.ts functions.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-dc94",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
