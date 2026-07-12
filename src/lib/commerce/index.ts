@@ -29,3 +29,9 @@ export {
   type StripeProductsAndPrices,
   type SyncedCommerceSku,
 } from "./stripe-sync";
+
+export {
+  sumCommerceOrdersRevenueUsd,
+  type CommerceOrderRecord,
+  type InsertCommerceOrderInput,
+} from "./orders";

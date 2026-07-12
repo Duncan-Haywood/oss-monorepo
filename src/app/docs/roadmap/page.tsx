@@ -198,7 +198,14 @@ export default function RoadmapDocPage() {
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
         edits clear the Price id until the next Sync). Saved-but-unsynced catalogs count on
-        pipeline health and list in the daily digest beside catalogs-missing.
+        pipeline health and list in the daily digest beside catalogs-missing. Completed Buy now
+        orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
+        Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
+        pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
+        that money is owed to the client, not the platform. Still open: an actual payout path to
+        the client (Stripe Connect) — operator/legal-gated, see{" "}
+        <code>commerce-payouts-stripe-connect</code> in{" "}
+        <DocLink href="/docs/process">process</DocLink>.
       </p>
 
       <p>

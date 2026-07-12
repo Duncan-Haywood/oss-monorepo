@@ -20,6 +20,7 @@ import type {
   CommerceSku,
   UpsertCommerceCatalogInput,
 } from "./commerce/types";
+import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import type { ClientVoiceScriptVariant } from "./voice/types";
 
@@ -190,6 +191,19 @@ function getSqliteDb(): DatabaseSync {
 
     CREATE INDEX IF NOT EXISTS idx_client_voice_packs_slug
       ON client_voice_packs(leadSlug);
+
+    CREATE TABLE IF NOT EXISTS commerce_orders (
+      id TEXT PRIMARY KEY,
+      leadSlug TEXT NOT NULL,
+      skuId TEXT NOT NULL,
+      skuName TEXT NOT NULL,
+      amountPaidUsd REAL NOT NULL,
+      stripeSessionId TEXT UNIQUE NOT NULL,
+      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_commerce_orders_slug
+      ON commerce_orders(leadSlug);
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -331,6 +345,10 @@ const api: any = {
     upsert: "clientVoicePacks:upsert",
     getByLeadSlug: "clientVoicePacks:getByLeadSlug",
     list: "clientVoicePacks:list",
+  },
+  commerceOrders: {
+    insert: "commerceOrders:insert",
+    list: "commerceOrders:list",
   },
 };
 
@@ -1726,6 +1744,99 @@ export async function listCommerceCatalogs(
     )
     .all(safeLimit) as unknown as SqliteCommerceCatalogRow[];
   return rows.map(mapCommerceCatalogRow);
+}
+
+// --- Commerce orders (end-customer Buy now purchases — see commerce/orders.ts) ---
+
+interface SqliteCommerceOrderRow {
+  id: string;
+  leadSlug: string;
+  skuId: string;
+  skuName: string;
+  amountPaidUsd: number;
+  stripeSessionId: string;
+  createdAt: string;
+}
+
+function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
+  return {
+    id: row.id,
+    leadSlug: row.leadSlug,
+    skuId: row.skuId,
+    skuName: row.skuName,
+    amountPaidUsd: row.amountPaidUsd,
+    stripeSessionId: row.stripeSessionId,
+    createdAt: row.createdAt,
+  };
+}
+
+/**
+ * Idempotent on stripeSessionId — the Stripe webhook may see the same
+ * checkout.session.completed event more than once and must never double-count
+ * pass-through commerce revenue.
+ */
+export async function insertCommerceOrder(
+  input: InsertCommerceOrderInput,
+): Promise<void> {
+  const createdAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.insert, {
+        ...input,
+        createdAt,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        "Failed to insert commerce order on Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const id = `corder_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  db.prepare(
+    `INSERT OR IGNORE INTO commerce_orders (
+      id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    input.leadSlug,
+    input.skuId,
+    input.skuName,
+    input.amountPaidUsd,
+    input.stripeSessionId,
+    createdAt,
+  );
+}
+
+export async function listCommerceOrders(
+  limit = 200,
+): Promise<CommerceOrderRecord[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 500);
+
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.commerceOrders.list, {
+        limit: safeLimit,
+      })) as CommerceOrderRecord[];
+    } catch (e) {
+      console.warn(
+        "Failed to list commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM commerce_orders ORDER BY createdAt DESC LIMIT ?",
+    )
+    .all(safeLimit) as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---

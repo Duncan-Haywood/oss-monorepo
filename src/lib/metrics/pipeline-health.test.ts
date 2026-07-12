@@ -519,6 +519,36 @@ describe("computePipelineHealth", () => {
     expect(health.clientVoicePacksDueCount).toBe(1);
   });
 
+  it("sums commerce Buy now order revenue separately from revenueTotalUsd", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [{ ...makeOrder(500), id: "o1", leadSlug: "starter-lead", tier: "starter" }],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5 },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(19.75);
+    expect(health.commerceOrdersCount).toBe(2);
+    // Bundle revenue and Commerce pass-through sales never mix.
+    expect(health.revenueTotalUsd).toBe(500);
+  });
+
+  it("defaults commerce order revenue to zero when none recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(0);
+    expect(health.commerceOrdersCount).toBe(0);
+  });
+
   it("defaults closed lead count to zero when none are closed", () => {
     const health = computePipelineHealth({
       leads: [makeLead("outreach_sent"), makeLead("paid")],

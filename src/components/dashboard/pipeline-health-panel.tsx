@@ -149,6 +149,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.clientVoicePacksDueCount > 0}
         />
+        <MetricCard
+          label="Commerce sales (pass-through)"
+          value={formatUsd(health.commerceOrdersRevenueUsd)}
+          hint={
+            health.commerceOrdersCount > 0
+              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} — owed to clients, not your revenue`
+              : "No Buy now orders yet"
+          }
+          attention={health.commerceOrdersCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (

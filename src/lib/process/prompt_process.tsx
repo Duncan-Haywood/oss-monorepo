@@ -83,6 +83,8 @@ export const AGENT_PROTOCOL = [
   "When a catalog/collection can shrink (SKUs removed, packs regenerated), a sync-to-third-party action should create/update for current items only — do not auto-archive or delete the third-party object for removed items unless you also handle in-flight references; leave that as a documented follow-up, not silent scope creep.",
   "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification. When adding a new Checkout Session flow, grep this file for the existing branches before assuming the generic path covers you.",
   "A `\"server-only\"` lib file cannot be Vitest-tested directly and its exports must not be re-exported through a barrel (e.g. src/lib/commerce/index.ts) that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern already in src/lib/commerce/stripe-sync.ts: take the Stripe client as a parameter behind a minimal structural interface (not `import Stripe from \"stripe\"` types) so the sync logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep only the real `new Stripe(secretKey)` construction + env-var gating in the server action / route that calls it.",
+  "Commerce Buy now order money (end-customer payment for a client's own catalog SKU, collected through the platform's own Stripe account) must NEVER be written into the `orders` table or summed into revenueTotalUsd — that table/metric represents Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as 'this lead already subscribes to the Commerce add-on.' Keep pass-through customer revenue in its own ledger (commerceOrders / src/lib/commerce/orders.ts) with its own pipeline-health field (commerceOrdersRevenueUsd) — do not conflate the two money flows even though both come from Stripe webhooks.",
+  "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
 ] as const;
 
 /**
@@ -526,6 +528,21 @@ export const NEXT_STEPS: NextStep[] = [
       "Complete sells AI phone scripts; operators currently Copy from the dashboard. Queue operator-triggered Email voice pack to lead.email (same Resend path as deliver-marketing-pack-to-client) so clients can paste into a temp number / Cal.com without waiting on Twilio.",
     status: "todo",
     phase: "Phase 7 — Client AI phone",
+  },
+  {
+    id: "commerce-order-revenue-ledger",
+    summary:
+      "A completed Commerce Buy now Checkout Session reached the operator only as a text inquiry — no structured revenue record existed anywhere, so total pass-through Commerce sales were invisible on the dashboard. Shipped: commerceOrders append-only ledger (SQLite commerce_orders table + Convex, idempotent on stripeSessionId), written by the webhook alongside the existing inquiry notification; pipeline-health commerceOrdersRevenueUsd + commerceOrdersCount (kept separate from revenueTotalUsd/orders — see AGENT_PROTOCOL); dashboard 'Commerce sales (pass-through)' metric card.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-7u4fj7",
+  },
+  {
+    id: "commerce-payouts-stripe-connect",
+    summary:
+      "Discovered while shipping commerce-order-revenue-ledger: Commerce Buy now money lands in the platform's own Stripe account (STRIPE_SECRET_KEY), not the underlying local business's account — there is currently no payout path to the client at all. The operator can now SEE the total (pipeline-health 'Commerce sales' card) but must reconcile/pay clients manually outside the app. At any real sales volume this is a real financial/legal exposure (holding customer funds owed to a third party, possible money-transmitter/MSB considerations) and needs a Stripe Connect (or equivalent) integration plus counsel review before Commerce sales scale — an agent cannot obtain a Connect platform approval or legal sign-off, so this stays operator/legal-gated rather than fake-completed.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1425,6 +1442,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Parallel Growth vs Complete delivery handoffs in the same cron window; siblings should claim different ones. Twilio stays Phase 7 gated — emailing scripts unblocks paste-into-temp-number fulfillment.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Supersedes the prior 'not a new commerceOrders table' decision: added a structured, append-only commerceOrders ledger (separate from `orders`) alongside the existing insertClientInquiry notification for completed commerce_sku Checkout Sessions.",
+    rationale:
+      "The inquiry-only notification satisfied 'the operator finds out,' but left zero structured revenue data — no way to answer 'how much has this catalog sold?' without parsing free-text inquiry messages. Once an operator runs Commerce at real volume, that answer matters. A separate ledger (not the `orders` table) avoids the correctness landmine documented in the new AGENT_PROTOCOL rule: `orders` rows with commerceAddon=true are read by orderEligibleForBillingPortal / leadEligibleForStarterUpsell as 'this lead has a recurring Commerce subscription,' which a one-off end-customer SKU purchase is not.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "commerceOrdersRevenueUsd is surfaced on pipeline-health/dashboard only (like revenueTotalUsd), not folded into the daily digest.",
+    rationale:
+      "The digest's existing sections are all due/backlog counts (packs due, catalogs missing, inquiries unreplied) that prompt an operator action; a running revenue total is a dashboard fact, not an action item — revenueTotalUsd itself was never added to the digest for the same reason. Keeps the digest focused on 'what do I need to do today.'",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Flagged commerce-payouts-stripe-connect as a new operator/legal-gated NEXT_STEP rather than silently leaving Commerce Buy now money unaddressed.",
+    rationale:
+      "Building the revenue ledger surfaced a real business risk that had no visibility before: Buy now purchases charge the platform's own Stripe account, and there is no code path that pays the underlying local business back. That gap was invisible pre-ledger (no total existed to notice); now that operators can see a growing 'Commerce sales (pass-through)' number, leaving the payout question unrecorded would look like the app forgot about it rather than deliberately deferred it pending Stripe Connect + counsel review.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2266,6 +2304,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded business-process-evolution-1e7b commerce-catalog-preserve-stripe-ids + commerce-catalogs-unsynced-visibility",
     ],
     decisions: BUSINESS_DECISIONS.slice(125, 128),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-7u4fj7",
+    summary:
+      "Merged PR #50 (claude/relaxed-galileo-lmdbq4's commerce-order-webhook-notification) into main. All coded free NEXT_STEPS were then done again — remaining items are operator/legal-gated (Stripe bootstrap, Places, marketing scheduling). Auditing the just-merged commerce_sku webhook branch surfaced a real gap: the paid Buy now notification only wrote a free-text inquiry message, so there was no structured revenue record anywhere — an operator could not answer 'how much has this Commerce catalog sold?' without reading inquiry text one row at a time. Shipped commerce-order-revenue-ledger, then flagged the Stripe Connect payout gap it exposed (Buy now money sits in the platform's own Stripe account with no path back to the client) as a new operator/legal-gated NEXT_STEP rather than leaving it silently unaddressed.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — CommerceOrderRecord, sumCommerceOrdersRevenueUsd; pure, barrel-safe (no server-only import) like catalog.ts",
+      "convex/schema.ts + convex/commerceOrders.ts — commerceOrders table + insert (idempotent on stripeSessionId) + list",
+      "src/lib/db.ts — commerce_orders SQLite table (UNIQUE stripeSessionId) + insertCommerceOrder (INSERT OR IGNORE) + listCommerceOrders, mirroring the commerce_catalogs plain-table pattern",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku branch now also calls insertCommerceOrder alongside the existing insertClientInquiry, in parallel",
+      "src/lib/metrics/pipeline-health.ts — commerceOrdersRevenueUsd + commerceOrdersCount (optional commerceOrders input; kept separate from revenueTotalUsd/orderCount)",
+      "src/app/dashboard/page.tsx + src/app/dashboard/leads/page.tsx — load listCommerceOrders() alongside the other pipeline-health inputs",
+      "src/components/dashboard/pipeline-health-panel.tsx — 'Commerce sales (pass-through)' metric card, explicitly labeled as owed to clients rather than platform revenue",
+      "NEXT_STEPS: added commerce-order-revenue-ledger (done) and commerce-payouts-stripe-connect (todo, operator/legal-gated — Stripe Connect + counsel review needed before Commerce sales scale)",
+      "AGENT_PROTOCOL — never write Commerce Buy now money into `orders`/revenueTotalUsd (eligibility-predicate landmine); any webhook-written ledger must be idempotent on stripeSessionId",
+      "Verified via npm test + lint + build, then npm run dev: loaded /dashboard and /dashboard/leads (200s), confirmed the new 'Commerce sales' card renders $0 with no seeded commerce orders and does not throw when commerceOrders is empty/undefined",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(128, 131),
   },
 ];
 

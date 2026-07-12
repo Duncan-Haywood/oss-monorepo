@@ -76,6 +76,14 @@ export default function ProductBundlesDocPage() {
         that opens Stripe Checkout directly. Unsynced items still fall back to Request order →
         inquiry inbox. Retail, restaurant ordering, booking deposits, or gift cards.
       </p>
+      <p>
+        <strong>Operator note:</strong> Buy now money is collected through the platform&apos;s
+        own Stripe account, not the client business&apos;s. Total collected is visible as
+        &quot;Commerce sales (pass-through)&quot; on the operator dashboard, but there is no
+        automated payout to the client yet — reconcile and pay clients manually until Stripe
+        Connect ships (see <DocLink href="/docs/process">process</DocLink>,
+        commerce-payouts-stripe-connect).
+      </p>
 
       <h2>Recommendation logic</h2>
       <ul>
