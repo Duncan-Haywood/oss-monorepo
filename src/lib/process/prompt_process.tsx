@@ -43,7 +43,7 @@ export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics. When the free backlog is empty (only gated secrets/OAuth/counsel remain), prefer AGENT_PROTOCOL / docs clarity or sold-capability regression fixes — do not invent optional aggregates.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
@@ -53,6 +53,8 @@ export const AGENT_PROTOCOL = [
   "When deliver-marketing-pack-to-client and deliver-client-voice-pack-to-client are both free in the same cron window, claim different ones (Growth marketing delivery vs Complete phone-script delivery) — they touch different pack modules and both close sold-capability handoff gaps.",
   "Email voice pack requires an existing clientVoicePacks row plus a non-empty lead.email — generate first, then Email voice pack. Never auto-generate on send (same review-before-client rule as marketing Email pack).",
   "After marketing + voice pack email handoffs ship, prefer commerce-abandoned-checkout-tracking (kind discriminator on checkout_sessions) or commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — both close Commerce sold-capability gaps without Stripe Connect. When one is claimed, take the other; prefer either over inventing optional aggregates while Connect / Places / Buffer OAuth stay gated.",
+  "Commerce Buy now client receipt emails go to lead.email (the local business), never the end-customer shopper email — and never use sendReceiptEmail (that is the Local Site Studio bundle buyer receipt). Missing lead.email skips the client send but still records inquiry + commerceOrders ledger. Failure to send must not roll back inquiry/ledger writes.",
+  "When commerce-buy-now-client-receipt is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-orders-payout-ledger-panel (wire listCommerceOrders into a per-lead payout panel on /dashboard/leads) — the revenue ledger already stores pass-through totals, but without a row-level panel operators cannot reconcile manual client payouts. Prefer wiring the existing listCommerceOrders helper over inventing new aggregates.",
   "Never dump commerce Buy now Checkout Sessions into bundle abandoned-recovery without kind=commerce_sku — Finish-checkout emails link /checkout?tier= and would pitch Local Site Studio plans to end customers. Bundle Work next cart boosts and listAbandonedCheckoutsDue must filter isBundleCheckoutSession; commerce uses listCommerceAbandonedCheckoutsDue + preview#catalog recovery.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
@@ -560,9 +562,18 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-buy-now-client-receipt",
     summary:
-      "Commerce sells order notifications (see /docs/product-bundles). Today a completed Buy now only notifies the operator via insertClientInquiry — the commerceAddon lead (local business) never gets an email about their customer's purchase. Queue operator-path or webhook-triggered Resend to lead.email (honor suppression; reuse commerceOrders / catalog SKU fields) so the client knows to fulfill. Distinct from commerce-payouts-stripe-connect (money movement stays gated).",
-    status: "todo",
+      "Commerce sells order notifications (see /docs/product-bundles). Shipped: on checkout.session.completed for kind=commerce_sku, after inquiry + commerceOrders ledger, webhook emails lead.email via sendCommerceBuyNowClientReceipt (Resend, honor suppression) with SKU/amount/customer email + preview#catalog link — so the local business knows to fulfill. Skips send when lead has no email; send failure does not roll back inquiry/ledger. Distinct from commerce-payouts-stripe-connect (money movement stays gated) and from sendReceiptEmail (bundle buyer).",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-4d67",
+  },
+  {
+    id: "commerce-orders-payout-ledger-panel",
+    summary:
+      "commerceOrders ledger + pipeline-health total exist, but operators still lack a row-level panel of Buy now orders grouped by lead — needed for manual client payouts until Stripe Connect ships. Wire listCommerceOrders into /dashboard/leads (per-lead totals + recent lines); pure summarize helper + Vitest. Distinct from commerce-buy-now-client-receipt (client email) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-58b6",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1525,6 +1536,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Abandoned-cart tracking and client purchase receipts are different Commerce surfaces (shopper recovery vs client fulfillment notify). Recording both claims keeps siblings from thrashing on empty free backlog while Connect stays gated.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Shipped commerce-buy-now-client-receipt as a webhook-triggered Resend to lead.email on completed kind=commerce_sku Buy now — closes Commerce order-notification sold promise without Stripe Connect.",
+    rationale:
+      "Operator inquiry + commerceOrders ledger already recorded the sale for the platform; the local business still had no automated notice to fulfill. Emailing lead.email (not the shopper) reuses RESEND_API_KEY + sendEmail suppression. Distinct from sendReceiptEmail (Local Site Studio bundle buyer) and from abandoned Buy now recovery (shopper email → preview#catalog).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Client receipt send is best-effort after inquiry + ledger writes: missing lead.email skips the email; send failures log and do not roll back the structured records.",
+    rationale:
+      "Fulfillment visibility for the operator must not depend on the client having an email on file or Resend succeeding. Stripe may redeliver the webhook; inquiry/ledger are already idempotent on session id — a duplicate client email on rare redelivery is acceptable vs losing the ledger row.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After commerce-buy-now-client-receipt, remaining free coded NEXT_STEPS are empty — Stripe Price bootstrap, Places ingestion, marketing scheduling, and Stripe Connect stay operator/legal-gated. Prefer process/docs improvements or sold-capability regression fixes over inventing optional aggregates.",
+    rationale:
+      "Hourly agents need an explicit idle policy when the free backlog is exhausted so they do not invent competing metrics. The product-promise chain for Commerce notifications (inquiry → ledger → abandoned tracking → client receipt) is now complete pending Connect payouts.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2420,6 +2452,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded prompt-process-evolution-6219 deliver-client-voice-pack-to-client",
     ],
     decisions: BUSINESS_DECISIONS.slice(134, 137),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-4d67",
+    summary:
+      "Claimed commerce-buy-now-client-receipt after PR #55 abandoned Buy now tracking. Shipped webhook-triggered Resend to lead.email on completed commerce_sku Buy now (pure client-receipt helpers + Vitest) so the local business gets the sold order notification. Improved AGENT_PROTOCOL (client receipt ≠ shopper ≠ bundle receipt; best-effort after ledger). Documented idle policy when free backlog is gated. Sibling business-process-evolution-58b6 was running same window — claim pushed first.",
+    shipped: [
+      "src/lib/commerce/client-receipt.ts (+ test) — leadEligibleForCommerceBuyNowClientReceipt, formatCommerceBuyNowClientReceiptHtml, commerceBuyNowClientReceiptSubject",
+      "src/lib/email/resend.ts — sendCommerceBuyNowClientReceipt (reuses sendEmail + suppression)",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku branch emails lead.email after inquiry + commerceOrders (best-effort; skip if no email)",
+      "Docs: product-bundles, roadmap Phase 8, architecture §9, launch-checklist client receipt check",
+      "NEXT_STEPS: commerce-buy-now-client-receipt done; commerce-orders-payout-ledger-panel claimed by sibling 58b6; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — client receipt recipient rule; prefer payout ledger panel when receipt is claimed/done; prefer process/docs when free backlog is empty",
+      "coop: folded sibling 58b6 claim of commerce-orders-payout-ledger-panel (complementary operator payout UI)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(137, 140),
   },
 ];
 

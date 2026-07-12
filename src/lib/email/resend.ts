@@ -12,6 +12,10 @@ import {
   formatClientVoicePackEmailHtml,
 } from "../voice/deliver-pack";
 import type { ClientVoiceScriptVariant } from "../voice/types";
+import {
+  commerceBuyNowClientReceiptSubject,
+  formatCommerceBuyNowClientReceiptHtml,
+} from "../commerce/client-receipt";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -407,6 +411,45 @@ export async function sendClientVoicePackToClientEmail(params: {
   const html = formatClientVoicePackEmailHtml({
     businessName,
     variants,
+    previewUrl,
+  });
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Notify a commerceAddon lead that their end-customer completed a Buy now
+ * purchase (Commerce "order notifications" sold promise). Honors suppression
+ * via sendEmail. Distinct from sendReceiptEmail (platform bundle buyer receipt).
+ * See src/lib/commerce/client-receipt.ts + /docs/process (commerce-buy-now-client-receipt).
+ */
+export async function sendCommerceBuyNowClientReceipt(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  skuName: string;
+  amountTotalUsd: number;
+  stripeSessionId: string;
+  customerEmail?: string;
+  previewUrl?: string;
+}) {
+  const {
+    to,
+    businessName,
+    slug,
+    skuName,
+    amountTotalUsd,
+    stripeSessionId,
+    customerEmail,
+    previewUrl,
+  } = params;
+  const subject = commerceBuyNowClientReceiptSubject(businessName, skuName);
+  const html = formatCommerceBuyNowClientReceiptHtml({
+    businessName,
+    skuName,
+    amountTotalUsd,
+    customerEmail,
+    stripeSessionId,
     previewUrl,
   });
 

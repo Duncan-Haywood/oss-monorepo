@@ -79,10 +79,11 @@ export async function POST(request: Request) {
               getCommerceCatalog(orderSlug),
             ]);
             const skuName = catalog?.items.find((item) => item.id === skuId)?.name ?? "Catalog item";
+            const businessName = lead?.businessName || orderSlug;
             await Promise.all([
               insertClientInquiry({
                 leadSlug: orderSlug,
-                businessName: lead?.businessName || orderSlug,
+                businessName,
                 email: customerEmail || undefined,
                 message: commerceOrderPaidInquiryMessage({
                   skuName,
@@ -102,6 +103,35 @@ export async function POST(request: Request) {
                   })
                 : Promise.resolve(),
             ]);
+
+            // Commerce sold promise: order notification to the local business
+            // (lead.email), not the shopper. Distinct from sendReceiptEmail
+            // (bundle buyer) and from Stripe Connect payouts.
+            const clientEmail = lead?.email?.trim();
+            if (clientEmail) {
+              try {
+                const { sendCommerceBuyNowClientReceipt } = await import(
+                  "@/lib/email/resend"
+                );
+                const baseUrl =
+                  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+                await sendCommerceBuyNowClientReceipt({
+                  to: clientEmail,
+                  businessName,
+                  slug: orderSlug,
+                  skuName,
+                  amountTotalUsd: amountTotal,
+                  stripeSessionId: session.id,
+                  customerEmail: customerEmail || undefined,
+                  previewUrl: `${baseUrl}/preview/${encodeURIComponent(orderSlug)}#catalog`,
+                });
+              } catch (emailError) {
+                console.error(
+                  `Failed to email commerce client receipt for ${orderSlug}`,
+                  emailError,
+                );
+              }
+            }
           } catch (e) {
             console.error(`Failed to record commerce order inquiry for ${orderSlug}`, e);
           }

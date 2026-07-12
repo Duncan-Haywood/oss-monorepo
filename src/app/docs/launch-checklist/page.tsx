@@ -246,9 +246,11 @@ export default function LaunchChecklistDocPage() {
         <li>
           After a real Buy now purchase completes, confirm the inquiry inbox shows the paid-order
           note AND pipeline-health <strong>Commerce sales (pass-through)</strong> increases by the
-          order amount. This total is money collected for the client, not platform revenue — there
-          is no automated payout to the client yet (manual reconciliation until Stripe Connect
-          ships, see <DocLink href="/docs/process">process</DocLink>).
+          order amount. With an email on the Commerce lead, confirm they receive (or a mock send
+          logs) the client order notification — SKU, amount, optional customer email, link to
+          preview#catalog. This total is money collected for the client, not platform revenue —
+          there is no automated payout to the client yet (manual reconciliation until Stripe
+          Connect ships, see <DocLink href="/docs/process">process</DocLink>).
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
