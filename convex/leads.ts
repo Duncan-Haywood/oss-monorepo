@@ -111,6 +111,7 @@ export const markLeadPaid = mutation({
     tier: tierValidator,
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
+    stripeCustomerId: v.optional(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -128,6 +129,7 @@ export const markLeadPaid = mutation({
       tier: args.tier,
       commerceAddon: args.commerceAddon,
       stripeSessionId: args.stripeSessionId,
+      stripeCustomerId: args.stripeCustomerId,
       amountTotal: args.amountTotal,
       customerEmail: args.customerEmail,
       createdAt: Date.now(),

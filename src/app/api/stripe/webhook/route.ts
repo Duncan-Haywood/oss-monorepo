@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
+import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
       const commerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+      const stripeCustomerId = stripeCustomerIdFromUnknown(session.customer) ?? undefined;
 
       try {
         await markCheckoutSessionComplete(session.id);
@@ -65,6 +67,7 @@ export async function POST(request: Request) {
             tier,
             commerceAddon,
             amountTotal,
+            stripeCustomerId,
           });
           console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
 
@@ -73,7 +76,7 @@ export async function POST(request: Request) {
           const { sendReceiptEmail } = await import("@/lib/email/resend");
           const lead = await getLeadBySlug(slug);
           const businessName = lead?.businessName || slug;
-          
+
           if (customerEmail) {
             await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
           }

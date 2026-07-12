@@ -41,6 +41,13 @@ export default function LaunchChecklistDocPage() {
           slug) → pay with a test card → confirm lead stage becomes <code>paid</code> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         </li>
+        <li>
+          Activate <strong>Customer Portal</strong> in the Stripe Dashboard (Settings → Billing →
+          Customer portal) so Growth/Complete/Commerce subscribers can update cards and cancel.
+          Then open <strong>Billing</strong> on a paid lead row, or{" "}
+          <strong>Manage subscription</strong> on <code>/checkout/success</code> after a
+          subscription checkout.
+        </li>
       </ol>
 
       <h2>2. Operator dashboard auth (blocks safe outreach at scale)</h2>

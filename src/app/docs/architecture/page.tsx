@@ -105,6 +105,15 @@ export default function ArchitectureDocPage() {
         outrank plain outreach-due leads, and pipeline health aggregates abandoned-cart +
         recovery-due counts (with oldest abandoned age) beside paid-not-live.
       </p>
+      <p>
+        Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
+        Billing Portal: <code>POST /api/stripe/billing-portal</code> (post-checkout{" "}
+        <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live
+        leads. Orders store <code>stripeCustomerId</code> when the webhook records payment;
+        older orders fall back to retrieving the Checkout Session. Activate Customer Portal in
+        the Stripe Dashboard before first live use (see{" "}
+        <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
+      </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>

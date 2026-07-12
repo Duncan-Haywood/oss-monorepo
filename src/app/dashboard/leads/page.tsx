@@ -20,6 +20,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   leads: Awaited<ReturnType<typeof getLeads>>;
   handoffs: Awaited<ReturnType<typeof listDeployHandoffs>>;
   inquiries: Awaited<ReturnType<typeof listClientInquiries>>;
+  orders: Awaited<ReturnType<typeof listOrders>>;
   openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
 }> {
   const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
@@ -34,6 +35,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     leads,
     handoffs,
     inquiries,
+    orders,
     openCheckoutSessions,
     health: computePipelineHealth({
       leads,
@@ -47,7 +49,7 @@ async function loadLeadsPipelineHealth(): Promise<{
 }
 
 export default async function LeadsPage() {
-  const { health, leads, handoffs, inquiries, openCheckoutSessions } =
+  const { health, leads, handoffs, inquiries, orders, openCheckoutSessions } =
     await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
@@ -81,6 +83,7 @@ export default async function LeadsPage() {
           initialHandoffs={handoffs}
           initialInquiries={inquiries}
           initialCheckoutSessions={openCheckoutSessions}
+          initialOrders={orders}
         />
       </div>
     </main>

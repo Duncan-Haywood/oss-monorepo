@@ -106,8 +106,12 @@ export default function RoadmapDocPage() {
         <code>src/lib/checkout/abandoned-recovery.ts</code>). Those open sessions also boost the
         Work next quality score (hotter than preview opens) so carts do not hide behind cold
         follow-ups, and pipeline health shows abandoned-cart + recovery-due counts next to
-        paid-not-live. Remaining: run bootstrap (or Dashboard) for test + live Price IDs;
-        Stripe Billing Portal for Growth/Complete (sibling claim). Operator path:{" "}
+        paid-not-live. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}
+        <strong>Billing</strong> on paid/live leads, customer{" "}
+        <strong>Manage subscription</strong> on <code>/checkout/success</code> (
+        <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>). Remaining: run
+        bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
+        Stripe Dashboard. Operator path:{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.
       </p>
 
