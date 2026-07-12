@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
+import { recordCheckoutSessionCreated } from "@/lib/db";
 
 /**
  * Creates a Stripe Checkout Session for a bundle tier (+ optional Commerce
@@ -108,6 +109,22 @@ export async function POST(request: Request) {
         { error: "Stripe session missing checkout URL", message: "Stripe did not return a redirect URL for this session." },
         { status: 502 },
       );
+    }
+
+    // Track for abandoned-checkout recovery. No-ops without a slug — nothing to
+    // attribute a recovery email to for an organic (non-lead) checkout.
+    if (body.slug) {
+      try {
+        await recordCheckoutSessionCreated({
+          leadSlug: body.slug,
+          stripeSessionId: session.id,
+          tier: bundle.id,
+          commerceAddon: commerceAddonApplied,
+          customerEmail: body.customerEmail,
+        });
+      } catch (e) {
+        console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
+      }
     }
 
     return NextResponse.json({ url: session.url });

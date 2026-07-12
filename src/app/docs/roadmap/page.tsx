@@ -85,7 +85,7 @@ export default function RoadmapDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links):
         shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools; operator
-        lead notes; abandoned-checkout recovery.
+        lead notes.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
@@ -98,8 +98,12 @@ export default function RoadmapDocPage() {
         <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
         sends receipt email. To create Prices without the Stripe UI: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
-        paste the returned <code>envSnippet</code> into secrets, then unset the flag. Remaining:
-        run bootstrap (or Dashboard) for test + live Price IDs. Operator path:{" "}
+        paste the returned <code>envSnippet</code> into secrets, then unset the flag.
+        Abandoned-checkout recovery: shipped — sessions created but not completed after 2h surface
+        on an operator-triggered recovery queue on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (see{" "}
+        <code>src/lib/checkout/abandoned-recovery.ts</code>). Remaining: run bootstrap (or
+        Dashboard) for test + live Price IDs. Operator path:{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.
       </p>
 

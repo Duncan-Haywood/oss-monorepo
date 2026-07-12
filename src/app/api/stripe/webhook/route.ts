@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { recordLeadPayment } from "@/lib/db";
+import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
@@ -49,6 +49,12 @@ export async function POST(request: Request) {
       const commerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+
+      try {
+        await markCheckoutSessionComplete(session.id);
+      } catch (e) {
+        console.warn(`Failed to mark checkout session ${session.id} complete`, e);
+      }
 
       if (slug && tier) {
         try {

@@ -94,6 +94,14 @@ export default function ArchitectureDocPage() {
         bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
       </p>
+      <p>
+        Every slug-attributed Checkout Session is tracked in <code>checkout_sessions</code> (
+        <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
+        to <code>complete</code>. Sessions still <code>open</code> 2+ hours after creation surface
+        on an &quot;Abandoned checkouts&quot; panel on <code>/dashboard/leads</code> for an
+        operator-triggered recovery email (Resend, honors suppression, cooldown between nudges) —
+        see <code>src/lib/checkout/abandoned-recovery.ts</code>.
+      </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>

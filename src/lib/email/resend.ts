@@ -170,6 +170,35 @@ export async function sendOutreachFollowUp3(
 }
 
 /**
+ * Abandoned-checkout recovery nudge — operator-triggered when a Stripe Checkout
+ * Session was created but not completed (see src/lib/checkout/abandoned-recovery.ts).
+ */
+export async function sendCheckoutAbandonedRecovery(
+  to: string,
+  businessName: string,
+  slug: string,
+  tier: string,
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`;
+
+  const subject = `Still want to launch ${businessName}?`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your checkout is still open</h2>
+    <p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${businessName}</strong> but didn't finish. Nothing was charged.</p>
+    <p style="margin-bottom: 24px;">Pick up right where you left off — your plan and details are still saved:</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Finish checkout</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions first? Just reply to this email.</p>
+    <p style="margin-bottom: 8px;">Best regards,</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
  * Sends a transactional order receipt email.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {

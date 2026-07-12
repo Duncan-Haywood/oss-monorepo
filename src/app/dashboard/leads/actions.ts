@@ -8,6 +8,8 @@ import {
   updateClientInquiryStatus,
   getLeadBySlug,
   recordLeadOutreach,
+  listOpenCheckoutSessions,
+  recordCheckoutRecoverySent,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -18,6 +20,7 @@ import {
   sendOutreachEmail,
   sendOutreachFollowUp2,
   sendOutreachFollowUp3,
+  sendCheckoutAbandonedRecovery,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 
@@ -198,6 +201,59 @@ export async function sendFollowUpAction(slug: string) {
     };
   } catch (error) {
     console.error("Error in sendFollowUpAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Send an abandoned-checkout recovery nudge for a Stripe Checkout Session that
+ * was created but not completed. See src/lib/checkout/abandoned-recovery.ts.
+ */
+export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!stripeSessionId) {
+      return { success: false as const, error: "Checkout session id is required" };
+    }
+
+    const openSessions = await listOpenCheckoutSessions();
+    const session = openSessions.find((s) => s.stripeSessionId === stripeSessionId);
+    if (!session) {
+      return { success: false as const, error: "Checkout session not found or already completed" };
+    }
+
+    const lead = await getLeadBySlug(session.leadSlug);
+    const to = session.customerEmail || lead?.email;
+    if (!to) {
+      return { success: false as const, error: "No email on file for this checkout session" };
+    }
+
+    const businessName = lead?.businessName || session.leadSlug;
+    const sent = await sendCheckoutAbandonedRecovery(to, businessName, session.leadSlug, session.tier);
+
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send recovery email",
+      };
+    }
+
+    await recordCheckoutRecoverySent(stripeSessionId);
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
+  } catch (error) {
+    console.error("Error in sendCheckoutRecoveryAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
