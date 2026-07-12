@@ -80,8 +80,10 @@ export default function ProductBundlesDocPage() {
       <p>
         <strong>Operator note:</strong> Buy now money is collected through the platform&apos;s
         own Stripe account, not the client business&apos;s. Total collected is visible as
-        &quot;Commerce sales (pass-through)&quot; on the operator dashboard, but there is no
-        automated payout to the client yet — reconcile and pay clients manually until Stripe
+        &quot;Commerce sales (pass-through)&quot; on the operator dashboard, and per-lead
+        totals + recent lines appear on the <strong>Commerce payouts (manual)</strong> panel
+        on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation.
+        There is no automated payout to the client yet — pay clients manually until Stripe
         Connect ships (see <DocLink href="/docs/process">process</DocLink>,
         commerce-payouts-stripe-connect).
       </p>

@@ -46,3 +46,56 @@ export function sumCommerceOrdersRevenueUsd(
   }
   return total;
 }
+
+/**
+ * Per-lead rollup of pass-through Buy now orders for manual payout
+ * reconciliation until Stripe Connect ships. Pure — no I/O.
+ *
+ * Sort: highest total owed first, then most-recent order, then slug.
+ * Within each lead, orders are newest-first (createdAt desc).
+ */
+export interface CommerceOrdersByLeadSummary {
+  leadSlug: string;
+  orderCount: number;
+  totalUsd: number;
+  latestCreatedAt: string;
+  /** Newest-first slice of this lead's orders (caller may already have capped the input list). */
+  orders: CommerceOrderRecord[];
+}
+
+export function summarizeCommerceOrdersByLead(
+  orders: ReadonlyArray<CommerceOrderRecord>,
+): CommerceOrdersByLeadSummary[] {
+  const bySlug = new Map<string, CommerceOrderRecord[]>();
+  for (const order of orders) {
+    const existing = bySlug.get(order.leadSlug);
+    if (existing) {
+      existing.push(order);
+    } else {
+      bySlug.set(order.leadSlug, [order]);
+    }
+  }
+
+  const summaries: CommerceOrdersByLeadSummary[] = [];
+  for (const [leadSlug, leadOrders] of bySlug) {
+    const sorted = [...leadOrders].sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt),
+    );
+    const latest = sorted[0];
+    if (!latest) continue;
+    summaries.push({
+      leadSlug,
+      orderCount: sorted.length,
+      totalUsd: sumCommerceOrdersRevenueUsd(sorted),
+      latestCreatedAt: latest.createdAt,
+      orders: sorted,
+    });
+  }
+
+  return summaries.sort((a, b) => {
+    if (b.totalUsd !== a.totalUsd) return b.totalUsd - a.totalUsd;
+    const byDate = b.latestCreatedAt.localeCompare(a.latestCreatedAt);
+    if (byDate !== 0) return byDate;
+    return a.leadSlug.localeCompare(b.leadSlug);
+  });
+}

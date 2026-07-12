@@ -239,8 +239,12 @@ export default function ArchitectureDocPage() {
         <code>leadEligibleForStarterUpsell</code> read any <code>commerceAddon</code> order row as
         &quot;this lead has a recurring Commerce subscription.&quot; Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
-        — this money sits in the platform&apos;s own Stripe account with no payout path to the
-        client yet (see <code>commerce-payouts-stripe-connect</code>). Open Buy now Checkout
+        — this money sits in the platform&apos;s own Stripe account with no automated payout path to
+        the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
+        manual payouts from the <strong>Commerce payouts (manual)</strong> panel on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, which groups{" "}
+        <code>listCommerceOrders</code> by lead via <code>summarizeCommerceOrdersByLead</code>.
+        Open Buy now Checkout
         Sessions are recorded with <code>kind=commerce_sku</code> on{" "}
         <code>checkout_sessions</code> (same table as bundle carts, never the same recovery path);
         abandoned carts past 2h surface on the Abandoned Buy now panel / digest and can nudge the

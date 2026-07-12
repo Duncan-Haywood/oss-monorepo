@@ -32,6 +32,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   commerceCatalogs: Awaited<ReturnType<typeof listCommerceCatalogs>>;
   marketingMonth: string;
   clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
+  commerceOrders: Awaited<ReturnType<typeof listCommerceOrders>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -66,6 +67,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     commerceCatalogs,
     marketingMonth,
     clientVoicePacks,
+    commerceOrders,
     health: computePipelineHealth({
       leads,
       orders,
@@ -93,6 +95,7 @@ export default async function LeadsPage() {
     commerceCatalogs,
     marketingMonth,
     clientVoicePacks,
+    commerceOrders,
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
@@ -132,6 +135,7 @@ export default async function LeadsPage() {
           initialCommerceCatalogs={commerceCatalogs}
           marketingMonth={marketingMonth}
           initialClientVoicePacks={clientVoicePacks}
+          initialCommerceOrders={commerceOrders}
         />
       </div>
     </main>

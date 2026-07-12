@@ -42,8 +42,8 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt → commerce orders payout ledger panel), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced / listCommerceOrders + summarizeCommerceOrdersByLead) into pipeline-health, digest, or operator panels over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
@@ -569,10 +569,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-orders-payout-ledger-panel",
     summary:
-      "commerceOrders ledger + pipeline-health total exist, but operators still lack a row-level panel of Buy now orders grouped by lead — needed for manual client payouts until Stripe Connect ships. Wire listCommerceOrders into /dashboard/leads (per-lead totals + recent lines); pure summarize helper + Vitest. Distinct from commerce-buy-now-client-receipt (client email) and commerce-payouts-stripe-connect (automated money movement).",
-    status: "in_progress",
+      "commerceOrders ledger + pipeline-health total exist, but operators still lack a row-level panel of Buy now orders grouped by lead — needed for manual client payouts until Stripe Connect ships. Shipped: summarizeCommerceOrdersByLead + Commerce payouts (manual) panel on /dashboard/leads (per-lead totals + recent lines from listCommerceOrders). Distinct from commerce-buy-now-client-receipt (client email) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-58b6",
+  },
+  {
+    id: "commerce-stripe-orphan-product-archive",
+    summary:
+      "syncCommerceCatalogToStripe creates/updates Products for current SKUs only — Products for SKUs later removed from a catalog stay active in Stripe (documented follow-up on stripe-commerce-products-sync). Operator-triggered archive of orphaned Products for a lead (reuse STRIPE_SECRET_KEY behind Sync-style button; never auto-delete) keeps the Stripe catalog aligned without silent scope creep. Prefer after client-receipt + payout panel; still free while Connect stays gated.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1535,6 +1542,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Abandoned-cart tracking and client purchase receipts are different Commerce surfaces (shopper recovery vs client fulfillment notify). Recording both claims keeps siblings from thrashing on empty free backlog while Connect stays gated.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "When prompt-process-evolution-4d67 claimed commerce-buy-now-client-receipt, this run pivoted to commerce-orders-payout-ledger-panel — wire listCommerceOrders into a per-lead Commerce payouts (manual) panel via summarizeCommerceOrdersByLead.",
+    rationale:
+      "Pipeline-health already shows pass-through totals, but operators cannot reconcile who is owed what without row-level grouping. Manual payout visibility unblocks cautious Commerce sales volume before Stripe Connect + counsel. Distinct from client receipt email (sibling) and automated Connect payouts (still gated).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After payout ledger panel, queue commerce-stripe-orphan-product-archive as the next free Commerce cleanup todo (operator-triggered archive of Stripe Products for removed SKUs) rather than inventing optional aggregates.",
+    rationale:
+      "stripe-commerce-products-sync explicitly deferred orphan archival. An explicit operator button matches the Sync consent model (reuses STRIPE_SECRET_KEY) and AGENT_PROTOCOL's no-silent-auto-delete rule. Remaining other todos still need secrets, OAuth, or counsel.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2430,6 +2451,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded prompt-process-evolution-6219 deliver-client-voice-pack-to-client",
     ],
     decisions: BUSINESS_DECISIONS.slice(134, 137),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-58b6",
+    summary:
+      "Sibling prompt-process-evolution-4d67 claimed commerce-buy-now-client-receipt; pivoted to commerce-orders-payout-ledger-panel. Shipped summarizeCommerceOrdersByLead + Commerce payouts (manual) panel on /dashboard/leads (wires existing listCommerceOrders for per-lead owed totals until Connect). Improved AGENT_PROTOCOL (prefer payout panel when receipt is claimed; name listCommerceOrders helper). Queued commerce-stripe-orphan-product-archive. Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — summarizeCommerceOrdersByLead (group/sum/sort for manual payouts)",
+      "src/lib/commerce/index.ts — export summarize helper + summary type",
+      "/dashboard/leads page + LeadsClient — pass listCommerceOrders; Commerce payouts (manual) panel",
+      "pipeline-health-panel — Commerce sales hint points at payouts panel",
+      "Docs: product-bundles, architecture §9, roadmap Phase 8, launch-checklist payout panel check",
+      "NEXT_STEPS: commerce-orders-payout-ledger-panel done; commerce-stripe-orphan-product-archive queued; receipt remains with 4d67; Stripe/Places/scheduling/Connect gated",
+      "AGENT_PROTOCOL — payout panel when receipt claimed; listCommerceOrders/summarize in wiring preference; revenue chain + payout panel",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(137, 139),
   },
 ];
 

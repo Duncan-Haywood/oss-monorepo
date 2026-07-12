@@ -33,12 +33,14 @@ import {
 import type { OrderRecord } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
 import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
+import type { CommerceOrderRecord } from "@/lib/commerce/orders";
 import {
   MAX_COMMERCE_SKUS,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
   newCommerceSkuId,
+  summarizeCommerceOrdersByLead,
 } from "@/lib/commerce";
 import type { ClientVoicePack } from "@/lib/voice/pack";
 import {
@@ -104,6 +106,7 @@ import {
   inquiryCanReceiveReply,
   inquiryShouldAutoMarkRead,
 } from "@/lib/inquiries/reply";
+import { formatUsd } from "@/lib/metrics/pipeline-health";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -114,6 +117,8 @@ interface LeadsClientProps {
   initialMarketingPacks?: MarketingPack[];
   initialCommerceCatalogs?: CommerceCatalog[];
   initialClientVoicePacks?: ClientVoicePack[];
+  /** Pass-through Buy now ledger for manual client payout reconciliation. */
+  initialCommerceOrders?: CommerceOrderRecord[];
   /** UTC YYYY-MM for the packs loaded on the server. */
   marketingMonth?: string;
 }
@@ -144,6 +149,7 @@ export function LeadsClient({
   initialMarketingPacks = [],
   initialCommerceCatalogs = [],
   initialClientVoicePacks = [],
+  initialCommerceOrders = [],
   marketingMonth = "",
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -164,6 +170,7 @@ export function LeadsClient({
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
     null,
   );
+  const [commerceOrders] = useState<CommerceOrderRecord[]>(initialCommerceOrders);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -824,6 +831,7 @@ export function LeadsClient({
     orders,
     commerceCatalogs,
   );
+  const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders);
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
@@ -1057,6 +1065,67 @@ export function LeadsClient({
                 </li>
               );
             })}
+          </ul>
+        </section>
+      )}
+
+      {commercePayoutsByLead.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Commerce payouts (manual)
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({commerceOrders.length} order{commerceOrders.length === 1 ? "" : "s"})
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#commerce"
+              className="text-xs font-medium text-teal-800 underline underline-offset-2"
+            >
+              Commerce
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Pass-through Buy now money collected on the platform Stripe account — owed to each
+            Commerce client until Stripe Connect ships. Use these per-lead totals to reconcile
+            manual payouts; this is not Local Site Studio revenue.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {commercePayoutsByLead.map((summary) => (
+              <li
+                key={summary.leadSlug}
+                className="rounded-xl border border-teal-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {businessNameBySlug.get(summary.leadSlug) || summary.leadSlug}{" "}
+                      <span className="font-normal text-zinc-500">({summary.leadSlug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      {summary.orderCount} order{summary.orderCount === 1 ? "" : "s"} · latest{" "}
+                      {new Date(summary.latestCreatedAt).toLocaleString()}
+                    </p>
+                    <ul className="mt-2 space-y-1 text-xs text-zinc-600">
+                      {summary.orders.slice(0, 5).map((row) => (
+                        <li key={row.id}>
+                          {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
+                          {new Date(row.createdAt).toLocaleDateString()}
+                        </li>
+                      ))}
+                      {summary.orders.length > 5 ? (
+                        <li className="text-zinc-500">
+                          +{summary.orders.length - 5} more
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+                  <p className="text-sm font-semibold tabular-nums text-teal-900">
+                    {formatUsd(summary.totalUsd)} owed
+                  </p>
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
       )}
