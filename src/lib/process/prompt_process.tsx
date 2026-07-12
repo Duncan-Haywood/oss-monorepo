@@ -561,8 +561,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-buy-now-client-receipt",
     summary:
       "Commerce sells order notifications (see /docs/product-bundles). Today a completed Buy now only notifies the operator via insertClientInquiry — the commerceAddon lead (local business) never gets an email about their customer's purchase. Queue operator-path or webhook-triggered Resend to lead.email (honor suppression; reuse commerceOrders / catalog SKU fields) so the client knows to fulfill. Distinct from commerce-payouts-stripe-connect (money movement stays gated).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-4d67",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
