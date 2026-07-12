@@ -1693,16 +1693,26 @@ function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSessionRe
   };
 }
 
-/** Records a newly-created Stripe Checkout Session for abandoned-checkout tracking. No-ops without a lead slug — there's nothing to attribute a recovery email to. */
-export async function recordCheckoutSessionCreated(params: {
-  leadSlug: string;
-  stripeSessionId: string;
-  tier: string;
-  commerceAddon: boolean;
-  customerEmail?: string;
-  kind?: "bundle" | "commerce_sku";
-  skuId?: string;
-}): Promise<void> {
+/**
+ * Records a newly-created Stripe Checkout Session for abandoned-checkout
+ * tracking. Pass { requireConvex: true } from checkout API routes so a
+ * Convex failure does not silently leave the open session only in
+ * instance-local SQLite while Convex-first readers
+ * (listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue) never see
+ * it — the create-side twin of markCheckoutSessionComplete.
+ */
+export async function recordCheckoutSessionCreated(
+  params: {
+    leadSlug: string;
+    stripeSessionId: string;
+    tier: string;
+    commerceAddon: boolean;
+    customerEmail?: string;
+    kind?: "bundle" | "commerce_sku";
+    skuId?: string;
+  },
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   const createdAt = new Date().toISOString();
   const kind = params.kind ?? "bundle";
 
@@ -1715,6 +1725,9 @@ export async function recordCheckoutSessionCreated(params: {
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordCheckoutSessionCreated", e);
+      }
       console.warn(
         `Failed to record checkout session ${params.stripeSessionId} on Convex, falling back to SQLite`,
         e,

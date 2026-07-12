@@ -165,7 +165,10 @@ export default function LaunchChecklistDocPage() {
           If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
           <code>200</code>) so Stripe retries. With Convex configured, webhook fulfillment writes
           must fail closed on Convex errors (<code>requireConvex</code>) — never ACK after a
-          SQLite-only write that other instances cannot see.
+          SQLite-only write that other instances cannot see. The same fail-closed policy applies
+          when creating Checkout Sessions: with Convex configured,{" "}
+          <code>recordCheckoutSessionCreated</code> must succeed (or the checkout API returns{" "}
+          <code>502</code>) so abandoned-recovery queues on other instances can see the open cart.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
