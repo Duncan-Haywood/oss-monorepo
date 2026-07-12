@@ -312,8 +312,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "unreplied-inquiry-pipeline-metric",
     summary:
       "Fold new/unreplied clientInquiries counts into pipeline-health (and optionally a dashboard teaser) so unpaid-looking support debt on live/paid sites sits beside paid-not-live — complements inquiry-dashboard-reply without a second inbox.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-af03",
   },
   {
     id: "snoozed-leads-pipeline-metric",
