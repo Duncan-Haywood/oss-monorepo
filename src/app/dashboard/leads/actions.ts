@@ -26,6 +26,7 @@ import {
   getCommerceCatalog,
   listCommerceCatalogs,
   listCommerceOrders,
+  markCommerceOrderPaidOut,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
@@ -673,6 +674,44 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
   } catch (error) {
     console.error("Error in sendCommerceCheckoutRecoveryAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator marks one commerceOrders line as manually paid out to the client.
+ * Free coded path ahead of Stripe Connect (see commerce-payouts-stripe-connect) —
+ * reduces double-pay risk on the Commerce payouts (manual) panel. Never touches
+ * revenueTotalUsd/orders — pass-through money stays in its own ledger.
+ */
+export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!stripeSessionId) {
+      return { success: false as const, error: "Checkout session id is required" };
+    }
+
+    const orders = await listCommerceOrders();
+    const order = orders.find((o) => o.stripeSessionId === stripeSessionId);
+    if (!order) {
+      return { success: false as const, error: "Commerce order not found" };
+    }
+    if (order.paidOutAt) {
+      return { success: false as const, error: "Order is already marked paid out" };
+    }
+
+    const paidOutAt = new Date().toISOString();
+    await markCommerceOrderPaidOut(stripeSessionId, paidOutAt);
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, paidOutAt };
+  } catch (error) {
+    console.error("Error in markCommerceOrderPaidOutAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

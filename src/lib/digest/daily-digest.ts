@@ -300,9 +300,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       businessName: lead.businessName,
     }));
 
-  const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders);
+  const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders).filter(
+    (summary) => summary.unpaidCount > 0,
+  );
   const commercePayoutsOwedTotalUsd = commercePayoutSummaries.reduce(
-    (sum, row) => sum + row.totalUsd,
+    (sum, row) => sum + row.unpaidTotalUsd,
     0,
   );
   const commercePayoutsOwed: DigestCommercePayoutOwed[] = commercePayoutSummaries
@@ -310,8 +312,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     .map((summary) => ({
       slug: summary.leadSlug,
       businessName: leadsBySlug.get(summary.leadSlug)?.businessName ?? summary.leadSlug,
-      orderCount: summary.orderCount,
-      totalUsd: summary.totalUsd,
+      orderCount: summary.unpaidCount,
+      totalUsd: summary.unpaidTotalUsd,
     }));
 
   const coldLeadCount = listColdLeads(leads, nowMs).length;

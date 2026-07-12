@@ -267,6 +267,15 @@ function getSqliteDb(): DatabaseSync {
     sqliteDb.exec("ALTER TABLE checkout_sessions ADD COLUMN skuId TEXT");
   }
 
+  const commerceOrderCols = (
+    sqliteDb.prepare("PRAGMA table_info(commerce_orders)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!commerceOrderCols.includes("paidOutAt")) {
+    sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN paidOutAt TEXT");
+  }
+
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
   const row = countStmt.get() as { count: number } | undefined;
@@ -1785,6 +1794,7 @@ interface SqliteCommerceOrderRow {
   amountPaidUsd: number;
   stripeSessionId: string;
   createdAt: string;
+  paidOutAt: string | null;
 }
 
 function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
@@ -1796,6 +1806,7 @@ function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
     amountPaidUsd: row.amountPaidUsd,
     stripeSessionId: row.stripeSessionId,
     createdAt: row.createdAt,
+    paidOutAt: row.paidOutAt ?? undefined,
   };
 }
 
@@ -1866,6 +1877,37 @@ export async function listCommerceOrders(
     )
     .all(safeLimit) as unknown as SqliteCommerceOrderRow[];
   return rows.map(mapCommerceOrderRow);
+}
+
+/**
+ * Marks a commerce order as manually paid out to the client — reduces
+ * double-pay risk on the payout panel until Stripe Connect ships. Keyed on
+ * stripeSessionId (unique, always present), matching recordCheckoutRecoverySent.
+ */
+export async function markCommerceOrderPaidOut(
+  stripeSessionId: string,
+  paidOutAt: string = new Date().toISOString(),
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markPaidOut, {
+        stripeSessionId,
+        paidOutAt,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to mark commerce order ${stripeSessionId} paid out on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare("UPDATE commerce_orders SET paidOutAt = ? WHERE stripeSessionId = ?").run(
+    paidOutAt,
+    stripeSessionId,
+  );
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---

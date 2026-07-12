@@ -24,6 +24,8 @@ export interface CommerceOrderRecord {
   amountPaidUsd: number;
   stripeSessionId: string;
   createdAt: string;
+  /** Set once an operator has manually paid this order's amount out to the client. */
+  paidOutAt?: string;
 }
 
 export interface InsertCommerceOrderInput {
@@ -47,17 +49,29 @@ export function sumCommerceOrdersRevenueUsd(
   return total;
 }
 
+/** True once an operator has marked this order's amount as paid out to the client. */
+export function isCommerceOrderPaidOut(
+  order: Pick<CommerceOrderRecord, "paidOutAt">,
+): boolean {
+  return Boolean(order.paidOutAt);
+}
+
 /**
  * Per-lead rollup of pass-through Buy now orders for manual payout
  * reconciliation until Stripe Connect ships. Pure — no I/O.
  *
- * Sort: highest total owed first, then most-recent order, then slug.
+ * Sort: highest amount still owed (unpaid) first, then most-recent order,
+ * then slug — orders already marked paid out do not drive urgency.
  * Within each lead, orders are newest-first (createdAt desc).
  */
 export interface CommerceOrdersByLeadSummary {
   leadSlug: string;
   orderCount: number;
+  /** Lifetime total of all recorded orders for this lead (paid out or not). */
   totalUsd: number;
+  /** Total still owed to the client — excludes orders with paidOutAt set. */
+  unpaidTotalUsd: number;
+  unpaidCount: number;
   latestCreatedAt: string;
   /** Newest-first slice of this lead's orders (caller may already have capped the input list). */
   orders: CommerceOrderRecord[];
@@ -83,17 +97,20 @@ export function summarizeCommerceOrdersByLead(
     );
     const latest = sorted[0];
     if (!latest) continue;
+    const unpaid = sorted.filter((order) => !isCommerceOrderPaidOut(order));
     summaries.push({
       leadSlug,
       orderCount: sorted.length,
       totalUsd: sumCommerceOrdersRevenueUsd(sorted),
+      unpaidTotalUsd: sumCommerceOrdersRevenueUsd(unpaid),
+      unpaidCount: unpaid.length,
       latestCreatedAt: latest.createdAt,
       orders: sorted,
     });
   }
 
   return summaries.sort((a, b) => {
-    if (b.totalUsd !== a.totalUsd) return b.totalUsd - a.totalUsd;
+    if (b.unpaidTotalUsd !== a.unpaidTotalUsd) return b.unpaidTotalUsd - a.unpaidTotalUsd;
     const byDate = b.latestCreatedAt.localeCompare(a.latestCreatedAt);
     if (byDate !== 0) return byDate;
     return a.leadSlug.localeCompare(b.leadSlug);

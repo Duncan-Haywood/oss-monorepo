@@ -154,6 +154,8 @@ export default defineSchema({
     amountPaidUsd: v.number(),
     stripeSessionId: v.string(),
     createdAt: v.string(),
+    /** Set once an operator has manually paid this order's amount out to the client. */
+    paidOutAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

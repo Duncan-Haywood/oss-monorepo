@@ -18,6 +18,7 @@ import {
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
   sendCommerceCheckoutRecoveryAction,
+  markCommerceOrderPaidOutAction,
   updateLeadNotesAction,
   snoozeLeadAction,
   disposeColdLeadAction,
@@ -171,7 +172,7 @@ export function LeadsClient({
   const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
     null,
   );
-  const [commerceOrders] = useState<CommerceOrderRecord[]>(initialCommerceOrders);
+  const [commerceOrders, setCommerceOrders] = useState<CommerceOrderRecord[]>(initialCommerceOrders);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -605,6 +606,21 @@ export function LeadsClient({
       setCheckoutSessions((prev) =>
         prev.map((s) =>
           s.stripeSessionId === stripeSessionId ? { ...s, recoverySentAt: sentAt } : s,
+        ),
+      );
+    });
+  };
+
+  const handleMarkCommerceOrderPaidOut = (stripeSessionId: string) => {
+    startTransition(async () => {
+      const res = await markCommerceOrderPaidOutAction(stripeSessionId);
+      if (!res.success) {
+        alert(`Mark paid out failed: ${res.error}`);
+        return;
+      }
+      setCommerceOrders((prev) =>
+        prev.map((o) =>
+          o.stripeSessionId === stripeSessionId ? { ...o, paidOutAt: res.paidOutAt } : o,
         ),
       );
     });
@@ -1124,11 +1140,27 @@ export function LeadsClient({
                       {summary.orderCount} order{summary.orderCount === 1 ? "" : "s"} · latest{" "}
                       {new Date(summary.latestCreatedAt).toLocaleString()}
                     </p>
-                    <ul className="mt-2 space-y-1 text-xs text-zinc-600">
+                    <ul className="mt-2 space-y-1.5 text-xs text-zinc-600">
                       {summary.orders.slice(0, 5).map((row) => (
-                        <li key={row.id}>
-                          {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
-                          {new Date(row.createdAt).toLocaleDateString()}
+                        <li key={row.stripeSessionId} className="flex items-center justify-between gap-2">
+                          <span className={row.paidOutAt ? "text-zinc-400 line-through" : undefined}>
+                            {formatUsd(row.amountPaidUsd)} · {row.skuName} ·{" "}
+                            {new Date(row.createdAt).toLocaleDateString()}
+                          </span>
+                          {row.paidOutAt ? (
+                            <span className="shrink-0 text-teal-700">
+                              Paid out {new Date(row.paidOutAt).toLocaleDateString()}
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleMarkCommerceOrderPaidOut(row.stripeSessionId)}
+                              className="shrink-0 rounded-lg border border-teal-700 px-2 py-0.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
+                            >
+                              Mark paid out
+                            </button>
+                          )}
                         </li>
                       ))}
                       {summary.orders.length > 5 ? (
@@ -1139,7 +1171,7 @@ export function LeadsClient({
                     </ul>
                   </div>
                   <p className="text-sm font-semibold tabular-nums text-teal-900">
-                    {formatUsd(summary.totalUsd)} owed
+                    {formatUsd(summary.unpaidTotalUsd)} owed
                   </p>
                 </div>
               </li>

@@ -256,7 +256,10 @@ export default function LaunchChecklistDocPage() {
           clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.
           This money is collected for the client, not platform revenue —
           pay clients manually until Stripe Connect ships (see{" "}
-          <DocLink href="/docs/process">process</DocLink>).
+          <DocLink href="/docs/process">process</DocLink>). After actually paying the client,
+          click <strong>Mark paid out</strong> on that order line and confirm it disappears
+          from the panel&apos;s owed total and from the next digest&apos;s Commerce payouts
+          owed section — this is what prevents double-paying the same order.
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six

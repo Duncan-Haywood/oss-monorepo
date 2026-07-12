@@ -420,6 +420,34 @@ describe("buildDailyDigest", () => {
     expect(digest.commercePayoutsOwedTotalUsd).toBe(66.5);
     expect(digest.isEmpty).toBe(false);
   });
+
+  it("excludes commerce orders already marked paid out", () => {
+    const cafe = baseLead({
+      slug: "settled-cafe",
+      businessName: "Settled Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_1",
+          leadSlug: "settled-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_1",
+          createdAt: "2026-07-12T10:00:00.000Z",
+          paidOutAt: "2026-07-12T11:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commercePayoutsOwed).toHaveLength(0);
+    expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {
