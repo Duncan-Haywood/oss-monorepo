@@ -107,6 +107,7 @@ describe("computePipelineHealth", () => {
     expect(health.orderCount).toBe(0);
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
+    expect(health.clientVoicePacksDueCount).toBe(0);
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -419,6 +420,25 @@ describe("computePipelineHealth", () => {
     });
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.marketingPacksDueMonth).toBe("2026-07");
+  });
+
+  it("counts Complete leads missing a client voice FAQ pack", () => {
+    const needsVoice = makeLead("paid", { slug: "needs-voice" });
+    const hasVoice = makeLead("live", { slug: "has-voice" });
+    const growthOnly = makeLead("paid", { slug: "growth-only" });
+    const health = computePipelineHealth({
+      leads: [needsVoice, hasVoice, growthOnly],
+      orders: [
+        { ...makeOrder(699), id: "o1", leadSlug: "needs-voice", tier: "complete" },
+        { ...makeOrder(699), id: "o2", leadSlug: "has-voice", tier: "complete" },
+        { ...makeOrder(599), id: "o3", leadSlug: "growth-only", tier: "growth" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      clientVoicePacks: [{ leadSlug: "has-voice" }],
+      nowMs: NOW,
+    });
+    expect(health.clientVoicePacksDueCount).toBe(1);
   });
 
   it("defaults closed lead count to zero when none are closed", () => {
