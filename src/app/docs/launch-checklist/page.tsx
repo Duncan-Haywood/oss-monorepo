@@ -293,9 +293,10 @@ export default function LaunchChecklistDocPage() {
           paid-not-live and open-handoff counts drop on pipeline health.
         </li>
         <li>
-          Point client site forms at <code>/api/contact/[slug]</code>. Submissions land in the
-          operator Inquiries panel on the leads dashboard — reply from the panel (Resend), or
-          archive when done. Email notify to the business still fires on submit. Confirm
+          Point client site forms at <code>/api/contact/[slug]</code>. Submissions must land in
+          the operator Inquiries panel on the leads dashboard (persist failure returns{" "}
+          <code>503</code>, not a false Thanks). Reply from the panel (Resend), or archive when
+          done. Email notify to the business fires after a successful ledger write. Confirm
           unreplied-inquiry count on pipeline health drops after reply (new + read count as
           unreplied; replied/archived do not).
         </li>

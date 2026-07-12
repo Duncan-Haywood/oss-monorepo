@@ -161,7 +161,8 @@ export default function ArchitectureDocPage() {
         Convex-first, SQLite-fallback pattern as leads/orders/suppressions (explicit{" "}
         <code>handoffId</code> column round-trips as <code>id</code>). Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
-        (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
+        (persist <code>client_inquiries</code> required for success — <code>503</code> on DB
+        failure; email notify best-effort after), optional Vercel Domains API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). Opening the reply composer on a{" "}

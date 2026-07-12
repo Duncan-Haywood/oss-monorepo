@@ -103,6 +103,7 @@ export const AGENT_PROTOCOL = [
   "Convex markLeadPaid must create a paid stub lead when the checkout slug has no CRM row yet — parity with SQLite recordLeadPayment. Defaults live in src/lib/leads/payment-stub.ts (buildPaymentStubLeadFields); keep convex/leads.ts in sync. An order without a paid lead breaks paidNotLiveCount, handoff eligibility, and stage funnel accuracy.",
   "listOrders Convex path must return newest-first (sortOrdersNewestFirst) to match SQLite ORDER BY createdAt DESC — latestEligibleOrder / Billing Portal assume that order. Do not rely on Convex .collect() order.",
   "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
+  "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
 ] as const;
 
 /**
@@ -694,8 +695,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "contact-form-persist-required",
     summary:
-      "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row).",
-    status: "in_progress",
+      "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row). Shipped: persist failure → 503; email notify only after a successful inquiry ledger write.",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-6547",
   },
@@ -1851,6 +1852,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "The alreadyRecorded gate lived inside `if (skuId)`; without skuId, inquiry + client receipt still ran on retries. Normal Buy now always sets skuId; this closes the malformed-session hole without inventing inquiry dedup.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "POST /api/contact/[slug] treats insertClientInquiry as required for success: persist failure returns 503 (never ok:true); email notify runs only after a successful ledger write and stays best-effort if Resend fails.",
+    rationale:
+      "Starter sells a working contact form plus an operator CRM trail. Returning Thanks while the inquiry insert failed left visitors thinking the message landed and operators with an empty inbox — worse than a visible retry. Same-minute dual claim with prompt-process-evolution-4d48: earlier remote claim (6547, +3s) owns; 4d48 should pivot.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2984,6 +2992,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #68 (3df6) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(159, 162),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-6547",
+    summary:
+      "Claimed contact-form-persist-required (queued by 3df6 / PR #68; left free by da3d / PR #69). Same-minute dual claim with prompt-process-evolution-4d48 — earlier remote claim (+3s) owns; feature body pushed so sibling can pivot. Shipped: persist failure → 503 without ok:true; email notify only after successful inquiry ledger write. Improved AGENT_PROTOCOL. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.ts — insertClientInquiry required for success (503 on failure); email best-effort after ledger",
+      "Docs: production-deploy, architecture §6b, roadmap Phase 5, launch-checklist — persist-required contact form",
+      "NEXT_STEPS: contact-form-persist-required done; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — contact form must not claim success without an inquiry ledger row",
+      "BUSINESS_DECISIONS — documented persist-required + dual-claim ownership vs 4d48",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(162, 163),
   },
 ];
 
