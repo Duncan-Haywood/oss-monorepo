@@ -111,8 +111,9 @@ export const AGENT_PROTOCOL = [
   "GET /api/unsubscribe must also pass requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY in src/lib/email/suppression-persist.ts) when Convex is configured — isEmailSuppressed reads Convex-first, so a SQLite-only suppress after a Convex mutation failure would show 'You have been unsubscribed' while other instances keep sending (CAN-SPAM split-brain). Fail-closed 500 is the recovery path (visitor retries); do not invent a separate fallback policy for unsubscribe vs contact/webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
-  "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify, Stripe webhook DNS handoff email) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern.",
+  "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern. The post-payment DNS handoff email in the Stripe webhook (formatDnsInstructionsForEmail) is included — never interpolate raw handoff URLs/hosts or businessName into that HTML.",
   "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
+  "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
 ] as const;
 
 /**
@@ -800,14 +801,23 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "checkout-session-complete-convex-primary",
     summary:
-      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Prefer requireConvex + 5xx from the webhook so Stripe retries until the shared store marks the session complete.",
-    status: "todo",
+      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Shipped: markCheckoutSessionComplete accepts ConvexPrimaryWriteOptions and throws ConvexPrimaryWriteError on a requireConvex failure (mirrors recordLeadPayment/insertClientInquiry/insertDeployHandoff); both webhook call sites (bundle + commerce_sku) pass WEBHOOK_CONVEX_PRIMARY and return the new checkout_session_mark_complete 5xx so Stripe retries instead of ACKing past an unmarked session.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-d3qpgd",
+  },
+  {
+    id: "organic-checkout-crm-attribution",
+    summary:
+      "Homepage / pricing CTAs link to /checkout?tier=… without a lead slug. Checkout Session metadata then stores slug:\"\" and the webhook only fulfills when slug && tier — so an organic buyer who pays gets Stripe money with zero CRM lead, order row, deploy handoff, or receipt/DNS emails (contradicts the payment-stub design that already creates a lead when a slug exists but no CRM row). Shipped: mint a stable organic-* attribution slug at Checkout Session create when none is provided; webhook + stub-lead path then work unchanged. Also escape DNS handoff email HTML (same payment path, AGENT_PROTOCOL gap vs sendReceiptEmail) and correct Growth landing copy that overclaimed auto-scheduling.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-9c45",
   },
   {
     id: "unsubscribe-suppress-convex-primary",
     summary:
-      "After PR #79 left only gated NEXT_STEPS (plus checkout-session-complete-convex-primary owned by open PR #81 / sibling 9c45 claimed organic-checkout-crm-attribution), audited public/CAN-SPAM write paths. GET /api/unsubscribe called suppressEmail without requireConvex — when Convex is configured and the mutation fails, the route still SQLite-fallbacks then shows 'You have been unsubscribed' while isEmailSuppressed on other instances reads Convex-first and returns false, so automated outreach can keep emailing someone who just opted out (CAN-SPAM split-brain). Shipped: UNSUBSCRIBE_CONVEX_PRIMARY on suppressEmail; route returns 500 on ConvexPrimaryWriteError. Same-iteration: escapeHtmlForEmail on the Stripe webhook DNS handoff inline HTML (businessName) — the last post-payment template still raw after PR #76 fixed sendReceiptEmail.",
+      "After PR #79 left only gated NEXT_STEPS (plus checkout-session-complete-convex-primary owned by PR #81 / sibling 9c45 claimed organic-checkout-crm-attribution), audited public/CAN-SPAM write paths. GET /api/unsubscribe called suppressEmail without requireConvex — when Convex is configured and the mutation fails, the route still SQLite-fallbacks then shows 'You have been unsubscribed' while isEmailSuppressed on other instances reads Convex-first and returns false, so automated outreach can keep emailing someone who just opted out (CAN-SPAM split-brain). Shipped: UNSUBSCRIBE_CONVEX_PRIMARY on suppressEmail; route returns 500 on ConvexPrimaryWriteError. DNS handoff HTML escape folded with PR #82 (9c45).",
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-6a13",
@@ -815,10 +825,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "webhook-dns-handoff-email-html-escape",
     summary:
-      "Empty-backlog asymmetry after PR #76 escaped businessName in resend.ts sendReceiptEmail: the sibling Stripe webhook DNS/production-handoff email (inline HTML in src/app/api/stripe/webhook/route.ts) still interpolated raw businessName into the body. Fired on every paid bundle sale after receipt. Shipped: escapeHtmlForEmail(businessName) for the HTML body; subject line remains plain text.",
+      "Empty-backlog asymmetry after PR #76 escaped businessName in resend.ts sendReceiptEmail: the sibling Stripe webhook DNS/production-handoff email still interpolated raw businessName (and formatDnsInstructionsForEmail hosts/URLs). Shipped on PR #82 (9c45): dns-email.ts escaping + webhook safeBiz/safeBrand; complementary fold on 6a13. Subject lines remain plain text.",
     status: "done",
     phase: "Phase 5 — Production deploy",
-    owner: "cursor/business-process-evolution-6a13",
+    owner: "cursor/prompt-process-evolution-9c45 + cursor/business-process-evolution-6a13",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2036,9 +2046,30 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write. Same-iteration: Stripe webhook DNS handoff email escapes businessName in HTML.",
+      "POST /api/stripe/checkout mints a stable organic-* lead slug into Checkout Session metadata (and cancel_url) when the request omits slug — never store slug:\"\". Webhook fulfillment + payment stubs then create CRM/handoff rows for homepage buyers.",
     rationale:
-      "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). The webhook DNS handoff template was the last post-payment HTML path still interpolating raw businessName after PR #76 fixed sendReceiptEmail. Sibling prompt-process-evolution-9c45 claimed organic-checkout-crm-attribution; PR #81 holds checkout-session-complete-convex-primary.",
+      "Primary marketing CTAs on / link to /checkout?tier=… without a lead slug. The webhook only runs recordLeadPayment + enqueueProductionHandoff when slug && tier, so empty metadata.slug meant Stripe could collect money with zero CRM, handoff, or receipt/DNS emails — contradicting the payment_stub design that already handles 'slug present, lead missing'. Minting at session create (resolveBundleCheckoutLeadSlug) is smaller and more reliable than synthesizing in the webhook after the fact, and also lets abandoned-checkout tracking record the session for recovery via session.customerEmail. Left checkout-session-complete-convex-primary to open PR #81 (claude/relaxed-galileo-d3qpgd).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "DNS handoff email HTML (inline webhook template + formatDnsInstructionsForEmail) must escape businessName and all handoff URL/host fields via escapeHtmlForEmail. Growth landing feature copy says ready-to-post packs — not auto-scheduled — until marketing-content-scheduling OAuth ships.",
+    rationale:
+      "Same empty-backlog audit as organic attribution: the DNS 'next steps' email was the one post-payment HTML path still interpolating raw businessName after PR #76 escaped sendReceiptEmail in the same webhook block — classic asymmetry. formatDnsInstructionsForEmail lived in a db-importing module, so it moved to dns-email.ts for unit-testable escaping. Landing Growth copy overclaimed Buffer/GBP/Meta auto-scheduling that remains operator-gated; truthful packaging protects conversion quality and counsel risk.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "markCheckoutSessionComplete now accepts ConvexPrimaryWriteOptions and both webhook call sites pass requireConvex, 5xx-ing (checkout_session_mark_complete) on a Convex failure instead of warn-and-continue.",
+    rationale:
+      "Every other Stripe-webhook fulfillment write (recordLeadPayment, insertDeployHandoff, insertCommerceOrder, insertClientInquiry) already fails closed on Convex when configured — mark-complete was the one ledger write still silently SQLite-falling-back. A failed mark-complete under a configured Convex leaves the session 'open' to Convex-first readers (listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue) even though the customer already paid, risking a Finish-checkout nudge to someone who just completed checkout. convex/checkoutSessions.ts's markComplete mutation is already a safe no-op when no row matches, so failing closed cannot false-positive on an untracked session id — only a genuine Convex outage now returns 5xx, and Stripe's retry re-runs the (idempotent) mark exactly like every sibling fulfillment write. Folded with PR #82 organic attribution (both ITERATIONS kept).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write.",
+    rationale:
+      "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81.",
   },
 ];
 
@@ -3353,20 +3384,53 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-9c45",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #79 except gated secrets/OAuth/counsel; checkout-session-complete-convex-primary already owned by open PR #81 (claude/relaxed-galileo-d3qpgd). Empty-backlog audit found homepage /checkout?tier= CTAs omit slug so webhook skipped all fulfillment after Stripe charged. Shipped organic-* attribution at session create, DNS handoff HTML escaping, and Growth landing copy that no longer overclaims auto-scheduling. Sibling business-process-evolution-6a13 was running the same hour but had not claimed on remote.",
+    shipped: [
+      "src/lib/checkout/organic-attribution.ts (+ test) — resolveBundleCheckoutLeadSlug / mintOrganicCheckoutLeadSlug",
+      "src/app/api/stripe/checkout/route.ts — always set metadata.slug (+ organicAttribution flag); always record checkout_sessions; preserve slug on cancel_url",
+      "src/lib/deploy/dns-email.ts (+ test) — formatDnsInstructionsForEmail escapes hosts/URLs/purpose",
+      "src/app/api/stripe/webhook/route.ts — escape businessName/brand in DNS handoff email HTML",
+      "src/app/page.tsx — Growth feature: ready-to-post packs (not auto-scheduled)",
+      "Docs: architecture + roadmap Phase 3 — organic attribution",
+      "NEXT_STEPS: organic-checkout-crm-attribution done; checkout-session-complete left to PR #81",
+      "AGENT_PROTOCOL — never store empty checkout metadata.slug; DNS handoff email must escape",
+      "BUSINESS_DECISIONS — documented organic mint + DNS escape / Growth copy honesty",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(173, 175),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-d3qpgd",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #79 (3601 commerce-webhook-inquiry-retry-on-failure fold) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated; checkout-session-complete-convex-primary (queued by 3601's own audit) was the one free, non-gated todo and no sibling remote branch had claimed it. Closed it: markCheckoutSessionComplete previously warn-and-continue'd on any failure (Convex or SQLite), so with Convex configured a failed mark-complete left a paid session looking 'open' to listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue, risking a Finish-checkout nudge to someone who already paid. Folded origin/main after PR #82 (organic-checkout-crm-attribution) — both ITERATIONS kept.",
+    shipped: [
+      "src/lib/db.ts — markCheckoutSessionComplete(stripeSessionId, options?: ConvexPrimaryWriteOptions) throws ConvexPrimaryWriteError on requireConvex Convex failure instead of silently SQLite-falling-back (same pattern as recordLeadPayment/insertClientInquiry/insertDeployHandoff)",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — new WebhookFulfillmentStep 'checkout_session_mark_complete'",
+      "src/app/api/stripe/webhook/route.ts — both markCheckoutSessionComplete call sites (bundle + commerce_sku) now pass WEBHOOK_CONVEX_PRIMARY and return 5xx on failure instead of console.warn + continue",
+      "NEXT_STEPS: checkout-session-complete-convex-primary done; only operator/legal-gated todos remain",
+      "merge: folded origin/main after PR #82 (9c45 organic attribution) — both ITERATIONS kept",
+      "Verified: npm test + lint + build; convex/checkoutSessions.ts markComplete is a safe no-op when no matching row exists",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(175, 176),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-6a13",
     summary:
-      "Free NEXT_STEPS backlog empty after PR #79 except checkout-session-complete-convex-primary (open PR #81) and gated secrets/OAuth/counsel. Sibling prompt-process-evolution-9c45 claimed organic-checkout-crm-attribution. Audited public/CAN-SPAM write paths: GET /api/unsubscribe still SQLite-fallbacks on Convex failure then shows success while isEmailSuppressed reads Convex-first — CAN-SPAM split-brain. Shipped UNSUBSCRIBE_CONVEX_PRIMARY + 500 on ConvexPrimaryWriteError; also escaped businessName on the webhook DNS handoff inline HTML (last post-payment asymmetry after PR #76). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog empty after PR #79 except checkout-session-complete-convex-primary (PR #81) and gated secrets/OAuth/counsel. Sibling prompt-process-evolution-9c45 claimed (then merged PR #82) organic-checkout-crm-attribution + DNS handoff HTML escape. Audited public/CAN-SPAM write paths: GET /api/unsubscribe still SQLite-fallbacks on Convex failure then shows success while isEmailSuppressed reads Convex-first — CAN-SPAM split-brain. Shipped UNSUBSCRIBE_CONVEX_PRIMARY + 500 on ConvexPrimaryWriteError. Folded origin/main after PR #81 + #82 — all ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/email/suppression-persist.ts (+ test) — UNSUBSCRIBE_CONVEX_PRIMARY { requireConvex: true }",
       "src/lib/db.ts — suppressEmail accepts ConvexPrimaryWriteOptions; throws ConvexPrimaryWriteError when requireConvex",
       "src/app/api/unsubscribe/route.ts — suppressEmail(..., UNSUBSCRIBE_CONVEX_PRIMARY); 500 on ConvexPrimaryWriteError",
-      "src/app/api/stripe/webhook/route.ts — escapeHtmlForEmail(businessName) in DNS handoff HTML body",
       "Docs: architecture / compliance / launch-checklist / roadmap — unsubscribe requireConvex",
-      "NEXT_STEPS: unsubscribe-suppress-convex-primary + webhook-dns-handoff-email-html-escape done",
-      "AGENT_PROTOCOL — unsubscribe requireConvex; escapeHtml covers webhook DNS handoff templates",
-      "BUSINESS_DECISIONS — documented CAN-SPAM fail-closed + DNS HTML escape fold",
+      "NEXT_STEPS: unsubscribe-suppress-convex-primary done; webhook-dns-handoff-email-html-escape co-owned with PR #82",
+      "AGENT_PROTOCOL — unsubscribe requireConvex when Convex configured",
+      "BUSINESS_DECISIONS — documented CAN-SPAM fail-closed unsubscribe",
+      "merge: folded origin/main after PR #81 (checkout-session requireConvex) + PR #82 (organic attribution / DNS escape) — all ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(173, 174),
+    decisions: BUSINESS_DECISIONS.slice(176, 177),
   },
 ];
 

@@ -26,4 +26,12 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.step).toBe("commerce_order_inquiry");
     expect(result.body.error).toMatch(/retry/i);
   });
+
+  it("returns 500 with received:false for checkout-session mark-complete failures", () => {
+    const result = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("checkout_session_mark_complete");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });

@@ -134,9 +134,14 @@ export default function ArchitectureDocPage() {
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
       </p>
       <p>
-        Every slug-attributed Checkout Session is tracked in <code>checkout_sessions</code> (
+        Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
-        to <code>complete</code>. Rows carry a <code>kind</code> discriminator:{" "}
+        to <code>complete</code>. Homepage / pricing CTAs that omit a lead slug mint a stable{" "}
+        <code>organic-*</code> attribution slug at session create (
+        <code>resolveBundleCheckoutLeadSlug</code>) so webhook fulfillment, payment stubs, and
+        deploy handoffs still run after Stripe collects money — empty{" "}
+        <code>metadata.slug</code> previously skipped the entire paid path. Rows carry a{" "}
+        <code>kind</code> discriminator:{" "}
         <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer
         Buy now). Sessions still <code>open</code> 2+ hours after creation surface on separate
         panels on <code>/dashboard/leads</code> — &quot;Abandoned checkouts&quot; for bundles and
