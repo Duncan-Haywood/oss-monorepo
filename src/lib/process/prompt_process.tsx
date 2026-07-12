@@ -250,8 +250,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "operator-lead-notes",
     summary:
       "Optional free-text operator notes on Lead (SQLite + Convex) shown on the dashboard row expand / edit — capture call outcomes without a full CRM, and keep scoring inputs human-auditable.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-e2ee",
   },
   {
     id: "outreach-open-tracking",
