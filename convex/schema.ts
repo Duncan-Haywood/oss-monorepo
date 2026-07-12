@@ -58,8 +58,12 @@ export default defineSchema({
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
     message: v.string(),
-    status: v.string(), // "new" | "read" | "archived"
+    status: v.string(), // "new" | "read" | "replied" | "archived"
     source: v.optional(v.string()),
+    /** Last operator reply body sent from the dashboard. */
+    operatorReply: v.optional(v.string()),
+    /** Unix ms when the last dashboard reply was sent. */
+    repliedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

@@ -4,6 +4,7 @@ import { v } from "convex/values";
 const statusValidator = v.union(
   v.literal("new"),
   v.literal("read"),
+  v.literal("replied"),
   v.literal("archived"),
 );
 
@@ -17,12 +18,47 @@ const inquiryReturn = v.object({
   message: v.string(),
   status: statusValidator,
   source: v.optional(v.string()),
+  operatorReply: v.optional(v.string()),
+  repliedAt: v.optional(v.string()),
   createdAt: v.string(),
   updatedAt: v.string(),
 });
 
 function toIso(ms: number): string {
   return new Date(ms).toISOString();
+}
+
+function mapInquiry(row: {
+  inquiryId: string;
+  leadSlug: string;
+  businessName: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  message: string;
+  status: string;
+  source?: string;
+  operatorReply?: string;
+  repliedAt?: number;
+  createdAt: number;
+  updatedAt: number;
+}) {
+  return {
+    id: row.inquiryId,
+    leadSlug: row.leadSlug,
+    businessName: row.businessName,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    message: row.message,
+    status: row.status as "new" | "read" | "replied" | "archived",
+    source: row.source,
+    operatorReply: row.operatorReply,
+    repliedAt:
+      row.repliedAt !== undefined ? toIso(row.repliedAt) : undefined,
+    createdAt: toIso(row.createdAt),
+    updatedAt: toIso(row.updatedAt),
+  };
 }
 
 export const create = mutation({
@@ -53,19 +89,19 @@ export const create = mutation({
       updatedAt: now,
     });
 
-    return {
-      id: args.inquiryId,
+    return mapInquiry({
+      inquiryId: args.inquiryId,
       leadSlug: args.leadSlug,
       businessName: args.businessName,
       name: args.name,
       email: args.email,
       phone: args.phone,
       message: args.message,
-      status: "new" as const,
+      status: "new",
       source: args.source,
-      createdAt: toIso(now),
-      updatedAt: toIso(now),
-    };
+      createdAt: now,
+      updatedAt: now,
+    });
   },
 });
 
@@ -82,19 +118,7 @@ export const list = query({
       .order("desc")
       .take(limit);
 
-    return rows.map((row) => ({
-      id: row.inquiryId,
-      leadSlug: row.leadSlug,
-      businessName: row.businessName,
-      name: row.name,
-      email: row.email,
-      phone: row.phone,
-      message: row.message,
-      status: row.status as "new" | "read" | "archived",
-      source: row.source,
-      createdAt: toIso(row.createdAt),
-      updatedAt: toIso(row.updatedAt),
-    }));
+    return rows.map(mapInquiry);
   },
 });
 
@@ -112,19 +136,22 @@ export const listBySlug = query({
       .order("desc")
       .take(limit);
 
-    return rows.map((row) => ({
-      id: row.inquiryId,
-      leadSlug: row.leadSlug,
-      businessName: row.businessName,
-      name: row.name,
-      email: row.email,
-      phone: row.phone,
-      message: row.message,
-      status: row.status as "new" | "read" | "archived",
-      source: row.source,
-      createdAt: toIso(row.createdAt),
-      updatedAt: toIso(row.updatedAt),
-    }));
+    return rows.map(mapInquiry);
+  },
+});
+
+export const getById = query({
+  args: {
+    inquiryId: v.string(),
+  },
+  returns: v.union(inquiryReturn, v.null()),
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("clientInquiries")
+      .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
+      .unique();
+    if (!existing) return null;
+    return mapInquiry(existing);
   },
 });
 
@@ -147,18 +174,40 @@ export const updateStatus = mutation({
     const now = Date.now();
     await ctx.db.patch(existing._id, { status: args.status, updatedAt: now });
 
-    return {
-      id: existing.inquiryId,
-      leadSlug: existing.leadSlug,
-      businessName: existing.businessName,
-      name: existing.name,
-      email: existing.email,
-      phone: existing.phone,
-      message: existing.message,
-      status: args.status,
-      source: existing.source,
-      createdAt: toIso(existing.createdAt),
-      updatedAt: toIso(now),
-    };
+    return mapInquiry({ ...existing, status: args.status, updatedAt: now });
+  },
+});
+
+export const recordReply = mutation({
+  args: {
+    inquiryId: v.string(),
+    operatorReply: v.string(),
+  },
+  returns: v.union(inquiryReturn, v.null()),
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("clientInquiries")
+      .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
+      .unique();
+
+    if (!existing) {
+      return null;
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(existing._id, {
+      status: "replied",
+      operatorReply: args.operatorReply,
+      repliedAt: now,
+      updatedAt: now,
+    });
+
+    return mapInquiry({
+      ...existing,
+      status: "replied",
+      operatorReply: args.operatorReply,
+      repliedAt: now,
+      updatedAt: now,
+    });
   },
 });

@@ -1,6 +1,7 @@
 import { isEmailSuppressed } from "../db";
 import { brand } from "../brand";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
+import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -196,6 +197,43 @@ export async function sendCheckoutAbandonedRecovery(
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Operator reply to a website contact-form inquiry (dashboard inbox).
+ * Honors the same suppression + CAN-SPAM footer path as outreach mail.
+ */
+export async function sendInquiryReply(params: {
+  to: string;
+  businessName: string;
+  leadSlug: string;
+  replyBody: string;
+  originalMessage: string;
+  inquirerName?: string;
+}) {
+  const { to, businessName, leadSlug, replyBody, originalMessage, inquirerName } =
+    params;
+  const greeting = inquirerName?.trim()
+    ? `Hello ${escapeHtmlForEmail(inquirerName.trim())},`
+    : "Hello,";
+  const subject = `Re: your message to ${businessName}`;
+  const html = `
+    <p style="margin-bottom: 16px;">${greeting}</p>
+    ${plainTextToEmailHtml(replyBody)}
+    <p style="margin: 24px 0 8px 0; font-weight: 500;">The ${brand.name} Team</p>
+    <p style="margin-bottom: 8px; font-size: 12px; color: #71717a;">
+      On behalf of <strong>${escapeHtmlForEmail(businessName)}</strong>
+    </p>
+    <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 24px 0;" />
+    <p style="margin-bottom: 8px; font-size: 12px; color: #71717a;">
+      Your original message:
+    </p>
+    <blockquote style="margin: 0; padding: 12px 16px; border-left: 3px solid #d4d4d8; color: #52525b; font-size: 13px;">
+      ${plainTextToEmailHtml(originalMessage)}
+    </blockquote>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug });
 }
 
 /**

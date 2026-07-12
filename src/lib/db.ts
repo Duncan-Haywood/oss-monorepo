@@ -120,6 +120,8 @@ function getSqliteDb(): DatabaseSync {
       message TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'new',
       source TEXT,
+      operatorReply TEXT,
+      repliedAt TEXT,
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
       updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -179,6 +181,18 @@ function getSqliteDb(): DatabaseSync {
   ).map((c) => c.name);
   if (!orderCols.includes("stripeCustomerId")) {
     sqliteDb.exec("ALTER TABLE orders ADD COLUMN stripeCustomerId TEXT");
+  }
+
+  const inquiryCols = (
+    sqliteDb.prepare("PRAGMA table_info(client_inquiries)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!inquiryCols.includes("operatorReply")) {
+    sqliteDb.exec("ALTER TABLE client_inquiries ADD COLUMN operatorReply TEXT");
+  }
+  if (!inquiryCols.includes("repliedAt")) {
+    sqliteDb.exec("ALTER TABLE client_inquiries ADD COLUMN repliedAt TEXT");
   }
 
   // Seed SQLite database if empty
@@ -244,7 +258,9 @@ const api: any = {
     create: "inquiries:create",
     list: "inquiries:list",
     listBySlug: "inquiries:listBySlug",
+    getById: "inquiries:getById",
     updateStatus: "inquiries:updateStatus",
+    recordReply: "inquiries:recordReply",
   },
   orders: {
     list: "orders:list",
@@ -916,6 +932,8 @@ interface SqliteClientInquiryRow {
   message: string;
   status: string;
   source: string | null;
+  operatorReply: string | null;
+  repliedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -931,6 +949,8 @@ function mapClientInquiryRow(row: SqliteClientInquiryRow): ClientInquiry {
     message: row.message,
     status: row.status as ClientInquiryStatus,
     source: row.source || undefined,
+    operatorReply: row.operatorReply || undefined,
+    repliedAt: row.repliedAt || undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -1076,6 +1096,74 @@ export async function updateClientInquiryStatus(
   ).run(status, updatedAt, inquiryId);
 
   return mapClientInquiryRow({ ...existing, status, updatedAt });
+}
+
+export async function getClientInquiryById(
+  inquiryId: string,
+): Promise<ClientInquiry | null> {
+  if (convexClient) {
+    try {
+      const inquiry = (await convexClient.query(api.inquiries.getById, {
+        inquiryId,
+      })) as ClientInquiry | null;
+      if (inquiry) return inquiry;
+    } catch (e) {
+      console.warn(
+        `Failed to get inquiry ${inquiryId} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM client_inquiries WHERE id = ?")
+    .get(inquiryId) as SqliteClientInquiryRow | undefined;
+  return row ? mapClientInquiryRow(row) : null;
+}
+
+/**
+ * Persist a successful operator reply: status=replied + body + repliedAt.
+ */
+export async function recordClientInquiryReply(
+  inquiryId: string,
+  operatorReply: string,
+): Promise<ClientInquiry | null> {
+  if (convexClient) {
+    try {
+      const updated = (await convexClient.mutation(api.inquiries.recordReply, {
+        inquiryId,
+        operatorReply,
+      })) as ClientInquiry | null;
+      if (updated) return updated;
+    } catch (e) {
+      console.warn(
+        `Failed to record inquiry reply ${inquiryId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db
+    .prepare("SELECT * FROM client_inquiries WHERE id = ?")
+    .get(inquiryId) as SqliteClientInquiryRow | undefined;
+  if (!existing) return null;
+
+  const now = new Date().toISOString();
+  db.prepare(
+    `UPDATE client_inquiries
+     SET status = ?, operatorReply = ?, repliedAt = ?, updatedAt = ?
+     WHERE id = ?`,
+  ).run("replied", operatorReply, now, now, inquiryId);
+
+  return mapClientInquiryRow({
+    ...existing,
+    status: "replied",
+    operatorReply,
+    repliedAt: now,
+    updatedAt: now,
+  });
 }
 
 // --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---

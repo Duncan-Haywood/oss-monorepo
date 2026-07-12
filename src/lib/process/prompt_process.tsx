@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → discovery-call notes prompt → inquiry reply / work-next snooze), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -54,6 +54,7 @@ export const AGENT_PROTOCOL = [
   "If two hourly automations claim the same free todo in the same window: merge the branches (keep both process iterations), do not open a second competing PR for the same feature surface.",
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
+  "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
@@ -295,8 +296,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-dashboard-reply",
     summary:
       "Operator reply-from-dashboard for clientInquiries (Resend, honor suppression, mark replied) so paid Starter contact-form leads get a human response without leaving /dashboard/leads — closes the inbox loop that currently only archives.",
-    status: "todo",
+    status: "done",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-e1af",
   },
   {
     id: "lead-snooze-work-next",
@@ -304,6 +306,13 @@ export const NEXT_STEPS: NextStep[] = [
       "Optional snooze / defer on Work next (store snoozedUntil on Lead) so operators can park a hot lead without losing score history — reduces false urgency after a call is booked.",
     status: "todo",
     phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "unreplied-inquiry-pipeline-metric",
+    summary:
+      "Fold new/unreplied clientInquiries counts into pipeline-health (and optionally a dashboard teaser) so unpaid-looking support debt on live/paid sites sits beside paid-not-live — complements inquiry-dashboard-reply without a second inbox.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 
@@ -752,6 +761,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Operator inquiry replies use Resend via sendInquiryReply (same suppression + CAN-SPAM footer as outreach), persist operatorReply + repliedAt, and set status=replied — not a separate messages table.",
+    rationale:
+      "Paid Starter sites promise a working contact path; archive-only left operators jumping to mailto:. One reply body on the inquiry row is enough audit for the single-operator MVP and keeps SQLite/Convex shapes aligned.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Dashboard reply requires a non-empty inquirer email and refuses archived inquiries; Reply again is allowed on already-replied rows (updates body + repliedAt).",
+    rationale:
+      "No email means nothing Resend can deliver — surface mailto-less inquiries as mark-read/archive only. Re-reply covers corrections without inventing a thread model.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After inquiry-dashboard-reply, leave discovery-call-notes-prompt + lead-snooze-work-next free and queue unreplied-inquiry-pipeline-metric so siblings have claims while Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Unreplied inquiry counts on pipeline health complement the reply action the way abandoned-session aggregates complemented Cart ranking.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Moving a lead to discovery_call or completing Email 3 auto-opens the notes editor with a soft banner (Skip for now). The stage/email mutation is never blocked or rolled back if notes are skipped.",
     rationale:
       "Lead.notes existed but operators still left discovery rows blank. Prompting at the two moments when call context is freshest raises capture without a modal CRM or a second panel. Soft + skippable matches single-operator MVP speed.",
@@ -766,9 +796,9 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "After discovery-call-notes-prompt, leave inquiry-dashboard-reply (sibling e1af) and lead-snooze-work-next as the free NEXT_STEPS; Stripe Price bootstrap + Places stay human-gated.",
+      "After discovery-call-notes-prompt (merged with e1af inquiry reply), leave lead-snooze-work-next + unreplied-inquiry-pipeline-metric as the free NEXT_STEPS; Stripe Price bootstrap + Places stay human-gated.",
     rationale:
-      "Notes prompt closes the discovery hygiene gap. Inquiry reply closes the paid contact-form loop; snooze reduces false urgency on Work next. Empty free backlog causes hourly thrash.",
+      "Same-hour dual ship: inquiry reply closes the paid contact-form loop; notes prompt raises discovery hygiene. Snooze and unreplied-inquiry aggregates are the next sibling claims. Empty free backlog causes hourly thrash.",
   },
 ];
 
@@ -1200,17 +1230,36 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-e1af",
+    summary:
+      "Claimed inquiry-dashboard-reply (highest free revenue unlock after billing portal + abandoned aggregates). Shipped operator Resend reply from the Website inquiries panel: normalizeInquiryReply helpers + Vitest, sendInquiryReply, status=replied with operatorReply/repliedAt (SQLite migration + Convex schema/recordReply), replyToInquiryAction (auth + suppression), dashboard Reply UI. Process: inbox-without-reply protocol note; queued unreplied-inquiry-pipeline-metric for siblings.",
+    shipped: [
+      "src/lib/inquiries/reply.ts (+ .test.ts) — normalizeInquiryReply / escapeHtml / inquiryCanReceiveReply",
+      "src/lib/email/resend.ts — sendInquiryReply (quotes original message)",
+      "ClientInquiry status replied + operatorReply/repliedAt on types + SQLite + Convex",
+      "convex/inquiries.ts — getById + recordReply; statusValidator includes replied",
+      "src/lib/db.ts — getClientInquiryById / recordClientInquiryReply + migrations",
+      "replyToInquiryAction + Reply / Reply again UI on /dashboard/leads inquiries panel",
+      "Docs: production-deploy, launch-checklist, architecture, roadmap",
+      "NEXT_STEPS: inquiry-dashboard-reply done; unreplied-inquiry-pipeline-metric queued",
+      "AGENT_PROTOCOL — revenue chain + archive-only inbox is half a CRM",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(63, 66),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-c5cb",
     summary:
-      "Sibling prompt-process-evolution-e1af claimed inquiry-dashboard-reply; this run claimed discovery-call-notes-prompt. Soft notes prompt on discovery_call stage and Email 3 (non-blocking Skip), pure helpers + Vitest, docs + AGENT_PROTOCOL soft-CRM rule. Left inquiry reply + lead-snooze free for siblings.",
+      "Sibling prompt-process-evolution-e1af claimed inquiry-dashboard-reply; this run claimed discovery-call-notes-prompt. Soft notes prompt on discovery_call stage and Email 3 (non-blocking Skip), pure helpers + Vitest, docs + AGENT_PROTOCOL soft-CRM rule. Merged e1af before PR (both ITERATIONS kept).",
     shipped: [
       "src/lib/leads/notes.ts — shouldPromptNotesAfterStageChange / shouldPromptNotesAfterOutreachStep / notesPromptMessage",
       "src/lib/leads/notes.test.ts — prompt trigger + copy cases",
       "src/app/dashboard/leads/leads-client.tsx — auto-open notes editor + amber banner after discovery_call / Email 3; Skip for now",
       "Docs: roadmap Phase 2, architecture, launch-checklist",
-      "NEXT_STEPS: discovery-call-notes-prompt done; inquiry-dashboard-reply + lead-snooze-work-next remain free",
+      "NEXT_STEPS: discovery-call-notes-prompt done; lead-snooze-work-next + unreplied-inquiry-pipeline-metric remain free",
       "AGENT_PROTOCOL — soft CRM prompts must not block the triggering mutation",
+      "Merge of cursor/prompt-process-evolution-e1af (inquiry-dashboard-reply)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(63, 66),
+    decisions: BUSINESS_DECISIONS.slice(66, 69),
   },
 ];
