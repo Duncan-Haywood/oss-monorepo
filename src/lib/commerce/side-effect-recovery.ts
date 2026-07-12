@@ -48,8 +48,10 @@ export function hasCommerceCheckoutInquiryForSession(
 /**
  * Decide whether to fire operator inquiry + client receipt.
  * On redelivery (alreadyRecorded), still recover when the inquiry is missing.
- * When an inquiry already exists, skip both — receipt-only failure after a
- * successful inquiry stays best-effort (operator has the inbox row).
+ * The webhook must return 5xx on inquiry write failure so Stripe actually
+ * redelivers into this path — ACK 200 after a swallowed inquiry error makes
+ * recovery unreachable. When an inquiry already exists, skip both — receipt-only
+ * failure after a successful inquiry stays best-effort (operator has the inbox row).
  */
 export function planCommerceWebhookSideEffects(input: {
   alreadyRecorded: boolean;

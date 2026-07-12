@@ -290,7 +290,10 @@ export default function ArchitectureDocPage() {
         <code>sendCommerceBuyNowClientReceipt</code> are recovered when no{" "}
         <code>commerce_checkout</code> inquiry embeds the session id (
         <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
-        already exists. Sessions missing <code>metadata.skuId</code> skip
+        already exists. Inquiry write failures after a durable ledger write return HTTP 500 (
+        <code>commerce_order_inquiry</code>) so Stripe redelivers into that recovery path —
+        client receipt stays best-effort only after inquiry succeeds. Sessions missing{" "}
+        <code>metadata.skuId</code> skip
         ledger and side effects entirely (warn + break) — the alreadyRecorded gate cannot run
         without a SKU. Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)

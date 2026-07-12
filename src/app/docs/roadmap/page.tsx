@@ -244,7 +244,9 @@ export default function RoadmapDocPage() {
         Buy now session recover missing operator inquiry + client receipt when the ledger
         exists but no <code>commerce_checkout</code> inquiry embeds the session id (
         <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
-        already exists. Per-lead owed totals and recent
+        already exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
+        actually redelivers into that recovery path (client receipt stays best-effort after
+        inquiry succeeds). Per-lead owed totals and recent
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
