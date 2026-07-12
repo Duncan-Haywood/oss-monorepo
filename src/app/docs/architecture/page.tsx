@@ -119,7 +119,12 @@ export default function ArchitectureDocPage() {
         <code>requireConvex</code> (<code>src/lib/payments/convex-primary.ts</code>) so a Convex
         mutation failure does not silently fall back to instance-local SQLite — dashboard/other
         instances read Convex-first and would never see the payment. Operator CRM paths keep the
-        Convex→SQLite fallback. Matches the same idempotency guarantee already required for{" "}
+        Convex→SQLite fallback. The same <code>requireConvex</code> policy applies to visitor
+        contact-form inserts (<code>CONTACT_FORM_CONVEX_PRIMARY</code> on{" "}
+        <code>POST /api/contact/[slug]</code>) — persist-required already returns{" "}
+        <code>503</code> without an inquiry row; fail-closed Convex avoids claiming success
+        after a SQLite-only write other instances cannot see. Matches the same idempotency
+        guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
@@ -173,8 +178,10 @@ export default function ArchitectureDocPage() {
         Convex-first, SQLite-fallback pattern as leads/orders/suppressions (explicit{" "}
         <code>handoffId</code> column round-trips as <code>id</code>). Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
-        (persist <code>client_inquiries</code> required for <code>200</code>; email notify
-        best-effort after; <code>503</code> if the inbox write fails), optional Vercel Domains
+        (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
+        configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
+        email notify best-effort after with escaped HTML; <code>503</code> if the inbox write
+        fails), optional Vercel Domains
         API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}

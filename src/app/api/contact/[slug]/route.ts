@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { getLeadBySlug, insertClientInquiry } from "@/lib/db";
 import { brand } from "@/lib/brand";
 import {
+  CONTACT_FORM_CONVEX_PRIMARY,
   contactPersistOutcome,
   shouldSendContactNotify,
 } from "@/lib/inquiries/contact-persist";
+import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 
 /**
  * Client site contact form (Phase 5).
@@ -12,6 +14,10 @@ import {
  * (required for success), then emails the lead (or support) as a best-effort
  * notify. Returns 503 when the inbox row cannot be written — never { ok: true }
  * without a durable CRM trail (Starter sold promise).
+ *
+ * When NEXT_PUBLIC_CONVEX_URL is set, insertClientInquiry passes requireConvex
+ * so a Convex mutation failure does not SQLite-fallback then claim success —
+ * other instances read Convex-first and would never see the inquiry.
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -72,15 +78,18 @@ export async function POST(request: Request, context: RouteContext) {
 
   let inquiryId: string | undefined;
   try {
-    const inquiry = await insertClientInquiry({
-      leadSlug: slug,
-      businessName,
-      name: name || undefined,
-      email: email || undefined,
-      phone: phone || undefined,
-      message: message || "(no message — contact details only)",
-      source,
-    });
+    const inquiry = await insertClientInquiry(
+      {
+        leadSlug: slug,
+        businessName,
+        name: name || undefined,
+        email: email || undefined,
+        phone: phone || undefined,
+        message: message || "(no message — contact details only)",
+        source,
+      },
+      CONTACT_FORM_CONVEX_PRIMARY,
+    );
     inquiryId = inquiry.id;
   } catch (error) {
     console.error(`contact form persist failed for ${slug}:`, error);
@@ -100,19 +109,26 @@ export async function POST(request: Request, context: RouteContext) {
   if (shouldSendContactNotify(inquiryId)) {
     try {
       const { sendEmail } = await import("@/lib/email/resend");
+      const safeBiz = escapeHtmlForEmail(businessName);
+      const safeName = escapeHtmlForEmail(name || "—");
+      const safeEmail = escapeHtmlForEmail(email || "—");
+      const safePhone = escapeHtmlForEmail(phone || "—");
+      const safeMessage = escapeHtmlForEmail(message || "—");
+      const safeSlug = escapeHtmlForEmail(slug);
+      const safeInquiryId = escapeHtmlForEmail(outcome.inquiryId);
       await sendEmail({
         to: notifyTo,
         subject: `New website inquiry for ${businessName}`,
         leadSlug: slug,
         html: `
         <h2 style="margin-bottom: 12px;">New contact form submission</h2>
-        <p><strong>Business:</strong> ${businessName} (<code>${slug}</code>)</p>
-        <p><strong>Name:</strong> ${name || "—"}</p>
-        <p><strong>Email:</strong> ${email || "—"}</p>
-        <p><strong>Phone:</strong> ${phone || "—"}</p>
+        <p><strong>Business:</strong> ${safeBiz} (<code>${safeSlug}</code>)</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Phone:</strong> ${safePhone}</p>
         <p><strong>Message:</strong></p>
-        <p style="white-space: pre-wrap;">${message || "—"}</p>
-        <p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${outcome.inquiryId}</code></p>
+        <p style="white-space: pre-wrap;">${safeMessage}</p>
+        <p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${safeInquiryId}</code></p>
       `,
       });
     } catch (error) {

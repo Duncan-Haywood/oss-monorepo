@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  CONTACT_FORM_CONVEX_PRIMARY,
   contactPersistOutcome,
   shouldSendContactNotify,
 } from "./contact-persist";
+
+describe("CONTACT_FORM_CONVEX_PRIMARY", () => {
+  it("requires Convex when configured (no SQLite-only success)", () => {
+    expect(CONTACT_FORM_CONVEX_PRIMARY.requireConvex).toBe(true);
+  });
+});
 
 describe("contactPersistOutcome", () => {
   it("returns 200 with inquiryId when persist succeeded", () => {
