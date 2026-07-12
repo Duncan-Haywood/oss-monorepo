@@ -124,7 +124,9 @@ export default function RoadmapDocPage() {
         <code>src/lib/pricing/bundles.ts</code> and <code>/api/stripe/checkout</code>). Tier
         selection UI live at <DocLink href="/checkout">/checkout</DocLink> — prefills from{" "}
         <code>?slug=</code> (business name / email / recommended tier) and marketing CTAs pass{" "}
-        <code>tier</code> / <code>commerce</code>.{" "}
+        <code>tier</code> / <code>commerce</code>. Homepage checkouts without a lead slug mint a
+        stable <code>organic-*</code> attribution slug so webhook fulfillment still creates CRM /
+        handoff rows after payment.{" "}
         <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
         sends receipt email. Required fulfillment writes return <code>500</code> on failure so
         Stripe retries; when Convex is configured those writes use <code>requireConvex</code>{" "}

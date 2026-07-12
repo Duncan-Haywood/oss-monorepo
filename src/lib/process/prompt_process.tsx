@@ -110,8 +110,9 @@ export const AGENT_PROTOCOL = [
   "POST /api/contact/[slug] must also pass requireConvex (CONTACT_FORM_CONVEX_PRIMARY in src/lib/inquiries/contact-persist.ts) when Convex is configured — same multi-instance split-brain risk as the webhook: visitor-facing { ok: true } after a SQLite-only write leaves the Starter CRM trail invisible to Convex-first readers. Persist-required 503 is the recovery path (visitor retries); do not invent a separate fallback policy for contact vs webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
-  "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern.",
+  "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern. The post-payment DNS handoff email in the Stripe webhook (formatDnsInstructionsForEmail) is included — never interpolate raw handoff URLs/hosts or businessName into that HTML.",
   "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
+  "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
 ] as const;
 
 /**
@@ -800,8 +801,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-session-complete-convex-primary",
     summary:
       "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Prefer requireConvex + 5xx from the webhook so Stripe retries until the shared store marks the session complete.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-d3qpgd",
+  },
+  {
+    id: "organic-checkout-crm-attribution",
+    summary:
+      "Homepage / pricing CTAs link to /checkout?tier=… without a lead slug. Checkout Session metadata then stores slug:\"\" and the webhook only fulfills when slug && tier — so an organic buyer who pays gets Stripe money with zero CRM lead, order row, deploy handoff, or receipt/DNS emails (contradicts the payment-stub design that already creates a lead when a slug exists but no CRM row). Shipped: mint a stable organic-* attribution slug at Checkout Session create when none is provided; webhook + stub-lead path then work unchanged. Also escape DNS handoff email HTML (same payment path, AGENT_PROTOCOL gap vs sendReceiptEmail) and correct Growth landing copy that overclaimed auto-scheduling.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-9c45",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2015,6 +2025,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Commerce Buy now webhook returns HTTP 500 (step commerce_order_inquiry) when insertClientInquiry fails after a durable commerceOrders ledger write — never ACK 200. Client receipt stays best-effort only after inquiry succeeds.",
     rationale:
       "PR #72's planCommerceWebhookSideEffects recovery only runs on Stripe redelivery. The prior catch logged inquiry failures and still returned { received: true }, so Stripe never retried and the sold order-notification promise (operator inbox + optional client receipt) could be permanently lost while the ledger showed the sale. Matching the ledger/handoff 5xx contract closes the hole; receipt-only failure after a successful inquiry remains best-effort because the operator already has the inbox row. Queued checkout-session-complete-convex-primary for the related markCheckoutSessionComplete warn-only gap. Sibling a7c2 merged contact-form-convex-primary as PR #78 in the same hour.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "POST /api/stripe/checkout mints a stable organic-* lead slug into Checkout Session metadata (and cancel_url) when the request omits slug — never store slug:\"\". Webhook fulfillment + payment stubs then create CRM/handoff rows for homepage buyers.",
+    rationale:
+      "Primary marketing CTAs on / link to /checkout?tier=… without a lead slug. The webhook only runs recordLeadPayment + enqueueProductionHandoff when slug && tier, so empty metadata.slug meant Stripe could collect money with zero CRM, handoff, or receipt/DNS emails — contradicting the payment_stub design that already handles 'slug present, lead missing'. Minting at session create (resolveBundleCheckoutLeadSlug) is smaller and more reliable than synthesizing in the webhook after the fact, and also lets abandoned-checkout tracking record the session for recovery via session.customerEmail. Left checkout-session-complete-convex-primary to open PR #81 (claude/relaxed-galileo-d3qpgd).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "DNS handoff email HTML (inline webhook template + formatDnsInstructionsForEmail) must escape businessName and all handoff URL/host fields via escapeHtmlForEmail. Growth landing feature copy says ready-to-post packs — not auto-scheduled — until marketing-content-scheduling OAuth ships.",
+    rationale:
+      "Same empty-backlog audit as organic attribution: the DNS 'next steps' email was the one post-payment HTML path still interpolating raw businessName after PR #76 escaped sendReceiptEmail in the same webhook block — classic asymmetry. formatDnsInstructionsForEmail lived in a db-importing module, so it moved to dns-email.ts for unit-testable escaping. Landing Growth copy overclaimed Buffer/GBP/Meta auto-scheduling that remains operator-gated; truthful packaging protects conversion quality and counsel risk.",
   },
 ];
 
@@ -3326,6 +3350,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #78 (a7c2 contact-form Convex primary) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(172, 173),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-9c45",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #79 except gated secrets/OAuth/counsel; checkout-session-complete-convex-primary already owned by open PR #81 (claude/relaxed-galileo-d3qpgd). Empty-backlog audit found homepage /checkout?tier= CTAs omit slug so webhook skipped all fulfillment after Stripe charged. Shipped organic-* attribution at session create, DNS handoff HTML escaping, and Growth landing copy that no longer overclaims auto-scheduling. Sibling business-process-evolution-6a13 was running the same hour but had not claimed on remote.",
+    shipped: [
+      "src/lib/checkout/organic-attribution.ts (+ test) — resolveBundleCheckoutLeadSlug / mintOrganicCheckoutLeadSlug",
+      "src/app/api/stripe/checkout/route.ts — always set metadata.slug (+ organicAttribution flag); always record checkout_sessions; preserve slug on cancel_url",
+      "src/lib/deploy/dns-email.ts (+ test) — formatDnsInstructionsForEmail escapes hosts/URLs/purpose",
+      "src/app/api/stripe/webhook/route.ts — escape businessName/brand in DNS handoff email HTML",
+      "src/app/page.tsx — Growth feature: ready-to-post packs (not auto-scheduled)",
+      "Docs: architecture + roadmap Phase 3 — organic attribution",
+      "NEXT_STEPS: organic-checkout-crm-attribution done; checkout-session-complete left to PR #81",
+      "AGENT_PROTOCOL — never store empty checkout metadata.slug; DNS handoff email must escape",
+      "BUSINESS_DECISIONS — documented organic mint + DNS escape / Growth copy honesty",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(173, 175),
   },
 ];
 

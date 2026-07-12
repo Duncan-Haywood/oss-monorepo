@@ -14,6 +14,8 @@ import {
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 
+export { formatDnsInstructionsForEmail } from "./dns-email";
+
 function appBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 }
@@ -250,20 +252,4 @@ export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff |
 
 export async function getHandoffsForOperator(): Promise<DeployHandoff[]> {
   return listDeployHandoffs();
-}
-
-export function formatDnsInstructionsForEmail(handoff: DeployHandoff): string {
-  const rows = handoff.dnsInstructions
-    .map(
-      (d) =>
-        `<li><code>${d.type}</code> <strong>${d.host}</strong> → <code>${d.value}</code> — ${d.purpose}</li>`,
-    )
-    .join("");
-  return `
-    <p style="margin-bottom: 12px;">Your production hostname: <strong>${handoff.suggestedHost}</strong></p>
-    <p style="margin-bottom: 8px;">DNS records to add (or ask us to configure):</p>
-    <ul style="margin-bottom: 16px;">${rows}</ul>
-    <p style="margin-bottom: 12px;">Preview (live now): <a href="${handoff.previewUrl}">${handoff.previewUrl}</a></p>
-    <p style="margin-bottom: 12px;">Contact form endpoint: <code>${handoff.contactFormUrl}</code></p>
-  `;
 }

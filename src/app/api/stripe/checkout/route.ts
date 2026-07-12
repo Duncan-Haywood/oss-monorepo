@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 
@@ -85,8 +86,12 @@ export async function POST(request: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const stripe = new Stripe(secretKey);
 
+  // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
+  // stubs still create CRM/handoff rows after Stripe collects money.
+  const { leadSlug, mintedOrganic } = resolveBundleCheckoutLeadSlug(body.slug);
+
   const cancelParams = new URLSearchParams({ cancelled: "1" });
-  if (body.slug) cancelParams.set("slug", body.slug);
+  cancelParams.set("slug", leadSlug);
   cancelParams.set("tier", bundle.id);
   if (commerceAddonApplied) cancelParams.set("commerce", "1");
 
@@ -100,7 +105,8 @@ export async function POST(request: Request) {
       metadata: {
         tier: bundle.id,
         commerceAddon: String(commerceAddonApplied),
-        slug: body.slug ?? "",
+        slug: leadSlug,
+        ...(mintedOrganic ? { organicAttribution: "1" } : {}),
       },
     });
 
@@ -111,21 +117,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Track for abandoned-checkout recovery. No-ops without a slug — nothing to
-    // attribute a recovery email to for an organic (non-lead) checkout.
-    if (body.slug) {
-      try {
-        await recordCheckoutSessionCreated({
-          leadSlug: body.slug,
-          stripeSessionId: session.id,
-          tier: bundle.id,
-          commerceAddon: commerceAddonApplied,
-          customerEmail: body.customerEmail,
-          kind: "bundle",
-        });
-      } catch (e) {
-        console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
-      }
+    // Always track — organic slugs recover via session.customerEmail when no
+    // CRM lead exists yet; lead-attributed sessions keep prior behavior.
+    try {
+      await recordCheckoutSessionCreated({
+        leadSlug,
+        stripeSessionId: session.id,
+        tier: bundle.id,
+        commerceAddon: commerceAddonApplied,
+        customerEmail: body.customerEmail,
+        kind: "bundle",
+      });
+    } catch (e) {
+      console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
     }
 
     return NextResponse.json({ url: session.url });

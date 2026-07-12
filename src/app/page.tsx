@@ -43,7 +43,7 @@ const bundles = [
     features: [
       "Everything in Starter",
       "8 social/GBP posts + 2 emails per month",
-      "Auto-scheduled to Google, Facebook, Instagram",
+      "Ready-to-post packs for Google, Facebook, Instagram",
       "Brand voice from your site data",
     ],
     highlighted: true,
