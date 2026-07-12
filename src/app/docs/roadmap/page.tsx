@@ -85,7 +85,9 @@ export default function RoadmapDocPage() {
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>
         Resend outreach + receipt emails, CAN-SPAM templates, and Convex-first suppression list
-        (SQLite fallback): shipped.
+        (SQLite fallback for operator reads; public <code>GET /api/unsubscribe</code> uses{" "}
+        <code>requireConvex</code> so a multi-instance deploy cannot claim unsubscribe success
+        after a SQLite-only write): shipped.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}

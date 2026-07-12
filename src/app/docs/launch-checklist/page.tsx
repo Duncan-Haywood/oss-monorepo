@@ -82,7 +82,9 @@ export default function LaunchChecklistDocPage() {
         <li>
           Import a small operator-owned CSV on the leads dashboard (or add one lead manually
           with email), move stage to <code>outreach_sent</code>, confirm the email (or mock log)
-          and unsubscribe path. Re-importing the same CSV (or re-adding the same slug) should
+          and unsubscribe path (<code>GET /api/unsubscribe?email=…</code>). With Convex configured,
+          a Convex write failure must return 500 (not a success page after a SQLite-only
+          suppress). Re-importing the same CSV (or re-adding the same slug) should
           skip/reject the collision rather than resetting stage or outreach.
         </li>
         <li>

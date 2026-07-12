@@ -310,13 +310,15 @@ export async function POST(request: Request) {
           if (customerEmail) {
             const { sendEmail } = await import("@/lib/email/resend");
             const { brand } = await import("@/lib/brand");
+            const { escapeHtmlForEmail } = await import("@/lib/inquiries/reply");
+            const safeBiz = escapeHtmlForEmail(businessName);
             await sendEmail({
               to: customerEmail,
               subject: `Next steps: go live with ${businessName} — ${brand.name}`,
               leadSlug: slug,
               html: `
                 <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
-                <p style="margin-bottom: 16px;">Payment received for <strong>${businessName}</strong>. Here is your production handoff:</p>
+                <p style="margin-bottom: 16px;">Payment received for <strong>${safeBiz}</strong>. Here is your production handoff:</p>
                 ${formatDnsInstructionsForEmail(handoff)}
                 <p style="margin-bottom: 8px;">Reply to this email if you want us to finish DNS for you.</p>
                 <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>

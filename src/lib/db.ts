@@ -1021,13 +1021,19 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
   return !!row;
 }
 
-export async function suppressEmail(email: string): Promise<void> {
+export async function suppressEmail(
+  email: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   const normalized = email.toLowerCase().trim();
   if (convexClient) {
     try {
       await convexClient.mutation(api.suppressions.suppress, { email: normalized });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("suppressEmail", e);
+      }
       console.warn("Failed to record suppression on Convex, falling back to SQLite database", e);
     }
   }

@@ -49,7 +49,12 @@ export default function ComplianceDocPage() {
       <ul>
         <li>Identify sender: {brand.legalEntity} in footer; public brand in From name</li>
         <li>Valid physical postal address in Colorado</li>
-        <li>Working unsubscribe honored within 10 business days</li>
+        <li>
+          Working unsubscribe honored within 10 business days —{" "}
+          <code>GET /api/unsubscribe</code> must record suppression in the shared store when
+          Convex is configured (<code>requireConvex</code>); a transient Convex failure returns
+          500 so the visitor can retry rather than a false success page
+        </li>
         <li>Non-deceptive subject lines</li>
       </ul>
 
