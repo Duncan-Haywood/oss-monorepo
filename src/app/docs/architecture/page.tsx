@@ -102,7 +102,8 @@ export default function ArchitectureDocPage() {
         operator-triggered recovery email (Resend, honors suppression, cooldown between nudges) —
         see <code>src/lib/checkout/abandoned-recovery.ts</code>. The same open sessions feed{" "}
         <code>scoreLead</code> / Work next (+18 abandoned, +6 when recovery is due) so carts
-        outrank plain outreach-due leads.
+        outrank plain outreach-due leads, and pipeline health aggregates abandoned-cart +
+        recovery-due counts (with oldest abandoned age) beside paid-not-live.
       </p>
       <p>
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
@@ -121,8 +122,8 @@ export default function ArchitectureDocPage() {
         (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code>. Pipeline health panel aggregates order revenue, stage
-        funnel counts, open handoffs, and leads missing email (
-        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        funnel counts, open handoffs, abandoned checkout / recovery-due counts, and leads
+        missing email (<code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when

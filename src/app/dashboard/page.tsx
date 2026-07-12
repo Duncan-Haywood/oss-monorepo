@@ -5,8 +5,10 @@ import {
   listDeployHandoffs,
   listClientInquiries,
   listOrders,
+  listOpenCheckoutSessions,
 } from "@/lib/db";
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
+import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -33,15 +35,29 @@ type DashboardPageProps = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const params = await searchParams;
-  const [leads, handoffs, inquiries, orders] = await Promise.all([
+/** Snapshot clock outside the page component (react-hooks/purity). */
+async function loadDashboardHealth(): Promise<PipelineHealth> {
+  const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
     listClientInquiries(20),
     listOrders(),
+    listOpenCheckoutSessions(),
   ]);
-  const health = computePipelineHealth({ leads, orders, handoffs, inquiries });
+  const nowMs = Date.now();
+  return computePipelineHealth({
+    leads,
+    orders,
+    handoffs,
+    inquiries,
+    openCheckoutSessions,
+    nowMs,
+  });
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const health = await loadDashboardHealth();
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -59,7 +75,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
@@ -80,6 +96,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </p>
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {health.openHandoffCount}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.recoveryDueCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Recovery due
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.recoveryDueCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.abandonedCheckoutCount} abandoned cart
+            {health.abandonedCheckoutCount === 1 ? "" : "s"}
           </p>
         </div>
         <div

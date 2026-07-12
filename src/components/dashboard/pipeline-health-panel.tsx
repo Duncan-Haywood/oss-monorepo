@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
-import { formatUsd } from "@/lib/metrics/pipeline-health";
+import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
 
 interface PipelineHealthPanelProps {
   health: PipelineHealth;
@@ -20,7 +20,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <MetricCard
           label="Recorded revenue"
           value={formatUsd(health.revenueTotalUsd)}
@@ -39,6 +39,22 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.paidNotLiveCount > 0}
         />
         <MetricCard
+          label="Abandoned carts"
+          value={String(health.abandonedCheckoutCount)}
+          hint={
+            health.oldestAbandonedAgeHours !== null
+              ? `Oldest open ${formatAbandonedAgeHours(health.oldestAbandonedAgeHours)}`
+              : "No open carts past 2h"
+          }
+          attention={health.abandonedCheckoutCount > 0}
+        />
+        <MetricCard
+          label="Recovery due"
+          value={String(health.recoveryDueCount)}
+          hint="Nudge from Abandoned checkouts below"
+          attention={health.recoveryDueCount > 0}
+        />
+        <MetricCard
           label="Missing email"
           value={String(health.leadsMissingEmailCount)}
           hint="Cannot outreach or receipt"
@@ -50,6 +66,14 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-sky-800">
           {health.newInquiryCount} new website inquir
           {health.newInquiryCount === 1 ? "y" : "ies"} — see panel below.
+        </p>
+      ) : null}
+
+      {health.recoveryDueCount > 0 ? (
+        <p className="mt-3 text-xs text-amber-900">
+          {health.recoveryDueCount} abandoned checkout
+          {health.recoveryDueCount === 1 ? "" : "s"} ready for a recovery nudge — use the
+          Abandoned checkouts panel (same signals feed Work next).
         </p>
       ) : null}
 

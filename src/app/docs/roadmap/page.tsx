@@ -71,7 +71,7 @@ export default function RoadmapDocPage() {
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
-        handoffs, missing email) on{" "}
+        handoffs, abandoned carts / recovery due, missing email) on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Remaining:
         preview subdomain hosting.
       </p>
@@ -105,7 +105,8 @@ export default function RoadmapDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (see{" "}
         <code>src/lib/checkout/abandoned-recovery.ts</code>). Those open sessions also boost the
         Work next quality score (hotter than preview opens) so carts do not hide behind cold
-        follow-ups. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}
+        follow-ups, and pipeline health shows abandoned-cart + recovery-due counts next to
+        paid-not-live. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}
         <strong>Billing</strong> on paid/live leads, customer{" "}
         <strong>Manage subscription</strong> on <code>/checkout/success</code> (
         <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>). Remaining: run

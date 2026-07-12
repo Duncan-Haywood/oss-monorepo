@@ -1,13 +1,18 @@
 /**
  * Operator pipeline health — aggregate signals so stuck money and funnel
  * gaps are visible without scanning every lead row.
- * See /docs/process (pipeline-health-metrics).
+ * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry } from "@/lib/inquiries/types";
 import type { OrderRecord } from "@/lib/orders/types";
+import type { CheckoutSessionRecord } from "@/lib/checkout/types";
+import {
+  isAbandonedCheckout,
+  isRecoveryDue,
+} from "@/lib/checkout/abandoned-recovery";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -36,6 +41,12 @@ export interface PipelineHealth {
   newInquiryCount: number;
   /** Paid but not yet live — fulfillment debt. */
   paidNotLiveCount: number;
+  /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). */
+  abandonedCheckoutCount: number;
+  /** Abandoned sessions due for an operator recovery nudge. */
+  recoveryDueCount: number;
+  /** Age in whole hours of the oldest abandoned open session; null when none. */
+  oldestAbandonedAgeHours: number | null;
 }
 
 const STAGE_LABELS: Record<LeadPipelineStage, string> = {
@@ -75,15 +86,21 @@ export function emptyStageCounts(): Record<LeadPipelineStage, number> {
   };
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
 /**
  * Pure aggregation — safe to call from server pages or client components.
  * Pass whatever the operator dashboard already loaded; no extra DB round-trips.
+ * Pass `nowMs` (and open checkout sessions) from the caller — never call Date.now()
+ * inside this function so tests stay deterministic and React purity rules hold.
  */
 export function computePipelineHealth(input: {
   leads: Lead[];
   orders: OrderRecord[];
   handoffs: DeployHandoff[];
   inquiries: ClientInquiry[];
+  openCheckoutSessions?: CheckoutSessionRecord[];
+  nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
   for (const lead of input.leads) {
@@ -122,6 +139,21 @@ export function computePipelineHealth(input: {
   const newInquiryCount = input.inquiries.filter((inq) => inq.status === "new").length;
   const paidNotLiveCount = input.leads.filter((l) => l.stage === "paid").length;
 
+  const nowMs = input.nowMs ?? 0;
+  const sessions = input.openCheckoutSessions ?? [];
+  const abandoned = sessions.filter((session) => isAbandonedCheckout(session, nowMs));
+  const recoveryDueCount = abandoned.filter((session) => isRecoveryDue(session, nowMs)).length;
+
+  let oldestAbandonedAgeHours: number | null = null;
+  for (const session of abandoned) {
+    const createdAtMs = Date.parse(session.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
+    if (oldestAbandonedAgeHours === null || ageHours > oldestAbandonedAgeHours) {
+      oldestAbandonedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -137,6 +169,9 @@ export function computePipelineHealth(input: {
     leadsMissingEmail,
     newInquiryCount,
     paidNotLiveCount,
+    abandonedCheckoutCount: abandoned.length,
+    recoveryDueCount,
+    oldestAbandonedAgeHours,
   };
 }
 
@@ -146,4 +181,13 @@ export function formatUsd(amount: number): string {
     currency: "USD",
     maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
   }).format(amount);
+}
+
+/** Human-readable abandoned-cart age for the pipeline health panel. */
+export function formatAbandonedAgeHours(hours: number | null): string {
+  if (hours === null) return "—";
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  const rem = hours % 24;
+  return rem === 0 ? `${days}d` : `${days}d ${rem}h`;
 }

@@ -1,9 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { computePipelineHealth, emptyStageCounts, formatUsd } from "./pipeline-health";
+import {
+  computePipelineHealth,
+  emptyStageCounts,
+  formatAbandonedAgeHours,
+  formatUsd,
+} from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import type { DeployHandoff } from "../deploy/types";
 import type { ClientInquiry } from "../inquiries/types";
 import type { OrderRecord } from "../orders/types";
+import type { CheckoutSessionRecord } from "../checkout/types";
+import { ABANDONED_AFTER_HOURS } from "../checkout/abandoned-recovery";
+
+const NOW = Date.parse("2026-07-12T12:00:00.000Z");
+const HOUR_MS = 60 * 60 * 1000;
+
+function makeSession(
+  overrides: Partial<CheckoutSessionRecord> = {},
+): CheckoutSessionRecord {
+  return {
+    stripeSessionId: `cs_test_${Math.random().toString(36).slice(2, 8)}`,
+    leadSlug: "cart-lead",
+    tier: "growth",
+    commerceAddon: false,
+    customerEmail: "buyer@example.com",
+    status: "open",
+    createdAt: new Date(NOW - 3 * HOUR_MS).toISOString(),
+    ...overrides,
+  };
+}
 
 function makeLead(stage: LeadPipelineStage, overrides: Partial<Lead> = {}): Lead {
   return {
@@ -144,6 +169,53 @@ describe("computePipelineHealth", () => {
     });
     expect(health.paidNotLiveCount).toBe(2);
   });
+
+  it("defaults abandoned checkout metrics to zero without sessions", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.abandonedCheckoutCount).toBe(0);
+    expect(health.recoveryDueCount).toBe(0);
+    expect(health.oldestAbandonedAgeHours).toBeNull();
+  });
+
+  it("counts abandoned and recovery-due sessions with oldest age", () => {
+    const fresh = makeSession({
+      stripeSessionId: "cs_fresh",
+      createdAt: new Date(NOW - (ABANDONED_AFTER_HOURS - 1) * HOUR_MS).toISOString(),
+    });
+    const abandonedDue = makeSession({
+      stripeSessionId: "cs_due",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const abandonedCooldown = makeSession({
+      stripeSessionId: "cs_cooldown",
+      createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+      recoverySentAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+    });
+    const complete = makeSession({
+      stripeSessionId: "cs_done",
+      status: "complete",
+      createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [fresh, abandonedDue, abandonedCooldown, complete],
+      nowMs: NOW,
+    });
+
+    expect(health.abandonedCheckoutCount).toBe(2);
+    expect(health.recoveryDueCount).toBe(1);
+    expect(health.oldestAbandonedAgeHours).toBe(30);
+  });
 });
 
 describe("formatUsd", () => {
@@ -153,5 +225,17 @@ describe("formatUsd", () => {
 
   it("formats fractional dollars with cents", () => {
     expect(formatUsd(499.5)).toBe("$499.50");
+  });
+});
+
+describe("formatAbandonedAgeHours", () => {
+  it("renders a dash when there is no abandoned session", () => {
+    expect(formatAbandonedAgeHours(null)).toBe("—");
+  });
+
+  it("renders hours under a day and day+hour combinations", () => {
+    expect(formatAbandonedAgeHours(3)).toBe("3h");
+    expect(formatAbandonedAgeHours(24)).toBe("1d");
+    expect(formatAbandonedAgeHours(30)).toBe("1d 6h");
   });
 });
