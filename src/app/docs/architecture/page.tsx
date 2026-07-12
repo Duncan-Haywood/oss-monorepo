@@ -252,7 +252,8 @@ export default function ArchitectureDocPage() {
         operator inquiry + <code>sendCommerceBuyNowClientReceipt</code> (same pattern as bundle{" "}
         <code>recordLeadPayment</code>). Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
-        — this money sits in the platform&apos;s own Stripe account with no automated payout path to
+        — unpaid/owed only (rows with <code>paidOutAt</code> are excluded, matching the payout
+        panel + digest). This money sits in the platform&apos;s own Stripe account with no automated payout path to
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
         manual payouts from the <strong>Commerce payouts (manual)</strong> panel on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, which groups{" "}
@@ -264,8 +265,10 @@ export default function ArchitectureDocPage() {
         other ledger already used; the Convex path originally had no id column at all,
         so payout rows silently lost React list identity once Convex was configured).
         Each order line has a <strong>Mark paid out</strong> button that sets{" "}
-        <code>paidOutAt</code> (SQLite + Convex) once the operator has actually sent the client
-        their share — paid-out lines drop out of the panel&apos;s owed total and the digest{" "}
+        <code>paidOutAt</code> (SQLite + Convex — the static <code>api.commerceOrders.markPaidOut</code>{" "}
+        map entry is required so Convex primary deploys actually persist) once the operator has actually sent the client
+        their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
+        card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look
         owed twice. The same rollup also appears as a <strong>Commerce payouts owed</strong>{" "}
         section on the operator daily digest so pass-through liability is visible without opening

@@ -260,7 +260,8 @@ export default function LaunchChecklistDocPage() {
           pay clients manually until Stripe Connect ships (see{" "}
           <DocLink href="/docs/process">process</DocLink>). After actually paying the client,
           click <strong>Mark paid out</strong> on that order line and confirm it disappears
-          from the panel&apos;s owed total and from the next digest&apos;s Commerce payouts
+          from the panel&apos;s owed total, from pipeline-health{" "}
+          <strong>Commerce sales (pass-through)</strong>, and from the next digest&apos;s Commerce payouts
           owed section — this is what prevents double-paying the same order.
         </li>
         <li>
