@@ -75,7 +75,9 @@ export default function ProductBundlesDocPage() {
         clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU
         (reuses STRIPE_SECRET_KEY, idempotent on re-run); synced items show a Buy now button
         that opens Stripe Checkout directly. Unsynced items still fall back to Request order →
-        inquiry inbox. A completed Buy now also emails the local business (<code>lead.email</code>
+        inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
+        Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync). A
+        completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
         from the operator inquiry inbox and from Stripe Connect payouts. Retail, restaurant
         ordering, booking deposits, or gift cards.

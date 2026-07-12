@@ -78,6 +78,7 @@ import {
   monthlyPackRequestForLead,
 } from "@/lib/marketing";
 import {
+  archiveOrphanCommerceStripeProducts,
   leadEligibleForCommerceCatalog,
   normalizeCommerceItems,
   preserveCommerceStripeIds,
@@ -1290,6 +1291,59 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
     return { success: true as const, catalog: updated };
   } catch (error) {
     console.error("Error in syncCommerceCatalogToStripeAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
+    };
+  }
+}
+
+/**
+ * Archive Stripe Products for SKUs removed from a lead's saved Commerce catalog.
+ * Operator-triggered only (never on save/sync). Sets product.active=false —
+ * does not delete. Reuses STRIPE_SECRET_KEY.
+ */
+export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before archiving orphan Stripe Products.",
+      };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const catalog = await getCommerceCatalog(slug);
+    const items = catalog?.items ?? [];
+
+    const stripe = new Stripe(secretKey);
+    const { archived } = await archiveOrphanCommerceStripeProducts(
+      stripe,
+      lead.slug,
+      items,
+    );
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      archivedCount: archived.length,
+      archivedSkuIds: archived.map((o) => o.skuId),
+    };
+  } catch (error) {
+    console.error("Error in archiveOrphanCommerceStripeProductsAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
