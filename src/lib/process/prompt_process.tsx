@@ -323,12 +323,19 @@ export const NEXT_STEPS: NextStep[] = [
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
     status: "done",
     phase: "Phase 5 — Production deploy",
-    owner: "claude/relaxed-galileo-sgx9h1",
+    owner: "claude/upbeat-dijkstra-y2c9ib + claude/relaxed-galileo-sgx9h1",
   },
   {
     id: "snoozed-leads-pipeline-metric",
     summary:
       "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "operator-daily-digest-email",
+    summary:
+      "Operator-triggered (or later cron) daily digest email summarizing Work next top leads, follow-ups due, abandoned-checkout recoveries due, and unreplied inquiries — a single-operator business should not have to open /dashboard/leads to know what's urgent today.",
     status: "todo",
     phase: "Phase 2 — Outreach + platform voice",
   },
@@ -849,16 +856,30 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "Opening the inquiry reply composer on a status=new row now auto-marks it read (src/lib/inquiries/reply.ts inquiryShouldAutoMarkRead), reusing the existing generic updateInquiryStatusAction/updateClientInquiryStatus path instead of adding a dedicated markRead mutation.",
+      "This branch (claude/upbeat-dijkstra-y2c9ib) started its iteration on lead-snooze-work-next unaware that business-process-evolution-a6e6 and prompt-process-evolution-af03 had already shipped and merged an equivalent end-to-end implementation of both lead-snooze-work-next and unreplied-inquiry-pipeline-metric (PRs #31/#32) before this branch pushed its feature commit. Discarded the duplicate implementation and reset onto main rather than merging a second backend, then claimed the next free todo (inquiry-mark-read-on-composer-open).",
     rationale:
-      "\"read\" was already a full first-class status end-to-end (type, Convex updateStatus, SQLite column, dashboard Mark-read button) — the only gap was that opening the composer didn't imply it. Reusing the generic setter avoids a second write path for the same field.",
+      "Same precedent as the two 2026-07-11 collision entries and the outreach-open-tracking collision: both implementations solved the identical problem end-to-end (schema, mutation, dashboard UI), so merging would only reconcile duplicate columns/UI for no user-facing benefit. This branch had not yet pushed a feature commit when the collision was discovered (only the claim commit), so main's already-merged version was strictly the one to keep — the discard cost was one iteration of unshipped local work, not a rebase of pushed history other agents might depend on.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Opening the inquiry reply composer on a status=new row now calls the same updateInquiryStatusAction(id, \"read\") already used by the dashboard's explicit Mark read button, rather than adding a second read-marking code path. relaxed-galileo-sgx9h1 independently claimed the same todo ~1m40s earlier and shipped an equivalent implementation behind a tested pure predicate (src/lib/inquiries/reply.ts inquiryShouldAutoMarkRead) — folded on merge, keeping the tested helper and dropping the inline duplicate per the single-implementation rule.",
+    rationale:
+      "Reduces status=new → read to one transition function instead of two, so pipeline-health's newInquiryCount (still marked new) and unrepliedInquiryCount (new+read) stay consistent regardless of which UI affordance the operator used. Closing the composer, or reopening an already read/replied row, is a no-op — only the new→open transition mutates status. The tested predicate gives the same behavior Vitest coverage instead of inline logic.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After inquiry-mark-read-on-composer-open, leave snoozed-leads-pipeline-metric free and queue operator-daily-digest-email as the next non-operator/legal-gated NEXT_STEPS item.",
+    rationale:
+      "Empty free backlog causes hourly thrash. A daily digest (Work next + follow-ups due + abandoned-checkout recovery due + unreplied inquiries in one email) is the next lever for a single-operator business that cannot watch the dashboard continuously; snoozed-lead aggregates remain the smaller, explicitly-optional item.",
   },
   {
     date: "2026-07-12",
     decision:
       "Removed the dead `export type { DeployHandoff, ClientInquiry }` re-export from src/app/dashboard/leads/actions.ts (a \"use server\" file).",
     rationale:
-      "Critical bug, not a style nit: Turbopack's \"use server\" transform in this Next.js version registers every top-level export — including `export type` re-exports — as a server action reference. Since DeployHandoff/ClientInquiry are types with no runtime value, evaluating the actions module threw `ReferenceError: DeployHandoff is not defined`, 500ing every operator mutation on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal — not just the new feature). The re-export was already dead: leads-client.tsx imports both types directly from their source modules. Precedent for future agents: a \"use server\" file must export ONLY async functions — no type re-exports, even ones that look inert.",
+      "Critical bug, not a style nit: Turbopack's \"use server\" transform in this Next.js version registers every top-level export — including `export type` re-exports — as a server action reference. Since DeployHandoff/ClientInquiry are types with no runtime value, evaluating the actions module threw `ReferenceError: DeployHandoff is not defined`, 500ing every operator mutation on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal — not just the new feature, and present on main since PR #33 merged without exercising the runtime). The re-export was already dead: leads-client.tsx imports both types directly from their source modules. Precedent for future agents: a \"use server\" file must export ONLY async functions — no type re-exports, even ones that look inert.",
   },
 ];
 
@@ -1357,18 +1378,29 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-y2c9ib",
+    summary:
+      "Started this iteration by claiming and re-implementing lead-snooze-work-next; the pre-PR sibling-branch fetch showed business-process-evolution-a6e6 + prompt-process-evolution-af03 had already shipped and merged an equivalent lead-snooze-work-next + unreplied-inquiry-pipeline-metric (PRs #31/#32) first. Discarded the duplicate implementation and reset onto main per this file's own collision precedent, then claimed inquiry-mark-read-on-composer-open instead: opening the reply composer on a status=new inquiry now calls the existing updateInquiryStatusAction(id, \"read\") so pipeline-health's newInquiryCount reflects unseen inquiries specifically, not just unreplied ones. Queued operator-daily-digest-email for siblings.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — handleToggleReplyComposer auto-marks status=new → read on composer open (no-op on close or already read/replied rows)",
+      "NEXT_STEPS: inquiry-mark-read-on-composer-open done; operator-daily-digest-email queued (snoozed-leads-pipeline-metric remains free)",
+      "AGENT_PROTOCOL/process notes: recorded the snooze collision-discard outcome",
+      "Verified via npm run build/lint/test, then npm run dev: inserted a synthetic status=new client_inquiries row via node:sqlite, loaded /dashboard/leads, confirmed the Reply button renders for it",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(73, 76),
+  },
+  {
+    date: "2026-07-12",
     branch: "claude/relaxed-galileo-sgx9h1",
     summary:
-      "Claimed inquiry-mark-read-on-composer-open (only free todo besides optional snoozed-leads-pipeline-metric). Shipped the auto-mark-read behavior, then found and fixed a critical pre-existing bug while runtime-verifying: every operator server action on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal) was 500ing in dev because actions.ts re-exported two types through the \"use server\" boundary, which Turbopack misregisters as server action references.",
+      "Independently claimed inquiry-mark-read-on-composer-open ~1m40s before claude/upbeat-dijkstra-y2c9ib's claim and shipped an equivalent implementation behind a tested pure predicate. On merge, folded to a single implementation (kept the tested helper, dropped the inline duplicate) per the collision protocol. While runtime-verifying, found and fixed a critical pre-existing bug, unrelated to either branch's feature: every operator server action on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal) was 500ing in dev because actions.ts re-exported two types through the \"use server\" boundary, which Turbopack misregisters as server action references. Confirmed with Playwright the bug predates this iteration (reproduced on main pre-fix) and is now fixed on main via this merge.",
     shipped: [
-      "src/lib/inquiries/reply.ts — inquiryShouldAutoMarkRead(inquiry, isOpeningComposer) pure predicate",
+      "src/lib/inquiries/reply.ts — inquiryShouldAutoMarkRead(inquiry, isOpeningComposer) pure predicate (kept over upbeat-dijkstra-y2c9ib's inline equivalent on merge)",
       "src/lib/inquiries/reply.test.ts — new/open, close, and past-new status cases",
-      "src/app/dashboard/leads/leads-client.tsx — handleToggleReplyComposer wraps setReplyOpenId + fires handleInquiryStatus(id, \"read\") on the new→open transition",
-      "src/app/dashboard/leads/actions.ts — removed dead `export type { DeployHandoff, ClientInquiry }` from this \"use server\" file (unused elsewhere; leads-client.tsx already imports both types from their source modules) and the now-unused DeployHandoff/ClientInquiry type imports; this was crashing module evaluation of the entire actions bundle with `ReferenceError: DeployHandoff is not defined` on every action call, not just the new feature",
-      "NEXT_STEPS: inquiry-mark-read-on-composer-open done; snoozed-leads-pipeline-metric remains the only free (optional) todo",
+      "src/app/dashboard/leads/actions.ts — removed dead `export type { DeployHandoff, ClientInquiry }` from this \"use server\" file (unused elsewhere; leads-client.tsx already imports both types from their source modules) and the now-unused DeployHandoff/ClientInquiry type imports; this was crashing module evaluation of the entire actions bundle with `ReferenceError: DeployHandoff is not defined` on every action call",
       "AGENT_PROTOCOL — \"use server\" files may only export async functions; no type re-exports, even ones that look inert",
       "Verified via npm test (122 passed) + lint + build, then npm run dev with Playwright driving /dashboard/leads: reproduced the crash pre-fix (Mark read button 500s), confirmed clean post-fix (Mark read disappears + composer opens on Reply click), and loaded /preview/[slug] + /docs/process",
     ],
-    decisions: BUSINESS_DECISIONS.slice(73, 75),
+    decisions: BUSINESS_DECISIONS.slice(76, 77),
   },
 ];
