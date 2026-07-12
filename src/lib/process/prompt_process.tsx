@@ -107,6 +107,7 @@ export const AGENT_PROTOCOL = [
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
   "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers — never ACK 200 after swallowing those errors. Email/notify stays best-effort after durable writes succeed.",
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
+  "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
 ] as const;
 
 /**
@@ -742,6 +743,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-da3d",
+  },
+  {
+    id: "follow-ups-due-exclude-snoozed",
+    summary:
+      "Bug found auditing outreach cadence after PR #73 (stripe-webhook-convex-primary-no-fallback / requireConvex) left the free backlog empty: isFollowUpDue never checked snoozedUntil, so a lead the operator explicitly snoozed still appeared in the 'Follow-ups due' panel (live Send button), pipeline-health followUpsDueCount, and the digest follow-ups-due section once its Email 2/3 cadence gap elapsed — directly contradicting the operator's snooze instruction and risking an unwanted send right after a customer asked not to be contacted. isColdLead has the same missing check but is deliberately left alone: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead override that itself clears the snooze (existing cold-archive.test.ts coverage confirms this is intended, not a bug) — same contract as the per-lead Unsnooze button and the row-level manual 'Email {next}' button, both of which already bypass the due-cadence gate as intentional operator overrides. Shipped: isFollowUpDue returns false while isLeadSnoozed is true.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/business-continuity-4f9c",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1913,6 +1922,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe webhook fulfillment writes pass requireConvex when Convex is configured — fail closed (Stripe retry) instead of SQLite-only fallback on Convex mutation failure. Dashboard/operator paths keep the fallback.",
     rationale:
       "Multi-instance / serverless deploys read Convex-first. A webhook that ACKs after writing payment/handoff/commerce ledger only to instance-local SQLite creates permanent split-brain: revenue appears paid on one box and unpaid everywhere else. Stripe retry is the correct recovery; silent SQLite fallback is not. Pure policy helper lives in src/lib/payments/convex-primary.ts so the decision is unit-tested. Folded after PR #72 commerce side-effect recovery (both ITERATIONS kept).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "isFollowUpDue now excludes snoozed leads; isColdLead deliberately does not.",
+    rationale:
+      "Snooze is the operator's explicit 'don't contact' signal (isLeadSnoozed / quality-score.ts actionable already honor it for Work next). isFollowUpDue feeds passive/automated surfaces — the Follow-ups due panel, pipeline-health followUpsDueCount, the daily digest — that promote a lead for action without the operator having chosen that specific lead, so it must respect the snooze like Work next does. isColdLead is different: it also gates planColdLeadDisposition, and clicking Re-engage or Close on a specific snoozed cold lead is a deliberate single-lead operator action that itself clears the snooze (existing cold-archive.test.ts already asserts this succeeds) — identical in kind to the always-available per-row Unsnooze button and the manual 'Email {next}' send button, both of which already bypass the due-cadence gate on purpose. Blanket-adding the snooze check to isColdLead broke that intended override (caught by the existing test suite before merge) — the fix stayed scoped to isFollowUpDue only.",
   },
 ];
 
@@ -3123,6 +3139,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #72 (aa07) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(166, 167),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/business-continuity-4f9c",
+    summary:
+      "Attempted stripe-webhook-convex-primary-no-fallback but PR #73 (740a) merged the same fix first — discarded the duplicate implementation and reset to origin/main rather than open a competing PR. Free NEXT_STEPS backlog was empty per 740a's own log, so ran a subagent-assisted regression audit scoped away from the heavily-covered commerce/webhook surface (marketing/voice packs, digest, quality scoring, outreach cadence, billing portal, abandoned-checkout recovery, dashboard actions, voice webhook). Found isFollowUpDue never checked snoozedUntil: a snoozed lead past its Email 2/3 cadence gap still surfaced in the 'Follow-ups due' panel (live Send button) and pipeline-health/digest counts, contradicting the operator's explicit snooze. First pass also added the same check to isColdLead and a hard block in sendFollowUpAction, but the existing cold-archive.test.ts caught that isColdLead intentionally allows Re-engage/Close on a snoozed cold lead (an explicit single-lead override that clears the snooze) — reverted both to keep the fix scoped to the actual bug (passive queue/aggregate visibility), matching the same override contract already used by the per-row Unsnooze and manual 'Email {next}' buttons.",
+    shipped: [
+      "src/lib/email/outreach-followups.ts — isFollowUpDue excludes snoozed leads (isColdLead deliberately unchanged)",
+      "src/lib/email/outreach-followups.test.ts — snoozed-lead coverage for isFollowUpDue (excluded) and isColdLead (still included, override-contract regression guard)",
+      "Docs: roadmap Phase 2 — documented the fix and why isColdLead stays as-is",
+      "NEXT_STEPS: added follow-ups-due-exclude-snoozed (done)",
+      "AGENT_PROTOCOL — passive-queue predicates must check snooze; predicates that also gate an explicit single-lead override action must not, without checking which contract applies first",
+      "BUSINESS_DECISIONS — documented the isFollowUpDue vs isColdLead split and the reverted overreach",
+      "Verified: npm test (279 passed, includes 2 new cases) + lint + build clean; npm run dev loaded /dashboard/leads with no runtime error (pure-logic change to an already-exercised predicate, no schema/persistence touched — existing unit tests exercise the exact snoozed+due-gap-elapsed scenario from the bug report)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(167, 168),
   },
 ];
 

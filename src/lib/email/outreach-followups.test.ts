@@ -121,6 +121,24 @@ describe("isFollowUpDue", () => {
     });
     expect(isFollowUpDue(pastGap3, NOW)).toBe(true);
   });
+
+  it("is false while snoozed, even past the cadence gap", () => {
+    const lead = makeLead({
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - FOLLOW_UP_2_AFTER_DAYS * DAY_MS).toISOString(),
+      snoozedUntil: new Date(NOW + 3 * DAY_MS).toISOString(),
+    });
+    expect(isFollowUpDue(lead, NOW)).toBe(false);
+  });
+
+  it("is due again once a past snooze has elapsed", () => {
+    const lead = makeLead({
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - FOLLOW_UP_2_AFTER_DAYS * DAY_MS).toISOString(),
+      snoozedUntil: new Date(NOW - DAY_MS).toISOString(),
+    });
+    expect(isFollowUpDue(lead, NOW)).toBe(true);
+  });
 });
 
 describe("listFollowUpsDue", () => {
@@ -192,6 +210,15 @@ describe("isColdLead", () => {
     expect(isColdLead(makeLead({ ...old3, email: undefined }), NOW)).toBe(false);
     expect(isColdLead(makeLead({ ...old3, stage: "paid" }), NOW)).toBe(false);
     expect(isColdLead(makeLead({ ...old3, lastOutreachAt: undefined }), NOW)).toBe(false);
+  });
+
+  it("stays true while snoozed — Re-engage/Close must remain available as an explicit override (see cold-archive.test.ts)", () => {
+    const lead = makeLead({
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - COLD_AFTER_DAYS * DAY_MS).toISOString(),
+      snoozedUntil: new Date(NOW + 3 * DAY_MS).toISOString(),
+    });
+    expect(isColdLead(lead, NOW)).toBe(true);
   });
 });
 
