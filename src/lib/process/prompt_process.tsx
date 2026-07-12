@@ -544,6 +544,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 8 — Commerce",
   },
+  {
+    id: "commerce-abandoned-checkout-tracking",
+    summary:
+      "POST /api/commerce/checkout creates Buy now Stripe sessions but never writes checkout_sessions, so abandoned end-customer carts are invisible. Bundle abandoned-recovery must NOT ingest commerce sessions without a kind discriminator — a Finish-checkout email linking /checkout?tier= would be wrong. Track commerce_sku sessions with kind+skuId, mark complete on webhook, surface abandoned Buy now separately (pipeline-health + digest + operator recovery → preview#catalog).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-015b",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
