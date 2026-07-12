@@ -128,6 +128,8 @@ export default defineSchema({
         name: v.string(),
         description: v.optional(v.string()),
         priceCents: v.number(),
+        stripeProductId: v.optional(v.string()),
+        stripePriceId: v.optional(v.string()),
       }),
     ),
     updatedAt: v.string(),

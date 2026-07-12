@@ -224,6 +224,17 @@ export default function LaunchChecklistDocPage() {
           (and that the daily digest lists them).
         </li>
         <li>
+          With <code>STRIPE_SECRET_KEY</code> set, click <strong>Sync to Stripe</strong> on a
+          saved catalog — confirm each SKU gets a{" "}
+          <strong>Synced</strong> badge and a real Stripe Product + Price appears in the Stripe
+          dashboard (metadata <code>local_site_studio_key = commerce_sku_&lt;slug&gt;_&lt;skuId&gt;</code>
+          ). Re-running Sync to Stripe after editing only a name should not create duplicate
+          Products; changing a price should create a new Price on the same Product. Reload{" "}
+          <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
+          <strong>Buy now</strong> (routes through <code>/api/commerce/checkout</code>, which
+          resolves the price server-side) instead of Request order.
+        </li>
+        <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
           receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
           appear (stub without <code>ANTHROPIC_API_KEY</code>). Copy into a temp number / Cal.com

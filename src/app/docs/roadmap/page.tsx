@@ -185,9 +185,15 @@ export default function RoadmapDocPage() {
         Operator-editable catalog ≤50 SKUs for paid/live <code>commerceAddon</code> leads:
         shipped (<code>saveCommerceCatalogAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — shown on{" "}
-        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox; missing panel on
-        dashboard). Eligible-but-missing catalogs count on pipeline health and list in the daily
-        digest. Stripe Products sync + embedded checkout remain next.
+        <code>/preview/[slug]</code>; missing panel on dashboard). Eligible-but-missing catalogs
+        count on pipeline health and list in the daily digest. Stripe Products sync shipped:
+        operator clicks Sync to Stripe on a saved catalog (
+        <code>syncCommerceCatalogToStripeAction</code> →{" "}
+        <code>syncCommerceCatalogToStripe</code>) to idempotently create a Stripe
+        Product + Price per SKU (reuses <code>STRIPE_SECRET_KEY</code>, no new secrets);
+        <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
+        server-resolved price) for synced items and falls back to Request order → inquiry inbox
+        for unsynced ones.
       </p>
 
       <p>

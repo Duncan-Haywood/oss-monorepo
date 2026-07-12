@@ -17,6 +17,10 @@ export interface CommerceSku {
   description?: string;
   /** Integer USD cents (e.g. 1299 = $12.99). */
   priceCents: number;
+  /** Set once syncCommerceCatalogToStripe creates/finds the matching Stripe Product. */
+  stripeProductId?: string;
+  /** Set once syncCommerceCatalogToStripe creates/finds a Price matching priceCents. */
+  stripePriceId?: string;
 }
 
 export interface CommerceCatalog {

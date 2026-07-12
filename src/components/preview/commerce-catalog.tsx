@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { CommerceSku } from "@/lib/commerce/types";
 import {
   commerceOrderRequestMessage,
@@ -26,6 +27,48 @@ type PreviewCommerceCatalogProps = {
   accentTextClass: string;
   ctaClass: string;
 };
+
+/** Direct Stripe Checkout for a synced SKU — server resolves the real price by id. */
+function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku; ctaClass: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleBuy = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/commerce/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, skuId: sku.id }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.url) {
+        setError(data.message ?? data.error ?? "Checkout failed");
+        setLoading(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setError("Network error — please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex shrink-0 flex-col items-end gap-1">
+      <button
+        type="button"
+        disabled={loading}
+        onClick={handleBuy}
+        className={`inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors disabled:opacity-60 ${ctaClass}`}
+      >
+        {loading ? "Redirecting…" : "Buy now"}
+      </button>
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+    </div>
+  );
+}
 
 /**
  * Commerce add-on catalog on /preview/[slug].
@@ -78,27 +121,31 @@ export function PreviewCommerceCatalog({
                     {formatPriceUsd(sku.priceCents)}
                   </p>
                 </div>
-                <a
-                  href="#contact"
-                  className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors ${ctaClass}`}
-                  onClick={() => {
-                    try {
-                      sessionStorage.setItem(
-                        commerceOrderStorageKey(slug),
-                        requestMessage,
+                {sku.stripePriceId ? (
+                  <BuyNowButton slug={slug} sku={sku} ctaClass={ctaClass} />
+                ) : (
+                  <a
+                    href="#contact"
+                    className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors ${ctaClass}`}
+                    onClick={() => {
+                      try {
+                        sessionStorage.setItem(
+                          commerceOrderStorageKey(slug),
+                          requestMessage,
+                        );
+                      } catch {
+                        // Private mode / blocked storage — event still prefills.
+                      }
+                      window.dispatchEvent(
+                        new CustomEvent<CommerceOrderEventDetail>(COMMERCE_ORDER_EVENT, {
+                          detail: { slug, message: requestMessage },
+                        }),
                       );
-                    } catch {
-                      // Private mode / blocked storage — event still prefills.
-                    }
-                    window.dispatchEvent(
-                      new CustomEvent<CommerceOrderEventDetail>(COMMERCE_ORDER_EVENT, {
-                        detail: { slug, message: requestMessage },
-                      }),
-                    );
-                  }}
-                >
-                  Request order
-                </a>
+                    }}
+                  >
+                    Request order
+                  </a>
+                )}
               </li>
             );
           })}

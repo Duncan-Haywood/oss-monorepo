@@ -24,6 +24,7 @@ import {
   sendStarterUpsellAction,
   generateMarketingPackAction,
   saveCommerceCatalogAction,
+  syncCommerceCatalogToStripeAction,
   generateClientVoicePackAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
@@ -684,6 +685,21 @@ export function LeadsClient({
         return [res.catalog, ...without];
       });
       closeCommerceEditor();
+    });
+  };
+
+  const handleSyncCommerceCatalogToStripe = (slug: string) => {
+    startTransition(async () => {
+      const res = await syncCommerceCatalogToStripeAction(slug);
+      if (!res.success) {
+        alert(`Stripe sync failed: ${res.error}`);
+        return;
+      }
+      setCommerceCatalogs((prev) => {
+        const without = prev.filter((c) => c.leadSlug !== slug);
+        return [res.catalog, ...without];
+      });
+      setCommerceDraftItems(res.catalog.items.map((item) => ({ ...item })));
     });
   };
 
@@ -2243,8 +2259,8 @@ export function LeadsClient({
                               </span>
                             </h3>
                             <p className="text-[11px] text-zinc-500">
-                              Prices in USD. Request order on preview → inquiry inbox
-                              (Stripe Products sync stays later).
+                              Prices in USD. Save, then Sync to Stripe to turn Request
+                              order into a direct Buy now checkout on preview.
                             </p>
                           </div>
                           <ul className="mt-3 space-y-3">
@@ -2317,6 +2333,11 @@ export function LeadsClient({
                                   <span className="hidden text-[11px] text-zinc-400 sm:inline">
                                     {formatPriceUsd(item.priceCents)}
                                   </span>
+                                  {item.stripePriceId ? (
+                                    <span className="hidden rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 sm:inline">
+                                      Synced
+                                    </span>
+                                  ) : null}
                                   <button
                                     type="button"
                                     disabled={isPending || commerceDraftItems.length <= 1}
@@ -2360,6 +2381,19 @@ export function LeadsClient({
                               className="inline-flex h-8 items-center rounded-lg bg-orange-800 px-3 text-xs font-semibold text-white hover:bg-orange-900 disabled:opacity-60"
                             >
                               Save catalog
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isPending || !catalogForLead(lead.slug)}
+                              title={
+                                catalogForLead(lead.slug)
+                                  ? "Create/find Stripe Products + Prices for every saved SKU"
+                                  : "Save the catalog first"
+                              }
+                              onClick={() => handleSyncCommerceCatalogToStripe(lead.slug)}
+                              className="inline-flex h-8 items-center rounded-lg border border-orange-300 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                            >
+                              Sync to Stripe
                             </button>
                             <button
                               type="button"
