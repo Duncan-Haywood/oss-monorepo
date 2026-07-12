@@ -320,7 +320,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-mark-read-on-composer-open",
     summary:
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "claude/upbeat-dijkstra-y2c9ib",
   },
@@ -852,6 +852,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes unreplied metrics distinguish unseen vs. drafting; snoozed aggregates only matter if operators forget Unsnooze.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "This branch (claude/upbeat-dijkstra-y2c9ib) started its iteration on lead-snooze-work-next unaware that business-process-evolution-a6e6 and prompt-process-evolution-af03 had already shipped and merged an equivalent end-to-end implementation of both lead-snooze-work-next and unreplied-inquiry-pipeline-metric (PRs #31/#32) before this branch pushed its feature commit. Discarded the duplicate implementation and reset onto main rather than merging a second backend, then claimed the next free todo (inquiry-mark-read-on-composer-open).",
+    rationale:
+      "Same precedent as the two 2026-07-11 collision entries and the outreach-open-tracking collision: both implementations solved the identical problem end-to-end (schema, mutation, dashboard UI), so merging would only reconcile duplicate columns/UI for no user-facing benefit. This branch had not yet pushed a feature commit when the collision was discovered (only the claim commit), so main's already-merged version was strictly the one to keep — the discard cost was one iteration of unshipped local work, not a rebase of pushed history other agents might depend on.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Opening the inquiry reply composer on a status=new row now calls the same updateInquiryStatusAction(id, \"read\") already used by the dashboard's explicit Mark read button, rather than adding a second read-marking code path.",
+    rationale:
+      "Reduces status=new → read to one transition function instead of two, so pipeline-health's newInquiryCount (still marked new) and unrepliedInquiryCount (new+read) stay consistent regardless of which UI affordance the operator used. Closing the composer, or reopening an already read/replied row, is a no-op — only the new→open transition mutates status.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After inquiry-mark-read-on-composer-open, leave snoozed-leads-pipeline-metric free and queue operator-daily-digest-email as the next non-operator/legal-gated NEXT_STEPS item.",
+    rationale:
+      "Empty free backlog causes hourly thrash. A daily digest (Work next + follow-ups due + abandoned-checkout recovery due + unreplied inquiries in one email) is the next lever for a single-operator business that cannot watch the dashboard continuously; snoozed-lead aggregates remain the smaller, explicitly-optional item.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1346,5 +1367,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-snooze-work-next done; snoozed-leads-pipeline-metric queued",
     ],
     decisions: BUSINESS_DECISIONS.slice(70, 72),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-y2c9ib",
+    summary:
+      "Started this iteration by claiming and re-implementing lead-snooze-work-next; the pre-PR sibling-branch fetch showed business-process-evolution-a6e6 + prompt-process-evolution-af03 had already shipped and merged an equivalent lead-snooze-work-next + unreplied-inquiry-pipeline-metric (PRs #31/#32) first. Discarded the duplicate implementation and reset onto main per this file's own collision precedent, then claimed inquiry-mark-read-on-composer-open instead: opening the reply composer on a status=new inquiry now calls the existing updateInquiryStatusAction(id, \"read\") so pipeline-health's newInquiryCount reflects unseen inquiries specifically, not just unreplied ones. Queued operator-daily-digest-email for siblings.",
+    shipped: [
+      "src/app/dashboard/leads/leads-client.tsx — handleToggleReplyComposer auto-marks status=new → read on composer open (no-op on close or already read/replied rows)",
+      "NEXT_STEPS: inquiry-mark-read-on-composer-open done; operator-daily-digest-email queued (snoozed-leads-pipeline-metric remains free)",
+      "AGENT_PROTOCOL/process notes: recorded the snooze collision-discard outcome",
+      "Verified via npm run build/lint/test, then npm run dev: inserted a synthetic status=new client_inquiries row via node:sqlite, loaded /dashboard/leads, confirmed the Reply button renders for it",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(73, 76),
   },
 ];
