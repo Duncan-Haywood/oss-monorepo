@@ -360,9 +360,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "follow-ups-due-pipeline-metric",
     summary:
-      "Fold listFollowUpsDue counts (+ oldest due age) into pipeline-health aggregates so Email 2/3 backlog sits beside unreplied inquiries and abandoned carts — operators currently only see Due badges row-by-row / Work next factors.",
-    status: "todo",
+      "Fold listFollowUpsDue counts (+ oldest due age) into pipeline-health aggregates so Email 2/3 backlog sits beside unreplied inquiries and abandoned carts — operators currently only see Due badges row-by-row / Work next factors. Shipped: followUpsDueCount + oldestFollowUpDueAgeHours reuse isFollowUpDue; metric card + callout on the pipeline-health panel.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/relaxed-galileo-n2jurd",
   },
   {
     id: "snoozed-leads-in-digest",
@@ -1011,6 +1012,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. Follow-ups-due aggregates are the next operator-leverage unlock; the optional items remain available once operators use snooze/close buttons in production.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "followUpsDueCount + oldestFollowUpDueAgeHours reuse the existing isFollowUpDue predicate from src/lib/email/outreach-followups.ts (same function driving the Due badges and Work next factor) instead of a parallel due-date calculation inside pipeline-health.ts.",
+    rationale:
+      "Two independent 'is this lead due' implementations would drift the moment the Email 2/3 cadence constants change — the badge and the aggregate must always agree on which leads are due. Aggregating over the same pure predicate keeps pipeline-health a read-only rollup, matching the pattern already used for coldLeadCount/isColdLead and snoozedLeadCount/isLeadSnoozed.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1603,5 +1611,19 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.slice(86, 89),
   },
-
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-n2jurd",
+    summary:
+      "Sibling claude/upbeat-dijkstra-ea3tow claimed marketing-content-generation ~3 minutes before this run started; claimed follow-ups-due-pipeline-metric instead, the top remaining non-optional NEXT_STEPS item. Folded listFollowUpsDue's existing isFollowUpDue predicate into pipeline-health as followUpsDueCount + oldestFollowUpDueAgeHours, a metric card + operator callout on the pipeline-health panel, Vitest, and docs.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — followUpsDueCount + oldestFollowUpDueAgeHours via isFollowUpDue",
+      "src/lib/metrics/pipeline-health.test.ts — zero-state + due-count/oldest-age cases (exhausted/not-yet-due excluded)",
+      "src/components/dashboard/pipeline-health-panel.tsx — Follow-ups due metric card + operator callout linking to /dashboard/leads",
+      "Docs: architecture, roadmap Phase 2, launch-checklist follow-ups-due verification step",
+      "NEXT_STEPS: follow-ups-due-pipeline-metric done; snoozed-leads-in-digest, closed-leads-pipeline-metric, reengage-send-email1-option remain free",
+      "Verified via npm test (150 passed) + lint + build, then npm run dev: mutated the seeded serene-salon row to outreachStep=1 / lastOutreachAt 4 days ago via node:sqlite, confirmed 'Follow-ups due: 1 · Oldest since Email 4d' on the pipeline-health panel and the operator callout on /dashboard/leads, then reset the row",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(89, 90),
+  },
 ];

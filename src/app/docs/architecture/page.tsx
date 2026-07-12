@@ -128,7 +128,8 @@ export default function ArchitectureDocPage() {
         unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage
         funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied
         website inquiries (new + read, with oldest age), cold leads, currently-snoozed Work next
-        parks (count + soonest return), and leads missing email (
+        parks (count + soonest return), leads due for Email 2/3 (<code>followUpsDueCount</code>{" "}
+        + oldest age since last send, via <code>isFollowUpDue</code>), and leads missing email (
         <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}

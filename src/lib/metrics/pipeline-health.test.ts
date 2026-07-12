@@ -347,6 +347,56 @@ describe("computePipelineHealth", () => {
     expect(health.snoozedLeadCount).toBe(3);
     expect(health.soonestSnoozeRemainingHours).toBe(1);
   });
+
+  it("defaults follow-up-due metrics to zero without due leads", () => {
+    const notYetDue = makeLead("outreach_sent", {
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+    });
+    const health = computePipelineHealth({
+      leads: [notYetDue],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.followUpsDueCount).toBe(0);
+    expect(health.oldestFollowUpDueAgeHours).toBeNull();
+  });
+
+  it("counts leads due for Email 2/3 with oldest age since last outreach", () => {
+    const due2 = makeLead("outreach_sent", {
+      slug: "due-email-2",
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - 4 * 24 * HOUR_MS).toISOString(),
+    });
+    const due3Older = makeLead("discovery_call", {
+      slug: "due-email-3",
+      outreachStep: 2,
+      lastOutreachAt: new Date(NOW - 10 * 24 * HOUR_MS).toISOString(),
+    });
+    const notDueYet = makeLead("outreach_sent", {
+      slug: "not-due",
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - HOUR_MS).toISOString(),
+    });
+    const exhausted = makeLead("outreach_sent", {
+      slug: "exhausted",
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - 30 * 24 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [due2, due3Older, notDueYet, exhausted],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.followUpsDueCount).toBe(2);
+    expect(health.oldestFollowUpDueAgeHours).toBe(10 * 24);
+  });
 });
 
 describe("isUnrepliedInquiryStatus", () => {
