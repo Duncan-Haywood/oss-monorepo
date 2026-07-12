@@ -73,9 +73,11 @@ export async function POST(request: Request) {
         const orderSlug = session.metadata.slug;
         const skuId = session.metadata.skuId;
         try {
-          await markCheckoutSessionComplete(session.id);
+          await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
         } catch (e) {
-          console.warn(`Failed to mark commerce checkout session ${session.id} complete`, e);
+          console.error(`Failed to mark commerce checkout session ${session.id} complete`, e);
+          const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
+          return NextResponse.json(failure.body, { status: failure.status });
         }
         if (orderSlug) {
           try {
@@ -232,9 +234,11 @@ export async function POST(request: Request) {
       }
 
       try {
-        await markCheckoutSessionComplete(session.id);
+        await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
       } catch (e) {
-        console.warn(`Failed to mark checkout session ${session.id} complete`, e);
+        console.error(`Failed to mark checkout session ${session.id} complete`, e);
+        const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
+        return NextResponse.json(failure.body, { status: failure.status });
       }
 
       if (slug && tier) {

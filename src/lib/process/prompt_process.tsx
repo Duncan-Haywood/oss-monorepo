@@ -800,8 +800,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "checkout-session-complete-convex-primary",
     summary:
-      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Prefer requireConvex + 5xx from the webhook so Stripe retries until the shared store marks the session complete.",
-    status: "in_progress",
+      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Shipped: markCheckoutSessionComplete accepts ConvexPrimaryWriteOptions and throws ConvexPrimaryWriteError on a requireConvex failure (mirrors recordLeadPayment/insertClientInquiry/insertDeployHandoff); both webhook call sites (bundle + commerce_sku) pass WEBHOOK_CONVEX_PRIMARY and return the new checkout_session_mark_complete 5xx so Stripe retries instead of ACKing past an unmarked session.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-d3qpgd",
   },
@@ -2039,6 +2039,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "DNS handoff email HTML (inline webhook template + formatDnsInstructionsForEmail) must escape businessName and all handoff URL/host fields via escapeHtmlForEmail. Growth landing feature copy says ready-to-post packs — not auto-scheduled — until marketing-content-scheduling OAuth ships.",
     rationale:
       "Same empty-backlog audit as organic attribution: the DNS 'next steps' email was the one post-payment HTML path still interpolating raw businessName after PR #76 escaped sendReceiptEmail in the same webhook block — classic asymmetry. formatDnsInstructionsForEmail lived in a db-importing module, so it moved to dns-email.ts for unit-testable escaping. Landing Growth copy overclaimed Buffer/GBP/Meta auto-scheduling that remains operator-gated; truthful packaging protects conversion quality and counsel risk.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "markCheckoutSessionComplete now accepts ConvexPrimaryWriteOptions and both webhook call sites pass requireConvex, 5xx-ing (checkout_session_mark_complete) on a Convex failure instead of warn-and-continue.",
+    rationale:
+      "Every other Stripe-webhook fulfillment write (recordLeadPayment, insertDeployHandoff, insertCommerceOrder, insertClientInquiry) already fails closed on Convex when configured — mark-complete was the one ledger write still silently SQLite-falling-back. A failed mark-complete under a configured Convex leaves the session 'open' to Convex-first readers (listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue) even though the customer already paid, risking a Finish-checkout nudge to someone who just completed checkout. convex/checkoutSessions.ts's markComplete mutation is already a safe no-op when no row matches, so failing closed cannot false-positive on an untracked session id — only a genuine Convex outage now returns 5xx, and Stripe's retry re-runs the (idempotent) mark exactly like every sibling fulfillment write. Folded with PR #82 organic attribution (both ITERATIONS kept).",
   },
 ];
 
@@ -3368,6 +3375,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented organic mint + DNS escape / Growth copy honesty",
     ],
     decisions: BUSINESS_DECISIONS.slice(173, 175),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-d3qpgd",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #79 (3601 commerce-webhook-inquiry-retry-on-failure fold) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated; checkout-session-complete-convex-primary (queued by 3601's own audit) was the one free, non-gated todo and no sibling remote branch had claimed it. Closed it: markCheckoutSessionComplete previously warn-and-continue'd on any failure (Convex or SQLite), so with Convex configured a failed mark-complete left a paid session looking 'open' to listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue, risking a Finish-checkout nudge to someone who already paid. Folded origin/main after PR #82 (organic-checkout-crm-attribution) — both ITERATIONS kept.",
+    shipped: [
+      "src/lib/db.ts — markCheckoutSessionComplete(stripeSessionId, options?: ConvexPrimaryWriteOptions) throws ConvexPrimaryWriteError on requireConvex Convex failure instead of silently SQLite-falling-back (same pattern as recordLeadPayment/insertClientInquiry/insertDeployHandoff)",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — new WebhookFulfillmentStep 'checkout_session_mark_complete'",
+      "src/app/api/stripe/webhook/route.ts — both markCheckoutSessionComplete call sites (bundle + commerce_sku) now pass WEBHOOK_CONVEX_PRIMARY and return 5xx on failure instead of console.warn + continue",
+      "NEXT_STEPS: checkout-session-complete-convex-primary done; only operator/legal-gated todos remain",
+      "merge: folded origin/main after PR #82 (9c45 organic attribution) — both ITERATIONS kept",
+      "Verified: npm test + lint + build; convex/checkoutSessions.ts markComplete is a safe no-op when no matching row exists",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(175, 176),
   },
 ];
 

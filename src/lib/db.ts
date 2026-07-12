@@ -1727,13 +1727,26 @@ export async function recordCheckoutSessionCreated(params: {
   );
 }
 
-/** Flips a checkout session to "complete" — called from the checkout.session.completed webhook. */
-export async function markCheckoutSessionComplete(stripeSessionId: string): Promise<void> {
+/**
+ * Flips a checkout session to "complete" — called from the
+ * checkout.session.completed webhook. Pass { requireConvex: true } (the
+ * webhook does) so a Convex failure does not silently leave the session
+ * "open" only in instance-local SQLite while Convex-first readers
+ * (listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue) still see
+ * it as open and email a Finish-checkout nudge to someone who already paid.
+ */
+export async function markCheckoutSessionComplete(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   if (convexClient) {
     try {
       await convexClient.mutation(api.checkoutSessions.markComplete, { stripeSessionId });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCheckoutSessionComplete", e);
+      }
       console.warn(
         `Failed to mark checkout session ${stripeSessionId} complete on Convex, falling back to SQLite`,
         e,
