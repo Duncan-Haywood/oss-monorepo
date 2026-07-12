@@ -104,7 +104,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           Open a preview with <code>?src=outreach</code> (or after stage is{" "}
           <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code> appears as an
-          Opened badge on the leads table and that Follow-ups due ranks openers first.
+          Opened badge on the leads table and that Follow-ups due ranks openers first. With
+          Convex configured, a failed shared-store write must return <code>503</code> (
+          <code>requireConvex</code>) — never claim <code>recorded:true</code> after a
+          SQLite-only update other instances cannot see.
         </li>
         <li>
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}

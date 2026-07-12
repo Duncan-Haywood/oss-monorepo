@@ -4,12 +4,18 @@ import {
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "@/lib/leads/preview-open";
+import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
+import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
 /**
  * Record an attributed preview open. Body optional: { openedAt?: ISO string }.
  * Query: src, utm_source — or lead stage outreach_sent/discovery_call.
+ *
+ * When Convex is configured, writes pass requireConvex so a mutation failure
+ * returns 503 instead of claiming recorded:true after a SQLite-only update
+ * that Convex-first dashboard readers never see.
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
@@ -44,6 +50,25 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, recorded: false, reason: "debounced" });
   }
 
-  const result = await recordLeadPreviewOpen(slug, openedAt);
-  return NextResponse.json({ ok: true, recorded: result.recorded });
+  try {
+    const result = await recordLeadPreviewOpen(
+      slug,
+      openedAt,
+      PREVIEW_OPEN_CONVEX_PRIMARY,
+    );
+    return NextResponse.json({ ok: true, recorded: result.recorded });
+  } catch (error) {
+    if (error instanceof ConvexPrimaryWriteError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          recorded: false,
+          reason: "persist_failed",
+          error: "Could not record preview open right now.",
+        },
+        { status: 503 },
+      );
+    }
+    throw error;
+  }
 }
