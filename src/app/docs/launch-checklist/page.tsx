@@ -238,7 +238,10 @@ export default function LaunchChecklistDocPage() {
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
           <strong>Buy now</strong> (routes through <code>/api/commerce/checkout</code>, which
-          resolves the price server-side) instead of Request order.
+          resolves the price server-side) instead of Request order. Confirm a Buy now session
+          writes a <code>checkout_sessions</code> row with <code>kind=commerce_sku</code> (and
+          does <em>not</em> appear in the Abandoned checkouts / Work next cart boost — only the
+          Abandoned Buy now panel).
         </li>
         <li>
           After a real Buy now purchase completes, confirm the inquiry inbox shows the paid-order

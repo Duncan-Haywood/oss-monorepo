@@ -269,6 +269,43 @@ describe("computePipelineHealth", () => {
     expect(health.abandonedCheckoutCount).toBe(2);
     expect(health.recoveryDueCount).toBe(1);
     expect(health.oldestAbandonedAgeHours).toBe(30);
+    expect(health.commerceAbandonedCheckoutCount).toBe(0);
+    expect(health.commerceRecoveryDueCount).toBe(0);
+  });
+
+  it("counts commerce Buy now abandoned carts separately from bundle carts", () => {
+    const bundleDue = makeSession({
+      stripeSessionId: "cs_bundle",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const commerceDue = makeSession({
+      stripeSessionId: "cs_commerce",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+    });
+    const commerceFresh = makeSession({
+      stripeSessionId: "cs_commerce_fresh",
+      kind: "commerce_sku",
+      skuId: "sku_tea",
+      tier: "",
+      createdAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [bundleDue, commerceDue, commerceFresh],
+      nowMs: NOW,
+    });
+
+    expect(health.abandonedCheckoutCount).toBe(1);
+    expect(health.recoveryDueCount).toBe(1);
+    expect(health.commerceAbandonedCheckoutCount).toBe(1);
+    expect(health.commerceRecoveryDueCount).toBe(1);
   });
 
   it("defaults cold lead metrics to zero without cold leads", () => {

@@ -210,6 +210,16 @@ describe("scoreLead", () => {
     const result = scoreLead(baseLead(), NOW, { openCheckoutSessions: [fresh] });
     expect(result.factors.some((f) => f.id === "abandoned_checkout")).toBe(false);
   });
+
+  it("ignores commerce Buy now abandoned carts for Local Site Studio lead quality", () => {
+    const commerce = openCheckout({
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+    });
+    const result = scoreLead(baseLead(), NOW, { openCheckoutSessions: [commerce] });
+    expect(result.factors.some((f) => f.id === "abandoned_checkout")).toBe(false);
+  });
 });
 
 describe("rankLeadsForOutreach", () => {
