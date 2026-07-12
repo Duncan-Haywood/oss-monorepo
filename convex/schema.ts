@@ -148,6 +148,7 @@ export default defineSchema({
    * revenue. Append-only ledger, one row per completed Checkout Session.
    */
   commerceOrders: defineTable({
+    orderId: v.string(),
     leadSlug: v.string(),
     skuId: v.string(),
     skuName: v.string(),

@@ -20,6 +20,7 @@ import type {
   CommerceSku,
   UpsertCommerceCatalogInput,
 } from "./commerce/types";
+import { newCommerceOrderId } from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import type { ClientVoiceScriptVariant } from "./voice/types";
@@ -1819,11 +1820,17 @@ export async function insertCommerceOrder(
   input: InsertCommerceOrderInput,
 ): Promise<void> {
   const createdAt = new Date().toISOString();
+  // Generated once up front (not inside the SQLite-only branch) so both
+  // backends persist and return the same app-owned id — the Convex
+  // commerceOrders table previously had no id column at all, so every row
+  // came back with `id: undefined` once Convex was configured.
+  const id = newCommerceOrderId();
 
   if (convexClient) {
     try {
       await convexClient.mutation(api.commerceOrders.insert, {
         ...input,
+        orderId: id,
         createdAt,
       });
       return;
@@ -1836,7 +1843,6 @@ export async function insertCommerceOrder(
   }
 
   const db = getSqliteDb();
-  const id = `corder_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
   db.prepare(
     `INSERT OR IGNORE INTO commerce_orders (
       id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt

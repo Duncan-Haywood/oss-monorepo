@@ -35,6 +35,7 @@ export {
 
 export {
   isCommerceOrderPaidOut,
+  newCommerceOrderId,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isCommerceOrderPaidOut,
+  newCommerceOrderId,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
@@ -21,6 +22,20 @@ function order(
     paidOutAt: partial.paidOutAt,
   };
 }
+
+describe("newCommerceOrderId", () => {
+  it("returns a non-empty string prefixed with corder_", () => {
+    const id = newCommerceOrderId();
+    expect(typeof id).toBe("string");
+    expect(id.startsWith("corder_")).toBe(true);
+    expect(id.length).toBeGreaterThan("corder_".length);
+  });
+
+  it("generates distinct ids across calls", () => {
+    const ids = new Set(Array.from({ length: 20 }, () => newCommerceOrderId()));
+    expect(ids.size).toBe(20);
+  });
+});
 
 describe("sumCommerceOrdersRevenueUsd", () => {
   it("sums amountPaidUsd across orders", () => {
