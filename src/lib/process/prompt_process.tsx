@@ -329,8 +329,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "snoozed-leads-pipeline-metric",
     summary:
       "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-9ebb",
   },
   {
     id: "cold-lead-reengagement",
