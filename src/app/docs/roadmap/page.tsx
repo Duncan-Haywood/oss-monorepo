@@ -80,8 +80,11 @@ export default function RoadmapDocPage() {
       <p>
         Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
-        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Remaining:
-        Vapi/Retell platform voice and bundle explanation tools.
+        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Lead quality
+        scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Remaining:
+        Vapi/Retell platform voice and bundle explanation tools; preview open-tracking; operator
+        lead notes.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
