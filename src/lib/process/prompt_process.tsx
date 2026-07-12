@@ -351,8 +351,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "operator-daily-digest-email",
     summary:
       "Operator-triggered (or later cron) daily digest email summarizing Work next top leads, follow-ups due, abandoned-checkout recoveries due, and unreplied inquiries — a single-operator business should not have to open /dashboard/leads to know what's urgent today.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/quirky-davinci-pewiht",
   },
 ];
 
