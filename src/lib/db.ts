@@ -1790,6 +1790,7 @@ export async function markCheckoutSessionComplete(
 export async function recordCheckoutRecoverySent(
   stripeSessionId: string,
   sentAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -1799,6 +1800,9 @@ export async function recordCheckoutRecoverySent(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordCheckoutRecoverySent", e);
+      }
       console.warn(
         `Failed to record recovery send for ${stripeSessionId} on Convex, falling back to SQLite`,
         e,

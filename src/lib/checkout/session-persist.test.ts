@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { shouldFallbackToSqliteOnConvexFailure } from "@/lib/payments/convex-primary";
-import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "./session-persist";
+import {
+  CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
+  CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+} from "./session-persist";
 
 describe("CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY", () => {
   it("requires Convex when configured (no SQLite fallback)", () => {
@@ -16,6 +19,21 @@ describe("CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY", () => {
     // treat SQLite as the primary store.
     expect(
       shouldFallbackToSqliteOnConvexFailure(false, CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY),
+    ).toBe(true);
+  });
+});
+
+describe("CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY", () => {
+  it("requires Convex when configured (no SQLite fallback)", () => {
+    expect(CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY.requireConvex).toBe(true);
+    expect(
+      shouldFallbackToSqliteOnConvexFailure(true, CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY),
+    ).toBe(false);
+  });
+
+  it("still allows SQLite when Convex is not configured", () => {
+    expect(
+      shouldFallbackToSqliteOnConvexFailure(false, CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY),
     ).toBe(true);
   });
 });

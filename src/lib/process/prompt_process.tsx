@@ -117,6 +117,7 @@ export const AGENT_PROTOCOL = [
   "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
   "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
   "recordCheckoutSessionCreated (POST /api/stripe/checkout + POST /api/commerce/checkout) must pass requireConvex (CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as webhook markCheckoutSessionComplete. Returning { url } after a SQLite-only create leaves the open cart invisible to Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue / digest (lost Finish-checkout recovery revenue). Prefer 502 so the buyer retries rather than silently dropping multi-instance tracking.",
+  "recordCheckoutRecoverySent must pass requireConvex (CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) from sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction when Convex is configured — durable mark BEFORE the Resend send (persist-then-notify). A SQLite-only recoverySentAt after a successful email leaves Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue due and risks a second Finish-checkout / Buy now nudge (reputation / CAN-SPAM). Mark failure surfaces to the operator and skips the send; send failure after a durable mark leaves the session off the due queue.",
 ] as const;
 
 /**
@@ -844,24 +845,18 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deploy-handoff-preserve-custom-domain",
     summary:
-<<<<<<< HEAD
-      "Empty-backlog audit follow-up (queued by f005): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds.",
-    status: "in_progress",
-    phase: "Phase 5 — Production deploy",
-    owner: "cursor/business-process-evolution-6946",
-=======
-      "Empty-backlog audit follow-up: enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Shipped: preserveDeployHandoffOperatorFields merges operator-set customDomain + vercelProjectId from the existing handoff before insert (next explicit values still win).",
+      "Empty-backlog audit follow-up: enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Shipped: preserveDeployHandoffOperatorFields merges operator-set customDomain + vercelProjectId from the existing handoff before insert (next explicit values still win). Dual-claim: c1a0 earlier remote claim owns (PR #86); 6946 claim-only then pivoted.",
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-c1a0",
->>>>>>> origin/main
   },
   {
     id: "checkout-recovery-sent-convex-primary",
     summary:
-      "Empty-backlog audit follow-up (queued by f005): recordCheckoutRecoverySent still soft-falls-back after the operator already sent the Finish-checkout / Buy now recovery email — Convex-first listOpenCheckoutSessions then keeps the session due and can nudge again (reputation / CAN-SPAM risk). Prefer requireConvex + surface the failure in the dashboard action after send, or send-after-durable-mark with compensating retry. Free for sibling prompt-process-evolution-c1a0 this hour.",
-    status: "todo",
+      "Empty-backlog audit follow-up (queued by f005): recordCheckoutRecoverySent still soft-falls-back after the operator already sent the Finish-checkout / Buy now recovery email — Convex-first listOpenCheckoutSessions then keeps the session due and can nudge again (reputation / CAN-SPAM risk). Shipped: CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY; durable mark before Resend send in both recovery actions; ConvexPrimaryWriteError surfaces to the operator and skips the send.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-6946",
   },
   {
     id: "preview-open-convex-primary",
@@ -2139,6 +2134,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "enqueueProductionHandoff must preserve operator-set customDomain and vercelProjectId via preserveDeployHandoffOperatorFields when rebuilding a handoff for a new stripeSessionId (upsell / re-purchase).",
     rationale:
       "Starter sells Preview subdomain → custom domain handoff; once an operator saves a client domain (or dedicated Vercel project), Host→preview routing and Domains API targeting depend on those fields surviving. Convex upsert replace + SQLite ON CONFLICT both clear omitted optionals, and buildHandoffRecord never copied them — so a Starter→Growth upsell checkout wiped live routing the same way normalizeCommerceItems wiped Stripe ids before preserveCommerceStripeIds. Explicit next values still win; checkout-recovery-sent-convex-primary stays queued for the sibling (6946) / next run. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "recordCheckoutRecoverySent accepts ConvexPrimaryWriteOptions; bundle + commerce recovery dashboard actions pass CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY and durable-mark recoverySentAt BEFORE the Resend send.",
+    rationale:
+      "Queued by f005; left free after c1a0 shipped deploy-handoff-preserve (PR #86) while 6946 dual-claimed that todo claim-only and pivoted. Send-then-soft-fallback left Convex-first abandoned queues able to re-nudge after a successful email — reputation / CAN-SPAM risk, not just data loss. Persist-then-notify matches contact/webhook house pattern: mark failure skips the send; send failure after a durable mark leaves the session off the due queue (operator sees the error, no automatic second nudge). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -3561,5 +3563,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented preserve on upsell so Host→preview routing survives",
     ],
     decisions: BUSINESS_DECISIONS.slice(180, 181),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-6946",
+    summary:
+      "Dual-claimed deploy-handoff-preserve-custom-domain claim-only; c1a0 earlier remote claim merged as PR #86 — folded main and pivoted to checkout-recovery-sent-convex-primary (explicitly left free by c1a0). Shipped CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY with durable mark-before-send on both recovery actions so Convex-first abandoned queues cannot re-nudge after a SQLite-only recoverySentAt. Improved AGENT_PROTOCOL + docs. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/checkout/session-persist.ts (+ test) — CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY",
+      "src/lib/db.ts — recordCheckoutRecoverySent(stripeSessionId, sentAt?, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/dashboard/leads/actions.ts — sendCheckoutRecoveryAction + sendCommerceCheckoutRecoveryAction mark before Resend; surface ConvexPrimaryWriteError",
+      "Docs: architecture / roadmap / launch-checklist — recovery requireConvex + mark-before-send",
+      "NEXT_STEPS: checkout-recovery-sent-convex-primary done; deploy-handoff-preserve co-acknowledged as c1a0 PR #86",
+      "AGENT_PROTOCOL — recoverySentAt requireConvex + persist-then-notify",
+      "BUSINESS_DECISIONS — documented CAN-SPAM re-nudge risk of soft-fallback after send",
+      "merge: folded origin/main after PR #86 (c1a0 handoff preserve) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(181, 182),
   },
 ];

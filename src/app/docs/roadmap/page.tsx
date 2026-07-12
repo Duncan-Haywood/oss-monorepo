@@ -144,8 +144,10 @@ export default function RoadmapDocPage() {
         <code>recordCheckoutSessionCreated</code> on both bundle and Commerce Buy now checkout
         routes uses <code>requireConvex</code> (returns <code>502</code> on failure) so
         Convex-first abandoned queues cannot miss a cart that only landed in instance-local
-        SQLite — the create-side twin of webhook <code>markCheckoutSessionComplete</code>. Those
-        open sessions also boost the
+        SQLite — the create-side twin of webhook <code>markCheckoutSessionComplete</code>. Operator
+        recovery emails durable-mark <code>recoverySentAt</code> with <code>requireConvex</code>{" "}
+        before send so a Convex blip cannot leave the session due on other instances after a nudge.
+        Those open sessions also boost the
         Work next quality score (hotter than preview opens) so carts do not hide behind cold
         follow-ups, and pipeline health shows abandoned-cart + recovery-due counts next to
         paid-not-live. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}
