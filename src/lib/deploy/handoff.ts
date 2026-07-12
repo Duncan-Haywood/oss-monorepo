@@ -13,8 +13,10 @@ import {
   updateLeadStage,
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
+export { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
 
 function appBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -197,7 +199,10 @@ export async function enqueueProductionHandoff(
     return existing;
   }
 
-  let handoff = buildHandoffRecord(input);
+  let handoff = preserveDeployHandoffOperatorFields(
+    buildHandoffRecord(input),
+    existing,
+  );
   handoff = await tryProvisionVercelDomain(handoff);
   await insertDeployHandoff(handoff, options);
   return handoff;
