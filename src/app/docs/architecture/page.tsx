@@ -114,6 +114,15 @@ export default function ArchitectureDocPage() {
         the Stripe Dashboard before first live use (see{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
       </p>
+      <p>
+        Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
+        operator-triggered <strong>Upsell</strong> email from{" "}
+        <code>/dashboard/leads</code> — eligibility is the inverse of billing-portal eligibility
+        (<code>src/lib/billing/starter-upsell.ts</code>). The email previews the marketing add-on
+        and links to <code>/checkout?slug=…&amp;tier=growth|complete</code> (Complete when the
+        lead&apos;s <code>recommendedTier</code> is Complete; otherwise Growth). Billing and
+        Upsell never both appear for the same order set.
+      </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>

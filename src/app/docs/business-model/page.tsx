@@ -99,7 +99,10 @@ export default function BusinessModelDocPage() {
       <ul>
         <li>Preview site tier comparison cards</li>
         <li>Platform voice after customization</li>
-        <li>Post-purchase upgrade emails</li>
+        <li>
+          Post-purchase upgrade emails — operator <strong>Upsell</strong> on paid/live Starter
+          leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout
+        </li>
       </ul>
 
       <h2>Operator workflow</h2>

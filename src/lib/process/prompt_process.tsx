@@ -46,6 +46,8 @@ export const AGENT_PROTOCOL = [
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
+  "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
+  "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
@@ -406,8 +408,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "paid-starter-upsell-nudge",
     summary:
-      "Operator-triggered Growth/Complete upsell email for paid Starter leads (no recurring yet) — include preview of marketing add-ons + checkout/billing upgrade link. Converts one-time $500 customers into MRR without waiting on the marketing engine phase.",
-    status: "in_progress",
+      "Operator-triggered Growth/Complete upsell email for paid Starter leads (no recurring yet) — include preview of marketing add-ons + checkout/billing upgrade link. Converts one-time $500 customers into MRR without waiting on the marketing engine phase. Shipped: leadEligibleForStarterUpsell (inverse of billing-portal eligibility), sendStarterUpsellEmail + sendStarterUpsellAction, Starter → MRR upsell panel + row Upsell button; checkout preselects Growth or Complete from recommendedTier.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-f6ad",
   },
@@ -1079,6 +1081,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Cold re-engage unblocks another Email 1–3 cycle on silent prospects; converting paid Starters into recurring Growth/Complete and shipping the sold marketing pack are the next direct MRR / fulfillment levers that do not wait on Stripe Price bootstrap or Places legal review.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-cron dual claim with business-process-evolution-31ae: they claimed marketing-content-generation first; this branch claimed paid-starter-upsell-nudge (next free MRR unlock) and pushed before feature body.",
+    rationale:
+      "Protocol prefers earlier remote claim when neither side has feature commits. Marketing pack fulfills sold Growth/Complete; Starter upsell converts one-time buyers into MRR — different files, both revenue. Recording the pivot keeps ITERATIONS honest and leaves marketing uncontested for the sibling.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Starter upsell eligibility is paid/live + usable email + at least one Starter-only order + zero billing-portal-eligible orders. Upsell target defaults to Growth; Complete only when recommendedTier is Complete. Checkout path reuses /checkout?slug=&tier= (no new Stripe API).",
+    rationale:
+      "Billing and Upsell must be mutually exclusive — reusing orderEligibleForBillingPortal avoids a parallel 'has recurring' predicate that would drift. Defaulting to Growth matches the natural MRR step from $500 one-time; Complete is only suggested when the lead was already scored that way. Linking to existing checkout keeps Price bootstrap as the only operator gate for a real charge.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After paid-starter-upsell-nudge, leave marketing-content-generation to its sibling owner (or re-claim if stale) and keep optional closed-leads-pipeline-metric free; Stripe Price bootstrap and Places stay human-gated.",
+    rationale:
+      "Upsell converts existing Starters; marketing pack is the remaining sold product-promise gap once Growth/Complete pays. Closed-count aggregates remain optional. Avoid empty free backlog thrash without inventing operator-gated work.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1716,5 +1739,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — revenue preference chain includes reengage Email 1 option → paid-Starter upsell nudge",
     ],
     decisions: BUSINESS_DECISIONS.slice(92, 95),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-f6ad",
+    summary:
+      "Sibling business-process-evolution-31ae claimed marketing-content-generation first same cron; pivoted to paid-starter-upsell-nudge. Shipped operator-triggered Growth/Complete upsell email for paid/live Starter-only leads (eligibility inverse of billing portal), dashboard panel + row Upsell, Vitest, docs. Improved AGENT_PROTOCOL (parallel marketing vs upsell claims; reuse billing-portal eligibility). Left marketing to sibling; closed-leads-pipeline-metric remains free.",
+    shipped: [
+      "src/lib/billing/starter-upsell.ts (+ tests) — eligibility, target tier, checkout path, candidate list",
+      "src/lib/email/resend.ts — sendStarterUpsellEmail",
+      "sendStarterUpsellAction — auth + suppression + Growth/Complete checkout link",
+      "leads-client Starter → MRR upsell panel + row Upsell button (mutual exclusive with Billing)",
+      "Docs: architecture, roadmap Phase 5, business-model upsell touchpoint, launch-checklist verification",
+      "NEXT_STEPS: paid-starter-upsell-nudge done; marketing-content-generation left to 31ae; closed-leads-pipeline-metric free",
+      "AGENT_PROTOCOL — parallel marketing/upsell claims; Billing vs Upsell share orderEligibleForBillingPortal",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(95, 98),
   },
 ];

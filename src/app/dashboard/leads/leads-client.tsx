@@ -21,9 +21,16 @@ import {
   snoozeLeadAction,
   disposeColdLeadAction,
   openBillingPortalAction,
+  sendStarterUpsellAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
+import {
+  leadEligibleForStarterUpsell,
+  listStarterUpsellCandidates,
+  resolveUpsellTargetTier,
+} from "@/lib/billing/starter-upsell";
+import { getBundle } from "@/lib/pricing/bundles";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -533,6 +540,13 @@ export function LeadsClient({
   const leadHasBillingPortal = (slug: string) =>
     orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
 
+  const leadEligibleForUpsell = (lead: Lead) =>
+    leadEligibleForStarterUpsell({
+      stage: lead.stage,
+      email: lead.email,
+      ordersForLead: orders.filter((o) => o.leadSlug === lead.slug),
+    });
+
   const handleOpenBillingPortal = (slug: string) => {
     startTransition(async () => {
       const res = await openBillingPortalAction(slug);
@@ -541,6 +555,22 @@ export function LeadsClient({
         return;
       }
       window.open(res.url, "_blank", "noopener,noreferrer");
+    });
+  };
+
+  const handleSendStarterUpsell = (slug: string) => {
+    startTransition(async () => {
+      const res = await sendStarterUpsellAction(slug);
+      if (!res.success) {
+        alert(`Upsell email failed: ${res.error}`);
+        return;
+      }
+      const label = res.targetTier === "complete" ? "Complete" : "Growth";
+      alert(
+        res.mock
+          ? `Mock upsell email logged (Resend unset) — ${label} checkout link`
+          : `Upsell email sent — ${label} checkout link`,
+      );
     });
   };
 
@@ -579,10 +609,70 @@ export function LeadsClient({
   const followUpsDue = listFollowUpsDue(leads, nowMs);
   const coldLeads = listColdLeads(leads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
+  const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
     <div className="mt-8">
+      {starterUpsellCandidates.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Starter → MRR upsell
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({starterUpsellCandidates.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/product-bundles"
+              className="text-xs font-medium text-teal-800 underline underline-offset-2"
+            >
+              Product bundles
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid Starter customers with no Growth/Complete/Commerce yet. Operator-triggered
+            upgrade email with a preselected checkout link (honors suppression).
+          </p>
+          <ul className="mt-4 space-y-3">
+            {starterUpsellCandidates.map((lead) => {
+              const targetTier = resolveUpsellTargetTier(lead.recommendedTier);
+              const bundle = getBundle(targetTier);
+              return (
+                <li
+                  key={lead.slug}
+                  className="rounded-xl border border-teal-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {lead.stage} · suggest {bundle?.name ?? targetTier}
+                        {bundle?.monthlyPriceUsd != null
+                          ? ` · $${bundle.monthlyPriceUsd}/mo`
+                          : null}
+                        {lead.email ? ` · ${lead.email}` : null}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleSendStarterUpsell(lead.slug)}
+                      className="rounded-lg bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+                    >
+                      Send {bundle?.name ?? targetTier} upsell
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       {abandonedCheckoutsDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -1778,6 +1868,16 @@ export function LeadsClient({
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
                             >
                               Billing
+                            </button>
+                          ) : null}
+                          {leadEligibleForUpsell(lead) ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleSendStarterUpsell(lead.slug)}
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 px-3 text-xs font-semibold text-teal-900 transition hover:border-teal-300 hover:bg-teal-100 disabled:opacity-60"
+                            >
+                              Upsell
                             </button>
                           ) : null}
                           <Link

@@ -48,6 +48,14 @@ export default function LaunchChecklistDocPage() {
           <strong>Manage subscription</strong> on <code>/checkout/success</code> after a
           subscription checkout.
         </li>
+        <li>
+          After a Starter-only test payment (no Growth/Complete/Commerce), confirm the{" "}
+          <strong>Starter → MRR upsell</strong> panel and row <strong>Upsell</strong> button
+          appear on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>. Send the nudge
+          (mock log is fine without Resend) and confirm the checkout link preselects Growth
+          (or Complete when <code>recommendedTier</code> is Complete). Billing and Upsell must
+          not both show for the same lead.
+        </li>
       </ol>
 
       <h2>2. Operator dashboard auth (blocks safe outreach at scale)</h2>
@@ -182,6 +190,11 @@ export default function LaunchChecklistDocPage() {
           When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}
           <strong>Follow-ups due</strong> count increments (with the oldest-due age) and
           matches the Due badges shown in the Follow-ups due panel / Work next queue.
+        </li>
+        <li>
+          On a paid/live Starter-only lead, <strong>Upsell</strong> sends a Growth/Complete
+          upgrade email (suppression honored); after a Growth/Complete/Commerce order exists,
+          Upsell disappears and <strong>Billing</strong> appears instead.
         </li>
       </ul>
 

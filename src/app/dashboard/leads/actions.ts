@@ -11,6 +11,7 @@ import {
   recordClientInquiryReply,
   getLeadBySlug,
   getLeads,
+  listOrders,
   recordLeadOutreach,
   listOpenCheckoutSessions,
   listClientInquiries,
@@ -46,9 +47,15 @@ import {
   sendCheckoutAbandonedRecovery,
   sendInquiryReply,
   sendOperatorDailyDigest,
+  sendStarterUpsellEmail,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
+import {
+  leadEligibleForStarterUpsell,
+  resolveUpsellTargetTier,
+} from "@/lib/billing/starter-upsell";
+import { getBundle } from "@/lib/pricing/bundles";
 import { buildDailyDigest, renderDailyDigestHtml } from "@/lib/digest/daily-digest";
 
 export async function markHandoffLiveAction(slug: string) {
@@ -687,6 +694,83 @@ export async function importLeadsCsvAction(input: {
     console.error("Error in importLeadsCsvAction:", error);
     return {
       success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator-triggered Growth/Complete upsell email for paid Starter leads
+ * (no recurring order yet). Checkout link preselects recommended tier.
+ * See /docs/process (paid-starter-upsell-nudge).
+ */
+export async function sendStarterUpsellAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug?.trim()) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug.trim());
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const allOrders = await listOrders();
+    const ordersForLead = allOrders.filter((o) => o.leadSlug === lead.slug);
+    if (
+      !leadEligibleForStarterUpsell({
+        stage: lead.stage,
+        email: lead.email,
+        ordersForLead,
+      })
+    ) {
+      return {
+        success: false as const,
+        error:
+          "Upsell only applies to paid/live Starter leads with email and no Growth/Complete/Commerce order yet",
+      };
+    }
+
+    const email = lead.email!.trim();
+    const targetTier = resolveUpsellTargetTier(lead.recommendedTier);
+    const bundle = getBundle(targetTier);
+    if (!bundle?.monthlyPriceUsd) {
+      return { success: false as const, error: "Upsell tier is missing monthly pricing" };
+    }
+
+    const sent = await sendStarterUpsellEmail({
+      to: email,
+      businessName: lead.businessName,
+      slug: lead.slug,
+      targetTier,
+      monthlyPriceUsd: bundle.monthlyPriceUsd,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send upsell email",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      targetTier,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendStarterUpsellAction:", error);
+    return {
+      success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }

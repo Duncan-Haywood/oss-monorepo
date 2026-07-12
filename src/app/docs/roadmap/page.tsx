@@ -152,8 +152,9 @@ export default function RoadmapDocPage() {
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
-        Next free gaps: Growth/Complete marketing pack generation and paid-Starter → Growth/Complete
-        upsell nudge (see <DocLink href="/docs/process">process log</DocLink>).
+        Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
+        Next free gap: Growth/Complete marketing pack generation (sibling may own it — see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>
