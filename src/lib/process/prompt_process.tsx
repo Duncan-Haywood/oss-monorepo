@@ -567,6 +567,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-4d67",
   },
+  {
+    id: "commerce-orders-payout-ledger-panel",
+    summary:
+      "commerceOrders ledger + pipeline-health total exist, but operators still lack a row-level panel of Buy now orders grouped by lead — needed for manual client payouts until Stripe Connect ships. Wire listCommerceOrders into /dashboard/leads (per-lead totals + recent lines); pure summarize helper + Vitest. Distinct from commerce-buy-now-client-receipt (client email) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-58b6",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -2455,8 +2463,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/email/resend.ts — sendCommerceBuyNowClientReceipt (reuses sendEmail + suppression)",
       "src/app/api/stripe/webhook/route.ts — commerce_sku branch emails lead.email after inquiry + commerceOrders (best-effort; skip if no email)",
       "Docs: product-bundles, roadmap Phase 8, architecture §9, launch-checklist client receipt check",
-      "NEXT_STEPS: commerce-buy-now-client-receipt done; Stripe/Places/scheduling/Connect remain gated",
-      "AGENT_PROTOCOL — client receipt recipient rule; prefer process/docs when free backlog is empty",
+      "NEXT_STEPS: commerce-buy-now-client-receipt done; commerce-orders-payout-ledger-panel claimed by sibling 58b6; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — client receipt recipient rule; prefer payout ledger panel when receipt is claimed/done; prefer process/docs when free backlog is empty",
+      "coop: folded sibling 58b6 claim of commerce-orders-payout-ledger-panel (complementary operator payout UI)",
     ],
     decisions: BUSINESS_DECISIONS.slice(137, 140),
   },
