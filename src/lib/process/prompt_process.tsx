@@ -91,6 +91,7 @@ export const AGENT_PROTOCOL = [
   "A `\"server-only\"` lib file cannot be Vitest-tested directly and its exports must not be re-exported through a barrel (e.g. src/lib/commerce/index.ts) that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern already in src/lib/commerce/stripe-sync.ts: take the Stripe client as a parameter behind a minimal structural interface (not `import Stripe from \"stripe\"` types) so the sync logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep only the real `new Stripe(secretKey)` construction + env-var gating in the server action / route that calls it.",
   "Commerce Buy now order money (end-customer payment for a client's own catalog SKU, collected through the platform's own Stripe account) must NEVER be written into the `orders` table or summed into revenueTotalUsd — that table/metric represents Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as 'this lead already subscribes to the Commerce add-on.' Keep pass-through customer revenue in its own ledger (commerceOrders / src/lib/commerce/orders.ts) with its own pipeline-health field (commerceOrdersRevenueUsd) — do not conflate the two money flows even though both come from Stripe webhooks.",
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
+  "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
 ] as const;
 
 /**
@@ -585,8 +586,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-orders-convex-id-integrity",
     summary:
-      "Bug found while sibling cursor/business-process-evolution-0907 held the only free backlog item (commerce-stripe-orphan-product-archive, claim-only, no feature code yet): commerce-order-revenue-ledger's Convex path never persisted an id. Unlike every sibling ledger (clientVoicePacks.packId, marketingPacks.packId, clientInquiries.inquiryId — each stored as an app-owned *Id column and echoed back as `id`), convex/schema.ts's commerceOrders table and convex/commerceOrders.ts's insert/list have no id field at all, so CommerceOrderRecord.id (required string, populated correctly on the SQLite fallback) is silently undefined for every row once Convex is configured — the /dashboard/leads Commerce payouts (manual) panel keys each order line with `key={row.id}`, so this breaks React list identity for that panel and any future consumer that dedupes/looks up by id. Fixing.",
-    status: "in_progress",
+      "Bug found while sibling cursor/business-process-evolution-0907 held the only free backlog item (commerce-stripe-orphan-product-archive, claim-only, no feature code yet): commerce-order-revenue-ledger's Convex path never persisted an id. Unlike every sibling ledger (clientVoicePacks.packId, marketingPacks.packId, clientInquiries.inquiryId — each stored as an app-owned *Id column and echoed back as `id`), convex/schema.ts's commerceOrders table and convex/commerceOrders.ts's insert/list had no id field at all, so CommerceOrderRecord.id (required string, populated correctly on the SQLite fallback) was silently undefined for every row once Convex is configured — the /dashboard/leads Commerce payouts (manual) panel keys each order line with `key={row.id}`, breaking React list identity for that panel and any future id-keyed consumer. Shipped: newCommerceOrderId() (mirrors newCommerceSkuId), generated once in insertCommerceOrder and passed to both backends; Convex schema/insert/list now carry an orderId column and echo it back as id, matching the established pattern.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-noo0a3",
   },
@@ -1586,6 +1587,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "stripe-commerce-products-sync explicitly deferred orphan archival. An explicit operator button matches the Sync consent model (reuses STRIPE_SECRET_KEY) and AGENT_PROTOCOL's no-silent-auto-delete rule. Remaining other todos still need secrets, OAuth, or counsel.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Every app-owned ledger row (commerceOrders included) must store its id as its own Convex column (e.g. orderId, mirroring packId/inquiryId) and echo it back as `id` on every read — never rely on Convex's internal _id or omit the field, even when the SQLite fallback already generates one correctly.",
+    rationale:
+      "commerceOrders shipped without an id column in Convex while the SQLite path generated one inline; CommerceOrderRecord.id is a required string consumed as a React list key (Commerce payouts panel) and a plain type-cast (`as CommerceOrderRecord[]`) hid the gap from tsc. Naming the rule explicitly stops the next Convex-backed ledger from repeating the same silent-backend-divergence bug already seen once with lead.address.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2514,6 +2522,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: reconciled main after PR #56 (prompt-process-evolution-4d67 client receipt)",
     ],
     decisions: BUSINESS_DECISIONS.slice(140, 142),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-noo0a3",
+    summary:
+      "The only uncoded free NEXT_STEPS item (commerce-stripe-orphan-product-archive) was already claimed by sibling cursor/business-process-evolution-0907 (claim commit only, no feature code — per AGENT_PROTOCOL's same-minute-dual-claim rule, an earlier remote claim owns the todo when neither side has pushed feature commits, so did not duplicate). Per AGENT_PROTOCOL's guidance for an empty free backlog, audited commerce/checkout/leads/marketing/voice/email for a genuine sold-capability regression instead of inventing a metric. Found one: commerce-order-revenue-ledger's Convex path (convex/schema.ts + convex/commerceOrders.ts) never stored or returned an id, unlike every other Convex ledger (clientVoicePacks.packId, marketingPacks.packId, clientInquiries.inquiryId) — CommerceOrderRecord.id was silently undefined on every row once Convex was configured, breaking the Commerce payouts panel's React list keys and any future id-keyed lookup. Fixed by generating the id once (newCommerceOrderId, mirrors newCommerceSkuId) in insertCommerceOrder and threading it into both backends; Convex now stores/returns it via a new orderId column, matching the established pattern.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — newCommerceOrderId()",
+      "src/lib/commerce/index.ts — export newCommerceOrderId",
+      "convex/schema.ts — commerceOrders table gains orderId: v.string()",
+      "convex/commerceOrders.ts — insert takes orderId, stores it, returns { id: orderId, ... }; list maps row.orderId → id",
+      "src/lib/db.ts — insertCommerceOrder generates id once up front (was inline in the SQLite-only branch) and passes it to both the Convex mutation (as orderId) and the SQLite INSERT",
+      "Docs: architecture §9 — documented the id round-trip + why the Convex path previously dropped it",
+      "NEXT_STEPS: added commerce-orders-convex-id-integrity (done); commerce-stripe-orphan-product-archive remains owned by sibling 0907; Stripe bootstrap / lead-ingestion / marketing-content-scheduling / Stripe Connect remain operator/legal-gated",
+      "AGENT_PROTOCOL — every required `id` field on a record type must be an explicit stored+returned Convex column, not just generated inline on the SQLite side",
+      "Verified via npm test (240 passed, +2 new) + lint + build, then npm run dev: loaded /dashboard/leads and /preview/demo-cafe (200s); this sandbox has no NEXT_PUBLIC_CONVEX_URL configured so the Convex code path itself is unreachable here (same limitation noted by prior Convex-touching iterations) — covered by the SQLite-path runtime check plus the new unit test and the mirrored-pattern review of every sibling Convex module instead",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(142, 143),
   },
 ];
 
