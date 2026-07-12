@@ -86,7 +86,9 @@ export default function RoadmapDocPage() {
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links):
         shipped. Operator lead notes (free-text call outcomes on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
-        Remaining: Vapi/Retell platform voice and bundle explanation tools.
+        Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
+        never blocks the mutation): shipped. Remaining: Vapi/Retell platform voice and bundle
+        explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>

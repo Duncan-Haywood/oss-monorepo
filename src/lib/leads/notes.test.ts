@@ -3,6 +3,9 @@ import {
   MAX_OPERATOR_NOTES_LENGTH,
   leadHasNotes,
   normalizeOperatorNotes,
+  notesPromptMessage,
+  shouldPromptNotesAfterOutreachStep,
+  shouldPromptNotesAfterStageChange,
 } from "./notes";
 
 describe("normalizeOperatorNotes", () => {
@@ -41,5 +44,34 @@ describe("leadHasNotes", () => {
     expect(leadHasNotes("")).toBe(false);
     expect(leadHasNotes("  ")).toBe(false);
     expect(leadHasNotes("VM left")).toBe(true);
+  });
+});
+
+describe("shouldPromptNotesAfterStageChange", () => {
+  it("prompts only when newly entering discovery_call", () => {
+    expect(shouldPromptNotesAfterStageChange("outreach_sent", "discovery_call")).toBe(true);
+    expect(shouldPromptNotesAfterStageChange("discovered", "discovery_call")).toBe(true);
+    expect(shouldPromptNotesAfterStageChange("discovery_call", "discovery_call")).toBe(false);
+    expect(shouldPromptNotesAfterStageChange("discovery_call", "paid")).toBe(false);
+    expect(shouldPromptNotesAfterStageChange("outreach_sent", "paid")).toBe(false);
+  });
+});
+
+describe("shouldPromptNotesAfterOutreachStep", () => {
+  it("prompts only when Email 3 just lands", () => {
+    expect(shouldPromptNotesAfterOutreachStep(2, 3)).toBe(true);
+    expect(shouldPromptNotesAfterOutreachStep(undefined, 3)).toBe(true);
+    expect(shouldPromptNotesAfterOutreachStep(3, 3)).toBe(false);
+    expect(shouldPromptNotesAfterOutreachStep(1, 2)).toBe(false);
+    expect(shouldPromptNotesAfterOutreachStep(0, 1)).toBe(false);
+  });
+});
+
+describe("notesPromptMessage", () => {
+  it("varies by reason and whether notes already exist", () => {
+    expect(notesPromptMessage("discovery_call", false)).toMatch(/who you'll call/i);
+    expect(notesPromptMessage("discovery_call", true)).toMatch(/update notes/i);
+    expect(notesPromptMessage("email_3", false)).toMatch(/last touch/i);
+    expect(notesPromptMessage("email_3", true)).toMatch(/final-touch/i);
   });
 });

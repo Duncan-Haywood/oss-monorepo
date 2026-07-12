@@ -44,6 +44,10 @@ import {
 import {
   MAX_OPERATOR_NOTES_LENGTH,
   leadHasNotes,
+  notesPromptMessage,
+  shouldPromptNotesAfterOutreachStep,
+  shouldPromptNotesAfterStageChange,
+  type NotesPromptReason,
 } from "@/lib/leads/notes";
 import {
   MAX_INQUIRY_REPLY_LENGTH,
@@ -126,6 +130,8 @@ export function LeadsClient({
   const [notesEditSlug, setNotesEditSlug] = useState<string | null>(null);
   const [notesDraft, setNotesDraft] = useState("");
   const [notesError, setNotesError] = useState<string | null>(null);
+  /** Soft CRM prompt after discovery_call stage or Email 3 — never blocks the action. */
+  const [notesPromptReason, setNotesPromptReason] = useState<NotesPromptReason | null>(null);
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +146,9 @@ export function LeadsClient({
   };
 
   const handleStageChange = async (slug: string, newStage: LeadPipelineStage) => {
+    const current = leads.find((l) => l.slug === slug);
+    const previousStage = current?.stage;
+
     // Optimistic UI update
     setLeads((prev) =>
       prev.map((l) => {
@@ -161,19 +170,38 @@ export function LeadsClient({
       alert(`Error updating stage: ${res.error}`);
       // Revert if error
       setLeads(initialLeads);
+      return;
+    }
+
+    if (
+      current &&
+      previousStage &&
+      shouldPromptNotesAfterStageChange(previousStage, newStage)
+    ) {
+      openNotesEditor(current, "discovery_call");
     }
   };
 
-  const openNotesEditor = (lead: Lead) => {
+  const openNotesEditor = (lead: Lead, reason?: NotesPromptReason) => {
     setNotesEditSlug(lead.slug);
     setNotesDraft(lead.notes ?? "");
     setNotesError(null);
+    setNotesPromptReason(reason ?? null);
+    if (reason) {
+      // Soft prompt from Work next / follow-up queue — bring the row into view.
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`lead-notes-${lead.slug}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    }
   };
 
   const closeNotesEditor = () => {
     setNotesEditSlug(null);
     setNotesDraft("");
     setNotesError(null);
+    setNotesPromptReason(null);
   };
 
   const handleSaveNotes = (slug: string) => {
@@ -361,6 +389,8 @@ export function LeadsClient({
   };
 
   const handleSendFollowUp = (slug: string) => {
+    const current = leads.find((l) => l.slug === slug);
+    const previousStep = current?.outreachStep;
     startTransition(async () => {
       const res = await sendFollowUpAction(slug);
       if (!res.success) {
@@ -375,6 +405,12 @@ export function LeadsClient({
             : l,
         ),
       );
+      if (
+        current &&
+        shouldPromptNotesAfterOutreachStep(previousStep, res.outreachStep)
+      ) {
+        openNotesEditor(current, "email_3");
+      }
     });
   };
 
@@ -1461,8 +1497,22 @@ export function LeadsClient({
                       </td>
                     </tr>
                     {notesOpen ? (
-                      <tr className="bg-zinc-50/80">
+                      <tr className="bg-zinc-50/80" id={`lead-notes-${lead.slug}`}>
                         <td colSpan={7} className="px-6 py-4">
+                          {notesPromptReason ? (
+                            <p
+                              className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+                              role="status"
+                            >
+                              {notesPromptMessage(
+                                notesPromptReason,
+                                leadHasNotes(lead.notes),
+                              )}{" "}
+                              <span className="text-amber-700/80">
+                                Optional — stage and email already saved.
+                              </span>
+                            </p>
+                          ) : null}
                           <label className="block text-xs font-semibold text-zinc-700">
                             Operator notes
                             <span className="ml-2 font-normal text-zinc-400">
@@ -1476,6 +1526,7 @@ export function LeadsClient({
                             maxLength={MAX_OPERATOR_NOTES_LENGTH}
                             placeholder="e.g. Left VM 7/12 — interested in Growth, call back Thursday"
                             className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
+                            autoFocus={Boolean(notesPromptReason)}
                           />
                           <div className="mt-2 flex flex-wrap items-center gap-3">
                             <button
@@ -1492,7 +1543,7 @@ export function LeadsClient({
                               onClick={closeNotesEditor}
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60"
                             >
-                              Cancel
+                              {notesPromptReason ? "Skip for now" : "Cancel"}
                             </button>
                             <span className="text-[11px] text-zinc-400">
                               {notesDraft.trim().length}/{MAX_OPERATOR_NOTES_LENGTH}
