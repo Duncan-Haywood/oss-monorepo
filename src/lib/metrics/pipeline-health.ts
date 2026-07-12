@@ -3,7 +3,8 @@
  * gaps are visible without scanning every lead row.
  * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
  * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement
- * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric).
+ * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric
+ * + closed-leads-pipeline-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -77,6 +78,11 @@ export interface PipelineHealth {
   followUpsDueCount: number;
   /** Age in whole hours since the oldest due lead's last outreach send; null when none. */
   oldestFollowUpDueAgeHours: number | null;
+  /**
+   * Leads in terminal `closed` stage (cold close / not a fit).
+   * Same value as stageCounts.closed — surfaced for funnel footnotes, not a second queue.
+   */
+  closedLeadCount: number;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -276,6 +282,7 @@ export function computePipelineHealth(input: {
     soonestSnoozeRemainingHours,
     followUpsDueCount: followUpsDue.length,
     oldestFollowUpDueAgeHours,
+    closedLeadCount: stageCounts.closed,
   };
 }
 
