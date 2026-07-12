@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { requireOperatorAuth } from "@/lib/auth/operator";
 import {
   updateLeadStage,
@@ -25,6 +26,7 @@ import {
   sendCheckoutAbandonedRecovery,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
+import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -425,6 +427,40 @@ export async function importLeadsCsvAction(input: {
     console.error("Error in importLeadsCsvAction:", error);
     return {
       success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Open Stripe Billing Portal for a Growth/Complete/Commerce subscriber.
+ * Resolves Stripe Customer from the lead's latest eligible order.
+ */
+export async function openBillingPortalAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug?.trim()) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const headerStore = await headers();
+    const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+    const proto = headerStore.get("x-forwarded-proto") ?? "http";
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
+
+    const result = await createBillingPortalForLead(slug, `${appUrl}/dashboard/leads`);
+    if (!result.ok) {
+      return { success: false as const, error: result.error };
+    }
+    return { success: true as const, url: result.url };
+  } catch (error) {
+    console.error("Error in openBillingPortalAction:", error);
+    return {
+      success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }

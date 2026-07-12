@@ -7,6 +7,8 @@ export interface OrderRecord {
   id: string;
   leadSlug: string;
   stripeSessionId: string;
+  /** Stripe Customer id when checkout created/attached one (subscriptions). */
+  stripeCustomerId?: string;
   tier: string;
   commerceAddon: boolean;
   /** USD dollars (not cents). */

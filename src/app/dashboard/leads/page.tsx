@@ -54,6 +54,7 @@ export default async function LeadsPage() {
           initialHandoffs={handoffs}
           initialInquiries={inquiries}
           initialCheckoutSessions={openCheckoutSessions}
+          initialOrders={orders}
         />
       </div>
     </main>

@@ -17,7 +17,10 @@ import {
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
   updateLeadNotesAction,
+  openBillingPortalAction,
 } from "./actions";
+import type { OrderRecord } from "@/lib/orders/types";
+import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -47,6 +50,7 @@ interface LeadsClientProps {
   initialHandoffs?: DeployHandoff[];
   initialInquiries?: ClientInquiry[];
   initialCheckoutSessions?: CheckoutSessionRecord[];
+  initialOrders?: OrderRecord[];
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -70,12 +74,14 @@ export function LeadsClient({
   initialHandoffs = [],
   initialInquiries = [],
   initialCheckoutSessions = [],
+  initialOrders = [],
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
   const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiries);
   const [checkoutSessions, setCheckoutSessions] =
     useState<CheckoutSessionRecord[]>(initialCheckoutSessions);
+  const [orders] = useState<OrderRecord[]>(initialOrders);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -355,6 +361,20 @@ export function LeadsClient({
           s.stripeSessionId === stripeSessionId ? { ...s, recoverySentAt: sentAt } : s,
         ),
       );
+    });
+  };
+
+  const leadHasBillingPortal = (slug: string) =>
+    orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
+
+  const handleOpenBillingPortal = (slug: string) => {
+    startTransition(async () => {
+      const res = await openBillingPortalAction(slug);
+      if (!res.success) {
+        alert(`Billing portal failed: ${res.error}`);
+        return;
+      }
+      window.open(res.url, "_blank", "noopener,noreferrer");
     });
   };
 
@@ -1320,6 +1340,17 @@ export function LeadsClient({
                               className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
                             >
                               Email {next}
+                            </button>
+                          ) : null}
+                          {(lead.stage === "paid" || lead.stage === "live") &&
+                          leadHasBillingPortal(lead.slug) ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleOpenBillingPortal(lead.slug)}
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-900 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:opacity-60"
+                            >
+                              Billing
                             </button>
                           ) : null}
                           <Link

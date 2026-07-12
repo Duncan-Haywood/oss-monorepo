@@ -76,6 +76,7 @@ function getSqliteDb(): DatabaseSync {
       id TEXT PRIMARY KEY,
       leadId TEXT NOT NULL REFERENCES leads(id),
       stripeSessionId TEXT,
+      stripeCustomerId TEXT,
       tier TEXT NOT NULL,
       commerceAddon INTEGER NOT NULL DEFAULT 0,
       amountPaid INTEGER NOT NULL,
@@ -171,6 +172,13 @@ function getSqliteDb(): DatabaseSync {
   ).map((c) => c.name);
   if (!handoffCols.includes("vercelProjectId")) {
     sqliteDb.exec("ALTER TABLE deploy_handoffs ADD COLUMN vercelProjectId TEXT");
+  }
+
+  const orderCols = (
+    sqliteDb.prepare("PRAGMA table_info(orders)").all() as unknown as Array<{ name: string }>
+  ).map((c) => c.name);
+  if (!orderCols.includes("stripeCustomerId")) {
+    sqliteDb.exec("ALTER TABLE orders ADD COLUMN stripeCustomerId TEXT");
   }
 
   // Seed SQLite database if empty
@@ -561,6 +569,7 @@ export async function recordLeadPayment(params: {
   tier: string;
   commerceAddon: boolean;
   amountTotal: number;
+  stripeCustomerId?: string;
 }): Promise<void> {
   if (convexClient) {
     try {
@@ -597,12 +606,13 @@ export async function recordLeadPayment(params: {
   // Insert order
   const orderId = `order_${Date.now()}`;
   db.prepare(`
-    INSERT INTO orders (id, leadId, stripeSessionId, tier, commerceAddon, amountPaid, status)
-    VALUES (?, ?, ?, ?, ?, ?, 'paid')
+    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'paid')
   `).run(
     orderId,
     leadRow.id,
     params.stripeSessionId,
+    params.stripeCustomerId ?? null,
     params.tier,
     params.commerceAddon ? 1 : 0,
     params.amountTotal
@@ -631,6 +641,7 @@ interface SqliteOrderJoinRow {
   id: string;
   leadSlug: string;
   stripeSessionId: string | null;
+  stripeCustomerId: string | null;
   tier: string;
   commerceAddon: number;
   amountPaid: number;
@@ -643,6 +654,7 @@ function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
     id: row.id,
     leadSlug: row.leadSlug,
     stripeSessionId: row.stripeSessionId || "",
+    stripeCustomerId: row.stripeCustomerId || undefined,
     tier: row.tier,
     commerceAddon: row.commerceAddon === 1,
     amountPaid: row.amountPaid,
@@ -662,6 +674,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
         _id: string;
         leadSlug: string;
         stripeSessionId: string;
+        stripeCustomerId?: string;
         tier: string;
         commerceAddon: boolean;
         amountTotal: number;
@@ -671,6 +684,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
         id: row._id,
         leadSlug: row.leadSlug,
         stripeSessionId: row.stripeSessionId,
+        stripeCustomerId: row.stripeCustomerId,
         tier: row.tier,
         commerceAddon: row.commerceAddon,
         amountPaid: row.amountTotal,
@@ -685,7 +699,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const db = getSqliteDb();
   const rows = db
     .prepare(
-      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.tier, o.commerceAddon,
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
               o.amountPaid, o.status, o.createdAt
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId

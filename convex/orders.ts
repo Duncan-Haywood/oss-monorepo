@@ -11,9 +11,11 @@ export const createOrder = mutation({
     ),
     commerceAddon: v.boolean(),
     stripeSessionId: v.string(),
+    stripeCustomerId: v.optional(v.string()),
     amountTotal: v.float64(),
     customerEmail: v.string(),
   },
+  returns: v.id("orders"),
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("orders")
@@ -33,6 +35,20 @@ export const createOrder = mutation({
 
 export const list = query({
   args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("orders"),
+      _creationTime: v.number(),
+      leadSlug: v.string(),
+      stripeSessionId: v.string(),
+      stripeCustomerId: v.optional(v.string()),
+      customerEmail: v.string(),
+      tier: v.string(),
+      commerceAddon: v.boolean(),
+      amountTotal: v.number(),
+      createdAt: v.number(),
+    }),
+  ),
   handler: async (ctx) => {
     return await ctx.db.query("orders").collect();
   },
@@ -40,6 +56,21 @@ export const list = query({
 
 export const getByStripeSessionId = query({
   args: { stripeSessionId: v.string() },
+  returns: v.union(
+    v.object({
+      _id: v.id("orders"),
+      _creationTime: v.number(),
+      leadSlug: v.string(),
+      stripeSessionId: v.string(),
+      stripeCustomerId: v.optional(v.string()),
+      customerEmail: v.string(),
+      tier: v.string(),
+      commerceAddon: v.boolean(),
+      amountTotal: v.number(),
+      createdAt: v.number(),
+    }),
+    v.null(),
+  ),
   handler: async (ctx, args) => {
     return await ctx.db
       .query("orders")
