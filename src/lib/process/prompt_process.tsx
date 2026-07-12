@@ -261,8 +261,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "pipeline-health-abandoned-sessions",
     summary:
       "Fold open/abandoned checkout_sessions into pipeline-health metrics + dashboard panel (count due recoveries, oldest abandoned age) so stuck payment intent sits beside paid-not-live — complements abandoned-checkout-quality-signal on the scorer.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-b224",
   },
   {
     id: "discovery-call-notes-prompt",
