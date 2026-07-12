@@ -671,6 +671,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-dc94",
   },
+  {
+    id: "mark-lead-paid-convex-stub-lead",
+    summary:
+      "Bug found auditing after deploy-handoffs-convex-persistence while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated): SQLite recordLeadPayment creates a minimal paid lead when checkout completes for a slug that does not yet exist, but Convex markLeadPaid only patches stage when a lead row is present — otherwise it still inserts the order and never marks anyone paid. listOrders then shows revenue while paidNotLiveCount / deploy-handoff eligibility / outreach stage stay wrong. Shipped: Convex markLeadPaid inserts a payment stub lead (slug-derived businessName + generic defaults matching mapSqliteRowToLead) when no lead exists, then records the order — parity with SQLite.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-da3d",
+  },
+  {
+    id: "commerce-webhook-require-sku-for-side-effects",
+    summary:
+      "Related webhook edge case found in the same empty-backlog audit: the commerce_sku branch only runs insertCommerceOrder (the alreadyRecorded gate) when metadata.skuId is present; if skuId is missing, insertClientInquiry + sendCommerceBuyNowClientReceipt still fire on every Stripe redelivery. Normal POST /api/commerce/checkout always sets skuId, but malformed/manual sessions violate AGENT_PROTOCOL ledger-first idempotency. Claimed alongside mark-lead-paid-convex-stub-lead — require skuId before side effects (warn + break when missing).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-da3d",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
