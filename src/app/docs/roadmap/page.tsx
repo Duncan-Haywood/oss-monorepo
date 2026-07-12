@@ -72,8 +72,14 @@ export default function RoadmapDocPage() {
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
-        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Remaining:
-        preview subdomain hosting.
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Preview subdomain
+        hosting (routing): shipped — a lead&apos;s <code>suggestedHost</code> (e.g.{" "}
+        <code>joes-plumbing.localsitestudio.com</code>, already generated per deploy handoff) now
+        serves that lead&apos;s <code>/preview/[slug]</code> directly once the slug resolves to a
+        real lead (see <DocLink href="/docs/process">process log</DocLink>{" "}
+        <code>preview-subdomain-routing</code>). Remaining: the one-time wildcard DNS (a single{" "}
+        <code>*.localsitestudio.com</code> CNAME to Vercel) and wildcard domain on the Vercel
+        project — operator infrastructure, not code.
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>

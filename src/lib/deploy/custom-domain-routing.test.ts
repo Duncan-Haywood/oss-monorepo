@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isPlatformHost, normalizeRequestHost } from "./custom-domain-routing";
+import {
+  extractPreviewSubdomainSlug,
+  isPlatformHost,
+  normalizeRequestHost,
+} from "./custom-domain-routing";
 
 describe("normalizeRequestHost", () => {
   it("lowercases, trims, and strips a port", () => {
@@ -42,5 +46,39 @@ describe("isPlatformHost", () => {
 
   it("falls back to false for an unrelated host when no root domain is configured", () => {
     expect(isPlatformHost("joesplumbing.com", "")).toBe(false);
+  });
+});
+
+describe("extractPreviewSubdomainSlug", () => {
+  const root = "localsitestudio.com";
+
+  it("extracts the slug from a {slug}.{root} host", () => {
+    expect(extractPreviewSubdomainSlug("joes-plumbing.localsitestudio.com", root)).toBe(
+      "joes-plumbing",
+    );
+  });
+
+  it("returns null for the bare root domain (no subdomain)", () => {
+    expect(extractPreviewSubdomainSlug(root, root)).toBeNull();
+  });
+
+  it("returns null for an unrelated domain", () => {
+    expect(extractPreviewSubdomainSlug("joesplumbing.com", root)).toBeNull();
+  });
+
+  it("returns null for a multi-level subdomain", () => {
+    expect(extractPreviewSubdomainSlug("staging.joes-plumbing.localsitestudio.com", root)).toBeNull();
+  });
+
+  it("returns null for reserved labels like www", () => {
+    expect(extractPreviewSubdomainSlug("www.localsitestudio.com", root)).toBeNull();
+  });
+
+  it("returns null when no root domain is configured", () => {
+    expect(extractPreviewSubdomainSlug("joes-plumbing.localsitestudio.com", "")).toBeNull();
+  });
+
+  it("returns null for an empty host", () => {
+    expect(extractPreviewSubdomainSlug("", root)).toBeNull();
   });
 });

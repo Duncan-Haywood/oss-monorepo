@@ -5,9 +5,13 @@ import {
   isOperatorAuthConfigured,
   verifyOperatorSessionToken,
 } from "@/lib/auth/operator";
-import { isPlatformHost, normalizeRequestHost } from "@/lib/deploy/custom-domain-routing";
+import {
+  extractPreviewSubdomainSlug,
+  isPlatformHost,
+  normalizeRequestHost,
+} from "@/lib/deploy/custom-domain-routing";
 import { productionRootDomain } from "@/lib/deploy/handoff";
-import { getLeadSlugByCustomDomain } from "@/lib/db";
+import { getLeadBySlug, getLeadSlugByCustomDomain } from "@/lib/db";
 
 function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse | null {
   if (pathname === "/dashboard/login" || pathname.startsWith("/dashboard/login/")) {
@@ -38,10 +42,14 @@ function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse
  * Next.js 16 proxy (replaces deprecated middleware):
  *  - gate /dashboard/* when OPERATOR_DASHBOARD_PASSWORD is set (server
  *    actions still call requireOperatorAuth() — do not rely on proxy alone).
+ *  - serve a lead's preview at the root path on its platform-owned preview
+ *    subdomain (`{slug}.{productionRootDomain}`, the `suggestedHost` every
+ *    deploy handoff already generates — Starter "Preview subdomain" promise)
+ *    once that slug resolves to a real lead.
  *  - serve a lead's preview at the root path when the request Host is a
  *    client's own domain saved via "Save domain" on /dashboard/leads
- *    (Starter "Preview subdomain → custom domain handoff" promise). Only
- *    the exact root path is rewritten — /api/* and /dashboard/* already
+ *    (Starter "... → custom domain handoff" promise). Only the exact root
+ *    path is rewritten in both cases — /api/* and /dashboard/* already
  *    address leads by slug and are unaffected by Host.
  */
 export async function proxy(request: NextRequest) {
@@ -54,7 +62,14 @@ export async function proxy(request: NextRequest) {
 
   if (pathname === "/") {
     const host = normalizeRequestHost(request.headers.get("host"));
-    if (!isPlatformHost(host, productionRootDomain())) {
+    const root = productionRootDomain();
+    const previewSlug = extractPreviewSubdomainSlug(host, root);
+    if (previewSlug) {
+      const lead = await getLeadBySlug(previewSlug);
+      if (lead) {
+        return NextResponse.rewrite(new URL(`/preview/${previewSlug}`, request.url));
+      }
+    } else if (!isPlatformHost(host, root)) {
       const slug = await getLeadSlugByCustomDomain(host);
       if (slug) {
         return NextResponse.rewrite(new URL(`/preview/${slug}`, request.url));

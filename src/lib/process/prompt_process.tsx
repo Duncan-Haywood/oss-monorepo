@@ -110,6 +110,7 @@ export const AGENT_PROTOCOL = [
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
   "Every dynamic value (businessName, message/reply text, sku/tier labels, etc.) interpolated into an email's HTML body in src/lib/email/resend.ts must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — plain-text subject lines are exempt. New send*Email functions should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern, not sendReceiptEmail's pre-fix raw interpolation.",
+  "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
 ] as const;
 
 /**
@@ -769,6 +770,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-e1w0pw",
+  },
+  {
+    id: "preview-subdomain-routing",
+    summary:
+      "Free NEXT_STEPS backlog stayed empty after PR #76 (proxy-custom-domain-parity fold) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Audit found a real, sold, unimplemented Starter capability adjacent to the already-shipped custom-domain half of the same promise: the roadmap's Phase 1 line still said 'Remaining: preview subdomain hosting', and every deploy handoff has generated a suggestedHost ({leadSlug}.{productionRootDomain}) since Phase 5 shipped, but src/proxy.ts's isPlatformHost check deliberately treats {slug}.{root} hosts as platform traffic and skips the custom-domain DB lookup for them — so even once an operator finishes the (still-operator-gated) wildcard DNS + Vercel wildcard domain step, no code path would ever have served that lead's preview there; the request would fall through to the marketing homepage. Shipped: extractPreviewSubdomainSlug (src/lib/deploy/custom-domain-routing.ts), a dependency-free pure helper mirroring isPlatformHost's own style, extracting the candidate slug from a {slug}.{root} host (null for the bare root, multi-level subdomains, reserved labels, or hosts outside productionRootDomain). proxy.ts calls it before the isPlatformHost custom-domain branch and only rewrites to /preview/[slug] after confirming the slug resolves to a real lead via getLeadBySlug — an unrecognized label (typo or an unlisted reserved word) falls through to the normal marketing homepage rather than the demo-catalog preview fallback, so only real leads get a working subdomain.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/quirky-davinci-c1j0bf",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1961,6 +1970,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Every dynamic value interpolated into an outbound email's HTML body must pass through escapeHtmlForEmail, with no exceptions for 'trusted' operator-entered fields like businessName.",
     rationale:
       "lead.businessName is populated from CSV import and manual dashboard entry (see upsert-lead-collision-guard), not a fixed enum — it can legitimately contain apostrophes, ampersands, or angle brackets (business names like \"Bob's Auto & <Truck> Repair\" are real-world plausible). sendReceiptEmail (fired on every paid bundle sale) and the three outreach cadence emails treated it as safe while every other template already escaped it, which is exactly the kind of asymmetric-pattern bug this audit process exists to catch. Fixing the highest-volume/highest-trust sends (receipt + outreach 1-3 + bundle abandoned-recovery) closes the gap; the codebase already had zero unrelated exceptions to point to, so the rule is now absolute rather than case-by-case.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Preview-subdomain routing (extractPreviewSubdomainSlug) rewrites {slug}.{productionRootDomain} to that lead's /preview/[slug] only after confirming the slug resolves to a real lead — an unrecognized label falls through to the marketing homepage, never to the demo-catalog preview fallback.",
+    rationale:
+      "resolvePreviewLead's demo-catalog fallback exists so an operator can sanity-check /preview/[slug] rendering for a not-yet-persisted slug during setup — it was never meant to be internet-facing routing behavior. Wiring it into subdomain routing would mean any typo'd or squatted {label}.{root} host renders a plausible-looking fake business page under the platform's own domain, which is a worse failure mode than a 404-equivalent homepage fallback. Requiring getLeadBySlug to resolve keeps the subdomain promise scoped to real, paying leads, matching how the sibling custom-domain routing already behaves (getLeadSlugByCustomDomain is real-lead-only too).",
   },
 ];
 
@@ -3223,6 +3239,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #74 (business-continuity-4f9c follow-ups-due-exclude-snoozed) — both ITERATIONS kept; also discarded an earlier duplicate attempt at stripe-webhook-convex-primary-no-fallback after sibling business-process-evolution-740a's PR #73 landed first (same pattern 4f9c hit on the same item one cycle earlier)",
     ],
     decisions: BUSINESS_DECISIONS.slice(168, 169),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/quirky-davinci-c1j0bf",
+    summary:
+      "The designated branch had no matching remote ref (previously merged and cleaned up) and main had just advanced via PR #76 (businessName email-escaping fix), so restarted the branch from latest origin/main per the merged-branch restart rule. Free NEXT_STEPS backlog was empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated). Ran a targeted audit instead of a broad subagent sweep: confirmed all email HTML interpolation sites already escape (resend.ts, marketing/voice pack delivery, commerce client receipt — no asymmetry left), confirmed the static Convex API map in src/lib/db.ts exactly matches every convex/*.ts export except two genuinely dead mutations (convex/orders.ts createOrder/getByStripeSessionId, superseded by leads.markLeadPaid — left alone, not worth the churn of removing shared schema-adjacent code with zero callers and zero risk), then cross-checked the /docs/roadmap narrative against actual shipped code and found Phase 1's 'Remaining: preview subdomain hosting' line was stale — every deploy handoff has generated a suggestedHost ({leadSlug}.{productionRootDomain}) since Phase 5 shipped, but proxy.ts's isPlatformHost check deliberately routes {slug}.{root} hosts away from the custom-domain lookup (correctly, since they're not external domains) and nothing ever rewrote them to that lead's preview — a real, sold, unimplemented capability sitting one level under the half of the same promise (custom-domain routing) that already shipped.",
+    shipped: [
+      "src/lib/deploy/custom-domain-routing.ts — extractPreviewSubdomainSlug(host, productionRootDomain): pure helper extracting the candidate lead slug from a {slug}.{root} host, null for the bare root / multi-level subdomains / reserved labels (RESERVED_PREVIEW_SUBDOMAIN_LABELS, currently just www) / hosts outside productionRootDomain",
+      "src/lib/deploy/custom-domain-routing.test.ts — 7 new cases covering extractPreviewSubdomainSlug",
+      "src/proxy.ts — calls extractPreviewSubdomainSlug before the isPlatformHost custom-domain branch; rewrites to /preview/[slug] only after getLeadBySlug confirms the slug is a real lead, else falls through to the marketing homepage (never the demo-catalog preview fallback)",
+      "Docs: roadmap Phase 1 — replaced the stale 'Remaining: preview subdomain hosting' line with shipped routing + the actual remaining operator step (one-time wildcard DNS + Vercel wildcard domain)",
+      "NEXT_STEPS: added preview-subdomain-routing (done)",
+      "AGENT_PROTOCOL — preview-subdomain routing must run before (not instead of) the isPlatformHost custom-domain check, and must gate on getLeadBySlug rather than the demo-catalog fallback",
+      "BUSINESS_DECISIONS — documented why the demo-catalog fallback must never drive subdomain routing",
+      "Verified: npm test (299 passed, +7 new) + lint + build clean; npm run dev + curl with a spoofed Host header confirmed example-bakery.localsitestudio.com now serves the bakery's /preview/[slug] content (matching the path-based URL byte-for-byte on title), while the bare root domain, www.localsitestudio.com, and an unrecognized slug (joe-plumbing.localsitestudio.com, no matching lead) all still serve the marketing homepage, and /api/* stayed unaffected by Host",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(170, 171),
   },
 ];
 
