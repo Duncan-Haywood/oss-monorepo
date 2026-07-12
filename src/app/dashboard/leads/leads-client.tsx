@@ -322,11 +322,13 @@ export function LeadsClient({
     });
   };
 
-  // Filtered Leads
+  // Filtered Leads — abandoned open checkouts boost quality so Work next
+  // surfaces the hottest purchase-intent rows ahead of plain outreach-due.
+  const scoreOptions = { openCheckoutSessions: checkoutSessions };
   const qualityBySlug = new Map<string, LeadQualityResult>(
-    leads.map((lead) => [lead.slug, scoreLead(lead, nowMs)]),
+    leads.map((lead) => [lead.slug, scoreLead(lead, nowMs, scoreOptions)]),
   );
-  const workNext = rankLeadsForOutreach(leads, nowMs, 5);
+  const workNext = rankLeadsForOutreach(leads, nowMs, 5, scoreOptions);
 
   const filteredLeads = leads
     .filter((lead) => {
@@ -486,9 +488,9 @@ export function LeadsClient({
             </Link>
           </div>
           <p className="mt-1 text-xs text-zinc-600">
-            Highest-probability outreach targets first — email/phone/address completeness,
-            stage momentum, follow-up due, category↔tier fit. Demo leads are deprioritized.
-            Paid/live rows stay in fulfillment, not this queue.
+            Highest-probability targets first — abandoned checkout (hottest), email/phone/address,
+            stage momentum, follow-up due, preview opens, category↔tier fit. Demo leads are
+            deprioritized. Paid/live rows stay in fulfillment, not this queue.
           </p>
           <ul className="mt-4 space-y-3">
             {workNext.map((row) => {
@@ -516,6 +518,11 @@ export function LeadsClient({
                           {qualityBandLabel(row.band)} · {row.score}
                         </span>
                         <span className="capitalize">{lead.stage.replaceAll("_", " ")}</span>
+                        {row.factors.some((f) => f.id === "abandoned_checkout") ? (
+                          <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                            Cart
+                          </span>
+                        ) : null}
                         {lead.email ? <span>· {lead.email}</span> : null}
                       </p>
                       <ul className="mt-2 space-y-0.5 text-[11px] text-zinc-500">
@@ -1228,6 +1235,11 @@ export function LeadsClient({
                           {lead.lastPreviewOpenAt ? (
                             <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-800">
                               Opened
+                            </span>
+                          ) : null}
+                          {quality?.factors.some((f) => f.id === "abandoned_checkout") ? (
+                            <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                              Cart
                             </span>
                           ) : null}
                         </p>
