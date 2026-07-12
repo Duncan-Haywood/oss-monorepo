@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
+import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 /**
  * Creates a Stripe Checkout Session for a single synced Commerce SKU. Only
@@ -78,18 +80,33 @@ export async function POST(request: Request) {
     }
 
     // Track for commerce abandoned-cart recovery (kind discriminator required).
+    // When Convex is configured, fail closed (502) rather than return a URL
+    // after a SQLite-only write that Convex-first abandoned recovery never sees.
     try {
-      await recordCheckoutSessionCreated({
-        leadSlug: slug,
-        stripeSessionId: session.id,
-        tier: "",
-        commerceAddon: false,
-        customerEmail: body.customerEmail,
-        kind: "commerce_sku",
-        skuId,
-      });
+      await recordCheckoutSessionCreated(
+        {
+          leadSlug: slug,
+          stripeSessionId: session.id,
+          tier: "",
+          commerceAddon: false,
+          customerEmail: body.customerEmail,
+          kind: "commerce_sku",
+          skuId,
+        },
+        CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+      );
     } catch (e) {
-      console.warn(`Failed to record commerce checkout session ${session.id}`, e);
+      if (!(e instanceof ConvexPrimaryWriteError)) {
+        console.warn(`Failed to record commerce checkout session ${session.id}`, e);
+      }
+      return NextResponse.json(
+        {
+          error: "Checkout tracking unavailable",
+          message:
+            "Could not record this checkout for recovery tracking. Please try again in a moment.",
+        },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ url: session.url });
