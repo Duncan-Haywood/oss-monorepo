@@ -713,8 +713,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-webhook-side-effect-recovery-on-redelivery",
     summary:
       "Related empty-backlog finding: commerce alreadyRecorded early-break skips insertClientInquiry + client receipt entirely. If the first delivery wrote the ledger then failed before inquiry/receipt, Stripe retries permanently skip those sold-capability notifies. Fix by recovering missing inquiry/receipt on redelivery (idempotent on stripeSessionId in message) — or only gate truly duplicate side effects.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-aa07",
   },
   {
     id: "stripe-webhook-convex-primary-no-fallback",
