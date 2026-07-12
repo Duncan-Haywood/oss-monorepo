@@ -210,7 +210,10 @@ export default function RoadmapDocPage() {
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}
-        <code>/preview/[slug]#catalog</code>. Still open: an actual payout path to
+        <code>/preview/[slug]#catalog</code>. Completed Buy now also emails the Commerce client
+        (<code>lead.email</code>) via <code>sendCommerceBuyNowClientReceipt</code> so they can
+        fulfill — distinct from the shopper abandoned-recovery email and from the Local Site
+        Studio bundle receipt. Still open: an actual payout path to
         the client (Stripe Connect) — operator/legal-gated, see{" "}
         <code>commerce-payouts-stripe-connect</code> in{" "}
         <DocLink href="/docs/process">process</DocLink>.

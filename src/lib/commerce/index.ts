@@ -37,3 +37,9 @@ export {
   type CommerceOrdersByLeadSummary,
   type InsertCommerceOrderInput,
 } from "./orders";
+
+export {
+  commerceBuyNowClientReceiptSubject,
+  formatCommerceBuyNowClientReceiptHtml,
+  leadEligibleForCommerceBuyNowClientReceipt,
+} from "./client-receipt";
