@@ -93,6 +93,7 @@ export const AGENT_PROTOCOL = [
   "Commerce Buy now order money (end-customer payment for a client's own catalog SKU, collected through the platform's own Stripe account) must NEVER be written into the `orders` table or summed into revenueTotalUsd — that table/metric represents Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as 'this lead already subscribes to the Commerce add-on.' Keep pass-through customer revenue in its own ledger (commerceOrders / src/lib/commerce/orders.ts) with its own pipeline-health field (commerceOrdersRevenueUsd) — do not conflate the two money flows even though both come from Stripe webhooks.",
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
+  "`alreadyRecorded` gates non-idempotent side effects only (emails, operator inquiries) — never skip idempotent fulfillment writes on redelivery. enqueueProductionHandoff is safe to call again (returns existing handoff when slug + stripeSessionId match); if the first delivery recorded the order but failed before handoff enqueue, a Stripe retry must still create the handoff. See bundle-webhook-handoff-on-redelivery.",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
@@ -670,6 +671,28 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-dc94",
+  },
+  {
+    id: "bundle-webhook-handoff-on-redelivery",
+    summary:
+      "Bug found auditing after deploy-handoffs-convex-persistence while the free backlog stayed empty (only operator/legal-gated todos remain): the bundle checkout.session.completed handler broke out entirely when recordLeadPayment returned alreadyRecorded, skipping enqueueProductionHandoff even though that helper is idempotent on slug + stripeSessionId. If the first delivery recorded the order but handoff enqueue failed (timeout/crash), Stripe retries permanently skipped Phase 5 fulfillment — paid customers never got Mark live / DNS panel visibility. Shipped: always call enqueueProductionHandoff; gate only the non-idempotent receipt + DNS emails on alreadyRecorded. Queued billing-portal-orders-newest-first + contact-form-persist-required from the same audit.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-3df6",
+  },
+  {
+    id: "billing-portal-orders-newest-first",
+    summary:
+      "Discovered during the same empty-backlog audit: listOrders SQLite path ORDER BY createdAt DESC, but Convex orders.list .collect() is unordered and db.ts returns rows as-is. latestEligibleOrder (billing portal) assumes newest-first — a lead with multiple eligible orders can open Manage subscription against an older row missing stripeCustomerId. Sort Convex-sourced orders newest-first in listOrders (or in convex/orders.list) so portal + any other newest-first consumer match SQLite.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "contact-form-persist-required",
+    summary:
+      "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row).",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1771,6 +1794,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Production deploy handoffs now persist to Convex (deployHandoffs table + deployHandoffs.ts) with SQLite fallback, matching every other table's persistence pattern, instead of writing only to the per-instance local SQLite file. Explicit handoffId column round-trips as id.",
     rationale:
       "After suppressions (PR #65) and upsert collision guards (PR #66), deploy_handoffs was the last SQLite-only surface in db.ts. Phase 5 fulfillment (DNS instructions, Mark live, per-client Vercel project) is what converts a paid checkout into a live client site — on a multi-instance deploy with Convex configured, queuing a handoff on one instance and listing/updating it on another would silently diverge, so operators could miss Mark-live work or double-provision. Closing the last Convex parity gap beats inventing another optional aggregate while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Bundle checkout.session.completed webhook always calls enqueueProductionHandoff (idempotent on slug + stripeSessionId); alreadyRecorded from recordLeadPayment gates only the non-idempotent receipt + DNS emails — never the handoff write.",
+    rationale:
+      "bundle-order-webhook-idempotency correctly stopped duplicate customer emails on Stripe redelivery, but the early break also skipped Phase 5 handoff creation. If the first delivery recorded the order then failed before enqueueProductionHandoff, retries permanently left paid customers without Mark live / DNS panel visibility. Separating idempotent fulfillment from non-idempotent emails closes that hole; AGENT_PROTOCOL now states the rule explicitly so the next empty-backlog audit does not re-conflate the two.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Queued billing-portal-orders-newest-first and contact-form-persist-required as free NEXT_STEPS from the same empty-backlog audit that found the handoff redelivery gap — do not invent optional aggregates while these sold-capability regressions remain.",
+    rationale:
+      "Convex listOrders is unordered while latestEligibleOrder assumes newest-first (Billing Portal can open against a stale order). Contact form returns ok:true even when insertClientInquiry fails (Starter inbox trail silently missing). Both are shipable without secrets; siblings can claim them next cron while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -2874,6 +2911,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #66 (aa64 collision guards) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(156, 157),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-3df6",
+    summary:
+      "Free backlog empty after PR #67 (deploy-handoffs Convex). Audited for sold-capability regressions; found bundle webhook alreadyRecorded early-break skipped idempotent enqueueProductionHandoff — Stripe retries after a partial first delivery permanently lost Phase 5 fulfillment. Shipped: always enqueue handoff; gate only receipt/DNS emails. Improved AGENT_PROTOCOL (alreadyRecorded ≠ skip idempotent fulfillment). Queued billing-portal-orders-newest-first + contact-form-persist-required for siblings. Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.ts — always enqueueProductionHandoff after recordLeadPayment; alreadyRecorded skips emails only",
+      "Docs: architecture §6, production-deploy, roadmap Phase 5, launch-checklist — handoff-on-redelivery + redelivery check",
+      "NEXT_STEPS: bundle-webhook-handoff-on-redelivery done; billing-portal-orders-newest-first + contact-form-persist-required queued; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — alreadyRecorded gates non-idempotent side effects only; never skip idempotent fulfillment writes on redelivery",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(157, 159),
   },
 ];
 
