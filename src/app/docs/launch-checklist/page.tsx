@@ -132,7 +132,8 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
-          stage funnel, open handoffs, and leads missing email (no row-scanning required)
+          stage funnel, open handoffs, abandoned carts / recovery due, and leads missing email
+          (no row-scanning required)
         </li>
         <li>
           <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize

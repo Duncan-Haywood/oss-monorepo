@@ -22,7 +22,14 @@ export default async function LeadsPage() {
     listOpenCheckoutSessions(),
   ]);
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
-  const health = computePipelineHealth({ leads, orders, handoffs, inquiries });
+  const health = computePipelineHealth({
+    leads,
+    orders,
+    handoffs,
+    inquiries,
+    openCheckoutSessions,
+    nowMs: Date.now(),
+  });
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
