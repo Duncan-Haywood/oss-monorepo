@@ -437,8 +437,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "complete-client-voice-faq-pack",
     summary:
       "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Before Twilio provisioning (operator-gated), ship an operator-triggered FAQ/script pack for paid/live Complete leads — hours, services, booking CTA, and inbound greeting copy derived from site data — so operators can fulfill the sold promise manually (paste into a temp number / Cal.com) while full telephony stays Phase 7.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/prompt-process-evolution-bc40",
   },
 ];
 
