@@ -830,6 +830,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-9c45 + cursor/business-process-evolution-6a13",
   },
+  {
+    id: "checkout-session-create-convex-primary",
+    summary:
+      "After PR #81 hardened markCheckoutSessionComplete with requireConvex, the create-side twin stayed soft: recordCheckoutSessionCreated still SQLite-falls-back on Convex failure, and both POST /api/stripe/checkout + /api/commerce/checkout swallow tracking errors then return { url }. listOpenCheckoutSessions reads Convex-first for abandoned-recovery / digest — a SQLite-only create leaves paid-intent carts invisible to other instances (lost Finish-checkout / Buy now recovery revenue). Mirror mark-complete: requireConvex on create + 502 when Convex is configured and the durable write fails.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f005",
+  },
+  {
+    id: "deploy-handoff-preserve-custom-domain",
+    summary:
+      "Empty-backlog audit follow-up (queued, not claimed): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Prefer claiming after checkout-session-create-convex-primary ships.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
