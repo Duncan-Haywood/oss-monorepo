@@ -403,6 +403,19 @@ export function LeadsClient({
     });
   };
 
+  /**
+   * Opening the reply composer on a brand-new inquiry auto-marks it read, so
+   * unreplied counts distinguish "seen, drafting a reply" from untouched.
+   * Closing the composer (or reopening an already read/replied row) is a no-op.
+   */
+  const handleToggleReplyComposer = (inq: ClientInquiry) => {
+    const opening = replyOpenId !== inq.id;
+    setReplyOpenId(opening ? inq.id : null);
+    if (opening && inq.status === "new") {
+      handleInquiryStatus(inq.id, "read");
+    }
+  };
+
   const handleInquiryReply = (inquiryId: string) => {
     const body = replyDrafts[inquiryId] ?? "";
     startTransition(async () => {
@@ -982,9 +995,7 @@ export function LeadsClient({
                       <button
                         type="button"
                         disabled={isPending}
-                        onClick={() =>
-                          setReplyOpenId((prev) => (prev === inq.id ? null : inq.id))
-                        }
+                        onClick={() => handleToggleReplyComposer(inq)}
                         className="rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-900 transition hover:bg-sky-50 disabled:opacity-60"
                       >
                         {inq.status === "replied" ? "Reply again" : "Reply"}
