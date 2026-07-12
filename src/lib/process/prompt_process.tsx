@@ -588,8 +588,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-order-manual-payout-mark",
     summary:
       "Commerce payouts (manual) panel shows owed totals but operators cannot mark which commerceOrders lines have already been paid out to the client — at any real volume, double-pay risk grows until Stripe Connect. Free coded path: optional paidOutAt (or similar) on commerceOrders + Mark paid out action on the payout panel, keeping pass-through money out of revenueTotalUsd. Prefer while Connect / Places / Buffer OAuth stay gated.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "claude/relaxed-galileo-chd6ul",
   },
   {
     id: "commerce-payouts-owed-in-digest",
