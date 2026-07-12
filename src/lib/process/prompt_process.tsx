@@ -320,13 +320,21 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-mark-read-on-composer-open",
     summary:
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "claude/upbeat-dijkstra-y2c9ib",
   },
   {
     id: "snoozed-leads-pipeline-metric",
     summary:
       "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "operator-daily-digest-email",
+    summary:
+      "Operator-triggered (or later cron) daily digest email summarizing Work next top leads, follow-ups due, abandoned-checkout recoveries due, and unreplied inquiries — a single-operator business should not have to open /dashboard/leads to know what's urgent today.",
     status: "todo",
     phase: "Phase 2 — Outreach + platform voice",
   },
