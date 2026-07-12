@@ -95,6 +95,8 @@ export const AGENT_PROTOCOL = [
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
+  "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
+  "commerceOrdersRevenueUsd / commerceOrdersCount on pipeline-health mean unpaid/owed pass-through totals (filter isCommerceOrderPaidOut), matching summarizeCommerceOrdersByLead unpaid* and the digest Commerce payouts owed section — not lifetime gross. Lifetime remains available via totalUsd on the per-lead summary.",
 ] as const;
 
 /**
@@ -1734,6 +1736,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "After PR #64 folded commerce Mark paid out Convex wiring + unpaid pipeline-health into main, append explicit AGENT_PROTOCOL rules for the static Convex API map and for commerceOrdersRevenueUsd meaning unpaid/owed — so the next empty-backlog audit does not re-learn the same split-brain or re-inflate the owed card.",
+    rationale:
+      "Feature code shipped via the sibling fold; naming the two rules in AGENT_PROTOCOL is the process improvement that stops recurrence without inventing a new metric.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "The CAN-SPAM unsubscribe suppression list now persists to Convex (suppressions table + suppressions.ts) with SQLite fallback, matching every other table's persistence pattern, instead of writing only to the per-instance local SQLite file.",
     rationale:
       "isEmailSuppressed/suppressEmail/getSuppressedEmails were the only persistence trio in src/lib/db.ts with no Convex branch. On a multi-instance/serverless deployment with Convex configured, an unsubscribe recorded by one instance would not suppress a send handled by a different instance, even though every sendEmail call site correctly checks suppression before sending — the check was sound but its backing store wasn't durable or shared. This is a compliance exposure (unsubscribed prospects receiving further automated email), not just a data-loss bug, so it took priority over the lower-severity CSV/manual-add-lead collision findings from the same audit pass, which are logged as a follow-up NEXT_STEP instead.",
@@ -2780,6 +2789,19 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-6a3c",
+    summary:
+      "PR #64 (business-process-evolution-22f4) already merged the Commerce webhook side-effect idempotency + Mark paid out Convex wiring + unpaid pipeline-health card (both ITERATIONS folded). Closed the duplicate feature PR surface and shipped process/docs polish: AGENT_PROTOCOL rules for the static Convex API map and unpaid commerceOrdersRevenueUsd semantics, plus operator docs clarifying that Mark paid out clears the health card too.",
+    shipped: [
+      "AGENT_PROTOCOL — static Convex API map registration rule; commerceOrdersRevenueUsd = unpaid owed",
+      "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist — Mark paid out clears health card / unpaid filter",
+      "BUSINESS_DECISIONS — documented why the protocol rules were appended after the sibling fold",
+      "NEXT_STEPS: no new free coded todos; Stripe Price bootstrap / Places / Buffer OAuth / Connect remain operator/legal-gated",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(153, 154),
+  },
+  {
+    date: "2026-07-12",
     branch: "claude/relaxed-galileo-5kwtxz",
     summary:
       "Free NEXT_STEPS backlog was fully empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated). Per AGENT_PROTOCOL, ran a subagent-assisted regression audit deliberately scoped outside Commerce (the last ~7 iterations already covered it heavily) — outreach, leads/CSV import, marketing/voice packs, digest, dashboard actions, and email suppression. Found a genuine compliance-grade regression: the CAN-SPAM unsubscribe suppression list (isEmailSuppressed/suppressEmail/getSuppressedEmails in src/lib/db.ts) was the only persistence trio in the file with no Convex branch at all, writing/reading only the per-instance local SQLite file while every sibling table follows Convex-first-then-SQLite-fallback. On a Convex-configured multi-instance deployment, an unsubscribe processed by one instance would silently fail to suppress a send handled by another instance — every sendEmail call site correctly checks suppression, but the backing store wasn't durable/shared. The audit also surfaced two lower-severity findings (CSV re-import and manual add-lead both unconditionally clobber an existing lead's pipeline state via upsertLead on a slug collision) — logged as a follow-up NEXT_STEP rather than fixed in the same iteration, to keep this iteration focused and verifiable.",
@@ -2791,8 +2813,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: added suppression-list-convex-persistence (done); added upsert-lead-collision-guard (todo) for the CSV/manual-add clobber risk found during the same audit",
       "AGENT_PROTOCOL: none — existing Convex-first/SQLite-fallback pattern already covered this; the gap was one table never being retrofitted to match it",
       "Verified: npm test (251 passed) + lint + build clean; npm run dev with no NEXT_PUBLIC_CONVEX_URL configured (same sandbox limitation noted by prior Convex-touching iterations, so the Convex branch itself is unreachable here) — hit GET /api/unsubscribe?email=..., confirmed a row landed in SQLite suppression_list via a direct query, confirmed /dashboard/leads still 200s; the Convex branch was verified by code review against the identical try/catch pattern used by every other db.ts function plus a fresh convex table/mutation pair mirroring checkoutSessions.ts",
+      "merge: reconciled main after PR #63 (prompt-process-evolution-6a3c AGENT_PROTOCOL/docs polish) — both ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(153, 154),
+    decisions: BUSINESS_DECISIONS.slice(154, 155),
   },
 ];
 
