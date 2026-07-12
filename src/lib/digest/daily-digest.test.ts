@@ -72,6 +72,7 @@ describe("buildDailyDigest", () => {
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(0);
     expect(digest.starterUpsellCandidates).toHaveLength(0);
+    expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
@@ -247,6 +248,33 @@ describe("buildDailyDigest", () => {
     expect(digest.starterUpsellCandidates[0]?.targetTier).toBe("complete");
     expect(digest.isEmpty).toBe(false);
   });
+
+  it("lists paid Commerce add-on leads missing a catalog", () => {
+    const needsCatalog = baseLead({
+      slug: "needs-catalog",
+      businessName: "Needs Catalog Retail",
+      stage: "paid",
+    });
+    const hasCatalog = baseLead({
+      slug: "has-catalog",
+      businessName: "Has Catalog Cafe",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [needsCatalog, hasCatalog],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "needs-catalog", tier: "starter", commerceAddon: true },
+        { leadSlug: "has-catalog", tier: "growth", commerceAddon: true },
+      ],
+      commerceCatalogs: [{ leadSlug: "has-catalog" }],
+      nowMs: NOW,
+    });
+    expect(digest.commerceCatalogsMissing).toHaveLength(1);
+    expect(digest.commerceCatalogsMissing[0]?.businessName).toBe("Needs Catalog Retail");
+    expect(digest.isEmpty).toBe(false);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {
@@ -302,7 +330,7 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("https://example.com/dashboard/leads");
   });
 
-  it("renders marketing pack due and starter upsell sections", () => {
+  it("renders marketing pack due, starter upsell, and commerce catalog sections", () => {
     const digest = buildDailyDigest({
       leads: [
         baseLead({
@@ -316,14 +344,21 @@ describe("renderDailyDigestHtml", () => {
           stage: "live",
           recommendedTier: "growth",
         }),
+        baseLead({
+          slug: "commerce-due",
+          businessName: "Commerce Due Shop",
+          stage: "paid",
+        }),
       ],
       inquiries: [],
       openCheckoutSessions: [],
       orders: [
         { leadSlug: "pack-due", tier: "growth", commerceAddon: false },
         { leadSlug: "upsell-me", tier: "starter", commerceAddon: false },
+        { leadSlug: "commerce-due", tier: "starter", commerceAddon: true },
       ],
       marketingPacksThisMonth: [],
+      commerceCatalogs: [],
       nowMs: NOW,
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
@@ -331,5 +366,7 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("2026-07 pack not generated");
     expect(html).toContain("Starter → MRR upsell");
     expect(html).toContain("suggest growth upsell");
+    expect(html).toContain("Commerce catalogs missing");
+    expect(html).toContain("Commerce catalog not created");
   });
 });

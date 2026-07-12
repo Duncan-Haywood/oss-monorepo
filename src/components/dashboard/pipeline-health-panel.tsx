@@ -119,6 +119,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.marketingPacksDueCount > 0}
         />
+        <MetricCard
+          label="Commerce catalogs missing"
+          value={String(health.commerceCatalogsMissingCount)}
+          hint={
+            health.commerceCatalogsMissingCount > 0
+              ? "Paid Commerce add-on fulfillment"
+              : "All Commerce catalogs created"
+          }
+          attention={health.commerceCatalogsMissingCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -187,6 +197,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             /dashboard/leads
           </Link>{" "}
           (sold monthly promise).
+        </p>
+      ) : null}
+
+      {health.commerceCatalogsMissingCount > 0 ? (
+        <p className="mt-3 text-xs text-orange-900">
+          {health.commerceCatalogsMissingCount} Commerce add-on lead
+          {health.commerceCatalogsMissingCount === 1 ? "" : "s"} still need a catalog — add
+          SKUs from the Commerce catalogs missing panel on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          (sold catalog promise).
         </p>
       ) : null}
 

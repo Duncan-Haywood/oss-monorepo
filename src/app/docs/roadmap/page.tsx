@@ -184,8 +184,9 @@ export default function RoadmapDocPage() {
         Operator-editable catalog ≤50 SKUs for paid/live <code>commerceAddon</code> leads:
         shipped (<code>saveCommerceCatalogAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — shown on{" "}
-        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox). Stripe Products
-        sync + embedded checkout remain next.
+        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox). Eligible-but-missing
+        catalogs count on pipeline health and list in the daily digest. Stripe Products sync +
+        embedded checkout remain next.
       </p>
 
       <p>

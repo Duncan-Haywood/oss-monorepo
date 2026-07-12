@@ -23,6 +23,7 @@ import {
   listMarketingPacksForMonth,
   upsertCommerceCatalog,
   getCommerceCatalog,
+  listCommerceCatalogs,
   upsertClientVoicePack,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
@@ -834,9 +835,10 @@ export async function openBillingPortalAction(slug: string) {
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
  * abandoned-checkout recoveries due, unreplied inquiries, marketing packs due,
- * and Starter → MRR upsell candidates in one send, plus cold/snoozed footnotes,
- * so a single-operator business does not have to open this dashboard to know
- * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
+ * Starter → MRR upsell candidates, and Commerce catalogs missing in one send,
+ * plus cold/snoozed footnotes, so a single-operator business does not have to
+ * open this dashboard to know what is urgent today. Requires
+ * OPERATOR_DIGEST_EMAIL — see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {
@@ -855,14 +857,21 @@ export async function sendDailyDigestAction() {
 
     const nowMs = Date.now();
     const yearMonth = marketingMonthKey(nowMs);
-    const [leads, inquiries, openCheckoutSessions, orders, marketingPacks] =
-      await Promise.all([
-        getLeads(),
-        listClientInquiries(100),
-        listOpenCheckoutSessions(),
-        listOrders(),
-        listMarketingPacksForMonth(yearMonth),
-      ]);
+    const [
+      leads,
+      inquiries,
+      openCheckoutSessions,
+      orders,
+      marketingPacks,
+      commerceCatalogs,
+    ] = await Promise.all([
+      getLeads(),
+      listClientInquiries(100),
+      listOpenCheckoutSessions(),
+      listOrders(),
+      listMarketingPacksForMonth(yearMonth),
+      listCommerceCatalogs(),
+    ]);
 
     const headerStore = await headers();
     const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
@@ -876,6 +885,7 @@ export async function sendDailyDigestAction() {
       openCheckoutSessions,
       orders,
       marketingPacksThisMonth: marketingPacks,
+      commerceCatalogs,
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);

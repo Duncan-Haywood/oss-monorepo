@@ -219,7 +219,9 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — save ≤50 SKUs, open{" "}
           <code>/preview/[slug]</code>, confirm Menu &amp; products renders, and that{" "}
           <strong>Request order</strong> prefills the contact form (inquiry lands in the
-          operator inbox).
+          operator inbox). Before adding, confirm pipeline-health{" "}
+          <strong>Commerce catalogs missing</strong> counts eligible leads without a catalog
+          (and that the daily digest lists them).
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six

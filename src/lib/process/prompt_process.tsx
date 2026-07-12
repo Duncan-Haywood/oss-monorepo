@@ -474,8 +474,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-catalogs-missing-visibility",
     summary:
-      "Fold paid/live commerceAddon leads missing a catalog into pipeline-health + daily digest (action section) so Commerce fulfillment debt is visible without relying only on the dashboard missing panel — reuses listCommerceCatalogsMissing.",
-    status: "in_progress",
+      "Fold paid/live commerceAddon leads missing a catalog into pipeline-health + daily digest (action section) so Commerce fulfillment debt is visible without relying only on the dashboard missing panel — reuses listCommerceCatalogsMissing. Shipped: commerceCatalogsMissingCount on pipeline health + digest Commerce catalogs missing section (shared catalogs load).",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-ca53",
   },
@@ -1273,6 +1273,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Both sold-capability gaps from this cron window are shipped. Embedded Stripe checkout per SKU is the natural next Commerce step but needs live Product create access — keep it explicit so hourly agents do not thrash on empty free backlog.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility first this cron; this branch claimed commerce-catalogs-missing-visibility (queued twin) and pushed before feature body.",
+    rationale:
+      "Protocol prefers parallel Complete vs Commerce fulfillment-debt visibility when both are free. Both reuse existing list* helpers; different sold promises; shared digest/health wiring patterns without competing implementations.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce catalogs missing = listCommerceCatalogsMissing (paid/live + commerceAddon order, no catalog row). Surfaced as pipeline-health commerceCatalogsMissingCount + digest action section (top 5), not a second Work next panel.",
+    rationale:
+      "The dashboard missing panel only helps when the operator already opened /dashboard/leads. Health + digest make sold Commerce fulfillment debt visible the same way marketing packs due does — reuse the helper, do not invent a parallel eligibility check.",
+  },
 
 ];
 
@@ -2012,6 +2026,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded prompt-process-evolution-bc40 complete-client-voice-faq-pack",
     ],
     decisions: BUSINESS_DECISIONS.slice(111, 113),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-ca53",
+    summary:
+      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility; pivoted to commerce-catalogs-missing-visibility. Shipped listCommerceCatalogsMissing into pipeline-health + daily digest action section (shared catalogs load), Vitest, docs. Improved AGENT_PROTOCOL digest load line for commerce catalogs.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — commerceCatalogsMissingCount via listCommerceCatalogsMissing",
+      "src/components/dashboard/pipeline-health-panel.tsx — Commerce catalogs missing card + callout",
+      "src/lib/digest/daily-digest.ts — commerceCatalogsMissing section; isEmpty includes it",
+      "sendDailyDigestAction + dashboard pages — listCommerceCatalogs into digest/health",
+      "Vitest: pipeline-health + digest commerce missing cases + HTML section",
+      "Docs: architecture, roadmap Phase 8, launch-checklist",
+      "NEXT_STEPS: commerce-catalogs-missing-visibility done; client-voice-packs-missing left to 7d50; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — commerce catalogs in digest load list; catalogs-missing helper reuse rule",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(113, 115),
   },
 ];
 
