@@ -779,6 +779,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/quirky-davinci-c1j0bf",
   },
+  {
+    id: "contact-form-convex-primary-no-fallback",
+    summary:
+      "After PR #77 (preview-subdomain-routing) left only gated NEXT_STEPS, the documented follow-up from stripe-webhook-convex-primary-no-fallback remains: POST /api/contact/[slug] calls insertClientInquiry without requireConvex. When NEXT_PUBLIC_CONVEX_URL is set and Convex mutations fail, the contact form still SQLite-fallbacks then returns { ok: true } — visitor sees Thanks while other instances read Convex-first and never see the inquiry (Starter sold contact form + CRM trail split-brain). Prefer fail-closed 503 (already the persist-required contract) over writing only to instance-local SQLite.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-a7c2",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
