@@ -155,9 +155,8 @@ export default function RoadmapDocPage() {
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
         Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
         surface on pipeline health + daily digest; Starter upsell candidates also appear in the
-        digest. Optional closed-leads pipeline metric remains with sibling{" "}
-        <code>prompt-process-evolution-2313</code> (see{" "}
-        <DocLink href="/docs/process">process log</DocLink>).
+        digest. Closed-leads funnel footnote: shipped (<code>closedLeadCount</code> on pipeline
+        health — see <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>
@@ -170,7 +169,11 @@ export default function RoadmapDocPage() {
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>
-      <p>Twilio provisioning, client webhook, Cal.com booking, Complete tier automation.</p>
+      <p>
+        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation. Next
+        free product-promise gap before secrets: operator-triggered FAQ/script pack for paid
+        Complete leads (<code>complete-client-voice-faq-pack</code> in the process log).
+      </p>
 
       <h2>Phase 8 — Commerce</h2>
       <p>Catalog JSON, Stripe sync, menu/retail templates, order emails.</p>

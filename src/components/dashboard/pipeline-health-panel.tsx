@@ -213,6 +213,17 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             </li>
           ))}
         </ul>
+        {health.closedLeadCount > 0 ? (
+          <p className="mt-3 text-xs text-stone-600">
+            {health.closedLeadCount} closed lead
+            {health.closedLeadCount === 1 ? "" : "s"} outside the active funnel (cold close /
+            not a fit) — filter <strong>Closed</strong> on{" "}
+            <Link href="/dashboard/leads" className="underline underline-offset-2">
+              /dashboard/leads
+            </Link>{" "}
+            to review or reopen. Not a second priority queue.
+          </p>
+        ) : null}
       </div>
 
       {health.leadsMissingEmail.length > 0 ? (

@@ -108,6 +108,7 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
     expect(health.stageCounts).toEqual(emptyStageCounts());
+    expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
       "discovered",
       "site_built",
@@ -418,6 +419,37 @@ describe("computePipelineHealth", () => {
     });
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.marketingPacksDueMonth).toBe("2026-07");
+  });
+
+  it("defaults closed lead count to zero when none are closed", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("outreach_sent"), makeLead("paid")],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.closedLeadCount).toBe(0);
+    expect(health.stageCounts.closed).toBe(0);
+  });
+
+  it("counts closed leads and keeps them out of the active stage funnel", () => {
+    const closedA = makeLead("closed", { slug: "closed-a" });
+    const closedB = makeLead("closed", { slug: "closed-b" });
+    const live = makeLead("live", { slug: "live-a" });
+
+    const health = computePipelineHealth({
+      leads: [closedA, closedB, live],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.closedLeadCount).toBe(2);
+    expect(health.stageCounts.closed).toBe(2);
+    expect(health.stageFunnel.map((s) => s.stage)).not.toContain("closed");
+    expect(health.stageFunnel.find((s) => s.stage === "live")?.count).toBe(1);
   });
 });
 

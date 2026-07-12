@@ -140,8 +140,9 @@ export default function ArchitectureDocPage() {
         parks (count + soonest return), leads due for Email 2/3 (<code>followUpsDueCount</code>{" "}
         + oldest age since last send, via <code>isFollowUpDue</code>), Growth/Complete marketing
         packs still due this UTC month (<code>marketingPacksDueCount</code> via{" "}
-        <code>listMarketingPacksDue</code>), and leads missing email (
-        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        <code>listMarketingPacksDue</code>), closed leads outside the active funnel (
+        <code>closedLeadCount</code> = <code>stageCounts.closed</code>, footnote only), and
+        leads missing email (        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when

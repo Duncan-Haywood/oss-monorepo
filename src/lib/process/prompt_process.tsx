@@ -42,12 +42,12 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → marketing-packs-due visibility → starter-upsell digest), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first.",
-  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer Complete phone / Commerce stubs over inventing more optional aggregates once CRM visibility is in place.",  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
+  "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
@@ -381,8 +381,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "closed-leads-pipeline-metric",
     summary:
-      "Optional: fold currently-closed lead counts into pipeline-health (or a stage-funnel footnote) so operators see how many cold closes accumulated — only if Closed filter alone is not enough; prefer not adding a second priority panel.",
-    status: "in_progress",
+      "Optional: fold currently-closed lead counts into pipeline-health (or a stage-funnel footnote) so operators see how many cold closes accumulated — only if Closed filter alone is not enough; prefer not adding a second priority panel. Shipped: closedLeadCount (= stageCounts.closed) + stage-funnel footnote linking to the Closed filter — not a priority MetricCard.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2313",
   },
@@ -432,6 +432,13 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-f6ad",
+  },
+  {
+    id: "complete-client-voice-faq-pack",
+    summary:
+      "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Before Twilio provisioning (operator-gated), ship an operator-triggered FAQ/script pack for paid/live Complete leads — hours, services, booking CTA, and inbound greeting copy derived from site data — so operators can fulfill the sold promise manually (paste into a temp number / Cal.com) while full telephony stays Phase 7.",
+    status: "todo",
+    phase: "Phase 7 — Client AI phone",
   },
 ];
 
@@ -1146,6 +1153,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Closed-lead pipeline visibility is a stage-funnel footnote via closedLeadCount (= stageCounts.closed), not a priority MetricCard and not a closedAt age field.",
+    rationale:
+      "Closed is already excluded from FUNNEL_ORDER and counted in stageCounts — operators only needed the total beside the active funnel. A new attention card would compete with stuck-money signals. Lead has no closedAt timestamp, so inventing oldest-closed age would require a schema change for low operator value; the Closed filter already lists the rows.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After closed-leads-pipeline-metric, queue complete-client-voice-faq-pack as the next free product-promise gap; Stripe Price bootstrap, Places, and marketing-content-scheduling stay human/operator-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Complete ($199/mo) sells an AI phone receptionist that is still Phase 7 Twilio work — an operator-triggered FAQ/script pack derived from site data fulfills the sold promise manually without fake-completing telephony secrets.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Sibling prompt-process-evolution-2313 claimed closed-leads-pipeline-metric first this cron; this branch claimed marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest (shared digest/orders wiring) and pushed before feature body.",
     rationale:
       "Closed-count is optional and already owned. Pack-due visibility closes the Growth/Complete fulfillment loop that generation alone left invisible; Starter upsell digest surfaces MRR conversion without opening the dashboard. Shipping both in one iteration is coherent because sendDailyDigestAction needs a single orders (+ packs) load for either section.",
@@ -1167,9 +1188,9 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "After marketing-packs-due + starter-upsell digest, leave closed-leads-pipeline-metric with sibling 2313; remaining free backlog is optional/operator/legal-gated — next product-promise gaps are openingHours JSON-LD, Commerce scaffolding, or Complete voice stubs only when those are claimed as explicit NEXT_STEPS.",
+      "After folding closed-leads (2313) with marketing-packs-due + starter-upsell digest (88c8), leave complete-client-voice-faq-pack free; Stripe/Places/scheduling stay gated.",
     rationale:
-      "Avoid idle thrash and avoid inventing large Phase 7/8 surfaces without a claimed todo. Prefer small SEO/operator leverage items once closed-leads lands.",
+      "Closed funnel footnote and pack/upsell digest visibility are shipped. Complete FAQ/script pack is the next sold-capability gap that does not wait on Twilio secrets.",
   },
 ];
 
@@ -1846,20 +1867,36 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-2313",
+    summary:
+      "Claimed closed-leads-pipeline-metric (only free agent-safe todo after PR #42). Surfaced closedLeadCount (= stageCounts.closed) as a stage-funnel footnote on pipeline-health — not a priority MetricCard. Improved AGENT_PROTOCOL (revenue chain + prefer Complete/Commerce product-promise over more optional aggregates; closed footnote rule). Queued complete-client-voice-faq-pack as the next sold-capability gap.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — closedLeadCount from stageCounts.closed",
+      "src/lib/metrics/pipeline-health.test.ts — zero-state + closed count / funnel exclusion cases",
+      "src/components/dashboard/pipeline-health-panel.tsx — stage-funnel footnote linking to Closed filter",
+      "Docs: architecture, roadmap Phase 5/7, launch-checklist closed-funnel verification",
+      "NEXT_STEPS: closed-leads-pipeline-metric done; complete-client-voice-faq-pack queued; Stripe/Places/scheduling stay gated",
+      "AGENT_PROTOCOL — closed funnel footnote rule; prefer Complete phone / Commerce stubs over more optional aggregates",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(101, 103),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-88c8",
     summary:
-      "Sibling prompt-process-evolution-2313 claimed closed-leads-pipeline-metric; pivoted to marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest. Shipped listMarketingPacksDue into pipeline-health + daily digest action sections, Starter upsell candidates in digest (shared orders/packs load), Vitest, docs. Improved AGENT_PROTOCOL (revenue chain + single digest orders load).",
+      "Sibling prompt-process-evolution-2313 claimed closed-leads-pipeline-metric; pivoted to marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest. Shipped listMarketingPacksDue into pipeline-health + daily digest action sections, Starter upsell candidates in digest (shared orders/packs load), Vitest, docs. Merged PR #44 closed-leads (both ITERATIONS kept).",
     shipped: [
       "src/lib/marketing/monthly-pack.ts — leadNeedsMarketingPackForMonth + listMarketingPacksDue",
-      "src/lib/metrics/pipeline-health.ts — marketingPacksDueCount + marketingPacksDueMonth",
+      "src/lib/metrics/pipeline-health.ts — marketingPacksDueCount + marketingPacksDueMonth (folded with closedLeadCount)",
       "src/components/dashboard/pipeline-health-panel.tsx — Marketing packs due card + callout",
       "src/lib/digest/daily-digest.ts — marketingPacksDue + starterUpsellCandidates sections; isEmpty includes both",
       "sendDailyDigestAction + dashboard pages — listOrders + listMarketingPacksForMonth into digest/health",
       "Vitest: monthly-pack due list, pipeline-health packs due, digest sections + HTML",
       "Docs: architecture, roadmap Phase 5/6, marketing-automation, business-model, launch-checklist",
-      "NEXT_STEPS: marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest done; closed-leads left to 2313; scheduling/Stripe/Places gated",
+      "NEXT_STEPS: marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest done; complete-client-voice-faq-pack free; scheduling/Stripe/Places gated",
       "AGENT_PROTOCOL — packs-due/upsell digest in revenue chain; single orders load for digest extensions",
+      "merge: folded prompt-process-evolution-2313 closed-leads-pipeline-metric (PR #44)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(101, 105),
+    decisions: BUSINESS_DECISIONS.slice(103, 107),
   },
 ];
