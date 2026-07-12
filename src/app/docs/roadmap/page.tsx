@@ -143,8 +143,10 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-5">Phase 5 — Production deploy</h2>
       <p>
-        Post-payment handoff: shipped — webhook enqueues DNS instructions + contact form
-        endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), optional Vercel domain
+        Post-payment handoff: shipped — webhook always enqueues DNS instructions + contact form
+        endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), including on Stripe
+        redelivery after a partial first attempt (<code>bundle-webhook-handoff-on-redelivery</code>
+        — <code>alreadyRecorded</code> skips receipt/DNS emails only). Optional Vercel domain
         API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel

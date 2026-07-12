@@ -14,9 +14,11 @@ export default function ProductionDeployDocPage() {
     >
       <p>
         When Stripe fires <code>checkout.session.completed</code>, the webhook marks the lead{" "}
-        <code>paid</code>, sends a receipt, then enqueues a <strong>production deploy handoff</strong>.
-        That record holds DNS instructions, a suggested production hostname, and the contact-form
-        endpoint for the site.
+        <code>paid</code>, enqueues a <strong>production deploy handoff</strong>, then sends a
+        receipt (and DNS next-steps email) on the first delivery only. The handoff enqueue is
+        idempotent on slug + stripeSessionId and still runs on Stripe redelivery so a partial
+        first attempt cannot permanently skip Phase 5. That record holds DNS instructions, a
+        suggested production hostname, and the contact-form endpoint for the site.
       </p>
 
       <h2>What ships automatically</h2>

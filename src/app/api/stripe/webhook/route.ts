@@ -167,30 +167,17 @@ export async function POST(request: Request) {
             amountTotal,
             stripeCustomerId,
           });
-          if (alreadyRecorded) {
-            // Stripe redelivered a checkout.session.completed we already
-            // processed (retry/timeout) — the order row is idempotent on
-            // stripeSessionId, but the receipt/handoff emails below are not,
-            // so skip them rather than spamming the customer a second time.
-            console.log(`Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails/handoff`);
-            break;
-          }
-          console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
 
-          // Trigger receipt email
+          // Always enqueue the production handoff — it is idempotent on
+          // slug + stripeSessionId. alreadyRecorded must NOT skip this:
+          // if the first delivery recorded the order but crashed before
+          // handoff enqueue, a Stripe retry is the only recovery path.
           const { getLeadBySlug } = await import("@/lib/db");
-          const { sendReceiptEmail } = await import("@/lib/email/resend");
-          const lead = await getLeadBySlug(slug);
-          const businessName = lead?.businessName || slug;
-
-          if (customerEmail) {
-            await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
-          }
-
-          // Phase 5: queue production deploy + DNS handoff (stub when Vercel unset)
           const { enqueueProductionHandoff, formatDnsInstructionsForEmail } = await import(
             "@/lib/deploy/handoff"
           );
+          const lead = await getLeadBySlug(slug);
+          const businessName = lead?.businessName || slug;
           const handoff = await enqueueProductionHandoff({
             leadSlug: slug,
             businessName,
@@ -202,6 +189,26 @@ export async function POST(request: Request) {
           console.log(
             `Production handoff queued for ${slug}: ${handoff.status} → ${handoff.suggestedHost}`,
           );
+
+          if (alreadyRecorded) {
+            // Stripe redelivered a checkout.session.completed we already
+            // processed (retry/timeout) — the order row is idempotent on
+            // stripeSessionId, and the handoff above is too, but the
+            // receipt/DNS emails below are not, so skip them rather than
+            // spamming the customer a second time.
+            console.log(
+              `Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails (handoff ensured)`,
+            );
+            break;
+          }
+          console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
+
+          // Trigger receipt email
+          const { sendReceiptEmail } = await import("@/lib/email/resend");
+
+          if (customerEmail) {
+            await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+          }
 
           if (customerEmail) {
             const { sendEmail } = await import("@/lib/email/resend");

@@ -153,7 +153,9 @@ export default function LaunchChecklistDocPage() {
         <li>Public brand + Colorado postal address present on outbound email</li>
         <li>
           After a test payment, a deploy handoff appears on the leads dashboard (Convex when
-          configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>)
+          configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
+          Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
+          handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
