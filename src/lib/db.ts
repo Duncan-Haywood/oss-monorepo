@@ -389,6 +389,7 @@ const api: any = {
   commerceOrders: {
     insert: "commerceOrders:insert",
     list: "commerceOrders:list",
+    markPaidOut: "commerceOrders:markPaidOut",
   },
 };
 
