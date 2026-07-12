@@ -2,6 +2,11 @@ import { isEmailSuppressed } from "../db";
 import { brand } from "../brand";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
+import {
+  formatMarketingPackEmailHtml,
+  marketingPackDeliverySubject,
+} from "../marketing/deliver-pack";
+import type { MarketingContentVariant } from "../marketing/types";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -318,6 +323,31 @@ export async function sendStarterUpsellEmail(params: {
     <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through Growth vs Complete.</p>
     <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
   `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Operator-triggered delivery of this month's marketing pack to the client
+ * (Growth/Complete sold content handoff without Buffer/GBP OAuth).
+ * See src/lib/marketing/deliver-pack.ts + /docs/process (deliver-marketing-pack-to-client).
+ */
+export async function sendMarketingPackToClientEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  yearMonth: string;
+  variants: MarketingContentVariant[];
+  previewUrl?: string;
+}) {
+  const { to, businessName, slug, yearMonth, variants, previewUrl } = params;
+  const subject = marketingPackDeliverySubject(businessName, yearMonth);
+  const html = formatMarketingPackEmailHtml({
+    businessName,
+    yearMonth,
+    variants,
+    previewUrl,
+  });
 
   return sendEmail({ to, subject, html, leadSlug: slug });
 }

@@ -209,9 +209,11 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
           posts + 2 emails appear for the current UTC month (stub copy without{" "}
           <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
-          that month. Copy/paste to post until Buffer/GBP OAuth is configured. Before generating,
-          confirm pipeline-health <strong>Marketing packs due</strong> counts eligible leads
-          missing this month&apos;s pack (and that the daily digest lists them).
+          that month. With an email on the lead, click <strong>Email pack</strong> — confirm the
+          pack arrives (or a mock send is logged when Resend is unset). Copy/paste or client
+          email works until Buffer/GBP OAuth is configured. Before generating, confirm
+          pipeline-health <strong>Marketing packs due</strong> counts eligible leads missing
+          this month&apos;s pack (and that the daily digest lists them).
         </li>
         <li>
           For a paid/live lead with a Commerce add-on order, click <strong>Add catalog</strong>{" "}
@@ -229,7 +231,11 @@ export default function LaunchChecklistDocPage() {
           <strong>Synced</strong> badge and a real Stripe Product + Price appears in the Stripe
           dashboard (metadata <code>local_site_studio_key = commerce_sku_&lt;slug&gt;_&lt;skuId&gt;</code>
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
-          Products; changing a price should create a new Price on the same Product. Reload{" "}
+          Products; changing a price should create a new Price on the same Product. After Sync,
+          edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
+          server-side; only a price change clears the Price id). Before Sync, confirm
+          pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
+          unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
           <strong>Buy now</strong> (routes through <code>/api/commerce/checkout</code>, which
           resolves the price server-side) instead of Request order.

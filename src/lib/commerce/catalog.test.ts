@@ -6,7 +6,9 @@ import {
   leadEligibleForCommerceCatalog,
   leadStageEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
   normalizeCommerceItems,
+  preserveCommerceStripeIds,
 } from "./catalog";
 import { MAX_COMMERCE_SKUS } from "./types";
 
@@ -56,6 +58,123 @@ describe("listCommerceCatalogsMissing", () => {
       [{ leadSlug: "alpha" }],
     );
     expect(missing.map((l) => l.slug)).toEqual(["zeta"]);
+  });
+});
+
+describe("listCommerceCatalogsUnsynced", () => {
+  it("returns eligible leads whose catalog still has SKUs without stripePriceId", () => {
+    const leads = [
+      { slug: "unsynced", stage: "paid" as const },
+      { slug: "partial", stage: "live" as const },
+      { slug: "synced", stage: "paid" as const },
+      { slug: "empty", stage: "paid" as const },
+      { slug: "ineligible", stage: "outreach_sent" as const },
+    ];
+    const orders = [
+      { leadSlug: "unsynced", commerceAddon: true },
+      { leadSlug: "partial", commerceAddon: true },
+      { leadSlug: "synced", commerceAddon: true },
+      { leadSlug: "empty", commerceAddon: true },
+      { leadSlug: "ineligible", commerceAddon: true },
+    ];
+    const catalogs = [
+      {
+        leadSlug: "unsynced",
+        items: [{ id: "a", name: "A", priceCents: 100 }],
+      },
+      {
+        leadSlug: "partial",
+        items: [
+          { id: "b", name: "B", priceCents: 200, stripePriceId: "price_b" },
+          { id: "c", name: "C", priceCents: 300 },
+        ],
+      },
+      {
+        leadSlug: "synced",
+        items: [
+          { id: "d", name: "D", priceCents: 400, stripePriceId: "price_d" },
+        ],
+      },
+      { leadSlug: "empty", items: [] },
+      {
+        leadSlug: "ineligible",
+        items: [{ id: "e", name: "E", priceCents: 500 }],
+      },
+    ];
+    expect(
+      listCommerceCatalogsUnsynced(leads, orders, catalogs).map((l) => l.slug),
+    ).toEqual(["partial", "unsynced"]);
+  });
+});
+
+describe("preserveCommerceStripeIds", () => {
+  it("keeps product + price ids when the SKU id and priceCents match", () => {
+    const previous = [
+      {
+        id: "sku_a",
+        name: "Latte",
+        priceCents: 450,
+        stripeProductId: "prod_a",
+        stripePriceId: "price_a",
+      },
+    ];
+    expect(
+      preserveCommerceStripeIds(
+        [{ id: "sku_a", name: "Latte (hot)", description: "12oz", priceCents: 450 }],
+        previous,
+      ),
+    ).toEqual([
+      {
+        id: "sku_a",
+        name: "Latte (hot)",
+        description: "12oz",
+        priceCents: 450,
+        stripeProductId: "prod_a",
+        stripePriceId: "price_a",
+      },
+    ]);
+  });
+
+  it("keeps product id but drops price id when priceCents changes", () => {
+    const previous = [
+      {
+        id: "sku_a",
+        name: "Latte",
+        priceCents: 450,
+        stripeProductId: "prod_a",
+        stripePriceId: "price_a",
+      },
+    ];
+    expect(
+      preserveCommerceStripeIds(
+        [{ id: "sku_a", name: "Latte", priceCents: 500 }],
+        previous,
+      ),
+    ).toEqual([
+      {
+        id: "sku_a",
+        name: "Latte",
+        priceCents: 500,
+        stripeProductId: "prod_a",
+      },
+    ]);
+  });
+
+  it("does not invent Stripe ids for new SKU ids", () => {
+    expect(
+      preserveCommerceStripeIds(
+        [{ id: "sku_new", name: "Mocha", priceCents: 550 }],
+        [
+          {
+            id: "sku_old",
+            name: "Latte",
+            priceCents: 450,
+            stripeProductId: "prod_a",
+            stripePriceId: "price_a",
+          },
+        ],
+      ),
+    ).toEqual([{ id: "sku_new", name: "Mocha", priceCents: 550 }]);
   });
 });
 

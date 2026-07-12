@@ -21,6 +21,7 @@ import {
   applyColdLeadDisposition,
   upsertMarketingPack,
   listMarketingPacksForMonth,
+  getMarketingPack,
   upsertCommerceCatalog,
   getCommerceCatalog,
   listCommerceCatalogs,
@@ -55,6 +56,7 @@ import {
   sendInquiryReply,
   sendOperatorDailyDigest,
   sendStarterUpsellEmail,
+  sendMarketingPackToClientEmail,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -68,12 +70,14 @@ import {
   bestMarketingOrderTier,
   getMarketingGenerator,
   leadEligibleForMarketingPack,
+  leadEligibleForMarketingPackDelivery,
   marketingMonthKey,
   monthlyPackRequestForLead,
 } from "@/lib/marketing";
 import {
   leadEligibleForCommerceCatalog,
   normalizeCommerceItems,
+  preserveCommerceStripeIds,
   syncCommerceCatalogToStripe,
 } from "@/lib/commerce";
 import Stripe from "stripe";
@@ -987,6 +991,82 @@ export async function generateMarketingPackAction(slug: string) {
 }
 
 /**
+ * Email this UTC month's marketing pack to the client (Growth/Complete content
+ * handoff without Buffer/GBP OAuth). Requires an existing pack row + lead.email.
+ * See /docs/process (deliver-marketing-pack-to-client).
+ */
+export async function sendMarketingPackToClientAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug?.trim()) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug.trim());
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = (await listOrders()).filter((o) => o.leadSlug === lead.slug);
+    if (!leadEligibleForMarketingPackDelivery(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Email pack requires a paid/live Growth or Complete lead with an email on file",
+      };
+    }
+
+    const yearMonth = marketingMonthKey(Date.now());
+    const pack = await getMarketingPack(lead.slug, yearMonth);
+    if (!pack || pack.variants.length === 0) {
+      return {
+        success: false as const,
+        error: `No marketing pack for ${yearMonth} — generate one first`,
+      };
+    }
+
+    const email = lead.email!.trim();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const previewUrl = `${baseUrl}/preview/${encodeURIComponent(lead.slug)}`;
+    const sent = await sendMarketingPackToClientEmail({
+      to: email,
+      businessName: lead.businessName,
+      slug: lead.slug,
+      yearMonth: pack.yearMonth,
+      variants: pack.variants,
+      previewUrl,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send marketing pack email",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      yearMonth: pack.yearMonth,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendMarketingPackToClientAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
  * Save (or replace) the Commerce catalog for a paid/live lead with a commerceAddon order.
  * Caps at 50 SKUs — matches the sold Commerce promise before Stripe Products sync.
  */
@@ -1027,9 +1107,15 @@ export async function saveCommerceCatalogAction(
       return { success: false as const, error: normalized.error };
     }
 
+    // normalizeCommerceItems intentionally drops Stripe ids (never trust the
+    // client). Re-attach from the saved row so an edit after Sync to Stripe
+    // does not silently disable Buy now.
+    const existing = await getCommerceCatalog(slug);
+    const items = preserveCommerceStripeIds(normalized.items, existing?.items);
+
     const catalog = await upsertCommerceCatalog({
       leadSlug: lead.slug,
-      items: normalized.items,
+      items,
       updatedAt: new Date().toISOString(),
     });
 

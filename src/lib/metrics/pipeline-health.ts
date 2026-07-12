@@ -6,6 +6,7 @@
  * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric
  * + closed-leads-pipeline-metric + marketing-packs-due-pipeline-metric
  * + commerce-catalogs-missing-visibility
+ * + commerce-catalogs-unsynced-visibility
  * + client-voice-packs-missing-visibility).
  */
 
@@ -18,7 +19,7 @@ import {
   isAbandonedCheckout,
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
-import { listCommerceCatalogsMissing } from "@/lib/commerce/catalog";
+import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
 import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
 import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
@@ -104,6 +105,11 @@ export interface PipelineHealth {
    */
   commerceCatalogsMissingCount: number;
   /**
+   * Paid/live commerceAddon leads with a saved catalog that still has ≥1 SKU
+   * without stripePriceId (Sync to Stripe still due). Distinct from missing.
+   */
+  commerceCatalogsUnsyncedCount: number;
+  /**
    * Paid/live Complete leads missing a client voice FAQ pack.
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
@@ -171,8 +177,11 @@ export function computePipelineHealth(input: {
   openCheckoutSessions?: CheckoutSessionRecord[];
   /** Packs already generated for the current UTC month (optional). */
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
-  /** Existing commerce catalogs (optional) — missing count uses listCommerceCatalogsMissing. */
-  commerceCatalogs?: ReadonlyArray<{ leadSlug: string }>;
+  /** Existing commerce catalogs (optional) — missing/unsynced counts reuse list* helpers. */
+  commerceCatalogs?: ReadonlyArray<{
+    leadSlug: string;
+    items?: ReadonlyArray<{ stripePriceId?: string }>;
+  }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
   nowMs?: number;
@@ -300,6 +309,15 @@ export function computePipelineHealth(input: {
     input.orders,
     input.commerceCatalogs ?? [],
   );
+  const catalogsWithItems = (input.commerceCatalogs ?? []).filter(
+    (catalog): catalog is { leadSlug: string; items: ReadonlyArray<{ stripePriceId?: string }> } =>
+      Array.isArray(catalog.items),
+  );
+  const commerceCatalogsUnsynced = listCommerceCatalogsUnsynced(
+    input.leads,
+    input.orders,
+    catalogsWithItems,
+  );
   const clientVoicePacksDue = listClientVoicePacksDue(
     input.leads,
     input.orders,
@@ -336,6 +354,7 @@ export function computePipelineHealth(input: {
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
+    commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
   };
 }
