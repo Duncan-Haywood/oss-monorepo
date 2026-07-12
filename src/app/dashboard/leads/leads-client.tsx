@@ -1141,6 +1141,11 @@ export function LeadsClient({
                               Due
                             </span>
                           ) : null}
+                          {lead.lastPreviewOpenAt ? (
+                            <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-800">
+                              Opened
+                            </span>
+                          ) : null}
                         </p>
                         {lead.lastOutreachAt ? (
                           <p className="mt-0.5 text-[11px] text-zinc-400">
@@ -1149,6 +1154,11 @@ export function LeadsClient({
                         ) : (
                           <p className="mt-0.5 text-[11px] text-zinc-400">No sends yet</p>
                         )}
+                        {lead.lastPreviewOpenAt ? (
+                          <p className="mt-0.5 text-[11px] text-sky-700">
+                            Preview {new Date(lead.lastPreviewOpenAt).toLocaleDateString()}
+                          </p>
+                        ) : null}
                       </td>
                       <td className="px-6 py-4.5 text-right">
                         <div className="flex items-center justify-end gap-2">

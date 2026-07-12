@@ -105,7 +105,10 @@ export default function ArchitectureDocPage() {
         funnel counts, open handoffs, and leads missing email (
         <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
-        (Work next queue + Quality column).
+        (Work next queue + Quality column). Preview opens record{" "}
+        <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
+        outreach emails use <code>?src=outreach</code> (or the lead is already in outreach /
+        discovery stages).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

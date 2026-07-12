@@ -111,6 +111,31 @@ describe("scoreLead", () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(100);
   });
+  it("boosts leads who opened the preview after outreach", () => {
+    const opened = scoreLead(
+      baseLead({
+        stage: "outreach_sent",
+        outreachStep: 1,
+        lastOutreachAt: "2026-07-01T00:00:00.000Z",
+        lastPreviewOpenAt: "2026-07-10T00:00:00.000Z",
+        dataSource: "csv_import",
+      }),
+      NOW,
+    );
+    const silent = scoreLead(
+      baseLead({
+        slug: "silent",
+        stage: "outreach_sent",
+        outreachStep: 1,
+        lastOutreachAt: "2026-07-01T00:00:00.000Z",
+        dataSource: "csv_import",
+      }),
+      NOW,
+    );
+    expect(opened.factors.some((f) => f.id === "preview_opened")).toBe(true);
+    expect(silent.factors.some((f) => f.id === "never_opened")).toBe(true);
+    expect(opened.score).toBeGreaterThan(silent.score);
+  });
 });
 
 describe("rankLeadsForOutreach", () => {

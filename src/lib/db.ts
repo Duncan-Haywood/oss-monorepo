@@ -36,6 +36,7 @@ interface SqliteLeadRow {
   dataSource?: string | null;
   outreachStep?: number | null;
   lastOutreachAt?: string | null;
+  lastPreviewOpenAt?: string | null;
 }
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
@@ -143,6 +144,7 @@ function getSqliteDb(): DatabaseSync {
   addLeadCol("dataSource", "TEXT");
   addLeadCol("outreachStep", "INTEGER");
   addLeadCol("lastOutreachAt", "TEXT");
+  addLeadCol("lastPreviewOpenAt", "TEXT");
 
   const handoffCols = (
     sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
@@ -207,6 +209,7 @@ const api: any = {
     seed: "leads:seed",
     markLeadPaid: "leads:markLeadPaid",
     recordOutreach: "leads:recordOutreach",
+    recordPreviewOpen: "leads:recordPreviewOpen",
   },
   inquiries: {
     create: "inquiries:create",
@@ -280,6 +283,7 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     dataSource: row.dataSource || undefined,
     outreachStep: normalizeOutreachStep(row.outreachStep ?? undefined),
     lastOutreachAt: row.lastOutreachAt || undefined,
+    lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
   };
 }
 
@@ -350,13 +354,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
   const outreachStep = normalizeOutreachStep(lead.outreachStep);
   const lastOutreachAt = lead.lastOutreachAt ?? null;
+  const lastPreviewOpenAt = lead.lastPreviewOpenAt ?? null;
 
   if (check) {
     db.prepare(`
       UPDATE leads
       SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
           tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
-          outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
+          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, updatedAt = datetime('now')
       WHERE slug = ?
     `).run(
       lead.businessName,
@@ -375,13 +380,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lead.stage,
       outreachStep,
       lastOutreachAt,
+      lastPreviewOpenAt,
       lead.slug,
     );
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       lead.slug,
@@ -401,6 +407,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lead.stage,
       outreachStep,
       lastOutreachAt,
+      lastPreviewOpenAt,
     );
   }
 }
@@ -439,6 +446,44 @@ export async function recordLeadOutreach(
     SET outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(outreachStep, lastOutreachAt, slug);
+}
+
+/**
+ * Record an attributed preview open (outreach link or in-pipeline revisit).
+ * No-ops when the lead row does not exist yet (slug-inferred demos).
+ */
+export async function recordLeadPreviewOpen(
+  slug: string,
+  openedAt: string = new Date().toISOString(),
+): Promise<{ recorded: boolean }> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.recordPreviewOpen, {
+        slug,
+        openedAt,
+      });
+      return { recorded: true };
+    } catch (e) {
+      console.warn(
+        `Failed to record preview open for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    return { recorded: false };
+  }
+  db.prepare(`
+    UPDATE leads
+    SET lastPreviewOpenAt = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(openedAt, slug);
+  return { recorded: true };
 }
 
 export async function recordLeadPayment(params: {

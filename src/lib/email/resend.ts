@@ -1,5 +1,6 @@
 import { isEmailSuppressed } from "../db";
 import { brand } from "../brand";
+import { previewUrlWithOutreachTracking } from "../leads/preview-open";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -89,7 +90,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
  */
 export async function sendOutreachEmail(to: string, businessName: string, slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = `${baseUrl}/preview/${slug}`;
+  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `${businessName} — we built your website (free preview)`;
@@ -117,7 +118,7 @@ export async function sendOutreachFollowUp2(
   slug: string,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = `${baseUrl}/preview/${slug}`;
+  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `Quick nudge: your ${businessName} preview is ready`;
@@ -147,7 +148,7 @@ export async function sendOutreachFollowUp3(
   slug: string,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = `${baseUrl}/preview/${slug}`;
+  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `Last note about the ${businessName} site preview`;

@@ -249,8 +249,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "outreach-open-tracking",
     summary:
       "Track preview-link opens (simple pixel or link-visit timestamp on /preview/[slug] for outreach-sourced traffic) so the follow-up due queue can prioritize leads who opened but didn't convert over ones who never saw the email.",
-    status: "todo",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-8e65",
   },
 ];
 
@@ -562,6 +563,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Same-hour dual claim of lead-quality-scoring (f004 + 8e65): merged both branches into one PR; kept the 8e65 scorer (Work next queue, blocked/fulfillment bands, demo deprioritization, category↔tier fit) as the single implementation, folded f004 protocol rules (dual-claim pivot + absolute decision slices) and both ITERATIONS.",
     rationale:
       "Two full scorers would thrash the dashboard and tests. 8e65's factor set and Work next UX were strictly more complete; f004's process hardening still needed. Protocol already preferred merge-over-compete for complementary same-window work.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Preview open tracking stores Lead.lastPreviewOpenAt (SQLite + Convex) via POST /api/preview/[slug]/open, fired by a client beacon on /preview/[slug]. Outreach emails append ?src=outreach; in-pipeline stages (outreach_sent / discovery_call) also count without the query param. 30-minute debounce suppresses bot/reload noise.",
+    rationale:
+      "Operators need to prioritize prospects who engaged with Email 1/2 over silent non-openers. A timestamp on the lead row keeps scoring and the follow-up due queue honest without a third-party ESP open-pixel dependency, and works in the SQLite demo path.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Quality score and listFollowUpsDue both prefer lastPreviewOpenAt: +engaged boost / never-opened penalty on outreach stages, and due-queue sort puts openers first.",
+    rationale:
+      "Open tracking only pays off if the operator UI acts on it. Wiring both the Work next scorer and the Follow-ups due panel avoids a second backlog item to 'use the open signal.'",
   },
 ];
 
@@ -890,5 +905,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process decision documenting single-scorer merge outcome",
     ],
     decisions: BUSINESS_DECISIONS.slice(43, 44),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-8e65",
+    summary:
+      "After PR #21 merged quality scoring: outreach open tracking — ?src=outreach on Email 1/2/3 links, client beacon + POST /api/preview/[slug]/open, Lead.lastPreviewOpenAt (SQLite + Convex), quality-score + follow-up due queue prefer engagers, Opened badge on the leads table.",
+    shipped: [
+      "src/lib/leads/preview-open.ts (+ tests) — attribution + debounce helpers",
+      "Lead.lastPreviewOpenAt on types + SQLite migration + Convex schema/recordPreviewOpen",
+      "src/app/api/preview/[slug]/open + PreviewOpenBeacon on /preview/[slug]",
+      "Resend Email 1/2/3 preview URLs append ?src=outreach",
+      "quality-score + listFollowUpsDue prefer openers; dashboard Opened badge",
+      "NEXT_STEPS: outreach-open-tracking done",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(44, 46),
   },
 ];
