@@ -8,6 +8,7 @@ import {
   listOpenCheckoutSessions,
 } from "@/lib/db";
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
+import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -34,8 +35,8 @@ type DashboardPageProps = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const params = await searchParams;
+/** Snapshot clock outside the page component (react-hooks/purity). */
+async function loadDashboardHealth(): Promise<PipelineHealth> {
   const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -43,14 +44,20 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     listOrders(),
     listOpenCheckoutSessions(),
   ]);
-  const health = computePipelineHealth({
+  const nowMs = Date.now();
+  return computePipelineHealth({
     leads,
     orders,
     handoffs,
     inquiries,
     openCheckoutSessions,
-    nowMs: Date.now(),
+    nowMs,
   });
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const health = await loadDashboardHealth();
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">

@@ -6,6 +6,7 @@ import {
   listOpenCheckoutSessions,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
+import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { DashboardAuthChrome } from "../auth-chrome";
@@ -13,7 +14,14 @@ import { LeadsClient } from "./leads-client";
 
 export const dynamic = "force-dynamic";
 
-export default async function LeadsPage() {
+/** Load dashboard aggregates outside the page component so Date.now stays off the render path. */
+async function loadLeadsPipelineHealth(): Promise<{
+  health: PipelineHealth;
+  leads: Awaited<ReturnType<typeof getLeads>>;
+  handoffs: Awaited<ReturnType<typeof listDeployHandoffs>>;
+  inquiries: Awaited<ReturnType<typeof listClientInquiries>>;
+  openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
+}> {
   const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -21,15 +29,27 @@ export default async function LeadsPage() {
     listOrders(),
     listOpenCheckoutSessions(),
   ]);
-  const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
-  const health = computePipelineHealth({
+  const nowMs = Date.now();
+  return {
     leads,
-    orders,
     handoffs,
     inquiries,
     openCheckoutSessions,
-    nowMs: Date.now(),
-  });
+    health: computePipelineHealth({
+      leads,
+      orders,
+      handoffs,
+      inquiries,
+      openCheckoutSessions,
+      nowMs,
+    }),
+  };
+}
+
+export default async function LeadsPage() {
+  const { health, leads, handoffs, inquiries, openCheckoutSessions } =
+    await loadLeadsPipelineHealth();
+  const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
