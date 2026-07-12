@@ -102,8 +102,14 @@ export default function RoadmapDocPage() {
         inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
         badges row-by-row): shipped. Operator daily digest includes currently-snoozed lead
         count + soonest return as a footnote (reuses <code>isLeadSnoozed</code> — not a second
-        priority section): shipped. Remaining: Vapi/Retell platform voice and bundle
-        explanation tools.
+        priority section): shipped. Fixed: <code>isFollowUpDue</code> did not check{" "}
+        <code>snoozedUntil</code>, so a snoozed lead past its Email 2/3 cadence gap still
+        appeared in the &quot;Follow-ups due&quot; panel (with a live Send button) and counted
+        toward <code>followUpsDueCount</code> / the digest section — contradicting the operator&apos;s
+        explicit snooze. Cold-lead detection (<code>isColdLead</code>) intentionally keeps
+        including snoozed leads, since <code>Re-engage</code>/<code>Close</code> on a snoozed
+        cold lead is a valid explicit override that itself clears the snooze. Remaining:
+        Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>

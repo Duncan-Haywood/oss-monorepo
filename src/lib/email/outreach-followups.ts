@@ -4,6 +4,7 @@
  */
 
 import type { Lead, OutreachStep } from "../leads/types";
+import { isLeadSnoozed } from "../leads/snooze";
 
 /** Days after Email 1 before Email 2 is due in the operator queue. */
 export const FOLLOW_UP_2_AFTER_DAYS = 3;
@@ -33,14 +34,18 @@ export function followUpGapMs(afterStep: 1 | 2): number {
 
 /**
  * Lead is due for the next follow-up when: has email, still in outreach/discovery,
- * Email 1+ already sent, sequence not finished, and enough quiet days since last send.
- * Missing lastOutreachAt with step≥1 counts as due (legacy rows after Email 1).
+ * Email 1+ already sent, sequence not finished, not currently snoozed, and enough
+ * quiet days since last send. Missing lastOutreachAt with step≥1 counts as due
+ * (legacy rows after Email 1). Snooze is a deliberate operator "don't contact"
+ * signal (see isLeadSnoozed / quality-score.ts actionable) — a snoozed lead must
+ * not surface here even if the cadence gap has otherwise elapsed.
  */
 export function isFollowUpDue(lead: Lead, nowMs: number): boolean {
   if (!lead.email) return false;
   if (lead.stage !== "outreach_sent" && lead.stage !== "discovery_call") {
     return false;
   }
+  if (isLeadSnoozed(lead.snoozedUntil, nowMs)) return false;
   const step = normalizeOutreachStep(lead.outreachStep);
   const next = nextFollowUpStep(step);
   if (!next) return false;
@@ -75,6 +80,10 @@ export const COLD_AFTER_DAYS = FOLLOW_UP_3_AFTER_DAYS;
  * returns null) and enough quiet days have passed since Email 3 with no stage
  * progression. isFollowUpDue never fires again for these leads once step hits
  * 3, so without this check they go permanently invisible to the operator.
+ * Deliberately does NOT exclude snoozed leads (unlike isFollowUpDue) —
+ * planColdLeadDisposition gates Re-engage/Close on this predicate, and
+ * Re-engage on a snoozed cold lead is a valid explicit operator override that
+ * itself clears the snooze (see cold-archive.ts), same as the Unsnooze button.
  */
 export function isColdLead(lead: Lead, nowMs: number): boolean {
   if (!lead.email) return false;
