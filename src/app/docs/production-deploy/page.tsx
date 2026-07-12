@@ -100,12 +100,17 @@ export default function ProductionDeployDocPage() {
         Convex <code>clientInquiries</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set)
         before claiming success. Persist is required: if the inbox write fails, the endpoint
         returns <code>503</code> and the preview form shows an error — never{" "}
-        <code>{"{ ok: true }"}</code> without a durable CRM trail (Starter sold promise). Email
-        notify runs only after a successful insert (best-effort; notify failure does not undo the
-        row). Operators see new messages on the leads dashboard, can <strong>Reply</strong> via
-        Resend (honors suppression, stores <code>operatorReply</code> / <code>repliedAt</code>,
-        status <code>replied</code>), mark read/archive. Preview pages already include the
-        contact form UI (<code>preview-conversion-finish</code>, PR #12).
+        <code>{"{ ok: true }"}</code> without a durable CRM trail (Starter sold promise). When
+        Convex is configured, the insert passes <code>requireConvex</code> (
+        <code>CONTACT_FORM_CONVEX_PRIMARY</code>) so a Convex mutation failure does not
+        silently fall back to instance-local SQLite — dashboard/other instances read
+        Convex-first and would never see the inquiry. Email notify runs only after a
+        successful insert (best-effort; notify failure does not undo the row; dynamic fields
+        in the notify HTML are escaped). Operators see new messages on the leads dashboard,
+        can <strong>Reply</strong> via Resend (honors suppression, stores{" "}
+        <code>operatorReply</code> / <code>repliedAt</code>, status <code>replied</code>),
+        mark read/archive. Preview pages already include the contact form UI (
+        <code>preview-conversion-finish</code>, PR #12).
       </p>
 
       <h2>Env vars</h2>

@@ -178,7 +178,9 @@ export default function RoadmapDocPage() {
         <code>src/proxy.ts</code> host-based routing serves that lead&apos;s preview at the
         client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>).
         Remaining: registrar DNS automation. Client inquiry inbox (persist-required contact-form posts —{" "}
-        <code>503</code> when the ledger write fails — + operator panel + dashboard reply via
+        <code>503</code> when the ledger write fails; with Convex configured,{" "}
+        <code>requireConvex</code> so SQLite-only success cannot hide the row from other
+        instances — + operator panel + dashboard reply via
         Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.

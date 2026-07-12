@@ -1,8 +1,20 @@
+import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+
 /**
  * Contact-form success policy for Starter sites.
  * Persist (clientInquiries ledger) is required before claiming success —
  * email notify is a best-effort side effect after a durable inbox row exists.
+ *
+ * When Convex is configured, the contact route must pass
+ * CONTACT_FORM_CONVEX_PRIMARY so a Convex mutation failure returns 503
+ * instead of writing only to instance-local SQLite (dashboard/other
+ * instances read Convex-first and would never see the inquiry).
  */
+
+/** Fail-closed write options for visitor contact-form ledger inserts. */
+export const CONTACT_FORM_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
+  requireConvex: true,
+};
 
 export type ContactPersistOutcome =
   | {
