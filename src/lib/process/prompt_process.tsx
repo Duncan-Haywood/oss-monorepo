@@ -465,8 +465,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "client-voice-packs-missing-visibility",
     summary:
-      "Fold eligible Complete leads missing a client voice FAQ pack into pipeline-health + daily digest (action section) so Complete phone fulfillment debt is visible without scanning every row — reuses listClientVoicePacksDue (already shipped with complete-client-voice-faq-pack).",
-    status: "in_progress",
+      "Fold eligible Complete leads missing a client voice FAQ pack into pipeline-health + daily digest (action section) so Complete phone fulfillment debt is visible without scanning every row — reuses listClientVoicePacksDue (already shipped with complete-client-voice-faq-pack). Shipped: clientVoicePacksDueCount on pipeline health + digest Complete voice packs due section.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
     owner: "cursor/business-process-evolution-7d50",
   },
@@ -1271,6 +1271,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Both sold-capability gaps from this cron window are shipped. Embedded Stripe checkout per SKU is the natural next Commerce step but needs live Product create access — keep it explicit so hourly agents do not thrash on empty free backlog.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "With free NEXT_STEPS operator/legal-gated after PR #46, prefer wiring already-shipped listClientVoicePacksDue / listCommerceCatalogsMissing into pipeline-health + digest over inventing new aggregates or fake-completing Stripe/Places/scheduling.",
+    rationale:
+      "Complete voice and Commerce catalogs already fulfill sold promises; missing visibility is the same operator-leverage pattern as marketing-packs-due. Reusing the helpers keeps one eligibility source and avoids a second dashboard panel.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Client voice packs due = listClientVoicePacksDue → pipeline-health clientVoicePacksDueCount + digest Complete voice packs due section (top 5). Load listClientVoicePacks once beside listOrders in digest/dashboard paths.",
+    rationale:
+      "Operators otherwise only notice missing Complete phone fulfillment by scanning Generate voice row controls. Digest + health make sold-promise debt visible without opening every Complete lead.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Queue commerce-catalogs-missing-visibility as the next free sibling todo after client-voice-packs-missing-visibility; keep stripe-commerce-products-sync operator-gated.",
+    rationale:
+      "Parallel fulfillment-debt visibility for Commerce (listCommerceCatalogsMissing already powers the dashboard missing panel). Same-cron siblings should claim voice vs commerce visibility separately when both are free.",
+  },
 
 ];
 
@@ -2010,6 +2031,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded prompt-process-evolution-bc40 complete-client-voice-faq-pack",
     ],
     decisions: BUSINESS_DECISIONS.slice(111, 113),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-7d50",
+    summary:
+      "Free backlog was operator/legal-gated after PR #46; claimed client-voice-packs-missing-visibility. Wired listClientVoicePacksDue into pipeline-health + daily digest (Voice packs due card + Complete voice packs due section), Vitest, docs. Improved AGENT_PROTOCOL (prefer wiring existing list* helpers; parallel voice vs commerce missing-visibility claims). Queued commerce-catalogs-missing-visibility for siblings.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — clientVoicePacksDueCount via listClientVoicePacksDue",
+      "src/lib/digest/daily-digest.ts — clientVoicePacksDue action section + HTML",
+      "pipeline-health-panel Voice packs due card + callout; dashboard + digest load listClientVoicePacks once",
+      "Vitest: pipeline-health + digest voice-packs-due cases",
+      "Docs: architecture, roadmap Phase 7/8, voice-agent-flow, launch-checklist",
+      "NEXT_STEPS: client-voice-packs-missing-visibility done; commerce-catalogs-missing-visibility free; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — voice/commerce missing visibility in revenue chain; reuse listClientVoicePacksDue",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(113, 116),
   },
 ];
 

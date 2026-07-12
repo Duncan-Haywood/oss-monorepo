@@ -106,10 +106,10 @@ export default function LaunchChecklistDocPage() {
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
           follow-ups due, abandoned-checkout recoveries, unreplied inquiries, marketing packs
-          due (Growth/Complete missing this UTC month), and Starter → MRR upsell candidates all
-          show up in one email (or the mock log) — plus a snoozed-lead footnote (count + soonest
-          return) when any lead is parked off Work next. The operator should not need to open the
-          dashboard to know what is urgent today.
+          due (Growth/Complete missing this UTC month), Starter → MRR upsell candidates, and
+          Complete voice packs due all show up in one email (or the mock log) — plus a
+          snoozed-lead footnote (count + soonest return) when any lead is parked off Work next.
+          The operator should not need to open the dashboard to know what is urgent today.
         </li>
       </ol>
 
@@ -225,7 +225,9 @@ export default function LaunchChecklistDocPage() {
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
           receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
           appear (stub without <code>ANTHROPIC_API_KEY</code>). Copy into a temp number / Cal.com
-          until Twilio is provisioned. Regenerating replaces the lead&apos;s pack.
+          until Twilio is provisioned. Regenerating replaces the lead&apos;s pack. Before
+          generating, confirm pipeline-health <strong>Voice packs due</strong> counts eligible
+          Complete leads missing a pack (and that the daily digest lists them).
         </li>
       </ul>
 

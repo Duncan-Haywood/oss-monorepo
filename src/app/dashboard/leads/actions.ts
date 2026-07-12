@@ -24,6 +24,7 @@ import {
   upsertCommerceCatalog,
   getCommerceCatalog,
   upsertClientVoicePack,
+  listClientVoicePacks,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -855,13 +856,14 @@ export async function sendDailyDigestAction() {
 
     const nowMs = Date.now();
     const yearMonth = marketingMonthKey(nowMs);
-    const [leads, inquiries, openCheckoutSessions, orders, marketingPacks] =
+    const [leads, inquiries, openCheckoutSessions, orders, marketingPacks, clientVoicePacks] =
       await Promise.all([
         getLeads(),
         listClientInquiries(100),
         listOpenCheckoutSessions(),
         listOrders(),
         listMarketingPacksForMonth(yearMonth),
+        listClientVoicePacks(),
       ]);
 
     const headerStore = await headers();
@@ -876,6 +878,7 @@ export async function sendDailyDigestAction() {
       openCheckoutSessions,
       orders,
       marketingPacksThisMonth: marketingPacks,
+      clientVoicePacks,
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);

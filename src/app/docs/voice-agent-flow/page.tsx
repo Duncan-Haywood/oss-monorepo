@@ -83,8 +83,10 @@ export default function VoiceAgentFlowDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live Complete leads
         (<code>generateClientVoicePackAction</code>): inbound greeting, hours, services, booking
         CTA, after-hours, and take-a-message — derived from site data. Copy into a temporary
-        number or Cal.com booking flow. Scripts persist one row per lead (not monthly). Full
-        telephony remains Phase 7.
+        number or Cal.com booking flow. Scripts persist one row per lead (not monthly). Eligible
+        Complete leads still missing a pack surface on pipeline health (
+        <strong>Voice packs due</strong>) and in the operator daily digest via{" "}
+        <code>listClientVoicePacksDue</code>. Full telephony remains Phase 7.
       </p>
 
       <h2>Webhook routing</h2>
