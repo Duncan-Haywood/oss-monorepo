@@ -248,9 +248,11 @@ export default function LaunchChecklistDocPage() {
           note AND pipeline-health <strong>Commerce sales (pass-through)</strong> increases by the
           order amount. With an email on the Commerce lead, confirm they receive (or a mock send
           logs) the client order notification — SKU, amount, optional customer email, link to
-          preview#catalog. This total is money collected for the client, not platform revenue —
-          there is no automated payout to the client yet (manual reconciliation until Stripe
-          Connect ships, see <DocLink href="/docs/process">process</DocLink>).
+          preview#catalog. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
+          order line and owed total. This money is collected for the client, not platform revenue —
+          pay clients manually until Stripe Connect ships (see{" "}
+          <DocLink href="/docs/process">process</DocLink>).
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six

@@ -32,7 +32,9 @@ export {
 
 export {
   sumCommerceOrdersRevenueUsd,
+  summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
+  type CommerceOrdersByLeadSummary,
   type InsertCommerceOrderInput,
 } from "./orders";
 
