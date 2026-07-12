@@ -803,6 +803,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 3 — Payments",
   },
+  {
+    id: "unsubscribe-suppress-convex-primary",
+    summary:
+      "After PR #79 left only gated NEXT_STEPS (plus checkout-session-complete-convex-primary owned by open PR #81), audited public/CAN-SPAM write paths. GET /api/unsubscribe calls suppressEmail without requireConvex — when Convex is configured and the mutation fails, the route still SQLite-fallbacks then shows 'You have been unsubscribed' while isEmailSuppressed on other instances reads Convex-first and returns false, so automated outreach can keep emailing someone who just opted out (CAN-SPAM split-brain). Prefer fail-closed 500 so the visitor retries until the shared store records suppression — same class as contact-form-convex-primary (PR #78).",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-6a13",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
