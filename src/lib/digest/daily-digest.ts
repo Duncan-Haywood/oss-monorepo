@@ -5,7 +5,8 @@
  * + marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest
  * + commerce-catalogs-missing-visibility
  * + commerce-catalogs-unsynced-visibility
- * + client-voice-packs-missing-visibility).
+ * + client-voice-packs-missing-visibility
+ * + commerce-abandoned-checkout-tracking).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -16,7 +17,10 @@ import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
-import { listAbandonedCheckoutsDue } from "../checkout/abandoned-recovery";
+import {
+  listAbandonedCheckoutsDue,
+  listCommerceAbandonedCheckoutsDue,
+} from "../checkout/abandoned-recovery";
 import { isLeadSnoozed } from "../leads/snooze";
 import { isUnrepliedInquiryStatus } from "../metrics/pipeline-health";
 import {
@@ -64,6 +68,13 @@ export interface DigestCheckoutRecovery {
   tier: string;
 }
 
+export interface DigestCommerceCheckoutRecovery {
+  stripeSessionId: string;
+  slug: string;
+  businessName: string;
+  skuId: string;
+}
+
 export interface DigestUnrepliedInquiry {
   id: string;
   leadSlug: string;
@@ -103,6 +114,7 @@ export interface DailyDigest {
   workNext: DigestWorkNextLead[];
   followUpsDue: DigestFollowUpLead[];
   checkoutRecoveriesDue: DigestCheckoutRecovery[];
+  commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[];
   unrepliedInquiries: DigestUnrepliedInquiry[];
   marketingPacksDue: DigestMarketingPackDue[];
   starterUpsellCandidates: DigestStarterUpsellLead[];
@@ -189,6 +201,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
       tier: session.tier,
     }));
+
+  const commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[] =
+    listCommerceAbandonedCheckoutsDue(openCheckoutSessions, nowMs)
+      .slice(0, RECOVERIES_LIMIT)
+      .map((session) => ({
+        stripeSessionId: session.stripeSessionId,
+        slug: session.leadSlug,
+        businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
+        skuId: session.skuId ?? "sku",
+      }));
 
   const unrepliedInquiries: DigestUnrepliedInquiry[] = inquiries
     .filter((inquiry) => isUnrepliedInquiryStatus(inquiry.status))
@@ -280,6 +302,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     workNext.length === 0 &&
     followUpsDue.length === 0 &&
     checkoutRecoveriesDue.length === 0 &&
+    commerceCheckoutRecoveriesDue.length === 0 &&
     unrepliedInquiries.length === 0 &&
     marketingPacksDue.length === 0 &&
     starterUpsellCandidates.length === 0 &&
@@ -292,6 +315,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     workNext,
     followUpsDue,
     checkoutRecoveriesDue,
+    commerceCheckoutRecoveriesDue,
     unrepliedInquiries,
     marketingPacksDue,
     starterUpsellCandidates,
@@ -355,7 +379,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, and Complete voice packs are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, and Complete voice packs are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -375,6 +399,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   const recoveryRows = digest.checkoutRecoveriesDue.map(
     (recovery) =>
       `<strong>${escapeHtml(recovery.businessName)}</strong> — abandoned ${escapeHtml(recovery.tier)} checkout`,
+  );
+
+  const commerceRecoveryRows = digest.commerceCheckoutRecoveriesDue.map(
+    (recovery) =>
+      `<strong>${escapeHtml(recovery.businessName)}</strong> — abandoned Buy now (${escapeHtml(recovery.skuId)})`,
   );
 
   const inquiryRows = digest.unrepliedInquiries.map(
@@ -415,6 +444,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Work next (${digest.workNext.length})`, workNextRows, "No actionable leads scored right now.")}
     ${section(`Follow-ups due (${digest.followUpsDue.length})`, followUpRows, "No follow-up emails due.")}
     ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDue.length})`, recoveryRows, "No recovery nudges due.")}
+    ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDue.length})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
     ${section(`Unreplied inquiries (${digest.unrepliedInquiries.length})`, inquiryRows, "Inbox clear.")}
     ${section(`Marketing packs due (${digest.marketingPacksDue.length})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidates.length})`, upsellRows, "No Starter-only paid leads ready to upsell.")}

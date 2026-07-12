@@ -178,6 +178,7 @@ export async function sendOutreachFollowUp3(
 /**
  * Abandoned-checkout recovery nudge — operator-triggered when a Stripe Checkout
  * Session was created but not completed (see src/lib/checkout/abandoned-recovery.ts).
+ * Bundle plan checkouts only — commerce Buy now uses sendCommerceAbandonedRecovery.
  */
 export async function sendCheckoutAbandonedRecovery(
   to: string,
@@ -199,6 +200,38 @@ export async function sendCheckoutAbandonedRecovery(
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions first? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Commerce Buy now abandoned-cart recovery — links back to the client's preview
+ * catalog, never /checkout?tier= (that would pitch a Local Site Studio plan).
+ */
+export async function sendCommerceAbandonedRecovery(
+  to: string,
+  businessName: string,
+  slug: string,
+  skuLabel: string,
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const catalogUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}#catalog`;
+  const safeSku = escapeHtmlForEmail(skuLabel);
+  const safeBiz = escapeHtmlForEmail(businessName);
+
+  const subject = `Still interested in ${skuLabel} from ${businessName}?`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your order is still open</h2>
+    <p style="margin-bottom: 16px;">Looks like you started checking out <strong>${safeSku}</strong> from <strong>${safeBiz}</strong> but didn't finish. Nothing was charged.</p>
+    <p style="margin-bottom: 24px;">Jump back to the menu to complete your purchase:</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${catalogUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Return to menu</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions? Just reply to this email.</p>
+    <p style="margin-bottom: 8px;">Best regards,</p>
+    <p style="font-weight: 500; margin-top: 0;">${safeBiz}</p>
+    <p style="font-size: 12px; color: #71717a; margin-top: 4px;">Powered by ${escapeHtmlForEmail(brand.name)}</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });

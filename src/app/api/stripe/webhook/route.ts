@@ -60,6 +60,11 @@ export async function POST(request: Request) {
       if (session.metadata?.kind === "commerce_sku") {
         const orderSlug = session.metadata.slug;
         const skuId = session.metadata.skuId;
+        try {
+          await markCheckoutSessionComplete(session.id);
+        } catch (e) {
+          console.warn(`Failed to mark commerce checkout session ${session.id} complete`, e);
+        }
         if (orderSlug) {
           try {
             const {

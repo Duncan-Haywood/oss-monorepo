@@ -151,7 +151,9 @@ function getSqliteDb(): DatabaseSync {
       customerEmail TEXT,
       status TEXT NOT NULL DEFAULT 'open',
       createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      recoverySentAt TEXT
+      recoverySentAt TEXT,
+      kind TEXT NOT NULL DEFAULT 'bundle',
+      skuId TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_checkout_sessions_status
@@ -251,6 +253,18 @@ function getSqliteDb(): DatabaseSync {
   }
   if (!inquiryCols.includes("repliedAt")) {
     sqliteDb.exec("ALTER TABLE client_inquiries ADD COLUMN repliedAt TEXT");
+  }
+
+  const checkoutSessionCols = (
+    sqliteDb.prepare("PRAGMA table_info(checkout_sessions)").all() as unknown as Array<{
+      name: string;
+    }>
+  ).map((c) => c.name);
+  if (!checkoutSessionCols.includes("kind")) {
+    sqliteDb.exec("ALTER TABLE checkout_sessions ADD COLUMN kind TEXT NOT NULL DEFAULT 'bundle'");
+  }
+  if (!checkoutSessionCols.includes("skuId")) {
+    sqliteDb.exec("ALTER TABLE checkout_sessions ADD COLUMN skuId TEXT");
   }
 
   // Seed SQLite database if empty
@@ -1350,9 +1364,13 @@ interface SqliteCheckoutSessionRow {
   status: string;
   createdAt: string;
   recoverySentAt: string | null;
+  kind: string | null;
+  skuId: string | null;
 }
 
 function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSessionRecord {
+  const kind =
+    row.kind === "commerce_sku" ? ("commerce_sku" as const) : ("bundle" as const);
   return {
     stripeSessionId: row.stripeSessionId,
     leadSlug: row.leadSlug,
@@ -1362,6 +1380,8 @@ function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSessionRe
     status: row.status === "complete" ? "complete" : "open",
     createdAt: row.createdAt,
     recoverySentAt: row.recoverySentAt || undefined,
+    kind,
+    skuId: row.skuId || undefined,
   };
 }
 
@@ -1372,12 +1392,19 @@ export async function recordCheckoutSessionCreated(params: {
   tier: string;
   commerceAddon: boolean;
   customerEmail?: string;
+  kind?: "bundle" | "commerce_sku";
+  skuId?: string;
 }): Promise<void> {
   const createdAt = new Date().toISOString();
+  const kind = params.kind ?? "bundle";
 
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.create, { ...params, createdAt });
+      await convexClient.mutation(api.checkoutSessions.create, {
+        ...params,
+        kind,
+        createdAt,
+      });
       return;
     } catch (e) {
       console.warn(
@@ -1389,8 +1416,8 @@ export async function recordCheckoutSessionCreated(params: {
 
   const db = getSqliteDb();
   db.prepare(`
-    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, 'open', ?)
+    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt, kind, skuId)
+    VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)
     ON CONFLICT(stripeSessionId) DO NOTHING
   `).run(
     `chk_${Date.now()}`,
@@ -1400,6 +1427,8 @@ export async function recordCheckoutSessionCreated(params: {
     params.commerceAddon ? 1 : 0,
     params.customerEmail ?? null,
     createdAt,
+    kind,
+    params.skuId ?? null,
   );
 }
 

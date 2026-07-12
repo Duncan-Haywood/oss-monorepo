@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { getCommerceCatalog } from "@/lib/db";
+import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
 
 /**
  * Creates a Stripe Checkout Session for a single synced Commerce SKU. Only
@@ -9,6 +9,9 @@ import { getCommerceCatalog } from "@/lib/db";
  * The price is always resolved server-side from the persisted catalog, never
  * trusted from the request body, so a tampered client payload cannot buy a
  * SKU below its stored price.
+ *
+ * Records kind=commerce_sku on checkout_sessions so abandoned Buy now carts
+ * never enter the bundle recovery queue (wrong Finish-checkout email).
  */
 
 interface CommerceCheckoutRequestBody {
@@ -72,6 +75,21 @@ export async function POST(request: Request) {
         { error: "Stripe session missing checkout URL" },
         { status: 502 },
       );
+    }
+
+    // Track for commerce abandoned-cart recovery (kind discriminator required).
+    try {
+      await recordCheckoutSessionCreated({
+        leadSlug: slug,
+        stripeSessionId: session.id,
+        tier: "",
+        commerceAddon: false,
+        customerEmail: body.customerEmail,
+        kind: "commerce_sku",
+        skuId,
+      });
+    } catch (e) {
+      console.warn(`Failed to record commerce checkout session ${session.id}`, e);
     }
 
     return NextResponse.json({ url: session.url });
