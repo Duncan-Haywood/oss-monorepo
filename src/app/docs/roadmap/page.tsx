@@ -170,9 +170,13 @@ export default function RoadmapDocPage() {
 
       <h2>Phase 7 — Client AI phone</h2>
       <p>
-        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation remain
-        operator-gated. FAQ/script pack for paid Complete leads is claimed by the sibling
-        prompt-process automation (<code>complete-client-voice-faq-pack</code>).
+        Operator-triggered FAQ/script pack for paid/live Complete leads: shipped (
+        <code>generateClientVoicePackAction</code> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — inbound greeting, hours,
+        services, booking CTA, after-hours, take-a-message; Anthropic when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead). Operators paste scripts into a
+        temp number / Cal.com until Twilio + client webhook provisioning. See{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
       </p>
 
       <h2>Phase 8 — Commerce</h2>

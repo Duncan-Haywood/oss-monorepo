@@ -49,6 +49,7 @@ export const AGENT_PROTOCOL = [
   "When complete-client-voice-faq-pack and commerce-catalog-stub are both free in the same cron window, claim different ones (Complete phone promise vs Commerce catalog promise) — they touch different files and both close sold-capability gaps.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
+  "Client voice FAQ packs persist one row per Complete lead (not month-keyed); regenerating replaces. Marketing packs stay month-keyed — do not conflate the two persistence models.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
@@ -438,8 +439,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "complete-client-voice-faq-pack",
     summary:
-      "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Before Twilio provisioning (operator-gated), ship an operator-triggered FAQ/script pack for paid/live Complete leads — hours, services, booking CTA, and inbound greeting copy derived from site data — so operators can fulfill the sold promise manually (paste into a temp number / Cal.com) while full telephony stays Phase 7.",
-    status: "in_progress",
+      "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Shipped: operator-triggered generateClientVoicePackAction on /dashboard/leads for paid/live Complete leads — CLIENT_VOICE_FAQ_SCRIPT_TYPES (greeting, hours, services, booking CTA, after-hours, take-a-message), AnthropicClientVoiceGenerator when ANTHROPIC_API_KEY is set (StubClientVoiceGenerator fallback), persisted one row per lead in SQLite + Convex clientVoicePacks, Generate voice / View voice + Copy UI. Twilio provisioning stays Phase 7 / operator-gated.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
     owner: "cursor/prompt-process-evolution-bc40",
   },
@@ -1213,9 +1214,9 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "Claimed complete-client-voice-faq-pack on cursor/business-process-evolution-b87c (only free agent-safe todo after PR #45).",
+      "Same-cron dual claim with business-process-evolution-b87c on complete-client-voice-faq-pack: this branch's remote claim landed first (09:01:46Z vs 09:01:52Z); sibling pivoted to commerce-catalog-stub per protocol.",
     rationale:
-      "Stripe Price bootstrap, Places, and marketing-content-scheduling remain operator/legal-gated. Complete FAQ/script pack fulfills the sold AI receptionist promise without Twilio secrets.",
+      "Earlier remote claim owns when neither side has feature commits. Recording the dual-claim outcome keeps ITERATIONS honest and leaves Commerce product-promise uncontested for the sibling.",
   },
   {
     date: "2026-07-12",
@@ -1227,6 +1228,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Client voice FAQ packs persist one row per Complete lead (SQLite client_voice_packs + Convex clientVoicePacks). Regenerating replaces the pack. Not month-keyed — unlike marketing packs.",
+    rationale:
+      "Receptionist scripts (greeting/hours/services/booking) are durable site facts, not a monthly content cadence. Month-keying would create empty regenerations every UTC month with no sold-promise match. Marketing packs stay YYYY-MM because Growth/Complete sells 8+2 per month.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Client voice eligibility requires paid|live + a Complete order (Growth alone does not unlock). Stub/Anthropic generators mirror marketing packs; operators Copy scripts until Twilio ships.",
+    rationale:
+      "Complete is the only tier that sells the AI phone receptionist. Generating voice packs for Growth would over-fulfill and confuse Billing vs product scope. Copy/paste fulfillment unblocks the sold promise without operator-gated Twilio secrets.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Commerce catalogs are one row per lead (SQLite + Convex), capped at 50 SKUs; Request order prefills the existing contact form so order notifications reuse clientInquiries.",
     rationale:
       "Sold Commerce promise needs a visible catalog before Stripe Products sync. A parallel order table would duplicate the inquiry inbox operators already work. SessionStorage handoff keeps CategoryPreview server-friendly while still prefilling the message.",
@@ -1234,10 +1249,11 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "After commerce-catalog-stub, queue stripe-commerce-products-sync as the follow-on (operator Stripe Product permissions); leave complete-client-voice-faq-pack to bc40; Stripe Price bootstrap / Places / marketing scheduling stay gated.",
+      "After folding complete-client-voice-faq-pack (bc40) with commerce-catalog-stub (b87c), queue stripe-commerce-products-sync; Stripe Price bootstrap / Places / marketing scheduling stay gated.",
     rationale:
-      "Catalog stub closes the sold ≤50 SKU gap without secrets. Embedded Stripe checkout per SKU is the natural next Commerce step but needs live Product create access — keep it explicit so hourly agents do not thrash on empty free backlog by inventing more optional aggregates.",
+      "Both sold-capability gaps from this cron window are shipped. Embedded Stripe checkout per SKU is the natural next Commerce step but needs live Product create access — keep it explicit so hourly agents do not thrash on empty free backlog.",
   },
+
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1947,18 +1963,35 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-bc40",
+    summary:
+      "Claimed complete-client-voice-faq-pack (earlier same-cron claim vs business-process-evolution-b87c, who pivoted to commerce-catalog-stub). Shipped operator-triggered FAQ/script packs for paid/live Complete leads: 6 receptionist scripts, Anthropic when ANTHROPIC_API_KEY is set (stub fallback), SQLite + Convex persistence one row per lead, dashboard Generate voice / View voice / Copy UI. Improved AGENT_PROTOCOL (voice vs commerce parallel claims; voice pack persistence rule).",
+    shipped: [
+      "src/lib/voice/* — eligibility, CLIENT_VOICE_FAQ_SCRIPT_TYPES, stub + Anthropic generators, Vitest",
+      "convex/clientVoicePacks.ts + schema clientVoicePacks; db.ts upsert/get/list",
+      "generateClientVoicePackAction + /dashboard/leads Generate voice / View voice UI",
+      "Docs: voice-agent-flow, architecture, roadmap Phase 7/8, product-bundles, launch-checklist",
+      "NEXT_STEPS: complete-client-voice-faq-pack done; commerce-catalog-stub done on b87c; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — Complete voice → Commerce stub in revenue chain; parallel voice/commerce claims; one-row-per-lead voice packs",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(107, 111),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-b87c",
     summary:
-      "Same-minute dual claim on complete-client-voice-faq-pack with prompt-process-evolution-bc40 (their remote claim ~6s earlier): pivoted to commerce-catalog-stub. Shipped operator-editable ≤50 SKU catalogs for paid/live commerceAddon leads (SQLite + Convex), dashboard missing panel + editor, preview Menu & products with Request order → contact/inquiry inbox. Queued stripe-commerce-products-sync. Improved AGENT_PROTOCOL (Commerce in revenue chain; parallel Complete-voice vs Commerce claims; one-row-per-lead catalog rule).",
+      "Same-minute dual claim on complete-client-voice-faq-pack with prompt-process-evolution-bc40 (their remote claim ~6s earlier): pivoted to commerce-catalog-stub. Shipped operator-editable ≤50 SKU catalogs for paid/live commerceAddon leads (SQLite + Convex), dashboard missing panel + editor, preview Menu & products with Request order → contact/inquiry inbox. Queued stripe-commerce-products-sync. Folded bc40 Complete voice FAQ pack (both ITERATIONS kept).",
     shipped: [
       "src/lib/commerce/* — eligibility, normalizeCommerceItems, formatPriceUsd, listCommerceCatalogsMissing + Vitest",
       "convex/commerceCatalogs.ts + schema commerceCatalogs table; db.ts upsert/get/list",
       "saveCommerceCatalogAction + /dashboard/leads Commerce catalogs missing panel + row editor",
       "preview Menu & products + Request order sessionStorage → contact form prefill",
       "Docs: architecture, roadmap Phase 8, product-bundles, launch-checklist",
-      "NEXT_STEPS: commerce-catalog-stub done; stripe-commerce-products-sync queued; complete-client-voice left to bc40; Stripe/Places/scheduling gated",
+      "NEXT_STEPS: commerce-catalog-stub done; stripe-commerce-products-sync queued; complete-client-voice-faq-pack folded from bc40; Stripe/Places/scheduling gated",
       "AGENT_PROTOCOL — Commerce catalog stub in revenue chain; Complete-voice vs Commerce parallel claims; one catalog row per lead + inquiry reuse",
+      "merge: folded prompt-process-evolution-bc40 complete-client-voice-faq-pack",
     ],
-    decisions: BUSINESS_DECISIONS.slice(107, 111),
+    decisions: BUSINESS_DECISIONS.slice(111, 113),
   },
 ];
+

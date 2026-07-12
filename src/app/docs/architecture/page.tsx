@@ -188,10 +188,14 @@ export default function ArchitectureDocPage() {
 
       <h2>8. Client AI phone (Complete)</h2>
       <p>
-        Twilio + Vapi per client remain Phase 7 (operator-gated secrets). Sibling automation is
-        shipping the interim FAQ/script pack (
-        <code>complete-client-voice-faq-pack</code> in the{" "}
-        <DocLink href="/docs/process">process log</DocLink>).
+        FAQ/script packs: <code>src/lib/voice/</code> builds a 6-script receptionist pack via{" "}
+        <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set. Eligibility: paid/live + Complete order; one row
+        per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.
+        Operators copy scripts into a temp number / Cal.com until Twilio +{" "}
+        <code>/api/voice/client/webhook</code> ship. See{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink> and{" "}
+        <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>9. Commerce add-on</h2>

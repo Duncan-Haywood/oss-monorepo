@@ -8,6 +8,13 @@ import {
 
 const ORDER_STORAGE_PREFIX = "lss-commerce-order:";
 
+export const COMMERCE_ORDER_EVENT = "lss:commerce-order-request";
+
+export type CommerceOrderEventDetail = {
+  slug: string;
+  message: string;
+};
+
 export function commerceOrderStorageKey(slug: string): string {
   return `${ORDER_STORAGE_PREFIX}${slug}`;
 }
@@ -81,8 +88,13 @@ export function PreviewCommerceCatalog({
                         requestMessage,
                       );
                     } catch {
-                      // Private mode / blocked storage — contact form stays blank.
+                      // Private mode / blocked storage — event still prefills.
                     }
+                    window.dispatchEvent(
+                      new CustomEvent<CommerceOrderEventDetail>(COMMERCE_ORDER_EVENT, {
+                        detail: { slug, message: requestMessage },
+                      }),
+                    );
                   }}
                 >
                   Request order

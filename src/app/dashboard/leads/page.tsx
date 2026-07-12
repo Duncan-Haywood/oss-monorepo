@@ -6,6 +6,7 @@ import {
   listOpenCheckoutSessions,
   listMarketingPacksForMonth,
   listCommerceCatalogs,
+  listClientVoicePacks,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -29,6 +30,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   marketingPacks: Awaited<ReturnType<typeof listMarketingPacksForMonth>>;
   commerceCatalogs: Awaited<ReturnType<typeof listCommerceCatalogs>>;
   marketingMonth: string;
+  clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -40,6 +42,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     openCheckoutSessions,
     marketingPacks,
     commerceCatalogs,
+    clientVoicePacks,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -48,6 +51,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listOpenCheckoutSessions(),
     listMarketingPacksForMonth(marketingMonth),
     listCommerceCatalogs(),
+    listClientVoicePacks(),
   ]);
   return {
     leads,
@@ -58,6 +62,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     marketingPacks,
     commerceCatalogs,
     marketingMonth,
+    clientVoicePacks,
     health: computePipelineHealth({
       leads,
       orders,
@@ -81,6 +86,7 @@ export default async function LeadsPage() {
     marketingPacks,
     commerceCatalogs,
     marketingMonth,
+    clientVoicePacks,
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
@@ -119,6 +125,7 @@ export default async function LeadsPage() {
           initialMarketingPacks={marketingPacks}
           initialCommerceCatalogs={commerceCatalogs}
           marketingMonth={marketingMonth}
+          initialClientVoicePacks={clientVoicePacks}
         />
       </div>
     </main>

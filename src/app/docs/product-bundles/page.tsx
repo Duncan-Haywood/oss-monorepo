@@ -1,4 +1,4 @@
-import { DocPage } from "@/components/docs/doc-page";
+import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
 
 export default function ProductBundlesDocPage() {
@@ -56,7 +56,12 @@ export default function ProductBundlesDocPage() {
       <p>Everything in Starter plus AI marketing engine: 8 social/GBP posts + 2 emails/month, auto-scheduled, brand voice from site data.</p>
 
       <h2>Complete — $500 + $199/mo</h2>
-      <p>Everything in Growth plus full marketing tier and client AI phone agent (answers their business line — booking, FAQ, lead capture).</p>
+      <p>
+        Everything in Growth plus full marketing tier and client AI phone agent (answers their
+        business line — booking, FAQ, lead capture). Until Twilio is live, operators fulfill with
+        a generated FAQ/script pack on the leads dashboard (see{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>).
+      </p>
 
       <h2>Commerce — +$300 + $49/mo</h2>
       <p>
