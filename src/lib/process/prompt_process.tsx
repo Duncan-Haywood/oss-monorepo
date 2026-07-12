@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → billing portal / lead notes), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -52,6 +52,7 @@ export const AGENT_PROTOCOL = [
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
   "If another branch already owns an item, pick the next free todo or improve process/docs — do not duplicate. Close competing PRs rather than merging a second backend.",
   "If two hourly automations claim the same free todo in the same window: merge the branches (keep both process iterations), do not open a second competing PR for the same feature surface.",
+  "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
@@ -243,8 +244,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "abandoned-checkout-quality-signal",
     summary:
       "Feed src/lib/checkout/abandoned-recovery.ts into the lead quality scorer (src/lib/leads/quality-score.ts) and Work next queue — a lead with an open, unrecovered Stripe Checkout Session is the hottest signal in the pipeline (higher intent than a preview open) and should outrank plain outreach-due leads. Needs listOpenCheckoutSessions() threaded into scoreLead/rankLeadsForOutreach call sites.",
-    status: "todo",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-d264",
   },
   {
     id: "operator-lead-notes",
@@ -260,6 +262,20 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-8e65",
+  },
+  {
+    id: "stripe-billing-portal",
+    summary:
+      "Self-serve Stripe Billing Portal link for Growth/Complete subscribers (update card, view invoices, cancel) so subscription changes don't become operator support tickets. Uses the existing STRIPE_SECRET_KEY — no new secrets. Claimed on sibling claude/relaxed-galileo-7ngeg0; leave free here if that branch stalls.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "inquiry-dashboard-reply",
+    summary:
+      "Operator reply-from-dashboard for clientInquiries (Resend, honor suppression, mark replied) so paid Starter contact-form leads get a human response without leaving /dashboard/leads — closes the inbox loop that currently only archives.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 
@@ -613,6 +629,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Checkout sessions are only tracked when the Checkout Session request includes a lead slug; organic (non-lead-attributed) checkouts are not tracked for abandonment.",
     rationale:
       "A recovery email needs a lead (for businessName/email context) and a reason to believe the visitor is a known prospect, not a stranger who bounced off a generic checkout link. This mirrors the existing checkout-attribution-polish design (prefill only works from a slug) and keeps the recovery queue free of noise the operator can't act on.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Abandoned open checkout sessions boost lead quality (+18, +6 more when recovery is due) via LeadScoreOptions.openCheckoutSessions threaded into scoreLead/rankLeadsForOutreach — hotter than preview-open (+10) or follow-up-due (+12), and surfaced as a Cart badge on Work next + the leads table.",
+    rationale:
+      "A prospect who already chose a tier and hit Stripe Checkout is the highest-intent unpaid signal in the funnel. Keeping that fact only on the Abandoned checkouts panel meant Work next could still rank a cold follow-up above a hot cart. Wiring the existing listOpenCheckoutSessions() input into the pure scorer reuses one priority list instead of forcing the operator to reconcile two queues.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After abandoned-checkout-quality-signal, queue stripe-billing-portal and inquiry-dashboard-reply as free NEXT_STEPS (alongside still-open operator-lead-notes) so sibling hourly agents have clear non-operator/legal-gated claims.",
+    rationale:
+      "Stripe Price bootstrap and Places stay human-gated. Billing portal stops subscription support from blocking the operator; inquiry reply closes the paid contact-form loop; lead notes remain the call-outcome CRM gap. Prefer claiming one of these over process-only idle.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "AGENT_PROTOCOL gains an explicit preference: wire existing signals into the quality scorer / Work next queue before adding a second dashboard panel for the same fact.",
+    rationale:
+      "This iteration proved the abandoned-checkout panel alone was insufficient for prioritization. Codifying the pattern reduces future thrash where agents ship parallel queues the operator must manually merge.",
   },
 ];
 
@@ -975,5 +1012,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm run dev: created a Stripe-unconfigured 501 sanity check on /api/stripe/checkout, then inserted a synthetic open checkout_sessions row via node:sqlite with createdAt 3h in the past and confirmed it rendered on the Abandoned checkouts panel and cleared after simulating markCheckoutSessionComplete",
     ],
     decisions: BUSINESS_DECISIONS.slice(46, 50),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-d264",
+    summary:
+      "Wire abandoned open checkout sessions into the lead quality scorer and Work next queue so high-intent carts outrank plain outreach-due leads. Operator-lead-notes left free (sibling claim branch stale/todo); queued stripe-billing-portal + inquiry-dashboard-reply for the next hourly pair. Process: prefer folding signals into the scorer over a second priority panel.",
+    shipped: [
+      "src/lib/leads/quality-score.ts — LeadScoreOptions.openCheckoutSessions; +18 abandoned_checkout / +6 checkout_recovery_due factors",
+      "src/lib/leads/quality-score.test.ts — abandoned > preview-open/follow-up-due; paid ignored; rankLeadsForOutreach sessions path",
+      "src/app/dashboard/leads/leads-client.tsx — pass checkoutSessions into scoreLead/rankLeadsForOutreach; Cart badge on Work next + table",
+      "Docs: architecture + roadmap + launch-checklist note the scorer signal",
+      "NEXT_STEPS: abandoned-checkout-quality-signal done; stripe-billing-portal + inquiry-dashboard-reply queued",
+      "AGENT_PROTOCOL — revenue chain + prefer wiring signals into the scorer",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(50, 53),
   },
 ];
