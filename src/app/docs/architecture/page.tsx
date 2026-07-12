@@ -244,7 +244,10 @@ export default function ArchitectureDocPage() {
         Sessions are recorded with <code>kind=commerce_sku</code> on{" "}
         <code>checkout_sessions</code> (same table as bundle carts, never the same recovery path);
         abandoned carts past 2h surface on the Abandoned Buy now panel / digest and can nudge the
-        shopper back to <code>/preview/[slug]#catalog</code> when an email was collected.
+        shopper back to <code>/preview/[slug]#catalog</code> when an email was collected. The
+        same completed Buy now webhook also emails <code>lead.email</code> (
+        <code>sendCommerceBuyNowClientReceipt</code>) so the local business gets the sold order
+        notification — best-effort after inquiry + ledger; skipped when the lead has no email.
       </p>
 
       <h2>Tech stack</h2>
