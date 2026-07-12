@@ -844,8 +844,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "deploy-handoff-preserve-custom-domain",
     summary:
       "Empty-backlog audit follow-up (queued, not claimed): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Prefer claiming after checkout-session-create-convex-primary ships.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-c1a0",
   },
   {
     id: "checkout-recovery-sent-convex-primary",
