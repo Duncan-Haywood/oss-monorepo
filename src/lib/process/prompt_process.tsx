@@ -393,8 +393,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "marketing-content-generation",
     summary:
       "Growth ($99/mo) and Complete ($199/mo) both sell 'AI marketing engine: 8 social/GBP posts + 2 emails/month' (see /docs/product-bundles), but src/lib/marketing/generators.ts is still an unwired stub — paying subscribers have nothing generated for them. Ship an operator-triggered 'Generate this month's marketing pack' action on /dashboard/leads for paid/live Growth/Complete leads: real content via ANTHROPIC_API_KEY (fallback to the existing stub when unset), persisted per lead/month, surfaced for the operator to copy/post since Buffer/GBP OAuth auto-posting stays a separate operator-gated step (see marketing-content-scheduling). Re-queued after stale claim-only sibling claude/upbeat-dijkstra-ea3tow (~1h idle, no feature body, behind main).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-31ae",
   },
   {
     id: "marketing-content-scheduling",
