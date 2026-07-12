@@ -300,8 +300,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions must land in
           the operator Inquiries panel (persist required — a DB failure returns 503, not a fake
-          Thanks). Reply from the panel (Resend), or archive when done. Email notify to the
-          business fires only after a successful insert. Confirm unreplied-inquiry count on
+          Thanks). With Convex configured, contact inserts must fail closed on Convex errors (
+          <code>requireConvex</code>) — never claim success after a SQLite-only write that other
+          instances cannot see. Reply from the panel (Resend), or archive when done. Email notify
+          to the business fires only after a successful insert. Confirm unreplied-inquiry count on
           pipeline health drops after reply (new + read count as unreplied; replied/archived do
           not).
         </li>

@@ -107,9 +107,10 @@ export const AGENT_PROTOCOL = [
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
   "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder, commerce insertClientInquiry after ledger) so Stripe redelivers — never ACK 200 after swallowing those errors. Client receipt / bundle receipt/DNS emails stay best-effort after durable writes succeed.",
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
+  "POST /api/contact/[slug] must also pass requireConvex (CONTACT_FORM_CONVEX_PRIMARY in src/lib/inquiries/contact-persist.ts) when Convex is configured — same multi-instance split-brain risk as the webhook: visitor-facing { ok: true } after a SQLite-only write leaves the Starter CRM trail invisible to Convex-first readers. Persist-required 503 is the recovery path (visitor retries); do not invent a separate fallback policy for contact vs webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
-  "Every dynamic value (businessName, message/reply text, sku/tier labels, etc.) interpolated into an email's HTML body in src/lib/email/resend.ts must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — plain-text subject lines are exempt. New send*Email functions should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern, not sendReceiptEmail's pre-fix raw interpolation.",
+  "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern.",
   "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
 ] as const;
 
@@ -778,6 +779,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/quirky-davinci-c1j0bf",
+  },
+  {
+    id: "contact-form-convex-primary-no-fallback",
+    summary:
+      "After PR #77 (preview-subdomain-routing) left only gated NEXT_STEPS, the documented follow-up from stripe-webhook-convex-primary-no-fallback remains: POST /api/contact/[slug] calls insertClientInquiry without requireConvex. When NEXT_PUBLIC_CONVEX_URL is set and Convex mutations fail, the contact form still SQLite-fallbacks then returns { ok: true } — visitor sees Thanks while other instances read Convex-first and never see the inquiry (Starter sold contact form + CRM trail split-brain). Prefer fail-closed 503 (already the persist-required contract) over writing only to instance-local SQLite. Shipped: CONTACT_FORM_CONVEX_PRIMARY on insertClientInquiry; inline notify HTML also escapeHtmlForEmail'd (same asymmetry resend.ts fixed in PR #76).",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-a7c2",
   },
   {
     id: "commerce-webhook-inquiry-retry-on-failure",
@@ -1996,9 +2005,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "POST /api/contact/[slug] passes requireConvex (CONTACT_FORM_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as Stripe webhook fulfillment writes. Visitor-facing { ok: true } must not follow a SQLite-only inquiry write.",
+    rationale:
+      "PR #73 closed webhook split-brain; contact form was the documented remaining multi-instance CRM gap. Persist-required already returns 503 without an inquiryId — requireConvex makes Convex mutation failure take that path instead of silently writing local SQLite that Convex-first dashboard readers never see. Inline notify HTML in the same route was also escapeHtmlForEmail'd (extends the PR #76 resend.ts rule to route-handler templates). Free backlog otherwise stays gated (Stripe Prices / Places / Buffer OAuth / Connect). Sibling prompt-process-evolution-3601 was running the same hour but had not claimed on remote.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Commerce Buy now webhook returns HTTP 500 (step commerce_order_inquiry) when insertClientInquiry fails after a durable commerceOrders ledger write — never ACK 200. Client receipt stays best-effort only after inquiry succeeds.",
     rationale:
-      "PR #72's planCommerceWebhookSideEffects recovery only runs on Stripe redelivery. The prior catch logged inquiry failures and still returned { received: true }, so Stripe never retried and the sold order-notification promise (operator inbox + optional client receipt) could be permanently lost while the ledger showed the sale. Matching the ledger/handoff 5xx contract closes the hole; receipt-only failure after a successful inquiry remains best-effort because the operator already has the inbox row. Queued checkout-session-complete-convex-primary for the related markCheckoutSessionComplete warn-only gap. Sibling a7c2 owns contact-form-convex-primary-no-fallback.",
+      "PR #72's planCommerceWebhookSideEffects recovery only runs on Stripe redelivery. The prior catch logged inquiry failures and still returned { received: true }, so Stripe never retried and the sold order-notification promise (operator inbox + optional client receipt) could be permanently lost while the ledger showed the sale. Matching the ledger/handoff 5xx contract closes the hole; receipt-only failure after a successful inquiry remains best-effort because the operator already has the inbox row. Queued checkout-session-complete-convex-primary for the related markCheckoutSessionComplete warn-only gap. Sibling a7c2 merged contact-form-convex-primary as PR #78 in the same hour.",
   },
 ];
 
@@ -3281,9 +3297,24 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/business-process-evolution-a7c2",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #77 (preview-subdomain-routing) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Claimed the documented follow-up from stripe-webhook-convex-primary-no-fallback: contact-form insertClientInquiry still SQLite-fallback'd when Convex failed, then returned { ok: true } (Starter CRM trail invisible to Convex-first readers). Same-hour sibling prompt-process-evolution-3601 had not claimed on remote. Shipped CONTACT_FORM_CONVEX_PRIMARY + escapeHtmlForEmail on the inline notify template; improved AGENT_PROTOCOL to cover visitor contact writes and route-handler email HTML.",
+    shipped: [
+      "src/lib/inquiries/contact-persist.ts (+ test) — CONTACT_FORM_CONVEX_PRIMARY { requireConvex: true }",
+      "src/app/api/contact/[slug]/route.ts — insertClientInquiry(..., CONTACT_FORM_CONVEX_PRIMARY); notify HTML escaped",
+      "Docs: production-deploy / architecture / roadmap / launch-checklist — contact requireConvex",
+      "NEXT_STEPS: contact-form-convex-primary-no-fallback done; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — contact form requireConvex when Convex configured; escapeHtmlForEmail covers inline route templates",
+      "BUSINESS_DECISIONS — documented contact fail-closed + notify HTML escape fold",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(171, 172),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/prompt-process-evolution-3601",
     summary:
-      "Sibling business-process-evolution-a7c2 claimed contact-form-convex-primary-no-fallback. Free backlog otherwise empty (gated secrets/OAuth/counsel). Empty-backlog audit found PR #72's commerce inquiry/receipt recovery was unreachable: insertClientInquiry failures were logged then ACK'd 200, so Stripe never redelivered into planCommerceWebhookSideEffects. Shipped 5xx on commerce_order_inquiry; queued checkout-session-complete-convex-primary. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Sibling business-process-evolution-a7c2 claimed (then merged PR #78) contact-form-convex-primary-no-fallback. Free backlog otherwise empty (gated secrets/OAuth/counsel). Empty-backlog audit found PR #72's commerce inquiry/receipt recovery was unreachable: insertClientInquiry failures were logged then ACK'd 200, so Stripe never redelivered into planCommerceWebhookSideEffects. Shipped 5xx on commerce_order_inquiry; queued checkout-session-complete-convex-primary. Folded origin/main after PR #78 — both ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/payments/webhook-fulfillment.ts (+ test) — WebhookFulfillmentStep commerce_order_inquiry",
       "src/app/api/stripe/webhook/route.ts — return 500 when commerce inquiry (or pre-inquiry loads) fail after durable ledger; client receipt best-effort after inquiry",
@@ -3292,8 +3323,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: commerce-webhook-inquiry-retry-on-failure done; checkout-session-complete-convex-primary queued",
       "AGENT_PROTOCOL — commerce inquiry is a required fulfillment write (5xx); receipt stays best-effort after inquiry",
       "BUSINESS_DECISIONS — documented ACK-after-swallow hole that made PR #72 recovery unreachable",
+      "merge: folded origin/main after PR #78 (a7c2 contact-form Convex primary) — both ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(171, 172),
+    decisions: BUSINESS_DECISIONS.slice(172, 173),
   },
 ];
 
