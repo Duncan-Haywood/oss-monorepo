@@ -320,8 +320,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-mark-read-on-composer-open",
     summary:
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "claude/relaxed-galileo-sgx9h1",
   },
   {
     id: "snoozed-leads-pipeline-metric",
