@@ -43,8 +43,9 @@ export default function ProductionDeployDocPage() {
         </li>
         <li>
           Contact form at <code>POST /api/contact/[slug]</code> (UI wired on{" "}
-          <code>/preview/[slug]</code>) forwards inquiries to the lead email (or support){" "}
-          <strong>and</strong> persists them to the operator Inquiries inbox.
+          <code>/preview/[slug]</code>) persists an inquiry to the operator inbox first, then
+          best-effort emails the lead (or support). Persist failure returns{" "}
+          <code>503</code> — never <code>ok: true</code> without a ledger row.
         </li>
       </ol>
 
