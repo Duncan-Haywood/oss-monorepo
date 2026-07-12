@@ -16,6 +16,7 @@ import {
   sendFollowUpAction,
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
+  updateLeadNotesAction,
 } from "./actions";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
@@ -36,6 +37,10 @@ import {
   scoreLead,
   type LeadQualityResult,
 } from "@/lib/leads/quality-score";
+import {
+  MAX_OPERATOR_NOTES_LENGTH,
+  leadHasNotes,
+} from "@/lib/leads/notes";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -104,6 +109,10 @@ export function LeadsClient({
   const [csvStage, setCsvStage] = useState<LeadPipelineStage>("discovered");
   const [csvMessage, setCsvMessage] = useState<string | null>(null);
   const [csvError, setCsvError] = useState<string | null>(null);
+  /** Expanded notes editor slug (one row at a time). */
+  const [notesEditSlug, setNotesEditSlug] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState("");
+  const [notesError, setNotesError] = useState<string | null>(null);
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +149,33 @@ export function LeadsClient({
       // Revert if error
       setLeads(initialLeads);
     }
+  };
+
+  const openNotesEditor = (lead: Lead) => {
+    setNotesEditSlug(lead.slug);
+    setNotesDraft(lead.notes ?? "");
+    setNotesError(null);
+  };
+
+  const closeNotesEditor = () => {
+    setNotesEditSlug(null);
+    setNotesDraft("");
+    setNotesError(null);
+  };
+
+  const handleSaveNotes = (slug: string) => {
+    setNotesError(null);
+    startTransition(async () => {
+      const res = await updateLeadNotesAction(slug, notesDraft);
+      if (!res.success) {
+        setNotesError(res.error ?? "Failed to save notes");
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) => (l.slug === slug ? { ...l, notes: res.notes } : l)),
+      );
+      closeNotesEditor();
+    });
   };
 
   const handleCsvFile = async (file: File | null) => {
@@ -334,7 +370,8 @@ export function LeadsClient({
       const matchesSearch =
         lead.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lead.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead.slug.toLowerCase().includes(searchQuery.toLowerCase());
+        lead.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (lead.notes ?? "").toLowerCase().includes(searchQuery.toLowerCase());
       return matchesStage && matchesSearch;
     })
     .slice()
@@ -1166,8 +1203,10 @@ export function LeadsClient({
                   const next = nextFollowUpStep(step);
                   const due = isFollowUpDue(lead, nowMs);
                   const quality = qualityBySlug.get(lead.slug);
+                  const notesOpen = notesEditSlug === lead.slug;
                   return (
-                    <tr key={lead.slug} className="hover:bg-zinc-50/50 transition">
+                    <React.Fragment key={lead.slug}>
+                    <tr className="hover:bg-zinc-50/50 transition">
                       <td className="px-6 py-4.5">
                         <div>
                           <p className="font-semibold text-zinc-900">{lead.businessName}</p>
@@ -1176,6 +1215,11 @@ export function LeadsClient({
                             {lead.phone && ` · ${lead.phone}`}
                             {lead.email && ` · ${lead.email}`}
                           </p>
+                          {leadHasNotes(lead.notes) && !notesOpen ? (
+                            <p className="mt-1.5 max-w-xs truncate text-[11px] text-zinc-500" title={lead.notes}>
+                              Note: {lead.notes}
+                            </p>
+                          ) : null}
                         </div>
                       </td>
                       <td className="px-6 py-4.5">
@@ -1246,6 +1290,16 @@ export function LeadsClient({
                       </td>
                       <td className="px-6 py-4.5 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() =>
+                              notesOpen ? closeNotesEditor() : openNotesEditor(lead)
+                            }
+                            className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
+                          >
+                            {notesOpen ? "Close" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes"}
+                          </button>
                           {next && lead.email && lead.stage !== "paid" && lead.stage !== "live" ? (
                             <button
                               type="button"
@@ -1265,6 +1319,51 @@ export function LeadsClient({
                         </div>
                       </td>
                     </tr>
+                    {notesOpen ? (
+                      <tr className="bg-zinc-50/80">
+                        <td colSpan={7} className="px-6 py-4">
+                          <label className="block text-xs font-semibold text-zinc-700">
+                            Operator notes
+                            <span className="ml-2 font-normal text-zinc-400">
+                              Call outcomes, objections, next steps — not shown on the preview site
+                            </span>
+                          </label>
+                          <textarea
+                            value={notesDraft}
+                            onChange={(e) => setNotesDraft(e.target.value)}
+                            rows={3}
+                            maxLength={MAX_OPERATOR_NOTES_LENGTH}
+                            placeholder="e.g. Left VM 7/12 — interested in Growth, call back Thursday"
+                            className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
+                          />
+                          <div className="mt-2 flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleSaveNotes(lead.slug)}
+                              className="inline-flex h-8 items-center justify-center rounded-lg bg-zinc-900 px-3 text-xs font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
+                            >
+                              {isPending ? "Saving…" : "Save notes"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={closeNotesEditor}
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60"
+                            >
+                              Cancel
+                            </button>
+                            <span className="text-[11px] text-zinc-400">
+                              {notesDraft.trim().length}/{MAX_OPERATOR_NOTES_LENGTH}
+                            </span>
+                            {notesError ? (
+                              <span className="text-xs font-medium text-red-600">{notesError}</span>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                    </React.Fragment>
                   );
                 })
               )}

@@ -134,6 +134,10 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
           outreach (real contacts above demos; blocked when email is missing)
         </li>
+        <li>
+          Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
+          them again via search — notes stay off the public preview site
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

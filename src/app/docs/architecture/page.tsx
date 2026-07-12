@@ -116,7 +116,8 @@ export default function ArchitectureDocPage() {
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
         outreach emails use <code>?src=outreach</code> (or the lead is already in outreach /
-        discovery stages).
+        discovery stages). Operator free-text <code>notes</code> on each lead capture call
+        outcomes from the dashboard row expander (not shown on client preview sites).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

@@ -56,6 +56,7 @@ export const AGENT_PROTOCOL = [
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
   "Before merging: fetch sibling automation branches (`cursor/business-process-evolution-*`, `cursor/prompt-process-evolution-*`); if they shipped overlapping files, merge their branch into yours and keep both ITERATIONS entries.",
+  "Stale remote branches that only have a claim commit (or are behind main with no feature body) do not own a todo — re-claim on your branch if the owner has been idle and main still shows status=todo.",
   "Run `npm test` (Vitest) alongside build/lint before claiming done — it covers pure logic (outreach cadence, pipeline-health, CSV import, operator session sign/verify) that build+lint have twice missed real breakage on. Add/extend tests when you touch those modules; it's the fast layer, not a replacement for the `npm run dev` runtime check on database-touching changes.",
 ] as const;
 
@@ -250,9 +251,23 @@ export const NEXT_STEPS: NextStep[] = [
     id: "operator-lead-notes",
     summary:
       "Optional free-text operator notes on Lead (SQLite + Convex) shown on the dashboard row expand / edit — capture call outcomes without a full CRM, and keep scoring inputs human-auditable.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-e2ee",
+  },
+  {
+    id: "pipeline-health-abandoned-sessions",
+    summary:
+      "Fold open/abandoned checkout_sessions into pipeline-health metrics + dashboard panel (count due recoveries, oldest abandoned age) so stuck payment intent sits beside paid-not-live — complements abandoned-checkout-quality-signal on the scorer.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "discovery-call-notes-prompt",
+    summary:
+      "When an operator moves a lead to discovery_call (or sends Email 3), surface a lightweight prompt to add/update Lead.notes before leaving the row — raises note capture without a separate CRM workflow.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
   {
     id: "outreach-open-tracking",
@@ -615,6 +630,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "A recovery email needs a lead (for businessName/email context) and a reason to believe the visitor is a known prospect, not a stranger who bounced off a generic checkout link. This mirrors the existing checkout-attribution-polish design (prefill only works from a slug) and keeps the recovery queue free of noise the operator can't act on.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Operator lead notes are a single optional string on Lead (SQLite + Convex), edited from an expandable row on /dashboard/leads — not a separate notes table or timeline CRM.",
+    rationale:
+      "Call outcomes need to be visible next to stage/outreach without adding a second product surface. One free-text field (soft-capped at 2000 chars via normalizeOperatorNotes) is enough for the single-operator MVP; a timeline can wait until volume justifies it. Notes stay off preview pages so prospects never see internal commentary.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Convex updateNotes persists cleared notes as \"\" (empty string) rather than omitting the field; readers map empty → undefined.",
+    rationale:
+      "Convex db.patch ignores undefined keys, so a true clear would otherwise leave the previous note in place. Empty-string clear keeps the mutation shape simple across SQLite and Convex.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After operator-lead-notes, queue pipeline-health-abandoned-sessions and discovery-call-notes-prompt as free NEXT_STEPS so siblings have claims while abandoned-checkout-quality-signal stays with business-process-evolution-d264 and Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Abandoned session counts on pipeline health complement the scorer work without colliding on quality-score.ts; a discovery-call notes prompt raises capture of the field we just shipped.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "AGENT_PROTOCOL: stale remote claim-only branches (no feature body, or behind main while NEXT_STEPS still shows todo) do not block re-claiming that todo.",
+    rationale:
+      "cursor/operator-lead-notes existed with an old claim but never shipped notes and drifted behind main — treating it as ownership would idle the profitable path. Active in_progress on a sibling that is pushing commits still wins.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -976,5 +1019,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm run dev: created a Stripe-unconfigured 501 sanity check on /api/stripe/checkout, then inserted a synthetic open checkout_sessions row via node:sqlite with createdAt 3h in the past and confirmed it rendered on the Abandoned checkouts panel and cleared after simulating markCheckoutSessionComplete",
     ],
     decisions: BUSINESS_DECISIONS.slice(46, 50),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-e2ee",
+    summary:
+      "Sibling business-process-evolution-d264 claimed abandoned-checkout-quality-signal; this run claimed operator-lead-notes. Shipped optional Lead.notes (SQLite migration + Convex schema/updateNotes), normalizeOperatorNotes helper + Vitest, dashboard row expander with save/clear, search-over-notes, and queued pipeline-health-abandoned-sessions + discovery-call-notes-prompt for siblings. Process: stale claim-only branches do not block re-claim.",
+    shipped: [
+      "src/lib/leads/notes.ts (+ .test.ts) — normalizeOperatorNotes / MAX_OPERATOR_NOTES_LENGTH / leadHasNotes",
+      "Lead.notes on types + SQLite migration + Convex schema/leadFields + leads:updateNotes",
+      "src/lib/db.ts — updateLeadNotes() + upsert/read mapping",
+      "updateLeadNotesAction + Notes expander on /dashboard/leads (auth-gated)",
+      "Docs: roadmap Phase 2, architecture, launch-checklist notes check",
+      "NEXT_STEPS: operator-lead-notes done; pipeline-health-abandoned-sessions + discovery-call-notes-prompt queued",
+      "AGENT_PROTOCOL — stale claim-only branches do not own a todo",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(50, 54),
   },
 ];
