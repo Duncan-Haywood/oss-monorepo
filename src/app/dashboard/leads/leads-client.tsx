@@ -16,6 +16,7 @@ import {
   replyToInquiryAction,
   sendFollowUpAction,
   assignVercelProjectAction,
+  assignCustomDomainAction,
   sendCheckoutRecoveryAction,
   sendCommerceCheckoutRecoveryAction,
   markCommerceOrderPaidOutAction,
@@ -503,6 +504,22 @@ export function LeadsClient({
       const res = await assignVercelProjectAction(slug, value);
       if (!res.success) {
         alert(`Error assigning Vercel project: ${res.error}`);
+        return;
+      }
+      setHandoffs((prev) =>
+        prev.map((h) => (h.leadSlug === slug ? res.handoff : h)),
+      );
+    });
+  };
+
+  const [customDomainInputs, setCustomDomainInputs] = useState<Record<string, string>>({});
+
+  const handleAssignCustomDomain = (slug: string) => {
+    const value = customDomainInputs[slug] ?? "";
+    startTransition(async () => {
+      const res = await assignCustomDomainAction(slug, value);
+      if (!res.success) {
+        alert(`Error saving custom domain: ${res.error}`);
         return;
       }
       setHandoffs((prev) =>
@@ -1501,6 +1518,12 @@ export function LeadsClient({
                         Preview
                       </a>{" "}
                       · Contact: <code>{h.contactFormUrl}</code>
+                      {h.customDomain ? (
+                        <>
+                          {" "}
+                          · Custom domain: <code>{h.customDomain}</code>
+                        </>
+                      ) : null}
                     </p>
                     <ul className="mt-2 space-y-0.5 text-xs text-zinc-500">
                       {h.dnsInstructions.map((d) => (
@@ -1529,6 +1552,28 @@ export function LeadsClient({
                         className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
                       >
                         Save + provision
+                      </button>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Client's own domain (e.g. joesplumbing.com)"
+                        value={customDomainInputs[h.leadSlug] ?? h.customDomain ?? ""}
+                        onChange={(e) =>
+                          setCustomDomainInputs((prev) => ({
+                            ...prev,
+                            [h.leadSlug]: e.target.value,
+                          }))
+                        }
+                        className="w-72 max-w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs outline-none transition focus:border-zinc-900"
+                      />
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handleAssignCustomDomain(h.leadSlug)}
+                        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-60"
+                      >
+                        Save domain
                       </button>
                     </div>
                   </div>

@@ -107,6 +107,7 @@ export const AGENT_PROTOCOL = [
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
   "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers — never ACK 200 after swallowing those errors. Email/notify stays best-effort after durable writes succeed.",
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
+  "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
 ] as const;
 
@@ -743,6 +744,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-da3d",
+  },
+  {
+    id: "proxy-custom-domain-parity",
+    summary:
+      "Starter sells \"Preview subdomain → custom domain handoff\" (product-bundles, landing page) but the promise was DNS-instructions-only: no operator UI ever set DeployHandoff.customDomain, and no request-time routing served a lead's preview under a client's own domain (only tryProvisionVercelDomain read it, for the Vercel Domains API call). Shipped end-to-end: Save domain input + assignCustomDomainAction on the handoff card (mirrors the existing Vercel-project-isolation input); updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain in src/lib/db.ts (Convex-first via new deployHandoffs.updateCustomDomain / getByCustomDomain + by_customDomain index, SQLite fallback); src/proxy.ts now rewrites pathname === \"/\" to /preview/[slug] when the request Host matches a saved customDomain and is not a platform-owned host (src/lib/deploy/custom-domain-routing.ts — isPlatformHost/normalizeRequestHost, unit tested). /api/* and /dashboard/* are untouched by Host. Verified against a running dev server: a request with an unrecognized Host and a matching customDomain row served that lead's preview at \"/\"; an unrecognized Host with no row, and the platform's own host, both still served the marketing site; /api/contact/[slug] and /dashboard/leads were unaffected under the custom Host.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "claude/relaxed-galileo-haen9f",
   },
   {
     id: "follow-ups-due-exclude-snoozed",
@@ -1922,6 +1931,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Stripe webhook fulfillment writes pass requireConvex when Convex is configured — fail closed (Stripe retry) instead of SQLite-only fallback on Convex mutation failure. Dashboard/operator paths keep the fallback.",
     rationale:
       "Multi-instance / serverless deploys read Convex-first. A webhook that ACKs after writing payment/handoff/commerce ledger only to instance-local SQLite creates permanent split-brain: revenue appears paid on one box and unpaid everywhere else. Stripe retry is the correct recovery; silent SQLite fallback is not. Pure policy helper lives in src/lib/payments/convex-primary.ts so the decision is unit-tested. Folded after PR #72 commerce side-effect recovery (both ITERATIONS kept).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Shipped Starter's \"Preview subdomain → custom domain handoff\" promise end-to-end: an operator-editable customDomain field on the deploy handoff, plus proxy.ts host-based routing that rewrites \"/\" to a lead's /preview/[slug] when the request Host matches a saved custom domain. Routing decision (isPlatformHost) lives in a dependency-free module so it's unit-tested without proxy.ts's request plumbing.",
+    rationale:
+      "The free NEXT_STEPS backlog stayed empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated). A sibling (cursor/business-process-evolution-subdomain) pushed a claim-only commit for proxy-custom-domain-parity ~1 hour before this run with no feature body, describing a fix to a proxy.ts Convex query that does not exist on main — auditing the actual gap found the real problem was one level deeper: DeployHandoff.customDomain was a fully-plumbed field (schema, SQLite column, tryProvisionVercelDomain already preferred it for the Vercel Domains API call) that no operator UI ever set, and no request-time code ever read for routing. That is a real, sold, unimplemented Starter capability — the same class of gap this backlog prioritizes (AGENT_PROTOCOL: 'ship the next free product-promise gap ... what Starter/Growth/Complete sells but the product lacks') — so it was picked up under the sibling's id despite the stale claim having no working code to fold. Scoped tightly to the exact root path so /api/* (slug-addressed) and /dashboard/* (operator-auth-gated) are unaffected by Host, and gated behind isPlatformHost so the extra Convex/SQLite lookup only fires for genuinely unrecognized hosts, not every marketing-site or /preview/[slug] pageview.",
   },
   {
     date: "2026-07-12",
@@ -3142,6 +3158,26 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "claude/relaxed-galileo-haen9f",
+    summary:
+      "Free NEXT_STEPS backlog was empty (only operator/legal-gated todos: stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Audited src/lib/db.ts for Convex/SQLite parity gaps (none found — all 39 exported functions and every Convex API-map entry are consistent) before auditing sold-but-unimplemented product promises. Found Starter's \"Preview subdomain → custom domain handoff\" was DNS-instructions-only: DeployHandoff.customDomain was schema-plumbed and already read by tryProvisionVercelDomain, but no operator UI ever set it and no request-time routing ever served a lead's site on it. Shipped the full loop: Save domain UI + action, Convex-first/SQLite-fallback persistence + lookup, and proxy.ts host-based rewrite of \"/\" to /preview/[slug]. Verified against a running dev server with a real custom-domain Host header (served the right lead), an unrecognized host with no saved domain (fell through to the marketing site), and the platform's own host (unaffected) — plus /api/contact/[slug] and /dashboard/leads still worked under the custom Host. A sibling (cursor/business-process-evolution-subdomain) held a stale claim-only commit for this id from ~1h earlier with no feature body and a premise that didn't match main; picked it up under the same id per AGENT_PROTOCOL (stale claim-only branches don't own a todo).",
+    shipped: [
+      "convex/schema.ts — deployHandoffs.by_customDomain index",
+      "convex/deployHandoffs.ts — getByCustomDomain query (.first(), not .unique() — customDomain has no uniqueness constraint) + updateCustomDomain mutation",
+      "src/lib/db.ts — idx_deploy_handoffs_customDomain SQLite index, getLeadSlugByCustomDomain + updateDeployHandoffCustomDomain (Convex-first, SQLite fallback), both registered on the static Convex API map",
+      "src/lib/deploy/handoff.ts — assignCustomDomainAndProvision (mirrors assignVercelProjectAndProvision); exported productionRootDomain for proxy.ts",
+      "src/lib/deploy/custom-domain-routing.ts (+ test) — normalizeRequestHost / isPlatformHost, dependency-free and unit tested",
+      "src/proxy.ts — async proxy(); rewrites pathname === \"/\" to /preview/[slug] on a matched non-platform Host; matcher broadened from /dashboard/:path* to all paths except _next/static, _next/image, favicon/sitemap/robots",
+      "src/app/dashboard/leads/actions.ts + leads-client.tsx — assignCustomDomainAction + Save domain input on the handoff card",
+      "Docs: architecture (proxy.ts routing note), production-deploy (Custom domain routing section), roadmap Phase 5 (shipped)",
+      "NEXT_STEPS: proxy-custom-domain-parity done",
+      "AGENT_PROTOCOL — scope custom-domain routing to pathname === \"/\"; gate the per-request lookup behind isPlatformHost",
+      "BUSINESS_DECISIONS — documented the sold-promise gap and the stale-claim pickup",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(167, 168),
+  },
+  {
+    date: "2026-07-12",
     branch: "claude/business-continuity-4f9c",
     summary:
       "Attempted stripe-webhook-convex-primary-no-fallback but PR #73 (740a) merged the same fix first — discarded the duplicate implementation and reset to origin/main rather than open a competing PR. Free NEXT_STEPS backlog was empty per 740a's own log, so ran a subagent-assisted regression audit scoped away from the heavily-covered commerce/webhook surface (marketing/voice packs, digest, quality scoring, outreach cadence, billing portal, abandoned-checkout recovery, dashboard actions, voice webhook). Found isFollowUpDue never checked snoozedUntil: a snoozed lead past its Email 2/3 cadence gap still surfaced in the 'Follow-ups due' panel (live Send button) and pipeline-health/digest counts, contradicting the operator's explicit snooze. First pass also added the same check to isColdLead and a hard block in sendFollowUpAction, but the existing cold-archive.test.ts caught that isColdLead intentionally allows Re-engage/Close on a snoozed cold lead (an explicit single-lead override that clears the snooze) — reverted both to keep the fix scoped to the actual bug (passive queue/aggregate visibility), matching the same override contract already used by the per-row Unsnooze and manual 'Email {next}' buttons.",
@@ -3154,7 +3190,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented the isFollowUpDue vs isColdLead split and the reverted overreach",
       "Verified: npm test (279 passed, includes 2 new cases) + lint + build clean; npm run dev loaded /dashboard/leads with no runtime error (pure-logic change to an already-exercised predicate, no schema/persistence touched — existing unit tests exercise the exact snoozed+due-gap-elapsed scenario from the bug report)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(167, 168),
+    decisions: BUSINESS_DECISIONS.slice(168, 169),
   },
 ];
 
