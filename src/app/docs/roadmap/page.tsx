@@ -114,7 +114,9 @@ export default function RoadmapDocPage() {
         <code>?slug=</code> (business name / email / recommended tier) and marketing CTAs pass{" "}
         <code>tier</code> / <code>commerce</code>.{" "}
         <code>/api/stripe/webhook</code> verifies signatures, marks leads paid in the database, and
-        sends receipt email. To create Prices without the Stripe UI: set{" "}
+        sends receipt email. Required fulfillment writes return <code>500</code> on failure so
+        Stripe retries; when Convex is configured those writes use <code>requireConvex</code>{" "}
+        (no SQLite-only ACK). To create Prices without the Stripe UI: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
         paste the returned <code>envSnippet</code> into secrets, then unset the flag.
         Abandoned-checkout recovery: shipped — sessions created but not completed after 2h surface
@@ -151,7 +153,9 @@ export default function RoadmapDocPage() {
         redelivery after a partial first attempt (<code>bundle-webhook-handoff-on-redelivery</code>
         — <code>alreadyRecorded</code> skips receipt/DNS emails only). Required fulfillment write
         failures return <code>500</code> so Stripe retries (
-        <code>stripe-webhook-retry-on-fulfillment-failure</code>). Optional Vercel domain
+        <code>stripe-webhook-retry-on-fulfillment-failure</code>); with Convex configured, webhook
+        writes pass <code>requireConvex</code> (
+        <code>stripe-webhook-convex-primary-no-fallback</code>). Optional Vercel domain
         API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel

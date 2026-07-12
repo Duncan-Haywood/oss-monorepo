@@ -11,6 +11,7 @@ import {
   updateDeployHandoffVercelProject,
   updateLeadStage,
 } from "@/lib/db";
+import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 
 function appBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -181,6 +182,7 @@ async function tryProvisionVercelDomain(
  */
 export async function enqueueProductionHandoff(
   input: CreateDeployHandoffInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff> {
   const existing = await getDeployHandoffBySlug(input.leadSlug);
   if (
@@ -193,7 +195,7 @@ export async function enqueueProductionHandoff(
 
   let handoff = buildHandoffRecord(input);
   handoff = await tryProvisionVercelDomain(handoff);
-  await insertDeployHandoff(handoff);
+  await insertDeployHandoff(handoff, options);
   return handoff;
 }
 

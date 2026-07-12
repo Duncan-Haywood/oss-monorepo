@@ -106,6 +106,7 @@ export const AGENT_PROTOCOL = [
   "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
   "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers — never ACK 200 after swallowing those errors. Email/notify stays best-effort after durable writes succeed.",
+  "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
 ] as const;
 
 /**
@@ -722,8 +723,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "stripe-webhook-convex-primary-no-fallback",
     summary:
       "Related empty-backlog finding: webhook fulfillment helpers (recordLeadPayment, insertDeployHandoff, insertCommerceOrder, insertClientInquiry) silently SQLite-fallback when Convex mutations fail, then the webhook ACKs 200. Dashboard/other instances read Convex-first and never see the payment — multi-instance split-brain on the revenue hot path. Prefer failing the webhook (Stripe retry) over writing only to local SQLite when Convex is configured.",
-    status: "todo",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-740a",
   },
   {
     id: "mark-lead-paid-convex-stub-lead",
@@ -1903,7 +1905,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Commerce Buy now webhook recovers missing operator inquiry + client receipt on Stripe redelivery when the ledger already exists but no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects). alreadyRecorded alone must not early-break past those notifies.",
     rationale:
-      "PR #71 made ledger failures return 5xx so Stripe retries, but the commerce branch still broke out entirely on alreadyRecorded — so a crash after insertCommerceOrder permanently lost the sold order-notification promise on every retry. Matching session id in the inquiry message is the idempotency key without a new table; receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row). Sibling subdomain holds proxy-custom-domain-parity; stripe-webhook-convex-primary-no-fallback remains free.",
+      "PR #71 made ledger failures return 5xx so Stripe retries, but the commerce branch still broke out entirely on alreadyRecorded — so a crash after insertCommerceOrder permanently lost the sold order-notification promise on every retry. Matching session id in the inquiry message is the idempotency key without a new table; receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row). Sibling subdomain holds proxy-custom-domain-parity; stripe-webhook-convex-primary-no-fallback claimed by business-process-evolution-740a.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Stripe webhook fulfillment writes pass requireConvex when Convex is configured — fail closed (Stripe retry) instead of SQLite-only fallback on Convex mutation failure. Dashboard/operator paths keep the fallback.",
+    rationale:
+      "Multi-instance / serverless deploys read Convex-first. A webhook that ACKs after writing payment/handoff/commerce ledger only to instance-local SQLite creates permanent split-brain: revenue appears paid on one box and unpaid everywhere else. Stripe retry is the correct recovery; silent SQLite fallback is not. Pure policy helper lives in src/lib/payments/convex-primary.ts so the decision is unit-tested. Folded after PR #72 commerce side-effect recovery (both ITERATIONS kept).",
   },
 ];
 
@@ -3086,16 +3095,34 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-12",
     branch: "cursor/prompt-process-evolution-aa07",
     summary:
-      "Claimed commerce-webhook-side-effect-recovery-on-redelivery (queued by 4d48 / PR #71). Sibling subdomain holds proxy-custom-domain-parity. Shipped planCommerceWebhookSideEffects so Stripe redelivery recovers missing commerce inquiry + client receipt when the ledger already exists but no commerce_checkout inquiry embeds the session id. Left stripe-webhook-convex-primary-no-fallback free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Claimed commerce-webhook-side-effect-recovery-on-redelivery (queued by 4d48 / PR #71). Sibling subdomain holds proxy-custom-domain-parity. Shipped planCommerceWebhookSideEffects so Stripe redelivery recovers missing commerce inquiry + client receipt when the ledger already exists but no commerce_checkout inquiry embeds the session id. Left stripe-webhook-convex-primary-no-fallback free for 740a. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/commerce/side-effect-recovery.ts (+ test) — planCommerceWebhookSideEffects / hasCommerceCheckoutInquiryForSession",
       "src/app/api/stripe/webhook/route.ts — commerce_sku branch recovers missing inquiry/receipt on redelivery; skips only when inquiry already exists",
       "src/lib/commerce/index.ts — export side-effect recovery helpers",
-      "NEXT_STEPS: commerce-webhook-side-effect-recovery-on-redelivery done; stripe-webhook-convex-primary-no-fallback remains free",
+      "NEXT_STEPS: commerce-webhook-side-effect-recovery-on-redelivery done; stripe-webhook-convex-primary-no-fallback claimed by 740a",
       "AGENT_PROTOCOL — commerce alreadyRecorded must not early-break past inquiry/receipt",
       "BUSINESS_DECISIONS — documented redelivery recovery vs duplicate skip",
     ],
     decisions: BUSINESS_DECISIONS.slice(165, 166),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-740a",
+    summary:
+      "Sibling prompt-process-evolution-aa07 claimed (then merged PR #72) commerce-webhook-side-effect-recovery-on-redelivery; claimed next free todo stripe-webhook-convex-primary-no-fallback. Shipped requireConvex write options on webhook fulfillment helpers so Convex mutation failures throw (Stripe 5xx retry) instead of SQLite-only ACK when NEXT_PUBLIC_CONVEX_URL is set. Dashboard paths keep fallback. Folded PR #72 recovery path + both ITERATIONS. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/payments/convex-primary.ts (+ test) — shouldFallbackToSqliteOnConvexFailure + ConvexPrimaryWriteError",
+      "src/lib/db.ts — recordLeadPayment / insertDeployHandoff / insertCommerceOrder / insertClientInquiry honor requireConvex",
+      "src/lib/deploy/handoff.ts — enqueueProductionHandoff forwards write options",
+      "src/app/api/stripe/webhook/route.ts — WEBHOOK_CONVEX_PRIMARY on fulfillment writes (folded with aa07 side-effect recovery)",
+      "Docs: architecture payments, roadmap Phase 3/5, launch-checklist — requireConvex fail-closed",
+      "NEXT_STEPS: stripe-webhook-convex-primary-no-fallback done; commerce-webhook-side-effect-recovery done via PR #72; Stripe/Places/scheduling/Connect gated",
+      "AGENT_PROTOCOL — webhook requireConvex when Convex configured; dashboard keeps SQLite fallback",
+      "BUSINESS_DECISIONS — documented fail-closed vs dashboard fallback split",
+      "merge: folded origin/main after PR #72 (aa07) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(166, 167),
   },
 ];
 

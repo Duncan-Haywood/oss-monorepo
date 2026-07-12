@@ -11,7 +11,14 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
  * Required fulfillment writes (bundle payment + handoff, commerce ledger)
  * must succeed or return 5xx so Stripe retries. Email/notify is best-effort
  * after durable writes — do not ACK 200 after swallowing ledger failures.
+ *
+ * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
+ * a Convex failure does not silently land only in instance-local SQLite
+ * (multi-instance split-brain). Dashboard paths keep the SQLite fallback.
  */
+
+/** Webhook revenue path: fail closed when Convex is configured but unreachable. */
+const WEBHOOK_CONVEX_PRIMARY = { requireConvex: true } as const;
 
 function notConfigured(message: string) {
   return NextResponse.json(
@@ -104,13 +111,16 @@ export async function POST(request: Request) {
 
             let alreadyRecorded: boolean;
             try {
-              ({ alreadyRecorded } = await insertCommerceOrder({
-                leadSlug: orderSlug,
-                skuId,
-                skuName,
-                amountPaidUsd: amountTotal,
-                stripeSessionId: session.id,
-              }));
+              ({ alreadyRecorded } = await insertCommerceOrder(
+                {
+                  leadSlug: orderSlug,
+                  skuId,
+                  skuName,
+                  amountPaidUsd: amountTotal,
+                  stripeSessionId: session.id,
+                },
+                WEBHOOK_CONVEX_PRIMARY,
+              ));
             } catch (ledgerError) {
               console.error(
                 `Failed to record commerce order ledger for ${orderSlug}`,
@@ -145,19 +155,21 @@ export async function POST(request: Request) {
               );
             }
 
-            await insertClientInquiry({
-              leadSlug: orderSlug,
-              businessName,
-              email: customerEmail || undefined,
-              message: commerceOrderPaidInquiryMessage({
-                skuName,
-                amountTotalUsd: amountTotal,
-                stripeSessionId: session.id,
-                skuId,
-              }),
-              source: "commerce_checkout",
-            });
-
+            await insertClientInquiry(
+              {
+                leadSlug: orderSlug,
+                businessName,
+                email: customerEmail || undefined,
+                message: commerceOrderPaidInquiryMessage({
+                  skuName,
+                  amountTotalUsd: amountTotal,
+                  stripeSessionId: session.id,
+                  skuId,
+                }),
+                source: "commerce_checkout",
+              },
+              WEBHOOK_CONVEX_PRIMARY,
+            );
             // Commerce sold promise: order notification to the local business
             // (lead.email), not the shopper. Distinct from sendReceiptEmail
             // (bundle buyer) and from Stripe Connect payouts.
@@ -213,15 +225,18 @@ export async function POST(request: Request) {
         >;
         let businessName: string;
         try {
-          ({ alreadyRecorded } = await recordLeadPayment({
-            slug,
-            stripeSessionId: session.id,
-            customerEmail,
-            tier,
-            commerceAddon,
-            amountTotal,
-            stripeCustomerId,
-          }));
+          ({ alreadyRecorded } = await recordLeadPayment(
+            {
+              slug,
+              stripeSessionId: session.id,
+              customerEmail,
+              tier,
+              commerceAddon,
+              amountTotal,
+              stripeCustomerId,
+            },
+            WEBHOOK_CONVEX_PRIMARY,
+          ));
 
           // Always enqueue the production handoff — it is idempotent on
           // slug + stripeSessionId. alreadyRecorded must NOT skip this:
@@ -231,14 +246,17 @@ export async function POST(request: Request) {
           const { enqueueProductionHandoff } = await import("@/lib/deploy/handoff");
           const lead = await getLeadBySlug(slug);
           businessName = lead?.businessName || slug;
-          handoff = await enqueueProductionHandoff({
-            leadSlug: slug,
-            businessName,
-            tier,
-            commerceAddon,
-            stripeSessionId: session.id,
-            customerEmail,
-          });
+          handoff = await enqueueProductionHandoff(
+            {
+              leadSlug: slug,
+              businessName,
+              tier,
+              commerceAddon,
+              stripeSessionId: session.id,
+              customerEmail,
+            },
+            WEBHOOK_CONVEX_PRIMARY,
+          );
           console.log(
             `Production handoff queued for ${slug}: ${handoff.status} → ${handoff.suggestedHost}`,
           );

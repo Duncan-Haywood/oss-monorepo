@@ -158,7 +158,9 @@ export default function LaunchChecklistDocPage() {
           Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
           handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
           If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
-          <code>200</code>) so Stripe retries.
+          <code>200</code>) so Stripe retries. With Convex configured, webhook fulfillment writes
+          must fail closed on Convex errors (<code>requireConvex</code>) — never ACK after a
+          SQLite-only write that other instances cannot see.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,

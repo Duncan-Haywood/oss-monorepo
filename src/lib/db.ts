@@ -26,6 +26,13 @@ import { newCommerceOrderId } from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import type { ClientVoiceScriptVariant } from "./voice/types";
+import {
+  ConvexPrimaryWriteError,
+  shouldFallbackToSqliteOnConvexFailure,
+  type ConvexPrimaryWriteOptions,
+} from "./payments/convex-primary";
+
+export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -811,19 +818,25 @@ export async function applyColdLeadDisposition(
  * retry/timeout, and the caller must not resend receipt/handoff emails or
  * count the sale twice in revenueTotalUsd for a redelivery.
  */
-export async function recordLeadPayment(params: {
-  slug: string;
-  stripeSessionId: string;
-  customerEmail: string;
-  tier: string;
-  commerceAddon: boolean;
-  amountTotal: number;
-  stripeCustomerId?: string;
-}): Promise<{ alreadyRecorded: boolean }> {
+export async function recordLeadPayment(
+  params: {
+    slug: string;
+    stripeSessionId: string;
+    customerEmail: string;
+    tier: string;
+    commerceAddon: boolean;
+    amountTotal: number;
+    stripeCustomerId?: string;
+  },
+  options?: ConvexPrimaryWriteOptions,
+): Promise<{ alreadyRecorded: boolean }> {
   if (convexClient) {
     try {
       return await convexClient.mutation(api.leads.markLeadPaid, params);
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordLeadPayment", e);
+      }
       console.warn(`Failed to record lead payment for ${params.slug} on Convex, falling back to SQLite database`, e);
     }
   }
@@ -1093,7 +1106,10 @@ function mapDeployHandoffRow(row: SqliteDeployHandoffRow): DeployHandoff {
   };
 }
 
-export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void> {
+export async function insertDeployHandoff(
+  handoff: DeployHandoff,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   if (convexClient) {
     try {
       await convexClient.mutation(api.deployHandoffs.upsert, {
@@ -1118,6 +1134,9 @@ export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void>
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("insertDeployHandoff", e);
+      }
       console.warn(
         "Failed to upsert deploy handoff on Convex, falling back to SQLite database",
         e,
@@ -1338,6 +1357,7 @@ function mapClientInquiryRow(row: SqliteClientInquiryRow): ClientInquiry {
 
 export async function insertClientInquiry(
   input: CreateClientInquiryInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry> {
   const now = new Date().toISOString();
   const inquiry: ClientInquiry = {
@@ -1368,6 +1388,9 @@ export async function insertClientInquiry(
       });
       return inquiry;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("insertClientInquiry", e);
+      }
       console.warn("Failed to insert client inquiry on Convex, falling back to SQLite", e);
     }
   }
@@ -2004,6 +2027,7 @@ function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
  */
 export async function insertCommerceOrder(
   input: InsertCommerceOrderInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
   const createdAt = new Date().toISOString();
   // Generated once up front (not inside the SQLite-only branch) so both
@@ -2022,6 +2046,9 @@ export async function insertCommerceOrder(
       // Convex insert returns null when by_stripeSessionId already exists.
       return { alreadyRecorded: result === null };
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("insertCommerceOrder", e);
+      }
       console.warn(
         "Failed to insert commerce order on Convex, falling back to SQLite",
         e,

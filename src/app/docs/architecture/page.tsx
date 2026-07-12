@@ -110,9 +110,13 @@ export default function ArchitectureDocPage() {
         Phase 5 fulfillment. If required fulfillment writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —
-        never ACK <code>200</code> after swallowing those errors. Matches the same idempotency
-        guarantee already required for <code>checkout_sessions</code> and{" "}
-        <code>commerce_orders</code>. Operator bootstrap:{" "}
+        never ACK <code>200</code> after swallowing those errors. When{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code> is set, those same webhook writes pass{" "}
+        <code>requireConvex</code> (<code>src/lib/payments/convex-primary.ts</code>) so a Convex
+        mutation failure does not silently fall back to instance-local SQLite — dashboard/other
+        instances read Convex-first and would never see the payment. Operator CRM paths keep the
+        Convex→SQLite fallback. Matches the same idempotency guarantee already required for{" "}
+        <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
         bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}
