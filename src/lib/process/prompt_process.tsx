@@ -645,6 +645,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-6a3c",
   },
+  {
+    id: "suppression-list-convex-persistence",
+    summary:
+      "Bug found via subagent-assisted audit outside Commerce while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated): isEmailSuppressed / suppressEmail / getSuppressedEmails were the one persistence trio in src/lib/db.ts with no `if (convexClient)` branch at all — every other table (leads, orders, inquiries, checkout_sessions, marketing/voice packs, commerce catalogs/orders) follows Convex-first-then-SQLite-fallback, but suppression wrote/read only the per-instance local SQLite file. On a multi-instance/serverless deployment with Convex configured, an unsubscribe handled by one instance would not suppress a send handled by another — a real CAN-SPAM compliance gap, not just a data-loss bug. Shipped: convex/schema.ts suppressions table (by_email index) + convex/suppressions.ts (isSuppressed/suppress/list, idempotent insert), registered on the static Convex API map, and all three db.ts functions now try Convex first with the same try/catch-and-fall-back-to-SQLite pattern as every sibling function.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/relaxed-galileo-5kwtxz",
+  },
+  {
+    id: "upsert-lead-collision-guard",
+    summary:
+      "Discovered during the suppression-list-convex-persistence audit: upsertLead (src/lib/db.ts) has update-or-insert semantics with no protection against clobbering an already-advanced lead. importLeadsCsvAction re-importing a CSV whose slug matches an existing lead (e.g. a corrected export) silently resets that lead's stage/outreachStep/notes/snoozedUntil to the CSV row's mostly-empty defaults — csv-import.ts only dedupes slugs within the uploaded file, never against existing DB rows, and convex/leads.ts's leadFields.stage is a required (non-optional) field so ctx.db.patch always overwrites it. addLeadAction (manual single-row entry) has the identical exposure on an operator slug typo/collision. Fix should distinguish create-vs-update at the call site (e.g. CSV import skips or warns on an existing slug instead of silently patching pipeline fields; addLeadAction returns an explicit 'lead already exists' error) rather than changing upsertLead's semantics for every caller that legitimately relies on update-in-place (stage/outreach/notes mutations elsewhere in actions.ts all call upsertLead-adjacent helpers, not upsertLead itself, so check call sites before touching the shared function).",
+    status: "todo",
+    phase: "Phase 4 — Data ingestion",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -1725,6 +1740,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Feature code shipped via the sibling fold; naming the two rules in AGENT_PROTOCOL is the process improvement that stops recurrence without inventing a new metric.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "The CAN-SPAM unsubscribe suppression list now persists to Convex (suppressions table + suppressions.ts) with SQLite fallback, matching every other table's persistence pattern, instead of writing only to the per-instance local SQLite file.",
+    rationale:
+      "isEmailSuppressed/suppressEmail/getSuppressedEmails were the only persistence trio in src/lib/db.ts with no Convex branch. On a multi-instance/serverless deployment with Convex configured, an unsubscribe recorded by one instance would not suppress a send handled by a different instance, even though every sendEmail call site correctly checks suppression before sending — the check was sound but its backing store wasn't durable or shared. This is a compliance exposure (unsubscribed prospects receiving further automated email), not just a data-loss bug, so it took priority over the lower-severity CSV/manual-add-lead collision findings from the same audit pass, which are logged as a follow-up NEXT_STEP instead.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2777,6 +2799,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: no new free coded todos; Stripe Price bootstrap / Places / Buffer OAuth / Connect remain operator/legal-gated",
     ],
     decisions: BUSINESS_DECISIONS.slice(153, 154),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-5kwtxz",
+    summary:
+      "Free NEXT_STEPS backlog was fully empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated). Per AGENT_PROTOCOL, ran a subagent-assisted regression audit deliberately scoped outside Commerce (the last ~7 iterations already covered it heavily) — outreach, leads/CSV import, marketing/voice packs, digest, dashboard actions, and email suppression. Found a genuine compliance-grade regression: the CAN-SPAM unsubscribe suppression list (isEmailSuppressed/suppressEmail/getSuppressedEmails in src/lib/db.ts) was the only persistence trio in the file with no Convex branch at all, writing/reading only the per-instance local SQLite file while every sibling table follows Convex-first-then-SQLite-fallback. On a Convex-configured multi-instance deployment, an unsubscribe processed by one instance would silently fail to suppress a send handled by another instance — every sendEmail call site correctly checks suppression, but the backing store wasn't durable/shared. The audit also surfaced two lower-severity findings (CSV re-import and manual add-lead both unconditionally clobber an existing lead's pipeline state via upsertLead on a slug collision) — logged as a follow-up NEXT_STEP rather than fixed in the same iteration, to keep this iteration focused and verifiable.",
+    shipped: [
+      "convex/schema.ts — suppressions table (by_email index)",
+      "convex/suppressions.ts — isSuppressed (query), suppress (mutation, idempotent insert), list (query)",
+      "src/lib/db.ts — registered suppressions on the static Convex API map; isEmailSuppressed/suppressEmail/getSuppressedEmails now try Convex first, falling back to SQLite on error (matches every sibling persistence function)",
+      "Docs: architecture §4 (Outreach) — documented suppression persistence + the prior gap",
+      "NEXT_STEPS: added suppression-list-convex-persistence (done); added upsert-lead-collision-guard (todo) for the CSV/manual-add clobber risk found during the same audit",
+      "AGENT_PROTOCOL: none — existing Convex-first/SQLite-fallback pattern already covered this; the gap was one table never being retrofitted to match it",
+      "Verified: npm test (251 passed) + lint + build clean; npm run dev with no NEXT_PUBLIC_CONVEX_URL configured (same sandbox limitation noted by prior Convex-touching iterations, so the Convex branch itself is unreachable here) — hit GET /api/unsubscribe?email=..., confirmed a row landed in SQLite suppression_list via a direct query, confirmed /dashboard/leads still 200s; the Convex branch was verified by code review against the identical try/catch pattern used by every other db.ts function plus a fresh convex table/mutation pair mirroring checkoutSessions.ts",
+      "merge: reconciled main after PR #63 (prompt-process-evolution-6a3c AGENT_PROTOCOL/docs polish) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(154, 155),
   },
 ];
 

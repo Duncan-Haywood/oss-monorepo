@@ -162,6 +162,15 @@ export default defineSchema({
     .index("by_stripeSessionId", ["stripeSessionId"]),
 
   /**
+   * CAN-SPAM unsubscribe suppression list — every automated send (outreach,
+   * follow-ups, digest, marketing/voice pack email) must check this before
+   * sending. One row per suppressed email address.
+   */
+  suppressions: defineTable({
+    email: v.string(),
+  }).index("by_email", ["email"]),
+
+  /**
    * Client voice FAQ/script packs for paid Complete leads.
    * One row per lead — regenerating replaces (not month-keyed; scripts are durable).
    */

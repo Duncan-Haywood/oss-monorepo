@@ -78,6 +78,16 @@ export default function ArchitectureDocPage() {
 
       <h2>4. Outreach (automated)</h2>
       <p>Email primary; optional outbound voice; inbound callback routes to platform voice agent.</p>
+      <p>
+        Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
+        Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
+        <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression
+        list before sending and <code>POST /api/unsubscribe</code> writes to it. The suppression
+        list (SQLite + Convex <code>suppressions</code>) follows the same Convex-first,
+        SQLite-fallback pattern as every other table — a prior version wrote only to the local
+        SQLite file, so on a multi-instance/serverless deployment with Convex configured an
+        unsubscribe on one instance would not suppress sends handled by a different instance.
+      </p>
 
       <h2>5. Platform voice agent</h2>
       <p>Vapi/Retell → <code>/api/voice/platform/webhook</code> → site config updater + Stripe checkout link.</p>
