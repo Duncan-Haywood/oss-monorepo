@@ -15,7 +15,8 @@ of these happens:
 
 1. **Book and shoot one real concierge listing** (`process/capture-checklist.ts` +
    `pipeline/` + `process/outreach-templates.ts`, now with a real `process/booking-link.ts`
-   mailto: link instead of a placeholder) — the single highest-leverage next step; unblocks
+   mailto: link instead of a placeholder, and `pipeline/src/microsite.ts` to turn the delivery
+   into a branded property microsite) — the single highest-leverage next step; unblocks
    `p2-first-deliveries` and, eventually, `p3-app-scope`.
 2. **Run the Phase 1 interviews** (`process/interview-script.ts`, 10 agents + 5 STR hosts)
    — unblocks `p1-run-interviews`.
@@ -65,7 +66,12 @@ real-estate-agent-photo-app/
 │       ├── enhance.ts           # batch photo enhancement (sharp)
 │       ├── coverage.ts          # checks output vs. capture-checklist.ts
 │       ├── cli.ts                # npm run enhance -- --in --out --listing
-│       └── enhance.test.ts      # npm test — synthetic-image self-test
+│       ├── enhance.test.ts      # npm test — synthetic-image self-test
+│       ├── microsite.ts         # property microsite generator (the "Brand" step)
+│       ├── cli-microsite.ts     # npm run microsite -- --dir --listing --agent-name
+│       ├── microsite.test.ts    # npm test — synthetic-delivery-folder self-test
+│       ├── log-lead.ts          # npm run log-lead -- ... (see AGENTS.md)
+│       └── log-lead.test.ts     # npm test
 ├── scripts/
 │   └── push-to-github.sh
 └── research/
@@ -138,6 +144,16 @@ cd pipeline
 npm install
 npm test    # synthetic-image self-test, no real listing photos needed
 npm run enhance -- --in ./raw-photos --out ./delivery --listing "123 Main St"
+```
+
+Once a delivery folder exists, generate a branded property microsite (the
+"Brand" step) from it — a single self-contained `index.html` gallery page
+next to the delivered photos, never modifying the photos themselves:
+
+```bash
+npm run microsite -- --dir ./delivery --listing "123 Main St" \
+  --agent-name "Jane Doe" --agent-phone "555-0100" --agent-email jane@example.com \
+  --agent-brokerage "Acme Realty"
 ```
 
 ## Research report commands

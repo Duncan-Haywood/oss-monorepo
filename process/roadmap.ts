@@ -222,6 +222,16 @@ export const roadmap: RoadmapPhase[] = [
           "process/booking-link.ts exists with a real mailto: link (BOOKING_LINK) addressed to Duncan and pre-filled with bookingIntakeFields' questions; outreach-templates.ts's renderTemplateBody() substitutes it into the placeholder; pricing-one-pager.tsx renders an actual 'Book now' link; docs-site's /pricing page shows both with the real link substituted. See process/booking-link.ts.",
       },
       {
+        id: "p2-brand-microsite",
+        title: "Property microsite generator (the 'Brand' step)",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "STRATEGY.md's 5-step workflow (Guide -> Enhance -> Polish -> Deliver -> Brand) has had Guide (capture-checklist.ts), Enhance (pipeline/), and a plain Deliver (renamed JPEGs) since earlier sessions, but 'Brand' (agent headshot, logo, property microsite) was never built at all — every prior session focused on prep/outreach/tracking, not on completing the actual product workflow the pricing page sells. A concierge delivery today is just a folder of photos with no branded, shareable artifact for the agent to forward to their client or post.",
+        doneWhen:
+          "A CLI (`npm run microsite -- --dir <delivery-dir> --listing \"<address>\" --agent-name \"<name>\" ...`) generates a single self-contained index.html gallery microsite from an enhance.ts delivery folder, with agent name/phone/email/brokerage/logo/headshot fields, without ever modifying the underlying MLS-bound photo files (per the mls-compliance.ts branding guardrail). Has a passing self-test (npm test) with no real listing photos, logos, or headshots required. See pipeline/src/microsite.ts, cli-microsite.ts, microsite.test.ts.",
+      },
+      {
         id: "p2-lead-intake-tool",
         title: "CLI to append a real lead to leads-log.ts without hand-editing TypeScript",
         status: "done",

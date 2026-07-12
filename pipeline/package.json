@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "enhance": "tsx src/cli.ts",
+    "microsite": "tsx src/cli-microsite.ts",
     "log-lead": "tsx src/log-lead.ts",
-    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts"
+    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts"
   },
   "dependencies": {
     "sharp": "^0.33.2"

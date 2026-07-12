@@ -155,4 +155,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-ucfuio",
     relatedTaskIds: ["p2-booking-link", "p2-outreach-templates", "p2-pricing-page"],
   },
+  {
+    date: "2026-07-12",
+    title: "Property microsite is a self-contained static HTML file, not a hosted page",
+    decision:
+      "Added pipeline/src/microsite.ts + cli-microsite.ts: reads an already-enhanced delivery folder and writes one index.html gallery page (agent name/logo/headshot/contact, plus the delivered photos) alongside the existing photo files. Deliberately a static file the agent hosts/forwards however they like (email attachment, drag into any free static host, open locally) rather than a new deployed service — same reasoning as the booking-link decision: no new domain/hosting/Cloudflare Access decision, zero infra cost, fully agent-buildable today.",
+    rationale:
+      "STRATEGY.md's 5-step workflow (Guide -> Enhance -> Polish -> Deliver -> Brand) had 4 of 5 steps built or explicitly deferred (Polish/virtual-staging), but 'Brand' — agent headshot, logo, and property microsite — had never been started; every session since the repo's first commit focused on outreach/pricing/tracking prep, not on finishing the product itself. This closes that gap without opening a new scope debate: it never touches the underlying MLS-bound photo files (enforces the same no-branding-on-MLS-photos guardrail from process/mls-compliance.ts by construction, since it only ever writes one new HTML file next to them, never overwrites them), and needs no real agent logo/headshot to exist yet (both fields are optional, never fabricated).",
+    madeBy: "claude/dazzling-allen-v3kn1n",
+    relatedTaskIds: ["p2-brand-microsite", "p2-ai-pipeline", "p1-mls-compliance"],
+  },
 ];

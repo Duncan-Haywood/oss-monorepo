@@ -44,6 +44,21 @@ it's a local `sharp` pipeline and not a paid cloud AI API.
 - **Run:** `npm run enhance -- --in <raw-dir> --out <delivery-dir> --listing "<address>"`
 - **Typecheck:** `npx tsc --noEmit` (strict mode).
 
+### Property microsite (`pipeline/src/microsite.ts`)
+
+Generates a single self-contained `index.html` gallery microsite next to
+an already-enhanced delivery folder — the "Brand" step of STRATEGY.md's
+5-step workflow. Never modifies the delivered photo files themselves (see
+`process/mls-compliance.ts`'s no-branding-on-MLS-photos guardrail); agent
+logo/headshot are optional and never fabricated.
+
+```bash
+cd pipeline
+npm run microsite -- --dir ./delivery --listing "123 Main St" \
+  --agent-name "Jane Doe" --agent-phone "555-0100" --agent-email jane@example.com \
+  --agent-brokerage "Acme Realty" [--agent-logo logo.png] [--agent-headshot headshot.jpg]
+```
+
 ### Lead intake (`pipeline/src/log-lead.ts`)
 
 Appends one real entry to `process/leads-log.ts` without hand-editing
