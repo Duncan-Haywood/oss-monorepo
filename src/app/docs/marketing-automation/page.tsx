@@ -76,8 +76,10 @@ export default function MarketingAutomationDocPage() {
         shipped: <strong>Generate pack</strong> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> persists 8 social/GBP posts
         + 2 emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
-        otherwise). Buffer / GBP / Meta auto-posting stays operator-gated on OAuth secrets
-        (see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
+        otherwise). Eligible leads missing this month&apos;s pack surface on pipeline health (
+        <strong>Marketing packs due</strong>) and in the operator daily digest so fulfillment
+        debt is visible without scanning every row. Buffer / GBP / Meta auto-posting stays
+        operator-gated on OAuth secrets (see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
         <code>marketing-content-scheduling</code>).
       </p>
 

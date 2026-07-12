@@ -109,6 +109,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.followUpsDueCount > 0}
         />
+        <MetricCard
+          label="Marketing packs due"
+          value={String(health.marketingPacksDueCount)}
+          hint={
+            health.marketingPacksDueCount > 0
+              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment`
+              : `${health.marketingPacksDueMonth} packs complete`
+          }
+          attention={health.marketingPacksDueCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -164,6 +174,19 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             /dashboard/leads
           </Link>{" "}
           (or Work next) before they go cold.
+        </p>
+      ) : null}
+
+      {health.marketingPacksDueCount > 0 ? (
+        <p className="mt-3 text-xs text-emerald-900">
+          {health.marketingPacksDueCount} Growth/Complete lead
+          {health.marketingPacksDueCount === 1 ? "" : "s"} still need a{" "}
+          {health.marketingPacksDueMonth} marketing pack — generate from the Marketing packs
+          panel on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          (sold monthly promise).
         </p>
       ) : null}
 

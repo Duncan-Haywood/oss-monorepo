@@ -105,9 +105,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
-          follow-ups due, abandoned-checkout recoveries, and unreplied inquiries all show up in
-          one email (or the mock log) — plus a snoozed-lead footnote (count + soonest return)
-          when any lead is parked off Work next. The operator should not need to open the
+          follow-ups due, abandoned-checkout recoveries, unreplied inquiries, marketing packs
+          due (Growth/Complete missing this UTC month), and Starter → MRR upsell candidates all
+          show up in one email (or the mock log) — plus a snoozed-lead footnote (count + soonest
+          return) when any lead is parked off Work next. The operator should not need to open the
           dashboard to know what is urgent today.
         </li>
       </ol>
@@ -201,7 +202,9 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
           posts + 2 emails appear for the current UTC month (stub copy without{" "}
           <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
-          that month. Copy/paste to post until Buffer/GBP OAuth is configured.
+          that month. Copy/paste to post until Buffer/GBP OAuth is configured. Before generating,
+          confirm pipeline-health <strong>Marketing packs due</strong> counts eligible leads
+          missing this month&apos;s pack (and that the daily digest lists them).
         </li>
       </ul>
 

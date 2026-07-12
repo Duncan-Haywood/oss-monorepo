@@ -153,8 +153,11 @@ export default function RoadmapDocPage() {
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
-        Growth/Complete monthly marketing packs: shipped. Optional closed-leads pipeline metric
-        remains free (see <DocLink href="/docs/process">process log</DocLink>).
+        Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
+        surface on pipeline health + daily digest; Starter upsell candidates also appear in the
+        digest. Optional closed-leads pipeline metric remains with sibling{" "}
+        <code>prompt-process-evolution-2313</code> (see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>
@@ -162,7 +165,8 @@ export default function RoadmapDocPage() {
         (<code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — 8 social/GBP posts + 2
         emails, Anthropic when <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
-        per lead/month). Buffer / GBP / Meta auto-scheduling stays operator-gated on secrets.
+        per lead/month). Eligible-but-missing packs count on pipeline health and list in the
+        daily digest. Buffer / GBP / Meta auto-scheduling stays operator-gated on secrets.
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>

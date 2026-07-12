@@ -138,7 +138,9 @@ export default function ArchitectureDocPage() {
         funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied
         website inquiries (new + read, with oldest age), cold leads, currently-snoozed Work next
         parks (count + soonest return), leads due for Email 2/3 (<code>followUpsDueCount</code>{" "}
-        + oldest age since last send, via <code>isFollowUpDue</code>), and leads missing email (
+        + oldest age since last send, via <code>isFollowUpDue</code>), Growth/Complete marketing
+        packs still due this UTC month (<code>marketingPacksDueCount</code> via{" "}
+        <code>listMarketingPacksDue</code>), and leads missing email (
         <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
@@ -151,7 +153,10 @@ export default function ArchitectureDocPage() {
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
         the quality score visible — Unsnooze clears it; parked count also appears on pipeline
         health and as a footnote on the operator daily digest (count + soonest return) so
-        forgotten snoozes do not hide when the operator never opens the dashboard. A lead that
+        forgotten snoozes do not hide when the operator never opens the dashboard. The same
+        digest also lists marketing packs due this UTC month and Starter → MRR upsell candidates
+        (action sections, reusing <code>listMarketingPacksDue</code> /{" "}
+        <code>listStarterUpsellCandidates</code>). A lead that
         exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is

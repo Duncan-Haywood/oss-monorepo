@@ -53,6 +53,7 @@ async function loadLeadsPipelineHealth(): Promise<{
       handoffs,
       inquiries,
       openCheckoutSessions,
+      marketingPacksThisMonth: marketingPacks,
       nowMs,
     }),
   };

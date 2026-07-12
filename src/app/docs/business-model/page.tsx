@@ -101,7 +101,8 @@ export default function BusinessModelDocPage() {
         <li>Platform voice after customization</li>
         <li>
           Post-purchase upgrade emails — operator <strong>Upsell</strong> on paid/live Starter
-          leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout
+          leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout;
+          the same candidates also appear in the operator daily digest
         </li>
       </ul>
 

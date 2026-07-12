@@ -57,6 +57,7 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell), load listOrders (+ listMarketingPacksForMonth) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
@@ -388,16 +389,16 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-packs-due-pipeline-metric",
     summary:
-      "Fold eligible Growth/Complete leads missing this UTC month's marketing pack into pipeline-health + daily digest (action section) so monthly fulfillment debt is visible without scanning every row — reuses leadEligibleForMarketingPack + marketingMonthKey.",
-    status: "in_progress",
+      "Fold eligible Growth/Complete leads missing this UTC month's marketing pack into pipeline-health + daily digest (action section) so monthly fulfillment debt is visible without scanning every row — reuses leadEligibleForMarketingPack + marketingMonthKey. Shipped: listMarketingPacksDue + marketingPacksDueCount on pipeline health + digest Marketing packs due section.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/business-process-evolution-88c8",
   },
   {
     id: "starter-upsell-candidates-in-digest",
     summary:
-      "Include Starter → MRR upsell candidates (top 5) in the operator daily digest via listStarterUpsellCandidates — dashboard Upsell panel already ships; digest makes MRR conversion visible without opening /dashboard/leads.",
-    status: "in_progress",
+      "Include Starter → MRR upsell candidates (top 5) in the operator daily digest via listStarterUpsellCandidates — dashboard Upsell panel already ships; digest makes MRR conversion visible without opening /dashboard/leads. Shipped alongside marketing-packs-due (shared orders load in sendDailyDigestAction).",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-88c8",
   },
@@ -1142,6 +1143,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Both revenue unlocks from the prior queue are now shipped. Closed-count aggregates remain optional. Avoid empty free backlog thrash without inventing operator-gated work.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Sibling prompt-process-evolution-2313 claimed closed-leads-pipeline-metric first this cron; this branch claimed marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest (shared digest/orders wiring) and pushed before feature body.",
+    rationale:
+      "Closed-count is optional and already owned. Pack-due visibility closes the Growth/Complete fulfillment loop that generation alone left invisible; Starter upsell digest surfaces MRR conversion without opening the dashboard. Shipping both in one iteration is coherent because sendDailyDigestAction needs a single orders (+ packs) load for either section.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Marketing packs due = leadEligibleForMarketingPack AND no marketing_packs row for marketingMonthKey(nowMs). Surfaced as pipeline-health marketingPacksDueCount + digest action section (top 5), not a second Work next panel.",
+    rationale:
+      "Sold monthly promise fails silently if operators forget to Generate pack. Reusing eligibility avoids a parallel predicate. Action-section treatment matches follow-ups/recoveries — operators must act, not merely note a footnote.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Starter upsell candidates in the daily digest reuse listStarterUpsellCandidates + resolveUpsellTargetTier; no new email send from the digest itself.",
+    rationale:
+      "Digest is the awareness layer; the existing Upsell button remains the send path. Duplicating sendStarterUpsellEmail from digest would bypass dashboard context and suppression UX already shipped.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After marketing-packs-due + starter-upsell digest, leave closed-leads-pipeline-metric with sibling 2313; remaining free backlog is optional/operator/legal-gated — next product-promise gaps are openingHours JSON-LD, Commerce scaffolding, or Complete voice stubs only when those are claimed as explicit NEXT_STEPS.",
+    rationale:
+      "Avoid idle thrash and avoid inventing large Phase 7/8 surfaces without a claimed todo. Prefer small SEO/operator leverage items once closed-leads lands.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1814,5 +1843,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded business-process-evolution-31ae marketing-content-generation",
     ],
     decisions: BUSINESS_DECISIONS.slice(98, 101),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-88c8",
+    summary:
+      "Sibling prompt-process-evolution-2313 claimed closed-leads-pipeline-metric; pivoted to marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest. Shipped listMarketingPacksDue into pipeline-health + daily digest action sections, Starter upsell candidates in digest (shared orders/packs load), Vitest, docs. Improved AGENT_PROTOCOL (revenue chain + single digest orders load).",
+    shipped: [
+      "src/lib/marketing/monthly-pack.ts — leadNeedsMarketingPackForMonth + listMarketingPacksDue",
+      "src/lib/metrics/pipeline-health.ts — marketingPacksDueCount + marketingPacksDueMonth",
+      "src/components/dashboard/pipeline-health-panel.tsx — Marketing packs due card + callout",
+      "src/lib/digest/daily-digest.ts — marketingPacksDue + starterUpsellCandidates sections; isEmpty includes both",
+      "sendDailyDigestAction + dashboard pages — listOrders + listMarketingPacksForMonth into digest/health",
+      "Vitest: monthly-pack due list, pipeline-health packs due, digest sections + HTML",
+      "Docs: architecture, roadmap Phase 5/6, marketing-automation, business-model, launch-checklist",
+      "NEXT_STEPS: marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest done; closed-leads left to 2313; scheduling/Stripe/Places gated",
+      "AGENT_PROTOCOL — packs-due/upsell digest in revenue chain; single orders load for digest extensions",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(101, 105),
   },
 ];

@@ -20,6 +20,7 @@ import {
   updateLeadSnooze,
   applyColdLeadDisposition,
   upsertMarketingPack,
+  listMarketingPacksForMonth,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -820,10 +821,10 @@ export async function openBillingPortalAction(slug: string) {
 
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
- * abandoned-checkout recoveries due, and unreplied inquiries in one send, plus
- * cold/snoozed footnotes, so a single-operator business does not have to open
- * this dashboard to know what is urgent today. Requires OPERATOR_DIGEST_EMAIL —
- * see /docs/process.
+ * abandoned-checkout recoveries due, unreplied inquiries, marketing packs due,
+ * and Starter → MRR upsell candidates in one send, plus cold/snoozed footnotes,
+ * so a single-operator business does not have to open this dashboard to know
+ * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {
@@ -840,11 +841,16 @@ export async function sendDailyDigestAction() {
       };
     }
 
-    const [leads, inquiries, openCheckoutSessions] = await Promise.all([
-      getLeads(),
-      listClientInquiries(100),
-      listOpenCheckoutSessions(),
-    ]);
+    const nowMs = Date.now();
+    const yearMonth = marketingMonthKey(nowMs);
+    const [leads, inquiries, openCheckoutSessions, orders, marketingPacks] =
+      await Promise.all([
+        getLeads(),
+        listClientInquiries(100),
+        listOpenCheckoutSessions(),
+        listOrders(),
+        listMarketingPacksForMonth(yearMonth),
+      ]);
 
     const headerStore = await headers();
     const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
@@ -852,8 +858,14 @@ export async function sendDailyDigestAction() {
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
 
-    const nowMs = Date.now();
-    const digest = buildDailyDigest({ leads, inquiries, openCheckoutSessions, nowMs });
+    const digest = buildDailyDigest({
+      leads,
+      inquiries,
+      openCheckoutSessions,
+      orders,
+      marketingPacksThisMonth: marketingPacks,
+      nowMs,
+    });
     const html = renderDailyDigestHtml(digest, appUrl);
 
     const sent = await sendOperatorDailyDigest(digestEmail, html);

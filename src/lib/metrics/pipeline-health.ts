@@ -3,7 +3,8 @@
  * gaps are visible without scanning every lead row.
  * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
  * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement
- * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric).
+ * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric
+ * + marketing-packs-due-pipeline-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -17,6 +18,10 @@ import {
 } from "@/lib/checkout/abandoned-recovery";
 import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
+import {
+  listMarketingPacksDue,
+  marketingMonthKey,
+} from "@/lib/marketing/monthly-pack";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -77,6 +82,13 @@ export interface PipelineHealth {
   followUpsDueCount: number;
   /** Age in whole hours since the oldest due lead's last outreach send; null when none. */
   oldestFollowUpDueAgeHours: number | null;
+  /**
+   * Paid/live Growth/Complete leads missing this UTC month's marketing pack.
+   * Fulfillment debt for sold MRR — not a second priority queue.
+   */
+  marketingPacksDueCount: number;
+  /** UTC YYYY-MM key used for the packs-due count (from nowMs). */
+  marketingPacksDueMonth: string;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -138,6 +150,8 @@ export function computePipelineHealth(input: {
   handoffs: DeployHandoff[];
   inquiries: ClientInquiry[];
   openCheckoutSessions?: CheckoutSessionRecord[];
+  /** Packs already generated for the current UTC month (optional). */
+  marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -250,6 +264,15 @@ export function computePipelineHealth(input: {
     }
   }
 
+  const marketingPacksDueMonth = marketingMonthKey(nowMs);
+  const packsThisMonth = input.marketingPacksThisMonth ?? [];
+  const marketingPacksDue = listMarketingPacksDue(
+    input.leads,
+    input.orders,
+    packsThisMonth,
+    marketingPacksDueMonth,
+  );
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -276,6 +299,8 @@ export function computePipelineHealth(input: {
     soonestSnoozeRemainingHours,
     followUpsDueCount: followUpsDue.length,
     oldestFollowUpDueAgeHours,
+    marketingPacksDueCount: marketingPacksDue.length,
+    marketingPacksDueMonth,
   };
 }
 
