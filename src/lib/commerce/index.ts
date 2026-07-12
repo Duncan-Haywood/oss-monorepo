@@ -34,6 +34,7 @@ export {
 } from "./stripe-sync";
 
 export {
+  newCommerceOrderId,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,

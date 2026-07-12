@@ -247,7 +247,13 @@ export default function ArchitectureDocPage() {
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
         manual payouts from the <strong>Commerce payouts (manual)</strong> panel on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, which groups{" "}
-        <code>listCommerceOrders</code> by lead via <code>summarizeCommerceOrdersByLead</code>.
+        <code>listCommerceOrders</code> by lead via <code>summarizeCommerceOrdersByLead</code>{" "}
+        (each row keyed by <code>CommerceOrderRecord.id</code> —{" "}
+        <code>newCommerceOrderId()</code> generates it once in{" "}
+        <code>insertCommerceOrder</code> and passes it to both backends as the Convex
+        table&apos;s <code>orderId</code> column, matching the app-owned-id pattern every
+        other ledger already used; the Convex path originally had no id column at all,
+        so payout rows silently lost React list identity once Convex was configured).
         The same rollup also appears as a <strong>Commerce payouts owed</strong> section on the
         operator daily digest so pass-through liability is visible without opening the dashboard.
         Open Buy now Checkout
