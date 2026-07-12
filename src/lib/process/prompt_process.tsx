@@ -53,7 +53,7 @@ export const AGENT_PROTOCOL = [
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
   "Client voice FAQ packs persist one row per Complete lead (not month-keyed); regenerating replaces. Marketing packs stay month-keyed — do not conflate the two persistence models.",
   "Client voice packs missing = listClientVoicePacksDue (eligible Complete paid/live without a pack row). Surface as pipeline-health clientVoicePacksDueCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
-  "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
+  "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions. The upper bound must equal the array length at the moment you write it, not a rounded-up guess (e.g. slice(118, 122) when only 121 items exist) — an over-generous-but-then-clamped-safe upper bound silently absorbs a later agent's freshly-appended decision into your iteration once the array grows past it. Before writing your own iteration's slice, run BUSINESS_DECISIONS.length and use the exact number as the upper bound; if your edit made a prior iteration's upper bound now exceed the length it had when written, tighten that prior slice too (a plumbing fix, not a rewrite of decision content).",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
   "One focused iteration per run: leave the repo buildable, update this file, open/merge a PR when the iteration is coherent.",
@@ -67,7 +67,7 @@ export const AGENT_PROTOCOL = [
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
-  "Commerce catalogs persist one row per lead (not monthly); regenerating replaces the whole catalog. Cap at MAX_COMMERCE_SKUS (50). Request order must reuse the contact/inquiry path — do not invent a parallel order table before Stripe Products sync.",
+  "Commerce catalogs persist one row per lead (not monthly); regenerating replaces the whole catalog. Cap at MAX_COMMERCE_SKUS (50). Request order (un-synced SKUs) reuses the contact/inquiry path; synced SKUs (stripePriceId set) get a real Buy now Checkout via POST /api/commerce/checkout — see the stripe-commerce-products-sync entries below for the sync/checkout/webhook split.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
@@ -78,6 +78,8 @@ export const AGENT_PROTOCOL = [
   "stripe-commerce-products-sync shipped — the revenue-priority chain above is fully done; remaining NEXT_STEPS (stripe-price-objects, lead-ingestion, marketing-content-scheduling) all require secrets/OAuth/review an agent cannot obtain. Before marking a Stripe-touching todo 'operator-gated', check whether it reuses an already-required secret (STRIPE_SECRET_KEY) behind an explicit operator button click on one record — that consent model matches every already-shipped 'Generate X' / 'Sync X' action and does not need a new ALLOW_*-style flag. Reserve ALLOW_*-style gates for rare, effectively-global one-time actions like bootstrap-prices.",
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state, matching /api/stripe/checkout's env-sourced Price IDs.",
   "When a catalog/collection can shrink (SKUs removed, packs regenerated), a sync-to-third-party action should create/update for current items only — do not auto-archive or delete the third-party object for removed items unless you also handle in-flight references; leave that as a documented follow-up, not silent scope creep.",
+  "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification. When adding a new Checkout Session flow, grep this file for the existing branches before assuming the generic path covers you.",
+  "A `\"server-only\"` lib file cannot be Vitest-tested directly and its exports must not be re-exported through a barrel (e.g. src/lib/commerce/index.ts) that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern already in src/lib/commerce/stripe-sync.ts: take the Stripe client as a parameter behind a minimal structural interface (not `import Stripe from \"stripe\"` types) so the sync logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep only the real `new Stripe(secretKey)` construction + env-var gating in the server action / route that calls it.",
 ] as const;
 
 /**
@@ -482,6 +484,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-ca53",
+  },
+  {
+    id: "commerce-order-webhook-notification",
+    summary:
+      "checkout.session.completed only records a payment/deploy-handoff when session.metadata has both slug AND tier — a commerce_sku Buy now purchase (stripe-commerce-products-sync, POST /api/commerce/checkout) sets slug + skuId but no tier, so it silently fell into the else/console.warn branch and never reached the operator. Shipped: the webhook now branches on metadata.kind === \"commerce_sku\" first and notifies via insertClientInquiry (source commerce_checkout, reusing commerceOrderPaidInquiryMessage) — same inbox Request-order already uses for un-synced SKUs.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/relaxed-galileo-lmdbq4",
   },
 ];
 
@@ -1333,7 +1343,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "A client-submitted price would let a visitor buy any SKU for any amount they choose. The existing /api/stripe/checkout route already follows this pattern (Price IDs come from env, not the request); commerce checkout extends the same rule to per-SKU Prices resolved from the operator's own saved catalog.",
   },
-
+  {
+    date: "2026-07-12",
+    decision:
+      'A completed commerce-order Stripe Checkout Session (session.metadata.kind === "commerce_sku", from POST /api/commerce/checkout) notifies the operator via insertClientInquiry (source commerce_checkout) — not recordLeadPayment/deploy-handoff, and not a new commerceOrders table.',
+    rationale:
+      "Discovered right after claude/quirky-davinci-r911f7 merged stripe-commerce-products-sync (PR #49, same cron window as this branch's claim — see the iteration below): the shipped webhook only branches on `if (slug && tier)`, and a commerce_sku session carries slug + skuId but no tier, so it silently fell into the else/console.warn branch — a paid Buy now order reached Stripe but never reached the operator. Reusing insertClientInquiry keeps a single order-notification surface (Request-order already uses it for un-synced SKUs) instead of fragmenting operator attention across two inboxes before real per-order fulfillment tracking is needed.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2126,7 +2142,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: stripe-commerce-products-sync done; stripe-price-objects, lead-ingestion, marketing-content-scheduling remain genuinely operator/legal-gated (new secrets, OAuth approval, or counsel review)",
       "AGENT_PROTOCOL — reassess 'operator-gated' Stripe todos that only reuse an existing secret behind an explicit per-record operator action; sync-to-third-party idempotency + no-client-supplied-price + no-silent-archival rules",
     ],
-    decisions: BUSINESS_DECISIONS.slice(118, 122),
+    decisions: BUSINESS_DECISIONS.slice(118, 121),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-lmdbq4",
+    summary:
+      "Claimed stripe-commerce-products-sync (last item with a coded path — every other free NEXT_STEPS item was already done as of PR #48). Independently built the same feature; before pushing, discovered claude/quirky-davinci-r911f7 had merged an equivalent implementation to main minutes earlier (PR #49, same cron window). Reset to the merged main rather than duplicating a second backend, then found and fixed a real gap in the merged code: the webhook only recorded a payment when metadata had both slug AND tier, so a completed commerce_sku Buy now purchase (slug + skuId, no tier) silently hit the else/console.warn branch — a paid order that never reached the operator.",
+    shipped: [
+      "src/lib/commerce/catalog.ts (+ test) — commerceOrderPaidInquiryMessage, the paid counterpart to commerceOrderRequestMessage",
+      "src/lib/commerce/index.ts — export commerceOrderPaidInquiryMessage",
+      "src/app/api/stripe/webhook/route.ts — checkout.session.completed now branches on metadata.kind === \"commerce_sku\" before the slug/tier check, and notifies the operator via insertClientInquiry (source commerce_checkout) with the SKU name looked up from the persisted catalog",
+      "process fix: claude/quirky-davinci-r911f7's iteration decisions slice (118, 122) over-reached once this iteration appended a new decision at the array's end — the open upper bound silently absorbed this iteration's first decision into their iteration's display. Tightened to slice(118, 121); new AGENT_PROTOCOL rule below to prevent recurrence.",
+      "NEXT_STEPS: added commerce-order-webhook-notification (done); all remaining todos are operator/legal-gated",
+      "Verified via npm test (206 passed) + lint + build, then npm run dev: confirmed /dashboard/leads and /preview/[slug] still 200 after the reset + fix, and that /api/stripe/webhook's existing 501 not-configured response (no STRIPE_WEBHOOK_SECRET in this sandbox) is unchanged — the new branch is unreachable without a real signed event here, so it's covered by the unit test on commerceOrderPaidInquiryMessage plus tsc/lint/build rather than a live webhook call",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(121, 122),
   },
 ];
 
