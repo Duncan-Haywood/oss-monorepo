@@ -381,8 +381,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "closed-leads-pipeline-metric",
     summary:
       "Optional: fold currently-closed lead counts into pipeline-health (or a stage-funnel footnote) so operators see how many cold closes accumulated — only if Closed filter alone is not enough; prefer not adding a second priority panel.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-2313",
   },
   {
     id: "reengage-send-email1-option",
