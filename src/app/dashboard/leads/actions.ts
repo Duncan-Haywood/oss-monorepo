@@ -21,6 +21,7 @@ import {
   applyColdLeadDisposition,
   upsertMarketingPack,
   listMarketingPacksForMonth,
+  upsertClientVoicePack,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -66,6 +67,11 @@ import {
   marketingMonthKey,
   monthlyPackRequestForLead,
 } from "@/lib/marketing";
+import {
+  clientVoicePackRequestForLead,
+  getClientVoiceGenerator,
+  leadEligibleForClientVoicePack,
+} from "@/lib/voice";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -950,6 +956,60 @@ export async function generateMarketingPackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateMarketingPackAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Generate (or regenerate) the client voice FAQ/script pack for a paid/live
+ * Complete lead. Uses Anthropic when ANTHROPIC_API_KEY is set; otherwise stub.
+ * Operators paste scripts into a temp number / Cal.com until Twilio ships.
+ */
+export async function generateClientVoicePackAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    if (!leadEligibleForClientVoicePack(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Client voice FAQ packs require a paid/live lead with a Complete order",
+      };
+    }
+
+    const request = clientVoicePackRequestForLead(lead);
+    const generator = getClientVoiceGenerator();
+    const result = await generator.generate(request);
+    const usedAnthropic =
+      Boolean(process.env.ANTHROPIC_API_KEY?.trim()) &&
+      !result.variants.some((v) => v.body.includes("[Stub"));
+
+    const pack = await upsertClientVoicePack({
+      leadSlug: lead.slug,
+      variants: result.variants,
+      generatedAt: result.generatedAt,
+      generator: usedAnthropic ? "anthropic" : "stub",
+    });
+
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, pack };
+  } catch (error) {
+    console.error("Error in generateClientVoicePackAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

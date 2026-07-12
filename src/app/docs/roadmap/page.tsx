@@ -170,13 +170,21 @@ export default function RoadmapDocPage() {
 
       <h2>Phase 7 — Client AI phone</h2>
       <p>
-        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation. Next
-        free product-promise gap before secrets: operator-triggered FAQ/script pack for paid
-        Complete leads (<code>complete-client-voice-faq-pack</code> in the process log).
+        Operator-triggered FAQ/script pack for paid/live Complete leads: shipped (
+        <code>generateClientVoicePackAction</code> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — inbound greeting, hours,
+        services, booking CTA, after-hours, take-a-message; Anthropic when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead). Operators paste scripts into a
+        temp number / Cal.com until Twilio + client webhook provisioning. See{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
       </p>
 
       <h2>Phase 8 — Commerce</h2>
-      <p>Catalog JSON, Stripe sync, menu/retail templates, order emails.</p>
+      <p>
+        Catalog JSON, Stripe sync, menu/retail templates, order emails. Next free product-promise
+        gap before Stripe Products sync: <code>commerce-catalog-stub</code> (sibling-owned when
+        claimed).
+      </p>
 
       <p>
         Read <DocLink href="/docs/compliance">Compliance</DocLink> before any outreach code.

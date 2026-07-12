@@ -213,6 +213,12 @@ export default function LaunchChecklistDocPage() {
           confirm pipeline-health <strong>Marketing packs due</strong> counts eligible leads
           missing this month&apos;s pack (and that the daily digest lists them).
         </li>
+        <li>
+          For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
+          receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
+          appear (stub without <code>ANTHROPIC_API_KEY</code>). Copy into a temp number / Cal.com
+          until Twilio is provisioned. Regenerating replaces the lead&apos;s pack.
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

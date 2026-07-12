@@ -77,6 +77,16 @@ export default function VoiceAgentFlowDocPage() {
         assistant — how can I help you today?
       </blockquote>
 
+      <h2>Client voice FAQ pack (operator fulfillment)</h2>
+      <p>
+        Before Twilio provisioning, operators generate a FAQ/script pack on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live Complete leads
+        (<code>generateClientVoicePackAction</code>): inbound greeting, hours, services, booking
+        CTA, after-hours, and take-a-message — derived from site data. Copy into a temporary
+        number or Cal.com booking flow. Scripts persist one row per lead (not monthly). Full
+        telephony remains Phase 7.
+      </p>
+
       <h2>Webhook routing</h2>
       <ul>
         <li>

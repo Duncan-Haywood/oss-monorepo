@@ -5,6 +5,7 @@ import {
   listOrders,
   listOpenCheckoutSessions,
   listMarketingPacksForMonth,
+  listClientVoicePacks,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -27,18 +28,27 @@ async function loadLeadsPipelineHealth(): Promise<{
   openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
   marketingPacks: Awaited<ReturnType<typeof listMarketingPacksForMonth>>;
   marketingMonth: string;
+  clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
-  const [leads, handoffs, inquiries, orders, openCheckoutSessions, marketingPacks] =
-    await Promise.all([
-      getLeads(),
-      listDeployHandoffs(),
-      listClientInquiries(50),
-      listOrders(),
-      listOpenCheckoutSessions(),
-      listMarketingPacksForMonth(marketingMonth),
-    ]);
+  const [
+    leads,
+    handoffs,
+    inquiries,
+    orders,
+    openCheckoutSessions,
+    marketingPacks,
+    clientVoicePacks,
+  ] = await Promise.all([
+    getLeads(),
+    listDeployHandoffs(),
+    listClientInquiries(50),
+    listOrders(),
+    listOpenCheckoutSessions(),
+    listMarketingPacksForMonth(marketingMonth),
+    listClientVoicePacks(),
+  ]);
   return {
     leads,
     handoffs,
@@ -47,6 +57,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     openCheckoutSessions,
     marketingPacks,
     marketingMonth,
+    clientVoicePacks,
     health: computePipelineHealth({
       leads,
       orders,
@@ -69,6 +80,7 @@ export default async function LeadsPage() {
     openCheckoutSessions,
     marketingPacks,
     marketingMonth,
+    clientVoicePacks,
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
@@ -106,6 +118,7 @@ export default async function LeadsPage() {
           initialOrders={orders}
           initialMarketingPacks={marketingPacks}
           marketingMonth={marketingMonth}
+          initialClientVoicePacks={clientVoicePacks}
         />
       </div>
     </main>

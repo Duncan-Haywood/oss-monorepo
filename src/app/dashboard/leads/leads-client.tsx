@@ -23,9 +23,11 @@ import {
   openBillingPortalAction,
   sendStarterUpsellAction,
   generateMarketingPackAction,
+  generateClientVoicePackAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
+import type { ClientVoicePack } from "@/lib/voice/pack";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   leadEligibleForStarterUpsell,
@@ -37,6 +39,10 @@ import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
 } from "@/lib/marketing/monthly-pack";
+import {
+  leadEligibleForClientVoicePack,
+  scriptTypeLabel,
+} from "@/lib/voice/faq-pack";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -92,6 +98,7 @@ interface LeadsClientProps {
   initialMarketingPacks?: MarketingPack[];
   /** UTC YYYY-MM for the packs loaded on the server. */
   marketingMonth?: string;
+  initialClientVoicePacks?: ClientVoicePack[];
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -119,6 +126,7 @@ export function LeadsClient({
   initialOrders = [],
   initialMarketingPacks = [],
   marketingMonth = "",
+  initialClientVoicePacks = [],
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
@@ -129,6 +137,11 @@ export function LeadsClient({
   const [marketingPacks, setMarketingPacks] =
     useState<MarketingPack[]>(initialMarketingPacks);
   const [marketingPackOpenSlug, setMarketingPackOpenSlug] = useState<string | null>(null);
+  const [clientVoicePacks, setClientVoicePacks] =
+    useState<ClientVoicePack[]>(initialClientVoicePacks);
+  const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
+    null,
+  );
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -570,6 +583,15 @@ export function LeadsClient({
   const packForLead = (slug: string) =>
     marketingPacks.find((p) => p.leadSlug === slug) ?? null;
 
+  const leadHasClientVoicePack = (lead: Lead) =>
+    leadEligibleForClientVoicePack(
+      lead,
+      orders.filter((o) => o.leadSlug === lead.slug),
+    );
+
+  const voicePackForLead = (slug: string) =>
+    clientVoicePacks.find((p) => p.leadSlug === slug) ?? null;
+
   const handleOpenBillingPortal = (slug: string) => {
     startTransition(async () => {
       const res = await openBillingPortalAction(slug);
@@ -609,6 +631,21 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setMarketingPackOpenSlug(slug);
+    });
+  };
+
+  const handleGenerateClientVoicePack = (slug: string) => {
+    startTransition(async () => {
+      const res = await generateClientVoicePackAction(slug);
+      if (!res.success) {
+        alert(`Client voice pack failed: ${res.error}`);
+        return;
+      }
+      setClientVoicePacks((prev) => {
+        const without = prev.filter((p) => p.leadSlug !== slug);
+        return [res.pack, ...without];
+      });
+      setClientVoicePackOpenSlug(slug);
     });
   };
 
@@ -1717,6 +1754,9 @@ export function LeadsClient({
                   const marketingEligible = leadHasMarketingPack(lead);
                   const packOpen = marketingPackOpenSlug === lead.slug;
                   const existingPack = packForLead(lead.slug);
+                  const voiceEligible = leadHasClientVoicePack(lead);
+                  const voicePackOpen = clientVoicePackOpenSlug === lead.slug;
+                  const existingVoicePack = voicePackForLead(lead.slug);
                   return (
                     <React.Fragment key={lead.slug}>
                     <tr className="hover:bg-zinc-50/50 transition">
@@ -1953,6 +1993,32 @@ export function LeadsClient({
                               ) : null}
                             </>
                           ) : null}
+                          {voiceEligible ? (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-900 transition hover:border-indigo-300 hover:bg-indigo-100 disabled:opacity-60"
+                              >
+                                {existingVoicePack ? "Regenerate voice" : "Generate voice"}
+                              </button>
+                              {existingVoicePack ? (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() =>
+                                    setClientVoicePackOpenSlug(
+                                      voicePackOpen ? null : lead.slug,
+                                    )
+                                  }
+                                  className="inline-flex h-8 items-center justify-center rounded-lg border border-indigo-200 px-3 text-xs font-semibold text-indigo-800 transition hover:bg-indigo-50 disabled:opacity-60"
+                                >
+                                  {voicePackOpen ? "Hide voice" : "View voice"}
+                                </button>
+                              ) : null}
+                            </>
+                          ) : null}
                           <Link
                             href={`/preview/${lead.slug}`}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
@@ -2027,6 +2093,65 @@ export function LeadsClient({
                                   {variant.hashtags?.length ? (
                                     <p className="mt-1 text-[11px] text-sky-700/80">
                                       {variant.hashtags.join(" ")}
+                                    </p>
+                                  ) : null}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </td>
+                      </tr>
+                    ) : null}
+                    {voicePackOpen && existingVoicePack ? (
+                      <tr className="bg-indigo-50/40" id={`lead-voice-${lead.slug}`}>
+                        <td colSpan={7} className="px-6 py-4">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <h3 className="text-sm font-semibold text-zinc-900">
+                              Client voice FAQ pack
+                            </h3>
+                            <p className="text-[11px] text-zinc-500">
+                              {existingVoicePack.generator === "stub"
+                                ? "Stub scripts — set ANTHROPIC_API_KEY for LLM"
+                                : "Generated via Anthropic"}{" "}
+                              · {existingVoicePack.variants.length} scripts · copy into a temp
+                              number / Cal.com (Twilio stays Phase 7)
+                            </p>
+                          </div>
+                          <ul className="mt-3 space-y-3">
+                            {existingVoicePack.variants.map((variant, index) => {
+                              const copyText = [
+                                variant.title,
+                                variant.body,
+                                variant.cta ? `Next: ${variant.cta}` : null,
+                              ]
+                                .filter(Boolean)
+                                .join("\n\n");
+                              return (
+                                <li
+                                  key={`${variant.scriptType}-${index}`}
+                                  className="rounded-lg border border-indigo-100 bg-white px-3 py-2"
+                                >
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-xs font-semibold text-indigo-900">
+                                      {index + 1}. {scriptTypeLabel(variant.scriptType)}
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => void copyMarketingVariant(copyText)}
+                                      className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                                    >
+                                      Copy
+                                    </button>
+                                  </div>
+                                  <p className="mt-1 text-xs font-medium text-zinc-800">
+                                    {variant.title}
+                                  </p>
+                                  <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600">
+                                    {variant.body}
+                                  </p>
+                                  {variant.cta ? (
+                                    <p className="mt-1 text-[11px] font-medium text-zinc-500">
+                                      Next: {variant.cta}
                                     </p>
                                   ) : null}
                                 </li>
