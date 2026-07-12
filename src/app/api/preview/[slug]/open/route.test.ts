@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
 
 const getLeadBySlug = vi.fn();
@@ -48,6 +47,11 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
   });
 
   it("returns 503 when ConvexPrimaryWriteError is thrown", async () => {
+    // Import the same module instance the route will use after resetModules,
+    // otherwise instanceof fails across duplicate class identities.
+    const { ConvexPrimaryWriteError } = await import(
+      "@/lib/payments/convex-primary"
+    );
     recordLeadPreviewOpen.mockRejectedValue(
       new ConvexPrimaryWriteError("recordLeadPreviewOpen", new Error("boom")),
     );
