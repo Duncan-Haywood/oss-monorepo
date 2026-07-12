@@ -165,4 +165,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-v3kn1n",
     relatedTaskIds: ["p2-brand-microsite", "p2-ai-pipeline", "p1-mls-compliance"],
   },
+  {
+    date: "2026-07-12",
+    title: "Lead with agent-led PLG; sequence brokerage sales as a later expansion step",
+    decision:
+      "Added process/gtm-motion.ts, closing STRATEGY.md's last unaddressed open question (brokerage sales cycle vs agent PLG; the other, v1 app scope, is correctly deferred via p3-app-scope's gatedOn). Desk research (general B2B SaaS sales-cycle benchmarks, PLG-vs-sales-led literature, and 2026 real-estate-specific AI-tool-adoption reporting) supports leading with bottom-up agent PLG now and treating a brokerage-led sales motion (STRATEGY.md's $249/mo Team tier) as a Month-3 expansion step that comes after real paying agent customers exist, not a parallel or earlier motion.",
+    rationale:
+      "This doesn't change STRATEGY.md's existing 90-day plan (agent interviews and concierge MVP first, brokerage pilot in Month 3) — it answers the open question with sourced reasoning instead of leaving the checkbox unticked. The strongest single piece of evidence: 2026 real-estate-specific reporting (Inman, May 2026) found brokerages already buying AI/tech licenses and announcing them internally, then individual-agent adoption stalling within about 90 days, with agents defaulting back to their own preferred tools even after a brokerage-wide purchase. A brokerage-led motion here risks closing a Team-tier contract with near-zero real usage and no fast signal; an agent-led PLG motion (a $19 concierge delivery is functionally a paid trial) produces a direct pay/no-pay signal per prospect, which is what phase 2 actually needs. General B2B SaaS data reinforces this: PLG motions convert faster and post better Rule-of-40 scores than pure sales-led motions, and hybrid PLG-then-sales-assist outperforms either motion alone once real usage exists to sell into.",
+    madeBy: "real-estate-photography-continuous-improvement-2",
+    relatedTaskIds: ["p4-gtm-motion", "p2-first-deliveries"],
+  },
 ];

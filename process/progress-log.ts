@@ -291,4 +291,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once a real concierge delivery happens, get feedback on whether the microsite's fixed template (dark theme, single hero + grid) is actually what an agent wants to forward to a client, or whether it needs a lighter/on-brand theme option — don't guess further without that signal. If still nothing is human-unblocked and leads-log.ts/loggedInterviewResults/listingAuditLog are still empty, resist adding another roadmap.ts/process/*.ts tweak just to have a diff; a real product gap (the way this session found 'Brand' was never built, and p2-capture-checklist-scaling/p1-listing-audit-rubric found theirs) is worth more than another status re-confirmation.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "real-estate-photography-continuous-improvement-2",
+    summary:
+      "Re-confirmed the now month-long human-blocked state (leads-log.ts/loggedInterviewResults/listingAuditLog still genuinely empty, PR #4 still open/draft/unchanged since 2026-06-15, all other branches confirmed strictly merged/behind main, branch deletion still expected to 403) and, rather than add an 11th re-confirmation, closed STRATEGY.md's last unaddressed open question: brokerage sales cycle vs agent PLG. This was genuinely open (unlike v1 app scope, which is correctly gatedOn real validation data) and desk-researchable the same way mls-compliance.ts and virtual-staging-tech.ts closed the first two questions.",
+    changes: [
+      "Added process/gtm-motion.ts: sourced comparison of brokerage-led vs agent-led PLG go-to-market motions (general B2B SaaS sales-cycle/PLG benchmarks plus 2026 real-estate-specific AI-tool-adoption reporting), with an explicit provisional decision (lead with agent PLG now, sequence brokerage sales as a Month-3 expansion step) and revisit condition.",
+      "process/roadmap.ts: added p4-gtm-motion (done) under the previously-empty Phase 4 task list.",
+      "process/prompt_process.tsx: imports and renders the new 'Go-to-market motion' dashboard section (decision + both options), same pattern as the existing virtual-staging-tech section.",
+      "STRATEGY.md: checked off the 'Brokerage sales cycle vs agent PLG' open question with a pointer to process/gtm-motion.ts.",
+      "decisions-log.ts: logged the decision and the specific evidence (Inman's May-2026 reporting on brokerage AI-tool adoption stalling within ~90 days) that drove it.",
+      "Verified: docs-site `npm run build` and research `npm run build` both pass with the new dashboard section; pipeline `npm test` + `npx tsc --noEmit` pass (untouched, run anyway since it imports process/capture-checklist.ts from the same package).",
+    ],
+    nextUp: [
+      "Human: same 5 items as every recent session's README banner — p2-first-deliveries (book+shoot a concierge listing) remains the single highest-leverage next step; Phase 1 interviews; the Zillow listing audit; PR #4's Cloudflare dashboard step; the ~12 stale branches.",
+      "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first. STRATEGY.md's only remaining open checkbox (v1 app scope) is correctly gatedOn p1-run-interviews + p2-first-deliveries via p3-app-scope — don't answer it early without that data, unlike this session's question which was genuinely desk-researchable. If nothing new and no fresh product gap is found, don't pad the session; a short re-verification is fine and honest.",
+    ],
+  },
 ];

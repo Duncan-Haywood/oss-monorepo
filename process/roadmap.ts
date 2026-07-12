@@ -267,7 +267,18 @@ export const roadmap: RoadmapPhase[] = [
     status: "not_started",
     window: "Month 3",
     summary: "Select the audience where 40%+ would pay $49/mo; land 1 brokerage pilot.",
-    tasks: [],
+    tasks: [
+      {
+        id: "p4-gtm-motion",
+        title: "Answer STRATEGY.md's open 'brokerage sales cycle vs agent PLG' question",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The last unaddressed box in STRATEGY.md's open-questions checklist (the other, v1 app scope, is correctly gatedOn real interview/delivery data via p3-app-scope). Which GTM motion to lead with is desk-researchable now, the same way mls-compliance.ts and virtual-staging-tech.ts closed the first two open questions without customer contact, and it directly informs how Month-3 'land 1 brokerage pilot' should actually be approached once phase 2 produces real revenue.",
+        doneWhen:
+          "A sourced comparison of brokerage-led (top-down) vs agent-led (bottom-up/PLG) go-to-market motions exists in process/gtm-motion.ts with an explicit provisional decision and revisit condition, rendered on the docs site, with STRATEGY.md's open question checked off. See process/gtm-motion.ts.",
+      },
+    ],
   },
 ];
 

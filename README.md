@@ -59,7 +59,8 @@ real-estate-agent-photo-app/
 │   ├── capture-checklist.ts     # Phase 2 concierge-MVP shoot checklist
 │   ├── pricing-one-pager.tsx    # $19/listing concierge offer
 │   ├── outreach-templates.ts    # manual outreach copy + booking intake
-│   └── booking-link.ts          # real mailto: booking link (fills the outreach placeholder)
+│   ├── booking-link.ts          # real mailto: booking link (fills the outreach placeholder)
+│   └── gtm-motion.ts            # desk research: brokerage sales cycle vs agent PLG
 ├── pipeline/
 │   ├── package.json
 │   └── src/

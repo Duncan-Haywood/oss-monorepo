@@ -27,6 +27,7 @@ import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } 
 import { mlsComplianceRules } from "./mls-compliance";
 import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
 import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual-staging-tech";
+import { gtmMotionOptions, gtmMotionDecision } from "./gtm-motion";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
 import type { PhaseStatus } from "./types";
 
@@ -308,6 +309,33 @@ export function ProcessDashboard() {
               </div>
               <p className="mt-2 text-sm text-slate-300">{option.costModel}</p>
               <p className="mt-2 text-xs text-slate-500">{option.latency}</p>
+              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Go-to-market motion (brokerage vs agent PLG)</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          Desk research answering STRATEGY.md's open "brokerage sales cycle vs agent PLG"
+          question. A provisional, sourced sequencing decision, not a real brokerage sales
+          conversation — see process/gtm-motion.ts for sources and the revisit condition.
+        </p>
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <h3 className="font-medium text-white">Decision: {gtmMotionDecision.choice.replace(/_/g, " ")}</h3>
+          <p className="mt-2 text-sm text-slate-300">{gtmMotionDecision.summary}</p>
+          <p className="mt-2 text-xs text-slate-500">Revisit when: {gtmMotionDecision.revisitWhen}</p>
+        </div>
+        <div className="mt-4 space-y-4">
+          {gtmMotionOptions.map((option) => (
+            <div key={option.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-medium text-white">{option.name}</h3>
+                <span className="text-xs text-slate-500">{option.approach.replace(/_/g, " ")}</span>
+              </div>
+              <p className="mt-2 text-sm text-slate-300">{option.cycleLength}</p>
+              <p className="mt-2 text-xs text-slate-500">{option.contractValue}</p>
               <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
             </div>
           ))}
