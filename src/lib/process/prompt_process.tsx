@@ -74,6 +74,7 @@ export const AGENT_PROTOCOL = [
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Commerce catalogs unsynced = listCommerceCatalogsUnsynced (eligible commerceAddon paid/live with a saved catalog that still has ≥1 SKU without stripePriceId). Surface as pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section — distinct from catalogs-missing; empty catalogs are not unsynced.",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizeCommerceItems — never persist a normalized draft that drops stripeProductId/stripePriceId, or Buy now silently regresses after any catalog edit. Never trust client-submitted Stripe ids.",
+  "enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before insertDeployHandoff when rebuilding for a new stripeSessionId — never let a Starter→Growth upsell or re-purchase wipe operator-set customDomain / vercelProjectId (Host→preview routing + dedicated Vercel project). Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post, or Email pack to lead.email via Resend) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo. Email pack requires an existing pack row for the current UTC month — never auto-generate on send.",
@@ -843,9 +844,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deploy-handoff-preserve-custom-domain",
     summary:
-      "Empty-backlog audit follow-up (queued, not claimed): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Prefer claiming after checkout-session-create-convex-primary ships.",
-    status: "todo",
+      "Empty-backlog audit follow-up: enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Shipped: preserveDeployHandoffOperatorFields merges operator-set customDomain + vercelProjectId from the existing handoff before insert (next explicit values still win).",
+    status: "done",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-c1a0",
   },
   {
     id: "checkout-recovery-sent-convex-primary",
@@ -2123,6 +2125,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "POST /api/preview/[slug]/open passes requireConvex (PREVIEW_OPEN_CONVEX_PRIMARY) when Convex is configured — fail-closed 503 instead of claiming recorded:true after a SQLite-only lastPreviewOpenAt write.",
     rationale:
       "Free NEXT_STEPS were gated after PR #83; sibling f005 claimed checkout-session-create-convex-primary in the same cron window (merged as PR #84). Preview-open was the remaining public write that still SQLite-fallback'd then returned success while Convex-first getLeads never saw the open — Work next preview_opened (+10), follow-up openers-first sort, and the Opened badge all silently regress on multi-instance deploys. Beacon is fire-and-forget so 503 needs no visitor UX; matches contact/unsubscribe/webhook requireConvex. Left deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary queued by f005.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "enqueueProductionHandoff must preserve operator-set customDomain and vercelProjectId via preserveDeployHandoffOperatorFields when rebuilding a handoff for a new stripeSessionId (upsell / re-purchase).",
+    rationale:
+      "Starter sells Preview subdomain → custom domain handoff; once an operator saves a client domain (or dedicated Vercel project), Host→preview routing and Domains API targeting depend on those fields surviving. Convex upsert replace + SQLite ON CONFLICT both clear omitted optionals, and buildHandoffRecord never copied them — so a Starter→Growth upsell checkout wiped live routing the same way normalizeCommerceItems wiped Stripe ids before preserveCommerceStripeIds. Explicit next values still win; checkout-recovery-sent-convex-primary stays queued for the sibling (6946) / next run. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -3530,5 +3539,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #84 (f005 checkout-session create) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(179, 180),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-c1a0",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #85 (preview-open requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated, plus queued checkout-recovery-sent-convex-primary. Sibling business-process-evolution-6946 dual-claimed the same preserve todo 7s later (claim-only); earlier remote claim owns. Shipped preserveDeployHandoffOperatorFields so upsell/re-purchase rebuilds keep operator-set customDomain / vercelProjectId. Left checkout-recovery-sent-convex-primary for sibling/next run.",
+    shipped: [
+      "src/lib/deploy/handoff-preserve.ts (+ test) — preserveDeployHandoffOperatorFields (pure; no server-only)",
+      "src/lib/deploy/handoff.ts — enqueueProductionHandoff merges existing customDomain / vercelProjectId before insert",
+      "Docs: architecture / production-deploy / roadmap / launch-checklist — handoff preserve on upsell rebuild",
+      "NEXT_STEPS: deploy-handoff-preserve-custom-domain done; checkout-recovery-sent-convex-primary left for sibling 6946 (their claim note offered it after dual-claiming the same preserve todo 7s later)",
+      "AGENT_PROTOCOL — preserveDeployHandoffOperatorFields on handoff rebuild (same class as preserveCommerceStripeIds)",
+      "BUSINESS_DECISIONS — documented preserve on upsell so Host→preview routing survives",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(180, 181),
   },
 ];

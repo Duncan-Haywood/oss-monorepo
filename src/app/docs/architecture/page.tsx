@@ -199,7 +199,12 @@ export default function ArchitectureDocPage() {
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
         email notify best-effort after with escaped HTML; <code>503</code> if the inbox write
         fails), optional Vercel Domains
-        API.
+        API. When a later bundle checkout (upsell / re-purchase) rebuilds the handoff for a
+        new <code>stripeSessionId</code>,{" "}
+        <code>preserveDeployHandoffOperatorFields</code> keeps any operator-set{" "}
+        <code>customDomain</code> / <code>vercelProjectId</code> so Host→preview routing and
+        dedicated-project Domains API targeting are not wiped (same class as{" "}
+        <code>preserveCommerceStripeIds</code>).
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). Opening the reply composer on a{" "}
