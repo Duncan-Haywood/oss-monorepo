@@ -141,7 +141,9 @@ export default function ArchitectureDocPage() {
         soft prompt (Skip dismisses without undoing the stage/email change). Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
         the quality score visible — Unsnooze clears it; parked count also appears on pipeline
-        health so forgotten snoozes do not hide. A lead that exhausts all 3 outreach
+        health and as a footnote on the operator daily digest (count + soonest return) so
+        forgotten snoozes do not hide when the operator never opens the dashboard. A lead that
+        exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health
@@ -155,7 +157,14 @@ export default function ArchitectureDocPage() {
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
-      <p>LLM content from ingestion + site + voice discovery → quality gates → Buffer scheduling.</p>
+      <p>
+        Stub at <code>src/lib/marketing/generators.ts</code> — next free backlog item is an
+        operator-triggered monthly pack for paid/live Growth/Complete leads (LLM when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set, stub fallback otherwise). Buffer / GBP / Meta
+        auto-scheduling stays operator-gated on OAuth secrets. See{" "}
+        <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
+        <DocLink href="/docs/process">process log</DocLink>.
+      </p>
 
       <h2>8. Client AI phone (Complete)</h2>
       <p>Twilio + Vapi per client; FAQ, booking, lead capture on their business line.</p>

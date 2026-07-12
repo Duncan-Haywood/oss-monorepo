@@ -98,7 +98,9 @@ export default function RoadmapDocPage() {
         shipped. Follow-ups-due pipeline-health aggregate (<code>followUpsDueCount</code> +
         oldest age since last send via <code>isFollowUpDue</code>, sitting beside unreplied
         inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
-        badges row-by-row): shipped. Remaining: Vapi/Retell platform voice and bundle
+        badges row-by-row): shipped. Operator daily digest includes currently-snoozed lead
+        count + soonest return as a footnote (reuses <code>isLeadSnoozed</code> — not a second
+        priority section): shipped. Remaining: Vapi/Retell platform voice and bundle
         explanation tools.
       </p>
 
@@ -147,12 +149,19 @@ export default function RoadmapDocPage() {
         panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
-        Remaining free operator-leverage gap: cold-lead archive/re-engage one-click (sibling) —
-        see <DocLink href="/docs/process">process log</DocLink>.
+        Cold-lead archive/re-engage one-click: shipped. Follow-ups-due pipeline aggregate:
+        shipped. Daily digest snoozed footnote: shipped. Next free product-promise gap:
+        Growth/Complete marketing pack generation (see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>
-      <p>LLM generators, Buffer scheduling, Growth/Complete recurring billing.</p>
+      <p>
+        Stub generator lives at <code>src/lib/marketing/generators.ts</code>. Next free
+        backlog item: operator-triggered monthly marketing pack for paid/live Growth/Complete
+        leads (LLM via <code>ANTHROPIC_API_KEY</code>, stub fallback). Buffer / GBP / Meta
+        auto-scheduling stays operator-gated on secrets.
+      </p>
 
       <h2>Phase 7 — Client AI phone</h2>
       <p>Twilio provisioning, client webhook, Cal.com booking, Complete tier automation.</p>

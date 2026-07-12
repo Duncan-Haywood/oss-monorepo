@@ -42,8 +42,8 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes → paid-bundle marketing fulfillment), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
@@ -54,6 +54,7 @@ export const AGENT_PROTOCOL = [
   "If two hourly automations claim the same free todo in the same window: merge the branches (keep both process iterations), do not open a second competing PR for the same feature surface.",
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
+  "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
@@ -368,8 +369,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "snoozed-leads-in-digest",
     summary:
-      "Optional: include currently-snoozed lead count (and soonest return) in the operator daily digest so parked urgency is visible without opening /dashboard/leads — reuses snoozedLeadCount from pipeline-health / isLeadSnoozed.",
-    status: "in_progress",
+      "Optional: include currently-snoozed lead count (and soonest return) in the operator daily digest so parked urgency is visible without opening /dashboard/leads — reuses isLeadSnoozed (same predicate as pipeline-health snoozedLeadCount). Shipped as digest footnotes, not a second action section.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-775d",
   },
@@ -384,8 +385,23 @@ export const NEXT_STEPS: NextStep[] = [
     id: "reengage-send-email1-option",
     summary:
       "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-084a",
+  },
+  {
+    id: "marketing-content-generation",
+    summary:
+      "Growth ($99/mo) and Complete ($199/mo) both sell 'AI marketing engine: 8 social/GBP posts + 2 emails/month' (see /docs/product-bundles), but src/lib/marketing/generators.ts is still an unwired stub — paying subscribers have nothing generated for them. Ship an operator-triggered 'Generate this month's marketing pack' action on /dashboard/leads for paid/live Growth/Complete leads: real content via ANTHROPIC_API_KEY (fallback to the existing stub when unset), persisted per lead/month, surfaced for the operator to copy/post since Buffer/GBP OAuth auto-posting stays a separate operator-gated step (see marketing-content-scheduling). Re-queued after stale claim-only sibling claude/upbeat-dijkstra-ea3tow (~1h idle, no feature body, behind main).",
+    status: "todo",
+    phase: "Phase 6 — Marketing automation",
+  },
+  {
+    id: "marketing-content-scheduling",
+    summary:
+      "Auto-post generated marketing packs (marketing-content-generation) to Buffer / Google Business Profile / Meta instead of operator copy-paste — requires BUFFER_ACCESS_TOKEN / GBP OAuth / Meta OAuth (all operator-gated secrets). Ship the OAuth checklist + scheduling call sites once an operator has credentials; do not fake-complete without real tokens.",
+    status: "todo",
+    phase: "Phase 6 — Marketing automation",
   },
 ];
 
@@ -1020,6 +1036,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Two independent 'is this lead due' implementations would drift the moment the Email 2/3 cadence constants change — the badge and the aggregate must always agree on which leads are due. Aggregating over the same pure predicate keeps pipeline-health a read-only rollup, matching the pattern already used for coldLeadCount/isColdLead and snoozedLeadCount/isLeadSnoozed.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Operator daily digest includes currently-snoozed lead count + soonestSnoozeRemainingHours as footnotes (empty and non-empty states), reusing isLeadSnoozed — not a fifth action section and not an isEmpty=false signal.",
+    rationale:
+      "Snoozed leads are intentionally parked off Work next; promoting them into digest action lists would recreate the false urgency snooze removed. A footnote matching pipeline-health / Work next keeps parked urgency visible for operators who live in email, without a second queue. Same pure predicate prevents digest vs dashboard drift.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After snoozed-leads-in-digest, queue marketing-content-generation as the next free product-promise gap (Growth/Complete sell an AI marketing engine; generators.ts is still a stub) plus operator-gated marketing-content-scheduling; leave optional closed-leads-pipeline-metric free (same-cron sibling prompt-process-evolution-084a claimed reengage-send-email1-option); Stripe Price bootstrap and Places stay human-gated. Stale claim-only claude/upbeat-dijkstra-ea3tow (~1h, no feature body, behind main) does not own marketing-content-generation.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Optional CRM polish remains available, but a sold Growth/Complete promise with no generated content is the highest unpaid fulfillment risk once Stripe Prices go live — prefer that over more operator aggregates once digest/pipeline visibility is in place. Parallel hourly sibling took the re-engage Email 1 option, so do not duplicate it.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1626,5 +1656,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (150 passed) + lint + build, then npm run dev: mutated the seeded serene-salon row to outreachStep=1 / lastOutreachAt 4 days ago via node:sqlite, confirmed 'Follow-ups due: 1 · Oldest since Email 4d' on the pipeline-health panel and the operator callout on /dashboard/leads, then reset the row",
     ],
     decisions: BUSINESS_DECISIONS.slice(89, 90),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-775d",
+    summary:
+      "Claimed snoozed-leads-in-digest (top free optional after follow-ups-due shipped in PR #39). Folded currently-snoozed count + soonest return into the operator daily digest as footnotes via isLeadSnoozed (same predicate as pipeline-health), Vitest, docs. Improved AGENT_PROTOCOL (digest-footnote reuse + paid-bundle marketing in revenue chain). Queued marketing-content-generation after stale claim-only ea3tow; noted same-cron sibling prompt-process-evolution-084a owns reengage-send-email1-option; left closed-leads-pipeline-metric free.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — snoozedLeadCount + soonestSnoozeRemainingHours + formatSnoozeRemainingHours; footnotes on empty and non-empty HTML",
+      "src/lib/digest/daily-digest.test.ts — snooze count/soonest/footnote + format cases",
+      "Docs: architecture, roadmap Phase 2/5/6, marketing-automation status, launch-checklist digest verification",
+      "NEXT_STEPS: snoozed-leads-in-digest done; marketing-content-generation + marketing-content-scheduling queued; closed-leads-pipeline-metric free; reengage-send-email1-option owned by prompt-process-evolution-084a",
+      "AGENT_PROTOCOL — digest footnote predicate reuse; revenue chain includes digest snooze + paid-bundle marketing fulfillment",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(90, 92),
   },
 ];

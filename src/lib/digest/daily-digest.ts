@@ -13,6 +13,7 @@ import type { Lead } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
 import { listAbandonedCheckoutsDue } from "../checkout/abandoned-recovery";
+import { isLeadSnoozed } from "../leads/snooze";
 import { isUnrepliedInquiryStatus } from "../metrics/pipeline-health";
 
 const WORK_NEXT_LIMIT = 5;
@@ -20,6 +21,7 @@ const FOLLOW_UPS_LIMIT = 5;
 const RECOVERIES_LIMIT = 5;
 const INQUIRIES_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
+const HOUR_MS = 60 * 60 * 1000;
 
 export interface DigestWorkNextLead {
   slug: string;
@@ -56,6 +58,13 @@ export interface DailyDigest {
   checkoutRecoveriesDue: DigestCheckoutRecovery[];
   unrepliedInquiries: DigestUnrepliedInquiry[];
   coldLeadCount: number;
+  /**
+   * Leads currently parked off Work next via snoozedUntil (same predicate as
+   * pipeline-health snoozedLeadCount). Footnote only — not a digest action section.
+   */
+  snoozedLeadCount: number;
+  /** Whole hours until the soonest snooze expires; null when none snoozed. */
+  soonestSnoozeRemainingHours: number | null;
   /** True when none of the above sections have anything for the operator to act on. */
   isEmpty: boolean;
 }
@@ -126,6 +135,23 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
+  const snoozedLeads = leads.filter((lead) =>
+    isLeadSnoozed(lead.snoozedUntil, nowMs),
+  );
+  let soonestSnoozeRemainingHours: number | null = null;
+  for (const lead of snoozedLeads) {
+    if (!lead.snoozedUntil) continue;
+    const untilMs = Date.parse(lead.snoozedUntil);
+    if (Number.isNaN(untilMs) || untilMs <= nowMs) continue;
+    const remainingHours = Math.ceil((untilMs - nowMs) / HOUR_MS);
+    if (
+      soonestSnoozeRemainingHours === null ||
+      remainingHours < soonestSnoozeRemainingHours
+    ) {
+      soonestSnoozeRemainingHours = Math.max(0, remainingHours);
+    }
+  }
+
   const isEmpty =
     workNext.length === 0 &&
     followUpsDue.length === 0 &&
@@ -139,8 +165,19 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     checkoutRecoveriesDue,
     unrepliedInquiries,
     coldLeadCount,
+    snoozedLeadCount: snoozedLeads.length,
+    soonestSnoozeRemainingHours,
     isEmpty,
   };
+}
+
+/** Human-readable remaining snooze for digest footnotes (e.g. "3h", "2d"). */
+export function formatSnoozeRemainingHours(hours: number | null): string {
+  if (hours === null) return "";
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  const rem = hours % 24;
+  return rem === 0 ? `${days}d` : `${days}d ${rem}h`;
 }
 
 function escapeHtml(value: string): string {
@@ -164,13 +201,29 @@ function section(title: string, rows: string[], emptyNote: string): string {
   `;
 }
 
+function snoozedFootnote(digest: DailyDigest): string {
+  if (digest.snoozedLeadCount <= 0) return "";
+  const soonest = formatSnoozeRemainingHours(digest.soonestSnoozeRemainingHours);
+  const soonestBit = soonest ? ` · soonest returns in ${soonest}` : "";
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.snoozedLeadCount} lead${digest.snoozedLeadCount === 1 ? "" : "s"} currently snoozed off Work next${soonestBit} — parked urgency, not a second queue.</p>`;
+}
+
+function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
+  if (digest.coldLeadCount <= 0) return "";
+  if (emptyState) {
+    return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} went cold after Email 3 — see /dashboard/leads to re-engage or close them out.</p>`;
+  }
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3 — not actionable above, but worth a manual look.</p>`;
+}
+
 /** Renders the digest as email-safe inline-styled HTML. Pure — no fetch/DOM. */
 export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): string {
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
       <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, and the inbox are all clear.</p>
-      ${digest.coldLeadCount > 0 ? `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} went cold after Email 3 — see /dashboard/leads to re-engage or close them out.</p>` : ""}
+      ${coldFootnote(digest, true)}
+      ${snoozedFootnote(digest)}
     `;
   }
 
@@ -204,6 +257,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Follow-ups due (${digest.followUpsDue.length})`, followUpRows, "No follow-up emails due.")}
     ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDue.length})`, recoveryRows, "No recovery nudges due.")}
     ${section(`Unreplied inquiries (${digest.unrepliedInquiries.length})`, inquiryRows, "Inbox clear.")}
-    ${digest.coldLeadCount > 0 ? `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3 — not actionable above, but worth a manual look.</p>` : ""}
+    ${coldFootnote(digest, false)}
+    ${snoozedFootnote(digest)}
   `;
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "../leads/types";
-import { buildDailyDigest, renderDailyDigestHtml } from "./daily-digest";
+import { buildDailyDigest, formatSnoozeRemainingHours, renderDailyDigestHtml } from "./daily-digest";
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 
@@ -70,6 +70,8 @@ describe("buildDailyDigest", () => {
     expect(digest.followUpsDue).toHaveLength(0);
     expect(digest.checkoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
+    expect(digest.snoozedLeadCount).toBe(0);
+    expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
 
   it("surfaces a ready-to-outreach lead in workNext", () => {
@@ -168,6 +170,43 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.coldLeadCount).toBe(1);
   });
+
+  it("counts currently-snoozed leads and soonest remaining hours without making isEmpty false", () => {
+    const snoozedSoon = baseLead({
+      slug: "snoozed-soon",
+      snoozedUntil: "2026-07-12T15:00:00.000Z", // 3h after NOW
+    });
+    const snoozedLater = baseLead({
+      slug: "snoozed-later",
+      snoozedUntil: "2026-07-14T12:00:00.000Z", // 2d later
+    });
+    const expiredSnooze = baseLead({
+      slug: "expired-snooze",
+      stage: "closed",
+      snoozedUntil: "2026-07-12T11:00:00.000Z",
+    });
+    const digest = buildDailyDigest({
+      leads: [snoozedSoon, snoozedLater, expiredSnooze],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    // Expired does not count; active snoozes are footnotes only (Work next
+    // excludes them via actionable=false), so isEmpty stays true.
+    expect(digest.snoozedLeadCount).toBe(2);
+    expect(digest.soonestSnoozeRemainingHours).toBe(3);
+    expect(digest.workNext).toHaveLength(0);
+    expect(digest.isEmpty).toBe(true);
+  });
+});
+
+describe("formatSnoozeRemainingHours", () => {
+  it("formats hours and multi-day remaining", () => {
+    expect(formatSnoozeRemainingHours(null)).toBe("");
+    expect(formatSnoozeRemainingHours(3)).toBe("3h");
+    expect(formatSnoozeRemainingHours(24)).toBe("1d");
+    expect(formatSnoozeRemainingHours(30)).toBe("1d 6h");
+  });
 });
 
 describe("renderDailyDigestHtml", () => {
@@ -180,6 +219,24 @@ describe("renderDailyDigestHtml", () => {
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Nothing urgent today");
+  });
+
+  it("mentions snoozed leads as a footnote even when the digest is otherwise empty", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "parked",
+          snoozedUntil: "2026-07-13T12:00:00.000Z",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Nothing urgent today");
+    expect(html).toContain("currently snoozed off Work next");
+    expect(html).toContain("soonest returns in");
   });
 
   it("escapes business names and lists sections when there is work to do", () => {

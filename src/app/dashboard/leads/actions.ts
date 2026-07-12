@@ -682,9 +682,10 @@ export async function openBillingPortalAction(slug: string) {
 
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
- * abandoned-checkout recoveries due, and unreplied inquiries in one send, so
- * a single-operator business does not have to open this dashboard to know
- * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
+ * abandoned-checkout recoveries due, and unreplied inquiries in one send, plus
+ * cold/snoozed footnotes, so a single-operator business does not have to open
+ * this dashboard to know what is urgent today. Requires OPERATOR_DIGEST_EMAIL —
+ * see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {

@@ -70,6 +70,14 @@ export default function MarketingAutomationDocPage() {
         <li>SMS marketing requires separate TCPA opt-in (future)</li>
       </ul>
 
+      <h2>Current status</h2>
+      <p>
+        Generator module exists as a stub (<code>src/lib/marketing/generators.ts</code>).
+        Operator-triggered monthly pack generation for paid Growth/Complete leads is the next
+        free backlog item on <DocLink href="/docs/process">/docs/process</DocLink>; Buffer /
+        GBP / Meta auto-posting stays operator-gated on OAuth secrets.
+      </p>
+
       <p>
         Technical module: <DocLink href="/docs/architecture">Architecture</DocLink> § Marketing Engine
       </p>

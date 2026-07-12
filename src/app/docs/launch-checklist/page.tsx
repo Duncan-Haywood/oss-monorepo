@@ -98,8 +98,9 @@ export default function LaunchChecklistDocPage() {
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
           follow-ups due, abandoned-checkout recoveries, and unreplied inquiries all show up in
-          one email (or the mock log) — the operator should not need to open the dashboard to
-          know what is urgent today.
+          one email (or the mock log) — plus a snoozed-lead footnote (count + soonest return)
+          when any lead is parked off Work next. The operator should not need to open the
+          dashboard to know what is urgent today.
         </li>
       </ol>
 
