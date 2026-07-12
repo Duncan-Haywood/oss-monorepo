@@ -582,6 +582,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 8 — Commerce",
   },
+  {
+    id: "commerce-orders-convex-id-integrity",
+    summary:
+      "Bug found while sibling cursor/business-process-evolution-0907 held the only free backlog item (commerce-stripe-orphan-product-archive, claim-only, no feature code yet): commerce-order-revenue-ledger's Convex path never persisted an id. Unlike every sibling ledger (clientVoicePacks.packId, marketingPacks.packId, clientInquiries.inquiryId — each stored as an app-owned *Id column and echoed back as `id`), convex/schema.ts's commerceOrders table and convex/commerceOrders.ts's insert/list have no id field at all, so CommerceOrderRecord.id (required string, populated correctly on the SQLite fallback) is silently undefined for every row once Convex is configured — the /dashboard/leads Commerce payouts (manual) panel keys each order line with `key={row.id}`, so this breaks React list identity for that panel and any future consumer that dedupes/looks up by id. Fixing.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-noo0a3",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
