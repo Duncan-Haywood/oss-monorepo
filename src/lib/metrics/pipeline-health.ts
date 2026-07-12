@@ -3,7 +3,7 @@
  * gaps are visible without scanning every lead row.
  * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
  * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement
- * + snoozed-leads-pipeline-metric).
+ * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -15,7 +15,7 @@ import {
   isAbandonedCheckout,
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
-import { isColdLead } from "@/lib/email/outreach-followups";
+import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
 
 export interface StageCount {
@@ -73,6 +73,10 @@ export interface PipelineHealth {
    * Helps operators see parked urgency coming back onto Work next.
    */
   soonestSnoozeRemainingHours: number | null;
+  /** Leads due for Email 2/3 — see isFollowUpDue. */
+  followUpsDueCount: number;
+  /** Age in whole hours since the oldest due lead's last outreach send; null when none. */
+  oldestFollowUpDueAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -217,6 +221,18 @@ export function computePipelineHealth(input: {
     }
   }
 
+  const followUpsDue = input.leads.filter((lead) => isFollowUpDue(lead, nowMs));
+  let oldestFollowUpDueAgeHours: number | null = null;
+  for (const lead of followUpsDue) {
+    if (!lead.lastOutreachAt) continue;
+    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
+    if (Number.isNaN(lastOutreachMs)) continue;
+    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
+    if (oldestFollowUpDueAgeHours === null || ageHours > oldestFollowUpDueAgeHours) {
+      oldestFollowUpDueAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   const snoozedLeads = input.leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),
   );
@@ -258,6 +274,8 @@ export function computePipelineHealth(input: {
     oldestColdLeadAgeHours,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
+    followUpsDueCount: followUpsDue.length,
+    oldestFollowUpDueAgeHours,
   };
 }
 

@@ -95,7 +95,11 @@ export default function RoadmapDocPage() {
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
         shipped. Cold-lead archive action (one-click <code>Re-engage</code> resets cadence to{" "}
         <code>discovered</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
-        shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools.
+        shipped. Follow-ups-due pipeline-health aggregate (<code>followUpsDueCount</code> +
+        oldest age since last send via <code>isFollowUpDue</code>, sitting beside unreplied
+        inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
+        badges row-by-row): shipped. Remaining: Vapi/Retell platform voice and bundle
+        explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>

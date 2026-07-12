@@ -99,6 +99,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.snoozedLeadCount > 0}
         />
+        <MetricCard
+          label="Follow-ups due"
+          value={String(health.followUpsDueCount)}
+          hint={
+            health.oldestFollowUpDueAgeHours !== null
+              ? `Oldest since Email ${formatAbandonedAgeHours(health.oldestFollowUpDueAgeHours)}`
+              : "Email 2/3 backlog clear"
+          }
+          attention={health.followUpsDueCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -143,6 +153,17 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             : ""}
           . Unsnooze from the table when the call/booked slot is done; this count is not a second
           priority queue.
+        </p>
+      ) : null}
+
+      {health.followUpsDueCount > 0 ? (
+        <p className="mt-3 text-xs text-indigo-900">
+          {health.followUpsDueCount} lead{health.followUpsDueCount === 1 ? "" : "s"} due for
+          Email 2/3 — send follow-ups from the Due badges on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          (or Work next) before they go cold.
         </p>
       ) : null}
 

@@ -175,6 +175,11 @@ export default function LaunchChecklistDocPage() {
           <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
           actions
         </li>
+        <li>
+          When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}
+          <strong>Follow-ups due</strong> count increments (with the oldest-due age) and
+          matches the Due badges shown in the Follow-ups due panel / Work next queue.
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>
