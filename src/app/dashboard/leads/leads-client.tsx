@@ -402,7 +402,9 @@ export function LeadsClient({
       setCsvMessage(
         `Imported ${res.imported} lead${res.imported === 1 ? "" : "s"}` +
           (res.skipped ? ` (${res.skipped} skipped)` : "") +
-          (res.errors.length ? `. ${res.errors.length} row warning(s).` : "."),
+          (res.errors.length
+            ? `. ${res.errors.length} row warning(s) — existing slugs are not overwritten.`
+            : "."),
       );
 
       // Refresh list from optimistic parse by reloading — server owns truth

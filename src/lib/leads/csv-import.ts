@@ -278,3 +278,29 @@ export function parseLeadsCsv(
 
   return { leads, errors, skipped };
 }
+
+/**
+ * Split parsed CSV (or other create-path) leads into inserts vs collisions
+ * against already-persisted slugs. Call-site only — does not change upsertLead.
+ * CSV import skips collisions with a row warning; addLead returns an error.
+ */
+export function partitionLeadsByExistingSlugs<T extends { slug: string }>(
+  candidates: T[],
+  existingSlugs: ReadonlySet<string>,
+): { fresh: T[]; collisions: T[] } {
+  const fresh: T[] = [];
+  const collisions: T[] = [];
+  for (const lead of candidates) {
+    if (existingSlugs.has(lead.slug)) {
+      collisions.push(lead);
+    } else {
+      fresh.push(lead);
+    }
+  }
+  return { fresh, collisions };
+}
+
+/** Operator-facing message when a create-path slug already exists in the DB. */
+export function existingLeadSlugConflictMessage(slug: string): string {
+  return `Lead already exists for slug "${slug}" — skipped to avoid overwriting pipeline state (stage, outreach, notes, snooze). Edit the existing lead instead.`;
+}

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { CSV_LEAD_TEMPLATE, parseCsvLine, parseLeadsCsv, slugifyBusinessName } from "./csv-import";
+import {
+  CSV_LEAD_TEMPLATE,
+  existingLeadSlugConflictMessage,
+  parseCsvLine,
+  parseLeadsCsv,
+  partitionLeadsByExistingSlugs,
+  slugifyBusinessName,
+} from "./csv-import";
 
 describe("parseCsvLine", () => {
   it("splits plain comma-separated fields", () => {
@@ -105,5 +112,34 @@ describe("parseLeadsCsv", () => {
     const result = parseLeadsCsv(`businessName\n${rows}`);
     expect(result.leads).toEqual([]);
     expect(result.errors[0]?.message).toMatch(/Too many rows/);
+  });
+});
+
+describe("partitionLeadsByExistingSlugs", () => {
+  it("splits fresh inserts from slug collisions against the existing set", () => {
+    const candidates = [
+      { slug: "new-shop", businessName: "New Shop" },
+      { slug: "old-shop", businessName: "Old Shop" },
+      { slug: "also-new", businessName: "Also New" },
+    ];
+    const { fresh, collisions } = partitionLeadsByExistingSlugs(
+      candidates,
+      new Set(["old-shop"]),
+    );
+    expect(fresh.map((l) => l.slug)).toEqual(["new-shop", "also-new"]);
+    expect(collisions.map((l) => l.slug)).toEqual(["old-shop"]);
+  });
+
+  it("treats an empty existing set as all-fresh", () => {
+    const { fresh, collisions } = partitionLeadsByExistingSlugs([{ slug: "only" }], new Set());
+    expect(fresh).toHaveLength(1);
+    expect(collisions).toEqual([]);
+  });
+});
+
+describe("existingLeadSlugConflictMessage", () => {
+  it("names the colliding slug and says pipeline state is preserved", () => {
+    expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/blue-river-salon/);
+    expect(existingLeadSlugConflictMessage("blue-river-salon")).toMatch(/pipeline state/);
   });
 });
