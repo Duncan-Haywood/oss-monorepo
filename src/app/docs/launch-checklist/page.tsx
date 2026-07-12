@@ -192,6 +192,13 @@ export default function LaunchChecklistDocPage() {
           matches the Due badges shown in the Follow-ups due panel / Work next queue.
         </li>
         <li>
+          After <strong>Close</strong> on a Cold lead, confirm the pipeline-health stage funnel
+          footnote shows the closed count (outside the active bars) and the{" "}
+          <strong>Closed</strong> filter on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the same rows —
+          closed is not a second priority queue.
+        </li>
+        <li>
           On a paid/live Starter-only lead, <strong>Upsell</strong> sends a Growth/Complete
           upgrade email (suppression honored); after a Growth/Complete/Commerce order exists,
           Upsell disappears and <strong>Billing</strong> appears instead.

@@ -153,8 +153,9 @@ export default function RoadmapDocPage() {
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
-        Growth/Complete monthly marketing packs: shipped. Optional closed-leads pipeline metric
-        remains free (see <DocLink href="/docs/process">process log</DocLink>).
+        Growth/Complete monthly marketing packs: shipped. Closed-leads funnel footnote: shipped
+        (<code>closedLeadCount</code> on pipeline health — see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>
@@ -166,7 +167,11 @@ export default function RoadmapDocPage() {
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>
-      <p>Twilio provisioning, client webhook, Cal.com booking, Complete tier automation.</p>
+      <p>
+        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation. Next
+        free product-promise gap before secrets: operator-triggered FAQ/script pack for paid
+        Complete leads (<code>complete-client-voice-faq-pack</code> in the process log).
+      </p>
 
       <h2>Phase 8 — Commerce</h2>
       <p>Catalog JSON, Stripe sync, menu/retail templates, order emails.</p>
