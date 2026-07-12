@@ -32,12 +32,13 @@ export const upsert = mutation({
   },
   returns: packReturn,
   handler: async (ctx, args) => {
-    const existing = await ctx.db
+    // Compound index typing needs a generated DataModel; with generic ctx,
+    // chain only the first indexed field then match yearMonth in TS.
+    const candidates = await ctx.db
       .query("marketingPacks")
-      .withIndex("by_lead_month", (q) =>
-        q.eq("leadSlug", args.leadSlug).eq("yearMonth", args.yearMonth),
-      )
-      .unique();
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
 
     if (existing) {
       await ctx.db.patch(existing._id, {
@@ -78,12 +79,11 @@ export const getByLeadMonth = query({
   },
   returns: v.union(packReturn, v.null()),
   handler: async (ctx, args) => {
-    const row = await ctx.db
+    const candidates = await ctx.db
       .query("marketingPacks")
-      .withIndex("by_lead_month", (q) =>
-        q.eq("leadSlug", args.leadSlug).eq("yearMonth", args.yearMonth),
-      )
-      .unique();
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const row = candidates.find((r) => r.yearMonth === args.yearMonth);
     if (!row) return null;
     return {
       id: row.packId,

@@ -1445,6 +1445,12 @@ function parsePackVariants(json: string): MarketingContentVariant[] {
 }
 
 function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {
+  const tier =
+    row.packageTier === "copy_pack" ||
+    row.packageTier === "social_email" ||
+    row.packageTier === "full_marketing"
+      ? row.packageTier
+      : undefined;
   return {
     id: row.id,
     leadSlug: row.leadSlug,
@@ -1452,7 +1458,7 @@ function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {
     variants: parsePackVariants(row.variantsJson),
     generatedAt: row.generatedAt,
     generator: row.generator === "anthropic" ? "anthropic" : "stub",
-    packageTier: row.packageTier || undefined,
+    packageTier: tier,
   };
 }
 
