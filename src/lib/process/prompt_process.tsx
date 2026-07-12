@@ -493,6 +493,37 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/relaxed-galileo-lmdbq4",
   },
+  {
+    id: "commerce-catalog-preserve-stripe-ids",
+    summary:
+      "Bug: saveCommerceCatalogAction → normalizeCommerceItems drops stripeProductId/stripePriceId, so any catalog edit after Sync to Stripe silently disables Buy now until the operator re-syncs. Preserve Stripe ids server-side from the existing catalog row (keep product id by sku id; keep price id only when priceCents is unchanged — matches stripe-sync reprice behavior). Do not trust client-submitted Stripe ids.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-1e7b",
+  },
+  {
+    id: "commerce-catalogs-unsynced-visibility",
+    summary:
+      "Fold saved commerce catalogs that still have ≥1 SKU without stripePriceId into pipeline-health + daily digest (action section) so Sync-to-Stripe debt is visible beside catalogs-missing — reuses catalog rows already loaded for listCommerceCatalogsMissing. Partial sync counts as unsynced (Buy now only works per-SKU).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-1e7b",
+  },
+  {
+    id: "deliver-marketing-pack-to-client",
+    summary:
+      "Growth/Complete sell monthly marketing content; today operators only Copy from the dashboard. Ship operator-triggered Email pack that sends this UTC month's pack to lead.email via Resend (reuses RESEND_API_KEY — no new secrets) so clients can post themselves without Buffer/GBP OAuth. Requires an existing pack row + email on the lead.",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/prompt-process-evolution-6348",
+  },
+  {
+    id: "deliver-client-voice-pack-to-client",
+    summary:
+      "Complete sells AI phone scripts; operators currently Copy from the dashboard. Queue operator-triggered Email voice pack to lead.email (same Resend path as deliver-marketing-pack-to-client) so clients can paste into a temp number / Cal.com without waiting on Twilio.",
+    status: "todo",
+    phase: "Phase 7 — Client AI phone",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
