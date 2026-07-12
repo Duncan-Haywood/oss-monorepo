@@ -115,8 +115,22 @@ export const markLeadPaid = mutation({
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
   },
-  returns: v.null(),
+  // Returns whether this call recorded a *new* order — false means Stripe
+  // redelivered a checkout.session.completed event we already processed, and
+  // the caller must not resend receipt/handoff emails for it (see
+  // AGENT_PROTOCOL: every webhook-written ledger must be idempotent on
+  // stripeSessionId; `orders` previously lacked this, unlike checkout_sessions
+  // and commerce_orders).
+  returns: v.object({ alreadyRecorded: v.boolean() }),
   handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
+      .unique();
+    if (existing) {
+      return { alreadyRecorded: true };
+    }
+
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -136,7 +150,7 @@ export const markLeadPaid = mutation({
       customerEmail: args.customerEmail,
       createdAt: Date.now(),
     });
-    return null;
+    return { alreadyRecorded: false };
   },
 });
 

@@ -88,7 +88,12 @@ export default function ArchitectureDocPage() {
         when Price IDs / secret key are missing).{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
         order, sends a receipt email when Resend is configured, and enqueues a production deploy
-        handoff (DNS + contact form). Operator bootstrap:{" "}
+        handoff (DNS + contact form). The <code>orders</code> insert is idempotent on{" "}
+        <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a
+        redelivered <code>checkout.session.completed</code> (Stripe retries on timeout) is detected
+        and the receipt/handoff emails are skipped rather than resent, matching the same
+        idempotency guarantee already required for <code>checkout_sessions</code> and{" "}
+        <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
         bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}

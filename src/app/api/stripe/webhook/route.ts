@@ -149,7 +149,7 @@ export async function POST(request: Request) {
 
       if (slug && tier) {
         try {
-          await recordLeadPayment({
+          const { alreadyRecorded } = await recordLeadPayment({
             slug,
             stripeSessionId: session.id,
             customerEmail,
@@ -158,6 +158,14 @@ export async function POST(request: Request) {
             amountTotal,
             stripeCustomerId,
           });
+          if (alreadyRecorded) {
+            // Stripe redelivered a checkout.session.completed we already
+            // processed (retry/timeout) — the order row is idempotent on
+            // stripeSessionId, but the receipt/handoff emails below are not,
+            // so skip them rather than spamming the customer a second time.
+            console.log(`Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails/handoff`);
+            break;
+          }
           console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
 
           // Trigger receipt email
