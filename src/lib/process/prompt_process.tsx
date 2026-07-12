@@ -439,6 +439,14 @@ export const NEXT_STEPS: NextStep[] = [
       "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Before Twilio provisioning (operator-gated), ship an operator-triggered FAQ/script pack for paid/live Complete leads — hours, services, booking CTA, and inbound greeting copy derived from site data — so operators can fulfill the sold promise manually (paste into a temp number / Cal.com) while full telephony stays Phase 7.",
     status: "in_progress",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/prompt-process-evolution-bc40",
+  },
+  {
+    id: "commerce-catalog-stub",
+    summary:
+      "Commerce add-on (+$300 + $49/mo) sells a simple catalog ≤50 SKUs + order notifications (see /docs/product-bundles). Before Stripe Products sync, ship operator-editable catalog per paid/live commerceAddon lead (SQLite + Convex), show it on /preview/[slug], and route 'Request order' through the existing contact/inquiry path so operators get notified — full Stripe catalog sync stays a later Phase 8 step.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-b87c",
   },
 ];
