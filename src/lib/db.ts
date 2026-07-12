@@ -396,6 +396,13 @@ const api: any = {
     suppress: "suppressions:suppress",
     list: "suppressions:list",
   },
+  deployHandoffs: {
+    upsert: "deployHandoffs:upsert",
+    getByLeadSlug: "deployHandoffs:getByLeadSlug",
+    list: "deployHandoffs:list",
+    updateStatus: "deployHandoffs:updateStatus",
+    updateVercelProject: "deployHandoffs:updateVercelProject",
+  },
 };
 
 // Map SQLite row to Lead object
@@ -1074,6 +1081,37 @@ function mapDeployHandoffRow(row: SqliteDeployHandoffRow): DeployHandoff {
 }
 
 export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.deployHandoffs.upsert, {
+        handoffId: handoff.id,
+        leadSlug: handoff.leadSlug,
+        businessName: handoff.businessName,
+        tier: handoff.tier,
+        commerceAddon: handoff.commerceAddon,
+        stripeSessionId: handoff.stripeSessionId,
+        customerEmail: handoff.customerEmail,
+        previewUrl: handoff.previewUrl,
+        suggestedHost: handoff.suggestedHost,
+        customDomain: handoff.customDomain,
+        contactFormUrl: handoff.contactFormUrl,
+        dnsInstructions: handoff.dnsInstructions,
+        status: handoff.status,
+        vercelDomainStatus: handoff.vercelDomainStatus,
+        vercelProjectId: handoff.vercelProjectId,
+        notes: handoff.notes,
+        createdAt: handoff.createdAt,
+        updatedAt: handoff.updatedAt,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        "Failed to upsert deploy handoff on Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
   const db = getSqliteDb();
   db.prepare(`
     INSERT INTO deploy_handoffs (
@@ -1120,6 +1158,19 @@ export async function insertDeployHandoff(handoff: DeployHandoff): Promise<void>
 }
 
 export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandoff | null> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.deployHandoffs.getByLeadSlug, {
+        leadSlug: slug,
+      })) as DeployHandoff | null;
+    } catch (e) {
+      console.warn(
+        "Failed to get deploy handoff from Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
   const db = getSqliteDb();
   const row = db
     .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
@@ -1129,6 +1180,17 @@ export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandof
 }
 
 export async function listDeployHandoffs(): Promise<DeployHandoff[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.deployHandoffs.list)) as DeployHandoff[];
+    } catch (e) {
+      console.warn(
+        "Failed to list deploy handoffs from Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
   const db = getSqliteDb();
   const rows = db
     .prepare("SELECT * FROM deploy_handoffs ORDER BY createdAt DESC")
@@ -1141,12 +1203,34 @@ export async function updateDeployHandoffStatus(
   status: DeployHandoffStatus,
   extraNotes: string[] = [],
 ): Promise<DeployHandoff | null> {
-  const existing = await getDeployHandoffBySlug(leadSlug);
-  if (!existing) return null;
-
-  const notes = [...existing.notes, ...extraNotes];
   const updatedAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.deployHandoffs.updateStatus, {
+        leadSlug,
+        status,
+        extraNotes,
+        updatedAt,
+      })) as DeployHandoff | null;
+    } catch (e) {
+      console.warn(
+        "Failed to update deploy handoff status on Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
+  // SQLite-only path (also used when Convex mutation failed — read SQLite
+  // directly so we don't re-fetch a Convex row and write a divergent copy).
   const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+
+  const existing = mapDeployHandoffRow(row);
+  const notes = [...existing.notes, ...extraNotes];
   db.prepare(`
     UPDATE deploy_handoffs
     SET status = ?, notes = ?, updatedAt = ?
@@ -1166,11 +1250,30 @@ export async function updateDeployHandoffVercelProject(
   leadSlug: string,
   vercelProjectId: string | null,
 ): Promise<DeployHandoff | null> {
-  const existing = await getDeployHandoffBySlug(leadSlug);
-  if (!existing) return null;
-
   const updatedAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.deployHandoffs.updateVercelProject, {
+        leadSlug,
+        vercelProjectId: vercelProjectId ?? "",
+        updatedAt,
+      })) as DeployHandoff | null;
+    } catch (e) {
+      console.warn(
+        "Failed to update deploy handoff Vercel project on Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
   const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+
+  const existing = mapDeployHandoffRow(row);
   db.prepare(`
     UPDATE deploy_handoffs
     SET vercelProjectId = ?, updatedAt = ?

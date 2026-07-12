@@ -148,7 +148,10 @@ export default function ArchitectureDocPage() {
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>
-        Handoff records live in SQLite (<code>deploy_handoffs</code>). Suggested host{" "}
+        Handoff records live in SQLite (<code>deploy_handoffs</code>) with Convex{" "}
+        <code>deployHandoffs</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set — same
+        Convex-first, SQLite-fallback pattern as leads/orders/suppressions (explicit{" "}
+        <code>handoffId</code> column round-trips as <code>id</code>). Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
