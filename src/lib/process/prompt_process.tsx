@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -329,7 +329,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "snoozed-leads-pipeline-metric",
     summary:
       "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-9ebb",
   },
@@ -355,6 +355,20 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/quirky-davinci-pewiht",
+  },
+  {
+    id: "follow-ups-due-pipeline-metric",
+    summary:
+      "Fold listFollowUpsDue counts (+ oldest due age) into pipeline-health aggregates so Email 2/3 backlog sits beside unreplied inquiries and abandoned carts — operators currently only see Due badges row-by-row / Work next factors.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "snoozed-leads-in-digest",
+    summary:
+      "Optional: include currently-snoozed lead count (and soonest return) in the operator daily digest so parked urgency is visible without opening /dashboard/leads — reuses snoozedLeadCount from pipeline-health / isLeadSnoozed.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 
@@ -940,6 +954,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. cold-lead-archive-action gives operators a one-click reset/close for the Cold badge cold-lead-reengagement only made visible; snoozed-leads-pipeline-metric remains the smaller, explicitly-optional aggregate.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Snoozed-lead visibility is a pipeline-health aggregate (snoozedLeadCount + soonestSnoozeRemainingHours) plus a Work next footnote — not a second priority panel or quality-score factor.",
+    rationale:
+      "Snooze already removes leads from Work next via actionable=false; operators need a stuck-money-style total when they forget Unsnooze, which matches the ranking-vs-aggregates protocol. A competing 'Snoozed queue' would fight Work next. soonest remaining hours answers 'when does parked urgency return?' without listing every parked row.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-cron dual claim with business-process-evolution-89f2: they pushed cold-lead-archive-action first (~05:01Z); this branch pivoted immediately to snoozed-leads-pipeline-metric and pushed the claim before feature body.",
+    rationale:
+      "Protocol already prefers earlier remote claim when neither side has feature commits. Recording the pivot keeps ITERATIONS honest and leaves cold-lead-archive-action uncontested for the sibling to finish.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After snoozed-leads-pipeline-metric, queue follow-ups-due-pipeline-metric (Email 2/3 due counts on pipeline health) and optional snoozed-leads-in-digest; cold-lead-archive-action remains owned by business-process-evolution-89f2; Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Follow-ups due are already computed for the Due badge / Work next but have no aggregate beside unreplied inquiries — the next operator-leverage unlock without inventing a new CRM surface.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1498,5 +1533,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (139 passed) + lint + build, then npm run dev with Playwright: clicked Send daily digest on /dashboard/leads with OPERATOR_DIGEST_EMAIL set, confirmed the mock Resend log showed the rendered HTML and the button reported '3 items to act on' against the seeded demo leads",
     ],
     decisions: BUSINESS_DECISIONS.slice(80, 83),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-9ebb",
+    summary:
+      "Same-cron sibling business-process-evolution-89f2 claimed cold-lead-archive-action first; pivoted to snoozed-leads-pipeline-metric. Folded currently-snoozed counts + soonest return into pipeline-health, a Snoozed metric card + callout, and a Work next footnote (not a second queue). Queued follow-ups-due-pipeline-metric + optional snoozed-leads-in-digest. Extended AGENT_PROTOCOL revenue preference chain.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — snoozedLeadCount + soonestSnoozeRemainingHours via isLeadSnoozed",
+      "src/lib/metrics/pipeline-health.test.ts — expired vs active snooze + soonest-hours cases",
+      "src/components/dashboard/pipeline-health-panel.tsx — Snoozed metric card + callout",
+      "src/app/dashboard/leads/leads-client.tsx — Work next footnote when any lead is snoozed",
+      "Docs: architecture, roadmap Phase 2/5, launch-checklist snooze verification",
+      "NEXT_STEPS: snoozed-leads-pipeline-metric done; follow-ups-due-pipeline-metric + snoozed-leads-in-digest queued",
+      "AGENT_PROTOCOL — revenue preference chain includes cold-lead archive / snoozed aggregates",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(83, 86),
   },
 ];
