@@ -2047,6 +2047,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Every other Stripe-webhook fulfillment write (recordLeadPayment, insertDeployHandoff, insertCommerceOrder, insertClientInquiry) already fails closed on Convex when configured — mark-complete was the one ledger write still silently SQLite-falling-back. A failed mark-complete under a configured Convex leaves the session 'open' to Convex-first readers (listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue) even though the customer already paid, risking a Finish-checkout nudge to someone who just completed checkout. convex/checkoutSessions.ts's markComplete mutation is already a safe no-op when no row matches, so failing closed cannot false-positive on an untracked session id — only a genuine Convex outage now returns 5xx, and Stripe's retry re-runs the (idempotent) mark exactly like every sibling fulfillment write. Folded with PR #82 organic attribution (both ITERATIONS kept).",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Fold complementary contact-form notify HTML escape regression test from duplicate PR #80 (upbeat-dijkstra-v7yyno) onto main — escape already shipped in PR #78; keep the route.test.ts coverage and close the duplicate PR.",
+    rationale:
+      "AGENT_PROTOCOL: a later claim may fold complementary tests/docs into one PR rather than abandoning coverage. PR #80 duplicated the escape already on main but added the only end-to-end handler test for malicious visitor input through POST /api/contact/[slug]. Keeping the test and closing the competing PR avoids a second process-log rewrite fight.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -3391,5 +3398,16 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.slice(175, 176),
   },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-9c45",
+    summary:
+      "After PR #82 (organic attribution) and PR #81 (checkout-session-complete requireConvex) merged, folded the complementary route.test.ts from duplicate open PR #80 (contact notify HTML escape already on main via PR #78) and closed the competing PR.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.test.ts — end-to-end escape coverage for visitor name/message through the real handler (from upbeat-dijkstra-v7yyno)",
+      "NEXT_STEPS unchanged — free backlog remains operator/legal-gated only",
+      "Coop: close PR #80 as duplicate of PR #78 escape; keep its test",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(176, 177),
+  },
 ];
-
