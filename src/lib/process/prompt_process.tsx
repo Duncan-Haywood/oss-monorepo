@@ -684,8 +684,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "billing-portal-orders-newest-first",
     summary:
       "Discovered during the same empty-backlog audit: listOrders SQLite path ORDER BY createdAt DESC, but Convex orders.list .collect() is unordered and db.ts returns rows as-is. latestEligibleOrder (billing portal) assumes newest-first — a lead with multiple eligible orders can open Manage subscription against an older row missing stripeCustomerId. Sort Convex-sourced orders newest-first in listOrders (or in convex/orders.list) so portal + any other newest-first consumer match SQLite.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-da3d",
   },
   {
     id: "contact-form-persist-required",
