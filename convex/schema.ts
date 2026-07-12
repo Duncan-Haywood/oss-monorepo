@@ -190,4 +190,40 @@ export default defineSchema({
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_packId", ["packId"]),
+
+  /**
+   * Production deploy handoffs after paid bundle checkout — one row per lead.
+   * Phase 5 fulfillment: DNS instructions, suggested host, Mark live.
+   * handoffId is the app-owned id (mirrors packId/orderId/inquiryId).
+   */
+  deployHandoffs: defineTable({
+    handoffId: v.string(),
+    leadSlug: v.string(),
+    businessName: v.string(),
+    tier: v.string(),
+    commerceAddon: v.boolean(),
+    stripeSessionId: v.string(),
+    customerEmail: v.string(),
+    previewUrl: v.string(),
+    suggestedHost: v.string(),
+    customDomain: v.optional(v.string()),
+    contactFormUrl: v.string(),
+    dnsInstructions: v.array(
+      v.object({
+        type: v.string(), // "A" | "CNAME" | "TXT"
+        host: v.string(),
+        value: v.string(),
+        purpose: v.string(),
+      }),
+    ),
+    status: v.string(), // "pending" | "awaiting_dns" | "provisioned" | "live" | "failed"
+    vercelDomainStatus: v.optional(v.string()),
+    vercelProjectId: v.optional(v.string()),
+    notes: v.array(v.string()),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_leadSlug", ["leadSlug"])
+    .index("by_handoffId", ["handoffId"])
+    .index("by_status", ["status"]),
 });

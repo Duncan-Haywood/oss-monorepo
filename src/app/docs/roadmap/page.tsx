@@ -78,7 +78,8 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
       <p>
-        Resend outreach + receipt emails, CAN-SPAM templates, and SQLite suppression list: shipped.
+        Resend outreach + receipt emails, CAN-SPAM templates, and Convex-first suppression list
+        (SQLite fallback): shipped.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
@@ -142,8 +143,9 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-5">Phase 5 — Production deploy</h2>
       <p>
-        Post-payment handoff: shipped as a stub — webhook enqueues DNS instructions + contact form
-        endpoint, optional Vercel domain API when tokens are set, operator{" "}
+        Post-payment handoff: shipped — webhook enqueues DNS instructions + contact form
+        endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), optional Vercel domain
+        API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
         project isolation: shipped as an operator-assignable field per handoff (falls back to the

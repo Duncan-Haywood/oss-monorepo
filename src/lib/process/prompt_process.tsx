@@ -43,7 +43,7 @@ export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt → commerce orders payout ledger panel → commerce Stripe orphan Product archive), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced / listCommerceOrders + summarizeCommerceOrdersByLead) into pipeline-health, digest, or operator panels over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics. When the free backlog is empty (only gated secrets/OAuth/counsel remain), prefer AGENT_PROTOCOL / docs clarity or sold-capability regression fixes — do not invent optional aggregates.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced / listCommerceOrders + summarizeCommerceOrdersByLead) into pipeline-health, digest, or operator panels over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics. When the free backlog is empty (only gated secrets/OAuth/counsel remain), prefer sold-capability / multi-instance regression fixes (Convex-first parity for any db.ts table still SQLite-only, webhook side-effect idempotency, static Convex API map registration) or AGENT_PROTOCOL / docs clarity — do not invent optional aggregates.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
@@ -98,6 +98,7 @@ export const AGENT_PROTOCOL = [
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
   "commerceOrdersRevenueUsd / commerceOrdersCount on pipeline-health mean unpaid/owed pass-through totals (filter isCommerceOrderPaidOut), matching summarizeCommerceOrdersByLead unpaid* and the digest Commerce payouts owed section — not lifetime gross. Lifetime remains available via totalUsd on the per-lead summary.",
   "Create-path lead entry (addLeadAction / importLeadsCsvAction) must refuse slug collisions against already-persisted leads — skip (CSV) or return an explicit error (manual add) — rather than calling upsertLead, which would reset stage/outreachStep/notes/snoozedUntil to mostly-empty defaults. Do not change upsertLead itself: intentional update-in-place callers use dedicated helpers (updateLeadStage / recordLeadOutreach / updateLeadNotes / updateLeadSnooze). Prefer partitionLeadsByExistingSlugs against a one-shot getLeads() slug set for CSV batches.",
+  "Every persistence surface exported from src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error — including Phase 5 deploy handoffs. After deploy-handoffs-convex-persistence, no table in db.ts should be SQLite-only; if a future table ships SQLite-first, queue a Convex parity todo in the same iteration rather than leaving multi-instance split-brain as follow-up debt. New Convex tables need an explicit app-owned id column (handoffId / packId / orderId / inquiryId) registered on the static API map in the same commit.",
 ] as const;
 
 /**
@@ -661,6 +662,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 4 — Data ingestion",
     owner: "cursor/business-process-evolution-aa64",
+  },
+  {
+    id: "deploy-handoffs-convex-persistence",
+    summary:
+      "Bug found auditing after suppression-list-convex-persistence while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated; upsert-lead-collision-guard claimed then shipped by sibling business-process-evolution-aa64 as PR #66): insertDeployHandoff / getDeployHandoffBySlug / listDeployHandoffs / updateDeployHandoffStatus / updateDeployHandoffVercelProject were the last persistence surface in src/lib/db.ts with no Convex branch — every other table follows Convex-first-then-SQLite-fallback, but deploy handoffs wrote/read only the per-instance local SQLite file. On a multi-instance/serverless deployment with Convex configured, a paid checkout that queues a handoff on one instance would not show on another instance's /dashboard/leads, and Mark live / Vercel project assign would update a different store than listDeployHandoffs — breaking Phase 5 fulfillment visibility after the money already cleared. Shipped: convex deployHandoffs table (explicit handoffId) + upsert/getByLeadSlug/list/updateStatus/updateVercelProject, registered on the static Convex API map, and Convex-first wrappers for all five db.ts functions.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-dc94",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1756,6 +1765,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Queued as upsert-lead-collision-guard by the suppression-list audit (PR #65). A corrected CSV re-export or a typo on the add form could wipe an advanced lead back to discovered defaults because Convex leadFields.stage is required and the SQLite UPDATE path overwrites pipeline columns. Guarding at the create call sites preserves revenue-relevant CRM state without inventing a second upsert API or blocking legitimate update helpers.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Production deploy handoffs now persist to Convex (deployHandoffs table + deployHandoffs.ts) with SQLite fallback, matching every other table's persistence pattern, instead of writing only to the per-instance local SQLite file. Explicit handoffId column round-trips as id.",
+    rationale:
+      "After suppressions (PR #65) and upsert collision guards (PR #66), deploy_handoffs was the last SQLite-only surface in db.ts. Phase 5 fulfillment (DNS instructions, Mark live, per-client Vercel project) is what converts a paid checkout into a live client site — on a multi-instance deploy with Convex configured, queuing a handoff on one instance and listing/updating it on another would silently diverge, so operators could miss Mark-live work or double-provision. Closing the last Convex parity gap beats inventing another optional aggregate while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2842,6 +2858,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why call-site guards beat changing upsertLead",
     ],
     decisions: BUSINESS_DECISIONS.slice(155, 156),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-dc94",
+    summary:
+      "Sibling business-process-evolution-aa64 claimed upsert-lead-collision-guard (merged PR #66). Free backlog otherwise gated — audited for the next multi-instance regression after suppressions. Found deploy_handoffs was the last SQLite-only persistence surface in db.ts. Shipped Convex deployHandoffs + Convex-first wrappers for all five handoff functions; improved AGENT_PROTOCOL (empty-backlog prefers Convex parity; no new SQLite-only tables). Folded PR #66 ITERATION.",
+    shipped: [
+      "convex/schema.ts — deployHandoffs table (handoffId, by_leadSlug / by_handoffId / by_status)",
+      "convex/deployHandoffs.ts — upsert / getByLeadSlug / list / updateStatus / updateVercelProject (replace on upsert so optionals clear)",
+      "src/lib/db.ts — registered deployHandoffs on static Convex API map; all five handoff helpers Convex-first with SQLite fallback (SQLite fallback reads SQLite directly after a failed Convex mutation)",
+      "Docs: architecture §6b, production-deploy, roadmap Phase 5, launch-checklist — Convex handoff persistence",
+      "NEXT_STEPS: deploy-handoffs-convex-persistence done; upsert-lead-collision-guard done via PR #66; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — empty-backlog prefers Convex parity / API-map / webhook idempotency; every db.ts surface must be Convex-first (no new SQLite-only tables)",
+      "merge: folded origin/main after PR #66 (aa64 collision guards) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(156, 157),
   },
 ];
 

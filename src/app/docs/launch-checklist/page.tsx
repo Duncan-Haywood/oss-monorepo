@@ -152,8 +152,8 @@ export default function LaunchChecklistDocPage() {
         <li>Operator can add leads via form or CSV without engineering help</li>
         <li>Public brand + Colorado postal address present on outbound email</li>
         <li>
-          After a test payment, a deploy handoff appears on the leads dashboard (see{" "}
-          <DocLink href="/docs/production-deploy">Production deploy</DocLink>)
+          After a test payment, a deploy handoff appears on the leads dashboard (Convex when
+          configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>)
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,

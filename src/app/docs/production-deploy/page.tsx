@@ -22,7 +22,9 @@ export default function ProductionDeployDocPage() {
       <h2>What ships automatically</h2>
       <ol>
         <li>
-          Persist a <code>deploy_handoffs</code> row (SQLite today; Convex table can follow).
+          Persist a <code>deploy_handoffs</code> / Convex <code>deployHandoffs</code> row
+          (Convex-first when <code>NEXT_PUBLIC_CONVEX_URL</code> is set; SQLite fallback
+          otherwise — same pattern as suppressions after the multi-instance gap fix).
         </li>
         <li>
           Suggested host: <code>{"{slug}."}{"{NEXT_PUBLIC_PRODUCTION_DOMAIN}"}</code> (or derived
