@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
-import { getLeadBySlug } from "@/lib/db";
+import { getCommerceCatalog, getLeadBySlug, listOrders } from "@/lib/db";
+import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
 import { resolvePreviewLead } from "@/lib/leads/demo-catalog";
 import { leadLocalBusinessJsonLd, leadMetaDescription, leadMetaTitle, previewUrl } from "@/lib/seo";
 
@@ -46,6 +47,11 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const trackByStage =
     lead.stage === "outreach_sent" || lead.stage === "discovery_call";
 
+  const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+  const showCommerce = leadEligibleForCommerceCatalog(lead, orders);
+  const catalog = showCommerce ? await getCommerceCatalog(slug) : null;
+  const commerceItems = catalog?.items ?? [];
+
   return (
     <>
       <script
@@ -58,7 +64,7 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
         utmSource={utmSource}
         trackByStage={trackByStage}
       />
-      <CategoryPreview lead={lead} />
+      <CategoryPreview lead={lead} commerceItems={commerceItems} />
     </>
   );
 }

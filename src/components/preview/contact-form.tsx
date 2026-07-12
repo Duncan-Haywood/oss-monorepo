@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import {
+  COMMERCE_ORDER_EVENT,
+  commerceOrderStorageKey,
+  type CommerceOrderEventDetail,
+} from "./commerce-catalog";
 
 type PreviewContactFormProps = {
   slug: string;
@@ -13,6 +18,21 @@ type PreviewContactFormProps = {
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
+function readPendingCommerceOrder(slug: string): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const key = commerceOrderStorageKey(slug);
+    const pending = sessionStorage.getItem(key);
+    if (pending) {
+      sessionStorage.removeItem(key);
+      return pending;
+    }
+  } catch {
+    // Private mode / blocked storage — leave blank.
+  }
+  return "";
+}
+
 export function PreviewContactForm({
   slug,
   businessName,
@@ -23,9 +43,21 @@ export function PreviewContactForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("");
+  // Prefill from Commerce "Request order" when sessionStorage has a pending message
+  // (cross-navigation). Same-page clicks use the COMMERCE_ORDER_EVENT subscription below.
+  const [message, setMessage] = useState(() => readPendingCommerceOrder(slug));
   const [status, setStatus] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onOrderRequest = (event: Event) => {
+      const detail = (event as CustomEvent<CommerceOrderEventDetail>).detail;
+      if (!detail || detail.slug !== slug || !detail.message) return;
+      setMessage(detail.message);
+    };
+    window.addEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
+    return () => window.removeEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
+  }, [slug]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

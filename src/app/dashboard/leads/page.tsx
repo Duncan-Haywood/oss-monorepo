@@ -5,6 +5,8 @@ import {
   listOrders,
   listOpenCheckoutSessions,
   listMarketingPacksForMonth,
+  listCommerceCatalogs,
+  listClientVoicePacks,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -26,19 +28,31 @@ async function loadLeadsPipelineHealth(): Promise<{
   orders: Awaited<ReturnType<typeof listOrders>>;
   openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
   marketingPacks: Awaited<ReturnType<typeof listMarketingPacksForMonth>>;
+  commerceCatalogs: Awaited<ReturnType<typeof listCommerceCatalogs>>;
   marketingMonth: string;
+  clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
-  const [leads, handoffs, inquiries, orders, openCheckoutSessions, marketingPacks] =
-    await Promise.all([
-      getLeads(),
-      listDeployHandoffs(),
-      listClientInquiries(50),
-      listOrders(),
-      listOpenCheckoutSessions(),
-      listMarketingPacksForMonth(marketingMonth),
-    ]);
+  const [
+    leads,
+    handoffs,
+    inquiries,
+    orders,
+    openCheckoutSessions,
+    marketingPacks,
+    commerceCatalogs,
+    clientVoicePacks,
+  ] = await Promise.all([
+    getLeads(),
+    listDeployHandoffs(),
+    listClientInquiries(50),
+    listOrders(),
+    listOpenCheckoutSessions(),
+    listMarketingPacksForMonth(marketingMonth),
+    listCommerceCatalogs(),
+    listClientVoicePacks(),
+  ]);
   return {
     leads,
     handoffs,
@@ -46,7 +60,9 @@ async function loadLeadsPipelineHealth(): Promise<{
     orders,
     openCheckoutSessions,
     marketingPacks,
+    commerceCatalogs,
     marketingMonth,
+    clientVoicePacks,
     health: computePipelineHealth({
       leads,
       orders,
@@ -68,7 +84,9 @@ export default async function LeadsPage() {
     orders,
     openCheckoutSessions,
     marketingPacks,
+    commerceCatalogs,
     marketingMonth,
+    clientVoicePacks,
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
@@ -105,7 +123,9 @@ export default async function LeadsPage() {
           initialCheckoutSessions={openCheckoutSessions}
           initialOrders={orders}
           initialMarketingPacks={marketingPacks}
+          initialCommerceCatalogs={commerceCatalogs}
           marketingMonth={marketingMonth}
+          initialClientVoicePacks={clientVoicePacks}
         />
       </div>
     </main>

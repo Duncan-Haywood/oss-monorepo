@@ -23,9 +23,24 @@ import {
   openBillingPortalAction,
   sendStarterUpsellAction,
   generateMarketingPackAction,
+  saveCommerceCatalogAction,
+  generateClientVoicePackAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
+import type { CommerceCatalog, CommerceSku } from "@/lib/commerce/types";
+import {
+  MAX_COMMERCE_SKUS,
+  formatPriceUsd,
+  leadEligibleForCommerceCatalog,
+  listCommerceCatalogsMissing,
+  newCommerceSkuId,
+} from "@/lib/commerce";
+import type { ClientVoicePack } from "@/lib/voice/pack";
+import {
+  leadEligibleForClientVoicePack,
+  scriptTypeLabel,
+} from "@/lib/voice/faq-pack";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   leadEligibleForStarterUpsell,
@@ -90,6 +105,8 @@ interface LeadsClientProps {
   initialCheckoutSessions?: CheckoutSessionRecord[];
   initialOrders?: OrderRecord[];
   initialMarketingPacks?: MarketingPack[];
+  initialCommerceCatalogs?: CommerceCatalog[];
+  initialClientVoicePacks?: ClientVoicePack[];
   /** UTC YYYY-MM for the packs loaded on the server. */
   marketingMonth?: string;
 }
@@ -118,6 +135,8 @@ export function LeadsClient({
   initialCheckoutSessions = [],
   initialOrders = [],
   initialMarketingPacks = [],
+  initialCommerceCatalogs = [],
+  initialClientVoicePacks = [],
   marketingMonth = "",
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -129,6 +148,15 @@ export function LeadsClient({
   const [marketingPacks, setMarketingPacks] =
     useState<MarketingPack[]>(initialMarketingPacks);
   const [marketingPackOpenSlug, setMarketingPackOpenSlug] = useState<string | null>(null);
+  const [commerceCatalogs, setCommerceCatalogs] =
+    useState<CommerceCatalog[]>(initialCommerceCatalogs);
+  const [commerceEditSlug, setCommerceEditSlug] = useState<string | null>(null);
+  const [commerceDraftItems, setCommerceDraftItems] = useState<CommerceSku[]>([]);
+  const [clientVoicePacks, setClientVoicePacks] =
+    useState<ClientVoicePack[]>(initialClientVoicePacks);
+  const [clientVoicePackOpenSlug, setClientVoicePackOpenSlug] = useState<string | null>(
+    null,
+  );
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -620,6 +648,70 @@ export function LeadsClient({
     }
   };
 
+  const catalogForLead = (slug: string) =>
+    commerceCatalogs.find((c) => c.leadSlug === slug) ?? null;
+
+  const leadHasCommerceCatalog = (lead: Lead) =>
+    leadEligibleForCommerceCatalog(
+      lead,
+      orders.filter((o) => o.leadSlug === lead.slug),
+    );
+
+  const openCommerceEditor = (lead: Lead) => {
+    const existing = catalogForLead(lead.slug);
+    setCommerceEditSlug(lead.slug);
+    setCommerceDraftItems(
+      existing?.items.length
+        ? existing.items.map((item) => ({ ...item }))
+        : [{ id: newCommerceSkuId(), name: "", priceCents: 0 }],
+    );
+  };
+
+  const closeCommerceEditor = () => {
+    setCommerceEditSlug(null);
+    setCommerceDraftItems([]);
+  };
+
+  const handleSaveCommerceCatalog = (slug: string) => {
+    startTransition(async () => {
+      const res = await saveCommerceCatalogAction(slug, commerceDraftItems);
+      if (!res.success) {
+        alert(`Commerce catalog failed: ${res.error}`);
+        return;
+      }
+      setCommerceCatalogs((prev) => {
+        const without = prev.filter((c) => c.leadSlug !== slug);
+        return [res.catalog, ...without];
+      });
+      closeCommerceEditor();
+    });
+  };
+
+  const leadHasClientVoicePack = (lead: Lead) =>
+    leadEligibleForClientVoicePack(
+      lead,
+      orders.filter((o) => o.leadSlug === lead.slug),
+    );
+
+  const voicePackForLead = (slug: string) =>
+    clientVoicePacks.find((p) => p.leadSlug === slug) ?? null;
+
+  const handleGenerateClientVoicePack = (slug: string) => {
+    startTransition(async () => {
+      const res = await generateClientVoicePackAction(slug);
+      if (!res.success) {
+        alert(`Client voice pack failed: ${res.error}`);
+        return;
+      }
+      setClientVoicePacks((prev) => {
+        const without = prev.filter((p) => p.leadSlug !== slug);
+        return [res.pack, ...without];
+      });
+      setClientVoicePackOpenSlug(slug);
+    });
+  };
+
+
   // Filtered Leads — abandoned open checkouts boost quality so Work next
   // surfaces the hottest purchase-intent rows ahead of plain outreach-due.
   const scoreOptions = { openCheckoutSessions: checkoutSessions };
@@ -656,10 +748,64 @@ export function LeadsClient({
   const coldLeads = listColdLeads(leads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
+  const commerceCatalogsMissing = listCommerceCatalogsMissing(
+    leads,
+    orders,
+    commerceCatalogs,
+  );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
     <div className="mt-8">
+      {commerceCatalogsMissing.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-orange-200 bg-orange-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Commerce catalogs missing
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({commerceCatalogsMissing.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/product-bundles"
+              className="text-xs font-medium text-orange-800 underline underline-offset-2"
+            >
+              Product bundles
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Paid Commerce add-on leads without a catalog yet (≤{MAX_COMMERCE_SKUS}{" "}
+            SKUs). Save items here so /preview shows Menu &amp; products and
+            Request order notifies the inquiry inbox.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {commerceCatalogsMissing.map((lead) => (
+              <li
+                key={lead.slug}
+                className="rounded-xl border border-orange-100 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">{lead.stage} · Commerce add-on</p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => openCommerceEditor(lead)}
+                    className="rounded-lg bg-orange-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-orange-900 disabled:opacity-60"
+                  >
+                    Add catalog
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {starterUpsellCandidates.length > 0 && (
         <section className="mb-8 rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -1717,6 +1863,12 @@ export function LeadsClient({
                   const marketingEligible = leadHasMarketingPack(lead);
                   const packOpen = marketingPackOpenSlug === lead.slug;
                   const existingPack = packForLead(lead.slug);
+                  const commerceEligible = leadHasCommerceCatalog(lead);
+                  const commerceOpen = commerceEditSlug === lead.slug;
+                  const existingCatalog = catalogForLead(lead.slug);
+                  const voiceEligible = leadHasClientVoicePack(lead);
+                  const voicePackOpen = clientVoicePackOpenSlug === lead.slug;
+                  const existingVoicePack = voicePackForLead(lead.slug);
                   return (
                     <React.Fragment key={lead.slug}>
                     <tr className="hover:bg-zinc-50/50 transition">
@@ -1953,6 +2105,50 @@ export function LeadsClient({
                               ) : null}
                             </>
                           ) : null}
+                          {commerceEligible ? (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() =>
+                                commerceOpen
+                                  ? closeCommerceEditor()
+                                  : openCommerceEditor(lead)
+                              }
+                              className="inline-flex h-8 items-center justify-center rounded-lg border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-900 transition hover:border-orange-300 hover:bg-orange-100 disabled:opacity-60"
+                            >
+                              {commerceOpen
+                                ? "Close catalog"
+                                : existingCatalog
+                                  ? "Edit catalog"
+                                  : "Add catalog"}
+                            </button>
+                          ) : null}
+                          {voiceEligible ? (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleGenerateClientVoicePack(lead.slug)}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
+                              >
+                                {existingVoicePack ? "Regenerate voice" : "Generate voice"}
+                              </button>
+                              {existingVoicePack ? (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() =>
+                                    setClientVoicePackOpenSlug(
+                                      voicePackOpen ? null : lead.slug,
+                                    )
+                                  }
+                                  className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-50 disabled:opacity-60"
+                                >
+                                  {voicePackOpen ? "Hide voice" : "View voice"}
+                                </button>
+                              ) : null}
+                            </>
+                          ) : null}
                           <Link
                             href={`/preview/${lead.slug}`}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
@@ -2027,6 +2223,206 @@ export function LeadsClient({
                                   {variant.hashtags?.length ? (
                                     <p className="mt-1 text-[11px] text-sky-700/80">
                                       {variant.hashtags.join(" ")}
+                                    </p>
+                                  ) : null}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </td>
+                      </tr>
+                    ) : null}
+                    {commerceOpen ? (
+                      <tr className="bg-orange-50/40" id={`lead-commerce-${lead.slug}`}>
+                        <td colSpan={7} className="px-6 py-4">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <h3 className="text-sm font-semibold text-zinc-900">
+                              Commerce catalog
+                              <span className="ml-2 font-normal text-zinc-500">
+                                ≤{MAX_COMMERCE_SKUS} SKUs · shown on preview
+                              </span>
+                            </h3>
+                            <p className="text-[11px] text-zinc-500">
+                              Prices in USD. Request order on preview → inquiry inbox
+                              (Stripe Products sync stays later).
+                            </p>
+                          </div>
+                          <ul className="mt-3 space-y-3">
+                            {commerceDraftItems.map((item, index) => (
+                              <li
+                                key={item.id}
+                                className="grid gap-2 rounded-lg border border-orange-100 bg-white px-3 py-2 sm:grid-cols-[1fr_1fr_7rem_auto]"
+                              >
+                                <label className="block text-[11px] font-semibold text-zinc-600">
+                                  Name
+                                  <input
+                                    type="text"
+                                    value={item.name}
+                                    onChange={(e) => {
+                                      const name = e.target.value;
+                                      setCommerceDraftItems((prev) =>
+                                        prev.map((row, i) =>
+                                          i === index ? { ...row, name } : row,
+                                        ),
+                                      );
+                                    }}
+                                    className="mt-1 w-full rounded-md border border-zinc-200 px-2 py-1.5 text-sm text-zinc-900 outline-none focus:border-zinc-900"
+                                    placeholder="e.g. Latte"
+                                  />
+                                </label>
+                                <label className="block text-[11px] font-semibold text-zinc-600">
+                                  Description
+                                  <input
+                                    type="text"
+                                    value={item.description ?? ""}
+                                    onChange={(e) => {
+                                      const description = e.target.value;
+                                      setCommerceDraftItems((prev) =>
+                                        prev.map((row, i) =>
+                                          i === index
+                                            ? {
+                                                ...row,
+                                                description: description || undefined,
+                                              }
+                                            : row,
+                                        ),
+                                      );
+                                    }}
+                                    className="mt-1 w-full rounded-md border border-zinc-200 px-2 py-1.5 text-sm text-zinc-900 outline-none focus:border-zinc-900"
+                                    placeholder="Optional"
+                                  />
+                                </label>
+                                <label className="block text-[11px] font-semibold text-zinc-600">
+                                  Price (USD)
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    step={0.01}
+                                    value={(item.priceCents / 100).toFixed(2)}
+                                    onChange={(e) => {
+                                      const dollars = Number.parseFloat(e.target.value);
+                                      const priceCents = Number.isFinite(dollars)
+                                        ? Math.round(dollars * 100)
+                                        : 0;
+                                      setCommerceDraftItems((prev) =>
+                                        prev.map((row, i) =>
+                                          i === index ? { ...row, priceCents } : row,
+                                        ),
+                                      );
+                                    }}
+                                    className="mt-1 w-full rounded-md border border-zinc-200 px-2 py-1.5 text-sm text-zinc-900 outline-none focus:border-zinc-900"
+                                  />
+                                </label>
+                                <div className="flex items-end justify-end gap-2 pb-0.5">
+                                  <span className="hidden text-[11px] text-zinc-400 sm:inline">
+                                    {formatPriceUsd(item.priceCents)}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    disabled={isPending || commerceDraftItems.length <= 1}
+                                    onClick={() =>
+                                      setCommerceDraftItems((prev) =>
+                                        prev.filter((_, i) => i !== index),
+                                      )
+                                    }
+                                    className="inline-flex h-8 items-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-600 hover:bg-zinc-50 disabled:opacity-40"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={
+                                isPending || commerceDraftItems.length >= MAX_COMMERCE_SKUS
+                              }
+                              onClick={() =>
+                                setCommerceDraftItems((prev) => [
+                                  ...prev,
+                                  {
+                                    id: newCommerceSkuId(),
+                                    name: "",
+                                    priceCents: 0,
+                                  },
+                                ])
+                              }
+                              className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                            >
+                              Add SKU
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleSaveCommerceCatalog(lead.slug)}
+                              className="inline-flex h-8 items-center rounded-lg bg-orange-800 px-3 text-xs font-semibold text-white hover:bg-orange-900 disabled:opacity-60"
+                            >
+                              Save catalog
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => closeCommerceEditor()}
+                              className="inline-flex h-8 items-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                    {voicePackOpen && existingVoicePack ? (
+                      <tr className="bg-indigo-50/40" id={`lead-voice-${lead.slug}`}>
+                        <td colSpan={7} className="px-6 py-4">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <h3 className="text-sm font-semibold text-zinc-900">
+                              Client voice FAQ pack
+                            </h3>
+                            <p className="text-[11px] text-zinc-500">
+                              {existingVoicePack.generator === "stub"
+                                ? "Stub scripts — set ANTHROPIC_API_KEY for LLM"
+                                : "Generated via Anthropic"}{" "}
+                              · {existingVoicePack.variants.length} scripts · copy into a temp
+                              number / Cal.com (Twilio stays Phase 7)
+                            </p>
+                          </div>
+                          <ul className="mt-3 space-y-3">
+                            {existingVoicePack.variants.map((variant, index) => {
+                              const copyText = [
+                                variant.title,
+                                variant.body,
+                                variant.cta ? `Next: ${variant.cta}` : null,
+                              ]
+                                .filter(Boolean)
+                                .join("\n\n");
+                              return (
+                                <li
+                                  key={`${variant.scriptType}-${index}`}
+                                  className="rounded-lg border border-indigo-100 bg-white px-3 py-2"
+                                >
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-xs font-semibold text-indigo-900">
+                                      {index + 1}. {scriptTypeLabel(variant.scriptType)}
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => void copyMarketingVariant(copyText)}
+                                      className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                                    >
+                                      Copy
+                                    </button>
+                                  </div>
+                                  <p className="mt-1 text-xs font-medium text-zinc-800">
+                                    {variant.title}
+                                  </p>
+                                  <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600">
+                                    {variant.body}
+                                  </p>
+                                  {variant.cta ? (
+                                    <p className="mt-1 text-[11px] font-medium text-zinc-500">
+                                      Next: {variant.cta}
                                     </p>
                                   ) : null}
                                 </li>
