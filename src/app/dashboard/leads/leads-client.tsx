@@ -27,6 +27,7 @@ import {
   saveCommerceCatalogAction,
   syncCommerceCatalogToStripeAction,
   generateClientVoicePackAction,
+  sendClientVoicePackToClientAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
 import type { MarketingPack } from "@/lib/marketing/pack";
@@ -43,6 +44,7 @@ import {
   leadEligibleForClientVoicePack,
   scriptTypeLabel,
 } from "@/lib/voice/faq-pack";
+import { leadEligibleForClientVoicePackDelivery } from "@/lib/voice/deliver-pack";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   leadEligibleForStarterUpsell,
@@ -744,6 +746,20 @@ export function LeadsClient({
     });
   };
 
+  const handleEmailClientVoicePack = (slug: string) => {
+    startTransition(async () => {
+      const res = await sendClientVoicePackToClientAction(slug);
+      if (!res.success) {
+        alert(`Email voice pack failed: ${res.error}`);
+        return;
+      }
+      alert(
+        res.mock
+          ? "Mock voice pack email logged (Resend unset)"
+          : "Voice pack emailed to client",
+      );
+    });
+  };
 
   // Filtered Leads — abandoned open checkouts boost quality so Work next
   // surfaces the hottest purchase-intent rows ahead of plain outreach-due.
@@ -2192,6 +2208,20 @@ export function LeadsClient({
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-50 disabled:opacity-60"
                                 >
                                   {voicePackOpen ? "Hide voice" : "View voice"}
+                                </button>
+                              ) : null}
+                              {existingVoicePack &&
+                              leadEligibleForClientVoicePackDelivery(
+                                lead,
+                                orders.filter((o) => o.leadSlug === lead.slug),
+                              ) ? (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() => handleEmailClientVoicePack(lead.slug)}
+                                  className="inline-flex h-8 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-900 transition hover:border-violet-300 hover:bg-violet-100 disabled:opacity-60"
+                                >
+                                  Email voice pack
                                 </button>
                               ) : null}
                             </>

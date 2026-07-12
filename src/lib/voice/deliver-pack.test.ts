@@ -1,0 +1,103 @@
+import { describe, expect, it } from "vitest";
+import {
+  clientVoicePackDeliverySubject,
+  formatClientVoicePackEmailHtml,
+  leadEligibleForClientVoicePackDelivery,
+} from "./deliver-pack";
+import type { ClientVoiceScriptVariant } from "./types";
+
+describe("leadEligibleForClientVoicePackDelivery", () => {
+  it("requires Complete paid/live plus email", () => {
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [{ tier: "complete" }],
+      ),
+    ).toBe(true);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "live", email: "a@example.com" },
+        [{ tier: "complete" }],
+      ),
+    ).toBe(true);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid", email: "  " },
+        [{ tier: "complete" }],
+      ),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid" },
+        [{ tier: "complete" }],
+      ),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "paid", email: "a@example.com" },
+        [{ tier: "growth" }],
+      ),
+    ).toBe(false);
+    expect(
+      leadEligibleForClientVoicePackDelivery(
+        { stage: "outreach_sent", email: "a@example.com" },
+        [{ tier: "complete" }],
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("clientVoicePackDeliverySubject", () => {
+  it("includes business name", () => {
+    expect(clientVoicePackDeliverySubject("Acme Salon")).toBe(
+      "Acme Salon — phone FAQ / script pack",
+    );
+  });
+});
+
+describe("formatClientVoicePackEmailHtml", () => {
+  const variants: ClientVoiceScriptVariant[] = [
+    {
+      scriptType: "inbound_greeting",
+      title: "Main greeting",
+      body: "Thanks for calling Acme.\nHow can I help?",
+      cta: "Press 1 to book",
+    },
+    {
+      scriptType: "hours_faq",
+      title: "Hours",
+      body: "We are open Mon–Fri 9–5.",
+    },
+  ];
+
+  it("escapes HTML in titles/bodies and includes labels", () => {
+    const html = formatClientVoicePackEmailHtml({
+      businessName: "Acme <Salon>",
+      variants: [
+        {
+          scriptType: "inbound_greeting",
+          title: "<script>x</script>",
+          body: "Safe & sound <b>hi</b>",
+        },
+      ],
+      previewUrl: "https://example.com/preview/acme",
+    });
+    expect(html).toContain("Acme &lt;Salon&gt;");
+    expect(html).toContain("&lt;script&gt;x&lt;/script&gt;");
+    expect(html).toContain("Safe &amp; sound &lt;b&gt;hi&lt;/b&gt;");
+    expect(html).toContain("Inbound greeting");
+    expect(html).toContain("https://example.com/preview/acme");
+    expect(html).not.toContain("<script>");
+  });
+
+  it("renders multiple scripts with spoken CTA", () => {
+    const html = formatClientVoicePackEmailHtml({
+      businessName: "Acme Salon",
+      variants,
+    });
+    expect(html).toContain("1. Inbound greeting");
+    expect(html).toContain("2. Hours FAQ");
+    expect(html).toContain("Press 1 to book");
+    expect(html).toContain("phone FAQ / script pack");
+  });
+});

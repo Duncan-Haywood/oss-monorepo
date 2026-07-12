@@ -42,14 +42,17 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce Buy now client receipt), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
+  "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
   "When complete-client-voice-faq-pack and commerce-catalog-stub are both free in the same cron window, claim different ones (Complete phone promise vs Commerce catalog promise) — they touch different files and both close sold-capability gaps.",
   "When client-voice-packs-missing-visibility and commerce-catalogs-missing-visibility are both free in the same cron window, claim different ones (Complete fulfillment debt vs Commerce fulfillment debt) — both reuse existing list* helpers and both belong in pipeline-health + digest.",
   "When commerce-catalog-preserve-stripe-ids / commerce-catalogs-unsynced-visibility are claimed by a sibling, prefer deliver-marketing-pack-to-client (Growth/Complete pack → client email via Resend) over inventing another optional aggregate — closes sold marketing delivery without Buffer/GBP OAuth.",
   "When deliver-marketing-pack-to-client and deliver-client-voice-pack-to-client are both free in the same cron window, claim different ones (Growth marketing delivery vs Complete phone-script delivery) — they touch different pack modules and both close sold-capability handoff gaps.",
+  "Email voice pack requires an existing clientVoicePacks row plus a non-empty lead.email — generate first, then Email voice pack. Never auto-generate on send (same review-before-client rule as marketing Email pack).",
+  "After marketing + voice pack email handoffs ship, the next free sold-capability gap is commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — Commerce sells order notifications, and today only the operator inquiry inbox is notified. Prefer that over inventing optional aggregates while Stripe Connect / Places / Buffer OAuth stay gated.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
   "Client voice FAQ packs persist one row per Complete lead (not month-keyed); regenerating replaces. Marketing packs stay month-keyed — do not conflate the two persistence models.",
@@ -525,9 +528,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deliver-client-voice-pack-to-client",
     summary:
-      "Complete sells AI phone scripts; operators currently Copy from the dashboard. Queue operator-triggered Email voice pack to lead.email (same Resend path as deliver-marketing-pack-to-client) so clients can paste into a temp number / Cal.com without waiting on Twilio.",
-    status: "todo",
+      "Complete sells AI phone scripts; operators currently Copy from the dashboard. Shipped: operator-triggered Email voice pack (sendClientVoicePackToClientAction) sends the existing FAQ/script pack to lead.email via Resend (reuses RESEND_API_KEY — no new secrets) so clients can paste into a temp number / Cal.com without waiting on Twilio. Requires an existing pack row + email on the lead; suppression honored via sendEmail.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/prompt-process-evolution-6219",
   },
   {
     id: "commerce-order-revenue-ledger",
@@ -541,6 +545,13 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-payouts-stripe-connect",
     summary:
       "Discovered while shipping commerce-order-revenue-ledger: Commerce Buy now money lands in the platform's own Stripe account (STRIPE_SECRET_KEY), not the underlying local business's account — there is currently no payout path to the client at all. The operator can now SEE the total (pipeline-health 'Commerce sales' card) but must reconcile/pay clients manually outside the app. At any real sales volume this is a real financial/legal exposure (holding customer funds owed to a third party, possible money-transmitter/MSB considerations) and needs a Stripe Connect (or equivalent) integration plus counsel review before Commerce sales scale — an agent cannot obtain a Connect platform approval or legal sign-off, so this stays operator/legal-gated rather than fake-completed.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
+  },
+  {
+    id: "commerce-buy-now-client-receipt",
+    summary:
+      "Commerce sells order notifications (see /docs/product-bundles). Today a completed Buy now only notifies the operator via insertClientInquiry — the commerceAddon lead (local business) never gets an email about their customer's purchase. Queue operator-path or webhook-triggered Resend to lead.email (honor suppression; reuse commerceOrders / catalog SKU fields) so the client knows to fulfill. Distinct from commerce-payouts-stripe-connect (money movement stays gated).",
     status: "todo",
     phase: "Phase 8 — Commerce",
   },
@@ -1463,6 +1474,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Building the revenue ledger surfaced a real business risk that had no visibility before: Buy now purchases charge the platform's own Stripe account, and there is no code path that pays the underlying local business back. That gap was invisible pre-ledger (no total existed to notice); now that operators can see a growing 'Commerce sales (pass-through)' number, leaving the payout question unrecorded would look like the app forgot about it rather than deliberately deferred it pending Stripe Connect + counsel review.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Shipped deliver-client-voice-pack-to-client as the Complete twin of marketing Email pack — operator-triggered Resend of the existing FAQ/script pack to lead.email.",
+    rationale:
+      "Generation + Copy still left operators as the paste bottleneck for Complete phone fulfillment. Emailing scripts closes the sold handoff without Twilio. Reuses RESEND_API_KEY + sendEmail suppression; requires an existing pack row (never auto-generate on send) so operators can review before the client sees stub/Anthropic copy.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After marketing + voice pack email handoffs, queue commerce-buy-now-client-receipt as the next free sold-capability gap (email the commerceAddon lead on Buy now) rather than inventing optional aggregates.",
+    rationale:
+      "Commerce sells order notifications; today only the operator inquiry inbox is notified. Client receipt email reuses Resend + lead.email and is distinct from Stripe Connect payouts (money movement stays operator/legal-gated). Remaining other todos still need secrets, OAuth, or counsel.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Client voice pack email delivery is not month-keyed — one pack per Complete lead; regenerating replaces. Subject/body omit a year-month (unlike marketing packs).",
+    rationale:
+      "Matches the existing clientVoicePacks persistence model. Operators and clients should not think phone scripts expire monthly the way social/email packs do.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2323,6 +2355,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test + lint + build, then npm run dev: loaded /dashboard and /dashboard/leads (200s), confirmed the new 'Commerce sales' card renders $0 with no seeded commerce orders and does not throw when commerceOrders is empty/undefined",
     ],
     decisions: BUSINESS_DECISIONS.slice(128, 131),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-6219",
+    summary:
+      "Claimed deliver-client-voice-pack-to-client (Complete twin of Email pack). Shipped operator-triggered Email voice pack for the existing FAQ/script pack to lead.email via Resend (pure deliver-pack helpers + Vitest, dashboard Email voice pack button). Improved AGENT_PROTOCOL (voice email requires existing pack; after pack handoffs prefer commerce Buy now client receipt). Queued commerce-buy-now-client-receipt. Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/voice/deliver-pack.ts (+ test) — leadEligibleForClientVoicePackDelivery, formatClientVoicePackEmailHtml, clientVoicePackDeliverySubject",
+      "src/lib/email/resend.ts — sendClientVoicePackToClientEmail (reuses sendEmail + suppression)",
+      "sendClientVoicePackToClientAction + /dashboard/leads Email voice pack button (requires existing pack + email)",
+      "Docs: product-bundles, voice-agent-flow, roadmap Phase 7, architecture §8, launch-checklist",
+      "NEXT_STEPS: deliver-client-voice-pack-to-client done; commerce-buy-now-client-receipt queued; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — deliver voice pack in revenue chain; Email voice pack never auto-generates; prefer commerce client receipt after pack handoffs",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(131, 134),
   },
 ];
 

@@ -64,8 +64,9 @@ export default function ProductBundlesDocPage() {
       <p>
         Everything in Growth plus full marketing tier and client AI phone agent (answers their
         business line — booking, FAQ, lead capture). Until Twilio is live, operators fulfill with
-        a generated FAQ/script pack on the leads dashboard (see{" "}
-        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>).
+        a generated FAQ/script pack on the leads dashboard and can{" "}
+        <strong>Email voice pack</strong> to the client (Resend) so they can paste into a temp
+        number / Cal.com (see <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>).
       </p>
 
       <h2>Commerce — +$300 + $49/mo</h2>
