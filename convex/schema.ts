@@ -115,4 +115,21 @@ export default defineSchema({
     .index("by_lead_month", ["leadSlug", "yearMonth"])
     .index("by_month", ["yearMonth"])
     .index("by_packId", ["packId"]),
+
+  /**
+   * Commerce add-on catalogs (≤50 SKUs) for paid/live leads with commerceAddon.
+   * One row per lead — regenerating replaces the whole catalog.
+   */
+  commerceCatalogs: defineTable({
+    leadSlug: v.string(),
+    items: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        description: v.optional(v.string()),
+        priceCents: v.number(),
+      }),
+    ),
+    updatedAt: v.string(),
+  }).index("by_leadSlug", ["leadSlug"]),
 });

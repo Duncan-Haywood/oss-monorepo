@@ -1,20 +1,27 @@
 import Link from "next/link";
 import type { Lead } from "@/lib/leads/types";
+import type { CommerceSku } from "@/lib/commerce/types";
 import { getCategoryTheme } from "@/lib/previews/themes";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PreviewContactForm } from "./contact-form";
 import { PreviewMapsEmbed } from "./maps-embed";
+import { PreviewCommerceCatalog } from "./commerce-catalog";
 import { TierUpsell } from "./tier-upsell";
 
 type CategoryPreviewProps = {
   lead: Lead;
+  /** Commerce catalog items when the lead has a commerceAddon order + saved catalog. */
+  commerceItems?: CommerceSku[];
 };
 
 function isDemoPreview(lead: Lead): boolean {
   return lead.dataSource === "demo_catalog" || lead.dataSource === "slug_inference";
 }
 
-export function CategoryPreview({ lead }: CategoryPreviewProps) {
+export function CategoryPreview({
+  lead,
+  commerceItems = [],
+}: CategoryPreviewProps) {
   const theme = getCategoryTheme(lead.category);
   const location = `${lead.city}, ${lead.state}`;
   const showDemoBanner = isDemoPreview(lead);
@@ -102,6 +109,16 @@ export function CategoryPreview({ lead }: CategoryPreviewProps) {
           </dl>
         </div>
       </section>
+
+      {commerceItems.length > 0 ? (
+        <PreviewCommerceCatalog
+          slug={lead.slug}
+          items={commerceItems}
+          panelClass={theme.panelClass}
+          accentTextClass={theme.accentTextClass}
+          ctaClass={theme.ctaClass}
+        />
+      ) : null}
 
       <section className="mx-auto grid max-w-5xl gap-6 px-6 pb-10 lg:grid-cols-2">
         <PreviewContactForm

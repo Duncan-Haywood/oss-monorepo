@@ -213,6 +213,14 @@ export default function LaunchChecklistDocPage() {
           confirm pipeline-health <strong>Marketing packs due</strong> counts eligible leads
           missing this month&apos;s pack (and that the daily digest lists them).
         </li>
+        <li>
+          For a paid/live lead with a Commerce add-on order, click <strong>Add catalog</strong>{" "}
+          / <strong>Edit catalog</strong> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — save ≤50 SKUs, open{" "}
+          <code>/preview/[slug]</code>, confirm Menu &amp; products renders, and that{" "}
+          <strong>Request order</strong> prefills the contact form (inquiry lands in the
+          operator inbox).
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

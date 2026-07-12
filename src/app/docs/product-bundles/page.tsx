@@ -59,7 +59,12 @@ export default function ProductBundlesDocPage() {
       <p>Everything in Growth plus full marketing tier and client AI phone agent (answers their business line — booking, FAQ, lead capture).</p>
 
       <h2>Commerce — +$300 + $49/mo</h2>
-      <p>Stacks on any bundle. Stripe checkout, catalog ≤50 SKUs, order notifications. Retail, restaurant ordering, booking deposits, or gift cards.</p>
+      <p>
+        Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview (Request
+        order → inquiry inbox as the notification stub). Stripe Products sync + embedded
+        checkout remain the next Commerce step. Retail, restaurant ordering, booking deposits,
+        or gift cards.
+      </p>
 
       <h2>Recommendation logic</h2>
       <ul>

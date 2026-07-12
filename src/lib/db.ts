@@ -15,6 +15,11 @@ import type { OrderRecord } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { MarketingContentVariant } from "./marketing/types";
+import type {
+  CommerceCatalog,
+  CommerceSku,
+  UpsertCommerceCatalogInput,
+} from "./commerce/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -166,6 +171,12 @@ function getSqliteDb(): DatabaseSync {
       ON marketing_packs(yearMonth);
     CREATE INDEX IF NOT EXISTS idx_marketing_packs_slug
       ON marketing_packs(leadSlug);
+
+    CREATE TABLE IF NOT EXISTS commerce_catalogs (
+      leadSlug TEXT PRIMARY KEY,
+      itemsJson TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -297,6 +308,11 @@ const api: any = {
     upsert: "marketingPacks:upsert",
     getByLeadMonth: "marketingPacks:getByLeadMonth",
     listByMonth: "marketingPacks:listByMonth",
+  },
+  commerceCatalogs: {
+    upsert: "commerceCatalogs:upsert",
+    getByLeadSlug: "commerceCatalogs:getByLeadSlug",
+    list: "commerceCatalogs:list",
   },
 };
 
@@ -1571,4 +1587,125 @@ export async function listMarketingPacksForMonth(
     )
     .all(yearMonth, safeLimit) as unknown as SqliteMarketingPackRow[];
   return rows.map(mapMarketingPackRow);
+}
+
+// --- Commerce catalogs (≤50 SKUs for commerceAddon leads) ---
+
+interface SqliteCommerceCatalogRow {
+  leadSlug: string;
+  itemsJson: string;
+  updatedAt: string;
+}
+
+function parseCommerceItems(json: string): CommerceSku[] {
+  try {
+    const parsed: unknown = JSON.parse(json);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is CommerceSku => {
+      if (!item || typeof item !== "object") return false;
+      const row = item as Record<string, unknown>;
+      return (
+        typeof row.id === "string" &&
+        typeof row.name === "string" &&
+        typeof row.priceCents === "number"
+      );
+    });
+  } catch {
+    return [];
+  }
+}
+
+function mapCommerceCatalogRow(row: SqliteCommerceCatalogRow): CommerceCatalog {
+  return {
+    leadSlug: row.leadSlug,
+    items: parseCommerceItems(row.itemsJson),
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function upsertCommerceCatalog(
+  input: UpsertCommerceCatalogInput,
+): Promise<CommerceCatalog> {
+  const catalog: CommerceCatalog = {
+    leadSlug: input.leadSlug,
+    items: input.items,
+    updatedAt: input.updatedAt,
+  };
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceCatalogs.upsert, {
+        leadSlug: catalog.leadSlug,
+        items: catalog.items,
+        updatedAt: catalog.updatedAt,
+      });
+      return catalog;
+    } catch (e) {
+      console.warn(
+        `Failed to upsert commerce catalog for ${catalog.leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(`
+    INSERT INTO commerce_catalogs (leadSlug, itemsJson, updatedAt)
+    VALUES (?, ?, ?)
+    ON CONFLICT(leadSlug) DO UPDATE SET
+      itemsJson = excluded.itemsJson,
+      updatedAt = excluded.updatedAt
+  `).run(catalog.leadSlug, JSON.stringify(catalog.items), catalog.updatedAt);
+
+  return catalog;
+}
+
+export async function getCommerceCatalog(
+  leadSlug: string,
+): Promise<CommerceCatalog | null> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.commerceCatalogs.getByLeadSlug, {
+        leadSlug,
+      })) as CommerceCatalog | null;
+    } catch (e) {
+      console.warn(
+        `Failed to get commerce catalog for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM commerce_catalogs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteCommerceCatalogRow | undefined;
+  return row ? mapCommerceCatalogRow(row) : null;
+}
+
+export async function listCommerceCatalogs(
+  limit = 100,
+): Promise<CommerceCatalog[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.commerceCatalogs.list, {
+        limit: safeLimit,
+      })) as CommerceCatalog[];
+    } catch (e) {
+      console.warn(
+        "Failed to list commerce catalogs from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM commerce_catalogs ORDER BY updatedAt DESC LIMIT ?",
+    )
+    .all(safeLimit) as unknown as SqliteCommerceCatalogRow[];
+  return rows.map(mapCommerceCatalogRow);
 }

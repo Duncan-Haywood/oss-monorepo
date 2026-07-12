@@ -21,6 +21,8 @@ import {
   applyColdLeadDisposition,
   upsertMarketingPack,
   listMarketingPacksForMonth,
+  upsertCommerceCatalog,
+  getCommerceCatalog,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -66,6 +68,10 @@ import {
   marketingMonthKey,
   monthlyPackRequestForLead,
 } from "@/lib/marketing";
+import {
+  leadEligibleForCommerceCatalog,
+  normalizeCommerceItems,
+} from "@/lib/commerce";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -950,6 +956,86 @@ export async function generateMarketingPackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateMarketingPackAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Save (or replace) the Commerce catalog for a paid/live lead with a commerceAddon order.
+ * Caps at 50 SKUs — matches the sold Commerce promise before Stripe Products sync.
+ */
+export async function saveCommerceCatalogAction(
+  slug: string,
+  rawItems: ReadonlyArray<{
+    id?: string;
+    name?: string;
+    description?: string;
+    priceCents?: number;
+  }>,
+) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    if (!leadEligibleForCommerceCatalog(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+      };
+    }
+
+    const normalized = normalizeCommerceItems(rawItems);
+    if (!normalized.ok) {
+      return { success: false as const, error: normalized.error };
+    }
+
+    const catalog = await upsertCommerceCatalog({
+      leadSlug: lead.slug,
+      items: normalized.items,
+      updatedAt: new Date().toISOString(),
+    });
+
+    revalidatePath("/dashboard/leads");
+    revalidatePath(`/preview/${lead.slug}`);
+    return { success: true as const, catalog };
+  } catch (error) {
+    console.error("Error in saveCommerceCatalogAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/** Read-only helper for dashboard — returns null when no catalog row exists. */
+export async function getCommerceCatalogAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+    const catalog = await getCommerceCatalog(slug);
+    return { success: true as const, catalog };
+  } catch (error) {
+    console.error("Error in getCommerceCatalogAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

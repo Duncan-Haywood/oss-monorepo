@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { commerceOrderStorageKey } from "./commerce-catalog";
 
 type PreviewContactFormProps = {
   slug: string;
@@ -26,6 +27,20 @@ export function PreviewContactForm({
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Prefill from Commerce "Request order" (sessionStorage) when present.
+  useEffect(() => {
+    try {
+      const key = commerceOrderStorageKey(slug);
+      const pending = sessionStorage.getItem(key);
+      if (pending) {
+        setMessage(pending);
+        sessionStorage.removeItem(key);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, [slug]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

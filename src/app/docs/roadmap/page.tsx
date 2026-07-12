@@ -170,13 +170,19 @@ export default function RoadmapDocPage() {
 
       <h2>Phase 7 — Client AI phone</h2>
       <p>
-        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation. Next
-        free product-promise gap before secrets: operator-triggered FAQ/script pack for paid
-        Complete leads (<code>complete-client-voice-faq-pack</code> in the process log).
+        Twilio provisioning, client webhook, Cal.com booking, Complete tier automation remain
+        operator-gated. FAQ/script pack for paid Complete leads is claimed by the sibling
+        prompt-process automation (<code>complete-client-voice-faq-pack</code>).
       </p>
 
       <h2>Phase 8 — Commerce</h2>
-      <p>Catalog JSON, Stripe sync, menu/retail templates, order emails.</p>
+      <p>
+        Operator-editable catalog ≤50 SKUs for paid/live <code>commerceAddon</code> leads:
+        shipped (<code>saveCommerceCatalogAction</code> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — shown on{" "}
+        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox). Stripe Products
+        sync + embedded checkout remain next.
+      </p>
 
       <p>
         Read <DocLink href="/docs/compliance">Compliance</DocLink> before any outreach code.
