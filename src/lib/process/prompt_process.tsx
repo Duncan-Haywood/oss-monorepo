@@ -62,7 +62,8 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
@@ -474,8 +475,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-catalogs-missing-visibility",
     summary:
       "Fold paid/live commerceAddon leads missing a catalog into pipeline-health + daily digest (action section) so Commerce fulfillment debt is visible without relying only on the dashboard missing panel — reuses listCommerceCatalogsMissing.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-ca53",
   },
 ];
 
