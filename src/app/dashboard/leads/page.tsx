@@ -9,6 +9,7 @@ import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
+import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -74,6 +75,7 @@ export default async function LeadsPage() {
             Monitor, update, and manage outreach leads and Stripe transactions.
           </p>
         </div>
+        <DailyDigestButton />
       </div>
 
       <div className="mt-8">
