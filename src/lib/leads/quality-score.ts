@@ -199,6 +199,45 @@ export function scoreLead(lead: Lead, nowMs: number): LeadQualityResult {
     });
   }
 
+  if (
+    lead.lastPreviewOpenAt &&
+    (lead.stage === "outreach_sent" || lead.stage === "discovery_call")
+  ) {
+    const opened = Date.parse(lead.lastPreviewOpenAt);
+    if (!Number.isNaN(opened)) {
+      score += 10;
+      factors.push({
+        id: "preview_opened",
+        label: "Opened preview (engaged)",
+        delta: 10,
+      });
+      if (
+        lead.lastOutreachAt &&
+        !Number.isNaN(Date.parse(lead.lastOutreachAt)) &&
+        opened >= Date.parse(lead.lastOutreachAt)
+      ) {
+        score += 4;
+        factors.push({
+          id: "opened_after_send",
+          label: "Opened after last outreach send",
+          delta: 4,
+        });
+      }
+    }
+  } else if (
+    (lead.stage === "outreach_sent" || lead.stage === "discovery_call") &&
+    emailOk &&
+    step >= 1 &&
+    !lead.lastPreviewOpenAt
+  ) {
+    score -= 5;
+    factors.push({
+      id: "never_opened",
+      label: "No preview open recorded yet",
+      delta: -5,
+    });
+  }
+
   const blocked = !emailOk && lead.stage !== "paid" && lead.stage !== "live";
   const actionable = lead.stage !== "paid" && lead.stage !== "live";
 

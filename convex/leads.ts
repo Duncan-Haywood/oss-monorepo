@@ -44,6 +44,7 @@ const leadFields = {
   dataSource: v.optional(v.string()),
   outreachStep: v.optional(v.number()),
   lastOutreachAt: v.optional(v.string()),
+  lastPreviewOpenAt: v.optional(v.string()),
 };
 
 export const list = query({
@@ -152,6 +153,28 @@ export const recordOutreach = mutation({
     await ctx.db.patch(lead._id, {
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt,
+    });
+    return null;
+  },
+});
+
+export const recordPreviewOpen = mutation({
+  args: {
+    slug: v.string(),
+    openedAt: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      // Organic / slug-inferred previews may not be persisted yet — no-op.
+      return null;
+    }
+    await ctx.db.patch(lead._id, {
+      lastPreviewOpenAt: args.openedAt,
     });
     return null;
   },

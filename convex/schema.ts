@@ -27,6 +27,8 @@ export default defineSchema({
     outreachStep: v.optional(v.number()),
     /** ISO timestamp of most recent outreach send. */
     lastOutreachAt: v.optional(v.string()),
+    /** ISO timestamp of most recent attributed preview open. */
+    lastPreviewOpenAt: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

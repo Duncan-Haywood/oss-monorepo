@@ -78,6 +78,11 @@ export default function LaunchChecklistDocPage() {
           <strong>Work next</strong> panel ranks real CSV/manual leads above demos, surfaces
           missing-email leads as Blocked, and the Quality column sorts the table by score.
         </li>
+        <li>
+          Open a preview with <code>?src=outreach</code> (or after stage is{" "}
+          <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code> appears as an
+          Opened badge on the leads table and that Follow-ups due ranks openers first.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>

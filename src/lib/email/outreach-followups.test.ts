@@ -121,7 +121,7 @@ describe("isFollowUpDue", () => {
 });
 
 describe("listFollowUpsDue", () => {
-  it("filters to due leads only, oldest lastOutreachAt first", () => {
+  it("filters to due leads only, oldest lastOutreachAt first among same open state", () => {
     const dueOlder = makeLead({
       slug: "a",
       lastOutreachAt: new Date(NOW - 10 * DAY_MS).toISOString(),
@@ -138,5 +138,19 @@ describe("listFollowUpsDue", () => {
 
     const due = listFollowUpsDue([notDue, dueNewer, noEmail, dueOlder], NOW);
     expect(due.map((l) => l.slug)).toEqual(["a", "b"]);
+  });
+
+  it("ranks preview-openers ahead of silent due leads", () => {
+    const silent = makeLead({
+      slug: "silent",
+      lastOutreachAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+    });
+    const opened = makeLead({
+      slug: "opened",
+      lastOutreachAt: new Date(NOW - 4 * DAY_MS).toISOString(),
+      lastPreviewOpenAt: new Date(NOW - 2 * DAY_MS).toISOString(),
+    });
+    const due = listFollowUpsDue([silent, opened], NOW);
+    expect(due.map((l) => l.slug)).toEqual(["opened", "silent"]);
   });
 });

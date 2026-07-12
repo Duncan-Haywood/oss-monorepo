@@ -50,4 +50,9 @@ export interface Lead {
   outreachStep?: OutreachStep;
   /** ISO timestamp of the most recent outreach send (Email 1/2/3). */
   lastOutreachAt?: string;
+  /**
+   * ISO timestamp of the most recent /preview/[slug] open attributed to outreach
+   * (or an in-pipeline visit). Used to prioritize follow-ups who engaged.
+   */
+  lastPreviewOpenAt?: string;
 }

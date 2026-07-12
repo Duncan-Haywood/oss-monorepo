@@ -57,6 +57,10 @@ export function listFollowUpsDue(leads: Lead[], nowMs: number): Lead[] {
   return leads
     .filter((lead) => isFollowUpDue(lead, nowMs))
     .sort((a, b) => {
+      // Prefer leads who opened the preview (engaged) over silent non-openers.
+      const aOpen = a.lastPreviewOpenAt ? 1 : 0;
+      const bOpen = b.lastPreviewOpenAt ? 1 : 0;
+      if (bOpen !== aOpen) return bOpen - aOpen;
       const aAt = a.lastOutreachAt ? Date.parse(a.lastOutreachAt) : 0;
       const bAt = b.lastOutreachAt ? Date.parse(b.lastOutreachAt) : 0;
       return aAt - bAt;
