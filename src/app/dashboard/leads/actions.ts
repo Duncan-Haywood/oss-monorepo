@@ -53,7 +53,11 @@ import {
   inquiryCanReceiveReply,
   normalizeInquiryReply,
 } from "@/lib/inquiries/reply";
-import { markHandoffLive, assignVercelProjectAndProvision } from "@/lib/deploy/handoff";
+import {
+  markHandoffLive,
+  assignVercelProjectAndProvision,
+  assignCustomDomainAndProvision,
+} from "@/lib/deploy/handoff";
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
@@ -141,6 +145,31 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in assignVercelProjectAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function assignCustomDomainAction(slug: string, customDomain: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+    const trimmed = customDomain.trim();
+    const handoff = await assignCustomDomainAndProvision(slug, trimmed || null);
+    if (!handoff) {
+      return { success: false as const, error: "No deploy handoff found for this lead" };
+    }
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, handoff };
+  } catch (error) {
+    console.error("Error in assignCustomDomainAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

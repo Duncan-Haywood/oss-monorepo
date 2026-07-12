@@ -216,6 +216,9 @@ function getSqliteDb(): DatabaseSync {
 
     CREATE INDEX IF NOT EXISTS idx_commerce_orders_slug
       ON commerce_orders(leadSlug);
+
+    CREATE INDEX IF NOT EXISTS idx_deploy_handoffs_customDomain
+      ON deploy_handoffs(customDomain);
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -408,9 +411,11 @@ const api: any = {
   deployHandoffs: {
     upsert: "deployHandoffs:upsert",
     getByLeadSlug: "deployHandoffs:getByLeadSlug",
+    getByCustomDomain: "deployHandoffs:getByCustomDomain",
     list: "deployHandoffs:list",
     updateStatus: "deployHandoffs:updateStatus",
     updateVercelProject: "deployHandoffs:updateVercelProject",
+    updateCustomDomain: "deployHandoffs:updateCustomDomain",
   },
 };
 
@@ -1317,6 +1322,79 @@ export async function updateDeployHandoffVercelProject(
     vercelProjectId: vercelProjectId || undefined,
     updatedAt,
   };
+}
+
+/** Set (or clear) the client's own domain, used for host-based routing (proxy.ts). */
+export async function updateDeployHandoffCustomDomain(
+  leadSlug: string,
+  customDomain: string | null,
+): Promise<DeployHandoff | null> {
+  const updatedAt = new Date().toISOString();
+  const normalized = customDomain?.trim().toLowerCase() || null;
+
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.deployHandoffs.updateCustomDomain, {
+        leadSlug,
+        customDomain: normalized ?? "",
+        updatedAt,
+      })) as DeployHandoff | null;
+    } catch (e) {
+      console.warn(
+        "Failed to update deploy handoff custom domain on Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
+    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
+  if (!row) return null;
+
+  const existing = mapDeployHandoffRow(row);
+  db.prepare(`
+    UPDATE deploy_handoffs
+    SET customDomain = ?, updatedAt = ?
+    WHERE leadSlug = ?
+  `).run(normalized, updatedAt, leadSlug);
+
+  return {
+    ...existing,
+    customDomain: normalized || undefined,
+    updatedAt,
+  };
+}
+
+/**
+ * Host-based routing lookup (proxy.ts) — given an inbound request Host
+ * header, find which lead's preview to serve. Returns null for hosts with
+ * no matching handoff (caller falls through to normal routing).
+ */
+export async function getLeadSlugByCustomDomain(customDomain: string): Promise<string | null> {
+  const normalized = customDomain.trim().toLowerCase();
+  if (!normalized) return null;
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
+        customDomain: normalized,
+      })) as { leadSlug: string } | null;
+      return result?.leadSlug ?? null;
+    } catch (e) {
+      console.warn(
+        "Failed to look up deploy handoff by custom domain on Convex, falling back to SQLite database",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ? LIMIT 1")
+    .get(normalized) as { leadSlug: string } | undefined;
+  return row?.leadSlug ?? null;
 }
 
 // --- Client inquiries (contact form CRM) ---

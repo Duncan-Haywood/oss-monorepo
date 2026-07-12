@@ -225,5 +225,6 @@ export default defineSchema({
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_handoffId", ["handoffId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_customDomain", ["customDomain"]),
 });

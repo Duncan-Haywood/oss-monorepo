@@ -165,6 +165,28 @@ export const list = query({
   },
 });
 
+/**
+ * Host-based routing lookup for proxy.ts — given an inbound custom domain,
+ * find which lead it belongs to. Empty-string customDomain values (cleared
+ * domains) never match a lookup since real hosts are non-empty.
+ */
+export const getByCustomDomain = query({
+  args: { customDomain: v.string() },
+  returns: v.union(v.object({ leadSlug: v.string() }), v.null()),
+  handler: async (ctx, args) => {
+    if (!args.customDomain) return null;
+    // .first() (not .unique()) — customDomain has no uniqueness constraint at
+    // the DB level, and a rare operator collision must not throw for every
+    // visitor on either domain; first match wins, same as SQLite LIMIT 1.
+    const row = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_customDomain", (q) => q.eq("customDomain", args.customDomain))
+      .first();
+    if (!row) return null;
+    return { leadSlug: row.leadSlug };
+  },
+});
+
 export const updateStatus = mutation({
   args: {
     leadSlug: v.string(),
@@ -237,6 +259,52 @@ export const updateVercelProject = mutation({
     return toHandoff({
       ...existing,
       vercelProjectId,
+      updatedAt: args.updatedAt,
+    });
+  },
+});
+
+export const updateCustomDomain = mutation({
+  args: {
+    leadSlug: v.string(),
+    /** Empty string clears the custom domain (falls back to suggestedHost). */
+    customDomain: v.string(),
+    updatedAt: v.string(),
+  },
+  returns: v.union(handoffReturn, v.null()),
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing) return null;
+
+    const customDomain = args.customDomain.trim().toLowerCase() || undefined;
+    // replace so clearing the domain actually drops the optional field.
+    await ctx.db.replace(existing._id, {
+      handoffId: existing.handoffId,
+      leadSlug: existing.leadSlug,
+      businessName: existing.businessName,
+      tier: existing.tier,
+      commerceAddon: existing.commerceAddon,
+      stripeSessionId: existing.stripeSessionId,
+      customerEmail: existing.customerEmail,
+      previewUrl: existing.previewUrl,
+      suggestedHost: existing.suggestedHost,
+      customDomain,
+      contactFormUrl: existing.contactFormUrl,
+      dnsInstructions: existing.dnsInstructions,
+      status: existing.status,
+      vercelDomainStatus: existing.vercelDomainStatus,
+      vercelProjectId: existing.vercelProjectId,
+      notes: existing.notes,
+      createdAt: existing.createdAt,
+      updatedAt: args.updatedAt,
+    });
+
+    return toHandoff({
+      ...existing,
+      customDomain,
       updatedAt: args.updatedAt,
     });
   },
