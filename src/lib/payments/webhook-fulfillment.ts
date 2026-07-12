@@ -6,7 +6,9 @@
 
 export type WebhookFulfillmentStep =
   | "bundle_payment_or_handoff"
-  | "commerce_order_ledger";
+  | "commerce_order_ledger"
+  /** Operator inquiry after a durable commerce ledger write — required for Stripe retry / side-effect recovery. */
+  | "commerce_order_inquiry";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

@@ -155,24 +155,38 @@ export async function POST(request: Request) {
               );
             }
 
-            await insertClientInquiry(
-              {
-                leadSlug: orderSlug,
-                businessName,
-                email: customerEmail || undefined,
-                message: commerceOrderPaidInquiryMessage({
-                  skuName,
-                  amountTotalUsd: amountTotal,
-                  stripeSessionId: session.id,
-                  skuId,
-                }),
-                source: "commerce_checkout",
-              },
-              WEBHOOK_CONVEX_PRIMARY,
-            );
+            // Inquiry is required after a durable ledger write — ACK 200 here
+            // would prevent Stripe retry, so planCommerceWebhookSideEffects
+            // recovery never runs. Client receipt stays best-effort below.
+            try {
+              await insertClientInquiry(
+                {
+                  leadSlug: orderSlug,
+                  businessName,
+                  email: customerEmail || undefined,
+                  message: commerceOrderPaidInquiryMessage({
+                    skuName,
+                    amountTotalUsd: amountTotal,
+                    stripeSessionId: session.id,
+                    skuId,
+                  }),
+                  source: "commerce_checkout",
+                },
+                WEBHOOK_CONVEX_PRIMARY,
+              );
+            } catch (inquiryError) {
+              console.error(
+                `Failed to record commerce order inquiry for ${orderSlug}`,
+                inquiryError,
+              );
+              const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
+              return NextResponse.json(failure.body, { status: failure.status });
+            }
+
             // Commerce sold promise: order notification to the local business
             // (lead.email), not the shopper. Distinct from sendReceiptEmail
-            // (bundle buyer) and from Stripe Connect payouts.
+            // (bundle buyer) and from Stripe Connect payouts. Best-effort —
+            // operator already has the inbox row once inquiry succeeded.
             if (sideEffects.runClientReceipt) {
               const clientEmail = lead?.email?.trim();
               if (clientEmail) {
@@ -201,10 +215,15 @@ export async function POST(request: Request) {
               }
             }
           } catch (e) {
-            // Inquiry/side-effect failures after a durable ledger write are
-            // logged; Stripe redelivery recovers missing inquiry/receipt via
-            // planCommerceWebhookSideEffects (session id in message).
-            console.error(`Failed to record commerce order inquiry for ${orderSlug}`, e);
+            // Failures loading lead/catalog/inquiries before a durable inquiry
+            // write must also 5xx — otherwise Stripe never retries and the
+            // sold order-notification path is permanently skipped.
+            console.error(
+              `Failed before commerce order inquiry for ${orderSlug}`,
+              e,
+            );
+            const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
+            return NextResponse.json(failure.body, { status: failure.status });
           }
         } else {
           console.warn("webhook: commerce_sku session missing slug metadata", session.id);

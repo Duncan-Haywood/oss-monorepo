@@ -18,4 +18,12 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.received).toBe(false);
     expect(result.body.step).toBe("commerce_order_ledger");
   });
+
+  it("returns 500 with received:false for commerce inquiry failures after ledger", () => {
+    const result = webhookFulfillmentFailureResponse("commerce_order_inquiry");
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_order_inquiry");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });

@@ -94,7 +94,7 @@ export const AGENT_PROTOCOL = [
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "`alreadyRecorded` gates non-idempotent side effects only (emails, operator inquiries) — never skip idempotent fulfillment writes on redelivery. enqueueProductionHandoff is safe to call again (returns existing handoff when slug + stripeSessionId match); if the first delivery recorded the order but failed before handoff enqueue, a Stripe retry must still create the handoff. See bundle-webhook-handoff-on-redelivery.",
-  "Commerce Buy now: alreadyRecorded must NOT early-break past inquiry/client receipt. On redelivery, recover missing notifies when no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects); skip only when that inquiry already exists. Receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row).",
+  "Commerce Buy now: alreadyRecorded must NOT early-break past inquiry/client receipt. On redelivery, recover missing notifies when no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects); skip only when that inquiry already exists. Inquiry write failure after a durable ledger write must return 5xx (commerce_order_inquiry) so Stripe redelivers into that recovery path — never ACK 200 after swallowing inquiry errors. Receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row).",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
@@ -105,7 +105,7 @@ export const AGENT_PROTOCOL = [
   "listOrders Convex path must return newest-first (sortOrdersNewestFirst) to match SQLite ORDER BY createdAt DESC — latestEligibleOrder / Billing Portal assume that order. Do not rely on Convex .collect() order.",
   "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
-  "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers — never ACK 200 after swallowing those errors. Email/notify stays best-effort after durable writes succeed.",
+  "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder, commerce insertClientInquiry after ledger) so Stripe redelivers — never ACK 200 after swallowing those errors. Client receipt / bundle receipt/DNS emails stay best-effort after durable writes succeed.",
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
   "POST /api/contact/[slug] must also pass requireConvex (CONTACT_FORM_CONVEX_PRIMARY in src/lib/inquiries/contact-persist.ts) when Convex is configured — same multi-instance split-brain risk as the webhook: visitor-facing { ok: true } after a SQLite-only write leaves the Starter CRM trail invisible to Convex-first readers. Persist-required 503 is the recovery path (visitor retries); do not invent a separate fallback policy for contact vs webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
@@ -787,6 +787,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-a7c2",
+  },
+  {
+    id: "commerce-webhook-inquiry-retry-on-failure",
+    summary:
+      "PR #72 shipped planCommerceWebhookSideEffects so Stripe redelivery can recover a missing commerce_checkout inquiry/receipt after the ledger already exists — but the webhook catch around insertClientInquiry still logged and returned { received: true } 200, so Stripe never redelivers and recovery never runs. Sold Commerce promise (operator inbox + client order notification) can be permanently lost after a transient inquiry write failure. Shipped: return 500 with step commerce_order_inquiry when inquiry (or pre-inquiry lead/catalog/inquiry-list loads) fail after a durable ledger write; client receipt stays best-effort only after inquiry succeeds. Queued checkout-session-complete-convex-primary from the same audit (markCheckoutSessionComplete still warn-only).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-3601",
+  },
+  {
+    id: "checkout-session-complete-convex-primary",
+    summary:
+      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Prefer requireConvex + 5xx from the webhook so Stripe retries until the shared store marks the session complete.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1993,6 +2008,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "POST /api/contact/[slug] passes requireConvex (CONTACT_FORM_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as Stripe webhook fulfillment writes. Visitor-facing { ok: true } must not follow a SQLite-only inquiry write.",
     rationale:
       "PR #73 closed webhook split-brain; contact form was the documented remaining multi-instance CRM gap. Persist-required already returns 503 without an inquiryId — requireConvex makes Convex mutation failure take that path instead of silently writing local SQLite that Convex-first dashboard readers never see. Inline notify HTML in the same route was also escapeHtmlForEmail'd (extends the PR #76 resend.ts rule to route-handler templates). Free backlog otherwise stays gated (Stripe Prices / Places / Buffer OAuth / Connect). Sibling prompt-process-evolution-3601 was running the same hour but had not claimed on remote.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce Buy now webhook returns HTTP 500 (step commerce_order_inquiry) when insertClientInquiry fails after a durable commerceOrders ledger write — never ACK 200. Client receipt stays best-effort only after inquiry succeeds.",
+    rationale:
+      "PR #72's planCommerceWebhookSideEffects recovery only runs on Stripe redelivery. The prior catch logged inquiry failures and still returned { received: true }, so Stripe never retried and the sold order-notification promise (operator inbox + optional client receipt) could be permanently lost while the ledger showed the sale. Matching the ledger/handoff 5xx contract closes the hole; receipt-only failure after a successful inquiry remains best-effort because the operator already has the inbox row. Queued checkout-session-complete-convex-primary for the related markCheckoutSessionComplete warn-only gap. Sibling a7c2 merged contact-form-convex-primary as PR #78 in the same hour.",
   },
 ];
 
@@ -3287,6 +3309,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented contact fail-closed + notify HTML escape fold",
     ],
     decisions: BUSINESS_DECISIONS.slice(171, 172),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-3601",
+    summary:
+      "Sibling business-process-evolution-a7c2 claimed (then merged PR #78) contact-form-convex-primary-no-fallback. Free backlog otherwise empty (gated secrets/OAuth/counsel). Empty-backlog audit found PR #72's commerce inquiry/receipt recovery was unreachable: insertClientInquiry failures were logged then ACK'd 200, so Stripe never redelivered into planCommerceWebhookSideEffects. Shipped 5xx on commerce_order_inquiry; queued checkout-session-complete-convex-primary. Folded origin/main after PR #78 — both ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — WebhookFulfillmentStep commerce_order_inquiry",
+      "src/app/api/stripe/webhook/route.ts — return 500 when commerce inquiry (or pre-inquiry loads) fail after durable ledger; client receipt best-effort after inquiry",
+      "src/lib/commerce/side-effect-recovery.ts — document that recovery requires webhook 5xx on inquiry failure",
+      "Docs: architecture / roadmap / product-bundles — inquiry 5xx so Stripe retries into recovery",
+      "NEXT_STEPS: commerce-webhook-inquiry-retry-on-failure done; checkout-session-complete-convex-primary queued",
+      "AGENT_PROTOCOL — commerce inquiry is a required fulfillment write (5xx); receipt stays best-effort after inquiry",
+      "BUSINESS_DECISIONS — documented ACK-after-swallow hole that made PR #72 recovery unreachable",
+      "merge: folded origin/main after PR #78 (a7c2 contact-form Convex primary) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(172, 173),
   },
 ];
 
