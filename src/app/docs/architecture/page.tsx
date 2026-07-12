@@ -122,7 +122,10 @@ export default function ArchitectureDocPage() {
         (persists <code>client_inquiries</code> + email notify), optional Vercel Domains API.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
-        <code>replied</code> with stored body). Pipeline health panel aggregates order revenue, stage
+        <code>replied</code> with stored body). Opening the reply composer on a{" "}
+        <code>new</code> inquiry auto-marks it <code>read</code> (
+        <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
+        unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage
         funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied
         website inquiries (new + read, with oldest age), cold leads, and leads missing email (
         <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (

@@ -30,8 +30,7 @@ import {
   normalizeInquiryReply,
 } from "@/lib/inquiries/reply";
 import { markHandoffLive, assignVercelProjectAndProvision } from "@/lib/deploy/handoff";
-import type { DeployHandoff } from "@/lib/deploy/types";
-import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
+import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
   sendOutreachFollowUp2,
@@ -91,9 +90,6 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     };
   }
 }
-
-/** Re-export for client typing convenience. */
-export type { DeployHandoff, ClientInquiry };
 
 export async function updateInquiryStatusAction(
   inquiryId: string,

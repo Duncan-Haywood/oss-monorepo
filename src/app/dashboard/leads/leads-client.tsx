@@ -61,6 +61,7 @@ import {
 import {
   MAX_INQUIRY_REPLY_LENGTH,
   inquiryCanReceiveReply,
+  inquiryShouldAutoMarkRead,
 } from "@/lib/inquiries/reply";
 
 interface LeadsClientProps {
@@ -404,15 +405,10 @@ export function LeadsClient({
     });
   };
 
-  /**
-   * Opening the reply composer on a brand-new inquiry auto-marks it read, so
-   * unreplied counts distinguish "seen, drafting a reply" from untouched.
-   * Closing the composer (or reopening an already read/replied row) is a no-op.
-   */
   const handleToggleReplyComposer = (inq: ClientInquiry) => {
-    const opening = replyOpenId !== inq.id;
-    setReplyOpenId(opening ? inq.id : null);
-    if (opening && inq.status === "new") {
+    const isOpening = replyOpenId !== inq.id;
+    setReplyOpenId((prev) => (prev === inq.id ? null : inq.id));
+    if (inquiryShouldAutoMarkRead(inq, isOpening)) {
       handleInquiryStatus(inq.id, "read");
     }
   };
