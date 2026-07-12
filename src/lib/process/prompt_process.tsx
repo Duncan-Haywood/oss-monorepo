@@ -249,8 +249,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "outreach-open-tracking",
     summary:
       "Track preview-link opens (simple pixel or link-visit timestamp on /preview/[slug] for outreach-sourced traffic) so the follow-up due queue can prioritize leads who opened but didn't convert over ones who never saw the email.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-8e65"
   },
 ];
 
