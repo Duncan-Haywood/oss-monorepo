@@ -701,6 +701,28 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/business-process-evolution-6547 + cursor/prompt-process-evolution-4d48",
   },
   {
+    id: "stripe-webhook-retry-on-fulfillment-failure",
+    summary:
+      "Empty-backlog audit after contact-form-persist-required: checkout.session.completed catches recordLeadPayment / enqueueProductionHandoff (and commerce insertCommerceOrder) failures, logs them, then still returns { received: true } 200 — Stripe never retries, so a transient DB/timeout on first delivery permanently loses paid fulfillment (order, handoff, commerce ledger). Shippable without secrets: return 5xx when required ledger/handoff writes fail; keep email/notify best-effort after durable writes succeed.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-4d48",
+  },
+  {
+    id: "commerce-webhook-side-effect-recovery-on-redelivery",
+    summary:
+      "Related empty-backlog finding: commerce alreadyRecorded early-break skips insertClientInquiry + client receipt entirely. If the first delivery wrote the ledger then failed before inquiry/receipt, Stripe retries permanently skip those sold-capability notifies. Fix by recovering missing inquiry/receipt on redelivery (idempotent on stripeSessionId in message) — or only gate truly duplicate side effects.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
+  },
+  {
+    id: "stripe-webhook-convex-primary-no-fallback",
+    summary:
+      "Related empty-backlog finding: webhook fulfillment helpers (recordLeadPayment, insertDeployHandoff, insertCommerceOrder, insertClientInquiry) silently SQLite-fallback when Convex mutations fail, then the webhook ACKs 200. Dashboard/other instances read Convex-first and never see the payment — multi-instance split-brain on the revenue hot path. Prefer failing the webhook (Stripe retry) over writing only to local SQLite when Convex is configured.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
     id: "mark-lead-paid-convex-stub-lead",
     summary:
       "Bug found auditing after deploy-handoffs-convex-persistence while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated): SQLite recordLeadPayment creates a minimal paid lead when checkout completes for a slug that does not yet exist, but Convex markLeadPaid only patches stage when a lead row is present — otherwise it still inserts the order and never marks anyone paid. listOrders then shows revenue while paidNotLiveCount / deploy-handoff eligibility / outreach stage stay wrong. Shipped: Convex markLeadPaid inserts a payment stub lead (slug-derived businessName + generic defaults matching mapSqliteRowToLead / buildPaymentStubLeadFields) when no lead exists, then records the order — parity with SQLite.",
