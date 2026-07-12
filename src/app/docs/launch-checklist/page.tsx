@@ -98,8 +98,9 @@ export default function LaunchChecklistDocPage() {
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
           follow-ups due, abandoned-checkout recoveries, and unreplied inquiries all show up in
-          one email (or the mock log) — the operator should not need to open the dashboard to
-          know what is urgent today.
+          one email (or the mock log) — plus a snoozed-lead footnote (count + soonest return)
+          when any lead is parked off Work next. The operator should not need to open the
+          dashboard to know what is urgent today.
         </li>
       </ol>
 
@@ -173,7 +174,9 @@ export default function LaunchChecklistDocPage() {
           After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}
           <strong>Re-engage</strong> (reset to Discovered for a fresh Email 1–3 cycle) or{" "}
           <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
-          actions
+          actions. Optionally check <strong>Also send Email 1 when Re-engaging</strong> to fire
+          Email 1 immediately (requires an email on the lead; default remains off so sends stay
+          intentional).
         </li>
         <li>
           When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}

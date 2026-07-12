@@ -336,12 +336,14 @@ export async function snoozeLeadAction(
 
 /**
  * One-click cold-lead disposition: re-enter the Email 1–3 cadence (reset to
- * discovered) or move to the terminal `closed` stage. Only valid while
- * isColdLead is true — see src/lib/leads/cold-archive.ts.
+ * discovered, or optionally outreach_sent + Email 1) or move to the terminal
+ * `closed` stage. Only valid while isColdLead is true — see
+ * src/lib/leads/cold-archive.ts.
  */
 export async function disposeColdLeadAction(
   slug: string,
   disposition: ColdLeadDisposition | string,
+  options: { sendEmail1?: boolean } = {},
 ) {
   try {
     const auth = await requireOperatorAuth();
@@ -360,20 +362,64 @@ export async function disposeColdLeadAction(
       return { success: false as const, error: "Lead not found" };
     }
 
-    const planned = planColdLeadDisposition(existing, disposition, Date.now());
+    const planned = planColdLeadDisposition(existing, disposition, Date.now(), {
+      sendEmail1: options.sendEmail1,
+    });
     if (!planned.ok) {
       return { success: false as const, error: planned.error };
     }
 
     await applyColdLeadDisposition(slug, planned.patch);
+
+    let outreachStep = planned.patch.outreachStep;
+    let lastOutreachAt = planned.patch.lastOutreachAt;
+    let emailMock = false;
+    let emailSent = false;
+
+    if (planned.sendEmail1) {
+      const email = existing.email?.trim();
+      if (!email) {
+        // Planner already rejects this; defensive guard for race/reload.
+        return {
+          success: false as const,
+          error: "Cannot send Email 1 on re-engage — lead has no email address",
+        };
+      }
+      const sent = await sendOutreachEmail(email, existing.businessName, existing.slug);
+      if (!sent.success) {
+        return {
+          success: false as const,
+          error:
+            "reason" in sent && sent.reason === "suppressed"
+              ? "Email is on the suppression list"
+              : "error" in sent && typeof sent.error === "string"
+                ? sent.error
+                : "Re-engage saved, but Email 1 failed to send — set stage to Outreach Sent to retry",
+          stage: planned.patch.stage,
+          outreachStep,
+          lastOutreachAt,
+          snoozedUntil: planned.patch.snoozedUntil,
+          emailSent: false,
+        };
+      }
+      const sentAt = new Date().toISOString();
+      await recordLeadOutreach(slug, 1, sentAt);
+      outreachStep = 1;
+      lastOutreachAt = sentAt;
+      emailSent = true;
+      emailMock = "mock" in sent ? Boolean(sent.mock) : false;
+    }
+
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${slug}`);
     return {
       success: true as const,
       stage: planned.patch.stage,
-      outreachStep: planned.patch.outreachStep,
-      lastOutreachAt: planned.patch.lastOutreachAt,
+      outreachStep,
+      lastOutreachAt,
       snoozedUntil: planned.patch.snoozedUntil,
+      emailSent,
+      mock: emailMock,
     };
   } catch (error) {
     console.error("Error in disposeColdLeadAction:", error);
@@ -682,9 +728,10 @@ export async function openBillingPortalAction(slug: string) {
 
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
- * abandoned-checkout recoveries due, and unreplied inquiries in one send, so
- * a single-operator business does not have to open this dashboard to know
- * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
+ * abandoned-checkout recoveries due, and unreplied inquiries in one send, plus
+ * cold/snoozed footnotes, so a single-operator business does not have to open
+ * this dashboard to know what is urgent today. Requires OPERATOR_DIGEST_EMAIL —
+ * see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {

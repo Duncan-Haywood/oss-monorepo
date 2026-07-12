@@ -47,12 +47,51 @@ describe("planColdLeadDisposition", () => {
     const result = planColdLeadDisposition(lead, "reengage", NOW);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
+    expect(result.sendEmail1).toBe(false);
     expect(result.patch).toEqual({
       stage: "discovered",
       outreachStep: 0,
       lastOutreachAt: undefined,
       snoozedUntil: undefined,
     });
+  });
+
+  it("reengage + sendEmail1 parks at outreach_sent for an immediate Email 1", () => {
+    const lead = baseLead({
+      snoozedUntil: new Date(NOW + DAY_MS).toISOString(),
+    });
+    const result = planColdLeadDisposition(lead, "reengage", NOW, {
+      sendEmail1: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.sendEmail1).toBe(true);
+    expect(result.patch).toEqual({
+      stage: "outreach_sent",
+      outreachStep: 0,
+      lastOutreachAt: undefined,
+      snoozedUntil: undefined,
+    });
+  });
+
+  it("reengage + sendEmail1 rejects leads without a usable email", () => {
+    const lead = baseLead({ email: "   " });
+    const result = planColdLeadDisposition(lead, "reengage", NOW, {
+      sendEmail1: true,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toMatch(/no email/i);
+  });
+
+  it("sendEmail1 is ignored for close", () => {
+    const result = planColdLeadDisposition(baseLead(), "close", NOW, {
+      sendEmail1: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.sendEmail1).toBe(false);
+    expect(result.patch.stage).toBe("closed");
   });
 
   it("close moves to closed and keeps outreach history", () => {
@@ -64,6 +103,7 @@ describe("planColdLeadDisposition", () => {
     expect(result.patch.outreachStep).toBe(3);
     expect(result.patch.lastOutreachAt).toBe(lead.lastOutreachAt);
     expect(result.patch.snoozedUntil).toBeUndefined();
+    expect(result.sendEmail1).toBe(false);
   });
 
   it("rejects non-cold leads", () => {
