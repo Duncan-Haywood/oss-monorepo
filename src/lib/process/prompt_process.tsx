@@ -304,8 +304,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-snooze-work-next",
     summary:
       "Optional snooze / defer on Work next (store snoozedUntil on Lead) so operators can park a hot lead without losing score history — reduces false urgency after a call is booked.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-a6e6",
   },
   {
     id: "unreplied-inquiry-pipeline-metric",
