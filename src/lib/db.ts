@@ -243,6 +243,22 @@ function getSqliteDb(): DatabaseSync {
   if (!orderCols.includes("stripeCustomerId")) {
     sqliteDb.exec("ALTER TABLE orders ADD COLUMN stripeCustomerId TEXT");
   }
+  // Stripe redelivers checkout.session.completed on retry/timeout; unlike
+  // checkout_sessions/commerce_orders, `orders` had no uniqueness guard, so a
+  // retry double-counted revenueTotalUsd and resent receipt/handoff emails.
+  // NULLs (pre-webhook manual rows) don't collide under a unique index. Guard
+  // against a pre-existing DB that already accumulated a duplicate pair
+  // before this fix — don't crash startup over stale data.
+  try {
+    sqliteDb.exec(
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_stripe_session_id ON orders(stripeSessionId)",
+    );
+  } catch (e) {
+    console.error(
+      "Failed to create unique index on orders.stripeSessionId — likely pre-existing duplicate rows from before this fix; new inserts still check-before-insert in application code",
+      e,
+    );
+  }
 
   const inquiryCols = (
     sqliteDb.prepare("PRAGMA table_info(client_inquiries)").all() as unknown as Array<{
@@ -773,6 +789,13 @@ export async function applyColdLeadDisposition(
   );
 }
 
+/**
+ * Records a bundle payment (Starter/Growth/Complete checkout) exactly once
+ * per Stripe session. Returns alreadyRecorded=true when this stripeSessionId
+ * was already recorded — Stripe redelivers checkout.session.completed on
+ * retry/timeout, and the caller must not resend receipt/handoff emails or
+ * count the sale twice in revenueTotalUsd for a redelivery.
+ */
 export async function recordLeadPayment(params: {
   slug: string;
   stripeSessionId: string;
@@ -781,11 +804,10 @@ export async function recordLeadPayment(params: {
   commerceAddon: boolean;
   amountTotal: number;
   stripeCustomerId?: string;
-}): Promise<void> {
+}): Promise<{ alreadyRecorded: boolean }> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.markLeadPaid, params);
-      return;
+      return await convexClient.mutation(api.leads.markLeadPaid, params);
     } catch (e) {
       console.warn(`Failed to record lead payment for ${params.slug} on Convex, falling back to SQLite database`, e);
     }
@@ -793,6 +815,13 @@ export async function recordLeadPayment(params: {
 
   // SQLite Fallback
   const db = getSqliteDb();
+  const existingOrder = db
+    .prepare("SELECT id FROM orders WHERE stripeSessionId = ?")
+    .get(params.stripeSessionId) as { id: string } | undefined;
+  if (existingOrder) {
+    return { alreadyRecorded: true };
+  }
+
   const lead = await getLeadBySlug(params.slug);
   if (!lead) {
     const id = `lead_${Date.now()}`;
@@ -828,6 +857,7 @@ export async function recordLeadPayment(params: {
     params.commerceAddon ? 1 : 0,
     params.amountTotal
   );
+  return { alreadyRecorded: false };
 }
 
 export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, number>> {

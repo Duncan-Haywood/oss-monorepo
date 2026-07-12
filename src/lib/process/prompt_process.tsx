@@ -609,6 +609,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-noo0a3",
   },
+  {
+    id: "bundle-order-webhook-idempotency",
+    summary:
+      "Bug found auditing for a regression while the free backlog stayed empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all operator/legal-gated): the core `orders` table (Starter/Growth/Complete bundle purchases — the thing this business actually sells) had no uniqueness guard on stripeSessionId, unlike checkout_sessions and commerce_orders, which AGENT_PROTOCOL already requires ('Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId'). A Stripe checkout.session.completed retry/timeout redelivery would insert a second orders row, double-counting revenueTotalUsd on the operator dashboard and resending the buyer receipt email + 'next steps' deploy-handoff email a second time. Shipped: UNIQUE index migration on orders.stripeSessionId (SQLite) + existence check before insert on both backends (SQLite SELECT-then-insert; Convex markLeadPaid queries the existing by_stripeSessionId index first); recordLeadPayment/markLeadPaid now return { alreadyRecorded }, and the webhook handler skips the receipt/handoff emails entirely when a session was already processed. Verified end-to-end against a running dev server: constructed a real Stripe-signed checkout.session.completed payload (stripe.webhooks.generateTestHeaderString) and POSTed it twice — first call recorded the order + queued the handoff email, second call logged 'already recorded — skipping duplicate emails/handoff' and the SQLite orders table held exactly one row for that stripeSessionId afterward.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/quirky-davinci-wuk0al",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -1661,6 +1669,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "commerceOrders shipped without an id column in Convex while the SQLite path generated one inline; CommerceOrderRecord.id is a required string consumed as a React list key (Commerce payouts panel) and a plain type-cast (`as CommerceOrderRecord[]`) hid the gap from tsc. Naming the rule explicitly stops the next Convex-backed ledger from repeating the same silent-backend-divergence bug already seen once with lead.address.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Made the `orders` table (bundle checkout revenue) idempotent on stripeSessionId — UNIQUE index + check-before-insert on SQLite, existing-row query on Convex — and had the webhook skip resending receipt/handoff emails when a checkout.session.completed redelivery is detected.",
+    rationale:
+      "This is the platform's own revenue ledger, not a pass-through one, so a double-counted sale from an ordinary Stripe retry would have been a worse, higher-visibility version of the exact bug class AGENT_PROTOCOL already documented for checkout_sessions and commerce_orders (idempotent-on-stripeSessionId). Fixing the oldest, most-trusted table to match a rule written for newer tables closes the gap instead of leaving the original case as tacit permission to skip it.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2655,6 +2670,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: reconciled main after PR #58 (business-process-evolution-0907 orphan archive) + PR #59 (prompt-process-evolution-c75d payouts-in-digest); both ITERATIONS + all NEXT_STEPS/BUSINESS_DECISIONS entries kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(149, 150),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/quirky-davinci-wuk0al",
+    summary:
+      "Free NEXT_STEPS backlog was fully empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated). Per AGENT_PROTOCOL, ran a subagent-assisted regression audit across commerce/checkout/leads/marketing/voice/email plus Convex-vs-SQLite parity instead of inventing an optional aggregate. Found a genuine bug: the `orders` table (bundle purchase revenue — Starter/Growth/Complete) was never made idempotent on stripeSessionId, unlike checkout_sessions and commerce_orders, which the project's own protocol already requires for exactly this reason. Fixed on both backends and verified live against a running dev server by sending a real Stripe-signed checkout.session.completed payload twice.",
+    shipped: [
+      "src/lib/db.ts — CREATE UNIQUE INDEX (guarded by try/catch for any pre-existing dupes) on orders.stripeSessionId; recordLeadPayment checks for an existing order row before inserting and returns { alreadyRecorded }",
+      "convex/leads.ts — markLeadPaid queries the existing by_stripeSessionId index before inserting; returns { alreadyRecorded } instead of null",
+      "src/app/api/stripe/webhook/route.ts — checkout.session.completed handler skips the receipt email + production-handoff email entirely when recordLeadPayment reports alreadyRecorded (a Stripe retry), instead of resending them",
+      "Verified live: npm test (250 passed) + lint + build clean; npm run dev with fake STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET, used stripe.webhooks.generateTestHeaderString to POST a signed checkout.session.completed twice — first call recorded + queued handoff, second call logged the skip path, and a direct SQLite query confirmed exactly one orders row for that stripeSessionId; cleaned up the test lead/order/handoff rows afterward",
+      "NEXT_STEPS: added bundle-order-webhook-idempotency (done)",
+      "AGENT_PROTOCOL: none — existing idempotency rule already covered this; the gap was the oldest table never being retrofitted to match it",
+      "BUSINESS_DECISIONS: documented why the oldest, most-trusted ledger needed the same fix as the newer ones",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(150, 151),
   },
 ];
 
