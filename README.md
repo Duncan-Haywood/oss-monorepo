@@ -4,6 +4,32 @@ Listing Lens is an AI-first iPhone real estate photography concept: pro-level li
 
 **Status:** Concept / market validation
 
+## ⚠ Human action needed to unblock the next stage
+
+As of 2026-07-12, every agent-doable task in `process/roadmap.ts` is done. All remaining
+roadmap tasks are `owner: "human"` (or gated on one). Dozens of agent sessions since
+2026-06-13 have kept re-confirming this same state — the prep work (checklist, pricing,
+outreach copy, enhancement pipeline, lead-intake CLI, listing-audit rubric, interview
+script) is ready and waiting. Nothing else agent-side moves the business forward until one
+of these happens:
+
+1. **Book and shoot one real concierge listing** (`process/capture-checklist.ts` +
+   `pipeline/` + `process/outreach-templates.ts`) — the single highest-leverage next step;
+   unblocks `p2-first-deliveries` and, eventually, `p3-app-scope`.
+2. **Run the Phase 1 interviews** (`process/interview-script.ts`, 10 agents + 5 STR hosts)
+   — unblocks `p1-run-interviews`.
+3. **Score 20 Zillow listings** in a chosen metro against `process/listing-audit-rubric.ts`
+   — unblocks `p1-listing-audit`.
+4. **Flip the Cloudflare Access policy on** for the docs site in the Cloudflare dashboard
+   — merges PR #4 (`cursor/fix-pages-access-4a7e`), unblocks `p0-docs-site`.
+5. **Delete the ~12 confirmed-stale, fully-merged branches** — agent sessions get a hard
+   `HTTP 403` trying to delete refs on this repo (confirmed across multiple sessions, not a
+   transient error); this needs a token/permission fix or manual deletion from
+   github.com.
+
+See `process/prompt_process.tsx` → `AGENT_PROCESS_INSTRUCTIONS` for the full agent process,
+and `process/progress-log.ts` for what every session has tried.
+
 ## Thesis
 
 The strongest wedge is mid-market real estate agents who already shoot some of their own listings and lose clicks on mediocre Zillow photos. Airbnb and short-term-rental hosts are a valid secondary market, but they are more episodic unless they manage multiple properties. Listing Lens should lead with agents, expand into brokerage marketing teams, and use host packs as a product-led funnel rather than the core subscription business.

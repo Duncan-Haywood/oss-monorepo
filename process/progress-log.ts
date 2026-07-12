@@ -236,4 +236,19 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): p3-app-scope now won't appear in nextActionableTasks() until p1-run-interviews and p2-first-deliveries are both done — verify that holds once one of them actually flips to done, rather than assuming the gate works untested. If nothing is human-unblocked, the gatedOn mechanism could extend to other implicitly-sequenced tasks if any are found; otherwise re-verify mls-compliance.ts against a specific real MLS board once one is known.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "real-estate-photography-continuous-improvement",
+    summary:
+      "Re-confirmed the state every session for the last month has independently re-confirmed: nextActionableTasks() is empty (all agent-doable roadmap work is done; every remaining task is owner:\"human\" or gated on one), leads-log.ts/loggedInterviewResults/listingAuditLog are all still genuinely empty (no human action has landed yet since the repo's first commit on 2026-06-13), PR #4 is still the only open PR, and branch deletion still hard-403s (retested on claude/checklist-novice-audit, same result as the last two sessions that tried). Rather than add another process/roadmap.ts tweak on top of the 8+ already shipped this way, made the actual bottleneck impossible to miss: a human-facing summary at the top of README.md.",
+    changes: [
+      "README.md: added a '⚠ Human action needed to unblock the next stage' section directly under the Status line, listing the 5 concrete pending human actions (book+shoot a concierge listing, run Phase 1 interviews, score 20 Zillow listings, flip the Cloudflare Access policy for PR #4, delete the ~12 stale branches) with pointers to the exact files/PRs involved. This is a communication fix, not new process machinery — the roadmap/gating system already correctly tracks all of this, but a human skimming the repo root previously had to open process/roadmap.ts and cross-reference progress-log.ts to see it.",
+      "No roadmap.ts/decisions-log.ts changes — no new agent-doable task exists and no new business decision was made this session, only a documentation change surfacing existing state.",
+    ],
+    nextUp: [
+      "Human: same 5 items as every recent session's nextUp, now also in README.md's top-level 'Human action needed' section so they don't require reading progress-log.ts to find. p2-first-deliveries is still the single highest-leverage one.",
+      "Human: consider whether running this and the sibling 'real estate photo app Business development progress' trigger both hourly against the same fully-human-blocked roadmap is worth the cost — neither has had agent-doable work to do for several consecutive sessions now, and that's expected to continue until one of the 5 items above happens.",
+      "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real (non-empty) entries first — that's the actual signal anything changed. If still empty and nextActionableTasks() is still empty, don't invent another roadmap.ts/process/*.ts tweak just to have a diff; re-verify PR #4 and branch-deletion permissions (cheap, 30 seconds each) and stop there if nothing changed, rather than padding the session.",
+    ],
+  },
 ];
