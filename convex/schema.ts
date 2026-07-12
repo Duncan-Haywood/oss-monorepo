@@ -31,6 +31,8 @@ export default defineSchema({
     lastPreviewOpenAt: v.optional(v.string()),
     /** Free-text operator notes (call outcomes) — dashboard only. */
     notes: v.optional(v.string()),
+    /** ISO timestamp until which this lead is parked off Work next. */
+    snoozedUntil: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

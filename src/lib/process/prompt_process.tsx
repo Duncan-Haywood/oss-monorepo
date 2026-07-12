@@ -45,7 +45,7 @@ export const AGENT_PROTOCOL = [
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
-  "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
+  "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
@@ -304,15 +304,31 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-snooze-work-next",
     summary:
       "Optional snooze / defer on Work next (store snoozedUntil on Lead) so operators can park a hot lead without losing score history — reduces false urgency after a call is booked.",
-    status: "todo",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-a6e6",
   },
   {
     id: "unreplied-inquiry-pipeline-metric",
     summary:
       "Fold new/unreplied clientInquiries counts into pipeline-health (and optionally a dashboard teaser) so unpaid-looking support debt on live/paid sites sits beside paid-not-live — complements inquiry-dashboard-reply without a second inbox.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-af03",
+  },
+  {
+    id: "inquiry-mark-read-on-composer-open",
+    summary:
+      "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
     status: "todo",
     phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "snoozed-leads-pipeline-metric",
+    summary:
+      "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 
@@ -800,6 +816,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Same-hour dual ship: inquiry reply closes the paid contact-form loop; notes prompt raises discovery hygiene. Snooze and unreplied-inquiry aggregates are the next sibling claims. Empty free backlog causes hourly thrash.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Unreplied website inquiries (status new or read) count on pipeline-health beside paid-not-live, with oldestUnrepliedInquiryAgeHours and a dashboard teaser — replied/archived are closed. newInquiryCount stays as the still-unseen subset.",
+    rationale:
+      "Inquiry reply already ships from the inbox; without aggregates, support debt on live/paid sites stayed invisible next to fulfillment metrics. Folding counts into the existing panel mirrors abandoned-checkout aggregates and avoids a second priority queue.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Work next snooze stores ISO snoozedUntil on Lead (1d/3d/7d presets, max 30d). Snoozed leads stay scored but actionable=false so they drop off Work next without wiping quality history; Unsnooze clears the field.",
+    rationale:
+      "After a discovery call is booked, a hot lead still clogged Work next and created false urgency. Parking off the queue (not deleting score factors) matches how operators think: 'come back in 3 days' without a second CRM board.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-minute dual claim of lead-snooze-work-next (a6e6 earlier remote claim, af03 ~13s later): af03 pivoted to unreplied-inquiry-pipeline-metric before feature body; AGENT_PROTOCOL now says earlier remote claim owns when neither side has feature commits.",
+    rationale:
+      "Both hourly automations claimed snooze in the same minute. Pivoting on claim-only races prevents duplicate snooze implementations and still ships the next revenue-facing aggregate in the same hour.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After same-hour snooze + unreplied-inquiry ships, queue inquiry-mark-read-on-composer-open and optional snoozed-leads-pipeline-metric; Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes unreplied metrics distinguish unseen vs. drafting; snoozed aggregates only matter if operators forget Unsnooze.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1261,5 +1305,38 @@ export const ITERATIONS: ProcessIteration[] = [
       "Merge of cursor/prompt-process-evolution-e1af (inquiry-dashboard-reply)",
     ],
     decisions: BUSINESS_DECISIONS.slice(66, 69),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-af03",
+    summary:
+      "Same-minute dual claim on lead-snooze-work-next with business-process-evolution-a6e6 (their remote claim ~13s earlier): pivoted before feature body to unreplied-inquiry-pipeline-metric. Folded new+read inquiry counts + oldest age into pipeline-health, dashboard teaser cards, Vitest, docs; hardened AGENT_PROTOCOL dual-claim ownership; queued inquiry-mark-read-on-composer-open. Merged a6e6 snooze before PR (both ITERATIONS kept).",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / isUnrepliedInquiryStatus",
+      "src/lib/metrics/pipeline-health.test.ts — unreplied + age + status helper cases",
+      "src/components/dashboard/pipeline-health-panel.tsx — Unreplied inquiries metric card + teaser",
+      "src/app/dashboard/page.tsx — unreplied teaser on overview strip",
+      "Docs: architecture, roadmap, launch-checklist",
+      "NEXT_STEPS: unreplied-inquiry-pipeline-metric done; inquiry-mark-read-on-composer-open queued",
+      "AGENT_PROTOCOL — earlier remote claim owns when neither side has feature commits",
+      "Merge of cursor/business-process-evolution-a6e6 (Work next snooze)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(69, 73),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-a6e6",
+    summary:
+      "Claimed lead-snooze-work-next (dual claim with prompt-process-evolution-af03 ~13s later — this branch claimed first). Shipped Lead.snoozedUntil with 1d/3d/7d presets, pure helpers + Vitest, SQLite/Convex persistence, Work next exclusion via actionable=false, dashboard Snooze/Unsnooze controls. Queued snoozed-leads-pipeline-metric; af03 took unreplied-inquiry-pipeline-metric.",
+    shipped: [
+      "src/lib/leads/snooze.ts (+ .test.ts) — presets, normalizeSnoozedUntil, isLeadSnoozed, labels",
+      "src/lib/leads/quality-score.ts — snoozed → actionable=false; factor id snoozed",
+      "src/lib/leads/quality-score.test.ts — Work next excludes snoozed; expired returns",
+      "Lead.snoozedUntil on types + SQLite migration + Convex schema/updateSnooze",
+      "snoozeLeadAction + Work next / table Snooze presets + Unsnooze",
+      "Docs: roadmap Phase 2, architecture, launch-checklist",
+      "NEXT_STEPS: lead-snooze-work-next done; snoozed-leads-pipeline-metric queued",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(70, 72),
   },
 ];

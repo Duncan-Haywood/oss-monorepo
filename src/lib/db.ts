@@ -39,6 +39,7 @@ interface SqliteLeadRow {
   lastOutreachAt?: string | null;
   lastPreviewOpenAt?: string | null;
   notes?: string | null;
+  snoozedUntil?: string | null;
 }
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
@@ -168,6 +169,7 @@ function getSqliteDb(): DatabaseSync {
   addLeadCol("lastOutreachAt", "TEXT");
   addLeadCol("lastPreviewOpenAt", "TEXT");
   addLeadCol("notes", "TEXT");
+  addLeadCol("snoozedUntil", "TEXT");
 
   const handoffCols = (
     sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
@@ -253,6 +255,7 @@ const api: any = {
     recordOutreach: "leads:recordOutreach",
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
+    updateSnooze: "leads:updateSnooze",
   },
   inquiries: {
     create: "inquiries:create",
@@ -336,6 +339,7 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     lastOutreachAt: row.lastOutreachAt || undefined,
     lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
     notes: row.notes || undefined,
+    snoozedUntil: row.snoozedUntil || undefined,
   };
 }
 
@@ -408,13 +412,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const lastOutreachAt = lead.lastOutreachAt ?? null;
   const lastPreviewOpenAt = lead.lastPreviewOpenAt ?? null;
   const notes = lead.notes ?? null;
+  const snoozedUntil = lead.snoozedUntil ?? null;
 
   if (check) {
     db.prepare(`
       UPDATE leads
       SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
           tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
-          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, notes = ?, updatedAt = datetime('now')
+          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, notes = ?, snoozedUntil = ?, updatedAt = datetime('now')
       WHERE slug = ?
     `).run(
       lead.businessName,
@@ -435,13 +440,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lastOutreachAt,
       lastPreviewOpenAt,
       notes,
+      snoozedUntil,
       lead.slug,
     );
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes, snoozedUntil)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       lead.slug,
@@ -463,6 +469,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lastOutreachAt,
       lastPreviewOpenAt,
       notes,
+      snoozedUntil,
     );
   }
 }
@@ -576,6 +583,43 @@ export async function updateLeadNotes(
     SET notes = ?, updatedAt = datetime('now')
     WHERE slug = ?
   `).run(notes ?? null, slug);
+}
+
+/**
+ * Persist Work next snooze until (ISO) or clear with undefined.
+ * Caller should normalize via normalizeSnoozedUntil / snoozedUntilFromPreset.
+ */
+export async function updateLeadSnooze(
+  slug: string,
+  snoozedUntil: string | undefined,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateSnooze, {
+        slug,
+        snoozedUntil: snoozedUntil ?? "",
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to update snooze for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET snoozedUntil = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(snoozedUntil ?? null, slug);
 }
 
 export async function recordLeadPayment(params: {
