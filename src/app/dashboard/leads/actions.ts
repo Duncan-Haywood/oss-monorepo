@@ -7,6 +7,8 @@ import {
   updateLeadStage,
   upsertLead,
   updateClientInquiryStatus,
+  getClientInquiryById,
+  recordClientInquiryReply,
   getLeadBySlug,
   recordLeadOutreach,
   listOpenCheckoutSessions,
@@ -16,6 +18,10 @@ import {
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
+import {
+  inquiryCanReceiveReply,
+  normalizeInquiryReply,
+} from "@/lib/inquiries/reply";
 import { markHandoffLive, assignVercelProjectAndProvision } from "@/lib/deploy/handoff";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
@@ -24,6 +30,7 @@ import {
   sendOutreachFollowUp2,
   sendOutreachFollowUp3,
   sendCheckoutAbandonedRecovery,
+  sendInquiryReply,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -93,7 +100,7 @@ export async function updateInquiryStatusAction(
     if (!inquiryId) {
       return { success: false as const, error: "Inquiry id is required" };
     }
-    if (status !== "new" && status !== "read" && status !== "archived") {
+    if (status !== "new" && status !== "read" && status !== "replied" && status !== "archived") {
       return { success: false as const, error: "Invalid status" };
     }
     const inquiry = await updateClientInquiryStatus(inquiryId, status);
@@ -104,6 +111,87 @@ export async function updateInquiryStatusAction(
     return { success: true as const, inquiry };
   } catch (error) {
     console.error("Error in updateInquiryStatusAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Reply to a website contact-form inquiry from the dashboard (Resend + suppression).
+ * On success, persists operatorReply / repliedAt and marks status=replied.
+ */
+export async function replyToInquiryAction(inquiryId: string, replyBody: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!inquiryId) {
+      return { success: false as const, error: "Inquiry id is required" };
+    }
+
+    const normalized = normalizeInquiryReply(replyBody);
+    if (!normalized.ok) {
+      return { success: false as const, error: normalized.error };
+    }
+
+    const inquiry = await getClientInquiryById(inquiryId);
+    if (!inquiry) {
+      return { success: false as const, error: "Inquiry not found" };
+    }
+    if (!inquiryCanReceiveReply(inquiry)) {
+      return {
+        success: false as const,
+        error: inquiry.status === "archived"
+          ? "Inquiry is archived — unarchive is not supported; leave a lead note instead"
+          : "Inquiry has no email address to reply to",
+      };
+    }
+
+    const to = inquiry.email?.trim();
+    if (!to) {
+      return { success: false as const, error: "Inquiry has no email address to reply to" };
+    }
+
+    const sent = await sendInquiryReply({
+      to,
+      businessName: inquiry.businessName,
+      leadSlug: inquiry.leadSlug,
+      replyBody: normalized.body,
+      originalMessage: inquiry.message,
+      inquirerName: inquiry.name,
+    });
+
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send reply email",
+      };
+    }
+
+    const updated = await recordClientInquiryReply(inquiryId, normalized.body);
+    if (!updated) {
+      return {
+        success: false as const,
+        error: "Reply emailed but failed to persist inquiry status — refresh and check",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      inquiry: updated,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in replyToInquiryAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
