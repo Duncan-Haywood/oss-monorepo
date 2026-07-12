@@ -199,7 +199,10 @@ export default function RoadmapDocPage() {
         <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
-        edits clear the Price id until the next Sync). Saved-but-unsynced catalogs count on
+        edits clear the Price id until the next Sync). Sync does not archive Products for
+        removed SKUs — operators use <strong>Archive orphans</strong> (
+        <code>archiveOrphanCommerceStripeProducts</code>, <code>active=false</code>, never
+        auto-delete). Saved-but-unsynced catalogs count on
         pipeline health and list in the daily digest beside catalogs-missing. Completed Buy now
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;

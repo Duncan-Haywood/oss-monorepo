@@ -27,6 +27,7 @@ import {
   sendMarketingPackToClientAction,
   saveCommerceCatalogAction,
   syncCommerceCatalogToStripeAction,
+  archiveOrphanCommerceStripeProductsAction,
   generateClientVoicePackAction,
   sendClientVoicePackToClientAction,
 } from "./actions";
@@ -744,6 +745,23 @@ export function LeadsClient({
         return [res.catalog, ...without];
       });
       setCommerceDraftItems(res.catalog.items.map((item) => ({ ...item })));
+    });
+  };
+
+  const handleArchiveOrphanCommerceStripeProducts = (slug: string) => {
+    startTransition(async () => {
+      const res = await archiveOrphanCommerceStripeProductsAction(slug);
+      if (!res.success) {
+        alert(`Archive orphans failed: ${res.error}`);
+        return;
+      }
+      if (res.archivedCount === 0) {
+        alert("No orphan Stripe Products for this lead.");
+        return;
+      }
+      alert(
+        `Archived ${res.archivedCount} orphan Stripe Product${res.archivedCount === 1 ? "" : "s"} (removed SKUs).`,
+      );
     });
   };
 
@@ -2481,7 +2499,9 @@ export function LeadsClient({
                             </h3>
                             <p className="text-[11px] text-zinc-500">
                               Prices in USD. Save, then Sync to Stripe to turn Request
-                              order into a direct Buy now checkout on preview.
+                              order into a direct Buy now checkout on preview. After
+                              removing SKUs, Archive orphans deactivates leftover Stripe
+                              Products (never auto-deletes).
                             </p>
                           </div>
                           <ul className="mt-3 space-y-3">
@@ -2615,6 +2635,21 @@ export function LeadsClient({
                               className="inline-flex h-8 items-center rounded-lg border border-orange-300 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
                             >
                               Sync to Stripe
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isPending || !catalogForLead(lead.slug)}
+                              title={
+                                catalogForLead(lead.slug)
+                                  ? "Archive Stripe Products for SKUs removed from this catalog (never auto-deletes)"
+                                  : "Save the catalog first"
+                              }
+                              onClick={() =>
+                                handleArchiveOrphanCommerceStripeProducts(lead.slug)
+                              }
+                              className="inline-flex h-8 items-center rounded-lg border border-orange-200 px-3 text-xs font-semibold text-orange-900 hover:bg-orange-50 disabled:opacity-60"
+                            >
+                              Archive orphans
                             </button>
                             <button
                               type="button"
