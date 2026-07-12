@@ -4,8 +4,9 @@ import { brand } from "@/lib/brand";
 
 /**
  * Client site contact form (Phase 5).
- * Accepts JSON or form-urlencoded posts for a lead slug, persists an inquiry,
- * emails the lead (or support), and returns 200 so preview/production forms work.
+ * Accepts JSON or form-urlencoded posts for a lead slug, persists an inquiry
+ * (required for success), then best-effort emails the lead (or support).
+ * Returns 503 when the inquiry ledger write fails — never ok:true without a row.
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -64,7 +65,7 @@ export async function POST(request: Request, context: RouteContext) {
   // Prefer forwarding to the business email when we have it; else operator support.
   const notifyTo = lead?.email || support;
 
-  let inquiryId: string | undefined;
+  let inquiryId: string;
   try {
     const inquiry = await insertClientInquiry({
       leadSlug: slug,
@@ -78,6 +79,13 @@ export async function POST(request: Request, context: RouteContext) {
     inquiryId = inquiry.id;
   } catch (error) {
     console.error(`contact form persist failed for ${slug}:`, error);
+    return NextResponse.json(
+      {
+        error:
+          "Could not save your message right now. Please try again in a moment.",
+      },
+      { status: 503 },
+    );
   }
 
   try {
@@ -94,10 +102,11 @@ export async function POST(request: Request, context: RouteContext) {
         <p><strong>Phone:</strong> ${phone || "—"}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${message || "—"}</p>
-        ${inquiryId ? `<p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${inquiryId}</code></p>` : ""}
+        <p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${inquiryId}</code></p>
       `,
     });
   } catch (error) {
+    // Email is best-effort after a successful ledger write — operator still has the inbox row.
     console.error(`contact form email failed for ${slug}:`, error);
   }
 

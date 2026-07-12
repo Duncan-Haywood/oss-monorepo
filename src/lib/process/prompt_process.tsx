@@ -697,7 +697,7 @@ export const NEXT_STEPS: NextStep[] = [
       "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row).",
     status: "in_progress",
     phase: "Phase 5 — Production deploy",
-    owner: "cursor/prompt-process-evolution-4d48",
+    owner: "cursor/business-process-evolution-6547",
   },
   {
     id: "mark-lead-paid-convex-stub-lead",
