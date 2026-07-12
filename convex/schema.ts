@@ -19,7 +19,7 @@ export default defineSchema({
       weekday: v.string(),
       weekend: v.string(),
     }),
-    stage: v.string(), // "discovered" | "site_built" | "outreach_sent" | "discovery_call" | "paid" | "live"
+    stage: v.string(), // "discovered" | "site_built" | "outreach_sent" | "discovery_call" | "paid" | "live" | "closed"
     recommendedTier: v.string(), // "starter" | "growth" | "complete"
     /** Provenance for compliance — see /docs/compliance */
     dataSource: v.optional(v.string()),

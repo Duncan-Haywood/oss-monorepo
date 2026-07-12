@@ -63,6 +63,7 @@ const STAGE_BASE: Record<LeadPipelineStage, number> = {
   discovery_call: 54,
   paid: 22,
   live: 16,
+  closed: 8,
 };
 
 const STALE_OUTREACH_MS = 14 * 24 * 60 * 60 * 1000;
@@ -77,6 +78,8 @@ export function bandForScore(
   blocked: boolean,
 ): LeadQualityBand {
   if (stage === "paid" || stage === "live") return "fulfillment";
+  // Closed is a terminal operator choice — not blocked by missing email.
+  if (stage === "closed") return "cold";
   if (blocked) return "blocked";
   if (score >= 80) return "hot";
   if (score >= 60) return "warm";
@@ -260,8 +263,8 @@ export function scoreLead(
 
   // Abandoned checkout is hotter than a preview open: the prospect already
   // chose a tier and hit Stripe Checkout. Boost unpaid pipeline stages only
-  // (paid/live keep fulfillment banding without Work-next noise).
-  if (lead.stage !== "paid" && lead.stage !== "live") {
+  // (paid/live/closed stay off Work next without cart noise).
+  if (lead.stage !== "paid" && lead.stage !== "live" && lead.stage !== "closed") {
     const abandonedForLead = (options?.openCheckoutSessions ?? []).filter(
       (session) =>
         session.leadSlug === lead.slug && isAbandonedCheckout(session, nowMs),
@@ -284,7 +287,11 @@ export function scoreLead(
     }
   }
 
-  const blocked = !emailOk && lead.stage !== "paid" && lead.stage !== "live";
+  const blocked =
+    !emailOk &&
+    lead.stage !== "paid" &&
+    lead.stage !== "live" &&
+    lead.stage !== "closed";
   const snoozed = isLeadSnoozed(lead.snoozedUntil, nowMs);
   // Snooze parks the lead off Work next without wiping score history — still
   // scored (and visible in the table) but not actionable until the timer elapses.
@@ -295,8 +302,18 @@ export function scoreLead(
       delta: 0,
     });
   }
+  if (lead.stage === "closed") {
+    factors.push({
+      id: "closed",
+      label: "Closed — not pursuing",
+      delta: 0,
+    });
+  }
   const actionable =
-    lead.stage !== "paid" && lead.stage !== "live" && !snoozed;
+    lead.stage !== "paid" &&
+    lead.stage !== "live" &&
+    lead.stage !== "closed" &&
+    !snoozed;
 
   // Clamp after summing absolute stage base already in score — stage_base was
   // both the starting value AND listed as a factor; factors[0].delta equals start.

@@ -91,6 +91,8 @@ export default function RoadmapDocPage() {
         presets — parks a lead off the queue without wiping score history): shipped. Cold-lead
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
+        shipped. Cold-lead archive action (one-click <code>Re-engage</code> resets cadence to{" "}
+        <code>discovered</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
         shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools.
       </p>
 

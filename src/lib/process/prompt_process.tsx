@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → cold-lead archive), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -343,8 +343,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "cold-lead-archive-action",
     summary:
-      "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes.",
-    status: "in_progress",
+      "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes. Shipped: planColdLeadDisposition + disposeColdLeadAction; Re-engage → discovered + cleared cadence; Close → new terminal closed stage.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-89f2",
   },
@@ -355,6 +355,20 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/quirky-davinci-pewiht",
+  },
+  {
+    id: "closed-leads-pipeline-metric",
+    summary:
+      "Optional: fold currently-closed lead counts into pipeline-health (or a stage-funnel footnote) so operators see how many cold closes accumulated — only if Closed filter alone is not enough; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "reengage-send-email1-option",
+    summary:
+      "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional).",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 
@@ -940,6 +954,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. cold-lead-archive-action gives operators a one-click reset/close for the Cold badge cold-lead-reengagement only made visible; snoozed-leads-pipeline-metric remains the smaller, explicitly-optional aggregate.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Cold-lead disposition is an explicit operator choice: Re-engage resets outreachStep to 0, clears lastOutreachAt + snooze, and sets stage to discovered; Close sets the new terminal LeadPipelineStage \"closed\" while keeping outreach history.",
+    rationale:
+      "Cold detection only made silence visible. Without one-click actions, operators had to hand-edit stage/outreach fields and risked re-spamming by flipping outreach_sent while step was still 3. Resetting to discovered means Email 1 fires only when they intentionally move to outreach_sent again (same path as a fresh lead). A real closed stage removes the lead from isColdLead, Work next, and cold counts without deleting audit history.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Added LeadPipelineStage \"closed\" (SQLite status + Convex stageValidator) rather than overloading discovered or inventing a separate archived boolean.",
+    rationale:
+      "Discovered still means 'worth pursuing.' A boolean would drift from stage filters and funnel counts. closed sits outside the active FUNNEL_ORDER bar chart but remains in stageCounts / the stage dropdown so operators can filter Closed rows.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After cold-lead-archive-action, leave snoozed-leads-pipeline-metric free and queue optional closed-leads-pipeline-metric + reengage-send-email1-option; Stripe Price bootstrap and Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Snoozed aggregates remain the smaller optional item; closed counts and an Email-1-on-reengage checkbox are nice-to-haves once operators use the new buttons.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1498,5 +1533,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (139 passed) + lint + build, then npm run dev with Playwright: clicked Send daily digest on /dashboard/leads with OPERATOR_DIGEST_EMAIL set, confirmed the mock Resend log showed the rendered HTML and the button reported '3 items to act on' against the seeded demo leads",
     ],
     decisions: BUSINESS_DECISIONS.slice(80, 83),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-89f2",
+    summary:
+      "Shipped cold-lead-archive-action: one-click Re-engage / Close for Cold-badged leads. Added terminal LeadPipelineStage closed, pure planColdLeadDisposition helpers + Vitest, Convex/SQLite applyColdLeadDisposition, disposeColdLeadAction, Cold leads dashboard panel + row actions. Closed leads drop off Work next and cold counts. Queued optional closed-leads-pipeline-metric + reengage-send-email1-option; left snoozed-leads-pipeline-metric free.",
+    shipped: [
+      "src/lib/leads/cold-archive.ts (+ .test.ts) — planColdLeadDisposition, disposition labels",
+      "LeadPipelineStage closed on types + Convex stageValidator + schema comment + stage count maps",
+      "src/lib/leads/quality-score.ts — closed → actionable=false; factor id closed",
+      "src/lib/db.ts + convex/leads.applyColdDisposition — single-write stage/outreach/snooze patch",
+      "disposeColdLeadAction + Cold leads panel + table Re-engage/Close buttons",
+      "Docs: roadmap Phase 2, architecture, launch-checklist",
+      "NEXT_STEPS: cold-lead-archive-action done; closed-leads-pipeline-metric + reengage-send-email1-option queued",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(83, 86),
   },
 ];

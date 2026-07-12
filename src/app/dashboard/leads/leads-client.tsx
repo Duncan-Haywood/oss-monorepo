@@ -19,6 +19,7 @@ import {
   sendCheckoutRecoveryAction,
   updateLeadNotesAction,
   snoozeLeadAction,
+  disposeColdLeadAction,
   openBillingPortalAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
@@ -28,10 +29,15 @@ import {
   FOLLOW_UP_3_AFTER_DAYS,
   isColdLead,
   isFollowUpDue,
+  listColdLeads,
   listFollowUpsDue,
   nextFollowUpStep,
   normalizeOutreachStep,
 } from "@/lib/email/outreach-followups";
+import {
+  coldLeadDispositionLabel,
+  type ColdLeadDisposition,
+} from "@/lib/leads/cold-archive";
 import {
   ABANDONED_AFTER_HOURS,
   listAbandonedCheckoutsDue,
@@ -79,6 +85,7 @@ const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: strin
   { id: "discovery_call", label: "Discovery Call", color: "bg-amber-50 text-amber-700 border-amber-200", desc: "Call to review preview" },
   { id: "paid", label: "Paid", color: "bg-emerald-50 text-emerald-700 border-emerald-200", desc: "Stripe checkout complete" },
   { id: "live", label: "Live", color: "bg-indigo-50 text-indigo-700 border-indigo-200", desc: "Custom domain published" },
+  { id: "closed", label: "Closed", color: "bg-stone-100 text-stone-700 border-stone-200", desc: "Stopped pursuing (cold close / not a fit)" },
 ];
 
 const CATEGORIES: { id: BusinessCategory; label: string }[] = [
@@ -254,6 +261,29 @@ export function LeadsClient({
       setLeads((prev) =>
         prev.map((l) =>
           l.slug === slug ? { ...l, snoozedUntil: undefined } : l,
+        ),
+      );
+    });
+  };
+
+  const handleColdDisposition = (slug: string, disposition: ColdLeadDisposition) => {
+    startTransition(async () => {
+      const res = await disposeColdLeadAction(slug, disposition);
+      if (!res.success) {
+        alert(res.error ?? "Failed to update cold lead");
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.slug === slug
+            ? {
+                ...l,
+                stage: res.stage,
+                outreachStep: res.outreachStep,
+                lastOutreachAt: res.lastOutreachAt,
+                snoozedUntil: res.snoozedUntil,
+              }
+            : l,
         ),
       );
     });
@@ -522,6 +552,7 @@ export function LeadsClient({
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
   // Snapshot clock from mount — server re-checks cadence on send.
   const followUpsDue = listFollowUpsDue(leads, nowMs);
+  const coldLeads = listColdLeads(leads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
@@ -638,6 +669,72 @@ export function LeadsClient({
                 </li>
               );
             })}
+          </ul>
+        </section>
+      )}
+
+      {coldLeads.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-stone-200 bg-stone-50/50 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Cold leads
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({coldLeads.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/process"
+              className="text-xs font-medium text-stone-700 underline underline-offset-2"
+            >
+              Re-engage vs close
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Email 1–3 exhausted with no reply. Re-engage resets the cadence to Discovered (Email 1
+            sends when you move stage to Outreach Sent). Close parks the lead in the terminal Closed
+            stage without deleting history.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {coldLeads.map((lead) => (
+              <li
+                key={lead.slug}
+                className="rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-zinc-900">
+                      {lead.businessName}{" "}
+                      <span className="font-normal text-zinc-500">({lead.slug})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      Step {normalizeOutreachStep(lead.outreachStep) || 0}/3
+                      {lead.lastOutreachAt
+                        ? ` · last sent ${new Date(lead.lastOutreachAt).toLocaleDateString()}`
+                        : null}
+                      {lead.email ? ` · ${lead.email}` : null}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleColdDisposition(lead.slug, "reengage")}
+                      className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
+                    >
+                      {coldLeadDispositionLabel("reengage")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleColdDisposition(lead.slug, "close")}
+                      className="rounded-lg bg-stone-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stone-900 disabled:opacity-60"
+                    >
+                      {coldLeadDispositionLabel("close")}
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
           </ul>
         </section>
       )}
@@ -1516,7 +1613,7 @@ export function LeadsClient({
                           {cold ? (
                             <span
                               className="ml-1.5 rounded-full bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-700"
-                              title="No reply after all 3 outreach emails — re-engage manually or move to a closed stage"
+                              title="No reply after all 3 outreach emails — use Re-engage or Close"
                             >
                               Cold
                             </span>
@@ -1547,7 +1644,9 @@ export function LeadsClient({
                           >
                             {notesOpen ? "Close" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes"}
                           </button>
-                          {lead.stage !== "paid" && lead.stage !== "live" ? (
+                          {lead.stage !== "paid" &&
+                          lead.stage !== "live" &&
+                          lead.stage !== "closed" ? (
                             snoozed ? (
                               <button
                                 type="button"
@@ -1574,7 +1673,31 @@ export function LeadsClient({
                               </div>
                             )
                           ) : null}
-                          {next && lead.email && lead.stage !== "paid" && lead.stage !== "live" ? (
+                          {cold ? (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleColdDisposition(lead.slug, "reengage")}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
+                              >
+                                Re-engage
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleColdDisposition(lead.slug, "close")}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-stone-700 bg-stone-800 px-3 text-xs font-semibold text-white transition hover:bg-stone-900 disabled:opacity-60"
+                              >
+                                Close
+                              </button>
+                            </>
+                          ) : null}
+                          {next &&
+                          lead.email &&
+                          lead.stage !== "paid" &&
+                          lead.stage !== "live" &&
+                          lead.stage !== "closed" ? (
                             <button
                               type="button"
                               disabled={isPending}
