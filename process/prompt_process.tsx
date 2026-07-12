@@ -25,6 +25,7 @@ import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
 import { captureChecklist, totalTargetMinutes } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
+import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual-staging-tech";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
 import type { PhaseStatus } from "./types";
 
@@ -225,6 +226,33 @@ export function ProcessDashboard() {
               <h3 className="font-medium text-white">{rule.topic}</h3>
               <p className="mt-2 text-sm text-slate-300">{rule.rule}</p>
               <p className="mt-2 text-xs text-slate-500">{rule.implication}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Virtual staging tech (Polish step)</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          Desk research answering STRATEGY.md's open "on-device vs cloud for virtual staging"
+          question. Not yet built — see process/virtual-staging-tech.ts for sources and the
+          revisit condition.
+        </p>
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <h3 className="font-medium text-white">Decision: {virtualStagingTechDecision.choice.replace("_", " ")}</h3>
+          <p className="mt-2 text-sm text-slate-300">{virtualStagingTechDecision.summary}</p>
+          <p className="mt-2 text-xs text-slate-500">Revisit when: {virtualStagingTechDecision.revisitWhen}</p>
+        </div>
+        <div className="mt-4 space-y-4">
+          {virtualStagingTechOptions.map((option) => (
+            <div key={option.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-medium text-white">{option.name}</h3>
+                <span className="text-xs text-slate-500">{option.approach.replace("_", " ")}</span>
+              </div>
+              <p className="mt-2 text-sm text-slate-300">{option.costModel}</p>
+              <p className="mt-2 text-xs text-slate-500">{option.latency}</p>
+              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
             </div>
           ))}
         </div>

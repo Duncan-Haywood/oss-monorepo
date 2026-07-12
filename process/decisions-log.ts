@@ -105,4 +105,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-y9fqb5",
     relatedTaskIds: ["p2-lead-intake-tool", "p2-leads-tracking", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-12",
+    title: "Future virtual-staging Polish step will call a cloud API, not on-device Core ML",
+    decision:
+      "When the Polish step's AI virtual-staging feature is eventually built, it will call a pay-per-image cloud API (e.g. a Virtual Staging AI-style vendor, roughly $1-2/image) rather than running Stable-Diffusion-class inpainting on-device via Core ML. See process/virtual-staging-tech.ts for the full comparison and sources.",
+    rationale:
+      "Desk research on both real-estate-specific virtual-staging vendors and general mobile-ML architecture agrees the crossover point where on-device/custom infrastructure beats a pay-per-call API is roughly 1,000-15,000+ images/month — Listing Lens has zero real deliveries yet (p2-first-deliveries is still human-blocked) and no iOS app (phase 3 not started). A cloud API adds zero fixed cost until a real paid listing needs it and requires no new app/ML infrastructure, keeping this decision consistent with the existing scope guard against building the iOS app or over-engineering infrastructure in phase 1-2. On-device Core ML diffusion is technically feasible on iPhone 15 Pro-class hardware (~8-15s/image per Apple's own research) but would also gate quality/availability by device tier, which a $19 'good enough, fast, cheap' concierge offer shouldn't take on this early. Revisit once an app exists and real monthly staging volume approaches the crossover range.",
+    madeBy: "claude/dazzling-allen-q7uwlq",
+    relatedTaskIds: ["p1-virtual-staging-tech", "p2-ai-pipeline", "p3-app-scope"],
+  },
 ];

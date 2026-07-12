@@ -103,6 +103,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "Documented, sourced compliance rules exist in process/mls-compliance.ts, rendered on the docs site, with STRATEGY.md's open question checked off. See process/mls-compliance.ts.",
       },
+      {
+        id: "p1-virtual-staging-tech",
+        title: "Answer STRATEGY.md's open 'on-device vs cloud for virtual staging' question",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The second unanswered box in STRATEGY.md's open-questions checklist; like MLS compliance, this is desk-researchable (public vendor pricing, Apple's own Core ML research) without customer contact, and settles what a future Polish-step virtual-staging feature should actually call before any of that gets built.",
+        doneWhen:
+          "Documented, sourced comparison exists in process/virtual-staging-tech.ts with an explicit decision and a stated revisit condition, rendered on the docs site, with STRATEGY.md's open question checked off. See process/virtual-staging-tech.ts.",
+      },
     ],
   },
   {

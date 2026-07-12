@@ -158,4 +158,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): do not start p3-app-scope yet (same reasoning as every prior session). STRATEGY.md's remaining open question ('on-device vs cloud for virtual staging') is desk-researchable without customer contact, similar to how p1-mls-compliance was answered — a reasonable next candidate if nothing is human-unblocked. Otherwise keep watching PR #4 (still needs Duncan's Cloudflare dashboard step) and re-verify CI stays green as branches merge.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/dazzling-allen-q7uwlq",
+    summary:
+      "Verified all prior agent branches were already merged to main (git ls-remote + list_pull_requests: only draft PR #4 remains open, still blocked on Duncan's Cloudflare dashboard step). All Phase 1-2 agent-doable roadmap tasks were done and every remaining task was human-blocked or explicitly deferred (p3-app-scope), so this session took up the prior session's own suggested next candidate: STRATEGY.md's other unanswered open question, 'on-device vs cloud for virtual staging'.",
+    changes: [
+      "Added process/virtual-staging-tech.ts: sourced desk research (Apple's own Core ML/Stable Diffusion research, Virtual Staging AI's published API pricing, and general mobile-ML cost-crossover data) comparing on-device Core ML inpainting vs a pay-per-image cloud API for the future Polish-step virtual-staging feature. Decision: use a cloud API (not on-device) until real monthly volume approaches the ~1,000-15,000 image/month crossover and an iOS app actually exists — Listing Lens has neither yet.",
+      "decisions-log.ts: logged the resulting decision with rationale and an explicit revisit condition, tied to p3-app-scope so a future session doesn't have to re-derive this when the app-scope question finally comes up.",
+      "STRATEGY.md: checked off the 'on-device vs cloud for virtual staging' open question with a pointer to the new file.",
+      "roadmap.ts: added p1-virtual-staging-tech (done). prompt_process.tsx: ProcessDashboard now renders a 'Virtual staging tech (Polish step)' section showing the decision and both options compared, mirroring how the MLS-compliance section already renders.",
+      "Verified: docs-site `npm run build` and research `npm run build` both pass with the new file wired in; pipeline/ untouched this session so no need to re-run its tests.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries is still the single highest-leverage next step — checklist, pricing, outreach copy, and pipeline are all ready for a first real shoot.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) remain the other real unblocks.",
+      "Agent (next session): both of STRATEGY.md's originally-open, desk-researchable questions are now answered (MLS compliance, virtual-staging tech); the only remaining open question ('v1 scope: photos only vs photos + 3D lite') is explicitly gated on p3-app-scope, which every session has correctly deferred until validation data exists. Do not start p3-app-scope yet. If still nothing is human-unblocked, look for the next gap between STRATEGY.md prose and what's actually built/runnable — e.g. STRATEGY.md's 'brokerage sales cycle vs agent PLG' open question is genuinely data-dependent (not desk-researchable) so leave it, but check whether outreach-templates.ts/leads-log.ts need any small usability fix once a human has actually tried the lead-intake flow end to end.",
+    ],
+  },
 ];
