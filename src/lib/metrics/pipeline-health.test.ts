@@ -108,6 +108,7 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
     expect(health.commerceCatalogsMissingCount).toBe(0);
+    expect(health.commerceCatalogsUnsyncedCount).toBe(0);
     expect(health.clientVoicePacksDueCount).toBe(0);
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
@@ -458,6 +459,45 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.commerceCatalogsMissingCount).toBe(1);
+  });
+
+  it("counts saved Commerce catalogs that still need Sync to Stripe", () => {
+    const unsynced = makeLead("paid", { slug: "unsynced-shop" });
+    const synced = makeLead("live", { slug: "synced-shop" });
+    const health = computePipelineHealth({
+      leads: [unsynced, synced],
+      orders: [
+        {
+          ...makeOrder(849),
+          id: "o1",
+          leadSlug: "unsynced-shop",
+          tier: "starter",
+          commerceAddon: true,
+        },
+        {
+          ...makeOrder(849),
+          id: "o2",
+          leadSlug: "synced-shop",
+          tier: "growth",
+          commerceAddon: true,
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      commerceCatalogs: [
+        {
+          leadSlug: "unsynced-shop",
+          items: [{ id: "a", stripePriceId: undefined }],
+        },
+        {
+          leadSlug: "synced-shop",
+          items: [{ id: "b", stripePriceId: "price_b" }],
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceCatalogsMissingCount).toBe(0);
+    expect(health.commerceCatalogsUnsyncedCount).toBe(1);
   });
 
   it("counts Complete leads missing a client voice FAQ pack", () => {

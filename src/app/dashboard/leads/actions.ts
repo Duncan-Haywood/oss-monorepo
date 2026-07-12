@@ -74,6 +74,7 @@ import {
 import {
   leadEligibleForCommerceCatalog,
   normalizeCommerceItems,
+  preserveCommerceStripeIds,
   syncCommerceCatalogToStripe,
 } from "@/lib/commerce";
 import Stripe from "stripe";
@@ -1027,9 +1028,15 @@ export async function saveCommerceCatalogAction(
       return { success: false as const, error: normalized.error };
     }
 
+    // normalizeCommerceItems intentionally drops Stripe ids (never trust the
+    // client). Re-attach from the saved row so an edit after Sync to Stripe
+    // does not silently disable Buy now.
+    const existing = await getCommerceCatalog(slug);
+    const items = preserveCommerceStripeIds(normalized.items, existing?.items);
+
     const catalog = await upsertCommerceCatalog({
       leadSlug: lead.slug,
-      items: normalized.items,
+      items,
       updatedAt: new Date().toISOString(),
     });
 

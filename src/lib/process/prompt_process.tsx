@@ -42,8 +42,8 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility), unless another agent already owns it.",
-  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing) into pipeline-health + digest over inventing new optional aggregates.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility), unless another agent already owns it.",
+  "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
@@ -62,8 +62,10 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
+  "Commerce catalogs unsynced = listCommerceCatalogsUnsynced (eligible commerceAddon paid/live with a saved catalog that still has ≥1 SKU without stripePriceId). Surface as pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section — distinct from catalogs-missing; empty catalogs are not unsynced.",
+  "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizeCommerceItems — never persist a normalized draft that drops stripeProductId/stripePriceId, or Buy now silently regresses after any catalog edit. Never trust client-submitted Stripe ids.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
@@ -496,16 +498,16 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-catalog-preserve-stripe-ids",
     summary:
-      "Bug: saveCommerceCatalogAction → normalizeCommerceItems drops stripeProductId/stripePriceId, so any catalog edit after Sync to Stripe silently disables Buy now until the operator re-syncs. Preserve Stripe ids server-side from the existing catalog row (keep product id by sku id; keep price id only when priceCents is unchanged — matches stripe-sync reprice behavior). Do not trust client-submitted Stripe ids.",
-    status: "in_progress",
+      "Bug: saveCommerceCatalogAction → normalizeCommerceItems drops stripeProductId/stripePriceId, so any catalog edit after Sync to Stripe silently disables Buy now until the operator re-syncs. Shipped: preserveCommerceStripeIds merges Stripe ids server-side from the existing catalog row (keep product id by sku id; keep price id only when priceCents is unchanged — matches stripe-sync reprice behavior). Do not trust client-submitted Stripe ids.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-1e7b",
   },
   {
     id: "commerce-catalogs-unsynced-visibility",
     summary:
-      "Fold saved commerce catalogs that still have ≥1 SKU without stripePriceId into pipeline-health + daily digest (action section) so Sync-to-Stripe debt is visible beside catalogs-missing — reuses catalog rows already loaded for listCommerceCatalogsMissing. Partial sync counts as unsynced (Buy now only works per-SKU).",
-    status: "in_progress",
+      "Fold saved commerce catalogs that still have ≥1 SKU without stripePriceId into pipeline-health + daily digest (action section) so Sync-to-Stripe debt is visible beside catalogs-missing — reuses catalog rows already loaded for listCommerceCatalogsMissing. Partial sync counts as unsynced (Buy now only works per-SKU). Shipped: listCommerceCatalogsUnsynced + commerceCatalogsUnsyncedCount + digest Commerce Sync to Stripe due section.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-1e7b",
   },
@@ -1366,6 +1368,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Discovered right after claude/quirky-davinci-r911f7 merged stripe-commerce-products-sync (PR #49, same cron window as this branch's claim — see the iteration below): the shipped webhook only branches on `if (slug && tier)`, and a commerce_sku session carries slug + skuId but no tier, so it silently fell into the else/console.warn branch — a paid Buy now order reached Stripe but never reached the operator. Reusing insertClientInquiry keeps a single order-notification surface (Request-order already uses it for un-synced SKUs) instead of fragmenting operator attention across two inboxes before real per-order fulfillment tracking is needed.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "saveCommerceCatalogAction re-attaches Stripe Product/Price ids via preserveCommerceStripeIds from the existing DB catalog after normalizeCommerceItems — never from the client draft.",
+    rationale:
+      "normalizeCommerceItems intentionally strips stripeProductId/stripePriceId (operators should not forge charge targets). Without a server-side merge, any post-Sync catalog edit wiped Buy now until Sync to Stripe ran again — a silent sold-promise regression. Product id sticks by SKU id; Price id only when priceCents is unchanged (matches stripe-sync creating a new Price on reprice).",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce catalogs unsynced = listCommerceCatalogsUnsynced → pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section. Distinct from catalogs-missing; empty catalogs are not unsynced.",
+    rationale:
+      "After Stripe Products sync shipped, catalogs-missing only covers leads with no row. Operators who saved SKUs but never clicked Sync (or lost Price ids before the preserve fix) still leave visitors on Request order. Health + digest make that Sync debt visible beside missing catalogs without a second Work next panel.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "With free NEXT_STEPS operator/legal-gated after PR #50, prefer fixing silent sold-capability regressions (Stripe id wipe on catalog save) and wiring Sync-debt visibility before inventing new optional aggregates or fake-completing Stripe Price bootstrap / Places / Buffer OAuth.",
+    rationale:
+      "Buy now that breaks after an ordinary catalog edit is higher leverage than another metric. Remaining todos still need secrets or counsel an agent cannot obtain.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2174,6 +2197,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (206 passed) + lint + build, then npm run dev: confirmed /dashboard/leads and /preview/[slug] still 200 after the reset + fix, and that /api/stripe/webhook's existing 501 not-configured response (no STRIPE_WEBHOOK_SECRET in this sandbox) is unchanged — the new branch is unreachable without a real signed event here, so it's covered by the unit test on commerceOrderPaidInquiryMessage plus tsc/lint/build rather than a live webhook call",
     ],
     decisions: BUSINESS_DECISIONS.slice(121, 122),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-1e7b",
+    summary:
+      "Free backlog was operator/legal-gated after PR #50. Discovered saveCommerceCatalogAction wiped stripeProductId/stripePriceId on every edit (normalizeCommerceItems drops them), silently disabling Buy now after Sync to Stripe. Shipped preserveCommerceStripeIds (server-side merge from the existing catalog row) plus listCommerceCatalogsUnsynced into pipeline-health + daily digest so Sync-to-Stripe debt is visible beside catalogs-missing. Improved AGENT_PROTOCOL (preserve rule + unsynced helper). Stripe Price bootstrap / Places / Buffer OAuth stay gated.",
+    shipped: [
+      "src/lib/commerce/catalog.ts — preserveCommerceStripeIds, catalogHasUnsyncedSku, listCommerceCatalogsUnsynced",
+      "saveCommerceCatalogAction — merge Stripe ids from getCommerceCatalog after normalize",
+      "pipeline-health + panel — commerceCatalogsUnsyncedCount + Sync to Stripe card/callout",
+      "daily-digest — commerceCatalogsUnsynced section + HTML",
+      "Vitest: catalog preserve/unsynced, pipeline-health + digest cases",
+      "Docs: architecture §9, roadmap Phase 8, launch-checklist Sync verification",
+      "NEXT_STEPS: commerce-catalog-preserve-stripe-ids + commerce-catalogs-unsynced-visibility done; stripe-price-objects / lead-ingestion / marketing-content-scheduling remain gated",
+      "AGENT_PROTOCOL — preserve Stripe ids on catalog save; unsynced helper in revenue chain + digest load list",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(122, 125),
   },
 ];
 

@@ -130,6 +130,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.commerceCatalogsMissingCount > 0}
         />
         <MetricCard
+          label="Commerce Sync to Stripe"
+          value={String(health.commerceCatalogsUnsyncedCount)}
+          hint={
+            health.commerceCatalogsUnsyncedCount > 0
+              ? "Saved catalogs still need Buy now"
+              : "Saved catalogs synced for Buy now"
+          }
+          attention={health.commerceCatalogsUnsyncedCount > 0}
+        />
+        <MetricCard
           label="Voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={
@@ -219,6 +229,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             /dashboard/leads
           </Link>{" "}
           (sold catalog promise).
+        </p>
+      ) : null}
+
+      {health.commerceCatalogsUnsyncedCount > 0 ? (
+        <p className="mt-3 text-xs text-amber-900">
+          {health.commerceCatalogsUnsyncedCount} Commerce catalog
+          {health.commerceCatalogsUnsyncedCount === 1 ? "" : "s"} still need{" "}
+          <strong>Sync to Stripe</strong> so Buy now works — open the catalog editor on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>
+          .
         </p>
       ) : null}
 

@@ -73,6 +73,7 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue).toHaveLength(0);
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
+    expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
     expect(digest.clientVoicePacksDue).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
@@ -277,6 +278,43 @@ describe("buildDailyDigest", () => {
     expect(digest.isEmpty).toBe(false);
   });
 
+  it("lists saved Commerce catalogs that still need Sync to Stripe", () => {
+    const unsynced = baseLead({
+      slug: "unsynced-shop",
+      businessName: "Unsynced Boutique",
+      stage: "paid",
+    });
+    const synced = baseLead({
+      slug: "synced-shop",
+      businessName: "Synced Market",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [unsynced, synced],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "unsynced-shop", tier: "starter", commerceAddon: true },
+        { leadSlug: "synced-shop", tier: "growth", commerceAddon: true },
+      ],
+      commerceCatalogs: [
+        {
+          leadSlug: "unsynced-shop",
+          items: [{ id: "a", priceCents: 100 }],
+        },
+        {
+          leadSlug: "synced-shop",
+          items: [{ id: "b", priceCents: 200, stripePriceId: "price_b" }],
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commerceCatalogsMissing).toHaveLength(0);
+    expect(digest.commerceCatalogsUnsynced).toHaveLength(1);
+    expect(digest.commerceCatalogsUnsynced[0]?.businessName).toBe("Unsynced Boutique");
+    expect(digest.isEmpty).toBe(false);
+  });
+
   it("lists Complete leads missing a client voice FAQ pack", () => {
     const needsVoice = baseLead({
       slug: "needs-voice",
@@ -378,6 +416,11 @@ describe("renderDailyDigestHtml", () => {
           stage: "paid",
         }),
         baseLead({
+          slug: "commerce-unsynced",
+          businessName: "Unsynced Boutique",
+          stage: "live",
+        }),
+        baseLead({
           slug: "voice-due",
           businessName: "Voice Due Barbers",
           stage: "paid",
@@ -389,10 +432,16 @@ describe("renderDailyDigestHtml", () => {
         { leadSlug: "pack-due", tier: "growth", commerceAddon: false },
         { leadSlug: "upsell-me", tier: "starter", commerceAddon: false },
         { leadSlug: "commerce-due", tier: "starter", commerceAddon: true },
+        { leadSlug: "commerce-unsynced", tier: "starter", commerceAddon: true },
         { leadSlug: "voice-due", tier: "complete", commerceAddon: false },
       ],
       marketingPacksThisMonth: [],
-      commerceCatalogs: [],
+      commerceCatalogs: [
+        {
+          leadSlug: "commerce-unsynced",
+          items: [{ id: "sku_1", priceCents: 1200 }],
+        },
+      ],
       clientVoicePacks: [],
       nowMs: NOW,
     });
@@ -403,6 +452,8 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("suggest growth upsell");
     expect(html).toContain("Commerce catalogs missing");
     expect(html).toContain("Commerce catalog not created");
+    expect(html).toContain("Commerce Sync to Stripe due");
+    expect(html).toContain("Sync to Stripe still due");
     expect(html).toContain("Complete voice packs due");
     expect(html).toContain("Complete voice FAQ pack not generated");
   });

@@ -210,13 +210,17 @@ export default function ArchitectureDocPage() {
         <code>commerceCatalogs</code>, edit on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, render on{" "}
         <code>/preview/[slug]</code>). Missing catalogs count on pipeline health (
-        <code>commerceCatalogsMissingCount</code>) and list in the daily digest. Stripe Products
+        <code>commerceCatalogsMissingCount</code>) and list in the daily digest. Saved catalogs
+        that still have ≥1 SKU without <code>stripePriceId</code> count separately (
+        <code>commerceCatalogsUnsyncedCount</code> / digest Sync to Stripe due). Stripe Products
         sync shipped: <code>syncCommerceCatalogToStripeAction</code> (dashboard &quot;Sync to
         Stripe&quot; button) calls <code>syncCommerceCatalogToStripe</code> (
         <code>src/lib/commerce/stripe-sync.ts</code>) to idempotently create/find a Stripe
         Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets), then persists
-        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item.{" "}
+        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. Catalog
+        saves re-attach those ids from the existing DB row via{" "}
+        <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Unsynced items keep the
