@@ -351,8 +351,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "operator-daily-digest-email",
     summary:
       "Operator-triggered (or later cron) daily digest email summarizing Work next top leads, follow-ups due, abandoned-checkout recoveries due, and unreplied inquiries — a single-operator business should not have to open /dashboard/leads to know what's urgent today.",
-    status: "todo",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/quirky-davinci-pewiht",
   },
 ];
 
@@ -917,6 +918,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Critical bug, not a style nit: Turbopack's \"use server\" transform in this Next.js version registers every top-level export — including `export type` re-exports — as a server action reference. Since DeployHandoff/ClientInquiry are types with no runtime value, evaluating the actions module threw `ReferenceError: DeployHandoff is not defined`, 500ing every operator mutation on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal — not just the new feature, and present on main since PR #33 merged without exercising the runtime). The re-export was already dead: leads-client.tsx imports both types directly from their source modules. Precedent for future agents: a \"use server\" file must export ONLY async functions — no type re-exports, even ones that look inert.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Operator daily digest is a pure TypeScript aggregator (src/lib/digest/daily-digest.ts) that reuses the existing scorer/due-queue functions — rankLeadsForOutreach, listFollowUpsDue, listAbandonedCheckoutsDue, isUnrepliedInquiryStatus — rather than a new query surface, and sends via a dedicated sendOperatorDailyDigest() in resend.ts that skips the suppression check and CAN-SPAM footer.",
+    rationale:
+      "The digest summarizes signals the dashboard already computes; recomputing them a second way would drift from Work next / pipeline-health over time. Suppression and CAN-SPAM footers exist to protect prospects who opted out of outreach — the operator's own inbox is not a marketing recipient, so applying the same gate would risk silently dropping the operator's own digest if their address ever landed on the suppression list some other way.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Daily digest is operator-triggered from a button on /dashboard/leads (requireOperatorAuth + OPERATOR_DIGEST_EMAIL env var), not an automatic cron send.",
+    rationale:
+      "Matches the existing outreach-follow-ups precedent (operator-triggered, not auto-cron) for the single-operator MVP — a human decides when to check in, and a missing OPERATOR_DIGEST_EMAIL degrades to a clear error instead of silently no-op'ing. A later cron can call the same buildDailyDigest/sendOperatorDailyDigest helpers once volume justifies scheduling.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After operator-daily-digest-email, leave cold-lead-archive-action and snoozed-leads-pipeline-metric as the free NEXT_STEPS for siblings; Stripe Price bootstrap and Places ingestion stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. cold-lead-archive-action gives operators a one-click reset/close for the Cold badge cold-lead-reengagement only made visible; snoozed-leads-pipeline-metric remains the smaller, explicitly-optional aggregate.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1457,5 +1479,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (122 passed) + lint + build, then npm run dev with Playwright driving /dashboard/leads: reproduced the crash pre-fix (Mark read button 500s), confirmed clean post-fix (Mark read disappears + composer opens on Reply click), and loaded /preview/[slug] + /docs/process",
     ],
     decisions: BUSINESS_DECISIONS.slice(76, 77),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/quirky-davinci-pewiht",
+    summary:
+      "Shipped operator-daily-digest-email, the last free NEXT_STEPS item from the prior iteration's queue: a pure aggregator over the already-shipped scorer + due-queue functions, rendered to email HTML, sent via a dedicated Resend path, and triggered from a new button on /dashboard/leads.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — buildDailyDigest (Work next top 5, follow-ups due, abandoned-checkout recoveries due, unreplied inquiries, cold-lead count) + renderDailyDigestHtml, both pure/testable",
+      "src/lib/digest/daily-digest.test.ts — 10 cases covering empty state, each section, threshold edges, HTML escaping",
+      "src/lib/email/resend.ts — sendOperatorDailyDigest(to, html): same Resend/mock path as other senders, skips suppression + CAN-SPAM footer since the recipient is the operator, not a prospect",
+      "src/app/dashboard/leads/actions.ts — sendDailyDigestAction(): requireOperatorAuth, requires OPERATOR_DIGEST_EMAIL, loads leads/inquiries/open checkout sessions, builds + sends the digest",
+      "src/components/dashboard/daily-digest-button.tsx — new client component, 'Send daily digest' button + inline success/error status",
+      "src/app/dashboard/leads/page.tsx — renders the button in the page header",
+      ".env.example — documented OPERATOR_DIGEST_EMAIL",
+      "src/app/docs/launch-checklist — added a digest verification step to the Outreach section",
+      "Verified via npm test (139 passed) + lint + build, then npm run dev with Playwright: clicked Send daily digest on /dashboard/leads with OPERATOR_DIGEST_EMAIL set, confirmed the mock Resend log showed the rendered HTML and the button reported '3 items to act on' against the seeded demo leads",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(80, 83),
   },
 ];

@@ -10,8 +10,10 @@ import {
   getClientInquiryById,
   recordClientInquiryReply,
   getLeadBySlug,
+  getLeads,
   recordLeadOutreach,
   listOpenCheckoutSessions,
+  listClientInquiries,
   recordCheckoutRecoverySent,
   updateLeadNotes,
   updateLeadSnooze,
@@ -37,9 +39,11 @@ import {
   sendOutreachFollowUp3,
   sendCheckoutAbandonedRecovery,
   sendInquiryReply,
+  sendOperatorDailyDigest,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
+import { buildDailyDigest, renderDailyDigestHtml } from "@/lib/digest/daily-digest";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -607,6 +611,68 @@ export async function openBillingPortalAction(slug: string) {
     return { success: true as const, url: result.url };
   } catch (error) {
     console.error("Error in openBillingPortalAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Operator-triggered daily digest email: Work next top leads, follow-ups due,
+ * abandoned-checkout recoveries due, and unreplied inquiries in one send, so
+ * a single-operator business does not have to open this dashboard to know
+ * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
+ */
+export async function sendDailyDigestAction() {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+
+    const digestEmail = process.env.OPERATOR_DIGEST_EMAIL?.trim();
+    if (!digestEmail) {
+      return {
+        success: false as const,
+        error: "Set OPERATOR_DIGEST_EMAIL in your environment to enable the daily digest.",
+      };
+    }
+
+    const [leads, inquiries, openCheckoutSessions] = await Promise.all([
+      getLeads(),
+      listClientInquiries(100),
+      listOpenCheckoutSessions(),
+    ]);
+
+    const headerStore = await headers();
+    const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+    const proto = headerStore.get("x-forwarded-proto") ?? "http";
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
+
+    const nowMs = Date.now();
+    const digest = buildDailyDigest({ leads, inquiries, openCheckoutSessions, nowMs });
+    const html = renderDailyDigestHtml(digest, appUrl);
+
+    const sent = await sendOperatorDailyDigest(digestEmail, html);
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "error" in sent && typeof sent.error === "string"
+            ? sent.error
+            : "Failed to send daily digest",
+      };
+    }
+
+    return {
+      success: true as const,
+      digest,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendDailyDigestAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -237,6 +237,52 @@ export async function sendInquiryReply(params: {
 }
 
 /**
+ * Operator daily digest — internal notification, not outreach to a prospect.
+ * Skips the suppression check and CAN-SPAM footer (those exist to protect
+ * prospects who opted out, not the operator's own inbox) but reuses the same
+ * Resend call / mock fallback as every other send helper here.
+ */
+export async function sendOperatorDailyDigest(to: string, html: string) {
+  const subject = `${brand.name} — daily digest`;
+
+  if (!resendApiKey || resendApiKey.startsWith("re_placeholder") || resendApiKey === "re_...") {
+    console.log(`[Mock Email Sent]
+To: ${to}
+Subject: ${subject}
+Content Preview: ${html.substring(0, 150)}...`);
+    return { success: true, mock: true };
+  }
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: `${brand.name} <outreach@updates.localsitestudio.com>`,
+        to: [to],
+        subject,
+        html,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Resend API response: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log(`[Email Sent via Resend] ID: ${data.id} to ${to}`);
+    return { success: true, emailId: data.id };
+  } catch (error) {
+    console.error(`Failed to send daily digest to ${to} via Resend:`, error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+/**
  * Sends a transactional order receipt email.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {

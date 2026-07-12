@@ -94,6 +94,13 @@ export default function LaunchChecklistDocPage() {
           <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code> appears as an
           Opened badge on the leads table and that Follow-ups due ranks openers first.
         </li>
+        <li>
+          Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
+          follow-ups due, abandoned-checkout recoveries, and unreplied inquiries all show up in
+          one email (or the mock log) — the operator should not need to open the dashboard to
+          know what is urgent today.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>
