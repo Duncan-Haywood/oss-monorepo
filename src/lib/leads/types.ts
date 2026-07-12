@@ -61,4 +61,10 @@ export interface Lead {
    * MAX_OPERATOR_NOTES_LENGTH in src/lib/leads/notes.ts.
    */
   notes?: string;
+  /**
+   * ISO timestamp until which this lead is parked off Work next.
+   * Score history is preserved; rankLeadsForOutreach treats the lead as
+   * non-actionable while snoozedUntil > now. See src/lib/leads/snooze.ts.
+   */
+  snoozedUntil?: string;
 }

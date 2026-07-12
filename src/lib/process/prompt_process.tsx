@@ -304,7 +304,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-snooze-work-next",
     summary:
       "Optional snooze / defer on Work next (store snoozedUntil on Lead) so operators can park a hot lead without losing score history — reduces false urgency after a call is booked.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-a6e6",
   },
@@ -322,6 +322,13 @@ export const NEXT_STEPS: NextStep[] = [
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
     status: "todo",
     phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "snoozed-leads-pipeline-metric",
+    summary:
+      "Optional: fold currently-snoozed lead counts into pipeline-health (or a Work next footnote) so parked urgency is visible beside abandoned carts — only if operators miss unsnooze; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 
@@ -819,6 +826,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Work next snooze stores ISO snoozedUntil on Lead (1d/3d/7d presets, max 30d). Snoozed leads stay scored but actionable=false so they drop off Work next without wiping quality history; Unsnooze clears the field.",
+    rationale:
+      "After a discovery call is booked, a hot lead still clogged Work next and created false urgency. Parking off the queue (not deleting score factors) matches how operators think: 'come back in 3 days' without a second CRM board.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Same-minute dual claim of lead-snooze-work-next (a6e6 earlier remote claim, af03 ~13s later): af03 pivoted to unreplied-inquiry-pipeline-metric before feature body; AGENT_PROTOCOL now says earlier remote claim owns when neither side has feature commits.",
     rationale:
       "Both hourly automations claimed snooze in the same minute. Pivoting on claim-only races prevents duplicate snooze implementations and still ships the next revenue-facing aggregate in the same hour.",
@@ -826,9 +840,9 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "After unreplied-inquiry-pipeline-metric, leave lead-snooze-work-next with its sibling owner and queue inquiry-mark-read-on-composer-open so the next free todo is clear while Stripe/Places stay human-gated.",
+      "After same-hour snooze + unreplied-inquiry ships, queue inquiry-mark-read-on-composer-open and optional snoozed-leads-pipeline-metric; Stripe/Places stay human-gated.",
     rationale:
-      "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes the unreplied metric distinguish unseen vs. drafting without a second panel.",
+      "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes unreplied metrics distinguish unseen vs. drafting; snoozed aggregates only matter if operators forget Unsnooze.",
   },
 ];
 
@@ -1296,16 +1310,33 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-12",
     branch: "cursor/prompt-process-evolution-af03",
     summary:
-      "Same-minute dual claim on lead-snooze-work-next with business-process-evolution-a6e6 (their remote claim ~13s earlier): pivoted before feature body to unreplied-inquiry-pipeline-metric. Folded new+read inquiry counts + oldest age into pipeline-health, dashboard teaser cards, Vitest, docs; hardened AGENT_PROTOCOL dual-claim ownership; queued inquiry-mark-read-on-composer-open.",
+      "Same-minute dual claim on lead-snooze-work-next with business-process-evolution-a6e6 (their remote claim ~13s earlier): pivoted before feature body to unreplied-inquiry-pipeline-metric. Folded new+read inquiry counts + oldest age into pipeline-health, dashboard teaser cards, Vitest, docs; hardened AGENT_PROTOCOL dual-claim ownership; queued inquiry-mark-read-on-composer-open. Merged a6e6 snooze before PR (both ITERATIONS kept).",
     shipped: [
       "src/lib/metrics/pipeline-health.ts — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / isUnrepliedInquiryStatus",
       "src/lib/metrics/pipeline-health.test.ts — unreplied + age + status helper cases",
       "src/components/dashboard/pipeline-health-panel.tsx — Unreplied inquiries metric card + teaser",
       "src/app/dashboard/page.tsx — unreplied teaser on overview strip",
       "Docs: architecture, roadmap, launch-checklist",
-      "NEXT_STEPS: unreplied-inquiry-pipeline-metric done; snooze left with a6e6; inquiry-mark-read-on-composer-open queued",
+      "NEXT_STEPS: unreplied-inquiry-pipeline-metric done; inquiry-mark-read-on-composer-open queued",
       "AGENT_PROTOCOL — earlier remote claim owns when neither side has feature commits",
+      "Merge of cursor/business-process-evolution-a6e6 (Work next snooze)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(69, 72),
+    decisions: BUSINESS_DECISIONS.slice(69, 73),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-a6e6",
+    summary:
+      "Claimed lead-snooze-work-next (dual claim with prompt-process-evolution-af03 ~13s later — this branch claimed first). Shipped Lead.snoozedUntil with 1d/3d/7d presets, pure helpers + Vitest, SQLite/Convex persistence, Work next exclusion via actionable=false, dashboard Snooze/Unsnooze controls. Queued snoozed-leads-pipeline-metric; af03 took unreplied-inquiry-pipeline-metric.",
+    shipped: [
+      "src/lib/leads/snooze.ts (+ .test.ts) — presets, normalizeSnoozedUntil, isLeadSnoozed, labels",
+      "src/lib/leads/quality-score.ts — snoozed → actionable=false; factor id snoozed",
+      "src/lib/leads/quality-score.test.ts — Work next excludes snoozed; expired returns",
+      "Lead.snoozedUntil on types + SQLite migration + Convex schema/updateSnooze",
+      "snoozeLeadAction + Work next / table Snooze presets + Unsnooze",
+      "Docs: roadmap Phase 2, architecture, launch-checklist",
+      "NEXT_STEPS: lead-snooze-work-next done; snoozed-leads-pipeline-metric queued",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(70, 72),
   },
 ];

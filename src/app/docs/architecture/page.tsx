@@ -133,7 +133,9 @@ export default function ArchitectureDocPage() {
         discovery stages). Operator free-text <code>notes</code> on each lead capture call
         outcomes from the dashboard row expander (not shown on client preview sites). Moving a
         lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
-        soft prompt (Skip dismisses without undoing the stage/email change).
+        soft prompt (Skip dismisses without undoing the stage/email change). Optional{" "}
+        <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
+        the quality score visible — Unsnooze clears it.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

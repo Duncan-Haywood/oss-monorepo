@@ -11,6 +11,7 @@ import {
 } from "../checkout/abandoned-recovery";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { isFollowUpDue, normalizeOutreachStep } from "../email/outreach-followups";
+import { isLeadSnoozed } from "./snooze";
 
 /** 0–100; higher = work this lead sooner among active pipeline rows. */
 export type LeadQualityScore = number;
@@ -284,7 +285,18 @@ export function scoreLead(
   }
 
   const blocked = !emailOk && lead.stage !== "paid" && lead.stage !== "live";
-  const actionable = lead.stage !== "paid" && lead.stage !== "live";
+  const snoozed = isLeadSnoozed(lead.snoozedUntil, nowMs);
+  // Snooze parks the lead off Work next without wiping score history — still
+  // scored (and visible in the table) but not actionable until the timer elapses.
+  if (snoozed) {
+    factors.push({
+      id: "snoozed",
+      label: "Snoozed — parked off Work next",
+      delta: 0,
+    });
+  }
+  const actionable =
+    lead.stage !== "paid" && lead.stage !== "live" && !snoozed;
 
   // Clamp after summing absolute stage base already in score — stage_base was
   // both the starting value AND listed as a factor; factors[0].delta equals start.

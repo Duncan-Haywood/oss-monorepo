@@ -261,6 +261,41 @@ describe("rankLeadsForOutreach", () => {
     expect(ranked[0]?.slug).toBe("cart-lead");
     expect(ranked[0]?.factors.some((f) => f.id === "abandoned_checkout")).toBe(true);
   });
+
+  it("excludes snoozed leads from Work next while preserving their score", () => {
+    const snoozedUntil = new Date(NOW + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const hot = baseLead({
+      slug: "hot-snoozed",
+      stage: "discovery_call",
+      outreachStep: 1,
+      lastOutreachAt: "2026-07-01T00:00:00.000Z",
+      dataSource: "csv_import",
+      snoozedUntil,
+    });
+    const ready = baseLead({
+      slug: "ready",
+      stage: "site_built",
+      dataSource: "manual_entry",
+    });
+    const scored = scoreLead(hot, NOW);
+    expect(scored.actionable).toBe(false);
+    expect(scored.factors.some((f) => f.id === "snoozed")).toBe(true);
+    expect(scored.score).toBeGreaterThan(50);
+
+    const ranked = rankLeadsForOutreach([hot, ready], NOW, 10);
+    expect(ranked.map((r) => r.slug)).toEqual(["ready"]);
+  });
+
+  it("returns expired-snooze leads to the queue", () => {
+    const expired = baseLead({
+      slug: "was-snoozed",
+      snoozedUntil: new Date(NOW - 60_000).toISOString(),
+    });
+    expect(scoreLead(expired, NOW).actionable).toBe(true);
+    expect(rankLeadsForOutreach([expired], NOW, 5).map((r) => r.slug)).toEqual([
+      "was-snoozed",
+    ]);
+  });
 });
 
 describe("band helpers", () => {
