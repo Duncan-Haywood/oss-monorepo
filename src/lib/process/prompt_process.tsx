@@ -282,9 +282,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-billing-portal",
     summary:
-      "Self-serve Stripe Billing Portal link for Growth/Complete subscribers (update card, view invoices, cancel) so subscription changes don't become operator support tickets. Uses the existing STRIPE_SECRET_KEY — no new secrets. Claimed on sibling claude/relaxed-galileo-7ngeg0; leave free here if that branch stalls.",
-    status: "todo",
+      "Self-serve Stripe Billing Portal link for Growth/Complete subscribers (update card, view invoices, cancel) so subscription changes don't become operator support tickets. Uses the existing STRIPE_SECRET_KEY — no new secrets. Re-claimed after stale claim-only sibling claude/relaxed-galileo-7ngeg0.",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-5a8e",
   },
   {
     id: "inquiry-dashboard-reply",
