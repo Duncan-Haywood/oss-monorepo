@@ -277,10 +277,12 @@ export default function ArchitectureDocPage() {
         Studio&apos;s own revenue, since <code>orderEligibleForBillingPortal</code> /{" "}
         <code>leadEligibleForStarterUpsell</code> read any <code>commerceAddon</code> order row as
         &quot;this lead has a recurring Commerce subscription.&quot;{" "}
-        <code>insertCommerceOrder</code> returns <code>&#123; alreadyRecorded &#125;</code> so a
-        Stripe <code>checkout.session.completed</code> redelivery skips the non-idempotent
-        operator inquiry + <code>sendCommerceBuyNowClientReceipt</code> (same pattern as bundle{" "}
-        <code>recordLeadPayment</code>). Sessions missing <code>metadata.skuId</code> skip
+        <code>insertCommerceOrder</code> returns <code>&#123; alreadyRecorded &#125;</code>. On
+        Stripe <code>checkout.session.completed</code> redelivery, missing operator inquiry +{" "}
+        <code>sendCommerceBuyNowClientReceipt</code> are recovered when no{" "}
+        <code>commerce_checkout</code> inquiry embeds the session id (
+        <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
+        already exists. Sessions missing <code>metadata.skuId</code> skip
         ledger and side effects entirely (warn + break) — the alreadyRecorded gate cannot run
         without a SKU. Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)

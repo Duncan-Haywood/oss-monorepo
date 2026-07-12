@@ -94,6 +94,7 @@ export const AGENT_PROTOCOL = [
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "`alreadyRecorded` gates non-idempotent side effects only (emails, operator inquiries) — never skip idempotent fulfillment writes on redelivery. enqueueProductionHandoff is safe to call again (returns existing handoff when slug + stripeSessionId match); if the first delivery recorded the order but failed before handoff enqueue, a Stripe retry must still create the handoff. See bundle-webhook-handoff-on-redelivery.",
+  "Commerce Buy now: alreadyRecorded must NOT early-break past inquiry/client receipt. On redelivery, recover missing notifies when no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects); skip only when that inquiry already exists. Receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row).",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
@@ -712,9 +713,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-webhook-side-effect-recovery-on-redelivery",
     summary:
-      "Related empty-backlog finding: commerce alreadyRecorded early-break skips insertClientInquiry + client receipt entirely. If the first delivery wrote the ledger then failed before inquiry/receipt, Stripe retries permanently skip those sold-capability notifies. Fix by recovering missing inquiry/receipt on redelivery (idempotent on stripeSessionId in message) — or only gate truly duplicate side effects.",
-    status: "todo",
+      "Related empty-backlog finding: commerce alreadyRecorded early-break skips insertClientInquiry + client receipt entirely. If the first delivery wrote the ledger then failed before inquiry/receipt, Stripe retries permanently skip those sold-capability notifies. Shipped: planCommerceWebhookSideEffects recovers missing inquiry/receipt on redelivery when no commerce_checkout inquiry embeds the stripeSessionId; skips only when that inquiry already exists.",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-aa07",
   },
   {
     id: "stripe-webhook-convex-primary-no-fallback",
@@ -1896,6 +1898,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "ACK 200 after a swallowed DB/timeout permanently loses paid fulfillment because Stripe will not retry. Separating required ledger/handoff from best-effort email matches alreadyRecorded email gating and handoff-on-redelivery — recovery needs a non-2xx on the first failure. Queued commerce side-effect recovery on redelivery and Convex-primary-no-fallback as follow-ups from the same audit.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce Buy now webhook recovers missing operator inquiry + client receipt on Stripe redelivery when the ledger already exists but no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects). alreadyRecorded alone must not early-break past those notifies.",
+    rationale:
+      "PR #71 made ledger failures return 5xx so Stripe retries, but the commerce branch still broke out entirely on alreadyRecorded — so a crash after insertCommerceOrder permanently lost the sold order-notification promise on every retry. Matching session id in the inquiry message is the idempotency key without a new table; receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row). Sibling subdomain holds proxy-custom-domain-parity; stripe-webhook-convex-primary-no-fallback remains free.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -3072,6 +3081,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented 5xx-for-retry vs best-effort email split",
     ],
     decisions: BUSINESS_DECISIONS.slice(164, 165),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-aa07",
+    summary:
+      "Claimed commerce-webhook-side-effect-recovery-on-redelivery (queued by 4d48 / PR #71). Sibling subdomain holds proxy-custom-domain-parity. Shipped planCommerceWebhookSideEffects so Stripe redelivery recovers missing commerce inquiry + client receipt when the ledger already exists but no commerce_checkout inquiry embeds the session id. Left stripe-webhook-convex-primary-no-fallback free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/commerce/side-effect-recovery.ts (+ test) — planCommerceWebhookSideEffects / hasCommerceCheckoutInquiryForSession",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku branch recovers missing inquiry/receipt on redelivery; skips only when inquiry already exists",
+      "src/lib/commerce/index.ts — export side-effect recovery helpers",
+      "NEXT_STEPS: commerce-webhook-side-effect-recovery-on-redelivery done; stripe-webhook-convex-primary-no-fallback remains free",
+      "AGENT_PROTOCOL — commerce alreadyRecorded must not early-break past inquiry/receipt",
+      "BUSINESS_DECISIONS — documented redelivery recovery vs duplicate skip",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(165, 166),
   },
 ];
 

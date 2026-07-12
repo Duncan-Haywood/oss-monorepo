@@ -77,8 +77,12 @@ export async function POST(request: Request) {
               getCommerceCatalog,
               insertClientInquiry,
               insertCommerceOrder,
+              listClientInquiriesBySlug,
             } = await import("@/lib/db");
             const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
+            const { planCommerceWebhookSideEffects } = await import(
+              "@/lib/commerce/side-effect-recovery"
+            );
             const [lead, catalog] = await Promise.all([
               getLeadBySlug(orderSlug),
               getCommerceCatalog(orderSlug),
@@ -87,8 +91,8 @@ export async function POST(request: Request) {
             const businessName = lead?.businessName || orderSlug;
 
             // Ledger first — commerceOrders is idempotent on stripeSessionId.
-            // Inquiry + client receipt are NOT; skip them on Stripe redelivery
-            // (same alreadyRecorded pattern as bundle recordLeadPayment).
+            // Inquiry + client receipt are NOT; recover them on Stripe
+            // redelivery when missing (session id in inquiry message).
             // skuId is required for the ledger gate — without it we must not
             // fire non-idempotent side effects on every Stripe retry.
             if (!skuId) {
@@ -116,11 +120,29 @@ export async function POST(request: Request) {
               return NextResponse.json(failure.body, { status: failure.status });
             }
 
-            if (alreadyRecorded) {
+            // alreadyRecorded must NOT early-break: if the first delivery
+            // wrote the ledger then failed before inquiry/receipt, Stripe
+            // retries must still recover those sold-capability notifies.
+            // Idempotency key = stripeSessionId embedded in the inquiry
+            // message (commerceOrderPaidInquiryMessage).
+            const inquiriesForLead = await listClientInquiriesBySlug(orderSlug);
+            const sideEffects = planCommerceWebhookSideEffects({
+              alreadyRecorded,
+              inquiriesForLead,
+              stripeSessionId: session.id,
+            });
+
+            if (!sideEffects.runInquiry) {
               console.log(
-                `Commerce order for ${orderSlug} (${session.id}) already recorded — skipping duplicate inquiry/client receipt`,
+                `Commerce order for ${orderSlug} (${session.id}) ${sideEffects.reason} — skipping duplicate inquiry/client receipt`,
               );
               break;
+            }
+
+            if (sideEffects.reason === "redelivery_recovery") {
+              console.log(
+                `Commerce order for ${orderSlug} (${session.id}) already on ledger — recovering missing inquiry/client receipt`,
+              );
             }
 
             await insertClientInquiry({
@@ -139,35 +161,37 @@ export async function POST(request: Request) {
             // Commerce sold promise: order notification to the local business
             // (lead.email), not the shopper. Distinct from sendReceiptEmail
             // (bundle buyer) and from Stripe Connect payouts.
-            const clientEmail = lead?.email?.trim();
-            if (clientEmail) {
-              try {
-                const { sendCommerceBuyNowClientReceipt } = await import(
-                  "@/lib/email/resend"
-                );
-                const baseUrl =
-                  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-                await sendCommerceBuyNowClientReceipt({
-                  to: clientEmail,
-                  businessName,
-                  slug: orderSlug,
-                  skuName,
-                  amountTotalUsd: amountTotal,
-                  stripeSessionId: session.id,
-                  customerEmail: customerEmail || undefined,
-                  previewUrl: `${baseUrl}/preview/${encodeURIComponent(orderSlug)}#catalog`,
-                });
-              } catch (emailError) {
-                console.error(
-                  `Failed to email commerce client receipt for ${orderSlug}`,
-                  emailError,
-                );
+            if (sideEffects.runClientReceipt) {
+              const clientEmail = lead?.email?.trim();
+              if (clientEmail) {
+                try {
+                  const { sendCommerceBuyNowClientReceipt } = await import(
+                    "@/lib/email/resend"
+                  );
+                  const baseUrl =
+                    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+                  await sendCommerceBuyNowClientReceipt({
+                    to: clientEmail,
+                    businessName,
+                    slug: orderSlug,
+                    skuName,
+                    amountTotalUsd: amountTotal,
+                    stripeSessionId: session.id,
+                    customerEmail: customerEmail || undefined,
+                    previewUrl: `${baseUrl}/preview/${encodeURIComponent(orderSlug)}#catalog`,
+                  });
+                } catch (emailError) {
+                  console.error(
+                    `Failed to email commerce client receipt for ${orderSlug}`,
+                    emailError,
+                  );
+                }
               }
             }
           } catch (e) {
             // Inquiry/side-effect failures after a durable ledger write are
-            // logged; recovery on redelivery is queued separately
-            // (commerce-webhook-side-effect-recovery-on-redelivery).
+            // logged; Stripe redelivery recovers missing inquiry/receipt via
+            // planCommerceWebhookSideEffects (session id in message).
             console.error(`Failed to record commerce order inquiry for ${orderSlug}`, e);
           }
         } else {

@@ -80,8 +80,10 @@ export default function ProductBundlesDocPage() {
         completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
         from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the
-        same Checkout Session do not re-fire that inquiry or client email once the{" "}
-        <code>commerceOrders</code> ledger row exists. Retail, restaurant
+        same Checkout Session recover a missing inquiry or client email when the{" "}
+        <code>commerceOrders</code> ledger row exists but no prior{" "}
+        <code>commerce_checkout</code> inquiry embeds that session id; they do not re-fire once
+        that inquiry exists. Retail, restaurant
         ordering, booking deposits, or gift cards.
       </p>
       <p>
