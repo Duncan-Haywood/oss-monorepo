@@ -253,10 +253,12 @@ export default function LaunchChecklistDocPage() {
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
           receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
-          appear (stub without <code>ANTHROPIC_API_KEY</code>). Copy into a temp number / Cal.com
-          until Twilio is provisioned. Regenerating replaces the lead&apos;s pack. Before
-          generating, confirm pipeline-health <strong>Voice packs due</strong> counts eligible
-          Complete leads missing a pack (and that the daily digest lists them).
+          appear (stub without <code>ANTHROPIC_API_KEY</code>). With an email on the lead, click{" "}
+          <strong>Email voice pack</strong> — confirm the scripts arrive (or a mock send is
+          logged when Resend is unset). Clients can paste into a temp number / Cal.com until
+          Twilio is provisioned. Regenerating replaces the lead&apos;s pack. Before generating,
+          confirm pipeline-health <strong>Voice packs due</strong> counts eligible Complete leads
+          missing a pack (and that the daily digest lists them).
         </li>
       </ul>
 

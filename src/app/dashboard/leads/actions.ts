@@ -26,6 +26,7 @@ import {
   getCommerceCatalog,
   listCommerceCatalogs,
   upsertClientVoicePack,
+  getClientVoicePackByLeadSlug,
   listClientVoicePacks,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
@@ -58,6 +59,7 @@ import {
   sendOperatorDailyDigest,
   sendStarterUpsellEmail,
   sendMarketingPackToClientEmail,
+  sendClientVoicePackToClientEmail,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
@@ -86,6 +88,7 @@ import {
   clientVoicePackRequestForLead,
   getClientVoiceGenerator,
   leadEligibleForClientVoicePack,
+  leadEligibleForClientVoicePackDelivery,
 } from "@/lib/voice";
 
 export async function markHandoffLiveAction(slug: string) {
@@ -1341,6 +1344,79 @@ export async function generateClientVoicePackAction(slug: string) {
     return { success: true as const, pack };
   } catch (error) {
     console.error("Error in generateClientVoicePackAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Email the Complete voice FAQ/script pack to the client (phone-script handoff
+ * without Twilio). Requires an existing pack row + lead.email.
+ * See /docs/process (deliver-client-voice-pack-to-client).
+ */
+export async function sendClientVoicePackToClientAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug?.trim()) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug.trim());
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = (await listOrders()).filter((o) => o.leadSlug === lead.slug);
+    if (!leadEligibleForClientVoicePackDelivery(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Email voice pack requires a paid/live Complete lead with an email on file",
+      };
+    }
+
+    const pack = await getClientVoicePackByLeadSlug(lead.slug);
+    if (!pack || pack.variants.length === 0) {
+      return {
+        success: false as const,
+        error: "No voice FAQ pack — generate one first",
+      };
+    }
+
+    const email = lead.email!.trim();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const previewUrl = `${baseUrl}/preview/${encodeURIComponent(lead.slug)}`;
+    const sent = await sendClientVoicePackToClientEmail({
+      to: email,
+      businessName: lead.businessName,
+      slug: lead.slug,
+      variants: pack.variants,
+      previewUrl,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send voice pack email",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendClientVoicePackToClientAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

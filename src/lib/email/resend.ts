@@ -7,6 +7,11 @@ import {
   marketingPackDeliverySubject,
 } from "../marketing/deliver-pack";
 import type { MarketingContentVariant } from "../marketing/types";
+import {
+  clientVoicePackDeliverySubject,
+  formatClientVoicePackEmailHtml,
+} from "../voice/deliver-pack";
+import type { ClientVoiceScriptVariant } from "../voice/types";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
@@ -378,6 +383,29 @@ export async function sendMarketingPackToClientEmail(params: {
   const html = formatMarketingPackEmailHtml({
     businessName,
     yearMonth,
+    variants,
+    previewUrl,
+  });
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
+ * Operator-triggered delivery of the Complete voice FAQ/script pack to the client
+ * (phone-script handoff without Twilio). See src/lib/voice/deliver-pack.ts +
+ * /docs/process (deliver-client-voice-pack-to-client).
+ */
+export async function sendClientVoicePackToClientEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  variants: ClientVoiceScriptVariant[];
+  previewUrl?: string;
+}) {
+  const { to, businessName, slug, variants, previewUrl } = params;
+  const subject = clientVoicePackDeliverySubject(businessName);
+  const html = formatClientVoicePackEmailHtml({
+    businessName,
     variants,
     previewUrl,
   });

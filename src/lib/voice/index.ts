@@ -32,6 +32,12 @@ export {
 } from "./faq-pack";
 
 export {
+  clientVoicePackDeliverySubject,
+  formatClientVoicePackEmailHtml,
+  leadEligibleForClientVoicePackDelivery,
+} from "./deliver-pack";
+
+export {
   clientVoiceBusinessContextFromLead,
   clientVoicePackRequestForLead,
 } from "./build-request";

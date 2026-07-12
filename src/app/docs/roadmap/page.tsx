@@ -177,10 +177,12 @@ export default function RoadmapDocPage() {
         <code>generateClientVoicePackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — inbound greeting, hours,
         services, booking CTA, after-hours, take-a-message; Anthropic when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead). Eligible-but-missing packs
-        count on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.
-        Operators paste scripts into a temp number / Cal.com until Twilio + client webhook
-        provisioning. See <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
+        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead).{" "}
+        <strong>Email voice pack</strong> (<code>sendClientVoicePackToClientAction</code>)
+        delivers the pack to <code>lead.email</code> via Resend. Eligible-but-missing packs count
+        on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.
+        Twilio + client webhook provisioning remain. See{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
       </p>
 
       <h2>Phase 8 — Commerce</h2>

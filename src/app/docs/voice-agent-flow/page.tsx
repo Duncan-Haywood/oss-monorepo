@@ -82,11 +82,12 @@ export default function VoiceAgentFlowDocPage() {
         Before Twilio provisioning, operators generate a FAQ/script pack on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live Complete leads
         (<code>generateClientVoicePackAction</code>): inbound greeting, hours, services, booking
-        CTA, after-hours, and take-a-message — derived from site data. Copy into a temporary
-        number or Cal.com booking flow. Scripts persist one row per lead (not monthly). Eligible
-        Complete leads still missing a pack surface on pipeline health (
-        <strong>Voice packs due</strong>) and in the operator daily digest via{" "}
-        <code>listClientVoicePacksDue</code>. Full telephony remains Phase 7.
+        CTA, after-hours, and take-a-message — derived from site data. With an email on the lead,{" "}
+        <strong>Email voice pack</strong> (<code>sendClientVoicePackToClientAction</code>) delivers
+        the scripts via Resend so the client can paste into a temporary number or Cal.com. Scripts
+        persist one row per lead (not monthly). Eligible Complete leads still missing a pack
+        surface on pipeline health (<strong>Voice packs due</strong>) and in the operator daily
+        digest via <code>listClientVoicePacksDue</code>. Full telephony remains Phase 7.
       </p>
 
       <h2>Webhook routing</h2>
