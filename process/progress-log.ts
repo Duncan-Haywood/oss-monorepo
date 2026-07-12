@@ -196,4 +196,25 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): still do not start p3-app-scope. Try step 2a (task-claiming commit) for real on your first agent-doable task and note in this log whether it actually prevented a collision — that's the only way to know if it's working. If nothing is human-unblocked, re-verify mls-compliance.ts against a specific real MLS board once one is known, or review outreach-templates.ts/leads-log.ts for usability once a human has tried the lead-intake flow end to end.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/dazzling-allen-j509d4",
+    summary:
+      "Verified all prior agent branches were merged to main (git fetch + list_pull_requests: only draft PR #4 remains open, still blocked on Duncan's Cloudflare dashboard step) and that main's CI is green on its last 4 runs. Every Phase 1-2 agent-doable roadmap task was done and p3-app-scope stays correctly deferred per every prior session's reasoning, so this session closed a real gap flagged by p1-listing-audit's own blockedReason (it was blocked on 'a human' but never actually defined what to score) and did the branch-hygiene cleanup the last session ran out of retries for.",
+    changes: [
+      "Added process/listing-audit-rubric.ts: a 6-dimension, 1-5-per-dimension objective scoring rubric (lighting/exposure, composition/angle, staging/declutter, photo count/coverage, resolution/sharpness, color/white balance) with concrete worst-vs-best guidance per dimension, computeOverallScore() (rescales to STRATEGY.md's 1-10 'blind quality rating' scale), and auditSummary(). Ships with an empty listingAuditLog — mirrors the leads-log.ts/interview-script.ts convention of shipping the instrument, never fabricated data.",
+      "prompt_process.tsx: ProcessDashboard renders a new 'Listing quality audit rubric' section showing all 6 dimensions and the (currently zero) scored-listing summary, same pattern as the MLS-compliance and virtual-staging-tech sections.",
+      "roadmap.ts: added p1-listing-audit-rubric (done); updated p1-listing-audit's blockedReason to point at the rubric as the now-ready scoring instrument, so the remaining blocker is purely 'human picks a metro and browses listings'.",
+      "decisions-log.ts: logged the rubric decision and rationale.",
+      "Branch hygiene: confirmed 9 claude/* and 3 cursor/* branches have zero unique content vs. current main (git diff origin/main origin/<branch> showed each branch strictly behind main, i.e. fully superseded by earlier squash-merges) and attempted to delete them — claude/checklist-novice-audit, claude/dazzling-allen-{7i8o70,cpghie,luc0w5,q7uwlq,rkmj0x,vstaging-2937,wg8i3m,y9fqb5}, cursor/docs-cloudflare-access-{4a7e,5df0}, cursor/setup-dev-environment-2314. Unlike the prior session's 'concurrency cap' theory, this session's `git push origin :<branch>` returned a hard `HTTP 403`, not a transient disconnect — this session's git credential can push commits but cannot delete refs on this repo. Left all 12 branches in place; this needs either Duncan to delete them manually (they're all confirmed safe — verified fully superseded above) or a token/permission fix, not more retries. Left cursor/fix-pages-access-4a7e alone regardless — it's still open PR #4, human-blocked on a Cloudflare dashboard step.",
+      "Confirmed via GitHub Actions API that .github/workflows/ci.yml has been green on all 4 of its runs on main so far — closes the 'confirm CI is actually green' follow-up two sessions back flagged and never checked.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries remains the single highest-leverage next step — checklist, pricing, outreach copy, pipeline, and lead-intake CLI are all ready for a first real shoot.",
+      "Human: p1-listing-audit now just needs a metro pick + Zillow browsing session, scored against process/listing-audit-rubric.ts's 6 dimensions.",
+      "Human: PR #4 (cursor/fix-pages-access-4a7e) is still open, still needs the Cloudflare Access dashboard toggle.",
+      "Human: delete the 12 confirmed-stale branches listed above from github.com directly (Settings/branches UI or `gh api -X DELETE`) — agent sessions get HTTP 403 trying to delete refs, so stop assigning this to a future agent session.",
+      "Agent (next session): still do not start p3-app-scope — unchanged from every prior session's reasoning, no new validation data exists yet. Do not re-attempt branch deletion (403 is a hard permission wall, not transient). If nothing is human-unblocked, look for the next gap between a roadmap task's stated blocker and what's actually true (the way this session found p1-listing-audit's blocker was really 'no rubric exists', not just 'needs a human'), or re-verify mls-compliance.ts against a specific real MLS board once one is known.",
+    ],
+  },
 ];

@@ -91,7 +91,18 @@ export const roadmap: RoadmapPhase[] = [
         owner: "human",
         rationale: "Anchors the \"blind quality rating\" success metric.",
         doneWhen: "20 listings collected and tagged mediocre/excellent with notes.",
-        blockedReason: "Requires picking a target metro and manual collection from live listings.",
+        blockedReason:
+          "Requires picking a target metro and manual collection from live listings. The scoring instrument is ready (see p1-listing-audit-rubric) — a human just needs to browse Zillow in a chosen metro and score what they find.",
+      },
+      {
+        id: "p1-listing-audit-rubric",
+        title: "Build an objective scoring rubric for the Zillow listing audit",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "p1-listing-audit has been blocked on a human since the repo's first commit, but nothing ever defined what 'mediocre' vs 'excellent' means or how 20 scored listings turn into the '1-10 blind quality rating' STRATEGY.md's day-90 success criteria (>= 7/10) requires. Without a fixed rubric, scoring would drift listing to listing and rater to rater, making the eventual number unreliable. This mirrors how interview-script.ts already gives p1-run-interviews a structured scoring function (scoreWillingnessToPay) instead of leaving it as unstructured notes.",
+        doneWhen:
+          "A typed rubric (6 concrete 1-5 dimensions with worst/best guidance) and a computeOverallScore()/auditSummary() scoring function exist in process/listing-audit-rubric.ts, rendered on the docs site, with an empty (no fabricated data) listingAuditLog ready for real entries. See process/listing-audit-rubric.ts.",
       },
       {
         id: "p1-mls-compliance",
