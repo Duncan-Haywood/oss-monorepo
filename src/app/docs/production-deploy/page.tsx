@@ -17,8 +17,10 @@ export default function ProductionDeployDocPage() {
         <code>paid</code>, enqueues a <strong>production deploy handoff</strong>, then sends a
         receipt (and DNS next-steps email) on the first delivery only. The handoff enqueue is
         idempotent on slug + stripeSessionId and still runs on Stripe redelivery so a partial
-        first attempt cannot permanently skip Phase 5. That record holds DNS instructions, a
-        suggested production hostname, and the contact-form endpoint for the site.
+        first attempt cannot permanently skip Phase 5. If the payment or handoff write fails, the
+        webhook returns <code>500</code> so Stripe retries (emails stay best-effort after durable
+        writes). That record holds DNS instructions, a suggested production hostname, and the
+        contact-form endpoint for the site.
       </p>
 
       <h2>What ships automatically</h2>

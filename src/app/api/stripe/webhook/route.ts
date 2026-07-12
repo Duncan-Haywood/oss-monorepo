@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
+import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 
 /**
  * Stripe webhook receiver — verifies the signature, then acknowledges the
  * events the checkout flow can produce. See /docs/roadmap#phase-3-payments.
+ *
+ * Required fulfillment writes (bundle payment + handoff, commerce ledger)
+ * must succeed or return 5xx so Stripe retries. Email/notify is best-effort
+ * after durable writes — do not ACK 200 after swallowing ledger failures.
  */
 
 function notConfigured(message: string) {
@@ -93,13 +98,24 @@ export async function POST(request: Request) {
               break;
             }
 
-            const { alreadyRecorded } = await insertCommerceOrder({
-              leadSlug: orderSlug,
-              skuId,
-              skuName,
-              amountPaidUsd: amountTotal,
-              stripeSessionId: session.id,
-            });
+            let alreadyRecorded: boolean;
+            try {
+              ({ alreadyRecorded } = await insertCommerceOrder({
+                leadSlug: orderSlug,
+                skuId,
+                skuName,
+                amountPaidUsd: amountTotal,
+                stripeSessionId: session.id,
+              }));
+            } catch (ledgerError) {
+              console.error(
+                `Failed to record commerce order ledger for ${orderSlug}`,
+                ledgerError,
+              );
+              const failure = webhookFulfillmentFailureResponse("commerce_order_ledger");
+              return NextResponse.json(failure.body, { status: failure.status });
+            }
+
             if (alreadyRecorded) {
               console.log(
                 `Commerce order for ${orderSlug} (${session.id}) already recorded — skipping duplicate inquiry/client receipt`,
@@ -149,6 +165,9 @@ export async function POST(request: Request) {
               }
             }
           } catch (e) {
+            // Inquiry/side-effect failures after a durable ledger write are
+            // logged; recovery on redelivery is queued separately
+            // (commerce-webhook-side-effect-recovery-on-redelivery).
             console.error(`Failed to record commerce order inquiry for ${orderSlug}`, e);
           }
         } else {
@@ -164,8 +183,13 @@ export async function POST(request: Request) {
       }
 
       if (slug && tier) {
+        let alreadyRecorded: boolean;
+        let handoff: Awaited<
+          ReturnType<typeof import("@/lib/deploy/handoff").enqueueProductionHandoff>
+        >;
+        let businessName: string;
         try {
-          const { alreadyRecorded } = await recordLeadPayment({
+          ({ alreadyRecorded } = await recordLeadPayment({
             slug,
             stripeSessionId: session.id,
             customerEmail,
@@ -173,19 +197,17 @@ export async function POST(request: Request) {
             commerceAddon,
             amountTotal,
             stripeCustomerId,
-          });
+          }));
 
           // Always enqueue the production handoff — it is idempotent on
           // slug + stripeSessionId. alreadyRecorded must NOT skip this:
           // if the first delivery recorded the order but crashed before
           // handoff enqueue, a Stripe retry is the only recovery path.
           const { getLeadBySlug } = await import("@/lib/db");
-          const { enqueueProductionHandoff, formatDnsInstructionsForEmail } = await import(
-            "@/lib/deploy/handoff"
-          );
+          const { enqueueProductionHandoff } = await import("@/lib/deploy/handoff");
           const lead = await getLeadBySlug(slug);
-          const businessName = lead?.businessName || slug;
-          const handoff = await enqueueProductionHandoff({
+          businessName = lead?.businessName || slug;
+          handoff = await enqueueProductionHandoff({
             leadSlug: slug,
             businessName,
             tier,
@@ -196,22 +218,29 @@ export async function POST(request: Request) {
           console.log(
             `Production handoff queued for ${slug}: ${handoff.status} → ${handoff.suggestedHost}`,
           );
+        } catch (dbError) {
+          console.error(`Failed to record lead payment or enqueue handoff for ${slug}:`, dbError);
+          const failure = webhookFulfillmentFailureResponse("bundle_payment_or_handoff");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
 
-          if (alreadyRecorded) {
-            // Stripe redelivered a checkout.session.completed we already
-            // processed (retry/timeout) — the order row is idempotent on
-            // stripeSessionId, and the handoff above is too, but the
-            // receipt/DNS emails below are not, so skip them rather than
-            // spamming the customer a second time.
-            console.log(
-              `Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails (handoff ensured)`,
-            );
-            break;
-          }
-          console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
+        if (alreadyRecorded) {
+          // Stripe redelivered a checkout.session.completed we already
+          // processed (retry/timeout) — the order row is idempotent on
+          // stripeSessionId, and the handoff above is too, but the
+          // receipt/DNS emails below are not, so skip them rather than
+          // spamming the customer a second time.
+          console.log(
+            `Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails (handoff ensured)`,
+          );
+          break;
+        }
+        console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
 
-          // Trigger receipt email
+        // Trigger receipt email — best-effort after durable fulfillment.
+        try {
           const { sendReceiptEmail } = await import("@/lib/email/resend");
+          const { formatDnsInstructionsForEmail } = await import("@/lib/deploy/handoff");
 
           if (customerEmail) {
             await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
@@ -233,8 +262,8 @@ export async function POST(request: Request) {
               `,
             });
           }
-        } catch (dbError) {
-          console.error(`Failed to record lead payment or send email for ${slug}:`, dbError);
+        } catch (emailError) {
+          console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);
         }
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);

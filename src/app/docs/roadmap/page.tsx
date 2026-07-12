@@ -149,7 +149,9 @@ export default function RoadmapDocPage() {
         Post-payment handoff: shipped — webhook always enqueues DNS instructions + contact form
         endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), including on Stripe
         redelivery after a partial first attempt (<code>bundle-webhook-handoff-on-redelivery</code>
-        — <code>alreadyRecorded</code> skips receipt/DNS emails only). Optional Vercel domain
+        — <code>alreadyRecorded</code> skips receipt/DNS emails only). Required fulfillment write
+        failures return <code>500</code> so Stripe retries (
+        <code>stripe-webhook-retry-on-fulfillment-failure</code>). Optional Vercel domain
         API when tokens are set, operator{" "}
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel

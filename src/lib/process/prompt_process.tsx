@@ -104,6 +104,7 @@ export const AGENT_PROTOCOL = [
   "listOrders Convex path must return newest-first (sortOrdersNewestFirst) to match SQLite ORDER BY createdAt DESC — latestEligibleOrder / Billing Portal assume that order. Do not rely on Convex .collect() order.",
   "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
   "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
+  "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers — never ACK 200 after swallowing those errors. Email/notify stays best-effort after durable writes succeed.",
 ] as const;
 
 /**
@@ -703,8 +704,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-webhook-retry-on-fulfillment-failure",
     summary:
-      "Empty-backlog audit after contact-form-persist-required: checkout.session.completed catches recordLeadPayment / enqueueProductionHandoff (and commerce insertCommerceOrder) failures, logs them, then still returns { received: true } 200 — Stripe never retries, so a transient DB/timeout on first delivery permanently loses paid fulfillment (order, handoff, commerce ledger). Shippable without secrets: return 5xx when required ledger/handoff writes fail; keep email/notify best-effort after durable writes succeed.",
-    status: "in_progress",
+      "Empty-backlog audit after contact-form-persist-required: checkout.session.completed catches recordLeadPayment / enqueueProductionHandoff (and commerce insertCommerceOrder) failures, logs them, then still returns { received: true } 200 — Stripe never retries, so a transient DB/timeout on first delivery permanently loses paid fulfillment (order, handoff, commerce ledger). Shipped: return 500 when required ledger/handoff writes fail; email/notify best-effort after durable writes. Queued commerce-webhook-side-effect-recovery-on-redelivery + stripe-webhook-convex-primary-no-fallback.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-4d48",
   },
@@ -1888,6 +1889,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "6547 owned the earlier claim and shipped the 503-on-persist-failure fix first. 4d48's complementary pure helper + tests + docs clarify the HTTP contract without a second competing route. AGENT_PROTOCOL now allows later claims to fold tests/docs/helpers onto an earlier feature body instead of abandoning useful coverage — still one implementation, both ITERATIONS kept.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Stripe checkout.session.completed returns HTTP 500 when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder) so Stripe redelivers; receipt/DNS/client-notify emails remain best-effort after durable writes and do not flip the webhook to 5xx.",
+    rationale:
+      "ACK 200 after a swallowed DB/timeout permanently loses paid fulfillment because Stripe will not retry. Separating required ledger/handoff from best-effort email matches alreadyRecorded email gating and handoff-on-redelivery — recovery needs a non-2xx on the first failure. Queued commerce side-effect recovery on redelivery and Convex-primary-no-fallback as follow-ups from the same audit.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -3050,6 +3058,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/business-process-evolution-6547 — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(163, 164),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-4d48",
+    summary:
+      "After PR #70 (contact-form persist) left only gated NEXT_STEPS, audited sold-capability regressions. Found checkout.session.completed ACKed 200 after swallowing required ledger/handoff failures — Stripe never retried, permanently losing paid fulfillment. Shipped 500 on fulfillment write failure; queued commerce redelivery side-effect recovery + Convex-primary webhook todos. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — webhookFulfillmentFailureResponse",
+      "src/app/api/stripe/webhook/route.ts — 500 on bundle payment/handoff or commerce ledger failure; emails best-effort after",
+      "NEXT_STEPS: stripe-webhook-retry-on-fulfillment-failure done; commerce-webhook-side-effect-recovery-on-redelivery + stripe-webhook-convex-primary-no-fallback queued",
+      "AGENT_PROTOCOL — webhook must not ACK 200 after required fulfillment write failures",
+      "BUSINESS_DECISIONS — documented 5xx-for-retry vs best-effort email split",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(164, 165),
   },
 ];
 

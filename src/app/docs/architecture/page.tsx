@@ -107,8 +107,12 @@ export default function ArchitectureDocPage() {
         and the receipt/DNS emails are skipped rather than resent — but{" "}
         <code>enqueueProductionHandoff</code> still runs on every delivery (idempotent on slug +
         stripeSessionId) so a first-delivery crash after the order insert cannot permanently skip
-        Phase 5 fulfillment. Matches the same idempotency guarantee already required for{" "}
-        <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
+        Phase 5 fulfillment. If required fulfillment writes fail (
+        <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
+        <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —
+        never ACK <code>200</code> after swallowing those errors. Matches the same idempotency
+        guarantee already required for <code>checkout_sessions</code> and{" "}
+        <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
         bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}
