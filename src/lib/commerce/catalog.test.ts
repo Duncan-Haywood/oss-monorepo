@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
@@ -102,5 +103,30 @@ describe("formatPriceUsd + commerceOrderRequestMessage", () => {
         priceCents: 5000,
       }),
     ).toBe("I'd like to order: Gift card ($50.00).");
+  });
+});
+
+describe("commerceOrderPaidInquiryMessage", () => {
+  it("formats a paid Buy now order note with the SKU and session id", () => {
+    expect(
+      commerceOrderPaidInquiryMessage({
+        skuName: "Gift card",
+        amountTotalUsd: 50,
+        stripeSessionId: "cs_test_123",
+        skuId: "sku_a",
+      }),
+    ).toBe(
+      "Paid order via Buy now: Gift card ($50.00) — Stripe session cs_test_123, SKU sku_a.",
+    );
+  });
+
+  it("omits the SKU note when skuId is not provided", () => {
+    expect(
+      commerceOrderPaidInquiryMessage({
+        skuName: "Gift card",
+        amountTotalUsd: 50,
+        stripeSessionId: "cs_test_123",
+      }),
+    ).toBe("Paid order via Buy now: Gift card ($50.00) — Stripe session cs_test_123.");
   });
 });

@@ -9,6 +9,7 @@ export {
 } from "./types";
 
 export {
+  commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,

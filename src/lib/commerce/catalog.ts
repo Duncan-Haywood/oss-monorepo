@@ -145,3 +145,20 @@ export function commerceOrderRequestMessage(sku: CommerceSku): string {
   const price = formatPriceUsd(sku.priceCents);
   return `I'd like to order: ${sku.name} (${price}).`;
 }
+
+/**
+ * Operator inquiry-inbox notification body for a completed Buy now Stripe
+ * Checkout Session (kind: "commerce_sku") — the paid counterpart to
+ * commerceOrderRequestMessage, so a synced-SKU purchase still reaches the
+ * operator even though it skips the contact form.
+ */
+export function commerceOrderPaidInquiryMessage(input: {
+  skuName: string;
+  amountTotalUsd: number;
+  stripeSessionId: string;
+  skuId?: string;
+}): string {
+  const price = formatPriceUsd(Math.round(input.amountTotalUsd * 100));
+  const skuNote = input.skuId ? `, SKU ${input.skuId}` : "";
+  return `Paid order via Buy now: ${input.skuName} (${price}) — Stripe session ${input.stripeSessionId}${skuNote}.`;
+}
