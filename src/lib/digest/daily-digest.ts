@@ -3,7 +3,8 @@
  * single-operator business doesn't have to open /dashboard/leads to know
  * what needs attention today. See /docs/process (operator-daily-digest-email
  * + marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest
- * + commerce-catalogs-missing-visibility).
+ * + commerce-catalogs-missing-visibility
+ * + client-voice-packs-missing-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -27,6 +28,7 @@ import {
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
 import { listCommerceCatalogsMissing } from "../commerce/catalog";
+import { listClientVoicePacksDue } from "../voice/faq-pack";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
@@ -35,6 +37,7 @@ const INQUIRIES_LIMIT = 5;
 const MARKETING_PACKS_LIMIT = 5;
 const UPSELL_LIMIT = 5;
 const COMMERCE_CATALOGS_LIMIT = 5;
+const CLIENT_VOICE_PACKS_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -83,6 +86,11 @@ export interface DigestCommerceCatalogMissing {
   businessName: string;
 }
 
+export interface DigestClientVoicePackDue {
+  slug: string;
+  businessName: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -92,6 +100,7 @@ export interface DailyDigest {
   marketingPacksDue: DigestMarketingPackDue[];
   starterUpsellCandidates: DigestStarterUpsellLead[];
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
+  clientVoicePacksDue: DigestClientVoicePackDue[];
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -111,6 +120,7 @@ export interface BuildDailyDigestInput {
   orders?: Array<{ leadSlug: string; tier: string; commerceAddon: boolean }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   commerceCatalogs?: ReadonlyArray<{ leadSlug: string }>;
+  clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
   nowMs: number;
 }
 
@@ -130,6 +140,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     orders = [],
     marketingPacksThisMonth = [],
     commerceCatalogs = [],
+    clientVoicePacks = [],
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -212,6 +223,17 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
         businessName: lead.businessName,
       }));
 
+  const clientVoicePacksDue: DigestClientVoicePackDue[] = listClientVoicePacksDue(
+    leads,
+    orders,
+    clientVoicePacks,
+  )
+    .slice(0, CLIENT_VOICE_PACKS_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -238,7 +260,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     unrepliedInquiries.length === 0 &&
     marketingPacksDue.length === 0 &&
     starterUpsellCandidates.length === 0 &&
-    commerceCatalogsMissing.length === 0;
+    commerceCatalogsMissing.length === 0 &&
+    clientVoicePacksDue.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -249,6 +272,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     marketingPacksDue,
     starterUpsellCandidates,
     commerceCatalogsMissing,
+    clientVoicePacksDue,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -306,7 +330,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, Starter upsells, and Commerce catalogs are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, Starter upsells, Commerce catalogs, and Complete voice packs are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -348,6 +372,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtml(lead.businessName)}</strong> — Commerce catalog not created`,
   );
 
+  const voicePackRows = digest.clientVoicePacksDue.map(
+    (lead) =>
+      `<strong>${escapeHtml(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -360,6 +389,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Marketing packs due (${digest.marketingPacksDue.length})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidates.length})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissing.length})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
+    ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

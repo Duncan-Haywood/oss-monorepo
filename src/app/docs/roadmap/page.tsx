@@ -174,9 +174,10 @@ export default function RoadmapDocPage() {
         <code>generateClientVoicePackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — inbound greeting, hours,
         services, booking CTA, after-hours, take-a-message; Anthropic when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead). Operators paste scripts into a
-        temp number / Cal.com until Twilio + client webhook provisioning. See{" "}
-        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
+        <code>ANTHROPIC_API_KEY</code> is set; one pack per lead). Eligible-but-missing packs
+        count on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.
+        Operators paste scripts into a temp number / Cal.com until Twilio + client webhook
+        provisioning. See <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
       </p>
 
       <h2>Phase 8 — Commerce</h2>
@@ -184,9 +185,9 @@ export default function RoadmapDocPage() {
         Operator-editable catalog ≤50 SKUs for paid/live <code>commerceAddon</code> leads:
         shipped (<code>saveCommerceCatalogAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — shown on{" "}
-        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox). Eligible-but-missing
-        catalogs count on pipeline health and list in the daily digest. Stripe Products sync +
-        embedded checkout remain next.
+        <code>/preview/[slug]</code>; Request order → contact/inquiry inbox; missing panel on
+        dashboard). Eligible-but-missing catalogs count on pipeline health and list in the daily
+        digest. Stripe Products sync + embedded checkout remain next.
       </p>
 
       <p>

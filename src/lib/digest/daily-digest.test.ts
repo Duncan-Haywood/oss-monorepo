@@ -73,6 +73,7 @@ describe("buildDailyDigest", () => {
     expect(digest.marketingPacksDue).toHaveLength(0);
     expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
+    expect(digest.clientVoicePacksDue).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
@@ -275,6 +276,33 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCatalogsMissing[0]?.businessName).toBe("Needs Catalog Retail");
     expect(digest.isEmpty).toBe(false);
   });
+
+  it("lists Complete leads missing a client voice FAQ pack", () => {
+    const needsVoice = baseLead({
+      slug: "needs-voice",
+      businessName: "Needs Voice Spa",
+      stage: "paid",
+    });
+    const hasVoice = baseLead({
+      slug: "has-voice",
+      businessName: "Has Voice Salon",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [needsVoice, hasVoice],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "needs-voice", tier: "complete", commerceAddon: false },
+        { leadSlug: "has-voice", tier: "complete", commerceAddon: false },
+      ],
+      clientVoicePacks: [{ leadSlug: "has-voice" }],
+      nowMs: NOW,
+    });
+    expect(digest.clientVoicePacksDue).toHaveLength(1);
+    expect(digest.clientVoicePacksDue[0]?.businessName).toBe("Needs Voice Spa");
+    expect(digest.isEmpty).toBe(false);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {
@@ -330,7 +358,7 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("https://example.com/dashboard/leads");
   });
 
-  it("renders marketing pack due, starter upsell, and commerce catalog sections", () => {
+  it("renders marketing pack due, starter upsell, commerce catalog, and Complete voice pack sections", () => {
     const digest = buildDailyDigest({
       leads: [
         baseLead({
@@ -349,6 +377,11 @@ describe("renderDailyDigestHtml", () => {
           businessName: "Commerce Due Shop",
           stage: "paid",
         }),
+        baseLead({
+          slug: "voice-due",
+          businessName: "Voice Due Barbers",
+          stage: "paid",
+        }),
       ],
       inquiries: [],
       openCheckoutSessions: [],
@@ -356,9 +389,11 @@ describe("renderDailyDigestHtml", () => {
         { leadSlug: "pack-due", tier: "growth", commerceAddon: false },
         { leadSlug: "upsell-me", tier: "starter", commerceAddon: false },
         { leadSlug: "commerce-due", tier: "starter", commerceAddon: true },
+        { leadSlug: "voice-due", tier: "complete", commerceAddon: false },
       ],
       marketingPacksThisMonth: [],
       commerceCatalogs: [],
+      clientVoicePacks: [],
       nowMs: NOW,
     });
     const html = renderDailyDigestHtml(digest, "https://example.com");
@@ -368,5 +403,7 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("suggest growth upsell");
     expect(html).toContain("Commerce catalogs missing");
     expect(html).toContain("Commerce catalog not created");
+    expect(html).toContain("Complete voice packs due");
+    expect(html).toContain("Complete voice FAQ pack not generated");
   });
 });

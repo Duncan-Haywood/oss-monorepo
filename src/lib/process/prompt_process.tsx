@@ -466,8 +466,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "client-voice-packs-missing-visibility",
     summary:
-      "Fold eligible Complete leads missing a client voice FAQ pack into pipeline-health + daily digest (action section) so Complete phone fulfillment debt is visible without scanning every row — reuses listClientVoicePacksDue (already shipped with complete-client-voice-faq-pack).",
-    status: "in_progress",
+      "Fold eligible Complete leads missing a client voice FAQ pack into pipeline-health + daily digest (action section) so Complete phone fulfillment debt is visible without scanning every row — reuses listClientVoicePacksDue (already shipped with complete-client-voice-faq-pack). Shipped: clientVoicePacksDueCount on pipeline health + digest Complete voice packs due section.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
     owner: "cursor/business-process-evolution-7d50",
   },
@@ -1287,6 +1287,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "The dashboard missing panel only helps when the operator already opened /dashboard/leads. Health + digest make sold Commerce fulfillment debt visible the same way marketing packs due does — reuse the helper, do not invent a parallel eligibility check.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "With free NEXT_STEPS operator/legal-gated after PR #46, prefer wiring already-shipped listClientVoicePacksDue / listCommerceCatalogsMissing into pipeline-health + digest over inventing new aggregates or fake-completing Stripe/Places/scheduling.",
+    rationale:
+      "Complete voice and Commerce catalogs already fulfill sold promises; missing visibility is the same operator-leverage pattern as marketing-packs-due. Reusing the helpers keeps one eligibility source and avoids a second dashboard panel.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Client voice packs due = listClientVoicePacksDue → pipeline-health clientVoicePacksDueCount + digest Complete voice packs due section (top 5). Load listClientVoicePacks once beside listOrders in digest/dashboard paths.",
+    rationale:
+      "Operators otherwise only notice missing Complete phone fulfillment by scanning Generate voice row controls. Digest + health make sold-promise debt visible without opening every Complete lead.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Queue commerce-catalogs-missing-visibility as the next free sibling todo after client-voice-packs-missing-visibility; keep stripe-commerce-products-sync operator-gated.",
+    rationale:
+      "Parallel fulfillment-debt visibility for Commerce (listCommerceCatalogsMissing already powers the dashboard missing panel). Same-cron siblings should claim voice vs commerce visibility separately when both are free.",
+  },
 
 ];
 
@@ -2031,7 +2052,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-12",
     branch: "cursor/prompt-process-evolution-ca53",
     summary:
-      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility; pivoted to commerce-catalogs-missing-visibility. Shipped listCommerceCatalogsMissing into pipeline-health + daily digest action section (shared catalogs load), Vitest, docs. Improved AGENT_PROTOCOL digest load line for commerce catalogs.",
+      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility; pivoted to commerce-catalogs-missing-visibility. Shipped listCommerceCatalogsMissing into pipeline-health + daily digest action section (shared catalogs load), Vitest, docs. Improved AGENT_PROTOCOL digest load line for commerce catalogs. Folded 7d50 Complete voice packs due (both ITERATIONS kept).",
     shipped: [
       "src/lib/metrics/pipeline-health.ts — commerceCatalogsMissingCount via listCommerceCatalogsMissing",
       "src/components/dashboard/pipeline-health-panel.tsx — Commerce catalogs missing card + callout",
@@ -2039,10 +2060,27 @@ export const ITERATIONS: ProcessIteration[] = [
       "sendDailyDigestAction + dashboard pages — listCommerceCatalogs into digest/health",
       "Vitest: pipeline-health + digest commerce missing cases + HTML section",
       "Docs: architecture, roadmap Phase 8, launch-checklist",
-      "NEXT_STEPS: commerce-catalogs-missing-visibility done; client-voice-packs-missing left to 7d50; Stripe/Places/scheduling gated",
+      "NEXT_STEPS: commerce-catalogs-missing-visibility done; client-voice-packs-missing folded from 7d50; Stripe/Places/scheduling gated",
       "AGENT_PROTOCOL — commerce catalogs in digest load list; catalogs-missing helper reuse rule",
+      "merge: folded business-process-evolution-7d50 client-voice-packs-missing-visibility",
     ],
     decisions: BUSINESS_DECISIONS.slice(113, 115),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-7d50",
+    summary:
+      "Free backlog was operator/legal-gated after PR #46; claimed client-voice-packs-missing-visibility. Wired listClientVoicePacksDue into pipeline-health + daily digest (Voice packs due card + Complete voice packs due section), Vitest, docs. Improved AGENT_PROTOCOL (prefer wiring existing list* helpers; parallel voice vs commerce missing-visibility claims). Queued commerce-catalogs-missing-visibility for siblings. Folded into ca53 PR (both ITERATIONS kept).",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — clientVoicePacksDueCount via listClientVoicePacksDue",
+      "src/lib/digest/daily-digest.ts — clientVoicePacksDue action section + HTML",
+      "pipeline-health-panel Voice packs due card + callout; dashboard + digest load listClientVoicePacks once",
+      "Vitest: pipeline-health + digest voice-packs-due cases",
+      "Docs: architecture, roadmap Phase 7/8, voice-agent-flow, launch-checklist",
+      "NEXT_STEPS: client-voice-packs-missing-visibility done; commerce-catalogs-missing-visibility free; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — voice/commerce missing visibility in revenue chain; reuse listClientVoicePacksDue",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(115, 118),
   },
 ];
 

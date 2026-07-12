@@ -129,6 +129,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.commerceCatalogsMissingCount > 0}
         />
+        <MetricCard
+          label="Voice packs due"
+          value={String(health.clientVoicePacksDueCount)}
+          hint={
+            health.clientVoicePacksDueCount > 0
+              ? "Complete phone fulfillment"
+              : "Complete voice packs ready"
+          }
+          attention={health.clientVoicePacksDueCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -209,6 +219,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
             /dashboard/leads
           </Link>{" "}
           (sold catalog promise).
+        </p>
+      ) : null}
+
+      {health.clientVoicePacksDueCount > 0 ? (
+        <p className="mt-3 text-xs text-violet-900">
+          {health.clientVoicePacksDueCount} Complete lead
+          {health.clientVoicePacksDueCount === 1 ? "" : "s"} still need a voice FAQ pack —
+          generate from the Generate voice controls on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          (sold phone promise; Twilio stays separate).
         </p>
       ) : null}
 

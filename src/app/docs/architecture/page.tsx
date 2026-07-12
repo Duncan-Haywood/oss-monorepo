@@ -142,9 +142,11 @@ export default function ArchitectureDocPage() {
         packs still due this UTC month (<code>marketingPacksDueCount</code> via{" "}
         <code>listMarketingPacksDue</code>), Commerce catalogs still missing (
         <code>commerceCatalogsMissingCount</code> via{" "}
-        <code>listCommerceCatalogsMissing</code>), closed leads outside the active funnel (
+        <code>listCommerceCatalogsMissing</code>), Complete leads missing a client voice FAQ pack (
+        <code>clientVoicePacksDueCount</code> via <code>listClientVoicePacksDue</code>), closed
+        leads outside the active funnel (
         <code>closedLeadCount</code> = <code>stageCounts.closed</code>, footnote only), and
-        leads missing email (        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        leads missing email (<code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
@@ -158,9 +160,9 @@ export default function ArchitectureDocPage() {
         health and as a footnote on the operator daily digest (count + soonest return) so
         forgotten snoozes do not hide when the operator never opens the dashboard. The same
         digest also lists marketing packs due this UTC month, Starter → MRR upsell candidates,
-        and Commerce catalogs missing (action sections, reusing{" "}
+        Commerce catalogs missing, and Complete voice packs due (action sections, reusing{" "}
         <code>listMarketingPacksDue</code> / <code>listStarterUpsellCandidates</code> /{" "}
-        <code>listCommerceCatalogsMissing</code>). A lead that
+        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>). A lead that
         exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is

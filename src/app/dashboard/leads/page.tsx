@@ -71,6 +71,7 @@ async function loadLeadsPipelineHealth(): Promise<{
       openCheckoutSessions,
       marketingPacksThisMonth: marketingPacks,
       commerceCatalogs,
+      clientVoicePacks,
       nowMs,
     }),
   };
