@@ -622,8 +622,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-buy-now-webhook-side-effect-idempotency",
     summary:
-      "Bug found auditing after bundle-order-webhook-idempotency: commerceOrders ledger was already idempotent on stripeSessionId, but the commerce_sku webhook branch still ran insertClientInquiry + sendCommerceBuyNowClientReceipt on every Stripe redelivery — spamming the operator inbox and re-emailing the local business. insertCommerceOrder returned void and ignored Convex's null-on-duplicate signal. Claimed to mirror the bundle alreadyRecorded skip path for Commerce Buy now side effects.",
-    status: "in_progress",
+      "Bug found auditing after bundle-order-webhook-idempotency: commerceOrders ledger was already idempotent on stripeSessionId, but the commerce_sku webhook branch still ran insertClientInquiry + sendCommerceBuyNowClientReceipt on every Stripe redelivery — spamming the operator inbox and re-emailing the local business. insertCommerceOrder returned void and ignored Convex's null-on-duplicate signal. Shipped: insertCommerceOrder → { alreadyRecorded } (Convex null + SQLite SELECT-before-insert); webhook ledgers first then skips inquiry/client receipt on redelivery — mirrors bundle recordLeadPayment.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-22f4",
   },
@@ -1693,6 +1693,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "This is the platform's own revenue ledger, not a pass-through one, so a double-counted sale from an ordinary Stripe retry would have been a worse, higher-visibility version of the exact bug class AGENT_PROTOCOL already documented for checkout_sessions and commerce_orders (idempotent-on-stripeSessionId). Fixing the oldest, most-trusted table to match a rule written for newer tables closes the gap instead of leaving the original case as tacit permission to skip it.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce Buy now webhook side effects (operator inquiry + client receipt email) now skip on Stripe checkout.session.completed redelivery via insertCommerceOrder's { alreadyRecorded } return — ledger was already idempotent, but Promise.all(inquiry, ledger) + unconditional client email were not.",
+    rationale:
+      "bundle-order-webhook-idempotency fixed the same hole for Starter/Growth/Complete; Commerce still spam-notified operators and clients on every Stripe retry because insertCommerceOrder returned void and ignored Convex's null-on-duplicate. Returning alreadyRecorded and sequencing ledger-before-side-effects closes the sold order-notification promise without inventing a second dedupe key.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2703,6 +2710,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS: documented why the oldest, most-trusted ledger needed the same fix as the newer ones",
     ],
     decisions: BUSINESS_DECISIONS.slice(150, 151),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-22f4",
+    summary:
+      "Free backlog empty again after PR #61/#62 (manual payout mark + bundle order idempotency). Audited for sold-capability regressions; found Commerce Buy now webhook still fired inquiry + client receipt on every Stripe redelivery even though commerceOrders was ledger-idempotent. Shipped insertCommerceOrder → { alreadyRecorded } and sequenced ledger-before-side-effects in the commerce_sku branch. Queued commerce-pipeline-health-unpaid-owed for sibling prompt-process (panel/digest already unpaid; pipeline-health card still lifetime gross). Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/db.ts — insertCommerceOrder returns { alreadyRecorded } (Convex null-on-duplicate + SQLite SELECT-before-insert)",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku branch ledgers first; skips insertClientInquiry + sendCommerceBuyNowClientReceipt when alreadyRecorded",
+      "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist — document redelivery skip for inquiry/client receipt",
+      "NEXT_STEPS: commerce-buy-now-webhook-side-effect-idempotency done; commerce-pipeline-health-unpaid-owed queued for siblings",
+      "AGENT_PROTOCOL — idempotent ledger inserts must expose alreadyRecorded and skip non-idempotent side effects; prefer pipeline-health unpaid owed when this todo is claimed/done",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(151, 152),
   },
 ];
 

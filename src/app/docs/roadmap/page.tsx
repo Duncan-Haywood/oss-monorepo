@@ -207,7 +207,9 @@ export default function RoadmapDocPage() {
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
         pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
-        that money is owed to the client, not the platform. Per-lead owed totals and recent
+        that money is owed to the client, not the platform. Stripe redeliveries of the same
+        Buy now session skip the operator inquiry + client receipt once the ledger row exists
+        (<code>insertCommerceOrder</code> → <code>alreadyRecorded</code>). Per-lead owed totals and recent
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}

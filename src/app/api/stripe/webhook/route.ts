@@ -80,29 +80,38 @@ export async function POST(request: Request) {
             ]);
             const skuName = catalog?.items.find((item) => item.id === skuId)?.name ?? "Catalog item";
             const businessName = lead?.businessName || orderSlug;
-            await Promise.all([
-              insertClientInquiry({
+
+            // Ledger first — commerceOrders is idempotent on stripeSessionId.
+            // Inquiry + client receipt are NOT; skip them on Stripe redelivery
+            // (same alreadyRecorded pattern as bundle recordLeadPayment).
+            if (skuId) {
+              const { alreadyRecorded } = await insertCommerceOrder({
                 leadSlug: orderSlug,
-                businessName,
-                email: customerEmail || undefined,
-                message: commerceOrderPaidInquiryMessage({
-                  skuName,
-                  amountTotalUsd: amountTotal,
-                  stripeSessionId: session.id,
-                  skuId,
-                }),
-                source: "commerce_checkout",
+                skuId,
+                skuName,
+                amountPaidUsd: amountTotal,
+                stripeSessionId: session.id,
+              });
+              if (alreadyRecorded) {
+                console.log(
+                  `Commerce order for ${orderSlug} (${session.id}) already recorded — skipping duplicate inquiry/client receipt`,
+                );
+                break;
+              }
+            }
+
+            await insertClientInquiry({
+              leadSlug: orderSlug,
+              businessName,
+              email: customerEmail || undefined,
+              message: commerceOrderPaidInquiryMessage({
+                skuName,
+                amountTotalUsd: amountTotal,
+                stripeSessionId: session.id,
+                skuId,
               }),
-              skuId
-                ? insertCommerceOrder({
-                    leadSlug: orderSlug,
-                    skuId,
-                    skuName,
-                    amountPaidUsd: amountTotal,
-                    stripeSessionId: session.id,
-                  })
-                : Promise.resolve(),
-            ]);
+              source: "commerce_checkout",
+            });
 
             // Commerce sold promise: order notification to the local business
             // (lead.email), not the shopper. Distinct from sendReceiptEmail
