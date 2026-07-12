@@ -45,8 +45,12 @@ export default function ArchitectureDocPage() {
         (stage / outreach / notes / snooze) are never silently reset via{" "}
         <code>upsertLead</code>. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
-        require a signed session cookie. Google Places API and other licensed sources remain future
-        work after legal review. No UI scraping.
+        require a signed session cookie. <code>src/proxy.ts</code> also rewrites the root path to a
+        lead&apos;s <code>/preview/[slug]</code> when the request Host matches a client&apos;s own
+        domain saved via <strong>Save domain</strong> on <code>/dashboard/leads</code> (Starter
+        &ldquo;Preview subdomain → custom domain handoff&rdquo; promise) — see{" "}
+        <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Google Places API and
+        other licensed sources remain future work after legal review. No UI scraping.
       </p>
       <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.

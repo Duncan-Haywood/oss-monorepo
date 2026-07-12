@@ -7,6 +7,7 @@ import {
   getDeployHandoffBySlug,
   insertDeployHandoff,
   listDeployHandoffs,
+  updateDeployHandoffCustomDomain,
   updateDeployHandoffStatus,
   updateDeployHandoffVercelProject,
   updateLeadStage,
@@ -24,7 +25,8 @@ function previewRootDomain(): string {
   );
 }
 
-function productionRootDomain(): string {
+/** Exported for proxy.ts host-based routing — the platform's own root domain(s). */
+export function productionRootDomain(): string {
   // Prefer a dedicated production host root; fall back to stripping "preview."
   const explicit = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN?.trim();
   if (explicit) return explicit;
@@ -209,6 +211,25 @@ export async function assignVercelProjectAndProvision(
   vercelProjectId: string | null,
 ): Promise<DeployHandoff | null> {
   const updated = await updateDeployHandoffVercelProject(leadSlug, vercelProjectId);
+  if (!updated) return null;
+
+  const provisioned = await tryProvisionVercelDomain(updated);
+  await insertDeployHandoff(provisioned);
+  return provisioned;
+}
+
+/**
+ * Record the client's own domain (or clear it to fall back to suggestedHost),
+ * then retry Vercel domain provisioning — tryProvisionVercelDomain already
+ * prefers customDomain over suggestedHost. proxy.ts serves this lead's
+ * preview for requests on the saved domain once DNS points here (see
+ * getLeadSlugByCustomDomain in src/lib/db.ts).
+ */
+export async function assignCustomDomainAndProvision(
+  leadSlug: string,
+  customDomain: string | null,
+): Promise<DeployHandoff | null> {
+  const updated = await updateDeployHandoffCustomDomain(leadSlug, customDomain);
   if (!updated) return null;
 
   const provisioned = await tryProvisionVercelDomain(updated);

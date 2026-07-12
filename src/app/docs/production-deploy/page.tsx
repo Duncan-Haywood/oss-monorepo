@@ -80,6 +80,20 @@ export default function ProductionDeployDocPage() {
         target once the project already exists.
       </p>
 
+      <h2>Custom domain routing</h2>
+      <p>
+        Every handoff card on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> has a{" "}
+        <strong>Client&apos;s own domain</strong> field. Once the operator (or client) points that
+        domain&apos;s DNS at this deployment and saves it here, <code>src/proxy.ts</code> rewrites
+        requests for <code>/</code> on that Host to the lead&apos;s{" "}
+        <code>/preview/[slug]</code> — the client&apos;s domain shows their site, not the{" "}
+        {brand.name} marketing page. Saving also retries the best-effort Vercel Domains API call
+        against <code>customDomain</code> (falling back to <code>suggestedHost</code> when unset).
+        Only the root path is rewritten; <code>/api/*</code> and <code>/dashboard/*</code> already
+        address a lead by slug and are unaffected by Host. Convex-first lookup with a SQLite
+        fallback, same as every other <code>src/lib/db.ts</code> surface.
+      </p>
+
       <h2>Client inquiry inbox</h2>
       <p>
         Every contact-form POST creates a <code>client_inquiries</code> row (SQLite always;

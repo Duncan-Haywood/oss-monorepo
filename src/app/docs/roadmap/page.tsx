@@ -160,8 +160,12 @@ export default function RoadmapDocPage() {
         <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
-        shared project when unset) — full automated project creation remains manual. Remaining:
-        registrar DNS automation. Client inquiry inbox (persist-required contact-form posts —{" "}
+        shared project when unset) — full automated project creation remains manual. Preview
+        subdomain → custom domain handoff: shipped end-to-end — operator saves a client&apos;s
+        own domain on the handoff card, retries Vercel domain provisioning, and{" "}
+        <code>src/proxy.ts</code> host-based routing serves that lead&apos;s preview at the
+        client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>).
+        Remaining: registrar DNS automation. Client inquiry inbox (persist-required contact-form posts —{" "}
         <code>503</code> when the ledger write fails — + operator panel + dashboard reply via
         Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
