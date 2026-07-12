@@ -206,7 +206,8 @@ export default function RoadmapDocPage() {
         pipeline health and list in the daily digest beside catalogs-missing. Completed Buy now
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
-        pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
+        pipeline-health metric (unpaid/owed only — settled <code>paidOutAt</code> rows drop out) —
+        deliberately kept out of <code>revenueTotalUsd</code>, since
         that money is owed to the client, not the platform. Stripe redeliveries of the same
         Buy now session skip the operator inquiry + client receipt once the ledger row exists
         (<code>insertCommerceOrder</code> → <code>alreadyRecorded</code>). Per-lead owed totals and recent
@@ -214,7 +215,7 @@ export default function RoadmapDocPage() {
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
         <strong>Mark paid out</strong> action (<code>paidOutAt</code>) so settled orders drop out
-        of both owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
+        of the health card, panel, and digest owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}

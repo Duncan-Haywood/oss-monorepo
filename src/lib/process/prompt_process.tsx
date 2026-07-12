@@ -95,6 +95,8 @@ export const AGENT_PROTOCOL = [
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
+  "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
+  "commerceOrdersRevenueUsd / commerceOrdersCount on pipeline-health mean unpaid/owed pass-through totals (filter isCommerceOrderPaidOut), matching summarizeCommerceOrdersByLead unpaid* and the digest Commerce payouts owed section — not lifetime gross. Lifetime remains available via totalUsd on the per-lead summary.",
 ] as const;
 
 /**
@@ -1716,6 +1718,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Without the API-map entry, Mark paid out under NEXT_PUBLIC_CONVEX_URL silently wrote SQLite while listCommerceOrders read Convex — operators would think a client was paid while owed totals never cleared (double-pay risk). Without the unpaid filter, the pipeline-health card kept showing lifetime pass-through after settlement, disagreeing with every other owed surface.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "After PR #64 folded commerce Mark paid out Convex wiring + unpaid pipeline-health into main, append explicit AGENT_PROTOCOL rules for the static Convex API map and for commerceOrdersRevenueUsd meaning unpaid/owed — so the next empty-backlog audit does not re-learn the same split-brain or re-inflate the owed card.",
+    rationale:
+      "Feature code shipped via the sibling fold; naming the two rules in AGENT_PROTOCOL is the process improvement that stops recurrence without inventing a new metric.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2755,6 +2764,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: commerce-mark-paid-out-convex-wiring + commerce-pipeline-health-unpaid-owed done; webhook side-effect idempotency owned by 22f4",
     ],
     decisions: BUSINESS_DECISIONS.slice(152, 153),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-6a3c",
+    summary:
+      "PR #64 (business-process-evolution-22f4) already merged the Commerce webhook side-effect idempotency + Mark paid out Convex wiring + unpaid pipeline-health card (both ITERATIONS folded). Closed the duplicate feature PR surface and shipped process/docs polish: AGENT_PROTOCOL rules for the static Convex API map and unpaid commerceOrdersRevenueUsd semantics, plus operator docs clarifying that Mark paid out clears the health card too.",
+    shipped: [
+      "AGENT_PROTOCOL — static Convex API map registration rule; commerceOrdersRevenueUsd = unpaid owed",
+      "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist — Mark paid out clears health card / unpaid filter",
+      "BUSINESS_DECISIONS — documented why the protocol rules were appended after the sibling fold",
+      "NEXT_STEPS: no new free coded todos; Stripe Price bootstrap / Places / Buffer OAuth / Connect remain operator/legal-gated",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(153, 154),
   },
 ];
 

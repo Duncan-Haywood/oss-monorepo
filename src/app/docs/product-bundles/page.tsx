@@ -93,7 +93,9 @@ export default function ProductBundlesDocPage() {
         the same per-lead owed totals appear in the operator daily digest so liability is
         visible without opening the dashboard. Once an operator actually pays a client their
         share, <strong>Mark paid out</strong> on that order line removes it from both owed
-        totals so the same money can&apos;t be double-counted or double-paid.
+        totals so the same money can&apos;t be double-counted or double-paid. The dashboard
+        &quot;Commerce sales (pass-through)&quot; card uses the same unpaid filter, so
+        Mark paid out clears attention there too.
         There is no automated payout to the client yet — pay clients manually until Stripe
         Connect ships (see <DocLink href="/docs/process">process</DocLink>,
         commerce-payouts-stripe-connect).
