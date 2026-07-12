@@ -361,8 +361,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "follow-ups-due-pipeline-metric",
     summary:
       "Fold listFollowUpsDue counts (+ oldest due age) into pipeline-health aggregates so Email 2/3 backlog sits beside unreplied inquiries and abandoned carts — operators currently only see Due badges row-by-row / Work next factors.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/relaxed-galileo-n2jurd",
   },
   {
     id: "snoozed-leads-in-digest",
