@@ -88,7 +88,9 @@ export default function RoadmapDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
-        presets — parks a lead off the queue without wiping score history): shipped. Cold-lead
+        presets — parks a lead off the queue without wiping score history): shipped. Snoozed-lead
+        pipeline-health aggregate (count + soonest return, plus a Work next footnote — not a second
+        priority panel): shipped. Cold-lead
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
         shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools.
@@ -138,8 +140,9 @@ export default function RoadmapDocPage() {
         registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
         panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
-        mark-read on composer open: shipped. Remaining free operator-leverage gap: optional
-        snoozed-lead aggregates — see <DocLink href="/docs/process">process log</DocLink>.
+        mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
+        Remaining free operator-leverage gap: cold-lead archive/re-engage one-click (sibling) —
+        see <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>

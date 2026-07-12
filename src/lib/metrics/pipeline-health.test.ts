@@ -305,6 +305,48 @@ describe("computePipelineHealth", () => {
     expect(health.coldLeadCount).toBe(1);
     expect(health.oldestColdLeadAgeHours).toBe(30 * 24);
   });
+
+  it("defaults snoozed lead metrics to zero without active snoozes", () => {
+    const expired = makeLead("outreach_sent", {
+      snoozedUntil: new Date(NOW - HOUR_MS).toISOString(),
+    });
+    const health = computePipelineHealth({
+      leads: [expired],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.snoozedLeadCount).toBe(0);
+    expect(health.soonestSnoozeRemainingHours).toBeNull();
+  });
+
+  it("counts currently-snoozed leads and soonest remaining hours", () => {
+    const soon = makeLead("outreach_sent", {
+      slug: "snooze-soon",
+      snoozedUntil: new Date(NOW + 3 * HOUR_MS).toISOString(),
+    });
+    const later = makeLead("discovery_call", {
+      slug: "snooze-later",
+      snoozedUntil: new Date(NOW + 2 * 24 * HOUR_MS).toISOString(),
+    });
+    const paidSnoozed = makeLead("paid", {
+      slug: "paid-snoozed",
+      snoozedUntil: new Date(NOW + HOUR_MS).toISOString(),
+    });
+    const notSnoozed = makeLead("site_built", { slug: "awake" });
+
+    const health = computePipelineHealth({
+      leads: [soon, later, paidSnoozed, notSnoozed],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.snoozedLeadCount).toBe(3);
+    expect(health.soonestSnoozeRemainingHours).toBe(1);
+  });
 });
 
 describe("isUnrepliedInquiryStatus", () => {
