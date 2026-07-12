@@ -157,6 +157,8 @@ export default function LaunchChecklistDocPage() {
           configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
           Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
           handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
+          If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
+          <code>200</code>) so Stripe retries.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
