@@ -526,8 +526,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "deliver-client-voice-pack-to-client",
     summary:
       "Complete sells AI phone scripts; operators currently Copy from the dashboard. Queue operator-triggered Email voice pack to lead.email (same Resend path as deliver-marketing-pack-to-client) so clients can paste into a temp number / Cal.com without waiting on Twilio.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/prompt-process-evolution-6219",
   },
   {
     id: "commerce-order-revenue-ledger",
