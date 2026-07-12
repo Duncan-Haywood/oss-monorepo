@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  COLD_AFTER_DAYS,
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
+  isColdLead,
   isFollowUpDue,
+  listColdLeads,
   listFollowUpsDue,
   nextFollowUpStep,
   normalizeOutreachStep,
@@ -152,5 +155,65 @@ describe("listFollowUpsDue", () => {
     });
     const due = listFollowUpsDue([silent, opened], NOW);
     expect(due.map((l) => l.slug)).toEqual(["opened", "silent"]);
+  });
+});
+
+describe("isColdLead", () => {
+  it("is false before the sequence is finished", () => {
+    expect(
+      isColdLead(
+        makeLead({
+          outreachStep: 2,
+          lastOutreachAt: new Date(NOW - 30 * DAY_MS).toISOString(),
+        }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
+
+  it("is false right after Email 3 sends, before the cold gap elapses", () => {
+    const lead = makeLead({
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - (COLD_AFTER_DAYS * DAY_MS - 1)).toISOString(),
+    });
+    expect(isColdLead(lead, NOW)).toBe(false);
+  });
+
+  it("is true once the cold gap elapses past Email 3 with no reply", () => {
+    const lead = makeLead({
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - COLD_AFTER_DAYS * DAY_MS).toISOString(),
+    });
+    expect(isColdLead(lead, NOW)).toBe(true);
+  });
+
+  it("is false without an email, outside outreach stages, or without lastOutreachAt", () => {
+    const old3 = { outreachStep: 3 as const, lastOutreachAt: new Date(NOW - 30 * DAY_MS).toISOString() };
+    expect(isColdLead(makeLead({ ...old3, email: undefined }), NOW)).toBe(false);
+    expect(isColdLead(makeLead({ ...old3, stage: "paid" }), NOW)).toBe(false);
+    expect(isColdLead(makeLead({ ...old3, lastOutreachAt: undefined }), NOW)).toBe(false);
+  });
+});
+
+describe("listColdLeads", () => {
+  it("filters to cold leads only, oldest lastOutreachAt first", () => {
+    const coldOlder = makeLead({
+      slug: "cold-a",
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - 30 * DAY_MS).toISOString(),
+    });
+    const coldNewer = makeLead({
+      slug: "cold-b",
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - COLD_AFTER_DAYS * DAY_MS).toISOString(),
+    });
+    const stillDue = makeLead({
+      slug: "due",
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+    });
+
+    const cold = listColdLeads([stillDue, coldNewer, coldOlder], NOW);
+    expect(cold.map((l) => l.slug)).toEqual(["cold-a", "cold-b"]);
   });
 });

@@ -88,8 +88,10 @@ export default function RoadmapDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
-        presets — parks a lead off the queue without wiping score history): shipped. Remaining:
-        Vapi/Retell platform voice and bundle explanation tools.
+        presets — parks a lead off the queue without wiping score history): shipped. Cold-lead
+        detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
+        pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
+        shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>

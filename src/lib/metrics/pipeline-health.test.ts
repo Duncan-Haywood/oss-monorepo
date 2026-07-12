@@ -264,6 +264,47 @@ describe("computePipelineHealth", () => {
     expect(health.recoveryDueCount).toBe(1);
     expect(health.oldestAbandonedAgeHours).toBe(30);
   });
+
+  it("defaults cold lead metrics to zero without cold leads", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("outreach_sent", { outreachStep: 1 })],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.coldLeadCount).toBe(0);
+    expect(health.oldestColdLeadAgeHours).toBeNull();
+  });
+
+  it("counts leads that exhausted Email 1-3 with no reply, with oldest age", () => {
+    const cold = makeLead("outreach_sent", {
+      slug: "cold-lead",
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - 30 * 24 * HOUR_MS).toISOString(),
+    });
+    const stillDue = makeLead("outreach_sent", {
+      slug: "due-lead",
+      outreachStep: 1,
+      lastOutreachAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+    });
+    const paidOld = makeLead("paid", {
+      slug: "paid-lead",
+      outreachStep: 3,
+      lastOutreachAt: new Date(NOW - 60 * 24 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [cold, stillDue, paidOld],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.coldLeadCount).toBe(1);
+    expect(health.oldestColdLeadAgeHours).toBe(30 * 24);
+  });
 });
 
 describe("isUnrepliedInquiryStatus", () => {

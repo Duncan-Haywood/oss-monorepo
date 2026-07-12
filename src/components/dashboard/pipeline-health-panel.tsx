@@ -20,7 +20,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-8">
         <MetricCard
           label="Recorded revenue"
           value={formatUsd(health.revenueTotalUsd)}
@@ -79,6 +79,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           hint="Cannot outreach or receipt"
           attention={health.leadsMissingEmailCount > 0}
         />
+        <MetricCard
+          label="Cold leads"
+          value={String(health.coldLeadCount)}
+          hint={
+            health.oldestColdLeadAgeHours !== null
+              ? `Oldest silent ${formatAbandonedAgeHours(health.oldestColdLeadAgeHours)}`
+              : "None past Email 3"
+          }
+          attention={health.coldLeadCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -101,6 +111,15 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           {health.recoveryDueCount} abandoned checkout
           {health.recoveryDueCount === 1 ? "" : "s"} ready for a recovery nudge — use the
           Abandoned checkouts panel (same signals feed Work next).
+        </p>
+      ) : null}
+
+      {health.coldLeadCount > 0 ? (
+        <p className="mt-3 text-xs text-zinc-600">
+          {health.coldLeadCount} lead{health.coldLeadCount === 1 ? "" : "s"} went silent
+          through all 3 outreach emails — the follow-up queue won&apos;t resurface{" "}
+          {health.coldLeadCount === 1 ? "it" : "them"} again. Manually re-engage or move to a
+          closed stage in the lead table below.
         </p>
       ) : null}
 

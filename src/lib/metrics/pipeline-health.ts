@@ -2,7 +2,7 @@
  * Operator pipeline health — aggregate signals so stuck money and funnel
  * gaps are visible without scanning every lead row.
  * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
- * + unreplied-inquiry-pipeline-metric).
+ * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -14,6 +14,7 @@ import {
   isAbandonedCheckout,
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
+import { isColdLead } from "@/lib/email/outreach-followups";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -56,6 +57,10 @@ export interface PipelineHealth {
   recoveryDueCount: number;
   /** Age in whole hours of the oldest abandoned open session; null when none. */
   oldestAbandonedAgeHours: number | null;
+  /** Leads that exhausted Email 1-3 with no reply — see isColdLead. */
+  coldLeadCount: number;
+  /** Age in whole hours since the oldest cold lead's last outreach send; null when none. */
+  oldestColdLeadAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -185,6 +190,18 @@ export function computePipelineHealth(input: {
     }
   }
 
+  const coldLeads = input.leads.filter((lead) => isColdLead(lead, nowMs));
+  let oldestColdLeadAgeHours: number | null = null;
+  for (const lead of coldLeads) {
+    if (!lead.lastOutreachAt) continue;
+    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
+    if (Number.isNaN(lastOutreachMs)) continue;
+    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
+    if (oldestColdLeadAgeHours === null || ageHours > oldestColdLeadAgeHours) {
+      oldestColdLeadAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -205,6 +222,8 @@ export function computePipelineHealth(input: {
     abandonedCheckoutCount: abandoned.length,
     recoveryDueCount,
     oldestAbandonedAgeHours,
+    coldLeadCount: coldLeads.length,
+    oldestColdLeadAgeHours,
   };
 }
 

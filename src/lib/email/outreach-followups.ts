@@ -66,3 +66,37 @@ export function listFollowUpsDue(leads: Lead[], nowMs: number): Lead[] {
       return aAt - bAt;
     });
 }
+
+/** Days of silence after Email 3 before a lead counts as cold (see isColdLead). */
+export const COLD_AFTER_DAYS = FOLLOW_UP_3_AFTER_DAYS;
+
+/**
+ * A lead is "cold" once the 3-email sequence is exhausted (nextFollowUpStep
+ * returns null) and enough quiet days have passed since Email 3 with no stage
+ * progression. isFollowUpDue never fires again for these leads once step hits
+ * 3, so without this check they go permanently invisible to the operator.
+ */
+export function isColdLead(lead: Lead, nowMs: number): boolean {
+  if (!lead.email) return false;
+  if (lead.stage !== "outreach_sent" && lead.stage !== "discovery_call") {
+    return false;
+  }
+  const step = normalizeOutreachStep(lead.outreachStep);
+  if (step !== 3 || nextFollowUpStep(step) !== null) return false;
+
+  if (!lead.lastOutreachAt) return false;
+  const last = Date.parse(lead.lastOutreachAt);
+  if (Number.isNaN(last)) return false;
+
+  return nowMs - last >= COLD_AFTER_DAYS * DAY_MS;
+}
+
+export function listColdLeads(leads: Lead[], nowMs: number): Lead[] {
+  return leads
+    .filter((lead) => isColdLead(lead, nowMs))
+    .sort((a, b) => {
+      const aAt = a.lastOutreachAt ? Date.parse(a.lastOutreachAt) : 0;
+      const bAt = b.lastOutreachAt ? Date.parse(b.lastOutreachAt) : 0;
+      return aAt - bAt;
+    });
+}
