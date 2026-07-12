@@ -53,6 +53,7 @@ export const AGENT_PROTOCOL = [
   "When deliver-marketing-pack-to-client and deliver-client-voice-pack-to-client are both free in the same cron window, claim different ones (Growth marketing delivery vs Complete phone-script delivery) — they touch different pack modules and both close sold-capability handoff gaps.",
   "Email voice pack requires an existing clientVoicePacks row plus a non-empty lead.email — generate first, then Email voice pack. Never auto-generate on send (same review-before-client rule as marketing Email pack).",
   "After marketing + voice pack email handoffs ship, prefer commerce-abandoned-checkout-tracking (kind discriminator on checkout_sessions) or commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — both close Commerce sold-capability gaps without Stripe Connect. When one is claimed, take the other; prefer either over inventing optional aggregates while Connect / Places / Buffer OAuth stay gated.",
+  "When commerce-buy-now-client-receipt is claimed by a sibling and Connect/Places/scheduling stay gated, prefer commerce-orders-payout-ledger-panel (wire listCommerceOrders into a per-lead payout panel on /dashboard/leads) — the revenue ledger already stores pass-through totals, but without a row-level panel operators cannot reconcile manual client payouts. Prefer wiring the existing listCommerceOrders helper over inventing new aggregates or idle process-only edits.",
   "Never dump commerce Buy now Checkout Sessions into bundle abandoned-recovery without kind=commerce_sku — Finish-checkout emails link /checkout?tier= and would pitch Local Site Studio plans to end customers. Bundle Work next cart boosts and listAbandonedCheckoutsDue must filter isBundleCheckoutSession; commerce uses listCommerceAbandonedCheckoutsDue + preview#catalog recovery.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
@@ -561,8 +562,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-buy-now-client-receipt",
     summary:
       "Commerce sells order notifications (see /docs/product-bundles). Today a completed Buy now only notifies the operator via insertClientInquiry — the commerceAddon lead (local business) never gets an email about their customer's purchase. Queue operator-path or webhook-triggered Resend to lead.email (honor suppression; reuse commerceOrders / catalog SKU fields) so the client knows to fulfill. Distinct from commerce-payouts-stripe-connect (money movement stays gated).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-4d67",
+  },
+  {
+    id: "commerce-orders-payout-ledger-panel",
+    summary:
+      "commerceOrders ledger + pipeline-health total exist, but operators still lack a row-level panel of Buy now orders grouped by lead — needed for manual client payouts until Stripe Connect ships. Wire listCommerceOrders into /dashboard/leads (per-lead totals + recent lines); pure summarize helper + Vitest. Distinct from commerce-buy-now-client-receipt (client email) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-58b6",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
