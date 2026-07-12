@@ -250,7 +250,9 @@ export default function LaunchChecklistDocPage() {
           logs) the client order notification — SKU, amount, optional customer email, link to
           preview#catalog. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
-          order line and owed total. This money is collected for the client, not platform revenue —
+          order line and owed total. Confirm <strong>Send daily digest</strong> lists those
+          clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.
+          This money is collected for the client, not platform revenue —
           pay clients manually until Stripe Connect ships (see{" "}
           <DocLink href="/docs/process">process</DocLink>).
         </li>

@@ -206,7 +206,8 @@ export default function RoadmapDocPage() {
         pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
         that money is owed to the client, not the platform. Per-lead owed totals and recent
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
-        reconciliation until Connect ships. Abandoned Buy now carts are tracked
+        reconciliation until Connect ships, and the same per-lead owed totals appear in the
+        operator daily digest (<strong>Commerce payouts owed</strong>). Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}

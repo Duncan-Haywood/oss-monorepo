@@ -586,8 +586,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-payouts-owed-in-digest",
     summary:
-      "Commerce payouts (manual) panel exists on /dashboard/leads, but the operator daily digest never surfaces pass-through money owed to Commerce clients — a single-operator business can miss growing liability without opening the dashboard. Wire summarizeCommerceOrdersByLead (+ listCommerceOrders) into buildDailyDigest / sendDailyDigestAction as a digest action section (reuse existing helpers; load listCommerceOrders once alongside other digest inputs). Distinct from commerce-orders-payout-ledger-panel (dashboard UI) and commerce-payouts-stripe-connect (automated money movement).",
-    status: "in_progress",
+      "Commerce payouts (manual) panel existed on /dashboard/leads, but the operator daily digest never surfaced pass-through money owed to Commerce clients. Shipped: buildDailyDigest commercePayoutsOwed (+ totalUsd) via summarizeCommerceOrdersByLead; sendDailyDigestAction loads listCommerceOrders once; digest HTML section 'Commerce payouts owed'. Distinct from commerce-orders-payout-ledger-panel (dashboard UI) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-c75d",
   },
@@ -1594,6 +1594,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Earlier remote claim owns when neither side has feature commits. Orphan Product archive and digest payout liability are complementary Commerce surfaces (Stripe catalog hygiene vs operator money-owed visibility) — both reuse existing helpers and both matter while Connect stays gated.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Shipped commerce-payouts-owed-in-digest: daily digest action section listing per-lead pass-through Buy now totals (reuse summarizeCommerceOrdersByLead) plus a grand total — load listCommerceOrders once in sendDailyDigestAction.",
+    rationale:
+      "The dashboard payout panel only helps when the operator opens /dashboard/leads. A single-operator business already relies on the digest for follow-ups / recoveries / catalogs; pass-through money owed is the same class of urgency (financial liability) and must not stay dashboard-only until Connect ships.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce payouts owed is a digest action section (not a footnote): any non-empty list makes isEmpty false, matching catalogs-missing / Sync-to-Stripe debt — operators must reconcile or consciously defer.",
+    rationale:
+      "Footnotes are for parked urgency (snoozed / cold). Money sitting in the platform Stripe account owed to clients is actionable liability, not parked. Cap the email list at 5 leads (highest owed first via existing summarize sort) while still showing the full owed total in the section title.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2522,6 +2536,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: reconciled main after PR #56 (prompt-process-evolution-4d67 client receipt)",
     ],
     decisions: BUSINESS_DECISIONS.slice(140, 142),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-c75d",
+    summary:
+      "Sibling business-process-evolution-0907 claimed commerce-stripe-orphan-product-archive first; pivoted to commerce-payouts-owed-in-digest. Shipped summarizeCommerceOrdersByLead into the operator daily digest (commercePayoutsOwed + totalUsd section) so pass-through liability is visible without opening /dashboard/leads. Improved AGENT_PROTOCOL (prefer digest payouts when orphan is claimed; load listCommerceOrders with other digest inputs). Folded 0907 orphan claim ownership. Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts (+ test) — commercePayoutsOwed / commercePayoutsOwedTotalUsd via summarizeCommerceOrdersByLead; HTML section + empty-state copy",
+      "sendDailyDigestAction — load listCommerceOrders once alongside catalogs/voice packs",
+      "Docs: product-bundles, architecture §9, roadmap Phase 8, launch-checklist digest payout check",
+      "NEXT_STEPS: commerce-payouts-owed-in-digest done; commerce-stripe-orphan-product-archive in_progress on 0907; Stripe/Places/scheduling/Connect gated",
+      "AGENT_PROTOCOL — prefer digest payouts when orphan claimed; digest load list includes listCommerceOrders",
+      "coop: folded sibling 0907 claim of commerce-stripe-orphan-product-archive",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(142, 145),
   },
 ];
 

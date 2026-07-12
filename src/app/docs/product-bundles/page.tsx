@@ -85,7 +85,9 @@ export default function ProductBundlesDocPage() {
         own Stripe account, not the client business&apos;s. Total collected is visible as
         &quot;Commerce sales (pass-through)&quot; on the operator dashboard, and per-lead
         totals + recent lines appear on the <strong>Commerce payouts (manual)</strong> panel
-        on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation.
+        on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation, and
+        the same per-lead owed totals appear in the operator daily digest so liability is
+        visible without opening the dashboard.
         There is no automated payout to the client yet — pay clients manually until Stripe
         Connect ships (see <DocLink href="/docs/process">process</DocLink>,
         commerce-payouts-stripe-connect).
