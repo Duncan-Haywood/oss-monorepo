@@ -109,6 +109,7 @@ export const AGENT_PROTOCOL = [
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
+  "Every dynamic value (businessName, message/reply text, sku/tier labels, etc.) interpolated into an email's HTML body in src/lib/email/resend.ts must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — plain-text subject lines are exempt. New send*Email functions should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern, not sendReceiptEmail's pre-fix raw interpolation.",
 ] as const;
 
 /**
@@ -760,6 +761,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/business-continuity-4f9c",
+  },
+  {
+    id: "outreach-email-businessname-html-escape",
+    summary:
+      "Subagent-assisted audit after PR #74 left the free backlog empty (only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated), scoped deliberately away from the last ~10 heavily-audited areas (Commerce, Stripe bundle webhook, contact form, deploy handoffs, suppression list, lead upsert collisions). Found: five HTML email templates in src/lib/email/resend.ts interpolated lead.businessName directly into the HTML body without escapeHtmlForEmail — sendOutreachEmail, sendOutreachFollowUp2, sendOutreachFollowUp3, sendCheckoutAbandonedRecovery, and sendReceiptEmail (the payment-confirmation email fired for every bundle sale, src/app/api/stripe/webhook/route.ts). Every sibling template already escapes the exact same field (sendCommerceAbandonedRecovery's safeBiz, sendInquiryReply, sendStarterUpsellEmail, marketing/voice pack delivery, commerce client receipt, daily-digest.ts) — a businessName containing HTML-significant characters (plausible on CSV import or manual add, see upsert-lead-collision-guard) would corrupt the rendered email or inject markup into a real customer's inbox on the product's highest-volume outreach and transactional sends. Shipped: escapeHtmlForEmail(businessName) at all five HTML interpolation sites (subject lines are plain text, left unchanged); new src/lib/email/resend.test.ts mocks ../db + fetch to assert the actual Resend API payload for each fixed function contains the escaped name and never the raw unsafe substring — this file had no prior test coverage.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/upbeat-dijkstra-e1w0pw",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1945,6 +1954,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "isFollowUpDue now excludes snoozed leads; isColdLead deliberately does not.",
     rationale:
       "Snooze is the operator's explicit 'don't contact' signal (isLeadSnoozed / quality-score.ts actionable already honor it for Work next). isFollowUpDue feeds passive/automated surfaces — the Follow-ups due panel, pipeline-health followUpsDueCount, the daily digest — that promote a lead for action without the operator having chosen that specific lead, so it must respect the snooze like Work next does. isColdLead is different: it also gates planColdLeadDisposition, and clicking Re-engage or Close on a specific snoozed cold lead is a deliberate single-lead operator action that itself clears the snooze (existing cold-archive.test.ts already asserts this succeeds) — identical in kind to the always-available per-row Unsnooze button and the manual 'Email {next}' send button, both of which already bypass the due-cadence gate on purpose. Blanket-adding the snooze check to isColdLead broke that intended override (caught by the existing test suite before merge) — the fix stayed scoped to isFollowUpDue only.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Every dynamic value interpolated into an outbound email's HTML body must pass through escapeHtmlForEmail, with no exceptions for 'trusted' operator-entered fields like businessName.",
+    rationale:
+      "lead.businessName is populated from CSV import and manual dashboard entry (see upsert-lead-collision-guard), not a fixed enum — it can legitimately contain apostrophes, ampersands, or angle brackets (business names like \"Bob's Auto & <Truck> Repair\" are real-world plausible). sendReceiptEmail (fired on every paid bundle sale) and the three outreach cadence emails treated it as safe while every other template already escaped it, which is exactly the kind of asymmetric-pattern bug this audit process exists to catch. Fixing the highest-volume/highest-trust sends (receipt + outreach 1-3 + bundle abandoned-recovery) closes the gap; the codebase already had zero unrelated exceptions to point to, so the rule is now absolute rather than case-by-case.",
   },
 ];
 
@@ -3189,6 +3205,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — passive-queue predicates must check snooze; predicates that also gate an explicit single-lead override action must not, without checking which contract applies first",
       "BUSINESS_DECISIONS — documented the isFollowUpDue vs isColdLead split and the reverted overreach",
       "Verified: npm test (279 passed, includes 2 new cases) + lint + build clean; npm run dev loaded /dashboard/leads with no runtime error (pure-logic change to an already-exercised predicate, no schema/persistence touched — existing unit tests exercise the exact snoozed+due-gap-elapsed scenario from the bug report)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(168, 169),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-e1w0pw",
+    summary:
+      "Free NEXT_STEPS backlog was empty after PR #74 (follow-ups-due-exclude-snoozed) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Ran a subagent-assisted regression audit deliberately scoped away from the last ~10 heavily-covered iterations (Commerce, Stripe bundle webhook, contact form, deploy handoffs, suppression list, lead upsert collisions, follow-up cadence) — marketing/voice pack delivery, checkout abandoned-recovery, lead quality scoring, digest, dashboard auth, CSV import, and billing portal. Found: five HTML email templates in src/lib/email/resend.ts (sendOutreachEmail, sendOutreachFollowUp2, sendOutreachFollowUp3, sendCheckoutAbandonedRecovery, sendReceiptEmail) interpolated lead.businessName straight into the HTML body without escapeHtmlForEmail, while every sibling template in the same file (sendCommerceAbandonedRecovery, sendInquiryReply, sendStarterUpsellEmail, the pack-delivery formatters) already escapes the identical field — the classic 'X follows the pattern, Y doesn't' asymmetry this audit process targets. sendReceiptEmail is the payment-confirmation email fired for every bundle sale; the other four cover the full Email 1-3 outreach cadence and bundle abandoned-cart recovery. A businessName with HTML-significant characters (plausible from CSV import or manual add) would corrupt the rendered email or inject markup into a real customer's inbox.",
+    shipped: [
+      "src/lib/email/resend.ts — escapeHtmlForEmail(businessName) at all 5 HTML interpolation sites (subject lines untouched, plain text)",
+      "src/lib/email/resend.test.ts (new) — mocks ../db + global fetch, asserts the real Resend API payload for each fixed function contains the escaped name and never the raw unsafe substring; this file had zero prior coverage",
+      "NEXT_STEPS: added outreach-email-businessname-html-escape (done)",
+      "AGENT_PROTOCOL — every dynamic value interpolated into a resend.ts email HTML body must go through escapeHtmlForEmail; subject lines are exempt (plain text)",
+      "BUSINESS_DECISIONS — documented the no-exceptions escaping rule and why businessName can't be treated as trusted",
+      "Verified: npm test (284 passed, +5 new) + lint + build clean; resend.test.ts drives the exact production code path (sendEmail → fetch → Resend API body) with a real unsafe business name and asserts on the actual JSON payload, not just code review — chosen over a live npm run dev check since this is a pure HTML-templating fix with no schema/persistence/routing surface to exercise that the unit test doesn't already cover",
+      "merge: folded origin/main after PR #74 (business-continuity-4f9c follow-ups-due-exclude-snoozed) — both ITERATIONS kept; also discarded an earlier duplicate attempt at stripe-webhook-convex-primary-no-fallback after sibling business-process-evolution-740a's PR #73 landed first (same pattern 4f9c hit on the same item one cycle earlier)",
     ],
     decisions: BUSINESS_DECISIONS.slice(168, 169),
   },
