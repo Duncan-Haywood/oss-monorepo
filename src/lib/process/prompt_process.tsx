@@ -92,7 +92,9 @@ export const AGENT_PROTOCOL = [
   "A `\"server-only\"` lib file cannot be Vitest-tested directly and its exports must not be re-exported through a barrel (e.g. src/lib/commerce/index.ts) that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern already in src/lib/commerce/stripe-sync.ts: take the Stripe client as a parameter behind a minimal structural interface (not `import Stripe from \"stripe\"` types) so the sync logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep only the real `new Stripe(secretKey)` construction + env-var gating in the server action / route that calls it.",
   "Commerce Buy now order money (end-customer payment for a client's own catalog SKU, collected through the platform's own Stripe account) must NEVER be written into the `orders` table or summed into revenueTotalUsd — that table/metric represents Local Site Studio's own bundle revenue, and several eligibility predicates (orderEligibleForBillingPortal, leadEligibleForStarterUpsell, leadEligibleForCommerceCatalog) read any commerceAddon=true `orders` row as 'this lead already subscribes to the Commerce add-on.' Keep pass-through customer revenue in its own ledger (commerceOrders / src/lib/commerce/orders.ts) with its own pipeline-health field (commerceOrdersRevenueUsd) — do not conflate the two money flows even though both come from Stripe webhooks.",
   "Any ledger written from a Stripe webhook handler must be idempotent on stripeSessionId (INSERT OR IGNORE / UNIQUE column in SQLite; existence check before insert in Convex) — Stripe redelivers checkout.session.completed on retry/timeout, and a naive INSERT would double-count revenue.",
+  "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
+  "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
 ] as const;
 
 /**
@@ -616,6 +618,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/quirky-davinci-wuk0al",
+  },
+  {
+    id: "commerce-buy-now-webhook-side-effect-idempotency",
+    summary:
+      "Bug found auditing after bundle-order-webhook-idempotency: commerceOrders ledger was already idempotent on stripeSessionId, but the commerce_sku webhook branch still ran insertClientInquiry + sendCommerceBuyNowClientReceipt on every Stripe redelivery — spamming the operator inbox and re-emailing the local business. insertCommerceOrder returned void and ignored Convex's null-on-duplicate signal. Claimed to mirror the bundle alreadyRecorded skip path for Commerce Buy now side effects.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-22f4",
+  },
+  {
+    id: "commerce-pipeline-health-unpaid-owed",
+    summary:
+      "After commerce-order-manual-payout-mark, the payout panel + digest use unpaidTotalUsd, but pipeline-health's Commerce sales (pass-through) card still sums lifetime amountPaidUsd — settled orders keep looking 'owed'. Wire paidOutAt into computePipelineHealth (reuse isCommerceOrderPaidOut / unpaid sum) so the card matches panel + digest. Queued for siblings while commerce-buy-now-webhook-side-effect-idempotency is in progress.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
