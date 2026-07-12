@@ -9,13 +9,16 @@
  * fix after the fact.
  */
 
-import { captureChecklist } from "../../process/capture-checklist";
+import { totalShotCount } from "../../process/capture-checklist";
 
-/** Total distinct photo shots in the checklist, excluding the wrap-up review step (not a photo). */
-export function expectedShotCount(): number {
-  return captureChecklist
-    .filter((room) => room.id !== "wrap")
-    .reduce((sum, room) => sum + room.shots.length, 0);
+/**
+ * Total distinct photo shots expected, excluding the wrap-up review step
+ * (not a photo). `additionalBeds`/`additionalBaths` are bedrooms/bathrooms
+ * beyond the primary suite; omit both to fall back to a typical mid-market
+ * home (see process/capture-checklist.ts's `totalShotCount`).
+ */
+export function expectedShotCount(additionalBeds?: number, additionalBaths?: number): number {
+  return totalShotCount(additionalBeds, additionalBaths);
 }
 
 export type CoverageCheck = {
@@ -25,8 +28,8 @@ export type CoverageCheck = {
   ok: boolean;
 };
 
-export function checkCoverage(actualCount: number): CoverageCheck {
-  const expected = expectedShotCount();
+export function checkCoverage(actualCount: number, additionalBeds?: number, additionalBaths?: number): CoverageCheck {
+  const expected = expectedShotCount(additionalBeds, additionalBaths);
   const shortfall = Math.max(0, expected - actualCount);
   return { expected, actual: actualCount, shortfall, ok: shortfall === 0 };
 }

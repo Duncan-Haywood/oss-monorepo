@@ -18,6 +18,8 @@ type CliArgs = {
   listing: string;
   maxWidth: number;
   quality: number;
+  additionalBeds?: number;
+  additionalBaths?: number;
 };
 
 function parseArgs(argv: string[]): CliArgs {
@@ -32,9 +34,13 @@ function parseArgs(argv: string[]): CliArgs {
 
   if (!inDir || !outDir || !listing) {
     throw new Error(
-      'Usage: npm run enhance -- --in <raw-photos-dir> --out <delivery-dir> --listing "<address or slug>" [--max-width 2048] [--quality 88]',
+      'Usage: npm run enhance -- --in <raw-photos-dir> --out <delivery-dir> --listing "<address or slug>" ' +
+        "[--max-width 2048] [--quality 88] [--beds <total bedrooms>] [--baths <total bathrooms>]",
     );
   }
+
+  const beds = get("--beds");
+  const baths = get("--baths");
 
   return {
     in: inDir,
@@ -42,6 +48,10 @@ function parseArgs(argv: string[]): CliArgs {
     listing,
     maxWidth: Number(get("--max-width") ?? DEFAULT_ENHANCE_OPTIONS.maxWidth),
     quality: Number(get("--quality") ?? DEFAULT_ENHANCE_OPTIONS.quality),
+    // --beds/--baths are TOTAL counts for the listing; the checklist/coverage
+    // math is in terms of bedrooms/bathrooms beyond the primary suite.
+    additionalBeds: beds !== undefined ? Math.max(0, Number(beds) - 1) : undefined,
+    additionalBaths: baths !== undefined ? Math.max(0, Number(baths) - 1) : undefined,
   };
 }
 
@@ -54,7 +64,7 @@ async function main() {
     quality: args.quality,
   });
 
-  const coverage = checkCoverage(summary.processed.length);
+  const coverage = checkCoverage(summary.processed.length, args.additionalBeds, args.additionalBaths);
 
   console.log(`\nListing Lens enhance pipeline — ${args.listing}`);
   console.log(`  Input:  ${args.in}`);

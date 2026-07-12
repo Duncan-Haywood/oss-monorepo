@@ -121,4 +121,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): do not start p3-app-scope yet (same reasoning as prior sessions — sequenced after validation data exists). If still nothing is human-unblocked, good next candidates are re-verifying process/mls-compliance.ts against a specific real MLS board once one is known, or tightening capture-checklist.ts's shot count toward the 15-25 photo range the pricing one-pager already promises.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/dazzling-allen-luc0w5",
+    summary:
+      "Confirmed all prior agent branches were already merged to main (git ls-remote + list_pull_requests: only PR #4 remains open, still blocked on Duncan's Cloudflare dashboard step, untouched by this session). All Phase 1-2 agent-doable tasks were done and every remaining roadmap task was human-blocked or explicitly deferred (p3-app-scope), so this session took up the prior session's own suggested next candidate plus one process improvement.",
+    changes: [
+      "process/capture-checklist.ts: closed the gap flagged in the last two sessions' progress-log entries — outreach-templates.ts's cold-email copy already promises '15-25 enhanced, MLS-ready photos' but the checklist only produced ~9-11 fixed shots. Made secondary bedroom/bathroom rooms scale per additional unit (perAdditionalUnit), added 7 new fixed detail shots (entry, living feature, dining, kitchen detail, primary closet, primary vanity/tub, flex space), and added totalShotCount()/updated totalTargetMinutes() to compute real totals from actual or typical bed/bath counts.",
+      "pipeline/src/coverage.ts + cli.ts: expectedShotCount()/checkCoverage() now accept optional additionalBeds/additionalBaths; `npm run enhance` gained --beds/--baths flags (total counts, converted to additional-beyond-primary internally) so coverage checking reflects the real listing size instead of a fixed number.",
+      "Verified: typical-home default (no args) now returns 19 shots (inside the promised 15-25 range); a 0-extra-bed/bath listing returns 16; a 5-bed/3-bath listing returns 22. pipeline/ `npm test` and `tsc --noEmit` pass; docs-site `npm run build` passes.",
+      "Added .github/workflows/ci.yml: runs pipeline/'s test+typecheck and docs-site/research builds on every push and PR, independent of deploy-docs.yml (which only builds docs-site on push to main). Automates the manual verification prompt_process.tsx step 7 has always required, which several concurrent agent branches made easy to skip.",
+      "decisions-log.ts: logged both the checklist-scaling decision and the CI decision. roadmap.ts: added p2-capture-checklist-scaling (done) and p0-ci (done).",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries remains the single highest-leverage next step — the checklist, pricing, outreach copy, and pipeline (now with a real --beds/--baths-aware coverage check) are all ready for a first real shoot.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) remain the other real unblocks.",
+      "Agent (next session): once CI has run on a real PR, confirm it's green before relying on it as a merge gate. Do not start p3-app-scope yet. If still nothing is human-unblocked, good candidates are re-verifying mls-compliance.ts against a specific real MLS board once one is known, or building the booking-intake -> leads-log.ts transcription path so a human's real outreach replies are fast to log.",
+    ],
+  },
 ];

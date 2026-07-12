@@ -75,4 +75,24 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-7i8o70",
     relatedTaskIds: ["p1-mls-compliance", "p2-ai-pipeline", "p3-app-scope"],
   },
+  {
+    date: "2026-07-12",
+    title: "Capture checklist scales per-bed/bath instead of a fixed shot count",
+    decision:
+      "process/capture-checklist.ts's secondary bedroom and secondary bathroom entries are now per-additional-unit rooms (one wide shot per extra bed, one per extra bath) instead of a single fixed 'secondary-rooms' entry. pipeline/'s coverage check and CLI take optional --beds/--baths (total counts for the listing); omitting them falls back to a typical ~3-bed/2-bath home. New fixed detail shots were also added (entry detail, living-room feature, dining area, kitchen finish detail, primary closet, primary vanity/tub, a flex space) to round out the room-by-room coverage.",
+    rationale:
+      "process/outreach-templates.ts's cold-outreach copy already promises prospects '15-25 enhanced, MLS-ready photos', but the checklist as originally built specified only ~9-11 fixed shots regardless of home size — an unbacked promise the moment a real prospect responds. A fixed count was also structurally wrong: a studio and a 5-bed house shouldn't get the same shot list. The typical-home default now produces 19 shots (inside the promised range); a 5-bed/3-bath listing produces 22; a 0-extra-bed/bath listing produces 16 — all still land in or near the 15-25 range mls-compliance.ts cites as the competitive best-performing count on major portals.",
+    madeBy: "claude/dazzling-allen-luc0w5",
+    relatedTaskIds: ["p2-capture-checklist-scaling", "p2-ai-pipeline", "p2-outreach-templates"],
+  },
+  {
+    date: "2026-07-12",
+    title: "Add CI workflow to automatically gate pipeline tests + docs-site/research builds",
+    decision:
+      "Added .github/workflows/ci.yml, running on every push and pull_request: pipeline/'s `npm test` + `tsc --noEmit`, plus `npm run build` in docs-site/ and research/. This is separate from the existing deploy-docs.yml, which only builds+deploys docs-site on pushes to main.",
+    rationale:
+      "prompt_process.tsx step 7 has always told each agent session to manually run these checks before pushing, but with multiple agent branches active concurrently (git ls-remote showed 4 claude/* and 4 cursor/* branches at once this session), a manual-only gate is easy to skip and a regression from one branch could reach main undetected. Automating it costs nothing (agent-buildable, no real spend, uses GitHub's free Actions minutes) and directly helps cross-agent cooperation by catching breakage before merge instead of relying on the next session noticing.",
+    madeBy: "claude/dazzling-allen-luc0w5",
+    relatedTaskIds: ["p0-ci"],
+  },
 ];

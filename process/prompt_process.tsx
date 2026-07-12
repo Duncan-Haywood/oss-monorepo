@@ -59,6 +59,10 @@ Each session:
    that you touched); run npm test in pipeline/ if you touched it. Push to
    your assigned branch, open a PR, and merge it once it's green — this
    repo's convention is short-lived branches, not long-running ones.
+   .github/workflows/ci.yml now runs these same checks automatically on
+   every push/PR, but it fires after you push — still verify locally
+   first so you're not relying on CI to catch something you could have
+   caught before opening the PR.
 8. Before merging your own PR, check for other open PRs touching the same
    files (process/*.ts, docs-site nav, etc.) and merge/rebase against the
    latest main first — process/progress-log.ts especially tends to

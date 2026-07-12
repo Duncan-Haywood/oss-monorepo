@@ -45,6 +45,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/prompt_process.tsx exists, is rendered on the docs site, and this roadmap reflects real status.",
       },
+      {
+        id: "p0-ci",
+        title: "CI workflow runs tests/builds on every push and PR",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "prompt_process.tsx step 7 has always required each agent session to manually run pipeline tests and docs-site/research builds before pushing, but with several agent branches active concurrently (see git ls-remote), a manual-only gate is easy to skip or forget and a regression from one branch could land on main undetected until the next session happens to catch it.",
+        doneWhen:
+          ".github/workflows/ci.yml runs `npm test` + `tsc --noEmit` in pipeline/ and `npm run build` in docs-site/ and research/ on every push and pull_request, independent of the existing deploy-docs.yml (which only builds docs-site on push to main).",
+      },
     ],
   },
   {
@@ -110,6 +120,16 @@ export const roadmap: RoadmapPhase[] = [
         owner: "agent",
         rationale: "Needed before the first concierge delivery; codifies the 5-step workflow from STRATEGY.md.",
         doneWhen: "A typed checklist (rooms, shots, brackets) exists and renders on the docs site. See process/capture-checklist.ts.",
+      },
+      {
+        id: "p2-capture-checklist-scaling",
+        title: "Scale checklist shot count to match the 15-25 photo promise",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "process/outreach-templates.ts's cold-email copy already promises prospects '15-25 enhanced, MLS-ready photos', but the checklist as first built only specified ~9-11 fixed shots regardless of home size (flagged as a gap in the prior session's mls-compliance.ts research and progress-log.ts nextUp). An unbacked promise in outreach copy is a real business risk the moment p2-first-deliveries produces a first real customer.",
+        doneWhen:
+          "process/capture-checklist.ts's secondary bedroom/bathroom rooms scale per additional unit instead of a fixed single entry, pipeline/src/coverage.ts + cli.ts accept real --beds/--baths, and the typical-home default (totalShotCount() with no args) falls inside the promised 15-25 range. Verified: typical default is now 19.",
       },
       {
         id: "p2-pricing-page",
