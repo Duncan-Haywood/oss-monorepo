@@ -656,10 +656,14 @@ export async function recordLeadOutreach(
 /**
  * Record an attributed preview open (outreach link or in-pipeline revisit).
  * No-ops when the lead row does not exist yet (slug-inferred demos).
+ * Pass { requireConvex: true } from the public beacon route so a Convex
+ * failure does not silently leave lastPreviewOpenAt only in instance-local
+ * SQLite while Convex-first readers (Work next / Opened badge) never see it.
  */
 export async function recordLeadPreviewOpen(
   slug: string,
   openedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<{ recorded: boolean }> {
   if (convexClient) {
     try {
@@ -669,6 +673,9 @@ export async function recordLeadPreviewOpen(
       });
       return { recorded: true };
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordLeadPreviewOpen", e);
+      }
       console.warn(
         `Failed to record preview open for ${slug} on Convex, falling back to SQLite database`,
         e,

@@ -123,9 +123,11 @@ export default function ArchitectureDocPage() {
         instances read Convex-first and would never see the payment. Operator CRM paths keep the
         Convex→SQLite fallback. The same <code>requireConvex</code> policy applies to visitor
         contact-form inserts (<code>CONTACT_FORM_CONVEX_PRIMARY</code> on{" "}
-        <code>POST /api/contact/[slug]</code>) — persist-required already returns{" "}
-        <code>503</code> without an inquiry row; fail-closed Convex avoids claiming success
-        after a SQLite-only write other instances cannot see. Matches the same idempotency
+        <code>POST /api/contact/[slug]</code>), public unsubscribe (
+        <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>), and the preview-open beacon (
+        <code>PREVIEW_OPEN_CONVEX_PRIMARY</code> on <code>POST /api/preview/[slug]/open</code>) —
+        persist-required / fail-closed Convex avoids claiming success after a SQLite-only write
+        other instances cannot see. Matches the same idempotency
         guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
@@ -212,7 +214,11 @@ export default function ArchitectureDocPage() {
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
         outreach emails use <code>?src=outreach</code> (or the lead is already in outreach /
-        discovery stages). Operator free-text <code>notes</code> on each lead capture call
+        discovery stages). When Convex is configured that beacon passes{" "}
+        <code>requireConvex</code> (<code>PREVIEW_OPEN_CONVEX_PRIMARY</code>) so a mutation
+        failure returns <code>503</code> instead of claiming <code>recorded:true</code> after a
+        SQLite-only write that Convex-first Work next / Opened-badge readers never see.
+        Operator free-text <code>notes</code> on each lead capture call
         outcomes from the dashboard row expander (not shown on client preview sites). Moving a
         lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
         soft prompt (Skip dismisses without undoing the stage/email change). Optional{" "}

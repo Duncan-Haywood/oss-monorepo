@@ -109,6 +109,7 @@ export const AGENT_PROTOCOL = [
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
   "POST /api/contact/[slug] must also pass requireConvex (CONTACT_FORM_CONVEX_PRIMARY in src/lib/inquiries/contact-persist.ts) when Convex is configured — same multi-instance split-brain risk as the webhook: visitor-facing { ok: true } after a SQLite-only write leaves the Starter CRM trail invisible to Convex-first readers. Persist-required 503 is the recovery path (visitor retries); do not invent a separate fallback policy for contact vs webhook ledger inserts.",
   "GET /api/unsubscribe must also pass requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY in src/lib/email/suppression-persist.ts) when Convex is configured — isEmailSuppressed reads Convex-first, so a SQLite-only suppress after a Convex mutation failure would show 'You have been unsubscribed' while other instances keep sending (CAN-SPAM split-brain). Fail-closed 500 is the recovery path (visitor retries); do not invent a separate fallback policy for unsubscribe vs contact/webhook ledger inserts.",
+  "POST /api/preview/[slug]/open must also pass requireConvex (PREVIEW_OPEN_CONVEX_PRIMARY in src/lib/leads/preview-open-persist.ts) when Convex is configured — getLeads/getLeadBySlug read Convex-first, so a SQLite-only lastPreviewOpenAt write after a Convex mutation failure would leave Work next preview_opened scoring, follow-up openers-first sort, and the Opened badge invisible on other instances. Fail-closed 503 is acceptable (beacon is fire-and-forget); do not invent a separate fallback policy for preview-open vs contact/unsubscribe/webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
   "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern. The post-payment DNS handoff email in the Stripe webhook (formatDnsInstructionsForEmail) is included — never interpolate raw handoff URLs/hosts or businessName into that HTML.",
@@ -833,8 +834,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "preview-open-convex-primary",
     summary:
-      "After PR #83 (unsubscribe requireConvex) left only gated NEXT_STEPS, sibling prompt-process-evolution-f005 claimed checkout-session-create-convex-primary. Empty-backlog audit found POST /api/preview/[slug]/open still SQLite-fallbacks on Convex failure then returns { ok: true, recorded: true } while getLeads/getLeadBySlug read Convex-first — Work next preview_opened scoring, follow-up openers-first sort, and the Opened badge silently miss on other instances. Prefer fail-closed 503 (beacon is fire-and-forget) over writing only to instance-local SQLite when Convex is configured.",
-    status: "in_progress",
+      "After PR #83 (unsubscribe requireConvex) left only gated NEXT_STEPS, sibling prompt-process-evolution-f005 claimed checkout-session-create-convex-primary. Empty-backlog audit found POST /api/preview/[slug]/open still SQLite-fallbacks on Convex failure then returns { ok: true, recorded: true } while getLeads/getLeadBySlug read Convex-first — Work next preview_opened scoring, follow-up openers-first sort, and the Opened badge silently miss on other instances. Shipped: PREVIEW_OPEN_CONVEX_PRIMARY on recordLeadPreviewOpen; route returns 503 on ConvexPrimaryWriteError (beacon is fire-and-forget).",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-51f0",
   },
@@ -2085,6 +2086,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write.",
     rationale:
       "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81. PR #80 contact notify test fold landed on main mid-merge.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "POST /api/preview/[slug]/open passes requireConvex (PREVIEW_OPEN_CONVEX_PRIMARY) when Convex is configured — fail-closed 503 instead of claiming recorded:true after a SQLite-only lastPreviewOpenAt write.",
+    rationale:
+      "Free NEXT_STEPS were gated after PR #83; sibling f005 claimed checkout-session-create-convex-primary in the same cron window. Preview-open was the remaining public write that still SQLite-fallback'd then returned success while Convex-first getLeads never saw the open — Work next preview_opened (+10), follow-up openers-first sort, and the Opened badge all silently regress on multi-instance deploys. Beacon is fire-and-forget so 503 needs no visitor UX; matches contact/unsubscribe/webhook requireConvex. Left deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary to f005's queue.",
   },
 ];
 
@@ -3458,5 +3466,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #81 + #82 + PR #80 contact notify test fold — all ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(177, 178),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-51f0",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #83 except gated secrets/OAuth/counsel. Sibling prompt-process-evolution-f005 claimed (then shipped) checkout-session-create-convex-primary. Empty-backlog audit found POST /api/preview/[slug]/open still SQLite-fallbacks on Convex failure then returns recorded:true while Convex-first readers miss lastPreviewOpenAt. Shipped PREVIEW_OPEN_CONVEX_PRIMARY + 503 on ConvexPrimaryWriteError. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/leads/preview-open-persist.ts (+ test) — PREVIEW_OPEN_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — recordLeadPreviewOpen accepts ConvexPrimaryWriteOptions; throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/api/preview/[slug]/open/route.ts — recordLeadPreviewOpen(..., PREVIEW_OPEN_CONVEX_PRIMARY); 503 on ConvexPrimaryWriteError",
+      "Docs: architecture / roadmap / launch-checklist — preview-open requireConvex",
+      "NEXT_STEPS: preview-open-convex-primary done; left deploy-handoff-preserve-custom-domain + checkout-recovery-sent to f005 queue",
+      "AGENT_PROTOCOL — preview-open requireConvex when Convex configured",
+      "BUSINESS_DECISIONS — documented fail-closed preview-open attribution",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(178, 179),
   },
 ];

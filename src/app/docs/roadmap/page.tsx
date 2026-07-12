@@ -92,8 +92,10 @@ export default function RoadmapDocPage() {
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
-        tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links):
-        shipped. Operator lead notes (free-text call outcomes on{" "}
+        tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links;
+        public beacon uses <code>requireConvex</code> when Convex is configured so multi-instance
+        Work next / Opened badge cannot miss a SQLite-only write): shipped. Operator lead notes
+        (free-text call outcomes on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
