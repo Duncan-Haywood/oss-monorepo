@@ -38,6 +38,8 @@ export default defineSchema({
   orders: defineTable({
     leadSlug: v.string(),
     stripeSessionId: v.string(),
+    /** Stripe Customer id for Billing Portal (subscriptions). */
+    stripeCustomerId: v.optional(v.string()),
     customerEmail: v.string(),
     tier: v.string(),
     commerceAddon: v.boolean(),

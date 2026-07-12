@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → billing portal / lead notes), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → inquiry reply / pipeline abandoned metrics), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -282,9 +282,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-billing-portal",
     summary:
-      "Self-serve Stripe Billing Portal link for Growth/Complete subscribers (update card, view invoices, cancel) so subscription changes don't become operator support tickets. Uses the existing STRIPE_SECRET_KEY — no new secrets. Claimed on sibling claude/relaxed-galileo-7ngeg0; leave free here if that branch stalls.",
-    status: "todo",
+      "Self-serve Stripe Billing Portal link for Growth/Complete subscribers (update card, view invoices, cancel) so subscription changes don't become operator support tickets. Uses the existing STRIPE_SECRET_KEY — no new secrets. Re-claimed after stale claim-only sibling claude/relaxed-galileo-7ngeg0.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-5a8e",
   },
   {
     id: "inquiry-dashboard-reply",
@@ -695,6 +696,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "cursor/operator-lead-notes existed with an old claim but never shipped notes and drifted behind main — treating it as ownership would idle the profitable path. Active in_progress on a sibling that is pushing commits still wins.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Stripe Billing Portal is the self-serve path for Growth/Complete/Commerce subscription changes (card, invoices, cancel). Operator opens it from /dashboard/leads; customers open it from /checkout/success via the completed Checkout Session id.",
+    rationale:
+      "Subscription support tickets steal operator time from outbound sales. Stripe's hosted portal needs no new secrets beyond STRIPE_SECRET_KEY, and storing stripeCustomerId on orders (with Checkout Session fallback) keeps lookups reliable without a separate customers table.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "POST /api/stripe/billing-portal accepts only sessionId (post-checkout). leadSlug → portal stays behind openBillingPortalAction + requireOperatorAuth.",
+    rationale:
+      "A public leadSlug portal endpoint would let anyone who guesses a slug open that customer's billing session. Checkout session ids are unguessable and already prove payment completion.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After stripe-billing-portal, leave inquiry-dashboard-reply, pipeline-health-abandoned-sessions, and discovery-call-notes-prompt as the free NEXT_STEPS for siblings (Stripe Price bootstrap + Places stay human-gated).",
+    rationale:
+      "Billing portal closes the subscription support loop. Inquiry reply closes the paid contact-form loop; abandoned-session metrics complement the scorer Cart signal; discovery-call notes prompt raises capture of Lead.notes. Empty free backlog causes hourly thrash.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1088,5 +1110,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Merge of cursor/business-process-evolution-d264 (abandoned-checkout quality signal + Cart badge)",
     ],
     decisions: BUSINESS_DECISIONS.slice(53, 57),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-5a8e",
+    summary:
+      "Re-claimed stripe-billing-portal after stale claim-only sibling claude/relaxed-galileo-7ngeg0. Shipped self-serve Stripe Billing Portal for Growth/Complete/Commerce: persist stripeCustomerId on orders, operator Billing button on paid/live leads, post-checkout Manage subscription on /checkout/success, sessionId-only public API. Process: public portal API must not accept leadSlug.",
+    shipped: [
+      "src/lib/billing/portal.ts (+ tests) — eligibility + customer id helpers",
+      "src/lib/billing/create-portal-session.ts — lead + checkout-session portal creators",
+      "Order.stripeCustomerId (SQLite migration + Convex schema/markLeadPaid/createOrder)",
+      "Webhook records stripeCustomerId; Checkout Session fallback for older orders",
+      "POST /api/stripe/billing-portal (sessionId only) + openBillingPortalAction (auth)",
+      "Dashboard Billing button + /checkout/success Manage subscription",
+      "Docs: architecture, roadmap, launch-checklist Customer Portal activation",
+      "NEXT_STEPS: stripe-billing-portal done; inquiry reply + abandoned metrics + discovery notes remain free",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(57, 60),
   },
 ];
