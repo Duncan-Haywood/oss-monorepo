@@ -383,8 +383,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "reengage-send-email1-option",
     summary:
       "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-084a",
   },
 ];
 
