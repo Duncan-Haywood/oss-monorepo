@@ -110,7 +110,7 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
 
   const subject = `${businessName} — we built your website (free preview)`;
   const html = `
-    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Hello ${businessName} Team,</h2>
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Hello ${escapeHtmlForEmail(businessName)} Team,</h2>
     <p style="margin-bottom: 16px;">We've built a custom preview website for your business. It is fully mobile-responsive and tailored to your services.</p>
     <p style="margin-bottom: 24px;">You can view the site and test it live at the link below:</p>
     <div style="margin-bottom: 24px; text-align: center;">
@@ -139,7 +139,7 @@ export async function sendOutreachFollowUp2(
   const subject = `Quick nudge: your ${businessName} preview is ready`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Still thinking it over?</h2>
-    <p style="margin-bottom: 16px;">Your preview for <strong>${businessName}</strong> is still live — contact form, map, and mobile layout included.</p>
+    <p style="margin-bottom: 16px;">Your preview for <strong>${escapeHtmlForEmail(businessName)}</strong> is still live — contact form, map, and mobile layout included.</p>
     <p style="margin-bottom: 24px;">Most owners pick a plan in a few minutes from the preview page:</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Open preview</a>
@@ -169,7 +169,7 @@ export async function sendOutreachFollowUp3(
   const subject = `Last note about the ${businessName} site preview`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Closing the loop</h2>
-    <p style="margin-bottom: 16px;">This is our last automated note about the preview we built for <strong>${businessName}</strong>.</p>
+    <p style="margin-bottom: 16px;">This is our last automated note about the preview we built for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
     <p style="margin-bottom: 16px;">If now isn't the right time, no worries — you can still open the preview later, or reply to this email if you have questions.</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View preview one more time</a>
@@ -201,7 +201,7 @@ export async function sendCheckoutAbandonedRecovery(
   const subject = `Still want to launch ${businessName}?`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your checkout is still open</h2>
-    <p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${businessName}</strong> but didn't finish. Nothing was charged.</p>
+    <p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${escapeHtmlForEmail(businessName)}</strong> but didn't finish. Nothing was charged.</p>
     <p style="margin-bottom: 24px;">Pick up right where you left off — your plan and details are still saved:</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Finish checkout</a>
@@ -463,7 +463,7 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
   const subject = `Your receipt for ${businessName} - ${brand.name}`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Thank you for your order!</h2>
-    <p style="margin-bottom: 16px;">We have received your payment for the <strong>${tier.toUpperCase()}</strong> setup plan for <strong>${businessName}</strong>.</p>
+    <p style="margin-bottom: 16px;">We have received your payment for the <strong>${tier.toUpperCase()}</strong> setup plan for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
     <p style="margin-bottom: 16px;">Total paid: <strong>$${amount.toFixed(2)}</strong></p>
     <p style="margin-bottom: 24px;">Our team is already beginning to configure your final custom domain and publish your site. We will reach out within 24 hours with your dashboard access credentials.</p>
     <p style="margin-bottom: 8px;">Warmly,</p>
