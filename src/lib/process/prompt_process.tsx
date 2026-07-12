@@ -2720,6 +2720,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/db.ts — insertCommerceOrder returns { alreadyRecorded } (Convex null-on-duplicate + SQLite SELECT-before-insert)",
       "src/app/api/stripe/webhook/route.ts — commerce_sku branch ledgers first; skips insertClientInquiry + sendCommerceBuyNowClientReceipt when alreadyRecorded",
       "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist — document redelivery skip for inquiry/client receipt",
+      "Verified live: npm test (250) + lint + build; npm run dev with fake STRIPE_WEBHOOK_SECRET; stripe.webhooks.generateTestHeaderString POSTed the same commerce_sku checkout.session.completed twice — first wrote 1 commerce_orders + 1 client_inquiries row, second logged 'already recorded — skipping duplicate inquiry/client receipt' with counts still 1/1; cleaned up test rows",
       "NEXT_STEPS: commerce-buy-now-webhook-side-effect-idempotency done; commerce-pipeline-health-unpaid-owed queued for siblings",
       "AGENT_PROTOCOL — idempotent ledger inserts must expose alreadyRecorded and skip non-idempotent side effects; prefer pipeline-health unpaid owed when this todo is claimed/done",
     ],
