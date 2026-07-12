@@ -6,7 +6,8 @@
  * + commerce-catalogs-missing-visibility
  * + commerce-catalogs-unsynced-visibility
  * + client-voice-packs-missing-visibility
- * + commerce-abandoned-checkout-tracking).
+ * + commerce-abandoned-checkout-tracking
+ * + commerce-payouts-owed-in-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -33,6 +34,10 @@ import {
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
 import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "../commerce/catalog";
+import {
+  summarizeCommerceOrdersByLead,
+  type CommerceOrderRecord,
+} from "../commerce/orders";
 import { listClientVoicePacksDue } from "../voice/faq-pack";
 
 const WORK_NEXT_LIMIT = 5;
@@ -44,6 +49,7 @@ const UPSELL_LIMIT = 5;
 const COMMERCE_CATALOGS_LIMIT = 5;
 const COMMERCE_UNSYNCED_LIMIT = 5;
 const CLIENT_VOICE_PACKS_LIMIT = 5;
+const COMMERCE_PAYOUTS_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -109,6 +115,14 @@ export interface DigestClientVoicePackDue {
   businessName: string;
 }
 
+/** Pass-through Buy now totals owed to a Commerce client (manual payouts). */
+export interface DigestCommercePayoutOwed {
+  slug: string;
+  businessName: string;
+  orderCount: number;
+  totalUsd: number;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -121,6 +135,10 @@ export interface DailyDigest {
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[];
   clientVoicePacksDue: DigestClientVoicePackDue[];
+  /** Per-lead pass-through Buy now totals still owed until Connect (action section). */
+  commercePayoutsOwed: DigestCommercePayoutOwed[];
+  /** Sum of commercePayoutsOwed totals (USD dollars). */
+  commercePayoutsOwedTotalUsd: number;
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -144,6 +162,8 @@ export interface BuildDailyDigestInput {
     items?: ReadonlyArray<{ stripePriceId?: string }>;
   }>;
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
+  /** Pass-through Buy now ledger rows — reuse summarizeCommerceOrdersByLead. */
+  commerceOrders?: ReadonlyArray<CommerceOrderRecord>;
   nowMs: number;
 }
 
@@ -164,6 +184,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     marketingPacksThisMonth = [],
     commerceCatalogs = [],
     clientVoicePacks = [],
+    commerceOrders = [],
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -279,6 +300,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       businessName: lead.businessName,
     }));
 
+  const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders);
+  const commercePayoutsOwedTotalUsd = commercePayoutSummaries.reduce(
+    (sum, row) => sum + row.totalUsd,
+    0,
+  );
+  const commercePayoutsOwed: DigestCommercePayoutOwed[] = commercePayoutSummaries
+    .slice(0, COMMERCE_PAYOUTS_LIMIT)
+    .map((summary) => ({
+      slug: summary.leadSlug,
+      businessName: leadsBySlug.get(summary.leadSlug)?.businessName ?? summary.leadSlug,
+      orderCount: summary.orderCount,
+      totalUsd: summary.totalUsd,
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -308,7 +343,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     starterUpsellCandidates.length === 0 &&
     commerceCatalogsMissing.length === 0 &&
     commerceCatalogsUnsynced.length === 0 &&
-    clientVoicePacksDue.length === 0;
+    clientVoicePacksDue.length === 0 &&
+    commercePayoutsOwed.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -322,6 +358,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogsMissing,
     commerceCatalogsUnsynced,
     clientVoicePacksDue,
+    commercePayoutsOwed,
+    commercePayoutsOwedTotalUsd,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -379,7 +417,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, and Complete voice packs are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, and Commerce payouts owed are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -436,6 +474,15 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtml(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
   );
 
+  const payoutRows = digest.commercePayoutsOwed.map(
+    (row) =>
+      `<strong>${escapeHtml(row.businessName)}</strong> — $${row.totalUsd.toFixed(2)} owed (${row.orderCount} order${row.orderCount === 1 ? "" : "s"})`,
+  );
+  const payoutTitle =
+    digest.commercePayoutsOwed.length > 0
+      ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwed.length} client${digest.commercePayoutsOwed.length === 1 ? "" : "s"})`
+      : "Commerce payouts owed (0)";
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -451,6 +498,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissing.length})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsynced.length})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
+    ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

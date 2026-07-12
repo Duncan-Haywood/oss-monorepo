@@ -199,14 +199,18 @@ export default function RoadmapDocPage() {
         <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
-        edits clear the Price id until the next Sync). Saved-but-unsynced catalogs count on
+        edits clear the Price id until the next Sync). Sync does not archive Products for
+        removed SKUs — operators use <strong>Archive orphans</strong> (
+        <code>archiveOrphanCommerceStripeProducts</code>, <code>active=false</code>, never
+        auto-delete). Saved-but-unsynced catalogs count on
         pipeline health and list in the daily digest beside catalogs-missing. Completed Buy now
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
         pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
         that money is owed to the client, not the platform. Per-lead owed totals and recent
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
-        reconciliation until Connect ships. Abandoned Buy now carts are tracked
+        reconciliation until Connect ships, and the same per-lead owed totals appear in the
+        operator daily digest (<strong>Commerce payouts owed</strong>). Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}

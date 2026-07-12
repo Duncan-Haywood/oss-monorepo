@@ -75,7 +75,9 @@ export default function ProductBundlesDocPage() {
         clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU
         (reuses STRIPE_SECRET_KEY, idempotent on re-run); synced items show a Buy now button
         that opens Stripe Checkout directly. Unsynced items still fall back to Request order →
-        inquiry inbox. A completed Buy now also emails the local business (<code>lead.email</code>
+        inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
+        Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync). A
+        completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
         from the operator inquiry inbox and from Stripe Connect payouts. Retail, restaurant
         ordering, booking deposits, or gift cards.
@@ -85,7 +87,9 @@ export default function ProductBundlesDocPage() {
         own Stripe account, not the client business&apos;s. Total collected is visible as
         &quot;Commerce sales (pass-through)&quot; on the operator dashboard, and per-lead
         totals + recent lines appear on the <strong>Commerce payouts (manual)</strong> panel
-        on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation.
+        on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation, and
+        the same per-lead owed totals appear in the operator daily digest so liability is
+        visible without opening the dashboard.
         There is no automated payout to the client yet — pay clients manually until Stripe
         Connect ships (see <DocLink href="/docs/process">process</DocLink>,
         commerce-payouts-stripe-connect).

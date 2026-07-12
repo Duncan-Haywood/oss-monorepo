@@ -233,7 +233,9 @@ export default function LaunchChecklistDocPage() {
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
           Products; changing a price should create a new Price on the same Product. After Sync,
           edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
-          server-side; only a price change clears the Price id). Before Sync, confirm
+          server-side; only a price change clears the Price id). Remove a previously synced SKU,
+          Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
+          Stripe Product becomes inactive and current SKUs stay active. Before Sync, confirm
           pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
@@ -250,7 +252,9 @@ export default function LaunchChecklistDocPage() {
           logs) the client order notification — SKU, amount, optional customer email, link to
           preview#catalog. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
-          order line and owed total. This money is collected for the client, not platform revenue —
+          order line and owed total. Confirm <strong>Send daily digest</strong> lists those
+          clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.
+          This money is collected for the client, not platform revenue —
           pay clients manually until Stripe Connect ships (see{" "}
           <DocLink href="/docs/process">process</DocLink>).
         </li>

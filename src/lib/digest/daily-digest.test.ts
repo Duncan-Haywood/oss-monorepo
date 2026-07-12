@@ -364,6 +364,62 @@ describe("buildDailyDigest", () => {
     expect(digest.clientVoicePacksDue[0]?.businessName).toBe("Needs Voice Spa");
     expect(digest.isEmpty).toBe(false);
   });
+
+  it("lists Commerce payouts owed from pass-through Buy now orders", () => {
+    const cafe = baseLead({
+      slug: "owed-cafe",
+      businessName: "Owed Cafe",
+      stage: "live",
+    });
+    const salon = baseLead({
+      slug: "owed-salon",
+      businessName: "Owed Salon",
+      stage: "paid",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe, salon],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_1",
+          leadSlug: "owed-cafe",
+          skuId: "sku_latte",
+          skuName: "Latte",
+          amountPaidUsd: 12.5,
+          stripeSessionId: "cs_1",
+          createdAt: "2026-07-12T10:00:00.000Z",
+        },
+        {
+          id: "co_2",
+          leadSlug: "owed-cafe",
+          skuId: "sku_muffin",
+          skuName: "Muffin",
+          amountPaidUsd: 4.0,
+          stripeSessionId: "cs_2",
+          createdAt: "2026-07-12T11:00:00.000Z",
+        },
+        {
+          id: "co_3",
+          leadSlug: "owed-salon",
+          skuId: "sku_deposit",
+          skuName: "Deposit",
+          amountPaidUsd: 50,
+          stripeSessionId: "cs_3",
+          createdAt: "2026-07-11T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.commercePayoutsOwed).toHaveLength(2);
+    expect(digest.commercePayoutsOwed[0]?.businessName).toBe("Owed Salon");
+    expect(digest.commercePayoutsOwed[0]?.totalUsd).toBe(50);
+    expect(digest.commercePayoutsOwed[1]?.businessName).toBe("Owed Cafe");
+    expect(digest.commercePayoutsOwed[1]?.totalUsd).toBe(16.5);
+    expect(digest.commercePayoutsOwed[1]?.orderCount).toBe(2);
+    expect(digest.commercePayoutsOwedTotalUsd).toBe(66.5);
+    expect(digest.isEmpty).toBe(false);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {
@@ -479,5 +535,36 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("Sync to Stripe still due");
     expect(html).toContain("Complete voice packs due");
     expect(html).toContain("Complete voice FAQ pack not generated");
+  });
+
+  it("renders Commerce payouts owed section from summarizeCommerceOrdersByLead", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "owed-shop",
+          businessName: "Owed <Shop>",
+          stage: "live",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: [
+        {
+          id: "co_owed",
+          leadSlug: "owed-shop",
+          skuId: "sku_1",
+          skuName: "Gift card",
+          amountPaidUsd: 25,
+          stripeSessionId: "cs_owed",
+          createdAt: "2026-07-12T09:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Commerce payouts owed");
+    expect(html).toContain("$25.00 owed");
+    expect(html).toContain("Owed &lt;Shop&gt;");
+    expect(html).not.toContain("Owed <Shop>");
   });
 });

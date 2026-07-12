@@ -24,8 +24,11 @@ export {
 } from "./catalog";
 
 export {
+  archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,
+  listOrphanCommerceStripeProducts,
   syncCommerceCatalogToStripe,
+  type OrphanCommerceStripeProduct,
   type StripeProductsAndPrices,
   type SyncedCommerceSku,
 } from "./stripe-sync";
