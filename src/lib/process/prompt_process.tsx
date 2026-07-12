@@ -243,8 +243,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "abandoned-checkout-quality-signal",
     summary:
       "Feed src/lib/checkout/abandoned-recovery.ts into the lead quality scorer (src/lib/leads/quality-score.ts) and Work next queue — a lead with an open, unrecovered Stripe Checkout Session is the hottest signal in the pipeline (higher intent than a preview open) and should outrank plain outreach-due leads. Needs listOpenCheckoutSessions() threaded into scoreLead/rankLeadsForOutreach call sites.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-d264",
   },
   {
     id: "operator-lead-notes",
