@@ -139,6 +139,10 @@ export default function LaunchChecklistDocPage() {
           outreach (real contacts above demos; blocked when email is missing; abandoned checkout
           carts above plain follow-ups)
         </li>
+        <li>
+          Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
+          them again via search — notes stay off the public preview site
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

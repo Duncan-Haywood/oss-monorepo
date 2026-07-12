@@ -10,9 +10,11 @@ import {
   recordLeadOutreach,
   listOpenCheckoutSessions,
   recordCheckoutRecoverySent,
+  updateLeadNotes,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
+import { normalizeOperatorNotes } from "@/lib/leads/notes";
 import { markHandoffLive, assignVercelProjectAndProvision } from "@/lib/deploy/handoff";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
@@ -133,6 +135,42 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
   } catch (error) {
     console.error("Error in updateLeadStageAction:", error);
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+/**
+ * Save free-text operator notes on a lead (call outcomes, objections, next steps).
+ * Empty/whitespace clears the notes field.
+ */
+export async function updateLeadNotesAction(slug: string, notes: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const normalized = normalizeOperatorNotes(notes);
+    if (!normalized.ok) {
+      return { success: false as const, error: normalized.error };
+    }
+
+    const existing = await getLeadBySlug(slug);
+    if (!existing) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    await updateLeadNotes(slug, normalized.notes);
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, notes: normalized.notes };
+  } catch (error) {
+    console.error("Error in updateLeadNotesAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 

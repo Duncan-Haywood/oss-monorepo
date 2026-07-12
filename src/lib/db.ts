@@ -38,6 +38,7 @@ interface SqliteLeadRow {
   outreachStep?: number | null;
   lastOutreachAt?: string | null;
   lastPreviewOpenAt?: string | null;
+  notes?: string | null;
 }
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
@@ -163,6 +164,7 @@ function getSqliteDb(): DatabaseSync {
   addLeadCol("outreachStep", "INTEGER");
   addLeadCol("lastOutreachAt", "TEXT");
   addLeadCol("lastPreviewOpenAt", "TEXT");
+  addLeadCol("notes", "TEXT");
 
   const handoffCols = (
     sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
@@ -228,6 +230,7 @@ const api: any = {
     markLeadPaid: "leads:markLeadPaid",
     recordOutreach: "leads:recordOutreach",
     recordPreviewOpen: "leads:recordPreviewOpen",
+    updateNotes: "leads:updateNotes",
   },
   inquiries: {
     create: "inquiries:create",
@@ -308,6 +311,7 @@ function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     outreachStep: normalizeOutreachStep(row.outreachStep ?? undefined),
     lastOutreachAt: row.lastOutreachAt || undefined,
     lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
+    notes: row.notes || undefined,
   };
 }
 
@@ -379,13 +383,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const outreachStep = normalizeOutreachStep(lead.outreachStep);
   const lastOutreachAt = lead.lastOutreachAt ?? null;
   const lastPreviewOpenAt = lead.lastPreviewOpenAt ?? null;
+  const notes = lead.notes ?? null;
 
   if (check) {
     db.prepare(`
       UPDATE leads
       SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
           tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
-          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, updatedAt = datetime('now')
+          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, notes = ?, updatedAt = datetime('now')
       WHERE slug = ?
     `).run(
       lead.businessName,
@@ -405,13 +410,14 @@ export async function upsertLead(lead: Lead): Promise<void> {
       outreachStep,
       lastOutreachAt,
       lastPreviewOpenAt,
+      notes,
       lead.slug,
     );
   } else {
     const id = `lead_${Date.now()}`;
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       lead.slug,
@@ -432,6 +438,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       outreachStep,
       lastOutreachAt,
       lastPreviewOpenAt,
+      notes,
     );
   }
 }
@@ -508,6 +515,43 @@ export async function recordLeadPreviewOpen(
     WHERE slug = ?
   `).run(openedAt, slug);
   return { recorded: true };
+}
+
+/**
+ * Persist free-text operator notes on a lead (call outcomes, next steps).
+ * Pass undefined/empty to clear. Caller should normalize via normalizeOperatorNotes.
+ */
+export async function updateLeadNotes(
+  slug: string,
+  notes: string | undefined,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateNotes, {
+        slug,
+        notes: notes ?? "",
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to update notes for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET notes = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(notes ?? null, slug);
 }
 
 export async function recordLeadPayment(params: {

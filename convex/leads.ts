@@ -45,6 +45,7 @@ const leadFields = {
   outreachStep: v.optional(v.number()),
   lastOutreachAt: v.optional(v.string()),
   lastPreviewOpenAt: v.optional(v.string()),
+  notes: v.optional(v.string()),
 };
 
 export const list = query({
@@ -175,6 +176,29 @@ export const recordPreviewOpen = mutation({
     }
     await ctx.db.patch(lead._id, {
       lastPreviewOpenAt: args.openedAt,
+    });
+    return null;
+  },
+});
+
+export const updateNotes = mutation({
+  args: {
+    slug: v.string(),
+    /** Empty string clears notes; undefined is treated the same. */
+    notes: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    // Convex patch ignores undefined keys — persist "" so clears stick.
+    await ctx.db.patch(lead._id, {
+      notes: args.notes ?? "",
     });
     return null;
   },

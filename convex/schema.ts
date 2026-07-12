@@ -29,6 +29,8 @@ export default defineSchema({
     lastOutreachAt: v.optional(v.string()),
     /** ISO timestamp of most recent attributed preview open. */
     lastPreviewOpenAt: v.optional(v.string()),
+    /** Free-text operator notes (call outcomes) — dashboard only. */
+    notes: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),

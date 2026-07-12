@@ -84,8 +84,9 @@ export default function RoadmapDocPage() {
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links):
-        shipped. Remaining: Vapi/Retell platform voice and bundle explanation tools; operator
-        lead notes.
+        shipped. Operator lead notes (free-text call outcomes on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
+        Remaining: Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>

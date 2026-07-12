@@ -55,4 +55,10 @@ export interface Lead {
    * (or an in-pipeline visit). Used to prioritize follow-ups who engaged.
    */
   lastPreviewOpenAt?: string;
+  /**
+   * Free-text operator notes (call outcomes, objections, next steps).
+   * Not shown on client preview sites — dashboard only. Soft-capped at
+   * MAX_OPERATOR_NOTES_LENGTH in src/lib/leads/notes.ts.
+   */
+  notes?: string;
 }
