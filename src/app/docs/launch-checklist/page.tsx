@@ -233,7 +233,9 @@ export default function LaunchChecklistDocPage() {
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
           Products; changing a price should create a new Price on the same Product. After Sync,
           edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
-          server-side; only a price change clears the Price id). Before Sync, confirm
+          server-side; only a price change clears the Price id). Remove a previously synced SKU,
+          Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
+          Stripe Product becomes inactive and current SKUs stay active. Before Sync, confirm
           pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}

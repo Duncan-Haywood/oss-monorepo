@@ -227,7 +227,11 @@ export default function ArchitectureDocPage() {
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets), then persists
         <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. Catalog
         saves re-attach those ids from the existing DB row via{" "}
-        <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.{" "}
+        <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.
+        Sync never archives Products for removed SKUs — operators click{" "}
+        <strong>Archive orphans</strong> (
+        <code>archiveOrphanCommerceStripeProductsAction</code>) to set those Products{" "}
+        <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata).{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Unsynced items keep the
