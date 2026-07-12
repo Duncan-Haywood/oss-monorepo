@@ -171,6 +171,9 @@ export default function LaunchChecklistDocPage() {
           when creating Checkout Sessions: with Convex configured,{" "}
           <code>recordCheckoutSessionCreated</code> must succeed (or the checkout API returns{" "}
           <code>502</code>) so abandoned-recovery queues on other instances can see the open cart.
+          Sending Finish-checkout / Buy now recovery durable-marks <code>recoverySentAt</code> with{" "}
+          <code>requireConvex</code> before the email leaves — a Convex failure surfaces to the
+          operator and skips the send (no unmarked nudge on other instances).
         </li>
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,

@@ -19,3 +19,23 @@ import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 export const CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
   requireConvex: true,
 };
+
+/**
+ * Recovery-sent mark policy for abandoned-cart Finish-checkout / Buy now emails.
+ *
+ * When Convex is configured, sendCheckoutRecoveryAction and
+ * sendCommerceCheckoutRecoveryAction must pass
+ * CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY so a Convex mutation failure does not
+ * silently SQLite-fallback after (or before) the operator email. Convex-first
+ * listOpenCheckoutSessions would otherwise keep the session due and risk a
+ * second nudge (reputation / CAN-SPAM).
+ *
+ * House pattern: durable mark before send (persist-then-notify). Mark failure
+ * surfaces to the operator and no email goes out; send failure after a durable
+ * mark leaves the session off the due queue (no automatic re-nudge).
+ */
+
+/** Fail-closed write options for abandoned-checkout recoverySentAt marks. */
+export const CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY: ConvexPrimaryWriteOptions = {
+  requireConvex: true,
+};

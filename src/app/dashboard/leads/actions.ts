@@ -31,6 +31,8 @@ import {
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
 } from "@/lib/db";
+import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
   parseLeadsCsv,
@@ -618,6 +620,27 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     }
 
     const businessName = lead?.businessName || session.leadSlug;
+
+    // Durable mark before send (persist-then-notify). requireConvex when
+    // configured so Convex-first abandoned queues cannot re-nudge after a
+    // SQLite-only recoverySentAt write.
+    try {
+      await recordCheckoutRecoverySent(
+        stripeSessionId,
+        new Date().toISOString(),
+        CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record recovery send in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+
     const sent = await sendCheckoutAbandonedRecovery(to, businessName, session.leadSlug, session.tier);
 
     if (!sent.success) {
@@ -625,14 +648,13 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
         success: false as const,
         error:
           "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
+            ? "Email is on the suppression list (session already marked recovered — will not reappear in due queue)"
             : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send recovery email",
+              ? `${sent.error} (session already marked recovered — will not reappear in due queue)`
+              : "Failed to send recovery email (session already marked recovered — will not reappear in due queue)",
       };
     }
 
-    await recordCheckoutRecoverySent(stripeSessionId);
     revalidatePath("/dashboard/leads");
     return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
   } catch (error) {
@@ -683,6 +705,24 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     const skuName =
       catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
     const businessName = lead?.businessName || session.leadSlug;
+
+    try {
+      await recordCheckoutRecoverySent(
+        stripeSessionId,
+        new Date().toISOString(),
+        CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record recovery send in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+
     const sent = await sendCommerceAbandonedRecovery(
       to,
       businessName,
@@ -695,14 +735,13 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
         success: false as const,
         error:
           "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
+            ? "Email is on the suppression list (session already marked recovered — will not reappear in due queue)"
             : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send recovery email",
+              ? `${sent.error} (session already marked recovered — will not reappear in due queue)`
+              : "Failed to send recovery email (session already marked recovered — will not reappear in due queue)",
       };
     }
 
-    await recordCheckoutRecoverySent(stripeSessionId);
     revalidatePath("/dashboard/leads");
     return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
   } catch (error) {

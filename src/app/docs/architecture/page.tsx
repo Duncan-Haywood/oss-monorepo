@@ -159,7 +159,10 @@ export default function ArchitectureDocPage() {
         email (Resend, honors suppression, cooldown between nudges). Bundle recovery links{" "}
         <code>/checkout?slug=&amp;tier=</code>; commerce recovery links{" "}
         <code>/preview/[slug]#catalog</code>. See <code>src/lib/checkout/abandoned-recovery.ts</code>.
-        Only <code>kind=bundle</code> open sessions feed <code>scoreLead</code> / Work next (+18
+        Operator recovery actions durable-mark <code>recoverySentAt</code> with{" "}
+        <code>requireConvex</code> (<code>CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY</code>){" "}
+        <em>before</em> the Resend send — a SQLite-only mark after a successful email would leave
+        Convex-first due queues able to nudge again. Only <code>kind=bundle</code> open sessions feed <code>scoreLead</code> / Work next (+18
         abandoned, +6 when recovery is due). Pipeline health aggregates bundle abandoned-cart +
         recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
