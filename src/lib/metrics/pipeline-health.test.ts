@@ -4,6 +4,7 @@ import {
   emptyStageCounts,
   formatAbandonedAgeHours,
   formatUsd,
+  isUnrepliedInquiryStatus,
 } from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import type { DeployHandoff } from "../deploy/types";
@@ -69,15 +70,19 @@ function makeHandoff(status: DeployHandoff["status"]): DeployHandoff {
   };
 }
 
-function makeInquiry(status: ClientInquiry["status"]): ClientInquiry {
+function makeInquiry(
+  status: ClientInquiry["status"],
+  overrides: Partial<ClientInquiry> = {},
+): ClientInquiry {
   return {
-    id: "inq_1",
+    id: `inq_${Math.random().toString(36).slice(2, 8)}`,
     leadSlug: "lead-1",
     businessName: "Test Co",
     message: "Hi",
     status,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+    updatedAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+    ...overrides,
   };
 }
 
@@ -158,6 +163,49 @@ describe("computePipelineHealth", () => {
     });
     expect(health.openHandoffCount).toBe(2);
     expect(health.newInquiryCount).toBe(2);
+    expect(health.unrepliedInquiryCount).toBe(3);
+  });
+
+  it("counts unreplied inquiries (new+read) with oldest age; ignores replied/archived", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [
+        makeInquiry("new", {
+          id: "inq_new",
+          createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+        }),
+        makeInquiry("read", {
+          id: "inq_read",
+          createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+        }),
+        makeInquiry("replied", {
+          id: "inq_replied",
+          createdAt: new Date(NOW - 100 * HOUR_MS).toISOString(),
+        }),
+        makeInquiry("archived", {
+          id: "inq_archived",
+          createdAt: new Date(NOW - 200 * HOUR_MS).toISOString(),
+        }),
+      ],
+      nowMs: NOW,
+    });
+    expect(health.newInquiryCount).toBe(1);
+    expect(health.unrepliedInquiryCount).toBe(2);
+    expect(health.oldestUnrepliedInquiryAgeHours).toBe(30);
+  });
+
+  it("defaults unreplied inquiry metrics to zero without inquiries", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.unrepliedInquiryCount).toBe(0);
+    expect(health.oldestUnrepliedInquiryAgeHours).toBeNull();
   });
 
   it("counts paid-not-live leads as those still in the paid stage", () => {
@@ -215,6 +263,15 @@ describe("computePipelineHealth", () => {
     expect(health.abandonedCheckoutCount).toBe(2);
     expect(health.recoveryDueCount).toBe(1);
     expect(health.oldestAbandonedAgeHours).toBe(30);
+  });
+});
+
+describe("isUnrepliedInquiryStatus", () => {
+  it("treats new and read as unreplied", () => {
+    expect(isUnrepliedInquiryStatus("new")).toBe(true);
+    expect(isUnrepliedInquiryStatus("read")).toBe(true);
+    expect(isUnrepliedInquiryStatus("replied")).toBe(false);
+    expect(isUnrepliedInquiryStatus("archived")).toBe(false);
   });
 });
 

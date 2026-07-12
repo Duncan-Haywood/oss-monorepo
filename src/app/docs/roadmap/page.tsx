@@ -134,9 +134,10 @@ export default function RoadmapDocPage() {
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
         shared project when unset) — full automated project creation remains manual. Remaining:
         registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
-        panel + dashboard reply via Resend): shipped. Remaining free operator-leverage gaps:
-        unreplied-inquiry pipeline metric — see{" "}
-        <DocLink href="/docs/process">process log</DocLink>.
+        panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
+        health: shipped (new + read, with oldest age). Work next snooze: shipped. Remaining
+        free operator-leverage gaps: inquiry mark-read on composer open, optional snoozed
+        aggregates — see <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>

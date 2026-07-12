@@ -75,7 +75,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
@@ -114,6 +114,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <p className="mt-1 text-[11px] text-zinc-500">
             {health.abandonedCheckoutCount} abandoned cart
             {health.abandonedCheckoutCount === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.unrepliedInquiryCount > 0
+              ? "border-sky-200 bg-sky-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Unreplied inquiries
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.unrepliedInquiryCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.newInquiryCount > 0
+              ? `${health.newInquiryCount} new · reply on Lead pipeline`
+              : "new or read awaiting reply"}
           </p>
         </div>
         <div
