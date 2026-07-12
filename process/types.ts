@@ -22,6 +22,16 @@ export type RoadmapTask = {
   doneWhen: string;
   /** Only set once status is "blocked". */
   blockedReason?: string;
+  /**
+   * Task IDs that must reach status "done" before this task is real
+   * agent-actionable work, even while this task's own status is
+   * "not_started". Use this for roadmap items that are sequenced after
+   * validation data exists (e.g. p3-app-scope after interviews/first
+   * deliveries) rather than leaving that sequencing as an unenforced note
+   * repeated by hand in every progress-log.ts entry. nextActionableTasks()
+   * excludes a task from its output while any gatedOn task isn't "done".
+   */
+  gatedOn?: string[];
 };
 
 export type RoadmapPhase = {

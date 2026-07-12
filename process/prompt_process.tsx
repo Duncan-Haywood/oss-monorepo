@@ -20,7 +20,7 @@
  *      and note the change as its own progress-log entry.
  */
 
-import { roadmap, nextActionableTasks } from "./roadmap";
+import { roadmap, nextActionableTasks, isGateSatisfied } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
 import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
@@ -40,7 +40,12 @@ Each session:
    /process page on the docs site).
 2. Call nextActionableTasks() mentally: pick ONE not-started task owned by
    "agent" or "both" that you can actually complete this session — prefer
-   the earliest incomplete phase over later ones.
+   the earliest incomplete phase over later ones. Some tasks declare
+   gatedOn: [taskId, ...] (e.g. p3-app-scope, gated on interviews + first
+   deliveries producing real validation data) — nextActionableTasks()
+   already excludes these until every gating task is "done", so if a task
+   still looks not_started but never appears in nextActionableTasks(),
+   check its gatedOn before assuming it's a bug.
 2a. Claim it immediately: as your FIRST commit this session (before doing
    the rest of the work), flip that task's status to "in_progress" in
    roadmap.ts and push/merge that tiny change to main by itself. Hourly
@@ -182,6 +187,12 @@ export function ProcessDashboard() {
                         <p className="mt-1 text-xs text-slate-500">{task.doneWhen}</p>
                         {task.blockedReason && (
                           <p className="mt-1 text-xs text-rose-300/80">Blocked: {task.blockedReason}</p>
+                        )}
+                        {task.gatedOn && task.gatedOn.length > 0 && !isGateSatisfied(task) && (
+                          <p className="mt-1 text-xs text-amber-300/80">
+                            Gated on: {task.gatedOn.join(", ")} (not all done yet — not agent-actionable
+                            until they are)
+                          </p>
                         )}
                       </div>
                       <StatusPill status={task.status} />

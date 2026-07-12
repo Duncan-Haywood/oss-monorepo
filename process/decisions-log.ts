@@ -135,4 +135,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-j509d4",
     relatedTaskIds: ["p1-listing-audit", "p1-listing-audit-rubric"],
   },
+  {
+    date: "2026-07-12",
+    title: "Formalize p3-app-scope's sequencing as a code-enforced gate, not a repeated note",
+    decision:
+      "Added an optional gatedOn: string[] field to RoadmapTask (process/types.ts) and an isGateSatisfied() check in nextActionableTasks() (process/roadmap.ts). p3-app-scope is now gatedOn: ['p1-run-interviews', 'p2-first-deliveries'], so it no longer appears in nextActionableTasks() output until both produce real validation data, even though its own status stays 'not_started'. The docs-site dashboard renders a 'Gated on: ...' note on any task whose gate isn't satisfied yet.",
+    rationale:
+      "Every session since p3-app-scope was added (7+ in a row) has independently re-derived and repeated the same instruction in progress-log.ts: 'do not start p3-app-scope yet, it's sequenced after interview + concierge validation data exists.' That reasoning lived only in prose, scattered across nextUp entries, with no code enforcement — a single session skimming only roadmap.ts + prompt_process.tsx (not the full progress-log history) could plausibly have started it, since nextActionableTasks() was structurally including it as an owner:'both'/not_started task. This is exactly the kind of process gap AGENT_PROCESS_INSTRUCTIONS step 4 asks a session to fix when there's no direct product-doable gap left: turning a repeatedly-restated tribal rule into an enforced, greppable precondition.",
+    madeBy: "real-estate-photography-continuous-improvement",
+    relatedTaskIds: ["p3-app-scope", "p0-process-system"],
+  },
 ];

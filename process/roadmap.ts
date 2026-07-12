@@ -237,6 +237,7 @@ export const roadmap: RoadmapPhase[] = [
         owner: "both",
         rationale: "Resolves the open scope question in STRATEGY.md before any iOS work starts.",
         doneWhen: "A decision is logged in decisions-log.ts with rationale.",
+        gatedOn: ["p1-run-interviews", "p2-first-deliveries"],
       },
     ],
   },
@@ -258,11 +259,21 @@ export function findTask(taskId: string): RoadmapTask | undefined {
   return undefined;
 }
 
+/** True if every task `taskId` depends on (via gatedOn) is done. Ungated tasks are always ready. */
+export function isGateSatisfied(task: RoadmapTask): boolean {
+  if (!task.gatedOn || task.gatedOn.length === 0) return true;
+  return task.gatedOn.every((id) => findTask(id)?.status === "done");
+}
+
 export function nextActionableTasks(): { phase: RoadmapPhase; task: RoadmapTask }[] {
   const out: { phase: RoadmapPhase; task: RoadmapTask }[] = [];
   for (const phase of roadmap) {
     for (const task of phase.tasks) {
-      if (task.status === "not_started" && (task.owner === "agent" || task.owner === "both")) {
+      if (
+        task.status === "not_started" &&
+        (task.owner === "agent" || task.owner === "both") &&
+        isGateSatisfied(task)
+      ) {
         out.push({ phase, task });
       }
     }

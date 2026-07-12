@@ -217,4 +217,23 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): still do not start p3-app-scope — unchanged from every prior session's reasoning, no new validation data exists yet. Do not re-attempt branch deletion (403 is a hard permission wall, not transient). If nothing is human-unblocked, look for the next gap between a roadmap task's stated blocker and what's actually true (the way this session found p1-listing-audit's blocker was really 'no rubric exists', not just 'needs a human'), or re-verify mls-compliance.ts against a specific real MLS board once one is known.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/gate-sequencing",
+    summary:
+      "Verified all prior branches were already merged to main (git ls-remote + PR list: only draft PR #4 open, all 12 other claude/*/cursor/* branches confirmed diverged-by-1 squash-merge artifacts, zero unique content) and that every Phase 1-2 agent-doable roadmap task was done, with the sole not_started task (p3-app-scope) explicitly deferred by 7+ consecutive prior sessions in prose only. Per AGENT_PROCESS_INSTRUCTIONS step 4, spent the session hardening the process itself instead of padding with busywork: made that repeatedly-restated deferral an enforced precondition in code.",
+    changes: [
+      "process/types.ts: added optional gatedOn?: string[] to RoadmapTask — task IDs that must all be status \"done\" before a not_started task counts as agent-actionable.",
+      "process/roadmap.ts: added isGateSatisfied(task); nextActionableTasks() now excludes any not_started/agent-or-both task whose gatedOn tasks aren't all done. p3-app-scope gained gatedOn: [\"p1-run-interviews\", \"p2-first-deliveries\"], matching what every session's nextUp notes already said by hand.",
+      "process/prompt_process.tsx: AGENT_PROCESS_INSTRUCTIONS step 2 now explains gatedOn; ProcessDashboard's roadmap section renders an amber 'Gated on: ...' note under any task whose gate isn't satisfied yet, next to the existing blockedReason rendering.",
+      "decisions-log.ts: logged why (turning a rule seven sessions independently repeated in prose into something nextActionableTasks() itself enforces, so a future session skimming only roadmap.ts can't accidentally start it).",
+      "Verified: docs-site `npm run build` and research `npm run build` both pass with the new gate rendering; pipeline/ `npm test` + `npx tsc --noEmit` pass (types.ts change doesn't affect pipeline's own types, ran anyway since capture-checklist.ts is in the same process/ package).",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries remains the single highest-leverage next step — checklist, pricing, outreach copy, pipeline, and lead-intake CLI are all ready for a first real shoot.",
+      "Human: p1-listing-audit just needs a metro pick + Zillow browsing session, scored against process/listing-audit-rubric.ts.",
+      "Human: PR #4 (cursor/fix-pages-access-4a7e) is still open, still needs the Cloudflare Access dashboard toggle; the 12 confirmed-stale branches still need manual deletion (agent git credential gets HTTP 403 on ref deletes).",
+      "Agent (next session): p3-app-scope now won't appear in nextActionableTasks() until p1-run-interviews and p2-first-deliveries are both done — verify that holds once one of them actually flips to done, rather than assuming the gate works untested. If nothing is human-unblocked, the gatedOn mechanism could extend to other implicitly-sequenced tasks if any are found; otherwise re-verify mls-compliance.ts against a specific real MLS board once one is known.",
+    ],
+  },
 ];
