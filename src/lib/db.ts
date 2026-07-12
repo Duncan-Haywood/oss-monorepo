@@ -12,6 +12,7 @@ import type {
   CreateClientInquiryInput,
 } from "./inquiries/types";
 import type { OrderRecord } from "./orders/types";
+import type { CheckoutSessionRecord } from "./checkout/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -125,6 +126,23 @@ function getSqliteDb(): DatabaseSync {
       ON client_inquiries(leadSlug);
     CREATE INDEX IF NOT EXISTS idx_client_inquiries_status
       ON client_inquiries(status);
+
+    CREATE TABLE IF NOT EXISTS checkout_sessions (
+      id TEXT PRIMARY KEY,
+      leadSlug TEXT NOT NULL,
+      stripeSessionId TEXT UNIQUE NOT NULL,
+      tier TEXT NOT NULL,
+      commerceAddon INTEGER NOT NULL DEFAULT 0,
+      customerEmail TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+      recoverySentAt TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_checkout_sessions_status
+      ON checkout_sessions(status);
+    CREATE INDEX IF NOT EXISTS idx_checkout_sessions_leadSlug
+      ON checkout_sessions(leadSlug);
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -219,6 +237,12 @@ const api: any = {
   },
   orders: {
     list: "orders:list",
+  },
+  checkoutSessions: {
+    create: "checkoutSessions:create",
+    markComplete: "checkoutSessions:markComplete",
+    recordRecoverySent: "checkoutSessions:recordRecoverySent",
+    listOpen: "checkoutSessions:listOpen",
   },
 };
 
@@ -994,4 +1018,136 @@ export async function updateClientInquiryStatus(
   ).run(status, updatedAt, inquiryId);
 
   return mapClientInquiryRow({ ...existing, status, updatedAt });
+}
+
+// --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---
+
+interface SqliteCheckoutSessionRow {
+  id: string;
+  leadSlug: string;
+  stripeSessionId: string;
+  tier: string;
+  commerceAddon: number;
+  customerEmail: string | null;
+  status: string;
+  createdAt: string;
+  recoverySentAt: string | null;
+}
+
+function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSessionRecord {
+  return {
+    stripeSessionId: row.stripeSessionId,
+    leadSlug: row.leadSlug,
+    tier: row.tier,
+    commerceAddon: row.commerceAddon === 1,
+    customerEmail: row.customerEmail || undefined,
+    status: row.status === "complete" ? "complete" : "open",
+    createdAt: row.createdAt,
+    recoverySentAt: row.recoverySentAt || undefined,
+  };
+}
+
+/** Records a newly-created Stripe Checkout Session for abandoned-checkout tracking. No-ops without a lead slug — there's nothing to attribute a recovery email to. */
+export async function recordCheckoutSessionCreated(params: {
+  leadSlug: string;
+  stripeSessionId: string;
+  tier: string;
+  commerceAddon: boolean;
+  customerEmail?: string;
+}): Promise<void> {
+  const createdAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.checkoutSessions.create, { ...params, createdAt });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to record checkout session ${params.stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(`
+    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, 'open', ?)
+    ON CONFLICT(stripeSessionId) DO NOTHING
+  `).run(
+    `chk_${Date.now()}`,
+    params.leadSlug,
+    params.stripeSessionId,
+    params.tier,
+    params.commerceAddon ? 1 : 0,
+    params.customerEmail ?? null,
+    createdAt,
+  );
+}
+
+/** Flips a checkout session to "complete" — called from the checkout.session.completed webhook. */
+export async function markCheckoutSessionComplete(stripeSessionId: string): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.checkoutSessions.markComplete, { stripeSessionId });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to mark checkout session ${stripeSessionId} complete on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare("UPDATE checkout_sessions SET status = 'complete' WHERE stripeSessionId = ?").run(
+    stripeSessionId,
+  );
+}
+
+/** Records that an operator sent an abandoned-checkout recovery email for this session. */
+export async function recordCheckoutRecoverySent(
+  stripeSessionId: string,
+  sentAt: string = new Date().toISOString(),
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
+        stripeSessionId,
+        sentAt,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to record recovery send for ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare("UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ?").run(
+    sentAt,
+    stripeSessionId,
+  );
+}
+
+/** All checkout sessions still "open" (not yet completed) — the abandoned-recovery due queue's input. */
+export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.checkoutSessions.listOpen)) as CheckoutSessionRecord[];
+    } catch (e) {
+      console.warn(
+        "Failed to list open checkout sessions from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare("SELECT * FROM checkout_sessions WHERE status = 'open' ORDER BY createdAt ASC")
+    .all() as unknown as SqliteCheckoutSessionRow[];
+  return rows.map(mapCheckoutSessionRow);
 }

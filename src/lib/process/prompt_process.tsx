@@ -235,6 +235,14 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-abandoned-recovery",
     summary:
       "Operator (or later cron) recovery nudge for Stripe Checkout sessions that were created but not completed — reuse lead slug attribution + Resend, honor suppression, link back to prefilled /checkout?slug=.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-5y4ly6",
+  },
+  {
+    id: "abandoned-checkout-quality-signal",
+    summary:
+      "Feed src/lib/checkout/abandoned-recovery.ts into the lead quality scorer (src/lib/leads/quality-score.ts) and Work next queue — a lead with an open, unrecovered Stripe Checkout Session is the hottest signal in the pipeline (higher intent than a preview open) and should outrank plain outreach-due leads. Needs listOpenCheckoutSessions() threaded into scoreLead/rankLeadsForOutreach call sites.",
     status: "todo",
     phase: "Phase 3 — Payments",
   },
@@ -578,6 +586,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Open tracking only pays off if the operator UI acts on it. Wiring both the Work next scorer and the Follow-ups due panel avoids a second backlog item to 'use the open signal.'",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Started this iteration by re-implementing outreach-open-tracking, unaware sibling cursor/business-process-evolution-8e65 had already shipped and merged the same feature (PR #22, lastPreviewOpenAt via a preview-page beacon) plus lead-quality-scoring in the same window. Discarded the duplicate work and reset this branch onto main rather than merging two independent implementations, per this file's own precedent decision (two collisions entry, 2026-07-11) and AGENT_PROTOCOL's 'close competing PRs' rule — then claimed the next free todo (checkout-abandoned-recovery) instead of re-attempting the same surface.",
+    rationale:
+      "Both implementations solved the identical problem end-to-end (schema, webhook-adjacent write path, dashboard badge); merging would have meant reconciling two column names and two mutation sets for zero user-facing benefit. Re-fetching origin/main immediately before starting feature work (not just at initial claim time) is what caught the collision before a duplicate PR was opened — the same lesson the prior collision entry already drew.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Abandoned-checkout detection is a pure, in-app time threshold (open + no completed order for 2h) computed from an app-owned checkout_sessions table, not a listener on Stripe's checkout.session.expired webhook event.",
+    rationale:
+      "Stripe only auto-expires 'payment' mode Checkout Sessions after 24h by default; 'subscription' mode sessions (Growth/Complete/Commerce — anything with a monthly Price) never expire on their own, so relying on session.expired would silently miss most of this app's bundles. A time-since-creation check against a status the completed webhook already flips to 'complete' works identically across both Stripe modes and is inspectable/testable as plain TypeScript, matching how outreach-follow-ups.ts already handles cadence.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "checkout_sessions is keyed by stripeSessionId (unique, natural) in both SQLite and Convex, with no separate app-owned id field exposed on CheckoutSessionRecord.",
+    rationale:
+      "Unlike client_inquiries (where the app-owned inq_* id decision explicitly avoided depending on Convex's generated Id type across agent builds without codegen run), stripeSessionId is already a stable, backend-agnostic natural key handed to us by Stripe — introducing a second id would just be two names for the same lookup with no benefit.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Checkout sessions are only tracked when the Checkout Session request includes a lead slug; organic (non-lead-attributed) checkouts are not tracked for abandonment.",
+    rationale:
+      "A recovery email needs a lead (for businessName/email context) and a reason to believe the visitor is a known prospect, not a stranger who bounced off a generic checkout link. This mirrors the existing checkout-attribution-polish design (prefill only works from a slug) and keeps the recovery queue free of noise the operator can't act on.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -920,5 +956,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: outreach-open-tracking done",
     ],
     decisions: BUSINESS_DECISIONS.slice(44, 46),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/upbeat-dijkstra-5y4ly6",
+    summary:
+      "Started by claiming and re-building outreach-open-tracking; discovered on the pre-merge sibling-branch fetch that cursor/business-process-evolution-8e65 had already shipped the identical feature (plus lead-quality-scoring) and merged both to main first. Discarded the duplicate work, reset onto main, and claimed the next free todo instead: abandoned-checkout recovery. A new checkout_sessions table (keyed by Stripe's stripeSessionId) tracks every slug-attributed Checkout Session from open through the completed webhook; sessions still open 2h+ after creation surface on an operator-triggered 'Abandoned checkouts' recovery panel on /dashboard/leads, reusing the Resend + suppression path Email 2/3 already established.",
+    shipped: [
+      "src/lib/checkout/types.ts + abandoned-recovery.ts (+ .test.ts) — pure due-queue logic mirroring outreach-followups.ts",
+      "convex/schema.ts + convex/checkoutSessions.ts — checkoutSessions table + create/markComplete/recordRecoverySent/listOpen",
+      "src/lib/db.ts — checkout_sessions SQLite table + recordCheckoutSessionCreated/markCheckoutSessionComplete/recordCheckoutRecoverySent/listOpenCheckoutSessions",
+      "src/app/api/stripe/checkout/route.ts — persists an open checkout_sessions row when the request carries a lead slug",
+      "src/app/api/stripe/webhook/route.ts — flips the session to complete on checkout.session.completed",
+      "src/lib/email/resend.ts — sendCheckoutAbandonedRecovery template",
+      "src/app/dashboard/leads/actions.ts — sendCheckoutRecoveryAction (operator-auth-gated)",
+      "src/app/dashboard/leads/page.tsx + leads-client.tsx — Abandoned checkouts panel wired to the new action",
+      "NEXT_STEPS: outreach-open-tracking + lead-quality-scoring reconciled against main; checkout-abandoned-recovery done; queued abandoned-checkout-quality-signal",
+      "Verified via npm run dev: created a Stripe-unconfigured 501 sanity check on /api/stripe/checkout, then inserted a synthetic open checkout_sessions row via node:sqlite with createdAt 3h in the past and confirmed it rendered on the Abandoned checkouts panel and cleared after simulating markCheckoutSessionComplete",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(46, 50),
   },
 ];

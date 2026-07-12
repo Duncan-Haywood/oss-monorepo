@@ -63,4 +63,20 @@ export default defineSchema({
     .index("by_leadSlug", ["leadSlug"])
     .index("by_status", ["status"])
     .index("by_createdAt", ["createdAt"]),
+
+  /** Stripe Checkout Session tracking for abandoned-checkout recovery — see /docs/architecture#payments. */
+  checkoutSessions: defineTable({
+    leadSlug: v.string(),
+    stripeSessionId: v.string(),
+    tier: v.string(),
+    commerceAddon: v.boolean(),
+    customerEmail: v.optional(v.string()),
+    status: v.string(), // "open" | "complete"
+    createdAt: v.string(),
+    /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
+    recoverySentAt: v.optional(v.string()),
+  })
+    .index("by_stripeSessionId", ["stripeSessionId"])
+    .index("by_status", ["status"])
+    .index("by_leadSlug", ["leadSlug"]),
 });
