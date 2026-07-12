@@ -45,7 +45,7 @@ export const AGENT_PROTOCOL = [
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
-  "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
+  "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
   "ITERATIONS[].decisions must use absolute BUSINESS_DECISIONS slice indices (e.g. slice(39, 41)), never slice(-1) — trailing negative slices drift when later agents append decisions.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
   "Ship TS/TSX for product + docs. Do not add operator Markdown docs (AGENTS.md rule).",
@@ -312,9 +312,16 @@ export const NEXT_STEPS: NextStep[] = [
     id: "unreplied-inquiry-pipeline-metric",
     summary:
       "Fold new/unreplied clientInquiries counts into pipeline-health (and optionally a dashboard teaser) so unpaid-looking support debt on live/paid sites sits beside paid-not-live — complements inquiry-dashboard-reply without a second inbox.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-af03",
+  },
+  {
+    id: "inquiry-mark-read-on-composer-open",
+    summary:
+      "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
   },
 ];
 
@@ -802,6 +809,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Same-hour dual ship: inquiry reply closes the paid contact-form loop; notes prompt raises discovery hygiene. Snooze and unreplied-inquiry aggregates are the next sibling claims. Empty free backlog causes hourly thrash.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Unreplied website inquiries (status new or read) count on pipeline-health beside paid-not-live, with oldestUnrepliedInquiryAgeHours and a dashboard teaser — replied/archived are closed. newInquiryCount stays as the still-unseen subset.",
+    rationale:
+      "Inquiry reply already ships from the inbox; without aggregates, support debt on live/paid sites stayed invisible next to fulfillment metrics. Folding counts into the existing panel mirrors abandoned-checkout aggregates and avoids a second priority queue.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-minute dual claim of lead-snooze-work-next (a6e6 earlier remote claim, af03 ~13s later): af03 pivoted to unreplied-inquiry-pipeline-metric before feature body; AGENT_PROTOCOL now says earlier remote claim owns when neither side has feature commits.",
+    rationale:
+      "Both hourly automations claimed snooze in the same minute. Pivoting on claim-only races prevents duplicate snooze implementations and still ships the next revenue-facing aggregate in the same hour.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After unreplied-inquiry-pipeline-metric, leave lead-snooze-work-next with its sibling owner and queue inquiry-mark-read-on-composer-open so the next free todo is clear while Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes the unreplied metric distinguish unseen vs. drafting without a second panel.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1263,5 +1291,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Merge of cursor/prompt-process-evolution-e1af (inquiry-dashboard-reply)",
     ],
     decisions: BUSINESS_DECISIONS.slice(66, 69),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-af03",
+    summary:
+      "Same-minute dual claim on lead-snooze-work-next with business-process-evolution-a6e6 (their remote claim ~13s earlier): pivoted before feature body to unreplied-inquiry-pipeline-metric. Folded new+read inquiry counts + oldest age into pipeline-health, dashboard teaser cards, Vitest, docs; hardened AGENT_PROTOCOL dual-claim ownership; queued inquiry-mark-read-on-composer-open.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / isUnrepliedInquiryStatus",
+      "src/lib/metrics/pipeline-health.test.ts — unreplied + age + status helper cases",
+      "src/components/dashboard/pipeline-health-panel.tsx — Unreplied inquiries metric card + teaser",
+      "src/app/dashboard/page.tsx — unreplied teaser on overview strip",
+      "Docs: architecture, roadmap, launch-checklist",
+      "NEXT_STEPS: unreplied-inquiry-pipeline-metric done; snooze left with a6e6; inquiry-mark-read-on-composer-open queued",
+      "AGENT_PROTOCOL — earlier remote claim owns when neither side has feature commits",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(69, 72),
   },
 ];

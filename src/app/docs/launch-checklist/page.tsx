@@ -172,7 +172,9 @@ export default function LaunchChecklistDocPage() {
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions land in the
           operator Inquiries panel on the leads dashboard — reply from the panel (Resend), or
-          archive when done. Email notify to the business still fires on submit.
+          archive when done. Email notify to the business still fires on submit. Confirm
+          unreplied-inquiry count on pipeline health drops after reply (new + read count as
+          unreplied; replied/archived do not).
         </li>
       </ol>
 

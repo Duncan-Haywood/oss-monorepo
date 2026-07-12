@@ -123,8 +123,9 @@ export default function ArchitectureDocPage() {
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). Pipeline health panel aggregates order revenue, stage
-        funnel counts, open handoffs, abandoned checkout / recovery-due counts, and leads
-        missing email (<code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied
+        website inquiries (new + read, with oldest age), and leads missing email (
+        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when

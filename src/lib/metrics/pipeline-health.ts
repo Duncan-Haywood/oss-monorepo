@@ -1,12 +1,13 @@
 /**
  * Operator pipeline health — aggregate signals so stuck money and funnel
  * gaps are visible without scanning every lead row.
- * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions).
+ * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
+ * + unreplied-inquiry-pipeline-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
-import type { ClientInquiry } from "@/lib/inquiries/types";
+import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { OrderRecord } from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
@@ -38,7 +39,15 @@ export interface PipelineHealth {
   /** Paid / discovery_call / outreach leads with no email — cannot convert or follow up. */
   leadsMissingEmailCount: number;
   leadsMissingEmail: MissingEmailLead[];
+  /** Inquiries still status=new (subset of unreplied). */
   newInquiryCount: number;
+  /**
+   * Inquiries awaiting a human reply: status new or read (not replied/archived).
+   * Support debt on live/paid sites — sits beside paid-not-live.
+   */
+  unrepliedInquiryCount: number;
+  /** Age in whole hours of the oldest unreplied inquiry; null when none. */
+  oldestUnrepliedInquiryAgeHours: number | null;
   /** Paid but not yet live — fulfillment debt. */
   paidNotLiveCount: number;
   /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). */
@@ -47,6 +56,11 @@ export interface PipelineHealth {
   recoveryDueCount: number;
   /** Age in whole hours of the oldest abandoned open session; null when none. */
   oldestAbandonedAgeHours: number | null;
+}
+
+/** new + read still need a human reply; replied/archived are closed. */
+export function isUnrepliedInquiryStatus(status: ClientInquiryStatus): boolean {
+  return status === "new" || status === "read";
 }
 
 const STAGE_LABELS: Record<LeadPipelineStage, string> = {
@@ -137,6 +151,10 @@ export function computePipelineHealth(input: {
 
   const openHandoffCount = input.handoffs.filter((h) => h.status !== "live").length;
   const newInquiryCount = input.inquiries.filter((inq) => inq.status === "new").length;
+  const unrepliedInquiries = input.inquiries.filter((inq) =>
+    isUnrepliedInquiryStatus(inq.status),
+  );
+  const unrepliedInquiryCount = unrepliedInquiries.length;
   const paidNotLiveCount = input.leads.filter((l) => l.stage === "paid").length;
 
   const nowMs = input.nowMs ?? 0;
@@ -154,6 +172,19 @@ export function computePipelineHealth(input: {
     }
   }
 
+  let oldestUnrepliedInquiryAgeHours: number | null = null;
+  for (const inquiry of unrepliedInquiries) {
+    const createdAtMs = Date.parse(inquiry.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
+    if (
+      oldestUnrepliedInquiryAgeHours === null ||
+      ageHours > oldestUnrepliedInquiryAgeHours
+    ) {
+      oldestUnrepliedInquiryAgeHours = Math.max(0, ageHours);
+    }
+  }
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -168,6 +199,8 @@ export function computePipelineHealth(input: {
     ).length,
     leadsMissingEmail,
     newInquiryCount,
+    unrepliedInquiryCount,
+    oldestUnrepliedInquiryAgeHours,
     paidNotLiveCount,
     abandonedCheckoutCount: abandoned.length,
     recoveryDueCount,

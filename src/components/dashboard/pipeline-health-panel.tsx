@@ -20,7 +20,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
         <MetricCard
           label="Recorded revenue"
           value={formatUsd(health.revenueTotalUsd)}
@@ -55,6 +55,25 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.recoveryDueCount > 0}
         />
         <MetricCard
+          label="Unreplied inquiries"
+          value={String(health.unrepliedInquiryCount)}
+          hint={
+            health.unrepliedInquiryCount > 0
+              ? [
+                  health.newInquiryCount > 0
+                    ? `${health.newInquiryCount} new`
+                    : null,
+                  health.oldestUnrepliedInquiryAgeHours !== null
+                    ? `oldest ${formatAbandonedAgeHours(health.oldestUnrepliedInquiryAgeHours)}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "new or read, awaiting reply"
+              : "Inbox clear"
+          }
+          attention={health.unrepliedInquiryCount > 0}
+        />
+        <MetricCard
           label="Missing email"
           value={String(health.leadsMissingEmailCount)}
           hint="Cannot outreach or receipt"
@@ -62,10 +81,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         />
       </div>
 
-      {health.newInquiryCount > 0 ? (
+      {health.unrepliedInquiryCount > 0 ? (
         <p className="mt-3 text-xs text-sky-800">
-          {health.newInquiryCount} new website inquir
-          {health.newInquiryCount === 1 ? "y" : "ies"} — see panel below.
+          {health.unrepliedInquiryCount} unreplied website inquir
+          {health.unrepliedInquiryCount === 1 ? "y" : "ies"}
+          {health.newInquiryCount > 0
+            ? ` (${health.newInquiryCount} still marked new)`
+            : ""}{" "}
+          — reply from the Website inquiries panel below (or on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>
+          ).
         </p>
       ) : null}
 
