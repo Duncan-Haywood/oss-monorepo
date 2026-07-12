@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes → paid-bundle marketing fulfillment), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment / paid-Starter upsell nudge), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -384,8 +384,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "reengage-send-email1-option",
     summary:
-      "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional).",
-    status: "in_progress",
+      "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional). Shipped: planColdLeadDisposition options.sendEmail1; disposeColdLeadAction sends via sendOutreachEmail + recordLeadOutreach(1); Cold panel checkbox (default off) shared with table row actions.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-084a",
   },
@@ -402,6 +402,13 @@ export const NEXT_STEPS: NextStep[] = [
       "Auto-post generated marketing packs (marketing-content-generation) to Buffer / Google Business Profile / Meta instead of operator copy-paste — requires BUFFER_ACCESS_TOKEN / GBP OAuth / Meta OAuth (all operator-gated secrets). Ship the OAuth checklist + scheduling call sites once an operator has credentials; do not fake-complete without real tokens.",
     status: "todo",
     phase: "Phase 6 — Marketing automation",
+  },
+  {
+    id: "paid-starter-upsell-nudge",
+    summary:
+      "Operator-triggered Growth/Complete upsell email for paid Starter leads (no recurring yet) — include preview of marketing add-ons + checkout/billing upgrade link. Converts one-time $500 customers into MRR without waiting on the marketing engine phase.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 
@@ -1046,9 +1053,30 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "After snoozed-leads-in-digest, queue marketing-content-generation as the next free product-promise gap (Growth/Complete sell an AI marketing engine; generators.ts is still a stub) plus operator-gated marketing-content-scheduling; leave optional closed-leads-pipeline-metric free (same-cron sibling prompt-process-evolution-084a claimed reengage-send-email1-option); Stripe Price bootstrap and Places stay human-gated. Stale claim-only claude/upbeat-dijkstra-ea3tow (~1h, no feature body, behind main) does not own marketing-content-generation.",
+      "After snoozed-leads-in-digest + reengage-send-email1-option same-cron dual ship, queue marketing-content-generation (Growth/Complete product-promise gap; stale ea3tow claim-only does not own it) and paid-starter-upsell-nudge (Starter → Growth/Complete MRR); leave optional closed-leads-pipeline-metric free; Stripe Price bootstrap and Places stay human-gated.",
     rationale:
-      "Empty free backlog causes hourly thrash. Optional CRM polish remains available, but a sold Growth/Complete promise with no generated content is the highest unpaid fulfillment risk once Stripe Prices go live — prefer that over more operator aggregates once digest/pipeline visibility is in place. Parallel hourly sibling took the re-engage Email 1 option, so do not duplicate it.",
+      "Empty free backlog causes hourly thrash. Digest/pipeline visibility and cold re-engage Email 1 are in place — next leverage is fulfilling sold Growth/Complete marketing content and converting paid Starters into recurring revenue without waiting on Places legal review.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-cron dual claim with business-process-evolution-775d: they pushed snoozed-leads-in-digest first (~06:01Z); this branch pivoted immediately to reengage-send-email1-option (higher revenue leverage than closed-leads-pipeline-metric) and pushed the claim before feature body.",
+    rationale:
+      "Protocol prefers earlier remote claim when neither side has feature commits. Re-engage+Email 1 turns cold inventory into another outreach cycle in one click; closed-count aggregates can wait. Recording the pivot keeps ITERATIONS honest and leaves snoozed-in-digest uncontested for the sibling.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Re-engage Email 1 is opt-in via a Cold-panel checkbox (default off). When checked, planColdLeadDisposition({ sendEmail1: true }) sets stage to outreach_sent with cadence reset, and disposeColdLeadAction sends Email 1 + records outreachStep 1. Unchecked keeps the prior discovered-only reset so Email 1 stays intentional.",
+    rationale:
+      "Default-on would re-spam every cold lead the moment an operator clicks Re-engage. Default-off preserves the cold-archive decision that Email 1 requires an intentional stage move, while still collapsing the two-click path (Re-engage → Outreach Sent) when the operator explicitly wants speed. Shared checkbox state covers both the Cold panel and table row buttons without per-row clutter.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After folding both same-cron ships (775d snoozed-in-digest + 084a reengage Email 1), leave closed-leads-pipeline-metric free and keep marketing-content-generation + paid-starter-upsell-nudge queued as the next revenue unlocks.",
+    rationale:
+      "Cold re-engage unblocks another Email 1–3 cycle on silent prospects; converting paid Starters into recurring Growth/Complete and shipping the sold marketing pack are the next direct MRR / fulfillment levers that do not wait on Stripe Price bootstrap or Places legal review.",
   },
 ];
 
@@ -1661,14 +1689,31 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-12",
     branch: "cursor/business-process-evolution-775d",
     summary:
-      "Claimed snoozed-leads-in-digest (top free optional after follow-ups-due shipped in PR #39). Folded currently-snoozed count + soonest return into the operator daily digest as footnotes via isLeadSnoozed (same predicate as pipeline-health), Vitest, docs. Improved AGENT_PROTOCOL (digest-footnote reuse + paid-bundle marketing in revenue chain). Queued marketing-content-generation after stale claim-only ea3tow; noted same-cron sibling prompt-process-evolution-084a owns reengage-send-email1-option; left closed-leads-pipeline-metric free.",
+      "Claimed snoozed-leads-in-digest (top free optional after follow-ups-due shipped in PR #39). Folded currently-snoozed count + soonest return into the operator daily digest as footnotes via isLeadSnoozed (same predicate as pipeline-health), Vitest, docs. Improved AGENT_PROTOCOL (digest-footnote reuse + paid-bundle marketing in revenue chain). Queued marketing-content-generation after stale claim-only ea3tow. Merged same-cron sibling prompt-process-evolution-084a (reengage Email 1) — both ITERATIONS kept.",
     shipped: [
       "src/lib/digest/daily-digest.ts — snoozedLeadCount + soonestSnoozeRemainingHours + formatSnoozeRemainingHours; footnotes on empty and non-empty HTML",
       "src/lib/digest/daily-digest.test.ts — snooze count/soonest/footnote + format cases",
       "Docs: architecture, roadmap Phase 2/5/6, marketing-automation status, launch-checklist digest verification",
-      "NEXT_STEPS: snoozed-leads-in-digest done; marketing-content-generation + marketing-content-scheduling queued; closed-leads-pipeline-metric free; reengage-send-email1-option owned by prompt-process-evolution-084a",
+      "NEXT_STEPS: snoozed-leads-in-digest done; marketing-content-generation + marketing-content-scheduling + paid-starter-upsell-nudge queued; closed-leads-pipeline-metric free",
       "AGENT_PROTOCOL — digest footnote predicate reuse; revenue chain includes digest snooze + paid-bundle marketing fulfillment",
+      "merge: folded prompt-process-evolution-084a reengage-send-email1-option",
     ],
     decisions: BUSINESS_DECISIONS.slice(90, 92),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-084a",
+    summary:
+      "Sibling business-process-evolution-775d claimed snoozed-leads-in-digest first same cron; pivoted to reengage-send-email1-option. Added opt-in Cold-panel checkbox (default off) so Re-engage can immediately set outreach_sent and send Email 1 via the existing Resend path, while unchecked keeps the discovered-only reset. Queued paid-starter-upsell-nudge for the next MRR unlock. Folded into 775d PR (both ITERATIONS kept).",
+    shipped: [
+      "src/lib/leads/cold-archive.ts — ColdLeadDispositionOptions.sendEmail1; planner returns sendEmail1 flag + outreach_sent patch when set",
+      "src/lib/leads/cold-archive.test.ts — sendEmail1 happy path, missing-email reject, ignored on close",
+      "disposeColdLeadAction(slug, disposition, { sendEmail1 }) — apply patch then sendOutreachEmail + recordLeadOutreach(1)",
+      "leads-client Cold panel checkbox + Re-engage / Re-engage + Email 1 button labels (table rows share state)",
+      "Docs: architecture, roadmap Phase 2/5, launch-checklist re-engage Email 1 verification",
+      "NEXT_STEPS: reengage-send-email1-option done; paid-starter-upsell-nudge queued; snoozed-in-digest left to 775d; closed-leads-pipeline-metric remains free",
+      "AGENT_PROTOCOL — revenue preference chain includes reengage Email 1 option → paid-Starter upsell nudge",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(92, 95),
   },
 ];

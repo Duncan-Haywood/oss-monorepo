@@ -16,10 +16,23 @@ export function isColdLeadDisposition(
 }
 
 /**
+ * Optional flags for Re-engage. Default (no flags) keeps Email 1 intentional:
+ * stage parks at discovered until the operator moves to outreach_sent.
+ */
+export interface ColdLeadDispositionOptions {
+  /**
+   * When true with disposition=reengage: stage → outreach_sent (cadence reset)
+   * so the caller can immediately send Email 1. Requires lead.email.
+   */
+  sendEmail1?: boolean;
+}
+
+/**
  * Planned field updates after a cold-lead disposition.
  * Re-engage resets cadence and parks the lead at discovered so Email 1 fires
- * only when the operator intentionally moves stage → outreach_sent again.
- * Close moves to the terminal `closed` stage (keeps outreach history).
+ * only when the operator intentionally moves stage → outreach_sent again —
+ * unless sendEmail1 is set, in which case stage is outreach_sent for an
+ * immediate send. Close moves to the terminal `closed` stage (keeps outreach history).
  */
 export interface ColdLeadDispositionPatch {
   stage: LeadPipelineStage;
@@ -33,8 +46,9 @@ export function planColdLeadDisposition(
   lead: Lead,
   disposition: ColdLeadDisposition,
   nowMs: number,
+  options: ColdLeadDispositionOptions = {},
 ):
-  | { ok: true; patch: ColdLeadDispositionPatch }
+  | { ok: true; patch: ColdLeadDispositionPatch; sendEmail1: boolean }
   | { ok: false; error: string } {
   if (lead.stage === "paid" || lead.stage === "live") {
     return {
@@ -59,16 +73,26 @@ export function planColdLeadDisposition(
     };
   }
 
+  const sendEmail1 = disposition === "reengage" && Boolean(options.sendEmail1);
+
+  if (sendEmail1 && !lead.email?.trim()) {
+    return {
+      ok: false,
+      error: "Cannot send Email 1 on re-engage — lead has no email address",
+    };
+  }
+
   switch (disposition) {
     case "reengage":
       return {
         ok: true,
         patch: {
-          stage: "discovered",
+          stage: sendEmail1 ? "outreach_sent" : "discovered",
           outreachStep: 0,
           lastOutreachAt: undefined,
           snoozedUntil: undefined,
         },
+        sendEmail1,
       };
     case "close":
       return {
@@ -80,6 +104,7 @@ export function planColdLeadDisposition(
           lastOutreachAt: lead.lastOutreachAt,
           snoozedUntil: undefined,
         },
+        sendEmail1: false,
       };
     default: {
       const _exhaustive: never = disposition;

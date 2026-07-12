@@ -149,6 +149,11 @@ export function LeadsClient({
   const [notesError, setNotesError] = useState<string | null>(null);
   /** Soft CRM prompt after discovery_call stage or Email 3 — never blocks the action. */
   const [notesPromptReason, setNotesPromptReason] = useState<NotesPromptReason | null>(null);
+  /**
+   * When checked, Re-engage also moves stage to outreach_sent and sends Email 1.
+   * Default off keeps Email 1 intentional (reset to discovered only).
+   */
+  const [reengageSendEmail1, setReengageSendEmail1] = useState(false);
 
   // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,8 +273,25 @@ export function LeadsClient({
 
   const handleColdDisposition = (slug: string, disposition: ColdLeadDisposition) => {
     startTransition(async () => {
-      const res = await disposeColdLeadAction(slug, disposition);
+      const sendEmail1 = disposition === "reengage" && reengageSendEmail1;
+      const res = await disposeColdLeadAction(slug, disposition, { sendEmail1 });
       if (!res.success) {
+        // Disposition may have persisted before Email 1 failed — refresh row if stage returned.
+        if ("stage" in res && res.stage) {
+          setLeads((prev) =>
+            prev.map((l) =>
+              l.slug === slug
+                ? {
+                    ...l,
+                    stage: res.stage!,
+                    outreachStep: res.outreachStep ?? l.outreachStep,
+                    lastOutreachAt: res.lastOutreachAt,
+                    snoozedUntil: res.snoozedUntil,
+                  }
+                : l,
+            ),
+          );
+        }
         alert(res.error ?? "Failed to update cold lead");
         return;
       }
@@ -693,10 +715,20 @@ export function LeadsClient({
             </Link>
           </div>
           <p className="mt-1 text-xs text-zinc-600">
-            Email 1–3 exhausted with no reply. Re-engage resets the cadence to Discovered (Email 1
-            sends when you move stage to Outreach Sent). Close parks the lead in the terminal Closed
-            stage without deleting history.
+            Email 1–3 exhausted with no reply. Re-engage resets the cadence to Discovered by default
+            (Email 1 sends when you move stage to Outreach Sent). Check &quot;Also send Email 1&quot;
+            to re-enter outreach_sent and fire Email 1 in one click. Close parks the lead in the
+            terminal Closed stage without deleting history.
           </p>
+          <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-zinc-700">
+            <input
+              type="checkbox"
+              checked={reengageSendEmail1}
+              onChange={(e) => setReengageSendEmail1(e.target.checked)}
+              className="h-3.5 w-3.5 rounded border-stone-300 text-stone-800 focus:ring-stone-500"
+            />
+            Also send Email 1 when Re-engaging (requires email on the lead)
+          </label>
           <ul className="mt-4 space-y-3">
             {coldLeads.map((lead) => (
               <li
@@ -720,11 +752,22 @@ export function LeadsClient({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      disabled={isPending}
+                      disabled={
+                        isPending || (reengageSendEmail1 && !lead.email?.trim())
+                      }
+                      title={
+                        reengageSendEmail1 && !lead.email?.trim()
+                          ? "Add an email before sending Email 1 on re-engage"
+                          : reengageSendEmail1
+                            ? "Reset cadence and send Email 1 now"
+                            : "Reset cadence to Discovered"
+                      }
                       onClick={() => handleColdDisposition(lead.slug, "reengage")}
                       className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
                     >
-                      {coldLeadDispositionLabel("reengage")}
+                      {reengageSendEmail1
+                        ? "Re-engage + Email 1"
+                        : coldLeadDispositionLabel("reengage")}
                     </button>
                     <button
                       type="button"
@@ -1687,11 +1730,20 @@ export function LeadsClient({
                             <>
                               <button
                                 type="button"
-                                disabled={isPending}
+                                disabled={
+                                  isPending || (reengageSendEmail1 && !lead.email?.trim())
+                                }
+                                title={
+                                  reengageSendEmail1 && !lead.email?.trim()
+                                    ? "Add an email before sending Email 1 on re-engage"
+                                    : reengageSendEmail1
+                                      ? "Reset cadence and send Email 1 now"
+                                      : "Reset cadence to Discovered"
+                                }
                                 onClick={() => handleColdDisposition(lead.slug, "reengage")}
                                 className="inline-flex h-8 items-center justify-center rounded-lg border border-stone-300 bg-white px-3 text-xs font-semibold text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
                               >
-                                Re-engage
+                                {reengageSendEmail1 ? "Re-engage + Email 1" : "Re-engage"}
                               </button>
                               <button
                                 type="button"

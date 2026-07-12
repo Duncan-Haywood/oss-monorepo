@@ -94,7 +94,8 @@ export default function RoadmapDocPage() {
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
         shipped. Cold-lead archive action (one-click <code>Re-engage</code> resets cadence to{" "}
-        <code>discovered</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
+        <code>discovered</code>; optional Cold-panel checkbox also sends Email 1 immediately via{" "}
+        <code>outreach_sent</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
         shipped. Follow-ups-due pipeline-health aggregate (<code>followUpsDueCount</code> +
         oldest age since last send via <code>isFollowUpDue</code>, sitting beside unreplied
         inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
@@ -149,12 +150,11 @@ export default function RoadmapDocPage() {
         panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
-        Cold-lead archive/re-engage one-click: shipped. Follow-ups-due pipeline aggregate:
-        shipped. Daily digest snoozed footnote: shipped. Next free product-promise gap:
-        Growth/Complete marketing pack generation (see{" "}
-        <DocLink href="/docs/process">process log</DocLink>).
+        Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
+        Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
+        Next free gaps: Growth/Complete marketing pack generation and paid-Starter → Growth/Complete
+        upsell nudge (see <DocLink href="/docs/process">process log</DocLink>).
       </p>
-
       <h2>Phase 6 — Marketing engine</h2>
       <p>
         Stub generator lives at <code>src/lib/marketing/generators.ts</code>. Next free

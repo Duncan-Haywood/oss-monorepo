@@ -174,7 +174,9 @@ export default function LaunchChecklistDocPage() {
           After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}
           <strong>Re-engage</strong> (reset to Discovered for a fresh Email 1–3 cycle) or{" "}
           <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
-          actions
+          actions. Optionally check <strong>Also send Email 1 when Re-engaging</strong> to fire
+          Email 1 immediately (requires an email on the lead; default remains off so sends stay
+          intentional).
         </li>
         <li>
           When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}

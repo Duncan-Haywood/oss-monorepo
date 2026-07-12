@@ -151,7 +151,9 @@ export default function ArchitectureDocPage() {
         <code>planColdLeadDisposition</code> / <code>disposeColdLeadAction</code>:{" "}
         <strong>Re-engage</strong> resets <code>outreachStep</code> to 0, clears{" "}
         <code>lastOutreachAt</code>, and parks the lead at <code>discovered</code> so Email 1
-        fires only when stage moves to <code>outreach_sent</code> again;{" "}
+        fires only when stage moves to <code>outreach_sent</code> again — or, when the Cold-panel
+        &quot;Also send Email 1&quot; checkbox is checked, moves straight to{" "}
+        <code>outreach_sent</code> and sends Email 1 in the same action;{" "}
         <strong>Close</strong> sets the terminal <code>closed</code> stage (keeps outreach
         history, drops off Work next and cold counts).
       </p>
