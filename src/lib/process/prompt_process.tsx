@@ -108,6 +108,7 @@ export const AGENT_PROTOCOL = [
   "Stripe checkout.session.completed must return 5xx when required fulfillment writes fail (bundle recordLeadPayment / enqueueProductionHandoff, commerce insertCommerceOrder, commerce insertClientInquiry after ledger) so Stripe redelivers — never ACK 200 after swallowing those errors. Client receipt / bundle receipt/DNS emails stay best-effort after durable writes succeed.",
   "When NEXT_PUBLIC_CONVEX_URL is set, Stripe webhook fulfillment writes (recordLeadPayment, insertDeployHandoff via enqueueProductionHandoff, insertCommerceOrder, insertClientInquiry) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex mutation failure throws instead of SQLite-fallback — otherwise the webhook can ACK after writing only to instance-local SQLite while dashboard/other instances read Convex-first and never see the payment. Dashboard/operator paths keep the Convex→SQLite fallback.",
   "POST /api/contact/[slug] must also pass requireConvex (CONTACT_FORM_CONVEX_PRIMARY in src/lib/inquiries/contact-persist.ts) when Convex is configured — same multi-instance split-brain risk as the webhook: visitor-facing { ok: true } after a SQLite-only write leaves the Starter CRM trail invisible to Convex-first readers. Persist-required 503 is the recovery path (visitor retries); do not invent a separate fallback policy for contact vs webhook ledger inserts.",
+  "GET /api/unsubscribe must also pass requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY in src/lib/email/suppression-persist.ts) when Convex is configured — isEmailSuppressed reads Convex-first, so a SQLite-only suppress after a Convex mutation failure would show 'You have been unsubscribed' while other instances keep sending (CAN-SPAM split-brain). Fail-closed 500 is the recovery path (visitor retries); do not invent a separate fallback policy for unsubscribe vs contact/webhook ledger inserts.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite — /api/* and /dashboard/* already address a lead by slug or require operator auth and must never be diverted by Host. Always gate the per-request Convex/SQLite lookup behind isPlatformHost(host, productionRootDomain()) (src/lib/deploy/custom-domain-routing.ts) first — every marketing-site pageview and every /preview/[slug] visit under the platform's own domain would otherwise trigger an extra DB round trip for no reason.",
   "isFollowUpDue must exclude snoozed leads (isLeadSnoozed) — a passive/automated queue (Follow-ups due panel, pipeline-health followUpsDueCount, digest) must never resurface or promote sending to a lead the operator explicitly parked. isColdLead deliberately does NOT exclude snoozed leads: it also gates planColdLeadDisposition, and Re-engage/Close on a snoozed cold lead is a valid explicit single-lead operator override (Re-engage itself clears the snooze, same contract as the Unsnooze button). When adding a new predicate that feeds a passive queue/aggregate, check whether it also gates an explicit single-lead override action before blanket-adding a snooze check — those are different contracts.",
   "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern. The post-payment DNS handoff email in the Stripe webhook (formatDnsInstructionsForEmail) is included — never interpolate raw handoff URLs/hosts or businessName into that HTML.",
@@ -812,6 +813,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-9c45",
+  },
+  {
+    id: "unsubscribe-suppress-convex-primary",
+    summary:
+      "After PR #79 left only gated NEXT_STEPS (plus checkout-session-complete-convex-primary owned by PR #81 / sibling 9c45 claimed organic-checkout-crm-attribution), audited public/CAN-SPAM write paths. GET /api/unsubscribe called suppressEmail without requireConvex — when Convex is configured and the mutation fails, the route still SQLite-fallbacks then shows 'You have been unsubscribed' while isEmailSuppressed on other instances reads Convex-first and returns false, so automated outreach can keep emailing someone who just opted out (CAN-SPAM split-brain). Shipped: UNSUBSCRIBE_CONVEX_PRIMARY on suppressEmail; route returns 500 on ConvexPrimaryWriteError. DNS handoff HTML escape folded with PR #82 (9c45).",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-6a13",
+  },
+  {
+    id: "webhook-dns-handoff-email-html-escape",
+    summary:
+      "Empty-backlog asymmetry after PR #76 escaped businessName in resend.ts sendReceiptEmail: the sibling Stripe webhook DNS/production-handoff email still interpolated raw businessName (and formatDnsInstructionsForEmail hosts/URLs). Shipped on PR #82 (9c45): dns-email.ts escaping + webhook safeBiz/safeBrand; complementary fold on 6a13. Subject lines remain plain text.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-9c45 + cursor/business-process-evolution-6a13",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2053,6 +2070,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Fold complementary contact-form notify HTML escape regression test from duplicate PR #80 (upbeat-dijkstra-v7yyno) onto main — escape already shipped in PR #78; keep the route.test.ts coverage and close the duplicate PR.",
     rationale:
       "AGENT_PROTOCOL: a later claim may fold complementary tests/docs into one PR rather than abandoning coverage. PR #80 duplicated the escape already on main but added the only end-to-end handler test for malicious visitor input through POST /api/contact/[slug]. Keeping the test and closing the competing PR avoids a second process-log rewrite fight.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write.",
+    rationale:
+      "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81. PR #80 contact notify test fold landed on main mid-merge.",
   },
 ];
 
@@ -3409,5 +3433,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Coop: close PR #80 as duplicate of PR #78 escape; keep its test",
     ],
     decisions: BUSINESS_DECISIONS.slice(176, 177),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-6a13",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #79 except checkout-session-complete-convex-primary (PR #81) and gated secrets/OAuth/counsel. Sibling prompt-process-evolution-9c45 claimed (then merged PR #82) organic-checkout-crm-attribution + DNS handoff HTML escape. Audited public/CAN-SPAM write paths: GET /api/unsubscribe still SQLite-fallbacks on Convex failure then shows success while isEmailSuppressed reads Convex-first — CAN-SPAM split-brain. Shipped UNSUBSCRIBE_CONVEX_PRIMARY + 500 on ConvexPrimaryWriteError. Folded origin/main after PR #81 + #82 + PR #80 test fold — all ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/email/suppression-persist.ts (+ test) — UNSUBSCRIBE_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — suppressEmail accepts ConvexPrimaryWriteOptions; throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/api/unsubscribe/route.ts — suppressEmail(..., UNSUBSCRIBE_CONVEX_PRIMARY); 500 on ConvexPrimaryWriteError",
+      "Docs: architecture / compliance / launch-checklist / roadmap — unsubscribe requireConvex",
+      "NEXT_STEPS: unsubscribe-suppress-convex-primary done; webhook-dns-handoff-email-html-escape co-owned with PR #82",
+      "AGENT_PROTOCOL — unsubscribe requireConvex when Convex configured",
+      "BUSINESS_DECISIONS — documented CAN-SPAM fail-closed unsubscribe",
+      "merge: folded origin/main after PR #81 + #82 + PR #80 contact notify test fold — all ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(177, 178),
   },
 ];

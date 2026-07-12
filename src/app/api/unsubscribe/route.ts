@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { suppressEmail } from "@/lib/db";
+import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -10,7 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await suppressEmail(email);
+    await suppressEmail(email, UNSUBSCRIBE_CONVEX_PRIMARY);
 
     return new NextResponse(
       `
@@ -62,10 +64,16 @@ export async function GET(request: NextRequest) {
         headers: {
           "Content-Type": "text/html",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("Unsubscribe error:", error);
+    if (error instanceof ConvexPrimaryWriteError) {
+      return new NextResponse(
+        "Could not record your unsubscribe right now. Please try again in a moment.",
+        { status: 500 },
+      );
+    }
     return new NextResponse("Error processing request", { status: 500 });
   }
 }
