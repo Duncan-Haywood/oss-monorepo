@@ -389,6 +389,7 @@ const api: any = {
   commerceOrders: {
     insert: "commerceOrders:insert",
     list: "commerceOrders:list",
+    markPaidOut: "commerceOrders:markPaidOut",
   },
 };
 
@@ -1844,11 +1845,13 @@ function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
 /**
  * Idempotent on stripeSessionId — the Stripe webhook may see the same
  * checkout.session.completed event more than once and must never double-count
- * pass-through commerce revenue.
+ * pass-through commerce revenue. Returns alreadyRecorded=true when this
+ * session was already ledgered so callers can skip non-idempotent side
+ * effects (operator inquiry + client receipt email).
  */
 export async function insertCommerceOrder(
   input: InsertCommerceOrderInput,
-): Promise<void> {
+): Promise<{ alreadyRecorded: boolean }> {
   const createdAt = new Date().toISOString();
   // Generated once up front (not inside the SQLite-only branch) so both
   // backends persist and return the same app-owned id — the Convex
@@ -1858,12 +1861,13 @@ export async function insertCommerceOrder(
 
   if (convexClient) {
     try {
-      await convexClient.mutation(api.commerceOrders.insert, {
+      const result = await convexClient.mutation(api.commerceOrders.insert, {
         ...input,
         orderId: id,
         createdAt,
       });
-      return;
+      // Convex insert returns null when by_stripeSessionId already exists.
+      return { alreadyRecorded: result === null };
     } catch (e) {
       console.warn(
         "Failed to insert commerce order on Convex, falling back to SQLite",
@@ -1873,6 +1877,13 @@ export async function insertCommerceOrder(
   }
 
   const db = getSqliteDb();
+  const existing = db
+    .prepare("SELECT id FROM commerce_orders WHERE stripeSessionId = ?")
+    .get(input.stripeSessionId) as { id: string } | undefined;
+  if (existing) {
+    return { alreadyRecorded: true };
+  }
+
   db.prepare(
     `INSERT OR IGNORE INTO commerce_orders (
       id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt
@@ -1886,6 +1897,7 @@ export async function insertCommerceOrder(
     input.stripeSessionId,
     createdAt,
   );
+  return { alreadyRecorded: false };
 }
 
 export async function listCommerceOrders(

@@ -250,7 +250,9 @@ export default function LaunchChecklistDocPage() {
           note AND pipeline-health <strong>Commerce sales (pass-through)</strong> increases by the
           order amount. With an email on the Commerce lead, confirm they receive (or a mock send
           logs) the client order notification — SKU, amount, optional customer email, link to
-          preview#catalog. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
+          preview#catalog. Re-deliver the same Stripe <code>checkout.session.completed</code>{" "}
+          event and confirm a second inquiry/client email is <em>not</em> created (ledger already
+          recorded). Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
           order line and owed total. Confirm <strong>Send daily digest</strong> lists those
           clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.

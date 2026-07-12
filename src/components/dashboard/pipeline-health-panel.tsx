@@ -164,8 +164,8 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={formatUsd(health.commerceOrdersRevenueUsd)}
           hint={
             health.commerceOrdersCount > 0
-              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} — owed to clients, not your revenue · see Commerce payouts panel`
-              : "No Buy now orders yet"
+              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} still owed to clients — not your revenue · Mark paid out on Commerce payouts panel`
+              : "No unpaid Buy now orders"
           }
           attention={health.commerceOrdersCount > 0}
         />

@@ -246,7 +246,11 @@ export default function ArchitectureDocPage() {
         — kept deliberately separate from the <code>orders</code> table used for Local Site
         Studio&apos;s own revenue, since <code>orderEligibleForBillingPortal</code> /{" "}
         <code>leadEligibleForStarterUpsell</code> read any <code>commerceAddon</code> order row as
-        &quot;this lead has a recurring Commerce subscription.&quot; Pipeline health surfaces the
+        &quot;this lead has a recurring Commerce subscription.&quot;{" "}
+        <code>insertCommerceOrder</code> returns <code>&#123; alreadyRecorded &#125;</code> so a
+        Stripe <code>checkout.session.completed</code> redelivery skips the non-idempotent
+        operator inquiry + <code>sendCommerceBuyNowClientReceipt</code> (same pattern as bundle{" "}
+        <code>recordLeadPayment</code>). Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
         — this money sits in the platform&apos;s own Stripe account with no automated payout path to
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
@@ -273,7 +277,8 @@ export default function ArchitectureDocPage() {
         shopper back to <code>/preview/[slug]#catalog</code> when an email was collected. The
         same completed Buy now webhook also emails <code>lead.email</code> (
         <code>sendCommerceBuyNowClientReceipt</code>) so the local business gets the sold order
-        notification — best-effort after inquiry + ledger; skipped when the lead has no email.
+        notification — best-effort after inquiry + ledger on first delivery only; skipped when the
+        lead has no email or when the session was already ledgered.
       </p>
 
       <h2>Tech stack</h2>
