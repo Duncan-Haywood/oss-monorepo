@@ -74,7 +74,9 @@ import {
 import {
   leadEligibleForCommerceCatalog,
   normalizeCommerceItems,
+  syncCommerceCatalogToStripe,
 } from "@/lib/commerce";
+import Stripe from "stripe";
 import {
   clientVoicePackRequestForLead,
   getClientVoiceGenerator,
@@ -1060,6 +1062,70 @@ export async function getCommerceCatalogAction(slug: string) {
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Sync a saved Commerce catalog to real Stripe Products/Prices (one Product
+ * per SKU, idempotent on re-run) and persist the resulting ids so the
+ * preview page can offer a direct Stripe Checkout "Buy now" instead of the
+ * Request-order → inquiry stub. Requires STRIPE_SECRET_KEY — the same secret
+ * already required for the bundle checkout flow, no new credentials needed.
+ */
+export async function syncCommerceCatalogToStripeAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before syncing the catalog to Stripe.",
+      };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const catalog = await getCommerceCatalog(slug);
+    if (!catalog || catalog.items.length === 0) {
+      return {
+        success: false as const,
+        error: "Save the catalog with at least one SKU before syncing to Stripe",
+      };
+    }
+
+    const stripe = new Stripe(secretKey);
+    const synced = await syncCommerceCatalogToStripe(
+      stripe,
+      lead.slug,
+      lead.businessName,
+      catalog.items,
+    );
+
+    const updated = await upsertCommerceCatalog({
+      leadSlug: lead.slug,
+      items: synced,
+      updatedAt: new Date().toISOString(),
+    });
+
+    revalidatePath("/dashboard/leads");
+    revalidatePath(`/preview/${lead.slug}`);
+    return { success: true as const, catalog: updated };
+  } catch (error) {
+    console.error("Error in syncCommerceCatalogToStripeAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown Stripe error",
     };
   }
 }

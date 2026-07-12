@@ -65,10 +65,11 @@ export default function ProductBundlesDocPage() {
 
       <h2>Commerce — +$300 + $49/mo</h2>
       <p>
-        Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview (Request
-        order → inquiry inbox as the notification stub). Stripe Products sync + embedded
-        checkout remain the next Commerce step. Retail, restaurant ordering, booking deposits,
-        or gift cards.
+        Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview. Operator
+        clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU
+        (reuses STRIPE_SECRET_KEY, idempotent on re-run); synced items show a Buy now button
+        that opens Stripe Checkout directly. Unsynced items still fall back to Request order →
+        inquiry inbox. Retail, restaurant ordering, booking deposits, or gift cards.
       </p>
 
       <h2>Recommendation logic</h2>

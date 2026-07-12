@@ -210,10 +210,17 @@ export default function ArchitectureDocPage() {
         <code>commerceCatalogs</code>, edit on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, render on{" "}
         <code>/preview/[slug]</code>). Missing catalogs count on pipeline health (
-        <code>commerceCatalogsMissingCount</code>) and list in the daily digest. &quot;Request
-        order&quot; prefills the contact form so submissions land in the inquiry inbox
-        (order-notification stub). Full Stripe Products sync + embedded checkout remain a later
-        Phase 8 step.
+        <code>commerceCatalogsMissingCount</code>) and list in the daily digest. Stripe Products
+        sync shipped: <code>syncCommerceCatalogToStripeAction</code> (dashboard &quot;Sync to
+        Stripe&quot; button) calls <code>syncCommerceCatalogToStripe</code> (
+        <code>src/lib/commerce/stripe-sync.ts</code>) to idempotently create/find a Stripe
+        Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
+        metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets), then persists
+        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item.{" "}
+        <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
+        resolves the Stripe Price server-side from the stored catalog (never trusts a
+        client-submitted price) and creates a one-time Checkout Session. Unsynced items keep the
+        &quot;Request order&quot; → contact form → inquiry inbox stub.
       </p>
 
       <h2>Tech stack</h2>

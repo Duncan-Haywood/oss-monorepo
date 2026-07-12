@@ -18,3 +18,10 @@ export {
   normalizeCommerceItems,
   type NormalizeCommerceItemsResult,
 } from "./catalog";
+
+export {
+  commerceSkuStripeKey,
+  syncCommerceCatalogToStripe,
+  type StripeProductsAndPrices,
+  type SyncedCommerceSku,
+} from "./stripe-sync";
