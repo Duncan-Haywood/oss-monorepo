@@ -140,7 +140,9 @@ export default function ArchitectureDocPage() {
         parks (count + soonest return), leads due for Email 2/3 (<code>followUpsDueCount</code>{" "}
         + oldest age since last send, via <code>isFollowUpDue</code>), Growth/Complete marketing
         packs still due this UTC month (<code>marketingPacksDueCount</code> via{" "}
-        <code>listMarketingPacksDue</code>), Complete leads missing a client voice FAQ pack (
+        <code>listMarketingPacksDue</code>), Commerce catalogs still missing (
+        <code>commerceCatalogsMissingCount</code> via{" "}
+        <code>listCommerceCatalogsMissing</code>), Complete leads missing a client voice FAQ pack (
         <code>clientVoicePacksDueCount</code> via <code>listClientVoicePacksDue</code>), closed
         leads outside the active funnel (
         <code>closedLeadCount</code> = <code>stageCounts.closed</code>, footnote only), and
@@ -158,9 +160,9 @@ export default function ArchitectureDocPage() {
         health and as a footnote on the operator daily digest (count + soonest return) so
         forgotten snoozes do not hide when the operator never opens the dashboard. The same
         digest also lists marketing packs due this UTC month, Starter → MRR upsell candidates,
-        and Complete voice packs due (action sections, reusing <code>listMarketingPacksDue</code>{" "}
-        / <code>listStarterUpsellCandidates</code> / <code>listClientVoicePacksDue</code>). A
-        lead that
+        Commerce catalogs missing, and Complete voice packs due (action sections, reusing{" "}
+        <code>listMarketingPacksDue</code> / <code>listStarterUpsellCandidates</code> /{" "}
+        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>). A lead that
         exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
@@ -207,9 +209,11 @@ export default function ArchitectureDocPage() {
         <code>commerceAddon</code> order: shipped (<code>src/lib/commerce/</code>, SQLite + Convex{" "}
         <code>commerceCatalogs</code>, edit on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, render on{" "}
-        <code>/preview/[slug]</code>). &quot;Request order&quot; prefills the contact form so
-        submissions land in the inquiry inbox (order-notification stub). Full Stripe Products
-        sync + embedded checkout remain a later Phase 8 step.
+        <code>/preview/[slug]</code>). Missing catalogs count on pipeline health (
+        <code>commerceCatalogsMissingCount</code>) and list in the daily digest. &quot;Request
+        order&quot; prefills the contact form so submissions land in the inquiry inbox
+        (order-notification stub). Full Stripe Products sync + embedded checkout remain a later
+        Phase 8 step.
       </p>
 
       <h2>Tech stack</h2>

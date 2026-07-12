@@ -62,7 +62,8 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
   "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
@@ -473,9 +474,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-catalogs-missing-visibility",
     summary:
-      "Fold paid/live commerceAddon leads missing a catalog into pipeline-health + daily digest (action section) so Commerce fulfillment debt is visible without relying only on the dashboard missing panel — reuses listCommerceCatalogsMissing.",
-    status: "todo",
+      "Fold paid/live commerceAddon leads missing a catalog into pipeline-health + daily digest (action section) so Commerce fulfillment debt is visible without relying only on the dashboard missing panel — reuses listCommerceCatalogsMissing. Shipped: commerceCatalogsMissingCount on pipeline health + digest Commerce catalogs missing section (shared catalogs load).",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-ca53",
   },
 ];
 
@@ -1274,6 +1276,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility first this cron; this branch claimed commerce-catalogs-missing-visibility (queued twin) and pushed before feature body.",
+    rationale:
+      "Protocol prefers parallel Complete vs Commerce fulfillment-debt visibility when both are free. Both reuse existing list* helpers; different sold promises; shared digest/health wiring patterns without competing implementations.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce catalogs missing = listCommerceCatalogsMissing (paid/live + commerceAddon order, no catalog row). Surfaced as pipeline-health commerceCatalogsMissingCount + digest action section (top 5), not a second Work next panel.",
+    rationale:
+      "The dashboard missing panel only helps when the operator already opened /dashboard/leads. Health + digest make sold Commerce fulfillment debt visible the same way marketing packs due does — reuse the helper, do not invent a parallel eligibility check.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "With free NEXT_STEPS operator/legal-gated after PR #46, prefer wiring already-shipped listClientVoicePacksDue / listCommerceCatalogsMissing into pipeline-health + digest over inventing new aggregates or fake-completing Stripe/Places/scheduling.",
     rationale:
       "Complete voice and Commerce catalogs already fulfill sold promises; missing visibility is the same operator-leverage pattern as marketing-packs-due. Reusing the helpers keeps one eligibility source and avoids a second dashboard panel.",
@@ -2034,9 +2050,27 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-ca53",
+    summary:
+      "Sibling business-process-evolution-7d50 claimed client-voice-packs-missing-visibility; pivoted to commerce-catalogs-missing-visibility. Shipped listCommerceCatalogsMissing into pipeline-health + daily digest action section (shared catalogs load), Vitest, docs. Improved AGENT_PROTOCOL digest load line for commerce catalogs. Folded 7d50 Complete voice packs due (both ITERATIONS kept).",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — commerceCatalogsMissingCount via listCommerceCatalogsMissing",
+      "src/components/dashboard/pipeline-health-panel.tsx — Commerce catalogs missing card + callout",
+      "src/lib/digest/daily-digest.ts — commerceCatalogsMissing section; isEmpty includes it",
+      "sendDailyDigestAction + dashboard pages — listCommerceCatalogs into digest/health",
+      "Vitest: pipeline-health + digest commerce missing cases + HTML section",
+      "Docs: architecture, roadmap Phase 8, launch-checklist",
+      "NEXT_STEPS: commerce-catalogs-missing-visibility done; client-voice-packs-missing folded from 7d50; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — commerce catalogs in digest load list; catalogs-missing helper reuse rule",
+      "merge: folded business-process-evolution-7d50 client-voice-packs-missing-visibility",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(113, 115),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-7d50",
     summary:
-      "Free backlog was operator/legal-gated after PR #46; claimed client-voice-packs-missing-visibility. Wired listClientVoicePacksDue into pipeline-health + daily digest (Voice packs due card + Complete voice packs due section), Vitest, docs. Improved AGENT_PROTOCOL (prefer wiring existing list* helpers; parallel voice vs commerce missing-visibility claims). Queued commerce-catalogs-missing-visibility for siblings.",
+      "Free backlog was operator/legal-gated after PR #46; claimed client-voice-packs-missing-visibility. Wired listClientVoicePacksDue into pipeline-health + daily digest (Voice packs due card + Complete voice packs due section), Vitest, docs. Improved AGENT_PROTOCOL (prefer wiring existing list* helpers; parallel voice vs commerce missing-visibility claims). Queued commerce-catalogs-missing-visibility for siblings. Folded into ca53 PR (both ITERATIONS kept).",
     shipped: [
       "src/lib/metrics/pipeline-health.ts — clientVoicePacksDueCount via listClientVoicePacksDue",
       "src/lib/digest/daily-digest.ts — clientVoicePacksDue action section + HTML",
@@ -2046,7 +2080,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: client-voice-packs-missing-visibility done; commerce-catalogs-missing-visibility free; Stripe/Places/scheduling gated",
       "AGENT_PROTOCOL — voice/commerce missing visibility in revenue chain; reuse listClientVoicePacksDue",
     ],
-    decisions: BUSINESS_DECISIONS.slice(113, 116),
+    decisions: BUSINESS_DECISIONS.slice(115, 118),
   },
 ];
 

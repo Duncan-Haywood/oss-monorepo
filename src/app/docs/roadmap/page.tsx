@@ -186,8 +186,8 @@ export default function RoadmapDocPage() {
         shipped (<code>saveCommerceCatalogAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — shown on{" "}
         <code>/preview/[slug]</code>; Request order → contact/inquiry inbox; missing panel on
-        dashboard). Pipeline-health + digest visibility for missing catalogs is queued next;
-        Stripe Products sync + embedded checkout remain operator-gated.
+        dashboard). Eligible-but-missing catalogs count on pipeline health and list in the daily
+        digest. Stripe Products sync + embedded checkout remain next.
       </p>
 
       <p>

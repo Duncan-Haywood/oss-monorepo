@@ -7,6 +7,7 @@ import {
   listOrders,
   listOpenCheckoutSessions,
   listMarketingPacksForMonth,
+  listCommerceCatalogs,
   listClientVoicePacks,
 } from "@/lib/db";
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
@@ -49,6 +50,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     orders,
     openCheckoutSessions,
     marketingPacks,
+    commerceCatalogs,
     clientVoicePacks,
   ] = await Promise.all([
     getLeads(),
@@ -57,6 +59,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     listOrders(),
     listOpenCheckoutSessions(),
     listMarketingPacksForMonth(marketingMonth),
+    listCommerceCatalogs(),
     listClientVoicePacks(),
   ]);
   return computePipelineHealth({
@@ -66,6 +69,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     inquiries,
     openCheckoutSessions,
     marketingPacksThisMonth: marketingPacks,
+    commerceCatalogs,
     clientVoicePacks,
     nowMs,
   });

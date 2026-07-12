@@ -5,6 +5,7 @@
  * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement
  * + snoozed-leads-pipeline-metric + follow-ups-due-pipeline-metric
  * + closed-leads-pipeline-metric + marketing-packs-due-pipeline-metric
+ * + commerce-catalogs-missing-visibility
  * + client-voice-packs-missing-visibility).
  */
 
@@ -17,13 +18,14 @@ import {
   isAbandonedCheckout,
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
+import { listCommerceCatalogsMissing } from "@/lib/commerce/catalog";
+import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
 import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
 } from "@/lib/marketing/monthly-pack";
-import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -97,6 +99,11 @@ export interface PipelineHealth {
   /** UTC YYYY-MM key used for the packs-due count (from nowMs). */
   marketingPacksDueMonth: string;
   /**
+   * Paid/live commerceAddon leads missing any catalog row.
+   * Commerce fulfillment debt — not a second priority queue.
+   */
+  commerceCatalogsMissingCount: number;
+  /**
    * Paid/live Complete leads missing a client voice FAQ pack.
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
@@ -164,6 +171,8 @@ export function computePipelineHealth(input: {
   openCheckoutSessions?: CheckoutSessionRecord[];
   /** Packs already generated for the current UTC month (optional). */
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
+  /** Existing commerce catalogs (optional) — missing count uses listCommerceCatalogsMissing. */
+  commerceCatalogs?: ReadonlyArray<{ leadSlug: string }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
   nowMs?: number;
@@ -286,7 +295,11 @@ export function computePipelineHealth(input: {
     packsThisMonth,
     marketingPacksDueMonth,
   );
-
+  const commerceCatalogsMissing = listCommerceCatalogsMissing(
+    input.leads,
+    input.orders,
+    input.commerceCatalogs ?? [],
+  );
   const clientVoicePacksDue = listClientVoicePacksDue(
     input.leads,
     input.orders,
@@ -322,6 +335,7 @@ export function computePipelineHealth(input: {
     closedLeadCount: stageCounts.closed,
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
+    commerceCatalogsMissingCount: commerceCatalogsMissing.length,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
   };
 }

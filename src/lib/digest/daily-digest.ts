@@ -3,6 +3,7 @@
  * single-operator business doesn't have to open /dashboard/leads to know
  * what needs attention today. See /docs/process (operator-daily-digest-email
  * + marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest
+ * + commerce-catalogs-missing-visibility
  * + client-voice-packs-missing-visibility).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
@@ -26,6 +27,7 @@ import {
   resolveUpsellTargetTier,
   type UpsellTargetTier,
 } from "../billing/starter-upsell";
+import { listCommerceCatalogsMissing } from "../commerce/catalog";
 import { listClientVoicePacksDue } from "../voice/faq-pack";
 
 const WORK_NEXT_LIMIT = 5;
@@ -34,7 +36,8 @@ const RECOVERIES_LIMIT = 5;
 const INQUIRIES_LIMIT = 5;
 const MARKETING_PACKS_LIMIT = 5;
 const UPSELL_LIMIT = 5;
-const VOICE_PACKS_LIMIT = 5;
+const COMMERCE_CATALOGS_LIMIT = 5;
+const CLIENT_VOICE_PACKS_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -78,6 +81,11 @@ export interface DigestStarterUpsellLead {
   targetTier: UpsellTargetTier;
 }
 
+export interface DigestCommerceCatalogMissing {
+  slug: string;
+  businessName: string;
+}
+
 export interface DigestClientVoicePackDue {
   slug: string;
   businessName: string;
@@ -91,6 +99,7 @@ export interface DailyDigest {
   unrepliedInquiries: DigestUnrepliedInquiry[];
   marketingPacksDue: DigestMarketingPackDue[];
   starterUpsellCandidates: DigestStarterUpsellLead[];
+  commerceCatalogsMissing: DigestCommerceCatalogMissing[];
   clientVoicePacksDue: DigestClientVoicePackDue[];
   coldLeadCount: number;
   /**
@@ -110,6 +119,7 @@ export interface BuildDailyDigestInput {
   openCheckoutSessions: CheckoutSessionRecord[];
   orders?: Array<{ leadSlug: string; tier: string; commerceAddon: boolean }>;
   marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
+  commerceCatalogs?: ReadonlyArray<{ leadSlug: string }>;
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
   nowMs: number;
 }
@@ -129,6 +139,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     openCheckoutSessions,
     orders = [],
     marketingPacksThisMonth = [],
+    commerceCatalogs = [],
     clientVoicePacks = [],
     nowMs,
   } = input;
@@ -204,12 +215,20 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       targetTier: resolveUpsellTargetTier(lead.recommendedTier),
     }));
 
+  const commerceCatalogsMissing: DigestCommerceCatalogMissing[] =
+    listCommerceCatalogsMissing(leads, orders, commerceCatalogs)
+      .slice(0, COMMERCE_CATALOGS_LIMIT)
+      .map((lead) => ({
+        slug: lead.slug,
+        businessName: lead.businessName,
+      }));
+
   const clientVoicePacksDue: DigestClientVoicePackDue[] = listClientVoicePacksDue(
     leads,
     orders,
     clientVoicePacks,
   )
-    .slice(0, VOICE_PACKS_LIMIT)
+    .slice(0, CLIENT_VOICE_PACKS_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
       businessName: lead.businessName,
@@ -241,6 +260,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     unrepliedInquiries.length === 0 &&
     marketingPacksDue.length === 0 &&
     starterUpsellCandidates.length === 0 &&
+    commerceCatalogsMissing.length === 0 &&
     clientVoicePacksDue.length === 0;
 
   return {
@@ -251,6 +271,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     unrepliedInquiries,
     marketingPacksDue,
     starterUpsellCandidates,
+    commerceCatalogsMissing,
     clientVoicePacksDue,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
@@ -309,7 +330,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, Starter upsells, and Complete voice packs are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, Starter upsells, Commerce catalogs, and Complete voice packs are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -346,6 +367,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtml(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtml(lead.targetTier)} upsell`,
   );
 
+  const commerceRows = digest.commerceCatalogsMissing.map(
+    (lead) =>
+      `<strong>${escapeHtml(lead.businessName)}</strong> — Commerce catalog not created`,
+  );
+
   const voicePackRows = digest.clientVoicePacksDue.map(
     (lead) =>
       `<strong>${escapeHtml(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
@@ -362,6 +388,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Unreplied inquiries (${digest.unrepliedInquiries.length})`, inquiryRows, "Inbox clear.")}
     ${section(`Marketing packs due (${digest.marketingPacksDue.length})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidates.length})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
+    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissing.length})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}

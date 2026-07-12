@@ -23,6 +23,7 @@ import {
   listMarketingPacksForMonth,
   upsertCommerceCatalog,
   getCommerceCatalog,
+  listCommerceCatalogs,
   upsertClientVoicePack,
   listClientVoicePacks,
 } from "@/lib/db";
@@ -835,9 +836,11 @@ export async function openBillingPortalAction(slug: string) {
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
  * abandoned-checkout recoveries due, unreplied inquiries, marketing packs due,
- * and Starter → MRR upsell candidates in one send, plus cold/snoozed footnotes,
- * so a single-operator business does not have to open this dashboard to know
- * what is urgent today. Requires OPERATOR_DIGEST_EMAIL — see /docs/process.
+ * Starter → MRR upsell candidates, Commerce catalogs missing, and Complete
+ * voice packs due in one send, plus cold/snoozed footnotes, so a
+ * single-operator business does not have to open this dashboard to know what
+ * is urgent today. Requires
+ * OPERATOR_DIGEST_EMAIL — see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {
@@ -856,15 +859,23 @@ export async function sendDailyDigestAction() {
 
     const nowMs = Date.now();
     const yearMonth = marketingMonthKey(nowMs);
-    const [leads, inquiries, openCheckoutSessions, orders, marketingPacks, clientVoicePacks] =
-      await Promise.all([
-        getLeads(),
-        listClientInquiries(100),
-        listOpenCheckoutSessions(),
-        listOrders(),
-        listMarketingPacksForMonth(yearMonth),
-        listClientVoicePacks(),
-      ]);
+    const [
+      leads,
+      inquiries,
+      openCheckoutSessions,
+      orders,
+      marketingPacks,
+      commerceCatalogs,
+      clientVoicePacks,
+    ] = await Promise.all([
+      getLeads(),
+      listClientInquiries(100),
+      listOpenCheckoutSessions(),
+      listOrders(),
+      listMarketingPacksForMonth(yearMonth),
+      listCommerceCatalogs(),
+      listClientVoicePacks(),
+    ]);
 
     const headerStore = await headers();
     const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
@@ -878,6 +889,7 @@ export async function sendDailyDigestAction() {
       openCheckoutSessions,
       orders,
       marketingPacksThisMonth: marketingPacks,
+      commerceCatalogs,
       clientVoicePacks,
       nowMs,
     });

@@ -107,6 +107,7 @@ describe("computePipelineHealth", () => {
     expect(health.orderCount).toBe(0);
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
+    expect(health.commerceCatalogsMissingCount).toBe(0);
     expect(health.clientVoicePacksDueCount).toBe(0);
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
@@ -420,6 +421,43 @@ describe("computePipelineHealth", () => {
     });
     expect(health.marketingPacksDueCount).toBe(1);
     expect(health.marketingPacksDueMonth).toBe("2026-07");
+  });
+
+  it("counts paid/live commerceAddon leads missing a catalog", () => {
+    const needsCatalog = makeLead("paid", { slug: "needs-catalog" });
+    const hasCatalog = makeLead("live", { slug: "has-catalog" });
+    const noAddon = makeLead("paid", { slug: "no-addon" });
+    const health = computePipelineHealth({
+      leads: [needsCatalog, hasCatalog, noAddon],
+      orders: [
+        {
+          ...makeOrder(849),
+          id: "o1",
+          leadSlug: "needs-catalog",
+          tier: "starter",
+          commerceAddon: true,
+        },
+        {
+          ...makeOrder(849),
+          id: "o2",
+          leadSlug: "has-catalog",
+          tier: "growth",
+          commerceAddon: true,
+        },
+        {
+          ...makeOrder(500),
+          id: "o3",
+          leadSlug: "no-addon",
+          tier: "starter",
+          commerceAddon: false,
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      commerceCatalogs: [{ leadSlug: "has-catalog" }],
+      nowMs: NOW,
+    });
+    expect(health.commerceCatalogsMissingCount).toBe(1);
   });
 
   it("counts Complete leads missing a client voice FAQ pack", () => {
