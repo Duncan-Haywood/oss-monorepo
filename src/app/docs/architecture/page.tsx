@@ -129,7 +129,9 @@ export default function ArchitectureDocPage() {
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
         outreach emails use <code>?src=outreach</code> (or the lead is already in outreach /
         discovery stages). Operator free-text <code>notes</code> on each lead capture call
-        outcomes from the dashboard row expander (not shown on client preview sites).
+        outcomes from the dashboard row expander (not shown on client preview sites). Moving a
+        lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
+        soft prompt (Skip dismisses without undoing the stage/email change).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

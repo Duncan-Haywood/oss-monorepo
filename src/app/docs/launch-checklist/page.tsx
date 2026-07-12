@@ -151,6 +151,11 @@ export default function LaunchChecklistDocPage() {
           Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
           them again via search — notes stay off the public preview site
         </li>
+        <li>
+          Setting stage to <strong>Discovery Call</strong> or sending <strong>Email 3</strong>{" "}
+          auto-opens Notes with a soft prompt; <strong>Skip for now</strong> dismisses without
+          undoing the stage or email
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>
