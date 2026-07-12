@@ -306,14 +306,15 @@ export const NEXT_STEPS: NextStep[] = [
       "Optional snooze / defer on Work next (store snoozedUntil on Lead) so operators can park a hot lead without losing score history — reduces false urgency after a call is booked.",
     status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
-    owner: "cursor/prompt-process-evolution-af03",
+    owner: "cursor/business-process-evolution-a6e6",
   },
   {
     id: "unreplied-inquiry-pipeline-metric",
     summary:
       "Fold new/unreplied clientInquiries counts into pipeline-health (and optionally a dashboard teaser) so unpaid-looking support debt on live/paid sites sits beside paid-not-live — complements inquiry-dashboard-reply without a second inbox.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-af03",
   },
 ];
 
