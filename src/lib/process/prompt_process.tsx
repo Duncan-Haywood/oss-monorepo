@@ -270,8 +270,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "discovery-call-notes-prompt",
     summary:
       "When an operator moves a lead to discovery_call (or sends Email 3), surface a lightweight prompt to add/update Lead.notes before leaving the row — raises note capture without a separate CRM workflow.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-c5cb",
   },
   {
     id: "outreach-open-tracking",
