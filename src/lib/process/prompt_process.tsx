@@ -843,14 +843,15 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deploy-handoff-preserve-custom-domain",
     summary:
-      "Empty-backlog audit follow-up (queued, not claimed): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Prefer claiming after checkout-session-create-convex-primary ships.",
-    status: "todo",
+      "Empty-backlog audit follow-up (queued by f005): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds.",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-6946",
   },
   {
     id: "checkout-recovery-sent-convex-primary",
     summary:
-      "Empty-backlog audit follow-up (queued): recordCheckoutRecoverySent still soft-falls-back after the operator already sent the Finish-checkout / Buy now recovery email — Convex-first listOpenCheckoutSessions then keeps the session due and can nudge again (reputation / CAN-SPAM risk). Prefer requireConvex + surface the failure in the dashboard action after send, or send-after-durable-mark with compensating retry. Claim after create-path requireConvex ships; do not invent optional aggregates.",
+      "Empty-backlog audit follow-up (queued by f005): recordCheckoutRecoverySent still soft-falls-back after the operator already sent the Finish-checkout / Buy now recovery email — Convex-first listOpenCheckoutSessions then keeps the session due and can nudge again (reputation / CAN-SPAM risk). Prefer requireConvex + surface the failure in the dashboard action after send, or send-after-durable-mark with compensating retry. Free for sibling prompt-process-evolution-c1a0 this hour.",
     status: "todo",
     phase: "Phase 3 — Payments",
   },
