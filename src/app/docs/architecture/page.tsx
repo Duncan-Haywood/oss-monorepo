@@ -127,7 +127,8 @@ export default function ArchitectureDocPage() {
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
         unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage
         funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied
-        website inquiries (new + read, with oldest age), cold leads, and leads missing email (
+        website inquiries (new + read, with oldest age), cold leads, currently-snoozed Work next
+        parks (count + soonest return), and leads missing email (
         <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
@@ -138,7 +139,8 @@ export default function ArchitectureDocPage() {
         lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
         soft prompt (Skip dismisses without undoing the stage/email change). Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
-        the quality score visible — Unsnooze clears it. A lead that exhausts all 3 outreach
+        the quality score visible — Unsnooze clears it; parked count also appears on pipeline
+        health so forgotten snoozes do not hide. A lead that exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health

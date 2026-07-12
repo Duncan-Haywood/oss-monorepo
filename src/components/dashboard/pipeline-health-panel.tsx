@@ -20,7 +20,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-8">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-9">
         <MetricCard
           label="Recorded revenue"
           value={formatUsd(health.revenueTotalUsd)}
@@ -89,6 +89,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           }
           attention={health.coldLeadCount > 0}
         />
+        <MetricCard
+          label="Snoozed"
+          value={String(health.snoozedLeadCount)}
+          hint={
+            health.soonestSnoozeRemainingHours !== null
+              ? `Next back in ${formatAbandonedAgeHours(health.soonestSnoozeRemainingHours)}`
+              : "None parked off Work next"
+          }
+          attention={health.snoozedLeadCount > 0}
+        />
       </div>
 
       {health.unrepliedInquiryCount > 0 ? (
@@ -121,6 +131,18 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           {health.coldLeadCount === 1 ? "it" : "them"} again. Use{" "}
           <strong>Re-engage</strong> or <strong>Close</strong> in the Cold leads panel (or
           row actions) below.
+        </p>
+      ) : null}
+
+      {health.snoozedLeadCount > 0 ? (
+        <p className="mt-3 text-xs text-slate-700">
+          {health.snoozedLeadCount} lead{health.snoozedLeadCount === 1 ? "" : "s"} parked off
+          Work next
+          {health.soonestSnoozeRemainingHours !== null
+            ? ` — soonest returns in ${formatAbandonedAgeHours(health.soonestSnoozeRemainingHours)}`
+            : ""}
+          . Unsnooze from the table when the call/booked slot is done; this count is not a second
+          priority queue.
         </p>
       ) : null}
 

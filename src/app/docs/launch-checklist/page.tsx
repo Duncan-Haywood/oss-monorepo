@@ -165,7 +165,9 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           From <strong>Work next</strong> or a lead row, snooze 1d / 3d / 7d parks the lead off
-          the queue (score preserved); <strong>Unsnooze</strong> brings it back early
+          the queue (score preserved); <strong>Unsnooze</strong> brings it back early. Confirm
+          the pipeline-health <strong>Snoozed</strong> count matches parked rows (and soonest
+          return time).
         </li>
         <li>
           After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}

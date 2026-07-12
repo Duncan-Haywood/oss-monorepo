@@ -529,6 +529,9 @@ export function LeadsClient({
     leads.map((lead) => [lead.slug, scoreLead(lead, nowMs, scoreOptions)]),
   );
   const workNext = rankLeadsForOutreach(leads, nowMs, 5, scoreOptions);
+  const snoozedLeadCount = leads.filter((l) =>
+    isLeadSnoozed(l.snoozedUntil, nowMs),
+  ).length;
 
   const filteredLeads = leads
     .filter((lead) => {
@@ -761,6 +764,13 @@ export function LeadsClient({
             deprioritized. Paid/live rows stay in fulfillment, not this queue. Snooze parks a lead
             off this list without wiping its score.
           </p>
+          {snoozedLeadCount > 0 ? (
+            <p className="mt-2 text-xs text-slate-700">
+              {snoozedLeadCount} lead{snoozedLeadCount === 1 ? "" : "s"} currently snoozed
+              (hidden above) — see pipeline health Snoozed count, or Unsnooze in the table when
+              ready.
+            </p>
+          ) : null}
           <ul className="mt-4 space-y-3">
             {workNext.map((row) => {
               const lead = leads.find((l) => l.slug === row.slug);

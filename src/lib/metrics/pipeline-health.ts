@@ -2,7 +2,8 @@
  * Operator pipeline health — aggregate signals so stuck money and funnel
  * gaps are visible without scanning every lead row.
  * See /docs/process (pipeline-health-metrics + pipeline-health-abandoned-sessions
- * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement).
+ * + unreplied-inquiry-pipeline-metric + cold-lead-reengagement
+ * + snoozed-leads-pipeline-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -15,6 +16,7 @@ import {
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
 import { isColdLead } from "@/lib/email/outreach-followups";
+import { isLeadSnoozed } from "@/lib/leads/snooze";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -61,6 +63,16 @@ export interface PipelineHealth {
   coldLeadCount: number;
   /** Age in whole hours since the oldest cold lead's last outreach send; null when none. */
   oldestColdLeadAgeHours: number | null;
+  /**
+   * Leads currently parked off Work next via snoozedUntil (see isLeadSnoozed).
+   * Aggregate only — not a second priority queue.
+   */
+  snoozedLeadCount: number;
+  /**
+   * Whole hours until the soonest snooze expires; null when none snoozed.
+   * Helps operators see parked urgency coming back onto Work next.
+   */
+  soonestSnoozeRemainingHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -205,6 +217,23 @@ export function computePipelineHealth(input: {
     }
   }
 
+  const snoozedLeads = input.leads.filter((lead) =>
+    isLeadSnoozed(lead.snoozedUntil, nowMs),
+  );
+  let soonestSnoozeRemainingHours: number | null = null;
+  for (const lead of snoozedLeads) {
+    if (!lead.snoozedUntil) continue;
+    const untilMs = Date.parse(lead.snoozedUntil);
+    if (Number.isNaN(untilMs) || untilMs <= nowMs) continue;
+    const remainingHours = Math.ceil((untilMs - nowMs) / HOUR_MS);
+    if (
+      soonestSnoozeRemainingHours === null ||
+      remainingHours < soonestSnoozeRemainingHours
+    ) {
+      soonestSnoozeRemainingHours = Math.max(0, remainingHours);
+    }
+  }
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -227,6 +256,8 @@ export function computePipelineHealth(input: {
     oldestAbandonedAgeHours,
     coldLeadCount: coldLeads.length,
     oldestColdLeadAgeHours,
+    snoozedLeadCount: snoozedLeads.length,
+    soonestSnoozeRemainingHours,
   };
 }
 
