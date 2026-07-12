@@ -853,6 +853,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "todo",
     phase: "Phase 3 — Payments",
   },
+  {
+    id: "preview-open-convex-primary",
+    summary:
+      "After PR #83 (unsubscribe requireConvex) left only gated NEXT_STEPS, sibling prompt-process-evolution-f005 claimed checkout-session-create-convex-primary. Empty-backlog audit found POST /api/preview/[slug]/open still SQLite-fallbacks on Convex failure then returns { ok: true, recorded: true } while getLeads/getLeadBySlug read Convex-first — Work next preview_opened scoring, follow-up openers-first sort, and the Opened badge silently miss on other instances. Prefer fail-closed 503 (beacon is fire-and-forget) over writing only to instance-local SQLite when Convex is configured.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-51f0",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -3494,6 +3502,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: checkout-session-create-convex-primary done; queued deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary",
       "AGENT_PROTOCOL — checkout create requireConvex pairs with mark-complete",
       "BUSINESS_DECISIONS — documented create-path fail-closed for abandoned-recovery revenue",
+      "merge: folded sibling business-process-evolution-51f0 claim (preview-open-convex-primary) — both NEXT_STEPS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(178, 179),
   },
