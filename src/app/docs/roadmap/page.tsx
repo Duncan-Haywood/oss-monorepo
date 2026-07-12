@@ -221,8 +221,10 @@ export default function RoadmapDocPage() {
         pipeline-health metric (unpaid/owed only — settled <code>paidOutAt</code> rows drop out) —
         deliberately kept out of <code>revenueTotalUsd</code>, since
         that money is owed to the client, not the platform. Stripe redeliveries of the same
-        Buy now session skip the operator inquiry + client receipt once the ledger row exists
-        (<code>insertCommerceOrder</code> → <code>alreadyRecorded</code>). Per-lead owed totals and recent
+        Buy now session recover missing operator inquiry + client receipt when the ledger
+        exists but no <code>commerce_checkout</code> inquiry embeds the session id (
+        <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
+        already exists. Per-lead owed totals and recent
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}

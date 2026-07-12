@@ -48,3 +48,11 @@ export {
   formatCommerceBuyNowClientReceiptHtml,
   leadEligibleForCommerceBuyNowClientReceipt,
 } from "./client-receipt";
+
+export {
+  hasCommerceCheckoutInquiryForSession,
+  inquiryMentionsStripeSession,
+  planCommerceWebhookSideEffects,
+  type CommerceSideEffectPlan,
+  type CommerceSideEffectReason,
+} from "./side-effect-recovery";

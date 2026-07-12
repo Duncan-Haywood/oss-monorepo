@@ -257,8 +257,9 @@ export default function LaunchChecklistDocPage() {
           order amount. With an email on the Commerce lead, confirm they receive (or a mock send
           logs) the client order notification — SKU, amount, optional customer email, link to
           preview#catalog. Re-deliver the same Stripe <code>checkout.session.completed</code>{" "}
-          event and confirm a second inquiry/client email is <em>not</em> created (ledger already
-          recorded). A commerce session missing <code>metadata.skuId</code> must not create an
+          event: if the inquiry was never written, confirm recovery creates it once; if it
+          already exists for that session id, confirm a second inquiry/client email is{" "}
+          <em>not</em> created. A commerce session missing <code>metadata.skuId</code> must not create an
           inquiry or client email either. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
           order line and owed total. Confirm <strong>Send daily digest</strong> lists those
