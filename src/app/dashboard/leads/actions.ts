@@ -14,10 +14,17 @@ import {
   listOpenCheckoutSessions,
   recordCheckoutRecoverySent,
   updateLeadNotes,
+  updateLeadSnooze,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
+import {
+  isSnoozePresetId,
+  normalizeSnoozedUntil,
+  snoozedUntilFromPreset,
+  type SnoozePresetId,
+} from "@/lib/leads/snooze";
 import {
   inquiryCanReceiveReply,
   normalizeInquiryReply,
@@ -257,6 +264,63 @@ export async function updateLeadNotesAction(slug: string, notes: string) {
     return { success: true as const, notes: normalized.notes };
   } catch (error) {
     console.error("Error in updateLeadNotesAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Park a lead off Work next for a preset duration (1d / 3d / 7d), or clear
+ * snooze when clear=true. Score history is preserved; the lead reappears when
+ * snoozedUntil elapses.
+ */
+export async function snoozeLeadAction(
+  slug: string,
+  options: { preset?: SnoozePresetId | string; clear?: boolean },
+) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const existing = await getLeadBySlug(slug);
+    if (!existing) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const nowMs = Date.now();
+    let snoozedUntil: string | undefined;
+
+    if (options.clear) {
+      snoozedUntil = undefined;
+    } else if (options.preset !== undefined) {
+      if (!isSnoozePresetId(options.preset)) {
+        return { success: false as const, error: "Invalid snooze preset" };
+      }
+      snoozedUntil = snoozedUntilFromPreset(options.preset, nowMs);
+    } else {
+      return {
+        success: false as const,
+        error: "Provide a snooze preset or clear: true",
+      };
+    }
+
+    const normalized = normalizeSnoozedUntil(snoozedUntil ?? "", nowMs);
+    if (!normalized.ok) {
+      return { success: false as const, error: normalized.error };
+    }
+
+    await updateLeadSnooze(slug, normalized.snoozedUntil);
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, snoozedUntil: normalized.snoozedUntil };
+  } catch (error) {
+    console.error("Error in snoozeLeadAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

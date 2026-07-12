@@ -87,8 +87,9 @@ export default function RoadmapDocPage() {
         shipped. Operator lead notes (free-text call outcomes on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
-        never blocks the mutation): shipped. Remaining: Vapi/Retell platform voice and bundle
-        explanation tools.
+        never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
+        presets — parks a lead off the queue without wiping score history): shipped. Remaining:
+        Vapi/Retell platform voice and bundle explanation tools.
       </p>
 
       <h2 id="phase-3-payments">Phase 3 — Payments (in progress)</h2>
@@ -134,7 +135,7 @@ export default function RoadmapDocPage() {
         shared project when unset) — full automated project creation remains manual. Remaining:
         registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
         panel + dashboard reply via Resend): shipped. Remaining free operator-leverage gaps:
-        discovery-call notes prompt, Work next snooze — see{" "}
+        unreplied-inquiry pipeline metric — see{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>
 

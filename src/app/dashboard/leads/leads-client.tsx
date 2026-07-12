@@ -18,6 +18,7 @@ import {
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
   updateLeadNotesAction,
+  snoozeLeadAction,
   openBillingPortalAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
@@ -49,6 +50,13 @@ import {
   shouldPromptNotesAfterStageChange,
   type NotesPromptReason,
 } from "@/lib/leads/notes";
+import {
+  SNOOZE_PRESET_IDS,
+  isLeadSnoozed,
+  snoozePresetLabel,
+  snoozeRemainingLabel,
+  type SnoozePresetId,
+} from "@/lib/leads/snooze";
 import {
   MAX_INQUIRY_REPLY_LENGTH,
   inquiryCanReceiveReply,
@@ -216,6 +224,36 @@ export function LeadsClient({
         prev.map((l) => (l.slug === slug ? { ...l, notes: res.notes } : l)),
       );
       closeNotesEditor();
+    });
+  };
+
+  const handleSnooze = (slug: string, preset: SnoozePresetId) => {
+    startTransition(async () => {
+      const res = await snoozeLeadAction(slug, { preset });
+      if (!res.success) {
+        alert(res.error ?? "Failed to snooze lead");
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.slug === slug ? { ...l, snoozedUntil: res.snoozedUntil } : l,
+        ),
+      );
+    });
+  };
+
+  const handleClearSnooze = (slug: string) => {
+    startTransition(async () => {
+      const res = await snoozeLeadAction(slug, { clear: true });
+      if (!res.success) {
+        alert(res.error ?? "Failed to clear snooze");
+        return;
+      }
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.slug === slug ? { ...l, snoozedUntil: undefined } : l,
+        ),
+      );
     });
   };
 
@@ -613,7 +651,8 @@ export function LeadsClient({
           <p className="mt-1 text-xs text-zinc-600">
             Highest-probability targets first — abandoned checkout (hottest), email/phone/address,
             stage momentum, follow-up due, preview opens, category↔tier fit. Demo leads are
-            deprioritized. Paid/live rows stay in fulfillment, not this queue.
+            deprioritized. Paid/live rows stay in fulfillment, not this queue. Snooze parks a lead
+            off this list without wiping its score.
           </p>
           <ul className="mt-4 space-y-3">
             {workNext.map((row) => {
@@ -688,6 +727,20 @@ export function LeadsClient({
                           Send Email {nextFollowUpStep(lead.outreachStep) ?? "?"}
                         </button>
                       ) : null}
+                      <div className="flex flex-wrap gap-1">
+                        {SNOOZE_PRESET_IDS.map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            disabled={isPending}
+                            title={`Snooze ${snoozePresetLabel(preset)}`}
+                            onClick={() => handleSnooze(lead.slug, preset)}
+                            className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-[10px] font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60"
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </li>
@@ -1365,6 +1418,7 @@ export function LeadsClient({
                   const due = isFollowUpDue(lead, nowMs);
                   const quality = qualityBySlug.get(lead.slug);
                   const notesOpen = notesEditSlug === lead.slug;
+                  const snoozed = isLeadSnoozed(lead.snoozedUntil, nowMs);
                   return (
                     <React.Fragment key={lead.slug}>
                     <tr className="hover:bg-zinc-50/50 transition">
@@ -1384,18 +1438,28 @@ export function LeadsClient({
                         </div>
                       </td>
                       <td className="px-6 py-4.5">
-                        {quality ? (
-                          <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityBandClass(quality.band)}`}
-                            title={quality.factors
-                              .map((f) => `${f.delta >= 0 ? "+" : ""}${f.delta} ${f.label}`)
-                              .join("\n")}
-                          >
-                            {quality.score} · {qualityBandLabel(quality.band)}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-zinc-400">—</span>
-                        )}
+                        <div className="flex flex-col items-start gap-1">
+                          {quality ? (
+                            <span
+                              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityBandClass(quality.band)}`}
+                              title={quality.factors
+                                .map((f) => `${f.delta >= 0 ? "+" : ""}${f.delta} ${f.label}`)
+                                .join("\n")}
+                            >
+                              {quality.score} · {qualityBandLabel(quality.band)}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-zinc-400">—</span>
+                          )}
+                          {snoozed && lead.snoozedUntil ? (
+                            <span
+                              className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700"
+                              title={lead.snoozedUntil}
+                            >
+                              {snoozeRemainingLabel(lead.snoozedUntil, nowMs)}
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-6 py-4.5">
                         <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-800 capitalize">
@@ -1466,6 +1530,33 @@ export function LeadsClient({
                           >
                             {notesOpen ? "Close" : leadHasNotes(lead.notes) ? "Edit notes" : "Notes"}
                           </button>
+                          {lead.stage !== "paid" && lead.stage !== "live" ? (
+                            snoozed ? (
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleClearSnooze(lead.slug)}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-100 disabled:opacity-60"
+                              >
+                                Unsnooze
+                              </button>
+                            ) : (
+                              <div className="inline-flex h-8 items-center gap-0.5 rounded-lg border border-zinc-200 bg-white px-1">
+                                {SNOOZE_PRESET_IDS.map((preset) => (
+                                  <button
+                                    key={preset}
+                                    type="button"
+                                    disabled={isPending}
+                                    title={`Snooze ${snoozePresetLabel(preset)}`}
+                                    onClick={() => handleSnooze(lead.slug, preset)}
+                                    className="rounded-md px-1.5 py-1 text-[10px] font-semibold text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-60"
+                                  >
+                                    {preset}
+                                  </button>
+                                ))}
+                              </div>
+                            )
+                          ) : null}
                           {next && lead.email && lead.stage !== "paid" && lead.stage !== "live" ? (
                             <button
                               type="button"

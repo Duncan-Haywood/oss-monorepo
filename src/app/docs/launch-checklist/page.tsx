@@ -156,6 +156,10 @@ export default function LaunchChecklistDocPage() {
           auto-opens Notes with a soft prompt; <strong>Skip for now</strong> dismisses without
           undoing the stage or email
         </li>
+        <li>
+          From <strong>Work next</strong> or a lead row, snooze 1d / 3d / 7d parks the lead off
+          the queue (score preserved); <strong>Unsnooze</strong> brings it back early
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>
