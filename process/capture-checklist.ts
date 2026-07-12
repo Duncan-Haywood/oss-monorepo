@@ -14,6 +14,36 @@ export type ShotSpec = {
   bracket: "single" | "hdr_3" | "hdr_5";
 };
 
+/**
+ * What each bracket label actually means and how to shoot it on a normal
+ * phone, in plain language. Added after an audit found the checklist used
+ * "hdr_3"/"hdr_5" throughout without ever explaining them — fine for a
+ * professional photographer, not for the zero-photography-background
+ * shooter this concierge workflow actually targets (see STRATEGY.md).
+ *
+ * IMPORTANT: pipeline/'s coverage check (pipeline/src/coverage.ts) counts
+ * exactly ONE output file per ShotSpec, not one per raw exposure. Bracketed
+ * shots must be merged/selected down to a single best image BEFORE they go
+ * into the pipeline/ input folder, or the shot count will look inflated
+ * and throw off the coverage check.
+ */
+export const BRACKET_GUIDANCE: Record<ShotSpec["bracket"], { label: string; howTo: string }> = {
+  single: {
+    label: "Single exposure",
+    howTo: "One normal photo. No special steps — just frame the shot per the instructions and tap to capture.",
+  },
+  hdr_3: {
+    label: "3-exposure HDR",
+    howTo:
+      "Turn on your phone's built-in HDR/Smart HDR mode (iPhone: Camera app > HDR, usually automatic on recent models; Android: Camera app > More/Settings > HDR) and take the shot once — the phone captures and merges 3 exposures (dark/normal/bright) automatically into one photo. You do not need a tripod or manual bracketing app for this. Confirm only ONE merged photo lands in your camera roll for this shot before moving on.",
+  },
+  hdr_5: {
+    label: "5-exposure HDR",
+    howTo:
+      "Same as 3-exposure HDR (turn on your phone's HDR mode and shoot once) — used for the room's hardest-to-balance shot (bright windows + dark interior), where you want the phone to lean on more merged exposure range. If your phone's HDR only offers a fixed 3-shot merge, that's fine; just make sure HDR is on and don't skip this shot. Still exactly ONE final photo per shot.",
+  },
+};
+
 export type RoomChecklist = {
   id: string;
   room: string;
@@ -31,6 +61,63 @@ export type RoomChecklist = {
    */
   perAdditionalUnit?: { typicalUnits: number };
 };
+
+export type PrepItem = {
+  id: string;
+  label: string;
+  why: string;
+};
+
+/**
+ * General home + equipment prep to do ONCE, before starting the
+ * room-by-room checklist. Without this, a first-time shooter tends to
+ * discover mid-shoot that a light was off, a car was in the driveway
+ * shot, or their phone had no storage — each of which costs a re-shoot
+ * trip, blowing the 30-minute-fix / same-day-turnaround promise in
+ * STRATEGY.md and process/pricing-one-pager.tsx.
+ */
+export const preShootPrep: PrepItem[] = [
+  {
+    id: "prep-storage-battery",
+    label: "Check your phone has 2+ GB free storage and 50%+ battery (or a charger on hand)",
+    why: "A ~20-shot shoot with HDR brackets can be several hundred MB; running out mid-shoot means a second trip.",
+  },
+  {
+    id: "prep-lights-on",
+    label: "Turn on every light in the home, including closets and under-cabinet lighting",
+    why: "Buyers read a well-lit home as larger and better maintained; mixed on/off lighting looks unfinished in photos.",
+  },
+  {
+    id: "prep-blinds-open",
+    label: "Open all blinds/curtains and clean visible windows",
+    why: "Natural light plus a clean window reads better than closed blinds, and avoids streaky glare in the shot.",
+  },
+  {
+    id: "prep-declutter",
+    label: "Clear counters, floors, and visible surfaces of personal items, trash, and pet bowls/toys",
+    why: "MLS photos should show the space, not the seller's belongings — this also matches the no-clutter reminders repeated per-room below.",
+  },
+  {
+    id: "prep-vehicles-hoses",
+    label: "Move cars out of the driveway/street in front of the house and coil up hoses/cords in the yard",
+    why: "The exterior front-elevation shot is usually the single most-viewed photo on a listing; a car or hose in frame is the #1 preventable re-shoot cause.",
+  },
+  {
+    id: "prep-fans-off",
+    label: "Turn off ceiling fans",
+    why: "A spinning fan blurs into a smear in most phone exposures, including HDR brackets.",
+  },
+  {
+    id: "prep-toilet-lids",
+    label: "Close all toilet lids and hide personal bathroom items",
+    why: "Same declutter logic as above, called out separately because it is the most commonly forgotten single item.",
+  },
+  {
+    id: "prep-camera-settings",
+    label: "Set your phone camera to its highest resolution and turn ON grid lines (for level horizons/vertical lines)",
+    why: "Higher resolution gives pipeline/'s enhancement step more to work with; grid lines make it easy to keep verticals straight without a tripod, which several shots below call for.",
+  },
+];
 
 export const captureChecklist: RoomChecklist[] = [
   {

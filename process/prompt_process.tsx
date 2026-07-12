@@ -23,7 +23,7 @@
 import { roadmap, nextActionableTasks } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
-import { captureChecklist, totalTargetMinutes } from "./capture-checklist";
+import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
 import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual-staging-tech";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
@@ -40,6 +40,16 @@ Each session:
 2. Call nextActionableTasks() mentally: pick ONE not-started task owned by
    "agent" or "both" that you can actually complete this session — prefer
    the earliest incomplete phase over later ones.
+2a. Claim it immediately: as your FIRST commit this session (before doing
+   the rest of the work), flip that task's status to "in_progress" in
+   roadmap.ts and push/merge that tiny change to main by itself. Hourly
+   agent sessions poll roadmap.ts for not_started tasks, and two sessions
+   can start within minutes of each other (this happened for real on
+   2026-07-12: PR #13 and #14 both independently answered the same
+   STRATEGY.md open question and #13 had to be closed unmerged). A cheap,
+   early "claimed" commit is the whole fix — nextActionableTasks() already
+   skips non-"not_started" tasks, so a concurrent session that fetches
+   fresh will see it and pick something else instead of duplicating work.
 3. Do NOT attempt tasks owned by "human" (real interviews, taking payment,
    shooting real listings, dashboard clicks that need Duncan's account).
    Instead, prepare everything an agent can: scripts, checklists, copy,
@@ -186,9 +196,22 @@ export function ProcessDashboard() {
       <section>
         <h2 className="font-display text-2xl font-semibold text-white">Capture checklist</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
-          Room-by-room guided shoot checklist for the Phase 2 concierge MVP. Target total time:{" "}
-          {totalTargetMinutes()} minutes.
+          Room-by-room guided shoot checklist for the Phase 2 concierge MVP, written for someone
+          with zero photography background. Target total time: {totalTargetMinutes()} minutes.
         </p>
+
+        <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+          <h3 className="font-medium text-white">Before you start (once per shoot)</h3>
+          <ul className="mt-4 space-y-2">
+            {preShootPrep.map((item) => (
+              <li key={item.id} className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3">
+                <p className="text-sm text-slate-200">{item.label}</p>
+                <p className="mt-1 text-xs text-slate-500">{item.why}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="mt-4 space-y-4">
           {captureChecklist.map((room) => (
             <div key={room.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
@@ -203,9 +226,11 @@ export function ProcessDashboard() {
                     className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3"
                   >
                     <p className="text-sm text-slate-200">
-                      {shot.label} <span className="text-xs text-slate-500">({shot.bracket})</span>
+                      {shot.label}{" "}
+                      <span className="text-xs text-slate-500">({BRACKET_GUIDANCE[shot.bracket].label})</span>
                     </p>
                     <p className="mt-1 text-xs text-slate-500">{shot.instructions}</p>
+                    <p className="mt-1 text-xs text-slate-600">{BRACKET_GUIDANCE[shot.bracket].howTo}</p>
                   </li>
                 ))}
               </ul>

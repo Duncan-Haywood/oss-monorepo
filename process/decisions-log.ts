@@ -115,4 +115,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-q7uwlq",
     relatedTaskIds: ["p1-virtual-staging-tech", "p2-ai-pipeline", "p3-app-scope"],
   },
+  {
+    date: "2026-07-12",
+    title: "Close duplicate PR #13 rather than merge overlapping virtual-staging research",
+    decision:
+      "PR #13 (branch claude/dazzling-allen-vstaging-2937) and PR #14 (branch claude/dazzling-allen-q7uwlq) independently answered STRATEGY.md's same 'on-device vs cloud for virtual staging' open question within about 10 minutes of each other, reaching the same recommendation (low-cost pay-per-image cloud API, not on-device, deferred until real volume/an app exists). #14 merged first; #13 was closed unmerged with a comment pointing to #14, rather than merged as a second, overlapping process/virtual-staging-*.ts file. AGENT_PROCESS_INSTRUCTIONS (prompt_process.tsx) gained a new step 2a — claim a task by committing its in_progress status to main as the first action of a session — to reduce how often this race recurs.",
+    rationale:
+      "Two independent research passes agreeing is a mild positive signal for the decision itself, but landing both artifacts would leave two near-duplicate files and two duplicate roadmap tasks with no added value, which is worse for future-agent clarity than picking one. This is exactly the scenario prompt_process.tsx step 8 (check other open PRs before merging) exists to catch, and it worked as designed here — the fix is making the race less likely to happen at all, not changing the merge-conflict-resolution step itself.",
+    madeBy: "claude/checklist-novice-audit",
+    relatedTaskIds: ["p1-virtual-staging-tech"],
+  },
 ];

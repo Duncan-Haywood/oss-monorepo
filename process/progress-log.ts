@@ -176,4 +176,24 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): both of STRATEGY.md's originally-open, desk-researchable questions are now answered (MLS compliance, virtual-staging tech); the only remaining open question ('v1 scope: photos only vs photos + 3D lite') is explicitly gated on p3-app-scope, which every session has correctly deferred until validation data exists. Do not start p3-app-scope yet. If still nothing is human-unblocked, look for the next gap between STRATEGY.md prose and what's actually built/runnable — e.g. STRATEGY.md's 'brokerage sales cycle vs agent PLG' open question is genuinely data-dependent (not desk-researchable) so leave it, but check whether outreach-templates.ts/leads-log.ts need any small usability fix once a human has actually tried the lead-intake flow end to end.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/checklist-novice-audit",
+    summary:
+      "Found that this exact session's cron tick raced a concurrent one: PR #13 (branch claude/dazzling-allen-vstaging-2937) and PR #14 (branch claude/dazzling-allen-q7uwlq) had independently answered STRATEGY.md's same virtual-staging question about 10 minutes apart. #14 was already merged to main, so closed #13 unmerged with an explanatory comment instead of landing duplicate content, per prompt_process.tsx step 8. Since every agent-doable, desk-researchable roadmap item was otherwise done or explicitly deferred (p3-app-scope), spent the rest of the session on two things per AGENT_PROCESS_INSTRUCTIONS step 4: hardening the process itself, and a prior session's own flagged-but-undone audit.",
+    changes: [
+      "prompt_process.tsx: added AGENT_PROCESS_INSTRUCTIONS step 2a — claim a not-started task by committing its in_progress status to main as the very first action of a session, before doing the rest of the work, so a concurrent hourly session sees it's taken instead of independently duplicating it. This is a direct response to the PR #13/#14 race, not a hypothetical.",
+      "capture-checklist.ts: added `preShootPrep` (an 8-item, once-per-shoot home/equipment prep checklist — lights, blinds, decluttering, moving cars, fans off, phone storage/battery/grid-lines) and `BRACKET_GUIDANCE` (plain-language explanation of what 'single'/'hdr_3'/'hdr_5' mean and exactly how to shoot each on an iPhone or Android camera app, including the previously-undocumented gotcha that pipeline/'s coverage check expects exactly one merged output file per shot, not one per raw bracket exposure).",
+      "prompt_process.tsx: ProcessDashboard's capture-checklist section now renders the pre-shoot prep list above the room-by-room checklist, and each shot shows its plain-language bracket how-to alongside the existing camera instructions.",
+      "roadmap.ts: added p2-checklist-novice-audit (done). decisions-log.ts: logged the PR #13/#14 duplicate-work decision and rationale, so a future session understands why virtual-staging-tech.ts (not virtual-staging-options.ts) is the file that exists.",
+      "Verified: docs-site `npm run build` passes with the new preShootPrep/BRACKET_GUIDANCE rendering; pipeline/ `npm test` + `npx tsc --noEmit` and research `npm run build` both still pass (neither package's own files were touched, ran them anyway since capture-checklist.ts is imported by pipeline/src/coverage.ts).",
+      "Attempted to delete the now-fully-merged/closed claude/dazzling-allen-* branches for hygiene (repo convention is short-lived branches) but the session's git proxy hit its concurrency cap on every delete attempt (\"remote end hung up unexpectedly\") — left for a future session or Duncan to clean up manually; not blocking.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries remains the single highest-leverage next step across every session so far.",
+      "Human: PR #4 (cursor/fix-pages-access-4a7e) is still open, still needs the Cloudflare Access dashboard toggle.",
+      "Human/agent: the 8 stale claude/dazzling-allen-* branches (all already merged or closed) should get deleted next session when the git proxy isn't rate-limited, or manually by Duncan.",
+      "Agent (next session): still do not start p3-app-scope. Try step 2a (task-claiming commit) for real on your first agent-doable task and note in this log whether it actually prevented a collision — that's the only way to know if it's working. If nothing is human-unblocked, re-verify mls-compliance.ts against a specific real MLS board once one is known, or review outreach-templates.ts/leads-log.ts for usability once a human has tried the lead-intake flow end to end.",
+    ],
+  },
 ];

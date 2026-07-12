@@ -171,6 +171,16 @@ export const roadmap: RoadmapPhase[] = [
           "A typed CLI exists at pipeline/ (npm run enhance -- --in <raw> --out <delivery> --listing \"<address>\"), batch-processes a folder of photos into renamed MLS-ready JPEGs, cross-checks output count against process/capture-checklist.ts's expected shot count, and has a passing self-test (npm test) with no real listing photos required. See pipeline/src/enhance.ts, cli.ts, coverage.ts, enhance.test.ts.",
       },
       {
+        id: "p2-checklist-novice-audit",
+        title: "Audit capture-checklist.ts for a shooter with zero photography background",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "A prior session's progress-log.ts nextUp flagged this as unreviewed: the checklist used bracket labels (\"hdr_3\"/\"hdr_5\") throughout without ever explaining what they mean or how to shoot them on a phone, and had no general pre-shoot home/equipment prep step, even though STRATEGY.md's whole concierge premise is that Duncan (not a professional photographer) can run the shoot himself from the checklist alone.",
+        doneWhen:
+          "process/capture-checklist.ts exports preShootPrep (a once-per-shoot prep list) and BRACKET_GUIDANCE (plain-language capture instructions per bracket type, including the coverage.ts gotcha that brackets must be merged down to one file per shot before running pipeline/enhance), both rendered on the docs site's capture checklist section.",
+      },
+      {
         id: "p2-first-deliveries",
         title: "Deliver 5 concierge packs, collect payment",
         status: "blocked",
