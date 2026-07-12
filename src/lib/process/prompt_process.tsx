@@ -369,8 +369,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "snoozed-leads-in-digest",
     summary:
       "Optional: include currently-snoozed lead count (and soonest return) in the operator daily digest so parked urgency is visible without opening /dashboard/leads — reuses snoozedLeadCount from pipeline-health / isLeadSnoozed.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-775d",
   },
   {
     id: "closed-leads-pipeline-metric",
