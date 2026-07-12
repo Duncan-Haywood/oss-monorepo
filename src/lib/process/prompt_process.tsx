@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment / paid-Starter upsell nudge), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -57,6 +57,7 @@ export const AGENT_PROTOCOL = [
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
+  "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
   "Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating; always re-check auth inside server actions — proxy alone is not enough.",
@@ -392,8 +393,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-content-generation",
     summary:
-      "Growth ($99/mo) and Complete ($199/mo) both sell 'AI marketing engine: 8 social/GBP posts + 2 emails/month' (see /docs/product-bundles), but src/lib/marketing/generators.ts is still an unwired stub — paying subscribers have nothing generated for them. Ship an operator-triggered 'Generate this month's marketing pack' action on /dashboard/leads for paid/live Growth/Complete leads: real content via ANTHROPIC_API_KEY (fallback to the existing stub when unset), persisted per lead/month, surfaced for the operator to copy/post since Buffer/GBP OAuth auto-posting stays a separate operator-gated step (see marketing-content-scheduling). Re-queued after stale claim-only sibling claude/upbeat-dijkstra-ea3tow (~1h idle, no feature body, behind main).",
-    status: "in_progress",
+      "Growth ($99/mo) and Complete ($199/mo) both sell 'AI marketing engine: 8 social/GBP posts + 2 emails/month' (see /docs/product-bundles). Shipped: operator-triggered generateMarketingPackAction on /dashboard/leads for paid/live Growth/Complete leads — MONTHLY_MARKETING_PACK_TYPES (8 posts + 2 emails), AnthropicMarketingGenerator when ANTHROPIC_API_KEY is set (StubMarketingGenerator fallback), persisted per lead/UTC-month in SQLite + Convex marketingPacks, View pack + Copy for operator posting. Buffer/GBP OAuth auto-posting stays marketing-content-scheduling.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/business-process-evolution-31ae",
   },
@@ -1079,6 +1080,34 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Cold re-engage unblocks another Email 1–3 cycle on silent prospects; converting paid Starters into recurring Growth/Complete and shipping the sold marketing pack are the next direct MRR / fulfillment levers that do not wait on Stripe Price bootstrap or Places legal review.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Re-claimed marketing-content-generation on business-process-evolution-31ae after stale claim-only sibling claude/upbeat-dijkstra-ea3tow (~2h idle, no feature body, behind main).",
+    rationale:
+      "Protocol: stale claim-only remotes do not own a todo. Growth/Complete subscribers pay $99–199/mo for an AI marketing engine that was still an unwired stub — highest free product-promise gap after CRM/digest work.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Monthly marketing packs are one row per lead per UTC calendar month (YYYY-MM). Regenerating replaces that month. Eligibility requires stage paid|live AND a Growth/Complete order (Starter alone does not unlock the engine).",
+    rationale:
+      "Sold promise is 8 posts + 2 emails/month — month-keyed storage matches billing cycles without inventing a content CMS. Order-tier gating matches what the customer paid for; recommendedTier alone would generate packs for unpaid prospects.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Anthropic Messages API via fetch when ANTHROPIC_API_KEY is set; otherwise StubMarketingGenerator. Any LLM failure falls back to stub so operators still get a usable pack. Auto-posting (Buffer/GBP/Meta) stays a separate operator-gated todo.",
+    rationale:
+      "Avoid adding an SDK dependency for one call site. Stub fallback keeps the fulfillment path demoable without secrets. Scheduling OAuth is human-gated and must not block copy generation.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After marketing-content-generation, leave paid-starter-upsell-nudge as the top free MRR unlock and closed-leads-pipeline-metric optional; Stripe Price bootstrap and Places stay human-gated; marketing-content-scheduling stays operator-gated on OAuth.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Pack generation fulfills Growth/Complete; converting paid Starters into recurring revenue is the next lever that does not wait on Places legal or Buffer tokens.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1716,5 +1745,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — revenue preference chain includes reengage Email 1 option → paid-Starter upsell nudge",
     ],
     decisions: BUSINESS_DECISIONS.slice(92, 95),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-31ae",
+    summary:
+      "Claimed marketing-content-generation (stale ea3tow claim-only does not own). Shipped operator-triggered monthly marketing packs for paid/live Growth/Complete leads: 8 social/GBP posts + 2 emails, Anthropic when ANTHROPIC_API_KEY is set (stub fallback), SQLite + Convex persistence per UTC month, dashboard Generate/View/Copy UI. Improved AGENT_PROTOCOL with marketing-pack persistence rule. Queued paid-starter-upsell-nudge as next free MRR unlock.",
+    shipped: [
+      "src/lib/marketing/monthly-pack.ts — eligibility, month key, MONTHLY_MARKETING_PACK_TYPES (8+2)",
+      "src/lib/marketing/generators.ts — AnthropicMarketingGenerator + stub fallback; createDefaultMarketingGenerator",
+      "src/lib/marketing/build-request.ts + pack.ts — lead→request + persisted pack types",
+      "src/lib/marketing/monthly-pack.test.ts — eligibility, pack composition, stub generator",
+      "convex/marketingPacks.ts + schema marketingPacks table; db.ts upsert/get/list + applyColdDisposition api map fix",
+      "generateMarketingPackAction + /dashboard/leads Generate/View pack UI; auth on /api/marketing/generate",
+      "Docs: marketing-automation, architecture, roadmap Phase 6, launch-checklist; .env.example note",
+      "NEXT_STEPS: marketing-content-generation done; paid-starter-upsell-nudge + closed-leads-pipeline-metric free; scheduling operator-gated",
+      "AGENT_PROTOCOL — marketing pack month-keyed persistence + prefer sold-capability fulfillment",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(95, 99),
   },
 ];

@@ -21,9 +21,15 @@ import {
   snoozeLeadAction,
   disposeColdLeadAction,
   openBillingPortalAction,
+  generateMarketingPackAction,
 } from "./actions";
 import type { OrderRecord } from "@/lib/orders/types";
+import type { MarketingPack } from "@/lib/marketing/pack";
 import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
+import {
+  contentTypeLabel,
+  leadEligibleForMarketingPack,
+} from "@/lib/marketing/monthly-pack";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -76,6 +82,9 @@ interface LeadsClientProps {
   initialInquiries?: ClientInquiry[];
   initialCheckoutSessions?: CheckoutSessionRecord[];
   initialOrders?: OrderRecord[];
+  initialMarketingPacks?: MarketingPack[];
+  /** UTC YYYY-MM for the packs loaded on the server. */
+  marketingMonth?: string;
 }
 
 const STAGES: { id: LeadPipelineStage; label: string; color: string; desc: string }[] = [
@@ -101,6 +110,8 @@ export function LeadsClient({
   initialInquiries = [],
   initialCheckoutSessions = [],
   initialOrders = [],
+  initialMarketingPacks = [],
+  marketingMonth = "",
 }: LeadsClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [handoffs, setHandoffs] = useState<DeployHandoff[]>(initialHandoffs);
@@ -108,6 +119,9 @@ export function LeadsClient({
   const [checkoutSessions, setCheckoutSessions] =
     useState<CheckoutSessionRecord[]>(initialCheckoutSessions);
   const [orders] = useState<OrderRecord[]>(initialOrders);
+  const [marketingPacks, setMarketingPacks] =
+    useState<MarketingPack[]>(initialMarketingPacks);
+  const [marketingPackOpenSlug, setMarketingPackOpenSlug] = useState<string | null>(null);
   /** Snapshot clock for due-queue math — avoid Date.now() during render (react-hooks/purity). */
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
@@ -533,6 +547,15 @@ export function LeadsClient({
   const leadHasBillingPortal = (slug: string) =>
     orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
 
+  const leadHasMarketingPack = (lead: Lead) =>
+    leadEligibleForMarketingPack(
+      lead,
+      orders.filter((o) => o.leadSlug === lead.slug),
+    );
+
+  const packForLead = (slug: string) =>
+    marketingPacks.find((p) => p.leadSlug === slug) ?? null;
+
   const handleOpenBillingPortal = (slug: string) => {
     startTransition(async () => {
       const res = await openBillingPortalAction(slug);
@@ -542,6 +565,29 @@ export function LeadsClient({
       }
       window.open(res.url, "_blank", "noopener,noreferrer");
     });
+  };
+
+  const handleGenerateMarketingPack = (slug: string) => {
+    startTransition(async () => {
+      const res = await generateMarketingPackAction(slug);
+      if (!res.success) {
+        alert(`Marketing pack failed: ${res.error}`);
+        return;
+      }
+      setMarketingPacks((prev) => {
+        const without = prev.filter((p) => p.leadSlug !== slug);
+        return [res.pack, ...without];
+      });
+      setMarketingPackOpenSlug(slug);
+    });
+  };
+
+  const copyMarketingVariant = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      alert("Could not copy to clipboard");
+    }
   };
 
   // Filtered Leads — abandoned open checkouts boost quality so Work next
@@ -1578,6 +1624,9 @@ export function LeadsClient({
                   const quality = qualityBySlug.get(lead.slug);
                   const notesOpen = notesEditSlug === lead.slug;
                   const snoozed = isLeadSnoozed(lead.snoozedUntil, nowMs);
+                  const marketingEligible = leadHasMarketingPack(lead);
+                  const packOpen = marketingPackOpenSlug === lead.slug;
+                  const existingPack = packForLead(lead.slug);
                   return (
                     <React.Fragment key={lead.slug}>
                     <tr className="hover:bg-zinc-50/50 transition">
@@ -1780,6 +1829,30 @@ export function LeadsClient({
                               Billing
                             </button>
                           ) : null}
+                          {marketingEligible ? (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isPending}
+                                onClick={() => handleGenerateMarketingPack(lead.slug)}
+                                className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
+                              >
+                                {existingPack ? "Regenerate pack" : "Generate pack"}
+                              </button>
+                              {existingPack ? (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() =>
+                                    setMarketingPackOpenSlug(packOpen ? null : lead.slug)
+                                  }
+                                  className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-800 transition hover:bg-sky-50 disabled:opacity-60"
+                                >
+                                  {packOpen ? "Hide pack" : "View pack"}
+                                </button>
+                              ) : null}
+                            </>
+                          ) : null}
                           <Link
                             href={`/preview/${lead.slug}`}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
@@ -1789,6 +1862,80 @@ export function LeadsClient({
                         </div>
                       </td>
                     </tr>
+                    {packOpen && existingPack ? (
+                      <tr className="bg-sky-50/40" id={`lead-pack-${lead.slug}`}>
+                        <td colSpan={7} className="px-6 py-4">
+                          <div className="flex flex-wrap items-baseline justify-between gap-2">
+                            <h3 className="text-sm font-semibold text-zinc-900">
+                              Marketing pack
+                              {marketingMonth ? (
+                                <span className="ml-2 font-normal text-zinc-500">
+                                  {marketingMonth} (UTC)
+                                </span>
+                              ) : null}
+                            </h3>
+                            <p className="text-[11px] text-zinc-500">
+                              {existingPack.generator === "stub"
+                                ? "Stub copy — set ANTHROPIC_API_KEY for LLM"
+                                : "Generated via Anthropic"}{" "}
+                              · {existingPack.variants.length} pieces · copy to post
+                              (auto-schedule stays operator-gated)
+                            </p>
+                          </div>
+                          <ul className="mt-3 space-y-3">
+                            {existingPack.variants.map((variant, index) => {
+                              const copyText = [
+                                variant.title,
+                                variant.body,
+                                variant.cta ? `CTA: ${variant.cta}` : null,
+                                variant.hashtags?.length
+                                  ? variant.hashtags.join(" ")
+                                  : null,
+                              ]
+                                .filter(Boolean)
+                                .join("\n\n");
+                              return (
+                                <li
+                                  key={`${variant.contentType}-${index}`}
+                                  className="rounded-lg border border-sky-100 bg-white px-3 py-2"
+                                >
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-xs font-semibold text-sky-900">
+                                      {index + 1}. {contentTypeLabel(variant.contentType)}
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => void copyMarketingVariant(copyText)}
+                                      className="inline-flex h-7 items-center justify-center rounded-md border border-zinc-200 px-2 text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                                    >
+                                      Copy
+                                    </button>
+                                  </div>
+                                  {variant.title ? (
+                                    <p className="mt-1 text-xs font-medium text-zinc-800">
+                                      {variant.title}
+                                    </p>
+                                  ) : null}
+                                  <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600">
+                                    {variant.body}
+                                  </p>
+                                  {variant.cta ? (
+                                    <p className="mt-1 text-[11px] text-zinc-500">
+                                      CTA: {variant.cta}
+                                    </p>
+                                  ) : null}
+                                  {variant.hashtags?.length ? (
+                                    <p className="mt-1 text-[11px] text-sky-700/80">
+                                      {variant.hashtags.join(" ")}
+                                    </p>
+                                  ) : null}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </td>
+                      </tr>
+                    ) : null}
                     {notesOpen ? (
                       <tr className="bg-zinc-50/80" id={`lead-notes-${lead.slug}`}>
                         <td colSpan={7} className="px-6 py-4">

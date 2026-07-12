@@ -183,6 +183,13 @@ export default function LaunchChecklistDocPage() {
           <strong>Follow-ups due</strong> count increments (with the oldest-due age) and
           matches the Due badges shown in the Follow-ups due panel / Work next queue.
         </li>
+        <li>
+          For a paid/live Growth or Complete lead, click <strong>Generate pack</strong> on{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
+          posts + 2 emails appear for the current UTC month (stub copy without{" "}
+          <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
+          that month. Copy/paste to post until Buffer/GBP OAuth is configured.
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

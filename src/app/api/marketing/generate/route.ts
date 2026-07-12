@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireOperatorAuth } from "@/lib/auth/operator";
 import { getMarketingGenerator } from "@/lib/marketing/generators";
 import type {
   AutomationLevel,
@@ -38,9 +39,15 @@ function isBusinessContext(value: unknown): value is BusinessContext {
 
 /**
  * POST /api/marketing/generate
- * Generate AI marketing copy for a lead — stub until LLM keys configured (Phase 7).
+ * Operator-authenticated ad-hoc generation. Prefer generateMarketingPackAction
+ * on /dashboard/leads for the persisted monthly Growth/Complete pack.
  */
 export async function POST(request: Request) {
+  const auth = await requireOperatorAuth();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -70,8 +77,8 @@ export async function POST(request: Request) {
   }
 
   const invalidTypes = contentTypes.filter(
-    (t): t is MarketingContentType =>
-      typeof t === "string" && !VALID_CONTENT_TYPES.includes(t as MarketingContentType),
+    (t) =>
+      typeof t !== "string" || !VALID_CONTENT_TYPES.includes(t as MarketingContentType),
   );
   if (invalidTypes.length > 0) {
     return NextResponse.json(
@@ -85,7 +92,10 @@ export async function POST(request: Request) {
     !VALID_AUTOMATION_LEVELS.includes(automationLevel as AutomationLevel)
   ) {
     return NextResponse.json(
-      { error: "automationLevel must be generate_only, generate_schedule, or generate_schedule_optimize" },
+      {
+        error:
+          "automationLevel must be generate_only, generate_schedule, or generate_schedule_optimize",
+      },
       { status: 400 },
     );
   }
@@ -99,9 +109,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const llmConfigured = Boolean(
-    process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY,
-  );
+  const llmConfigured = Boolean(process.env.ANTHROPIC_API_KEY?.trim());
 
   const generateRequest: GenerateMarketingRequest = {
     leadId,
@@ -118,13 +126,16 @@ export async function POST(request: Request) {
 
   const generator = getMarketingGenerator();
   const result = await generator.generate(generateRequest);
+  const stub = result.variants.some((v) => v.body.startsWith("[Stub"));
 
   return NextResponse.json({
     ...result,
-    stub: !llmConfigured,
-    message: llmConfigured
-      ? "Generated with stub generator — wire LLM in Phase 7"
-      : "Set OPENAI_API_KEY or ANTHROPIC_API_KEY for LLM generation",
+    stub,
+    message: stub
+      ? llmConfigured
+        ? "LLM call failed or returned stub — check ANTHROPIC_API_KEY / logs"
+        : "Set ANTHROPIC_API_KEY for LLM generation (stub used)"
+      : "Generated via Anthropic",
     docs: "/docs/marketing-automation",
   });
 }
