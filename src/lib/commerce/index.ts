@@ -9,14 +9,17 @@ export {
 } from "./types";
 
 export {
+  catalogHasUnsyncedSku,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   leadStageEligibleForCommerceCatalog,
   listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
   newCommerceSkuId,
   normalizeCommerceItems,
+  preserveCommerceStripeIds,
   type NormalizeCommerceItemsResult,
 } from "./catalog";
 

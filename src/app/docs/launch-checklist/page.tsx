@@ -231,7 +231,11 @@ export default function LaunchChecklistDocPage() {
           <strong>Synced</strong> badge and a real Stripe Product + Price appears in the Stripe
           dashboard (metadata <code>local_site_studio_key = commerce_sku_&lt;slug&gt;_&lt;skuId&gt;</code>
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
-          Products; changing a price should create a new Price on the same Product. Reload{" "}
+          Products; changing a price should create a new Price on the same Product. After Sync,
+          edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
+          server-side; only a price change clears the Price id). Before Sync, confirm
+          pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
+          unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
           <strong>Buy now</strong> (routes through <code>/api/commerce/checkout</code>, which
           resolves the price server-side) instead of Request order.

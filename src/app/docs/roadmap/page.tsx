@@ -196,7 +196,9 @@ export default function RoadmapDocPage() {
         Product + Price per SKU (reuses <code>STRIPE_SECRET_KEY</code>, no new secrets);
         <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
-        for unsynced ones.
+        for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
+        edits clear the Price id until the next Sync). Saved-but-unsynced catalogs count on
+        pipeline health and list in the daily digest beside catalogs-missing.
       </p>
 
       <p>

@@ -50,6 +50,68 @@ export function listCommerceCatalogsMissing<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+/** True when any SKU still lacks a Stripe Price (Buy now not available for that SKU). */
+export function catalogHasUnsyncedSku(
+  catalog: Readonly<{ items: ReadonlyArray<{ stripePriceId?: string }> }>,
+): boolean {
+  return catalog.items.some((item) => !item.stripePriceId);
+}
+
+/**
+ * Paid/live commerceAddon leads whose saved catalog still has ≥1 SKU without
+ * stripePriceId — Sync to Stripe is still due. Empty catalogs are not
+ * "unsynced" (no SKUs to sync); missing catalogs use listCommerceCatalogsMissing.
+ */
+export function listCommerceCatalogsUnsynced<
+  T extends { slug: string; stage: LeadPipelineStage },
+>(
+  leads: T[],
+  orders: ReadonlyArray<{ leadSlug: string; commerceAddon: boolean }>,
+  catalogs: ReadonlyArray<{
+    leadSlug: string;
+    items: ReadonlyArray<{ stripePriceId?: string }>;
+  }>,
+): T[] {
+  const unsyncedSlugs = new Set(
+    catalogs.filter(catalogHasUnsyncedSku).map((c) => c.leadSlug),
+  );
+  return leads
+    .filter((lead) => {
+      if (!unsyncedSlugs.has(lead.slug)) return false;
+      return leadEligibleForCommerceCatalog(
+        lead,
+        orders.filter((o) => o.leadSlug === lead.slug),
+      );
+    })
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * After normalizeCommerceItems, re-attach Stripe ids from the previously saved
+ * catalog. Product id sticks by SKU id; Price id only when priceCents is
+ * unchanged (price edits need a fresh Stripe Price on next Sync). Never trust
+ * client-submitted Stripe ids — callers pass the DB row as `previous`.
+ */
+export function preserveCommerceStripeIds(
+  items: CommerceSku[],
+  previous: ReadonlyArray<CommerceSku> | undefined,
+): CommerceSku[] {
+  if (!previous || previous.length === 0) return items;
+  const prevById = new Map(previous.map((sku) => [sku.id, sku]));
+  return items.map((item) => {
+    const prev = prevById.get(item.id);
+    if (!prev?.stripeProductId) return item;
+    const merged: CommerceSku = {
+      ...item,
+      stripeProductId: prev.stripeProductId,
+    };
+    if (prev.stripePriceId && prev.priceCents === item.priceCents) {
+      merged.stripePriceId = prev.stripePriceId;
+    }
+    return merged;
+  });
+}
+
 export function formatPriceUsd(priceCents: number): string {
   if (!Number.isFinite(priceCents) || priceCents < 0) return "$—";
   return new Intl.NumberFormat("en-US", {
