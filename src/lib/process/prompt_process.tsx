@@ -460,8 +460,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "stripe-commerce-products-sync",
     summary:
       "Sync operator Commerce catalogs to Stripe Products/Prices and embed Checkout (or Payment Links) per SKU — replaces the Request-order → inquiry stub. Requires Stripe Price bootstrap already done for the Commerce add-on itself; do not fake-complete without live Product create permissions.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "claude/quirky-davinci-r911f7",
   },
   {
     id: "client-voice-packs-missing-visibility",
