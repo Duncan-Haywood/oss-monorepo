@@ -407,8 +407,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "paid-starter-upsell-nudge",
     summary:
       "Operator-triggered Growth/Complete upsell email for paid Starter leads (no recurring yet) — include preview of marketing add-ons + checkout/billing upgrade link. Converts one-time $500 customers into MRR without waiting on the marketing engine phase.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f6ad",
   },
 ];
 
