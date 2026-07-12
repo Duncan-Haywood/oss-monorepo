@@ -114,6 +114,7 @@ export const AGENT_PROTOCOL = [
   "Every dynamic value (businessName, message/reply text, sku/tier labels, visitor name/email/phone/message, etc.) interpolated into an outbound email's HTML body — whether in src/lib/email/resend.ts or an inline template in a route handler (e.g. POST /api/contact/[slug] notify) — must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts). Plain-text subject lines are exempt. New send*Email functions and inline notify HTML should mirror sendCommerceAbandonedRecovery's safeBiz/safeSku pattern. The post-payment DNS handoff email in the Stripe webhook (formatDnsInstructionsForEmail) is included — never interpolate raw handoff URLs/hosts or businessName into that HTML.",
   "src/proxy.ts preview-subdomain routing (extractPreviewSubdomainSlug, src/lib/deploy/custom-domain-routing.ts) must run BEFORE the isPlatformHost custom-domain check, not instead of it — `{slug}.{productionRootDomain}` hosts are isPlatformHost=true (by design, so they never hit the external-domain DB lookup) but still need their own rewrite to that lead's /preview/[slug]. Always confirm the extracted label resolves to a real lead via getLeadBySlug before rewriting — never fall through to the demo-catalog preview fallback (resolvePreviewLead) for an unrecognized subdomain label; that must serve the normal marketing homepage instead. Add new reserved platform subdomain labels (www, etc.) to RESERVED_PREVIEW_SUBDOMAIN_LABELS, never by special-casing them in proxy.ts.",
   "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
+  "recordCheckoutSessionCreated (POST /api/stripe/checkout + POST /api/commerce/checkout) must pass requireConvex (CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as webhook markCheckoutSessionComplete. Returning { url } after a SQLite-only create leaves the open cart invisible to Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue / digest (lost Finish-checkout recovery revenue). Prefer 502 so the buyer retries rather than silently dropping multi-instance tracking.",
 ] as const;
 
 /**
@@ -829,6 +830,36 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-9c45 + cursor/business-process-evolution-6a13",
+  },
+  {
+    id: "checkout-session-create-convex-primary",
+    summary:
+      "After PR #81 hardened markCheckoutSessionComplete with requireConvex, the create-side twin stayed soft: recordCheckoutSessionCreated still SQLite-falls-back on Convex failure, and both POST /api/stripe/checkout + /api/commerce/checkout swallow tracking errors then return { url }. listOpenCheckoutSessions reads Convex-first for abandoned-recovery / digest — a SQLite-only create leaves paid-intent carts invisible to other instances (lost Finish-checkout / Buy now recovery revenue). Shipped: CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY on recordCheckoutSessionCreated; both checkout routes return 502 on ConvexPrimaryWriteError (or any tracking failure) instead of handing out a Stripe URL after a split-brain write.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f005",
+  },
+  {
+    id: "deploy-handoff-preserve-custom-domain",
+    summary:
+      "Empty-backlog audit follow-up (queued, not claimed): enqueueProductionHandoff rebuilds the handoff via buildHandoffRecord on a new stripeSessionId and insertDeployHandoff upserts without copying existing.customDomain / vercelProjectId — a second bundle checkout (upsell / re-purchase) after the operator saved a custom domain can wipe live Host→preview routing. Same class as preserveCommerceStripeIds. Prefer claiming after checkout-session-create-convex-primary ships.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "checkout-recovery-sent-convex-primary",
+    summary:
+      "Empty-backlog audit follow-up (queued): recordCheckoutRecoverySent still soft-falls-back after the operator already sent the Finish-checkout / Buy now recovery email — Convex-first listOpenCheckoutSessions then keeps the session due and can nudge again (reputation / CAN-SPAM risk). Prefer requireConvex + surface the failure in the dashboard action after send, or send-after-durable-mark with compensating retry. Claim after create-path requireConvex ships; do not invent optional aggregates.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "preview-open-convex-primary",
+    summary:
+      "After PR #83 (unsubscribe requireConvex) left only gated NEXT_STEPS, sibling prompt-process-evolution-f005 claimed checkout-session-create-convex-primary. Empty-backlog audit found POST /api/preview/[slug]/open still SQLite-fallbacks on Convex failure then returns { ok: true, recorded: true } while getLeads/getLeadBySlug read Convex-first — Work next preview_opened scoring, follow-up openers-first sort, and the Opened badge silently miss on other instances. Prefer fail-closed 503 (beacon is fire-and-forget) over writing only to instance-local SQLite when Convex is configured.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-51f0",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2077,6 +2108,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write.",
     rationale:
       "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81. PR #80 contact notify test fold landed on main mid-merge.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "recordCheckoutSessionCreated accepts ConvexPrimaryWriteOptions; bundle + commerce checkout APIs pass CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY and return 502 on failure instead of { url } after a SQLite-only create.",
+    rationale:
+      "PR #81 closed the mark-complete half of checkout_sessions Convex primary, but create still soft-fell-back and both checkout routes swallowed tracking errors then redirected buyers to Stripe. listOpenCheckoutSessions reads Convex-first for abandoned-recovery and digest — a multi-instance deploy with Convex configured would permanently drop Finish-checkout / Buy now recovery revenue for any create that only landed in instance-local SQLite. Fail-closed 502 mirrors contact/unsubscribe/webhook requireConvex (buyer retries). Queued deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary as the next free sold-capability / CAN-SPAM regressions; Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -3450,5 +3488,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #81 + #82 + PR #80 contact notify test fold — all ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(177, 178),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-f005",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #83 (unsubscribe requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. Empty-backlog audit found the create-side twin of PR #81: recordCheckoutSessionCreated still soft-fell-back and checkout routes returned Stripe URLs after SQLite-only tracking, so Convex-first abandoned recovery never saw those carts. Shipped CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY + 502 on tracking failure for bundle and commerce checkout. Queued deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary for siblings. No overlapping remote claim this hour.",
+    shipped: [
+      "src/lib/checkout/session-persist.ts (+ test) — CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — recordCheckoutSessionCreated(params, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/api/stripe/checkout/route.ts + src/app/api/commerce/checkout/route.ts — pass create primary; 502 instead of { url } on tracking failure",
+      "Docs: architecture / roadmap / launch-checklist — checkout create requireConvex",
+      "NEXT_STEPS: checkout-session-create-convex-primary done; queued deploy-handoff-preserve-custom-domain + checkout-recovery-sent-convex-primary",
+      "AGENT_PROTOCOL — checkout create requireConvex pairs with mark-complete",
+      "BUSINESS_DECISIONS — documented create-path fail-closed for abandoned-recovery revenue",
+      "merge: folded sibling business-process-evolution-51f0 claim (preview-open-convex-primary) — both NEXT_STEPS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(178, 179),
   },
 ];

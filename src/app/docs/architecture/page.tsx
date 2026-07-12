@@ -136,7 +136,15 @@ export default function ArchitectureDocPage() {
       <p>
         Every Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
-        to <code>complete</code>. Homepage / pricing CTAs that omit a lead slug mint a stable{" "}
+        to <code>complete</code>. Create-path tracking (
+        <code>recordCheckoutSessionCreated</code> on{" "}
+        <code>POST /api/stripe/checkout</code> and <code>POST /api/commerce/checkout</code>)
+        passes <code>requireConvex</code> (
+        <code>CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY</code>) when Convex is configured — a
+        Convex failure returns <code>502</code> instead of handing the buyer a Checkout URL
+        after a SQLite-only write that Convex-first abandoned-recovery queues would never see.
+        Mark-complete on the webhook already used the same fail-closed policy. Homepage /
+        pricing CTAs that omit a lead slug mint a stable{" "}
         <code>organic-*</code> attribution slug at session create (
         <code>resolveBundleCheckoutLeadSlug</code>) so webhook fulfillment, payment stubs, and
         deploy handoffs still run after Stripe collects money — empty{" "}

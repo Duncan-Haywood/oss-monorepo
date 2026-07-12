@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { resolveBundleCheckoutLeadSlug } from "@/lib/checkout/organic-attribution";
+import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
+import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 /**
  * Creates a Stripe Checkout Session for a bundle tier (+ optional Commerce
@@ -119,17 +121,32 @@ export async function POST(request: Request) {
 
     // Always track — organic slugs recover via session.customerEmail when no
     // CRM lead exists yet; lead-attributed sessions keep prior behavior.
+    // When Convex is configured, fail closed (502) rather than return a URL
+    // after a SQLite-only write that Convex-first abandoned recovery never sees.
     try {
-      await recordCheckoutSessionCreated({
-        leadSlug,
-        stripeSessionId: session.id,
-        tier: bundle.id,
-        commerceAddon: commerceAddonApplied,
-        customerEmail: body.customerEmail,
-        kind: "bundle",
-      });
+      await recordCheckoutSessionCreated(
+        {
+          leadSlug,
+          stripeSessionId: session.id,
+          tier: bundle.id,
+          commerceAddon: commerceAddonApplied,
+          customerEmail: body.customerEmail,
+          kind: "bundle",
+        },
+        CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+      );
     } catch (e) {
-      console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
+      if (!(e instanceof ConvexPrimaryWriteError)) {
+        console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);
+      }
+      return NextResponse.json(
+        {
+          error: "Checkout tracking unavailable",
+          message:
+            "Could not record this checkout for recovery tracking. Please try again in a moment.",
+        },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ url: session.url });
