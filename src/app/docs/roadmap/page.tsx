@@ -164,8 +164,11 @@ export default function RoadmapDocPage() {
         (<code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — 8 social/GBP posts + 2
         emails, Anthropic when <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
-        per lead/month). Eligible-but-missing packs count on pipeline health and list in the
-        daily digest. Buffer / GBP / Meta auto-scheduling stays operator-gated on secrets.
+        per lead/month). <strong>Email pack</strong> (
+        <code>sendMarketingPackToClientAction</code>) delivers the pack to{" "}
+        <code>lead.email</code> via Resend. Eligible-but-missing packs count on pipeline health
+        and list in the daily digest. Buffer / GBP / Meta auto-scheduling stays operator-gated
+        on secrets.
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>

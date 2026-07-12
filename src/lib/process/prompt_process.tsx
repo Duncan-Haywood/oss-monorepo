@@ -68,7 +68,7 @@ export const AGENT_PROTOCOL = [
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Inbox that can only archive (no reply) is half a CRM — when clientInquiries already persist, prefer shipping Resend reply + replied status before new inquiry list UIs.",
   "Soft CRM prompts (e.g. notes after discovery_call / Email 3) must never block or roll back the mutation that triggered them — stage and outreach already saved; Skip dismisses the editor only.",
-  "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo.",
+  "Marketing packs persist one row per lead per UTC calendar month; regenerating replaces that month. Prefer fulfilling a sold Growth/Complete capability (copy pack operators can post, or Email pack to lead.email via Resend) before inventing optional metrics once CRM basics are in place. Auto-posting stays a separate operator-gated todo. Email pack requires an existing pack row for the current UTC month — never auto-generate on send.",
   "Commerce catalogs persist one row per lead (not monthly); regenerating replaces the whole catalog. Cap at MAX_COMMERCE_SKUS (50). Request order (un-synced SKUs) reuses the contact/inquiry path; synced SKUs (stripePriceId set) get a real Buy now Checkout via POST /api/commerce/checkout — see the stripe-commerce-products-sync entries below for the sync/checkout/webhook split.",
   "For database-touching changes: `npm run build`/`lint` alone is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done.",
   "Operator-gated steps (Stripe bootstrap, live DNS, counsel review) stay status=todo with clear operator instructions; agents ship code + checklists, not fake completion.",
@@ -514,8 +514,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deliver-marketing-pack-to-client",
     summary:
-      "Growth/Complete sell monthly marketing content; today operators only Copy from the dashboard. Ship operator-triggered Email pack that sends this UTC month's pack to lead.email via Resend (reuses RESEND_API_KEY — no new secrets) so clients can post themselves without Buffer/GBP OAuth. Requires an existing pack row + email on the lead.",
-    status: "in_progress",
+      "Growth/Complete sell monthly marketing content; today operators only Copy from the dashboard. Shipped: operator-triggered Email pack (sendMarketingPackToClientAction) sends this UTC month's pack to lead.email via Resend (reuses RESEND_API_KEY — no new secrets) so clients can post themselves without Buffer/GBP OAuth. Requires an existing pack row + email on the lead; suppression honored via sendEmail.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/prompt-process-evolution-6348",
   },
@@ -1383,6 +1383,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Discovered right after claude/quirky-davinci-r911f7 merged stripe-commerce-products-sync (PR #49, same cron window as this branch's claim — see the iteration below): the shipped webhook only branches on `if (slug && tier)`, and a commerce_sku session carries slug + skuId but no tier, so it silently fell into the else/console.warn branch — a paid Buy now order reached Stripe but never reached the operator. Reusing insertClientInquiry keeps a single order-notification surface (Request-order already uses it for un-synced SKUs) instead of fragmenting operator attention across two inboxes before real per-order fulfillment tracking is needed.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "After PR #50 (commerce Buy now operator notification) and sibling 1e7b claiming commerce-catalog-preserve-stripe-ids + commerce-catalogs-unsynced-visibility, the next free sold-capability gap is deliver-marketing-pack-to-client — email this month's Growth/Complete pack to lead.email via Resend.",
+    rationale:
+      "Generation alone leaves operators as the copy-paste bottleneck; Email pack closes content delivery without Buffer/GBP/Meta OAuth (still gated as marketing-content-scheduling). Reuses RESEND_API_KEY + sendEmail suppression, same consent model as Starter upsell / inquiry reply. Prefer this over inventing another optional aggregate while commerce twin work is owned elsewhere.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Marketing pack email delivery requires an existing pack row for marketingMonthKey(now) plus a non-empty lead.email — generate first, then Email pack. Do not auto-generate on send.",
+    rationale:
+      "Auto-generating on send would hide Anthropic/stub choice and surprise operators who want to review copy before the client sees it. The dashboard already has Generate/View/Copy; Email pack is the handoff step after review.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Queue deliver-client-voice-pack-to-client as the Complete twin of marketing pack email delivery (same Resend path, different pack module).",
+    rationale:
+      "Parallel Growth vs Complete delivery handoffs in the same cron window; siblings should claim different ones. Twilio stays Phase 7 gated — emailing scripts unblocks paste-into-temp-number fulfillment.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2191,6 +2212,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (206 passed) + lint + build, then npm run dev: confirmed /dashboard/leads and /preview/[slug] still 200 after the reset + fix, and that /api/stripe/webhook's existing 501 not-configured response (no STRIPE_WEBHOOK_SECRET in this sandbox) is unchanged — the new branch is unreachable without a real signed event here, so it's covered by the unit test on commerceOrderPaidInquiryMessage plus tsc/lint/build rather than a live webhook call",
     ],
     decisions: BUSINESS_DECISIONS.slice(121, 122),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-6348",
+    summary:
+      "Sibling business-process-evolution-1e7b claimed commerce-catalog-preserve-stripe-ids + commerce-catalogs-unsynced-visibility; pivoted to deliver-marketing-pack-to-client. Shipped operator-triggered Email pack for this UTC month's Growth/Complete marketing pack to lead.email via Resend (pure deliver-pack helpers + Vitest, dashboard Email pack button). Improved AGENT_PROTOCOL (pack email vs commerce sibling pivot; parallel marketing vs voice pack email claims). Queued deliver-client-voice-pack-to-client.",
+    shipped: [
+      "src/lib/marketing/deliver-pack.ts (+ test) — leadEligibleForMarketingPackDelivery, formatMarketingPackEmailHtml, marketingPackDeliverySubject",
+      "src/lib/email/resend.ts — sendMarketingPackToClientEmail (reuses sendEmail + suppression)",
+      "sendMarketingPackToClientAction + /dashboard/leads Email pack button (requires existing pack + email)",
+      "Docs: product-bundles, marketing-automation, roadmap Phase 6, architecture §7, launch-checklist",
+      "NEXT_STEPS: deliver-marketing-pack-to-client done; deliver-client-voice-pack-to-client queued; 1e7b owns commerce preserve-ids + unsynced visibility; Stripe/Places/scheduling gated",
+      "AGENT_PROTOCOL — prefer pack email delivery when commerce twins are claimed; parallel marketing vs voice pack email claims; listCommerceCatalogsUnsynced named for sibling wiring",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(122, 125),
   },
 ];
 

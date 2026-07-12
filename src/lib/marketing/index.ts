@@ -34,4 +34,10 @@ export {
   packageTierForOrderTier,
 } from "./monthly-pack";
 
+export {
+  formatMarketingPackEmailHtml,
+  leadEligibleForMarketingPackDelivery,
+  marketingPackDeliverySubject,
+} from "./deliver-pack";
+
 export { businessContextFromLead, monthlyPackRequestForLead } from "./build-request";

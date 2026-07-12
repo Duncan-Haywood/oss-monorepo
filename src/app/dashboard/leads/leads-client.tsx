@@ -23,6 +23,7 @@ import {
   openBillingPortalAction,
   sendStarterUpsellAction,
   generateMarketingPackAction,
+  sendMarketingPackToClientAction,
   saveCommerceCatalogAction,
   syncCommerceCatalogToStripeAction,
   generateClientVoicePackAction,
@@ -53,6 +54,7 @@ import {
   contentTypeLabel,
   leadEligibleForMarketingPack,
 } from "@/lib/marketing/monthly-pack";
+import { leadEligibleForMarketingPackDelivery } from "@/lib/marketing/deliver-pack";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
@@ -638,6 +640,21 @@ export function LeadsClient({
         return [res.pack, ...without];
       });
       setMarketingPackOpenSlug(slug);
+    });
+  };
+
+  const handleEmailMarketingPack = (slug: string) => {
+    startTransition(async () => {
+      const res = await sendMarketingPackToClientAction(slug);
+      if (!res.success) {
+        alert(`Email pack failed: ${res.error}`);
+        return;
+      }
+      alert(
+        res.mock
+          ? `Mock marketing pack email logged (Resend unset) — ${res.yearMonth}`
+          : `Marketing pack emailed to client — ${res.yearMonth}`,
+      );
     });
   };
 
@@ -2117,6 +2134,20 @@ export function LeadsClient({
                                   className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 px-3 text-xs font-semibold text-sky-800 transition hover:bg-sky-50 disabled:opacity-60"
                                 >
                                   {packOpen ? "Hide pack" : "View pack"}
+                                </button>
+                              ) : null}
+                              {existingPack &&
+                              leadEligibleForMarketingPackDelivery(
+                                lead,
+                                orders.filter((o) => o.leadSlug === lead.slug),
+                              ) ? (
+                                <button
+                                  type="button"
+                                  disabled={isPending}
+                                  onClick={() => handleEmailMarketingPack(lead.slug)}
+                                  className="inline-flex h-8 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-900 transition hover:border-sky-300 hover:bg-sky-100 disabled:opacity-60"
+                                >
+                                  Email pack
                                 </button>
                               ) : null}
                             </>

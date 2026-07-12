@@ -209,9 +209,11 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
           posts + 2 emails appear for the current UTC month (stub copy without{" "}
           <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
-          that month. Copy/paste to post until Buffer/GBP OAuth is configured. Before generating,
-          confirm pipeline-health <strong>Marketing packs due</strong> counts eligible leads
-          missing this month&apos;s pack (and that the daily digest lists them).
+          that month. With an email on the lead, click <strong>Email pack</strong> — confirm the
+          pack arrives (or a mock send is logged when Resend is unset). Copy/paste or client
+          email works until Buffer/GBP OAuth is configured. Before generating, confirm
+          pipeline-health <strong>Marketing packs due</strong> counts eligible leads missing
+          this month&apos;s pack (and that the daily digest lists them).
         </li>
         <li>
           For a paid/live lead with a Commerce add-on order, click <strong>Add catalog</strong>{" "}
