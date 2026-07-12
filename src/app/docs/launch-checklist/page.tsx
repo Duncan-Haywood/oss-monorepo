@@ -81,7 +81,8 @@ export default function LaunchChecklistDocPage() {
         <li>
           Import a small operator-owned CSV on the leads dashboard (or add one lead manually
           with email), move stage to <code>outreach_sent</code>, confirm the email (or mock log)
-          and unsubscribe path.
+          and unsubscribe path. Re-importing the same CSV (or re-adding the same slug) should
+          skip/reject the collision rather than resetting stage or outreach.
         </li>
         <li>
           After a few days (or by forcing <code>lastOutreachAt</code> older in SQLite for a

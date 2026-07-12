@@ -31,7 +31,11 @@ import {
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
 } from "@/lib/db";
-import { parseLeadsCsv } from "@/lib/leads/csv-import";
+import {
+  existingLeadSlugConflictMessage,
+  parseLeadsCsv,
+  partitionLeadsByExistingSlugs,
+} from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
 import {
@@ -741,6 +745,12 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     // Ensure slug is clean
     lead.slug = lead.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
 
+    // Create-path only: never clobber an advanced lead via upsertLead on a slug typo/collision.
+    const existing = await getLeadBySlug(lead.slug);
+    if (existing) {
+      return { success: false, error: existingLeadSlugConflictMessage(lead.slug) };
+    }
+
     await upsertLead(lead);
 
     // If added directly in outreach_sent stage, trigger Email 1
@@ -806,13 +816,25 @@ export async function importLeadsCsvAction(input: {
       };
     }
 
+    // Skip rows whose slug already exists — upsertLead would reset stage/outreach/notes/snooze.
+    const existingSlugs = new Set((await getLeads()).map((l) => l.slug));
+    const { fresh, collisions } = partitionLeadsByExistingSlugs(parsed.leads, existingSlugs);
+
     const importedSlugs: string[] = [];
     const upsertErrors: Array<{ row: number; message: string }> = [...parsed.errors];
+    for (const lead of collisions) {
+      upsertErrors.push({
+        row: 0,
+        message: existingLeadSlugConflictMessage(lead.slug),
+      });
+    }
 
-    for (const [index, lead] of parsed.leads.entries()) {
+    for (const [index, lead] of fresh.entries()) {
       try {
         await upsertLead(lead);
         importedSlugs.push(lead.slug);
+        // Prevent later rows in the same batch from colliding with earlier inserts.
+        existingSlugs.add(lead.slug);
         revalidatePath(`/preview/${lead.slug}`);
       } catch (error) {
         upsertErrors.push({
@@ -824,13 +846,16 @@ export async function importLeadsCsvAction(input: {
 
     revalidatePath("/dashboard/leads");
 
+    const collisionSkipped = collisions.length;
+    const failedFresh = fresh.length - importedSlugs.length;
+
     if (importedSlugs.length === 0) {
       return {
         success: false,
         error: upsertErrors[0]?.message ?? "No leads imported",
         imported: 0,
         errors: upsertErrors,
-        skipped: parsed.skipped + parsed.leads.length,
+        skipped: parsed.skipped + collisionSkipped + failedFresh,
       };
     }
 
@@ -839,7 +864,7 @@ export async function importLeadsCsvAction(input: {
       imported: importedSlugs.length,
       slugs: importedSlugs,
       errors: upsertErrors,
-      skipped: parsed.skipped + (parsed.leads.length - importedSlugs.length),
+      skipped: parsed.skipped + collisionSkipped + failedFresh,
     };
   } catch (error) {
     console.error("Error in importLeadsCsvAction:", error);

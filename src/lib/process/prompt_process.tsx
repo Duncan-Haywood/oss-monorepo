@@ -97,6 +97,7 @@ export const AGENT_PROTOCOL = [
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
   "commerceOrdersRevenueUsd / commerceOrdersCount on pipeline-health mean unpaid/owed pass-through totals (filter isCommerceOrderPaidOut), matching summarizeCommerceOrdersByLead unpaid* and the digest Commerce payouts owed section — not lifetime gross. Lifetime remains available via totalUsd on the per-lead summary.",
+  "Create-path lead entry (addLeadAction / importLeadsCsvAction) must refuse slug collisions against already-persisted leads — skip (CSV) or return an explicit error (manual add) — rather than calling upsertLead, which would reset stage/outreachStep/notes/snoozedUntil to mostly-empty defaults. Do not change upsertLead itself: intentional update-in-place callers use dedicated helpers (updateLeadStage / recordLeadOutreach / updateLeadNotes / updateLeadSnooze). Prefer partitionLeadsByExistingSlugs against a one-shot getLeads() slug set for CSV batches.",
 ] as const;
 
 /**
@@ -656,9 +657,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "upsert-lead-collision-guard",
     summary:
-      "Discovered during the suppression-list-convex-persistence audit: upsertLead (src/lib/db.ts) has update-or-insert semantics with no protection against clobbering an already-advanced lead. importLeadsCsvAction re-importing a CSV whose slug matches an existing lead (e.g. a corrected export) silently resets that lead's stage/outreachStep/notes/snoozedUntil to the CSV row's mostly-empty defaults — csv-import.ts only dedupes slugs within the uploaded file, never against existing DB rows, and convex/leads.ts's leadFields.stage is a required (non-optional) field so ctx.db.patch always overwrites it. addLeadAction (manual single-row entry) has the identical exposure on an operator slug typo/collision. Fix should distinguish create-vs-update at the call site (e.g. CSV import skips or warns on an existing slug instead of silently patching pipeline fields; addLeadAction returns an explicit 'lead already exists' error) rather than changing upsertLead's semantics for every caller that legitimately relies on update-in-place (stage/outreach/notes mutations elsewhere in actions.ts all call upsertLead-adjacent helpers, not upsertLead itself, so check call sites before touching the shared function).",
-    status: "todo",
+      "Discovered during the suppression-list-convex-persistence audit: upsertLead (src/lib/db.ts) has update-or-insert semantics with no protection against clobbering an already-advanced lead. Shipped: partitionLeadsByExistingSlugs + existingLeadSlugConflictMessage; addLeadAction rejects an existing slug; importLeadsCsvAction skips collisions against a one-shot getLeads() slug set (row warnings, no pipeline overwrite). upsertLead itself unchanged — intentional updates stay on dedicated helpers.",
+    status: "done",
     phase: "Phase 4 — Data ingestion",
+    owner: "cursor/business-process-evolution-aa64",
   },
   {
     id: "deploy-handoffs-convex-persistence",
@@ -1755,6 +1757,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "isEmailSuppressed/suppressEmail/getSuppressedEmails were the only persistence trio in src/lib/db.ts with no Convex branch. On a multi-instance/serverless deployment with Convex configured, an unsubscribe recorded by one instance would not suppress a send handled by a different instance, even though every sendEmail call site correctly checks suppression before sending — the check was sound but its backing store wasn't durable or shared. This is a compliance exposure (unsubscribed prospects receiving further automated email), not just a data-loss bug, so it took priority over the lower-severity CSV/manual-add-lead collision findings from the same audit pass, which are logged as a follow-up NEXT_STEP instead.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "CSV import and manual add-lead refuse slug collisions against already-persisted leads (skip with warning / return explicit error) instead of calling upsertLead, which would silently reset stage, outreachStep, notes, and snoozedUntil. upsertLead itself is unchanged — intentional pipeline updates stay on dedicated helpers.",
+    rationale:
+      "Queued as upsert-lead-collision-guard by the suppression-list audit (PR #65). A corrected CSV re-export or a typo on the add form could wipe an advanced lead back to discovered defaults because Convex leadFields.stage is required and the SQLite UPDATE path overwrites pipeline columns. Guarding at the create call sites preserves revenue-relevant CRM state without inventing a second upsert API or blocking legitimate update helpers.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2824,6 +2833,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: reconciled main after PR #63 (prompt-process-evolution-6a3c AGENT_PROTOCOL/docs polish) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(154, 155),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-aa64",
+    summary:
+      "Claimed upsert-lead-collision-guard queued by PR #65 (suppression-list audit). Shipped create-path collision guards so CSV re-import and manual add-lead no longer silently clobber stage/outreach/notes/snooze via upsertLead. Pure partition helper + unit tests; architecture/roadmap docs; AGENT_PROTOCOL create-path rule. Remaining NEXT_STEPS still operator/legal-gated (Stripe Prices, Places, Buffer OAuth, Connect).",
+    shipped: [
+      "src/lib/leads/csv-import.ts — partitionLeadsByExistingSlugs + existingLeadSlugConflictMessage",
+      "src/lib/leads/csv-import.test.ts — partition + conflict-message coverage",
+      "src/app/dashboard/leads/actions.ts — addLeadAction rejects existing slug; importLeadsCsvAction skips collisions against getLeads() slug set",
+      "leads-client — CSV success copy notes existing slugs are not overwritten",
+      "Docs: architecture §1 + roadmap Phase 4 — collision skip/reject behavior",
+      "NEXT_STEPS: upsert-lead-collision-guard done",
+      "AGENT_PROTOCOL — create-path lead entry must refuse slug collisions; leave upsertLead alone for intentional update helpers",
+      "BUSINESS_DECISIONS — documented why call-site guards beat changing upsertLead",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(155, 156),
   },
 ];
 
