@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   escapeHtmlForEmail,
   inquiryCanReceiveReply,
+  inquiryShouldAutoMarkRead,
   MAX_INQUIRY_REPLY_LENGTH,
   normalizeInquiryReply,
   plainTextToEmailHtml,
@@ -61,5 +62,21 @@ describe("inquiryCanReceiveReply", () => {
     ).toBe(false);
     expect(inquiryCanReceiveReply({ email: "", status: "new" })).toBe(false);
     expect(inquiryCanReceiveReply({ email: null, status: "new" })).toBe(false);
+  });
+});
+
+describe("inquiryShouldAutoMarkRead", () => {
+  it("marks read only when opening the composer on a brand-new inquiry", () => {
+    expect(inquiryShouldAutoMarkRead({ status: "new" }, true)).toBe(true);
+  });
+
+  it("never fires when closing the composer", () => {
+    expect(inquiryShouldAutoMarkRead({ status: "new" }, false)).toBe(false);
+  });
+
+  it("never fires for inquiries already past new", () => {
+    expect(inquiryShouldAutoMarkRead({ status: "read" }, true)).toBe(false);
+    expect(inquiryShouldAutoMarkRead({ status: "replied" }, true)).toBe(false);
+    expect(inquiryShouldAutoMarkRead({ status: "archived" }, true)).toBe(false);
   });
 });

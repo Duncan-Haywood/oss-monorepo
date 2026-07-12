@@ -60,6 +60,7 @@ import {
 import {
   MAX_INQUIRY_REPLY_LENGTH,
   inquiryCanReceiveReply,
+  inquiryShouldAutoMarkRead,
 } from "@/lib/inquiries/reply";
 
 interface LeadsClientProps {
@@ -401,6 +402,14 @@ export function LeadsClient({
         prev.map((inq) => (inq.id === inquiryId ? { ...inq, status } : inq)),
       );
     });
+  };
+
+  const handleToggleReplyComposer = (inq: ClientInquiry) => {
+    const isOpening = replyOpenId !== inq.id;
+    setReplyOpenId((prev) => (prev === inq.id ? null : inq.id));
+    if (inquiryShouldAutoMarkRead(inq, isOpening)) {
+      handleInquiryStatus(inq.id, "read");
+    }
   };
 
   const handleInquiryReply = (inquiryId: string) => {
@@ -982,9 +991,7 @@ export function LeadsClient({
                       <button
                         type="button"
                         disabled={isPending}
-                        onClick={() =>
-                          setReplyOpenId((prev) => (prev === inq.id ? null : inq.id))
-                        }
+                        onClick={() => handleToggleReplyComposer(inq)}
                         className="rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-900 transition hover:bg-sky-50 disabled:opacity-60"
                       >
                         {inq.status === "replied" ? "Reply again" : "Reply"}

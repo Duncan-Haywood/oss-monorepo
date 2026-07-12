@@ -57,3 +57,16 @@ export function inquiryCanReceiveReply(inquiry: {
   if (inquiry.status === "archived") return false;
   return Boolean(inquiry.email && inquiry.email.trim().length > 0);
 }
+
+/**
+ * Opening the reply composer on a brand-new inquiry should silently mark it
+ * read — it distinguishes "seen, drafting a reply" from "nobody has looked
+ * at this yet" in the unreplied-inquiry pipeline metric without a separate
+ * click. Only fires on the "new" -> composer-open transition, never on close.
+ */
+export function inquiryShouldAutoMarkRead(
+  inquiry: { status: string },
+  isOpeningComposer: boolean,
+): boolean {
+  return isOpeningComposer && inquiry.status === "new";
+}

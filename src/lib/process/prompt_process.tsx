@@ -62,6 +62,7 @@ export const AGENT_PROTOCOL = [
   "Before merging: fetch sibling automation branches (`cursor/business-process-evolution-*`, `cursor/prompt-process-evolution-*`); if they shipped overlapping files, merge their branch into yours and keep both ITERATIONS entries.",
   "Stale remote branches that only have a claim commit (or are behind main with no feature body) do not own a todo — re-claim on your branch if the owner has been idle and main still shows status=todo.",
   "Run `npm test` (Vitest) alongside build/lint before claiming done — it covers pure logic (outreach cadence, pipeline-health, CSV import, operator session sign/verify) that build+lint have twice missed real breakage on. Add/extend tests when you touch those modules; it's the fast layer, not a replacement for the `npm run dev` runtime check on database-touching changes.",
+  "`\"use server\"` files (e.g. src/app/dashboard/leads/actions.ts) may export ONLY async functions — no `export type` re-exports, even ones that look inert. Turbopack's server-action transform registers every top-level export as an action reference regardless of `type`, so a type-only re-export throws `ReferenceError: <Name> is not defined` at module evaluation and 500s every action in that file, not just the one you're touching. Import types directly from their source module on the client instead of re-exporting them through the action file.",
 ] as const;
 
 /**
@@ -320,7 +321,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-mark-read-on-composer-open",
     summary:
       "When an operator opens the inquiry reply composer on a status=new row, auto-mark the inquiry read (SQLite + Convex) so unreplied counts distinguish 'seen, drafting' from brand-new — small hygiene after unreplied-inquiry-pipeline-metric.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "claude/relaxed-galileo-sgx9h1",
   },
@@ -845,6 +846,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. Auto-marking new→read when the reply composer opens makes unreplied metrics distinguish unseen vs. drafting; snoozed aggregates only matter if operators forget Unsnooze.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Opening the inquiry reply composer on a status=new row now auto-marks it read (src/lib/inquiries/reply.ts inquiryShouldAutoMarkRead), reusing the existing generic updateInquiryStatusAction/updateClientInquiryStatus path instead of adding a dedicated markRead mutation.",
+    rationale:
+      "\"read\" was already a full first-class status end-to-end (type, Convex updateStatus, SQLite column, dashboard Mark-read button) — the only gap was that opening the composer didn't imply it. Reusing the generic setter avoids a second write path for the same field.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Removed the dead `export type { DeployHandoff, ClientInquiry }` re-export from src/app/dashboard/leads/actions.ts (a \"use server\" file).",
+    rationale:
+      "Critical bug, not a style nit: Turbopack's \"use server\" transform in this Next.js version registers every top-level export — including `export type` re-exports — as a server action reference. Since DeployHandoff/ClientInquiry are types with no runtime value, evaluating the actions module threw `ReferenceError: DeployHandoff is not defined`, 500ing every operator mutation on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal — not just the new feature). The re-export was already dead: leads-client.tsx imports both types directly from their source modules. Precedent for future agents: a \"use server\" file must export ONLY async functions — no type re-exports, even ones that look inert.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -1339,5 +1354,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-snooze-work-next done; snoozed-leads-pipeline-metric queued",
     ],
     decisions: BUSINESS_DECISIONS.slice(70, 72),
+  },
+  {
+    date: "2026-07-12",
+    branch: "claude/relaxed-galileo-sgx9h1",
+    summary:
+      "Claimed inquiry-mark-read-on-composer-open (only free todo besides optional snoozed-leads-pipeline-metric). Shipped the auto-mark-read behavior, then found and fixed a critical pre-existing bug while runtime-verifying: every operator server action on /dashboard/leads (Mark read, Archive, Reply, Snooze, notes, billing portal) was 500ing in dev because actions.ts re-exported two types through the \"use server\" boundary, which Turbopack misregisters as server action references.",
+    shipped: [
+      "src/lib/inquiries/reply.ts — inquiryShouldAutoMarkRead(inquiry, isOpeningComposer) pure predicate",
+      "src/lib/inquiries/reply.test.ts — new/open, close, and past-new status cases",
+      "src/app/dashboard/leads/leads-client.tsx — handleToggleReplyComposer wraps setReplyOpenId + fires handleInquiryStatus(id, \"read\") on the new→open transition",
+      "src/app/dashboard/leads/actions.ts — removed dead `export type { DeployHandoff, ClientInquiry }` from this \"use server\" file (unused elsewhere; leads-client.tsx already imports both types from their source modules) and the now-unused DeployHandoff/ClientInquiry type imports; this was crashing module evaluation of the entire actions bundle with `ReferenceError: DeployHandoff is not defined` on every action call, not just the new feature",
+      "NEXT_STEPS: inquiry-mark-read-on-composer-open done; snoozed-leads-pipeline-metric remains the only free (optional) todo",
+      "AGENT_PROTOCOL — \"use server\" files may only export async functions; no type re-exports, even ones that look inert",
+      "Verified via npm test (122 passed) + lint + build, then npm run dev with Playwright driving /dashboard/leads: reproduced the crash pre-fix (Mark read button 500s), confirmed clean post-fix (Mark read disappears + composer opens on Reply click), and loaded /preview/[slug] + /docs/process",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(73, 75),
   },
 ];
