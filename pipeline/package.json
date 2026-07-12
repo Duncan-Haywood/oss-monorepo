@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "enhance": "tsx src/cli.ts",
-    "test": "tsx src/enhance.test.ts"
+    "log-lead": "tsx src/log-lead.ts",
+    "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts"
   },
   "dependencies": {
     "sharp": "^0.33.2"

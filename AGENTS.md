@@ -44,6 +44,22 @@ it's a local `sharp` pipeline and not a paid cloud AI API.
 - **Run:** `npm run enhance -- --in <raw-dir> --out <delivery-dir> --listing "<address>"`
 - **Typecheck:** `npx tsc --noEmit` (strict mode).
 
+### Lead intake (`pipeline/src/log-lead.ts`)
+
+Appends one real entry to `process/leads-log.ts` without hand-editing
+TypeScript, so a real reply/booking can be logged from a terminal (or a
+phone SSH session) right after it happens. Never fabricates data — every
+field is required input; there's no default lead content.
+
+```bash
+cd pipeline
+npm run log-lead -- --audience agent --contact "Agent — Keller Williams downtown" \
+  --channel email --stage contacted --notes "Replied interested to cold email" --dry-run
+```
+
+Drop `--dry-run` to actually write. Review the resulting `git diff
+process/leads-log.ts` before committing, same as any other edit.
+
 ### Research report (`research/`)
 
 - **Run (dev):** `cd research && npm run dev` → http://localhost:3000

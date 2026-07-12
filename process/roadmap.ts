@@ -180,6 +180,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/leads-log.ts exists with a typed Lead/LeadStage schema, starts empty (no fabricated data), and renders a funnel-count view on the docs site. See process/leads-log.ts.",
       },
+      {
+        id: "p2-lead-intake-tool",
+        title: "CLI to append a real lead to leads-log.ts without hand-editing TypeScript",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "p2-leads-tracking gave leads-log.ts a schema, but the only way to add a real entry was hand-editing a TypeScript array — friction on exactly the moment (a real prospect just replied) when a human is least likely to open an editor. A one-command intake tool lowers the cost of keeping the funnel data honest and current once real outreach starts, directly supporting p2-first-deliveries.",
+        doneWhen:
+          "`npm run log-lead -- --audience ... --contact ... --channel ... [--dry-run]` in pipeline/ validates required fields against the Lead/LeadStage/OutreachTemplate types and appends a correctly-formatted entry to process/leads-log.ts; has a passing self-test (npm test) that never touches the real file. See pipeline/src/log-lead.ts.",
+      },
     ],
   },
   {

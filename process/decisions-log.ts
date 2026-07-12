@@ -95,4 +95,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-luc0w5",
     relatedTaskIds: ["p0-ci"],
   },
+  {
+    date: "2026-07-12",
+    title: "Lead intake stays a validated append-only CLI, not a form/backend",
+    decision:
+      "process/leads-log.ts entries can now be added via `npm run log-lead` in pipeline/ (pipeline/src/log-lead.ts) instead of only by hand-editing the TypeScript array. The tool requires every field as explicit input (no defaults, no fabricated content), validates audience/channel/stage against the existing typed enums, supports --dry-run to preview before writing, and is covered by a self-test that only operates on an in-memory copy of the file shape — it never touches the real leads-log.ts during npm test.",
+    rationale:
+      "Two prior sessions' progress-log nextUp entries flagged the same gap: the highest-leverage remaining task (p2-first-deliveries) depends on a human logging real replies fast, and hand-editing a TypeScript array is real friction at the exact moment (right after a prospect responds) a human is least likely to open an editor. A small CLI removes that friction without adding a database, a form, or any new infrastructure — consistent with the scope guard against over-engineering backend/auth. It deliberately still requires a human to type real values in; the tool formats and validates, it does not decide what a lead's stage is.",
+    madeBy: "claude/dazzling-allen-y9fqb5",
+    relatedTaskIds: ["p2-lead-intake-tool", "p2-leads-tracking", "p2-first-deliveries"],
+  },
 ];

@@ -139,4 +139,23 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once CI has run on a real PR, confirm it's green before relying on it as a merge gate. Do not start p3-app-scope yet. If still nothing is human-unblocked, good candidates are re-verifying mls-compliance.ts against a specific real MLS board once one is known, or building the booking-intake -> leads-log.ts transcription path so a human's real outreach replies are fast to log.",
     ],
   },
+  {
+    date: "2026-07-12",
+    agent: "claude/dazzling-allen-y9fqb5",
+    summary:
+      "Verified all prior agent branches were already merged to main (git ls-remote + list_pull_requests: only draft PR #4 remains open, still blocked on Duncan's Cloudflare dashboard step, untouched by this session). Every Phase 1-2 agent-doable roadmap task was already done and every remaining task was human-blocked or explicitly deferred (p3-app-scope), so this session built the concrete tooling gap the last two sessions' progress-log entries both flagged: a lead-intake CLI.",
+    changes: [
+      "Added pipeline/src/log-lead.ts: `npm run log-lead -- --audience <agent|brokerage|str_host> --contact \"<label>\" --channel <email|dm|in_person_script|sms> [--stage contacted] [--template <id>] [--notes \"...\"] [--date YYYY-MM-DD] [--dry-run]` validates input against leads-log.ts's/outreach-templates.ts's existing typed enums and appends a correctly-formatted entry to process/leads-log.ts, so a human can log a real reply/booking from a terminal without hand-editing TypeScript. --dry-run previews the exact diff first.",
+      "Added pipeline/src/log-lead.test.ts: exercises validation, id-generation (lead-001, lead-002, ...), and append formatting (including quote-escaping) against an in-memory copy of leads-log.ts's shape — never touches the real file. Wired into pipeline's existing `npm test`.",
+      "Verified end-to-end against the real file: ran `npm run log-lead` for real (no --dry-run), confirmed the exact expected diff landed in process/leads-log.ts, then reverted it — leads-log.ts stays genuinely empty, no fabricated entries committed.",
+      "pipeline/ `npm test` and `npx tsc --noEmit` both pass with the new files.",
+      "roadmap.ts: added p2-lead-intake-tool (done). decisions-log.ts: logged why this is a validated CLI rather than a form/backend — still requires a human to supply every real field, no new infrastructure.",
+      "AGENTS.md: documented the new `pipeline/src/log-lead.ts` usage alongside the existing enhance-pipeline docs.",
+    ],
+    nextUp: [
+      "Human: p2-first-deliveries is still the single highest-leverage next step, and now the first real reply can be logged in one command with `npm run log-lead` the moment it happens.",
+      "Human: Phase 1 interviews (p1-run-interviews) and the Zillow listing audit (p1-listing-audit) remain the other real unblocks.",
+      "Agent (next session): do not start p3-app-scope yet (same reasoning as every prior session). STRATEGY.md's remaining open question ('on-device vs cloud for virtual staging') is desk-researchable without customer contact, similar to how p1-mls-compliance was answered — a reasonable next candidate if nothing is human-unblocked. Otherwise keep watching PR #4 (still needs Duncan's Cloudflare dashboard step) and re-verify CI stays green as branches merge.",
+    ],
+  },
 ];
