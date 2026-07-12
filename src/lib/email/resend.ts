@@ -283,6 +283,46 @@ Content Preview: ${html.substring(0, 150)}...`);
 }
 
 /**
+ * Paid Starter → Growth/Complete upsell nudge — operator-triggered from
+ * /dashboard/leads when the lead has a Starter-only order and no recurring yet.
+ * See src/lib/billing/starter-upsell.ts + /docs/process (paid-starter-upsell-nudge).
+ */
+export async function sendStarterUpsellEmail(params: {
+  to: string;
+  businessName: string;
+  slug: string;
+  targetTier: "growth" | "complete";
+  monthlyPriceUsd: number;
+}) {
+  const { to, businessName, slug, targetTier, monthlyPriceUsd } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(targetTier)}`;
+  const previewUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}`;
+  const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
+  const marketingLine =
+    targetTier === "complete"
+      ? "AI marketing (8 social/GBP posts + 2 emails/month) plus a client AI phone agent that answers your business line."
+      : "an AI marketing engine: 8 social/GBP posts + 2 emails per month, written from your site data.";
+
+  const subject = `${businessName} — add ${tierLabel} marketing ($${monthlyPriceUsd}/mo)`;
+  const html = `
+    <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Ready for more customers?</h2>
+    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> site is already live on ${brand.name} Starter. The next step is <strong>${tierLabel}</strong> at <strong>$${monthlyPriceUsd}/mo</strong> — ${marketingLine}</p>
+    <p style="margin-bottom: 16px;">Setup is already covered by what you paid. Upgrade when you want the monthly engine turned on:</p>
+    <div style="margin-bottom: 16px; text-align: center;">
+      <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to ${tierLabel}</a>
+    </div>
+    <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
+      Or revisit your <a href="${previewUrl}" style="color: #2563eb;">site preview</a> first.
+    </p>
+    <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through Growth vs Complete.</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+  `;
+
+  return sendEmail({ to, subject, html, leadSlug: slug });
+}
+
+/**
  * Sends a transactional order receipt email.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {

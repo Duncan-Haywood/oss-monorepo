@@ -114,6 +114,15 @@ export default function ArchitectureDocPage() {
         the Stripe Dashboard before first live use (see{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
       </p>
+      <p>
+        Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
+        operator-triggered <strong>Upsell</strong> email from{" "}
+        <code>/dashboard/leads</code> — eligibility is the inverse of billing-portal eligibility
+        (<code>src/lib/billing/starter-upsell.ts</code>). The email previews the marketing add-on
+        and links to <code>/checkout?slug=…&amp;tier=growth|complete</code> (Complete when the
+        lead&apos;s <code>recommendedTier</code> is Complete; otherwise Growth). Billing and
+        Upsell never both appear for the same order set.
+      </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>
@@ -160,12 +169,15 @@ export default function ArchitectureDocPage() {
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
       <p>
-        Stub at <code>src/lib/marketing/generators.ts</code> — next free backlog item is an
-        operator-triggered monthly pack for paid/live Growth/Complete leads (LLM when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set, stub fallback otherwise). Buffer / GBP / Meta
-        auto-scheduling stays operator-gated on OAuth secrets. See{" "}
-        <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
-        <DocLink href="/docs/process">process log</DocLink>.
+        Monthly packs: <code>src/lib/marketing/</code> builds an 8-post + 2-email pack via{" "}
+        <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set. Operators trigger{" "}
+        <code>generateMarketingPackAction</code> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
+        Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
+        <code>marketingPacks</code>). Copy/paste to post until Buffer / GBP / Meta OAuth is
+        configured. See <DocLink href="/docs/marketing-automation">Marketing automation</DocLink>{" "}
+        and <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>8. Client AI phone (Complete)</h2>

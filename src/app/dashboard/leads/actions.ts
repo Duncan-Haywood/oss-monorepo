@@ -11,6 +11,7 @@ import {
   recordClientInquiryReply,
   getLeadBySlug,
   getLeads,
+  listOrders,
   recordLeadOutreach,
   listOpenCheckoutSessions,
   listClientInquiries,
@@ -18,6 +19,7 @@ import {
   updateLeadNotes,
   updateLeadSnooze,
   applyColdLeadDisposition,
+  upsertMarketingPack,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -46,10 +48,23 @@ import {
   sendCheckoutAbandonedRecovery,
   sendInquiryReply,
   sendOperatorDailyDigest,
+  sendStarterUpsellEmail,
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
+import {
+  leadEligibleForStarterUpsell,
+  resolveUpsellTargetTier,
+} from "@/lib/billing/starter-upsell";
+import { getBundle } from "@/lib/pricing/bundles";
 import { buildDailyDigest, renderDailyDigestHtml } from "@/lib/digest/daily-digest";
+import {
+  bestMarketingOrderTier,
+  getMarketingGenerator,
+  leadEligibleForMarketingPack,
+  marketingMonthKey,
+  monthlyPackRequestForLead,
+} from "@/lib/marketing";
 
 export async function markHandoffLiveAction(slug: string) {
   try {
@@ -693,6 +708,83 @@ export async function importLeadsCsvAction(input: {
 }
 
 /**
+ * Operator-triggered Growth/Complete upsell email for paid Starter leads
+ * (no recurring order yet). Checkout link preselects recommended tier.
+ * See /docs/process (paid-starter-upsell-nudge).
+ */
+export async function sendStarterUpsellAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug?.trim()) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug.trim());
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const allOrders = await listOrders();
+    const ordersForLead = allOrders.filter((o) => o.leadSlug === lead.slug);
+    if (
+      !leadEligibleForStarterUpsell({
+        stage: lead.stage,
+        email: lead.email,
+        ordersForLead,
+      })
+    ) {
+      return {
+        success: false as const,
+        error:
+          "Upsell only applies to paid/live Starter leads with email and no Growth/Complete/Commerce order yet",
+      };
+    }
+
+    const email = lead.email!.trim();
+    const targetTier = resolveUpsellTargetTier(lead.recommendedTier);
+    const bundle = getBundle(targetTier);
+    if (!bundle?.monthlyPriceUsd) {
+      return { success: false as const, error: "Upsell tier is missing monthly pricing" };
+    }
+
+    const sent = await sendStarterUpsellEmail({
+      to: email,
+      businessName: lead.businessName,
+      slug: lead.slug,
+      targetTier,
+      monthlyPriceUsd: bundle.monthlyPriceUsd,
+    });
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send upsell email",
+      };
+    }
+
+    revalidatePath("/dashboard/leads");
+    return {
+      success: true as const,
+      targetTier,
+      mock: "mock" in sent ? Boolean(sent.mock) : false,
+    };
+  } catch (error) {
+    console.error("Error in sendStarterUpsellAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
  * Open Stripe Billing Portal for a Growth/Complete/Commerce subscriber.
  * Resolves Stripe Customer from the lead's latest eligible order.
  */
@@ -782,6 +874,70 @@ export async function sendDailyDigestAction() {
     };
   } catch (error) {
     console.error("Error in sendDailyDigestAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Generate (or regenerate) this UTC month's marketing pack for a paid/live
+ * Growth/Complete lead. Uses Anthropic when ANTHROPIC_API_KEY is set; otherwise stub.
+ */
+export async function generateMarketingPackAction(slug: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
+    if (!leadEligibleForMarketingPack(lead, orders)) {
+      return {
+        success: false as const,
+        error:
+          "Marketing packs require a paid/live lead with a Growth or Complete order",
+      };
+    }
+
+    const orderTier = bestMarketingOrderTier(orders);
+    if (!orderTier) {
+      return {
+        success: false as const,
+        error: "No Growth/Complete order found for this lead",
+      };
+    }
+
+    const nowMs = Date.now();
+    const yearMonth = marketingMonthKey(nowMs);
+    const { request, packageTier } = monthlyPackRequestForLead(lead, { orderTier });
+    const generator = getMarketingGenerator();
+    const result = await generator.generate(request);
+    const usedAnthropic = Boolean(process.env.ANTHROPIC_API_KEY?.trim()) &&
+      !result.variants.some((v) => v.body.startsWith("[Stub"));
+
+    const pack = await upsertMarketingPack({
+      leadSlug: lead.slug,
+      yearMonth,
+      variants: result.variants,
+      generatedAt: result.generatedAt,
+      generator: usedAnthropic ? "anthropic" : "stub",
+      packageTier: result.packageTier ?? packageTier,
+    });
+
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, pack };
+  } catch (error) {
+    console.error("Error in generateMarketingPackAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -13,6 +13,8 @@ import type {
 } from "./inquiries/types";
 import type { OrderRecord } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
+import type { MarketingContentVariant } from "./marketing/types";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
@@ -148,6 +150,22 @@ function getSqliteDb(): DatabaseSync {
       ON checkout_sessions(status);
     CREATE INDEX IF NOT EXISTS idx_checkout_sessions_leadSlug
       ON checkout_sessions(leadSlug);
+
+    CREATE TABLE IF NOT EXISTS marketing_packs (
+      id TEXT PRIMARY KEY,
+      leadSlug TEXT NOT NULL,
+      yearMonth TEXT NOT NULL,
+      variantsJson TEXT NOT NULL,
+      generatedAt TEXT NOT NULL,
+      generator TEXT NOT NULL,
+      packageTier TEXT,
+      UNIQUE(leadSlug, yearMonth)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_marketing_packs_month
+      ON marketing_packs(yearMonth);
+    CREATE INDEX IF NOT EXISTS idx_marketing_packs_slug
+      ON marketing_packs(leadSlug);
   `);
 
   // Migrations for DBs created before email/dataSource columns existed
@@ -256,6 +274,7 @@ const api: any = {
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
+    applyColdDisposition: "leads:applyColdDisposition",
   },
   inquiries: {
     create: "inquiries:create",
@@ -273,6 +292,11 @@ const api: any = {
     markComplete: "checkoutSessions:markComplete",
     recordRecoverySent: "checkoutSessions:recordRecoverySent",
     listOpen: "checkoutSessions:listOpen",
+  },
+  marketingPacks: {
+    upsert: "marketingPacks:upsert",
+    getByLeadMonth: "marketingPacks:getByLeadMonth",
+    listByMonth: "marketingPacks:listByMonth",
   },
 };
 
@@ -1392,4 +1416,159 @@ export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[
     .prepare("SELECT * FROM checkout_sessions WHERE status = 'open' ORDER BY createdAt ASC")
     .all() as unknown as SqliteCheckoutSessionRow[];
   return rows.map(mapCheckoutSessionRow);
+}
+
+// --- Marketing packs (Growth/Complete monthly content) ---
+
+interface SqliteMarketingPackRow {
+  id: string;
+  leadSlug: string;
+  yearMonth: string;
+  variantsJson: string;
+  generatedAt: string;
+  generator: string;
+  packageTier: string | null;
+}
+
+function parsePackVariants(json: string): MarketingContentVariant[] {
+  try {
+    const parsed: unknown = JSON.parse(json);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is MarketingContentVariant => {
+      if (!item || typeof item !== "object") return false;
+      const row = item as Record<string, unknown>;
+      return typeof row.contentType === "string" && typeof row.body === "string";
+    });
+  } catch {
+    return [];
+  }
+}
+
+function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {
+  const tier =
+    row.packageTier === "copy_pack" ||
+    row.packageTier === "social_email" ||
+    row.packageTier === "full_marketing"
+      ? row.packageTier
+      : undefined;
+  return {
+    id: row.id,
+    leadSlug: row.leadSlug,
+    yearMonth: row.yearMonth,
+    variants: parsePackVariants(row.variantsJson),
+    generatedAt: row.generatedAt,
+    generator: row.generator === "anthropic" ? "anthropic" : "stub",
+    packageTier: tier,
+  };
+}
+
+export async function upsertMarketingPack(
+  input: UpsertMarketingPackInput,
+): Promise<MarketingPack> {
+  const pack: MarketingPack = {
+    id: `mp_${input.leadSlug}_${input.yearMonth}`,
+    leadSlug: input.leadSlug,
+    yearMonth: input.yearMonth,
+    variants: input.variants,
+    generatedAt: input.generatedAt,
+    generator: input.generator,
+    packageTier: input.packageTier,
+  };
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.marketingPacks.upsert, {
+        packId: pack.id,
+        leadSlug: pack.leadSlug,
+        yearMonth: pack.yearMonth,
+        variants: pack.variants,
+        generatedAt: pack.generatedAt,
+        generator: pack.generator,
+        packageTier: pack.packageTier,
+      });
+      return pack;
+    } catch (e) {
+      console.warn(
+        `Failed to upsert marketing pack for ${pack.leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(`
+    INSERT INTO marketing_packs (
+      id, leadSlug, yearMonth, variantsJson, generatedAt, generator, packageTier
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(leadSlug, yearMonth) DO UPDATE SET
+      id = excluded.id,
+      variantsJson = excluded.variantsJson,
+      generatedAt = excluded.generatedAt,
+      generator = excluded.generator,
+      packageTier = excluded.packageTier
+  `).run(
+    pack.id,
+    pack.leadSlug,
+    pack.yearMonth,
+    JSON.stringify(pack.variants),
+    pack.generatedAt,
+    pack.generator,
+    pack.packageTier ?? null,
+  );
+
+  return pack;
+}
+
+export async function getMarketingPack(
+  leadSlug: string,
+  yearMonth: string,
+): Promise<MarketingPack | null> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.marketingPacks.getByLeadMonth, {
+        leadSlug,
+        yearMonth,
+      })) as MarketingPack | null;
+    } catch (e) {
+      console.warn(
+        `Failed to get marketing pack for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM marketing_packs WHERE leadSlug = ? AND yearMonth = ?")
+    .get(leadSlug, yearMonth) as SqliteMarketingPackRow | undefined;
+  return row ? mapMarketingPackRow(row) : null;
+}
+
+export async function listMarketingPacksForMonth(
+  yearMonth: string,
+  limit = 100,
+): Promise<MarketingPack[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.marketingPacks.listByMonth, {
+        yearMonth,
+        limit: safeLimit,
+      })) as MarketingPack[];
+    } catch (e) {
+      console.warn(
+        "Failed to list marketing packs from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM marketing_packs WHERE yearMonth = ? ORDER BY generatedAt DESC LIMIT ?",
+    )
+    .all(yearMonth, safeLimit) as unknown as SqliteMarketingPackRow[];
+  return rows.map(mapMarketingPackRow);
 }

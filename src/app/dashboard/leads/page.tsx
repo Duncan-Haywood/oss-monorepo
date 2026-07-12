@@ -4,9 +4,11 @@ import {
   listClientInquiries,
   listOrders,
   listOpenCheckoutSessions,
+  listMarketingPacksForMonth,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
+import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
@@ -23,21 +25,28 @@ async function loadLeadsPipelineHealth(): Promise<{
   inquiries: Awaited<ReturnType<typeof listClientInquiries>>;
   orders: Awaited<ReturnType<typeof listOrders>>;
   openCheckoutSessions: Awaited<ReturnType<typeof listOpenCheckoutSessions>>;
+  marketingPacks: Awaited<ReturnType<typeof listMarketingPacksForMonth>>;
+  marketingMonth: string;
 }> {
-  const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
-    getLeads(),
-    listDeployHandoffs(),
-    listClientInquiries(50),
-    listOrders(),
-    listOpenCheckoutSessions(),
-  ]);
   const nowMs = Date.now();
+  const marketingMonth = marketingMonthKey(nowMs);
+  const [leads, handoffs, inquiries, orders, openCheckoutSessions, marketingPacks] =
+    await Promise.all([
+      getLeads(),
+      listDeployHandoffs(),
+      listClientInquiries(50),
+      listOrders(),
+      listOpenCheckoutSessions(),
+      listMarketingPacksForMonth(marketingMonth),
+    ]);
   return {
     leads,
     handoffs,
     inquiries,
     orders,
     openCheckoutSessions,
+    marketingPacks,
+    marketingMonth,
     health: computePipelineHealth({
       leads,
       orders,
@@ -50,8 +59,16 @@ async function loadLeadsPipelineHealth(): Promise<{
 }
 
 export default async function LeadsPage() {
-  const { health, leads, handoffs, inquiries, orders, openCheckoutSessions } =
-    await loadLeadsPipelineHealth();
+  const {
+    health,
+    leads,
+    handoffs,
+    inquiries,
+    orders,
+    openCheckoutSessions,
+    marketingPacks,
+    marketingMonth,
+  } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
 
   return (
@@ -86,6 +103,8 @@ export default async function LeadsPage() {
           initialInquiries={inquiries}
           initialCheckoutSessions={openCheckoutSessions}
           initialOrders={orders}
+          initialMarketingPacks={marketingPacks}
+          marketingMonth={marketingMonth}
         />
       </div>
     </main>
