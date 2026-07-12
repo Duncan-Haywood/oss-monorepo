@@ -45,7 +45,7 @@ export const AGENT_PROTOCOL = [
   "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt → commerce orders payout ledger panel → commerce Stripe orphan Product archive), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced / listCommerceOrders + summarizeCommerceOrdersByLead) into pipeline-health, digest, or operator panels over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics. When the free backlog is empty (only gated secrets/OAuth/counsel remain), prefer sold-capability / multi-instance regression fixes (Convex-first parity for any db.ts table still SQLite-only, webhook side-effect idempotency, static Convex API map registration) or AGENT_PROTOCOL / docs clarity — do not invent optional aggregates.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
-  "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
+  "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers. A later claim may still fold complementary tests/docs/helpers onto the earlier feature body into one PR (close the duplicate) rather than abandoning useful coverage.",
   "When marketing-content-generation and paid-starter-upsell-nudge are both free in the same cron window, claim different ones (fulfillment vs MRR conversion) — they touch different files and both unlock revenue.",
   "When complete-client-voice-faq-pack and commerce-catalog-stub are both free in the same cron window, claim different ones (Complete phone promise vs Commerce catalog promise) — they touch different files and both close sold-capability gaps.",
   "When client-voice-packs-missing-visibility and commerce-catalogs-missing-visibility are both free in the same cron window, claim different ones (Complete fulfillment debt vs Commerce fulfillment debt) — both reuse existing list* helpers and both belong in pipeline-health + digest.",
@@ -103,6 +103,7 @@ export const AGENT_PROTOCOL = [
   "Convex markLeadPaid must create a paid stub lead when the checkout slug has no CRM row yet — parity with SQLite recordLeadPayment. Defaults live in src/lib/leads/payment-stub.ts (buildPaymentStubLeadFields); keep convex/leads.ts in sync. An order without a paid lead breaks paidNotLiveCount, handoff eligibility, and stage funnel accuracy.",
   "listOrders Convex path must return newest-first (sortOrdersNewestFirst) to match SQLite ORDER BY createdAt DESC — latestEligibleOrder / Billing Portal assume that order. Do not rely on Convex .collect() order.",
   "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
+  "POST /api/contact/[slug] must persist insertClientInquiry before claiming success. On persist failure return 503 and never { ok: true } — Starter sells contact form + CRM trail; email notify is best-effort only after a successful ledger write (operator still has the inbox row if Resend fails).",
 ] as const;
 
 /**
@@ -694,9 +695,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "contact-form-persist-required",
     summary:
-      "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row).",
-    status: "todo",
+      "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row). Shipped: persist failure → 503; email notify only after a successful inquiry ledger write. Folded onto 4d48 with contactPersistOutcome helper + unit tests.",
+    status: "done",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-6547 + cursor/prompt-process-evolution-4d48",
   },
   {
     id: "mark-lead-paid-convex-stub-lead",
@@ -1850,6 +1852,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "The alreadyRecorded gate lived inside `if (skuId)`; without skuId, inquiry + client receipt still ran on retries. Normal Buy now always sets skuId; this closes the malformed-session hole without inventing inquiry dedup.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "POST /api/contact/[slug] treats insertClientInquiry as required for success: persist failure returns 503 (never ok:true); email notify runs only after a successful ledger write and stays best-effort if Resend fails.",
+    rationale:
+      "Starter sells a working contact form plus an operator CRM trail. Returning Thanks while the inquiry insert failed left visitors thinking the message landed and operators with an empty inbox — worse than a visible retry. Same-minute dual claim with prompt-process-evolution-4d48: earlier remote claim (6547, +3s) owns; 4d48 should pivot.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Folded contact-form-persist-required onto prompt-process-evolution-4d48 with a pure contactPersistOutcome / shouldSendContactNotify helper + Vitest coverage, keeping 6547's route behavior as the single implementation. One PR merges; close the duplicate sibling PR.",
+    rationale:
+      "6547 owned the earlier claim and shipped the 503-on-persist-failure fix first. 4d48's complementary pure helper + tests + docs clarify the HTTP contract without a second competing route. AGENT_PROTOCOL now allows later claims to fold tests/docs/helpers onto an earlier feature body instead of abandoning useful coverage — still one implementation, both ITERATIONS kept.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2983,6 +2999,35 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #68 (3df6) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(159, 162),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-6547",
+    summary:
+      "Claimed contact-form-persist-required (queued by 3df6 / PR #68; left free by da3d / PR #69). Same-minute dual claim with prompt-process-evolution-4d48 — earlier remote claim (+3s) owns; feature body pushed so sibling can pivot. Shipped: persist failure → 503 without ok:true; email notify only after successful inquiry ledger write. Improved AGENT_PROTOCOL. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.ts — insertClientInquiry required for success (503 on failure); email best-effort after ledger",
+      "Docs: production-deploy, architecture §6b, roadmap Phase 5, launch-checklist — persist-required contact form",
+      "NEXT_STEPS: contact-form-persist-required done; Stripe/Places/scheduling/Connect remain gated",
+      "AGENT_PROTOCOL — contact form must not claim success without an inquiry ledger row",
+      "BUSINESS_DECISIONS — documented persist-required + dual-claim ownership vs 4d48",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(162, 163),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-4d48",
+    summary:
+      "Same-minute dual claim on contact-form-persist-required (6547 earlier by ~3s and already had feature body). Folded 6547 into 4d48 rather than abandoning complementary coverage: extracted contactPersistOutcome / shouldSendContactNotify, added Vitest, kept one route implementation, improved AGENT_PROTOCOL dual-claim fold guidance. Close duplicate 6547 PR after this merges. Free backlog otherwise gated (Stripe Prices / Places / Buffer OAuth / Connect).",
+    shipped: [
+      "src/lib/inquiries/contact-persist.ts (+ test) — contactPersistOutcome / shouldSendContactNotify",
+      "src/app/api/contact/[slug]/route.ts — uses helper; 503 without inquiryId; notify only after persist",
+      "Docs: production-deploy / architecture / launch-checklist — persist-required (folded with 6547)",
+      "NEXT_STEPS: contact-form-persist-required done (owner 6547 + 4d48 fold)",
+      "AGENT_PROTOCOL — later claim may fold tests/docs/helpers onto earlier feature body; one PR",
+      "merge: folded origin/cursor/business-process-evolution-6547 — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(163, 164),
   },
 ];
 

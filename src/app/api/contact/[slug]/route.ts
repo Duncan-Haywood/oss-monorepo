@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, insertClientInquiry } from "@/lib/db";
 import { brand } from "@/lib/brand";
+import {
+  contactPersistOutcome,
+  shouldSendContactNotify,
+} from "@/lib/inquiries/contact-persist";
 
 /**
  * Client site contact form (Phase 5).
- * Accepts JSON or form-urlencoded posts for a lead slug, persists an inquiry,
- * emails the lead (or support), and returns 200 so preview/production forms work.
+ * Accepts JSON or form-urlencoded posts for a lead slug, persists an inquiry
+ * (required for success), then emails the lead (or support) as a best-effort
+ * notify. Returns 503 when the inbox row cannot be written — never { ok: true }
+ * without a durable CRM trail (Starter sold promise).
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -80,13 +86,25 @@ export async function POST(request: Request, context: RouteContext) {
     console.error(`contact form persist failed for ${slug}:`, error);
   }
 
-  try {
-    const { sendEmail } = await import("@/lib/email/resend");
-    await sendEmail({
-      to: notifyTo,
-      subject: `New website inquiry for ${businessName}`,
-      leadSlug: slug,
-      html: `
+  const outcome = contactPersistOutcome(inquiryId);
+  if (!outcome.ok) {
+    console.error(
+      `[contact/${slug}] persist required — refusing success without inquiry row`,
+    );
+    return NextResponse.json(
+      { ok: false, error: outcome.error, slug, businessName },
+      { status: outcome.status },
+    );
+  }
+
+  if (shouldSendContactNotify(inquiryId)) {
+    try {
+      const { sendEmail } = await import("@/lib/email/resend");
+      await sendEmail({
+        to: notifyTo,
+        subject: `New website inquiry for ${businessName}`,
+        leadSlug: slug,
+        html: `
         <h2 style="margin-bottom: 12px;">New contact form submission</h2>
         <p><strong>Business:</strong> ${businessName} (<code>${slug}</code>)</p>
         <p><strong>Name:</strong> ${name || "—"}</p>
@@ -94,15 +112,17 @@ export async function POST(request: Request, context: RouteContext) {
         <p><strong>Phone:</strong> ${phone || "—"}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${message || "—"}</p>
-        ${inquiryId ? `<p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${inquiryId}</code></p>` : ""}
+        <p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${outcome.inquiryId}</code></p>
       `,
-    });
-  } catch (error) {
-    console.error(`contact form email failed for ${slug}:`, error);
+      });
+    } catch (error) {
+      // Notify is best-effort after durable persist — visitor already succeeded.
+      console.error(`contact form email failed for ${slug}:`, error);
+    }
   }
 
   console.log(`[contact/${slug}]`, {
-    inquiryId,
+    inquiryId: outcome.inquiryId,
     name,
     email,
     phone,
@@ -113,8 +133,8 @@ export async function POST(request: Request, context: RouteContext) {
     ok: true,
     slug,
     businessName,
-    inquiryId,
-    message: "Thanks — your message was received.",
+    inquiryId: outcome.inquiryId,
+    message: outcome.message,
   });
 }
 

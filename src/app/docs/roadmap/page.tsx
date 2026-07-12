@@ -155,8 +155,9 @@ export default function RoadmapDocPage() {
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
         shared project when unset) — full automated project creation remains manual. Remaining:
-        registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
-        panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
+        registrar DNS automation. Client inquiry inbox (persist-required contact-form posts —{" "}
+        <code>503</code> when the ledger write fails — + operator panel + dashboard reply via
+        Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
