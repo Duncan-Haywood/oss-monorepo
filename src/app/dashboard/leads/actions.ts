@@ -25,6 +25,7 @@ import {
   upsertCommerceCatalog,
   getCommerceCatalog,
   listCommerceCatalogs,
+  listCommerceOrders,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
@@ -924,10 +925,10 @@ export async function openBillingPortalAction(slug: string) {
 /**
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
  * abandoned-checkout recoveries due, unreplied inquiries, marketing packs due,
- * Starter → MRR upsell candidates, Commerce catalogs missing, and Complete
- * voice packs due in one send, plus cold/snoozed footnotes, so a
- * single-operator business does not have to open this dashboard to know what
- * is urgent today. Requires
+ * Starter → MRR upsell candidates, Commerce catalogs missing / unsynced,
+ * Complete voice packs due, and Commerce payouts owed (pass-through Buy now)
+ * in one send, plus cold/snoozed footnotes, so a single-operator business does
+ * not have to open this dashboard to know what is urgent today. Requires
  * OPERATOR_DIGEST_EMAIL — see /docs/process.
  */
 export async function sendDailyDigestAction() {
@@ -955,6 +956,7 @@ export async function sendDailyDigestAction() {
       marketingPacks,
       commerceCatalogs,
       clientVoicePacks,
+      commerceOrders,
     ] = await Promise.all([
       getLeads(),
       listClientInquiries(100),
@@ -963,6 +965,7 @@ export async function sendDailyDigestAction() {
       listMarketingPacksForMonth(yearMonth),
       listCommerceCatalogs(),
       listClientVoicePacks(),
+      listCommerceOrders(),
     ]);
 
     const headerStore = await headers();
@@ -979,6 +982,7 @@ export async function sendDailyDigestAction() {
       marketingPacksThisMonth: marketingPacks,
       commerceCatalogs,
       clientVoicePacks,
+      commerceOrders,
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);
