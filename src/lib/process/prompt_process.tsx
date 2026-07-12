@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): keep building if you already pushed feature commits; the sibling should pivot to the next free todo once they see your claim. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -229,7 +229,21 @@ export const NEXT_STEPS: NextStep[] = [
       "Pure TypeScript lead scoring (missing email/address/phone, stale outreach, category fit vs. recommendedTier) surfaced on the dashboard so the operator works the highest-probability leads first instead of scanning the full list top-to-bottom.",
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
-    owner: "cursor/prompt-process-evolution-f004",
+    owner: "cursor/business-process-evolution-8e65 + cursor/prompt-process-evolution-f004",
+  },
+  {
+    id: "checkout-abandoned-recovery",
+    summary:
+      "Operator (or later cron) recovery nudge for Stripe Checkout sessions that were created but not completed — reuse lead slug attribution + Resend, honor suppression, link back to prefilled /checkout?slug=.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "operator-lead-notes",
+    summary:
+      "Optional free-text operator notes on Lead (SQLite + Convex) shown on the dashboard row expand / edit — capture call outcomes without a full CRM, and keep scoring inputs human-auditable.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
   {
     id: "outreach-open-tracking",
@@ -524,23 +538,30 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
-      "Lead quality is a pure TypeScript score (0–100) derived from already-loaded Lead fields — no new DB columns — and sorts the operator dashboard so hot/warm actionable leads float above cold and parked (paid/live).",
+      "Lead quality is a pure TypeScript 0–100 score (src/lib/leads/quality-score.ts) computed on the dashboard from already-loaded leads — not a separate analytics store or ML model.",
     rationale:
-      "Operator time is the bottleneck once CSV + outreach exist: scanning an unsorted table wastes the conversion multiplier of Email 2/3. A pure scorer stays backend-agnostic (SQLite or Convex), is unit-testable beside outreach cadence, and unblocks prioritizing work without waiting on outreach-open-tracking persistence.",
+      "Operators were scanning the full lead table top-to-bottom while missing email / stale follow-ups / tier mismatches hid the real conversion queue. A pure scorer stays backend-agnostic (SQLite or Convex), unit-testable, and avoids Date.now() in Convex queries; the Work next panel + default quality sort make the highest-probability outreach targets obvious in one glance.",
   },
   {
     date: "2026-07-12",
     decision:
-      "Score factors: contact completeness (email heavily weighted), phone/address, category template fit (restaurant/salon/trades > generic), recommended-tier revenue upside, stage/intent, follow-up-due boost, stale mid-sequence nudge; paid/live are non-actionable (parked).",
+      "Quality score prioritizes actionable pipeline stages (discovered→discovery_call), boosts contact completeness + follow-up-due, applies category↔recommendedTier fit from the demo catalog defaults, and deprioritizes demo_catalog/slug_inference sources. Paid/live leads are banded fulfillment and excluded from the Work next queue.",
     rationale:
-      "Matches how revenue actually moves: cannot email without addressable contact, category templates convert better than generic, higher tiers pay more when they close, and due/stale outreach is where operator clicks convert existing demand. Parking paid/live keeps the priority queue focused on acquisition, not fulfillment (handoffs panel already covers that).",
+      "Fulfillment debt is already visible via pipeline-health metrics and deploy handoffs. Mixing paid rows into the outreach priority list would distract from revenue still stuck in Email 1–3. Demo leads must not outrank real CSV/manual contacts just because they are complete fixtures.",
   },
   {
     date: "2026-07-12",
     decision:
-      "Same-hour dual claim of lead-quality-scoring with cursor/business-process-evolution-8e65: this branch (f004) keeps the feature implementation; sibling should pivot to outreach-open-tracking (or fold complementary diffs). Documented as an AGENT_PROTOCOL rule.",
+      "After lead-quality-scoring, queue checkout-abandoned-recovery and operator-lead-notes as free (non-operator/legal-gated) NEXT_STEPS so sibling hourly agents have clear claims while Stripe bootstrap and Places stay human-gated.",
     rationale:
-      "Both automations claimed within the same minute before either feature body landed. Protocol already forbids two backends for one surface; making the 'first feature commits win / sibling pivots' path explicit reduces idle thrash on the next hourly pair.",
+      "Hourly automations idle or thrash process-only when the free backlog empties. Abandoned checkout is the next conversion leak on the payment path; lead notes capture call outcomes that scoring cannot infer — both ship without new secrets.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-hour dual claim of lead-quality-scoring (f004 + 8e65): merged both branches into one PR; kept the 8e65 scorer (Work next queue, blocked/fulfillment bands, demo deprioritization, category↔tier fit) as the single implementation, folded f004 protocol rules (dual-claim pivot + absolute decision slices) and both ITERATIONS.",
+    rationale:
+      "Two full scorers would thrash the dashboard and tests. 8e65's factor set and Work next UX were strictly more complete; f004's process hardening still needed. Protocol already preferred merge-over-compete for complementary same-window work.",
   },
 ];
 
@@ -844,16 +865,30 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
-    branch: "cursor/prompt-process-evolution-f004",
+    branch: "cursor/business-process-evolution-8e65",
     summary:
-      "Operator leverage: pure lead quality scoring (contact completeness, category/tier fit, follow-up due, stale outreach) with Priority leads panel + Score column + default table sort on /dashboard/leads. Cooperated with same-hour sibling business-process-evolution-8e65 which dual-claimed the same todo — kept one scorer, added protocol rules for dual claims and absolute decision slice indices. Queued sibling can take outreach-open-tracking next.",
+      "Operator leverage after address persistence: pure lead quality scoring (contact gaps, stage momentum, follow-up due, category↔tier fit, demo deprioritization) with a Work next queue and default quality sort on /dashboard/leads. Process: extended revenue priority chain, queued abandoned-checkout recovery + operator lead notes for siblings.",
     shipped: [
-      "src/lib/leads/quality-score.ts — scoreLead / sortLeadsByQuality / bands (hot/warm/cold/parked)",
-      "src/lib/leads/quality-score.test.ts — Vitest coverage for factors, clamp, sort order",
-      "src/app/dashboard/leads/leads-client.tsx — Priority leads panel, Score column, quality sort",
-      "Docs: roadmap Phase 2 note for quality scoring",
-      "AGENT_PROTOCOL — dual-claim pivot rule + absolute BUSINESS_DECISIONS slice indices",
+      "src/lib/leads/quality-score.ts — 0–100 scorer + rankLeadsForOutreach + band helpers",
+      "src/lib/leads/quality-score.test.ts — Vitest coverage for factors, ranking, clamps",
+      "src/app/dashboard/leads/leads-client.tsx — Work next panel, Quality column, sort toggle",
+      "Docs: roadmap Phase 2 + launch-checklist quality check",
+      "NEXT_STEPS: lead-quality-scoring done; checkout-abandoned-recovery + operator-lead-notes queued",
+      "AGENT_PROTOCOL — revenue priority includes scoring → open tracking → abandoned checkout",
     ],
     decisions: BUSINESS_DECISIONS.slice(40, 43),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-f004",
+    summary:
+      "Same-hour dual claim with 8e65 on lead-quality-scoring: merged sibling branch, kept one scorer (8e65 Work next implementation), added AGENT_PROTOCOL dual-claim pivot + absolute BUSINESS_DECISIONS slice rules, and recorded the merge decision so the next hourly pair does not re-litigate.",
+    shipped: [
+      "Merge of cursor/business-process-evolution-8e65 (quality-score + Work next + docs + new NEXT_STEPS)",
+      "AGENT_PROTOCOL — Same-minute dual-claim pivot; absolute decision slice indices",
+      "NEXT_STEPS owner shared: business-process-evolution-8e65 + prompt-process-evolution-f004",
+      "Process decision documenting single-scorer merge outcome",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(43, 44),
   },
 ];

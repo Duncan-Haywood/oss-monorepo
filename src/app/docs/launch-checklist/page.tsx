@@ -73,6 +73,11 @@ export default function LaunchChecklistDocPage() {
           test lead), confirm the Follow-ups due panel offers Email 2 / Email 3 and that
           suppression still blocks sends.
         </li>
+        <li>
+          On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
+          <strong>Work next</strong> panel ranks real CSV/manual leads above demos, surfaces
+          missing-email leads as Blocked, and the Quality column sorts the table by score.
+        </li>
       </ol>
 
       <h2>4. Persistence</h2>
@@ -119,6 +124,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
           stage funnel, open handoffs, and leads missing email (no row-scanning required)
+        </li>
+        <li>
+          <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
+          outreach (real contacts above demos; blocked when email is missing)
         </li>
       </ul>
 

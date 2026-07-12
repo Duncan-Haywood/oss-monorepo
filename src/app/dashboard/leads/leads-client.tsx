@@ -24,10 +24,11 @@ import {
   normalizeOutreachStep,
 } from "@/lib/email/outreach-followups";
 import {
-  compareLeadQuality,
-  scoreBandLabel,
+  qualityBandClass,
+  qualityBandLabel,
+  rankLeadsForOutreach,
   scoreLead,
-  type LeadScoreBand,
+  type LeadQualityResult,
 } from "@/lib/leads/quality-score";
 
 interface LeadsClientProps {
@@ -64,6 +65,7 @@ export function LeadsClient({
   const [nowMs] = useState(() => Date.now());
   const [filterStage, setFilterStage] = useState<LeadPipelineStage | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortByQuality, setSortByQuality] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCsvImport, setShowCsvImport] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -294,7 +296,12 @@ export function LeadsClient({
     });
   };
 
-  // Filtered + quality-sorted leads (hot actionable first; paid/live parked last).
+  // Filtered Leads
+  const qualityBySlug = new Map<string, LeadQualityResult>(
+    leads.map((lead) => [lead.slug, scoreLead(lead, nowMs)]),
+  );
+  const workNext = rankLeadsForOutreach(leads, nowMs, 5);
+
   const filteredLeads = leads
     .filter((lead) => {
       const matchesStage = filterStage === "all" || lead.stage === filterStage;
@@ -304,98 +311,21 @@ export function LeadsClient({
         lead.slug.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesStage && matchesSearch;
     })
-    .map((lead) => ({ lead, quality: scoreLead(lead, nowMs) }))
-    .sort((a, b) => compareLeadQuality(a.quality, b.quality));
+    .slice()
+    .sort((a, b) => {
+      if (!sortByQuality) return a.businessName.localeCompare(b.businessName);
+      const scoreA = qualityBySlug.get(a.slug)?.score ?? 0;
+      const scoreB = qualityBySlug.get(b.slug)?.score ?? 0;
+      return scoreB - scoreA || a.businessName.localeCompare(b.businessName);
+    });
 
   const openHandoffs = handoffs.filter((h) => h.status !== "live");
   const openInquiries = inquiries.filter((inq) => inq.status !== "archived");
   // Snapshot clock from mount — server re-checks cadence on send.
   const followUpsDue = listFollowUpsDue(leads, nowMs);
-  const priorityLeads = leads
-    .map((lead) => scoreLead(lead, nowMs))
-    .filter((s) => s.actionable && (s.band === "hot" || s.band === "warm"))
-    .sort(compareLeadQuality)
-    .slice(0, 5);
-
-  const bandClass = (band: LeadScoreBand): string => {
-    switch (band) {
-      case "hot":
-        return "bg-rose-100 text-rose-900 border-rose-200";
-      case "warm":
-        return "bg-amber-100 text-amber-900 border-amber-200";
-      case "cold":
-        return "bg-zinc-100 text-zinc-700 border-zinc-200";
-      case "parked":
-        return "bg-slate-100 text-slate-600 border-slate-200";
-      default: {
-        const _exhaustive: never = band;
-        return _exhaustive;
-      }
-    }
-  };
 
   return (
     <div className="mt-8">
-      {priorityLeads.length > 0 && (
-        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/40 p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-              Priority leads
-              <span className="ml-2 text-sm font-normal text-zinc-500">
-                (quality score)
-              </span>
-            </h2>
-            <Link
-              href="/docs/process"
-              className="text-xs font-medium text-rose-900 underline underline-offset-2"
-            >
-              Scoring rules
-            </Link>
-          </div>
-          <p className="mt-1 text-xs text-zinc-600">
-            Work the highest-probability rows first: contact completeness, category/tier fit,
-            follow-up due, and stage — paid/live are parked out of this queue.
-          </p>
-          <ul className="mt-4 space-y-2">
-            {priorityLeads.map((quality) => {
-              const lead = leads.find((l) => l.slug === quality.slug);
-              if (!lead) return null;
-              const topFactors = quality.factors
-                .filter((f) => f.id !== "base" && f.delta !== 0)
-                .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
-                .slice(0, 3)
-                .map((f) => f.label)
-                .join(" · ");
-              return (
-                <li
-                  key={quality.slug}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
-                >
-                  <div>
-                    <p className="font-semibold text-zinc-900">
-                      <span
-                        className={`mr-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${bandClass(quality.band)}`}
-                      >
-                        {scoreBandLabel(quality.band)} {quality.score}
-                      </span>
-                      {lead.businessName}{" "}
-                      <span className="font-normal text-zinc-500">({lead.slug})</span>
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-600">{topFactors}</p>
-                  </div>
-                  <Link
-                    href={`/preview/${lead.slug}`}
-                    className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                  >
-                    Preview
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
-
       {followUpsDue.length > 0 && (
         <section className="mb-8 rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -447,6 +377,104 @@ export function LeadsClient({
                     >
                       Send Email {next ?? "?"}
                     </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {workNext.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-rose-200 bg-rose-50/30 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Work next
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                (quality score)
+              </span>
+            </h2>
+            <Link
+              href="/docs/process"
+              className="text-xs font-medium text-rose-900 underline underline-offset-2"
+            >
+              Scoring rules
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            Highest-probability outreach targets first — email/phone/address completeness,
+            stage momentum, follow-up due, category↔tier fit. Demo leads are deprioritized.
+            Paid/live rows stay in fulfillment, not this queue.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {workNext.map((row) => {
+              const lead = leads.find((l) => l.slug === row.slug);
+              if (!lead) return null;
+              const topFactors = row.factors
+                .filter((f) => f.id !== "stage_base")
+                .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+                .slice(0, 3);
+              return (
+                <li
+                  key={row.slug}
+                  className="rounded-xl border border-rose-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {lead.businessName}{" "}
+                        <span className="font-normal text-zinc-500">({lead.slug})</span>
+                      </p>
+                      <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-600">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${qualityBandClass(row.band)}`}
+                        >
+                          {qualityBandLabel(row.band)} · {row.score}
+                        </span>
+                        <span className="capitalize">{lead.stage.replaceAll("_", " ")}</span>
+                        {lead.email ? <span>· {lead.email}</span> : null}
+                      </p>
+                      <ul className="mt-2 space-y-0.5 text-[11px] text-zinc-500">
+                        {topFactors.map((f) => (
+                          <li key={f.id}>
+                            <span className={f.delta >= 0 ? "text-emerald-700" : "text-orange-700"}>
+                              {f.delta >= 0 ? "+" : ""}
+                              {f.delta}
+                            </span>{" "}
+                            {f.label}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        href={`/preview/${lead.slug}`}
+                        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-center text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                        target="_blank"
+                      >
+                        Preview
+                      </Link>
+                      {lead.stage === "site_built" && lead.email ? (
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleStageChange(lead.slug, "outreach_sent")}
+                          className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-800 disabled:opacity-60"
+                        >
+                          Send Email 1
+                        </button>
+                      ) : null}
+                      {isFollowUpDue(lead, nowMs) ? (
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => handleSendFollowUp(lead.slug)}
+                          className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-800 disabled:opacity-60"
+                        >
+                          Send Email {nextFollowUpStep(lead.outreachStep) ?? "?"}
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 </li>
               );
@@ -672,6 +700,17 @@ export function LeadsClient({
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setSortByQuality((v) => !v)}
+            className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
+              sortByQuality
+                ? "border-rose-300 bg-rose-50 text-rose-900"
+                : "border-zinc-300 bg-white text-zinc-800 hover:border-zinc-400 hover:bg-zinc-50"
+            }`}
+          >
+            {sortByQuality ? "Sorted by quality" : "Sort by quality"}
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -1021,8 +1060,8 @@ export function LeadsClient({
           <table className="w-full border-collapse text-left text-sm text-zinc-600">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50/50 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                <th className="px-6 py-4">Score</th>
                 <th className="px-6 py-4">Business</th>
+                <th className="px-6 py-4">Quality</th>
                 <th className="px-6 py-4">Category</th>
                 <th className="px-6 py-4">Recommended Tier</th>
                 <th className="px-6 py-4">Pipeline Stage</th>
@@ -1038,27 +1077,13 @@ export function LeadsClient({
                   </td>
                 </tr>
               ) : (
-                filteredLeads.map(({ lead, quality }) => {
+                filteredLeads.map((lead) => {
                   const step = normalizeOutreachStep(lead.outreachStep);
                   const next = nextFollowUpStep(step);
                   const due = isFollowUpDue(lead, nowMs);
-                  const factorTitle = quality.factors
-                    .filter((f) => f.id !== "base")
-                    .map((f) => `${f.delta >= 0 ? "+" : ""}${f.delta} ${f.label}`)
-                    .join("\n");
+                  const quality = qualityBySlug.get(lead.slug);
                   return (
                     <tr key={lead.slug} className="hover:bg-zinc-50/50 transition">
-                      <td className="px-6 py-4.5">
-                        <span
-                          title={factorTitle}
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold tabular-nums ${bandClass(quality.band)}`}
-                        >
-                          {quality.score}
-                          <span className="ml-1 font-semibold uppercase tracking-wide opacity-80">
-                            {scoreBandLabel(quality.band)}
-                          </span>
-                        </span>
-                      </td>
                       <td className="px-6 py-4.5">
                         <div>
                           <p className="font-semibold text-zinc-900">{lead.businessName}</p>
@@ -1068,6 +1093,20 @@ export function LeadsClient({
                             {lead.email && ` · ${lead.email}`}
                           </p>
                         </div>
+                      </td>
+                      <td className="px-6 py-4.5">
+                        {quality ? (
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityBandClass(quality.band)}`}
+                            title={quality.factors
+                              .map((f) => `${f.delta >= 0 ? "+" : ""}${f.delta} ${f.label}`)
+                              .join("\n")}
+                          >
+                            {quality.score} · {qualityBandLabel(quality.band)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-zinc-400">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4.5">
                         <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-800 capitalize">
