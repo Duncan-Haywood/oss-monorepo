@@ -332,6 +332,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
   },
   {
+    id: "cold-lead-reengagement",
+    summary:
+      "isFollowUpDue/listFollowUpsDue return null forever once outreachStep reaches 3 with no reply — these leads went permanently invisible to the operator. Added isColdLead/listColdLeads (outreach-followups.ts), a pipeline-health coldLeadCount + oldest-age, and a 'Cold' badge on the leads table so operators can manually re-engage or move the lead to a closed stage.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/cold-lead-reengagement",
+  },
+  {
+    id: "cold-lead-archive-action",
+    summary:
+      "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
     id: "operator-daily-digest-email",
     summary:
       "Operator-triggered (or later cron) daily digest email summarizing Work next top leads, follow-ups due, abandoned-checkout recoveries due, and unreplied inquiries — a single-operator business should not have to open /dashboard/leads to know what's urgent today.",
@@ -855,6 +870,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Started this iteration by re-implementing unreplied-inquiry-pipeline-metric (pushed a claim commit, built and verified the full feature), unaware siblings cursor/business-process-evolution-a6e6 and cursor/prompt-process-evolution-af03 had already shipped and merged the identical field names (unrepliedInquiryCount, oldestUnrepliedInquiryAgeHours) plus lead-snooze-work-next in the same window (PRs #31/#32). Discarded the duplicate work and reset onto main per this file's own precedent (the 2026-07-11 'two collisions' and 2026-07-12 outreach-open-tracking entries), then claimed a genuinely free todo instead: cold-lead-reengagement.",
+    rationale:
+      "Both implementations solved the identical problem end-to-end down to the same field names; merging would reconcile zero actual differences for the user. Re-fetching origin/main right before claiming (not just at session start) is what caught the collision before a duplicate PR was opened — the same lesson prior collision entries already drew, worth restating since it recurred.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Cold-lead detection (isColdLead) is a pure derived signal — stage in outreach_sent/discovery_call, outreachStep===3, and COLD_AFTER_DAYS (= FOLLOW_UP_3_AFTER_DAYS) of silence since lastOutreachAt — with no new Lead field, DB column, or migration.",
+    rationale:
+      "Every input isColdLead needs (stage, outreachStep, lastOutreachAt) already exists on Lead and is already loaded by every page that renders pipeline-health or the leads table. A stored 'isCold' boolean would drift the moment an operator sends another manual email; deriving it from existing fields (like isFollowUpDue already does) keeps it always-correct and needs zero Convex/SQLite changes.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Cold leads get a table badge + pipeline-health count/oldest-age, not a quality-score factor or automatic re-entry into the outreach cadence.",
+    rationale:
+      "A lead that didn't respond to 3 emails is a judgment call (re-engage with a different angle, or the business isn't a fit) — auto-boosting its Work next score would re-surface a likely dead end above genuinely warm leads, and auto-resetting outreachStep would silently re-spam a prospect who may have already said no elsewhere. Visibility now; the follow-up action (reset cadence vs. archive) is queued as cold-lead-archive-action for an operator or a future agent to wire as an explicit choice.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "This branch (claude/upbeat-dijkstra-y2c9ib) started its iteration on lead-snooze-work-next unaware that business-process-evolution-a6e6 and prompt-process-evolution-af03 had already shipped and merged an equivalent end-to-end implementation of both lead-snooze-work-next and unreplied-inquiry-pipeline-metric (PRs #31/#32) before this branch pushed its feature commit. Discarded the duplicate implementation and reset onto main rather than merging a second backend, then claimed the next free todo (inquiry-mark-read-on-composer-open).",
     rationale:
       "Same precedent as the two 2026-07-11 collision entries and the outreach-open-tracking collision: both implementations solved the identical problem end-to-end (schema, mutation, dashboard UI), so merging would only reconcile duplicate columns/UI for no user-facing benefit. This branch had not yet pushed a feature commit when the collision was discovered (only the claim commit), so main's already-merged version was strictly the one to keep — the discard cost was one iteration of unshipped local work, not a rebase of pushed history other agents might depend on.",
@@ -1370,6 +1406,25 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "claude/cold-lead-reengagement",
+    summary:
+      "Started by re-shipping unreplied-inquiry-pipeline-metric (claim pushed, full feature built/tested), then discovered on a pre-merge origin/main fetch that siblings a6e6 + af03 had already merged the identical metric (down to field names) plus lead-snooze-work-next in PRs #31/#32. Discarded the duplicate, reset onto main, and claimed a genuinely new gap instead: isFollowUpDue/listFollowUpsDue silently stop returning a lead once outreachStep hits 3, so a prospect who never replied to any of Email 1-3 had zero operator-visible signal. Added isColdLead/listColdLeads (pure derivation, no new Lead field), a pipeline-health coldLeadCount + oldest-silent-age, and a Cold badge on the leads table. Queued cold-lead-archive-action (an explicit re-engage/archive control) for the next agent.",
+    shipped: [
+      "src/lib/email/outreach-followups.ts — COLD_AFTER_DAYS, isColdLead, listColdLeads",
+      "src/lib/email/outreach-followups.test.ts — cold-gap timing, stage/email guards, sort order",
+      "src/lib/metrics/pipeline-health.ts — coldLeadCount + oldestColdLeadAgeHours",
+      "src/lib/metrics/pipeline-health.test.ts — cold lead count/age cases (paid leads excluded)",
+      "src/components/dashboard/pipeline-health-panel.tsx — Cold leads metric card + callout",
+      "src/app/dashboard/leads/leads-client.tsx — Cold badge on the Outreach column",
+      "Docs: architecture (isColdLead paragraph), roadmap Phase 2",
+      "NEXT_STEPS: cold-lead-reengagement done; cold-lead-archive-action queued (inquiry-mark-read-on-composer-open + snoozed-leads-pipeline-metric remain free from siblings)",
+      "AGENT_PROTOCOL note (via decisions log) on re-fetching origin/main right before claiming, not just at session start",
+      "Verified via npm run dev: updated the seeded example-bakery row to outreachStep=3 / lastOutreachAt 30 days ago / stage=outreach_sent via node:sqlite, confirmed 'Cold leads: 1 · Oldest silent 30d' on the pipeline-health panel and the Cold badge on its leads-table row",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(73, 76),
+  },
+  {
+    date: "2026-07-12",
     branch: "claude/upbeat-dijkstra-y2c9ib",
     summary:
       "Started this iteration by claiming and re-implementing lead-snooze-work-next; the pre-PR sibling-branch fetch showed business-process-evolution-a6e6 + prompt-process-evolution-af03 had already shipped and merged an equivalent lead-snooze-work-next + unreplied-inquiry-pipeline-metric (PRs #31/#32) first. Discarded the duplicate implementation and reset onto main per this file's own collision precedent, then claimed inquiry-mark-read-on-composer-open instead: opening the reply composer on a status=new inquiry now calls the existing updateInquiryStatusAction(id, \"read\") so pipeline-health's newInquiryCount reflects unseen inquiries specifically, not just unreplied ones. Queued operator-daily-digest-email for siblings.",
@@ -1379,6 +1434,6 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL/process notes: recorded the snooze collision-discard outcome",
       "Verified via npm run build/lint/test, then npm run dev: inserted a synthetic status=new client_inquiries row via node:sqlite, loaded /dashboard/leads, confirmed the Reply button renders for it",
     ],
-    decisions: BUSINESS_DECISIONS.slice(73, 76),
+    decisions: BUSINESS_DECISIONS.slice(76, 79),
   },
 ];

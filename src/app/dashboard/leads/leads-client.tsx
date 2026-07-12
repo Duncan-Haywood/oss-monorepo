@@ -26,6 +26,7 @@ import { orderEligibleForBillingPortal } from "@/lib/billing/portal";
 import {
   FOLLOW_UP_2_AFTER_DAYS,
   FOLLOW_UP_3_AFTER_DAYS,
+  isColdLead,
   isFollowUpDue,
   listFollowUpsDue,
   nextFollowUpStep,
@@ -1427,6 +1428,7 @@ export function LeadsClient({
                   const step = normalizeOutreachStep(lead.outreachStep);
                   const next = nextFollowUpStep(step);
                   const due = isFollowUpDue(lead, nowMs);
+                  const cold = isColdLead(lead, nowMs);
                   const quality = qualityBySlug.get(lead.slug);
                   const notesOpen = notesEditSlug === lead.slug;
                   const snoozed = isLeadSnoozed(lead.snoozedUntil, nowMs);
@@ -1513,6 +1515,14 @@ export function LeadsClient({
                           {quality?.factors.some((f) => f.id === "abandoned_checkout") ? (
                             <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
                               Cart
+                            </span>
+                          ) : null}
+                          {cold ? (
+                            <span
+                              className="ml-1.5 rounded-full bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-700"
+                              title="No reply after all 3 outreach emails — re-engage manually or move to a closed stage"
+                            >
+                              Cold
                             </span>
                           ) : null}
                         </p>
