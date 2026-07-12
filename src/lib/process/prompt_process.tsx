@@ -235,8 +235,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "checkout-abandoned-recovery",
     summary:
       "Operator (or later cron) recovery nudge for Stripe Checkout sessions that were created but not completed — reuse lead slug attribution + Resend, honor suppression, link back to prefilled /checkout?slug=.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "claude/upbeat-dijkstra-5y4ly6",
   },
   {
     id: "operator-lead-notes",
