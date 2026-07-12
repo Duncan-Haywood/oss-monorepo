@@ -579,8 +579,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-stripe-orphan-product-archive",
     summary:
       "syncCommerceCatalogToStripe creates/updates Products for current SKUs only — Products for SKUs later removed from a catalog stay active in Stripe (documented follow-up on stripe-commerce-products-sync). Operator-triggered archive of orphaned Products for a lead (reuse STRIPE_SECRET_KEY behind Sync-style button; never auto-delete) keeps the Stripe catalog aligned without silent scope creep. Prefer after client-receipt + payout panel; still free while Connect stays gated.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-0907",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
