@@ -54,6 +54,7 @@ import {
   sendOutreachFollowUp2,
   sendOutreachFollowUp3,
   sendCheckoutAbandonedRecovery,
+  sendCommerceAbandonedRecovery,
   sendInquiryReply,
   sendOperatorDailyDigest,
   sendStarterUpsellEmail,
@@ -550,6 +551,7 @@ export async function sendFollowUpAction(slug: string) {
 /**
  * Send an abandoned-checkout recovery nudge for a Stripe Checkout Session that
  * was created but not completed. See src/lib/checkout/abandoned-recovery.ts.
+ * Bundle plan sessions only — commerce Buy now uses sendCommerceCheckoutRecoveryAction.
  */
 export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
   try {
@@ -565,6 +567,12 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     const session = openSessions.find((s) => s.stripeSessionId === stripeSessionId);
     if (!session) {
       return { success: false as const, error: "Checkout session not found or already completed" };
+    }
+    if (session.kind === "commerce_sku") {
+      return {
+        success: false as const,
+        error: "Use Send Buy now recovery for commerce catalog carts",
+      };
     }
 
     const lead = await getLeadBySlug(session.leadSlug);
@@ -593,6 +601,76 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
   } catch (error) {
     console.error("Error in sendCheckoutRecoveryAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Commerce Buy now abandoned-cart recovery — emails the end customer a link
+ * back to /preview/[slug]#catalog (never /checkout?tier=).
+ */
+export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!stripeSessionId) {
+      return { success: false as const, error: "Checkout session id is required" };
+    }
+
+    const openSessions = await listOpenCheckoutSessions();
+    const session = openSessions.find((s) => s.stripeSessionId === stripeSessionId);
+    if (!session) {
+      return { success: false as const, error: "Checkout session not found or already completed" };
+    }
+    if (session.kind !== "commerce_sku") {
+      return {
+        success: false as const,
+        error: "Use Send recovery email for Local Site Studio plan checkouts",
+      };
+    }
+
+    const to = session.customerEmail;
+    if (!to) {
+      return {
+        success: false as const,
+        error: "No customer email on this Buy now session — recovery needs the shopper's email",
+      };
+    }
+
+    const lead = await getLeadBySlug(session.leadSlug);
+    const catalog = await getCommerceCatalog(session.leadSlug);
+    const skuName =
+      catalog?.items.find((item) => item.id === session.skuId)?.name ?? session.skuId ?? "item";
+    const businessName = lead?.businessName || session.leadSlug;
+    const sent = await sendCommerceAbandonedRecovery(
+      to,
+      businessName,
+      session.leadSlug,
+      skuName,
+    );
+
+    if (!sent.success) {
+      return {
+        success: false as const,
+        error:
+          "reason" in sent && sent.reason === "suppressed"
+            ? "Email is on the suppression list"
+            : "error" in sent && typeof sent.error === "string"
+              ? sent.error
+              : "Failed to send recovery email",
+      };
+    }
+
+    await recordCheckoutRecoverySent(stripeSessionId);
+    revalidatePath("/dashboard/leads");
+    return { success: true as const, mock: "mock" in sent ? Boolean(sent.mock) : false };
+  } catch (error) {
+    console.error("Error in sendCommerceCheckoutRecoveryAction:", error);
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",

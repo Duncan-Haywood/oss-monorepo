@@ -69,6 +69,7 @@ describe("buildDailyDigest", () => {
     expect(digest.workNext).toHaveLength(0);
     expect(digest.followUpsDue).toHaveLength(0);
     expect(digest.checkoutRecoveriesDue).toHaveLength(0);
+    expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
     expect(digest.marketingPacksDue).toHaveLength(0);
     expect(digest.starterUpsellCandidates).toHaveLength(0);
@@ -116,6 +117,28 @@ describe("buildDailyDigest", () => {
     });
     expect(digest.checkoutRecoveriesDue).toHaveLength(1);
     expect(digest.checkoutRecoveriesDue[0].businessName).toBe("Test Lead");
+    expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(0);
+  });
+
+  it("lists abandoned commerce Buy now separately from bundle recoveries", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead()],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession(),
+        baseCheckoutSession({
+          stripeSessionId: "cs_commerce",
+          kind: "commerce_sku",
+          skuId: "sku_latte",
+          tier: "",
+        }),
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.checkoutRecoveriesDue).toHaveLength(1);
+    expect(digest.commerceCheckoutRecoveriesDue).toHaveLength(1);
+    expect(digest.commerceCheckoutRecoveriesDue[0].skuId).toBe("sku_latte");
+    expect(digest.isEmpty).toBe(false);
   });
 
   it("does not list a checkout session under the abandoned threshold", () => {

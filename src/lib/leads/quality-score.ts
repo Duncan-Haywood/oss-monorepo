@@ -7,6 +7,7 @@
 import type { CheckoutSessionRecord } from "../checkout/types";
 import {
   isAbandonedCheckout,
+  isBundleCheckoutSession,
   isRecoveryDue,
 } from "../checkout/abandoned-recovery";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
@@ -261,13 +262,17 @@ export function scoreLead(
     });
   }
 
-  // Abandoned checkout is hotter than a preview open: the prospect already
-  // chose a tier and hit Stripe Checkout. Boost unpaid pipeline stages only
-  // (paid/live/closed stay off Work next without cart noise).
+  // Abandoned bundle checkout is hotter than a preview open: the prospect
+  // already chose a tier and hit Stripe Checkout. Boost unpaid pipeline
+  // stages only (paid/live/closed stay off Work next without cart noise).
+  // Commerce Buy now abandoned carts are end-customer intent on a client's
+  // shop — they must NOT boost Local Site Studio lead quality (wrong funnel).
   if (lead.stage !== "paid" && lead.stage !== "live" && lead.stage !== "closed") {
     const abandonedForLead = (options?.openCheckoutSessions ?? []).filter(
       (session) =>
-        session.leadSlug === lead.slug && isAbandonedCheckout(session, nowMs),
+        session.leadSlug === lead.slug &&
+        isBundleCheckoutSession(session) &&
+        isAbandonedCheckout(session, nowMs),
     );
     if (abandonedForLead.length > 0) {
       score += 18;

@@ -204,7 +204,11 @@ export default function RoadmapDocPage() {
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
         pipeline-health metric — deliberately kept out of <code>revenueTotalUsd</code>, since
-        that money is owed to the client, not the platform. Still open: an actual payout path to
+        that money is owed to the client, not the platform. Abandoned Buy now carts are tracked
+        on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
+        (never mixed into bundle recovery / Work next); open carts past 2h surface on an
+        Abandoned Buy now panel + digest section with a recovery email linking{" "}
+        <code>/preview/[slug]#catalog</code>. Still open: an actual payout path to
         the client (Stripe Connect) — operator/legal-gated, see{" "}
         <code>commerce-payouts-stripe-connect</code> in{" "}
         <DocLink href="/docs/process">process</DocLink>.

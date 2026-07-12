@@ -55,6 +55,16 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           attention={health.recoveryDueCount > 0}
         />
         <MetricCard
+          label="Buy now carts"
+          value={String(health.commerceAbandonedCheckoutCount)}
+          hint={
+            health.commerceRecoveryDueCount > 0
+              ? `${health.commerceRecoveryDueCount} recovery due`
+              : "Commerce SKU checkouts past 2h"
+          }
+          attention={health.commerceAbandonedCheckoutCount > 0}
+        />
+        <MetricCard
           label="Unreplied inquiries"
           value={String(health.unrepliedInquiryCount)}
           hint={
@@ -181,6 +191,14 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           {health.recoveryDueCount} abandoned checkout
           {health.recoveryDueCount === 1 ? "" : "s"} ready for a recovery nudge — use the
           Abandoned checkouts panel (same signals feed Work next).
+        </p>
+      ) : null}
+
+      {health.commerceRecoveryDueCount > 0 ? (
+        <p className="mt-3 text-xs text-emerald-900">
+          {health.commerceRecoveryDueCount} abandoned Buy now cart
+          {health.commerceRecoveryDueCount === 1 ? "" : "s"} ready for a recovery nudge — use the
+          Abandoned Buy now panel on /dashboard/leads (links to preview catalog, not plan checkout).
         </p>
       ) : null}
 

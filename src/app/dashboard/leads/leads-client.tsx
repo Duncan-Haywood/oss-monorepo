@@ -17,6 +17,7 @@ import {
   sendFollowUpAction,
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
+  sendCommerceCheckoutRecoveryAction,
   updateLeadNotesAction,
   snoozeLeadAction,
   disposeColdLeadAction,
@@ -74,6 +75,7 @@ import {
 import {
   ABANDONED_AFTER_HOURS,
   listAbandonedCheckoutsDue,
+  listCommerceAbandonedCheckoutsDue,
 } from "@/lib/checkout/abandoned-recovery";
 import {
   qualityBandClass,
@@ -584,6 +586,22 @@ export function LeadsClient({
     });
   };
 
+  const handleSendCommerceCheckoutRecovery = (stripeSessionId: string) => {
+    startTransition(async () => {
+      const res = await sendCommerceCheckoutRecoveryAction(stripeSessionId);
+      if (!res.success) {
+        alert(`Buy now recovery failed: ${res.error}`);
+        return;
+      }
+      const sentAt = new Date().toISOString();
+      setCheckoutSessions((prev) =>
+        prev.map((s) =>
+          s.stripeSessionId === stripeSessionId ? { ...s, recoverySentAt: sentAt } : s,
+        ),
+      );
+    });
+  };
+
   const leadHasBillingPortal = (slug: string) =>
     orders.some((o) => o.leadSlug === slug && orderEligibleForBillingPortal(o));
 
@@ -796,6 +814,10 @@ export function LeadsClient({
   const followUpsDue = listFollowUpsDue(leads, nowMs);
   const coldLeads = listColdLeads(leads, nowMs);
   const abandonedCheckoutsDue = listAbandonedCheckoutsDue(checkoutSessions, nowMs);
+  const commerceAbandonedCheckoutsDue = listCommerceAbandonedCheckoutsDue(
+    checkoutSessions,
+    nowMs,
+  );
   const starterUpsellCandidates = listStarterUpsellCandidates(leads, orders);
   const commerceCatalogsMissing = listCommerceCatalogsMissing(
     leads,
@@ -931,8 +953,8 @@ export function LeadsClient({
             </Link>
           </div>
           <p className="mt-1 text-xs text-zinc-600">
-            Checkout started but not completed after {ABANDONED_AFTER_HOURS}h. Operator-triggered
-            recovery email; suppresses honor the unsubscribe list.
+            Local Site Studio plan checkout started but not completed after {ABANDONED_AFTER_HOURS}h.
+            Operator-triggered recovery email; suppresses honor the unsubscribe list.
           </p>
           <ul className="mt-4 space-y-3">
             {abandonedCheckoutsDue.map((session) => (
@@ -966,6 +988,75 @@ export function LeadsClient({
                 </div>
               </li>
             ))}
+          </ul>
+        </section>
+      )}
+
+      {commerceAbandonedCheckoutsDue.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Abandoned Buy now
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({commerceAbandonedCheckoutsDue.length})
+              </span>
+            </h2>
+            <Link
+              href="/docs/architecture#commerce"
+              className="text-xs font-medium text-emerald-800 underline underline-offset-2"
+            >
+              Commerce
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-zinc-600">
+            End-customer Commerce checkout started but not completed after {ABANDONED_AFTER_HOURS}h.
+            Recovery links to the client preview catalog — never a Local Site Studio plan checkout.
+            Requires the shopper&apos;s email on the Stripe session.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {commerceAbandonedCheckoutsDue.map((session) => {
+              const skuName =
+                commerceCatalogs
+                  .find((c) => c.leadSlug === session.leadSlug)
+                  ?.items.find((item) => item.id === session.skuId)?.name ??
+                session.skuId ??
+                "SKU";
+              return (
+                <li
+                  key={session.stripeSessionId}
+                  className="rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-zinc-900">
+                        {businessNameBySlug.get(session.leadSlug) || session.leadSlug}{" "}
+                        <span className="font-normal text-zinc-500">({session.leadSlug})</span>
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        {skuName} · started {new Date(session.createdAt).toLocaleString()}
+                        {session.customerEmail ? ` · ${session.customerEmail}` : " · no email"}
+                        {session.recoverySentAt
+                          ? ` · last nudged ${new Date(session.recoverySentAt).toLocaleDateString()}`
+                          : null}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isPending || !session.customerEmail}
+                      onClick={() => handleSendCommerceCheckoutRecovery(session.stripeSessionId)}
+                      className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+                      title={
+                        session.customerEmail
+                          ? "Email shopper a link back to the catalog"
+                          : "No customer email on this session"
+                      }
+                    >
+                      Send Buy now recovery
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

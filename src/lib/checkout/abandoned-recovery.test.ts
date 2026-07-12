@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   ABANDONED_AFTER_HOURS,
   RECOVERY_COOLDOWN_DAYS,
+  checkoutSessionKind,
   isAbandonedCheckout,
+  isBundleCheckoutSession,
+  isCommerceSkuCheckoutSession,
   isRecoveryDue,
   listAbandonedCheckoutsDue,
+  listCommerceAbandonedCheckoutsDue,
 } from "./abandoned-recovery";
 import type { CheckoutSessionRecord } from "./types";
 
@@ -24,6 +28,21 @@ function makeSession(overrides: Partial<CheckoutSessionRecord> = {}): CheckoutSe
     ...overrides,
   };
 }
+
+describe("checkoutSessionKind", () => {
+  it("defaults missing kind to bundle (legacy rows)", () => {
+    expect(checkoutSessionKind(makeSession({ kind: undefined }))).toBe("bundle");
+    expect(isBundleCheckoutSession(makeSession())).toBe(true);
+    expect(isCommerceSkuCheckoutSession(makeSession())).toBe(false);
+  });
+
+  it("recognizes commerce_sku", () => {
+    const session = makeSession({ kind: "commerce_sku", skuId: "sku_1", tier: "" });
+    expect(checkoutSessionKind(session)).toBe("commerce_sku");
+    expect(isCommerceSkuCheckoutSession(session)).toBe(true);
+    expect(isBundleCheckoutSession(session)).toBe(false);
+  });
+});
 
 describe("isAbandonedCheckout", () => {
   it("is false once the session has completed", () => {
@@ -78,7 +97,7 @@ describe("isRecoveryDue", () => {
 });
 
 describe("listAbandonedCheckoutsDue", () => {
-  it("filters to due sessions only, oldest createdAt first", () => {
+  it("filters to due bundle sessions only, oldest createdAt first", () => {
     const dueOlder = makeSession({
       stripeSessionId: "a",
       createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
@@ -96,8 +115,54 @@ describe("listAbandonedCheckoutsDue", () => {
       status: "complete",
       createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
     });
+    const commerceDue = makeSession({
+      stripeSessionId: "e",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+    });
 
-    const due = listAbandonedCheckoutsDue([notDue, dueNewer, completed, dueOlder], NOW);
+    const due = listAbandonedCheckoutsDue(
+      [notDue, dueNewer, completed, dueOlder, commerceDue],
+      NOW,
+    );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["a", "b"]);
+  });
+});
+
+describe("listCommerceAbandonedCheckoutsDue", () => {
+  it("filters to due commerce_sku sessions only, excluding bundles", () => {
+    const commerceOlder = makeSession({
+      stripeSessionId: "c1",
+      kind: "commerce_sku",
+      skuId: "sku_a",
+      tier: "",
+      createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
+    });
+    const commerceNewer = makeSession({
+      stripeSessionId: "c2",
+      kind: "commerce_sku",
+      skuId: "sku_b",
+      tier: "",
+      createdAt: new Date(NOW - 3 * HOUR_MS).toISOString(),
+    });
+    const bundleDue = makeSession({
+      stripeSessionId: "b1",
+      createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+    });
+    const commerceFresh = makeSession({
+      stripeSessionId: "c3",
+      kind: "commerce_sku",
+      skuId: "sku_c",
+      tier: "",
+      createdAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+    });
+
+    const due = listCommerceAbandonedCheckoutsDue(
+      [commerceNewer, bundleDue, commerceFresh, commerceOlder],
+      NOW,
+    );
+    expect(due.map((s) => s.stripeSessionId)).toEqual(["c1", "c2"]);
   });
 });

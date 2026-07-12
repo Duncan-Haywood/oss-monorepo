@@ -121,6 +121,7 @@ export async function POST(request: Request) {
           tier: bundle.id,
           commerceAddon: commerceAddonApplied,
           customerEmail: body.customerEmail,
+          kind: "bundle",
         });
       } catch (e) {
         console.warn(`Failed to record checkout session ${session.id} for recovery tracking`, e);

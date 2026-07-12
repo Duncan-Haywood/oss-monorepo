@@ -8,7 +8,8 @@
  * + commerce-catalogs-missing-visibility
  * + commerce-catalogs-unsynced-visibility
  * + client-voice-packs-missing-visibility
- * + commerce-order-revenue-ledger).
+ * + commerce-order-revenue-ledger
+ * + commerce-abandoned-checkout-tracking).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -18,6 +19,8 @@ import type { OrderRecord } from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
   isAbandonedCheckout,
+  isBundleCheckoutSession,
+  isCommerceSkuCheckoutSession,
   isRecoveryDue,
 } from "@/lib/checkout/abandoned-recovery";
 import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
@@ -65,12 +68,16 @@ export interface PipelineHealth {
   oldestUnrepliedInquiryAgeHours: number | null;
   /** Paid but not yet live — fulfillment debt. */
   paidNotLiveCount: number;
-  /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). */
+  /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). Bundle plan checkouts only. */
   abandonedCheckoutCount: number;
-  /** Abandoned sessions due for an operator recovery nudge. */
+  /** Abandoned sessions due for an operator recovery nudge. Bundle plan checkouts only. */
   recoveryDueCount: number;
-  /** Age in whole hours of the oldest abandoned open session; null when none. */
+  /** Age in whole hours of the oldest abandoned open bundle session; null when none. */
   oldestAbandonedAgeHours: number | null;
+  /** Open commerce Buy now sessions past the abandoned threshold (kind=commerce_sku). */
+  commerceAbandonedCheckoutCount: number;
+  /** Commerce Buy now sessions due for an operator recovery nudge. */
+  commerceRecoveryDueCount: number;
   /** Leads that exhausted Email 1-3 with no reply — see isColdLead. */
   coldLeadCount: number;
   /** Age in whole hours since the oldest cold lead's last outreach send; null when none. */
@@ -243,8 +250,16 @@ export function computePipelineHealth(input: {
 
   const nowMs = input.nowMs ?? 0;
   const sessions = input.openCheckoutSessions ?? [];
-  const abandoned = sessions.filter((session) => isAbandonedCheckout(session, nowMs));
+  const bundleSessions = sessions.filter(isBundleCheckoutSession);
+  const commerceSessions = sessions.filter(isCommerceSkuCheckoutSession);
+  const abandoned = bundleSessions.filter((session) => isAbandonedCheckout(session, nowMs));
   const recoveryDueCount = abandoned.filter((session) => isRecoveryDue(session, nowMs)).length;
+  const commerceAbandoned = commerceSessions.filter((session) =>
+    isAbandonedCheckout(session, nowMs),
+  );
+  const commerceRecoveryDueCount = commerceAbandoned.filter((session) =>
+    isRecoveryDue(session, nowMs),
+  ).length;
 
   let oldestAbandonedAgeHours: number | null = null;
   for (const session of abandoned) {
@@ -361,6 +376,8 @@ export function computePipelineHealth(input: {
     abandonedCheckoutCount: abandoned.length,
     recoveryDueCount,
     oldestAbandonedAgeHours,
+    commerceAbandonedCheckoutCount: commerceAbandoned.length,
+    commerceRecoveryDueCount,
     coldLeadCount: coldLeads.length,
     oldestColdLeadAgeHours,
     snoozedLeadCount: snoozedLeads.length,

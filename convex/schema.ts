@@ -85,6 +85,13 @@ export default defineSchema({
     createdAt: v.string(),
     /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
     recoverySentAt: v.optional(v.string()),
+    /**
+     * "bundle" | "commerce_sku". Optional for legacy rows (treat as bundle).
+     * Required when writing new commerce Buy now sessions.
+     */
+    kind: v.optional(v.string()),
+    /** Present when kind === "commerce_sku". */
+    skuId: v.optional(v.string()),
   })
     .index("by_stripeSessionId", ["stripeSessionId"])
     .index("by_status", ["status"])

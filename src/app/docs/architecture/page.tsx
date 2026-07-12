@@ -97,13 +97,17 @@ export default function ArchitectureDocPage() {
       <p>
         Every slug-attributed Checkout Session is tracked in <code>checkout_sessions</code> (
         <code>src/lib/checkout/</code>) as <code>open</code> until the completed webhook flips it
-        to <code>complete</code>. Sessions still <code>open</code> 2+ hours after creation surface
-        on an &quot;Abandoned checkouts&quot; panel on <code>/dashboard/leads</code> for an
-        operator-triggered recovery email (Resend, honors suppression, cooldown between nudges) —
-        see <code>src/lib/checkout/abandoned-recovery.ts</code>. The same open sessions feed{" "}
-        <code>scoreLead</code> / Work next (+18 abandoned, +6 when recovery is due) so carts
-        outrank plain outreach-due leads, and pipeline health aggregates abandoned-cart +
-        recovery-due counts (with oldest abandoned age) beside paid-not-live.
+        to <code>complete</code>. Rows carry a <code>kind</code> discriminator:{" "}
+        <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer
+        Buy now). Sessions still <code>open</code> 2+ hours after creation surface on separate
+        panels on <code>/dashboard/leads</code> — &quot;Abandoned checkouts&quot; for bundles and
+        &quot;Abandoned Buy now&quot; for commerce — each with its own operator-triggered recovery
+        email (Resend, honors suppression, cooldown between nudges). Bundle recovery links{" "}
+        <code>/checkout?slug=&amp;tier=</code>; commerce recovery links{" "}
+        <code>/preview/[slug]#catalog</code>. See <code>src/lib/checkout/abandoned-recovery.ts</code>.
+        Only <code>kind=bundle</code> open sessions feed <code>scoreLead</code> / Work next (+18
+        abandoned, +6 when recovery is due). Pipeline health aggregates bundle abandoned-cart +
+        recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
       <p>
         Growth/Complete/Commerce subscribers manage cards, invoices, and cancellation via Stripe
@@ -236,7 +240,11 @@ export default function ArchitectureDocPage() {
         &quot;this lead has a recurring Commerce subscription.&quot; Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
         — this money sits in the platform&apos;s own Stripe account with no payout path to the
-        client yet (see <code>commerce-payouts-stripe-connect</code>).
+        client yet (see <code>commerce-payouts-stripe-connect</code>). Open Buy now Checkout
+        Sessions are recorded with <code>kind=commerce_sku</code> on{" "}
+        <code>checkout_sessions</code> (same table as bundle carts, never the same recovery path);
+        abandoned carts past 2h surface on the Abandoned Buy now panel / digest and can nudge the
+        shopper back to <code>/preview/[slug]#catalog</code> when an email was collected.
       </p>
 
       <h2>Tech stack</h2>

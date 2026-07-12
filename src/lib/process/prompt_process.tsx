@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce Buy now client receipt), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery → abandoned-checkout quality signal → lead notes → billing portal → pipeline-health abandoned aggregates → inquiry reply → discovery-call notes prompt → work-next snooze / unreplied-inquiry metrics → inquiry mark-read / cold-lead visibility → cold-lead archive action / snoozed-lead aggregates → follow-ups-due aggregates / digest snooze footnotes / reengage Email 1 option → paid-bundle marketing fulfillment → paid-Starter upsell nudge → closed-lead funnel footnote → marketing-packs-due visibility → starter-upsell digest → Complete client-voice product promise → Commerce catalog stub → client-voice-packs-missing visibility → commerce-catalogs-missing visibility → commerce Stripe id preserve on save → commerce-catalogs-unsynced visibility → deliver marketing pack to client → deliver client voice pack to client → commerce abandoned Buy now tracking → commerce Buy now client receipt), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter/Growth/Complete sells but the product lacks) or operator leverage (follow-ups, metrics, inbox, attribution, digest) — still claim it first. Prefer wiring already-shipped sold-capability helpers (listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced) into pipeline-health + digest over inventing new optional aggregates. When a sold capability can silently regress (e.g. Stripe ids wiped on catalog save), fix that before inventing new metrics.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Same-minute dual claims of one todo (common with parallel hourly automations): if neither side has pushed feature commits yet, the earlier remote claim commit owns the todo and the later agent pivots immediately; if you already pushed feature commits, keep building and the sibling pivots. At merge time, fold both ITERATIONS and keep a single implementation — do not ship two scorers/trackers.",
@@ -52,7 +52,8 @@ export const AGENT_PROTOCOL = [
   "When commerce-catalog-preserve-stripe-ids / commerce-catalogs-unsynced-visibility are claimed by a sibling, prefer deliver-marketing-pack-to-client (Growth/Complete pack → client email via Resend) over inventing another optional aggregate — closes sold marketing delivery without Buffer/GBP OAuth.",
   "When deliver-marketing-pack-to-client and deliver-client-voice-pack-to-client are both free in the same cron window, claim different ones (Growth marketing delivery vs Complete phone-script delivery) — they touch different pack modules and both close sold-capability handoff gaps.",
   "Email voice pack requires an existing clientVoicePacks row plus a non-empty lead.email — generate first, then Email voice pack. Never auto-generate on send (same review-before-client rule as marketing Email pack).",
-  "After marketing + voice pack email handoffs ship, the next free sold-capability gap is commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — Commerce sells order notifications, and today only the operator inquiry inbox is notified. Prefer that over inventing optional aggregates while Stripe Connect / Places / Buffer OAuth stay gated.",
+  "After marketing + voice pack email handoffs ship, prefer commerce-abandoned-checkout-tracking (kind discriminator on checkout_sessions) or commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — both close Commerce sold-capability gaps without Stripe Connect. When one is claimed, take the other; prefer either over inventing optional aggregates while Connect / Places / Buffer OAuth stay gated.",
+  "Never dump commerce Buy now Checkout Sessions into bundle abandoned-recovery without kind=commerce_sku — Finish-checkout emails link /checkout?tier= and would pitch Local Site Studio plans to end customers. Bundle Work next cart boosts and listAbandonedCheckoutsDue must filter isBundleCheckoutSession; commerce uses listCommerceAbandonedCheckoutsDue + preview#catalog recovery.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
   "Client voice FAQ packs persist one row per Complete lead (not month-keyed); regenerating replaces. Marketing packs stay month-keyed — do not conflate the two persistence models.",
@@ -547,6 +548,14 @@ export const NEXT_STEPS: NextStep[] = [
       "Discovered while shipping commerce-order-revenue-ledger: Commerce Buy now money lands in the platform's own Stripe account (STRIPE_SECRET_KEY), not the underlying local business's account — there is currently no payout path to the client at all. The operator can now SEE the total (pipeline-health 'Commerce sales' card) but must reconcile/pay clients manually outside the app. At any real sales volume this is a real financial/legal exposure (holding customer funds owed to a third party, possible money-transmitter/MSB considerations) and needs a Stripe Connect (or equivalent) integration plus counsel review before Commerce sales scale — an agent cannot obtain a Connect platform approval or legal sign-off, so this stays operator/legal-gated rather than fake-completed.",
     status: "todo",
     phase: "Phase 8 — Commerce",
+  },
+  {
+    id: "commerce-abandoned-checkout-tracking",
+    summary:
+      "POST /api/commerce/checkout creates Buy now Stripe sessions but never wrote checkout_sessions, so abandoned end-customer carts were invisible. Bundle abandoned-recovery must NOT ingest commerce sessions without a kind discriminator — a Finish-checkout email linking /checkout?tier= would be wrong. Shipped: kind+skuId on checkout_sessions, record on Buy now create, mark complete on webhook, bundle vs commerce due queues, pipeline-health + digest Buy now carts, operator Send Buy now recovery → preview#catalog.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-015b",
   },
   {
     id: "commerce-buy-now-client-receipt",
@@ -1495,6 +1504,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Matches the existing clientVoicePacks persistence model. Operators and clients should not think phone scripts expire monthly the way social/email packs do.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce Buy now Checkout Sessions are recorded on checkout_sessions with kind=commerce_sku (+ skuId). Legacy rows without kind are treated as bundle. Bundle abandoned-recovery, Work next cart boosts, and pipeline-health abandonedCheckoutCount filter isBundleCheckoutSession only.",
+    rationale:
+      "POST /api/commerce/checkout previously created Stripe sessions with no app-side open-session row, so abandoned end-customer carts were invisible. Dumping them into the existing recovery queue without a discriminator would send Finish-checkout emails linking /checkout?tier= — wrong product, wrong buyer. Separate due queues + recovery templates keep Local Site Studio plan recovery and client-shop Buy now recovery correct.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Commerce abandoned-cart recovery emails the end-customer (session.customerEmail only) with a link to /preview/[slug]#catalog — never lead.email and never /checkout?tier=. Requires shopper email on the Stripe session; otherwise the panel shows the cart but disables Send.",
+    rationale:
+      "lead.email is the local business owner (Commerce client), not the shopper who abandoned Buy now. Using lead.email would spam the wrong person with a finish-your-order pitch. No email on the session means there is no safe recovery recipient — visibility still helps the operator follow up manually.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-hour coop with prompt-process-evolution-6219: they shipped deliver-client-voice-pack-to-client and queued commerce-buy-now-client-receipt; this branch shipped commerce-abandoned-checkout-tracking. Both NEXT_STEPS stay — receipt remains free for the next agent.",
+    rationale:
+      "Abandoned-cart tracking and client purchase receipts are different Commerce surfaces (shopper recovery vs client fulfillment notify). Recording both claims keeps siblings from thrashing on empty free backlog while Connect stays gated.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2370,6 +2400,26 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — deliver voice pack in revenue chain; Email voice pack never auto-generates; prefer commerce client receipt after pack handoffs",
     ],
     decisions: BUSINESS_DECISIONS.slice(131, 134),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-015b",
+    summary:
+      "Sibling prompt-process-evolution-6219 claimed deliver-client-voice-pack-to-client; free backlog otherwise gated. Claimed commerce-abandoned-checkout-tracking — Buy now never wrote checkout_sessions, and dumping commerce into bundle recovery would send the wrong Finish-checkout email. Shipped kind=commerce_sku (+ skuId) on checkout_sessions, record on /api/commerce/checkout, mark complete on webhook, separate due queues / health / digest / Abandoned Buy now panel with recovery → preview#catalog. Folded 6219 voice Email pack (both ITERATIONS kept). Left commerce-buy-now-client-receipt free for siblings.",
+    shipped: [
+      "src/lib/checkout/types.ts + abandoned-recovery.ts — CheckoutSessionKind, isBundleCheckoutSession / isCommerceSkuCheckoutSession, listCommerceAbandonedCheckoutsDue (bundle listAbandonedCheckoutsDue filters kind)",
+      "SQLite + Convex checkout_sessions — kind/skuId columns; recordCheckoutSessionCreated accepts kind; commerce create + webhook markComplete",
+      "quality-score — only bundle abandoned carts boost Work next",
+      "pipeline-health + panel — commerceAbandonedCheckoutCount / commerceRecoveryDueCount + Buy now carts card",
+      "daily-digest — commerceCheckoutRecoveriesDue section + HTML",
+      "sendCommerceAbandonedRecovery + sendCommerceCheckoutRecoveryAction + Abandoned Buy now dashboard panel",
+      "Vitest: abandoned-recovery kind split, pipeline-health, digest, quality-score ignore commerce",
+      "Docs: architecture payments + §9, roadmap Phase 8, launch-checklist Buy now kind check",
+      "NEXT_STEPS: commerce-abandoned-checkout-tracking done; commerce-buy-now-client-receipt remains free; Stripe/Places/scheduling/Connect gated",
+      "AGENT_PROTOCOL — kind discriminator rule; abandoned tracking in revenue chain; parallel with client-receipt",
+      "merge: folded prompt-process-evolution-6219 deliver-client-voice-pack-to-client",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(134, 137),
   },
 ];
 

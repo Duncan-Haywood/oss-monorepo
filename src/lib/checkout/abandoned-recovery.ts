@@ -2,9 +2,12 @@
  * Pure logic for the checkout-abandoned-recovery backlog item — mirrors the
  * shape of src/lib/email/outreach-followups.ts so the two due-queues read
  * the same way on the dashboard.
+ *
+ * Bundle vs commerce_sku sessions share timing helpers but must never share
+ * recovery emails or Work next cart boosts — see checkoutSessionKind.
  */
 
-import type { CheckoutSessionRecord } from "./types";
+import type { CheckoutSessionKind, CheckoutSessionRecord } from "./types";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -13,6 +16,19 @@ const DAY_MS = 24 * HOUR_MS;
 export const ABANDONED_AFTER_HOURS = 2;
 /** Days between recovery nudges so the same abandoned session isn't re-emailed daily. */
 export const RECOVERY_COOLDOWN_DAYS = 2;
+
+/** Legacy rows without kind are bundle checkouts (pre-commerce tracking). */
+export function checkoutSessionKind(session: CheckoutSessionRecord): CheckoutSessionKind {
+  return session.kind ?? "bundle";
+}
+
+export function isBundleCheckoutSession(session: CheckoutSessionRecord): boolean {
+  return checkoutSessionKind(session) === "bundle";
+}
+
+export function isCommerceSkuCheckoutSession(session: CheckoutSessionRecord): boolean {
+  return checkoutSessionKind(session) === "commerce_sku";
+}
 
 export function isAbandonedCheckout(session: CheckoutSessionRecord, nowMs: number): boolean {
   if (session.status !== "open") return false;
@@ -33,12 +49,28 @@ export function isRecoveryDue(session: CheckoutSessionRecord, nowMs: number): bo
   return nowMs - sentAtMs >= RECOVERY_COOLDOWN_DAYS * DAY_MS;
 }
 
-/** Abandoned checkout sessions due for an operator nudge, oldest first. */
+/** Bundle (Local Site Studio plan) abandoned sessions due for recovery, oldest first. */
 export function listAbandonedCheckoutsDue(
   sessions: CheckoutSessionRecord[],
   nowMs: number,
 ): CheckoutSessionRecord[] {
   return sessions
+    .filter(isBundleCheckoutSession)
+    .filter((session) => isRecoveryDue(session, nowMs))
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+}
+
+/**
+ * Commerce Buy now abandoned sessions due for recovery, oldest first.
+ * Separate from listAbandonedCheckoutsDue — recovery links to preview#catalog,
+ * not /checkout?tier=.
+ */
+export function listCommerceAbandonedCheckoutsDue(
+  sessions: CheckoutSessionRecord[],
+  nowMs: number,
+): CheckoutSessionRecord[] {
+  return sessions
+    .filter(isCommerceSkuCheckoutSession)
     .filter((session) => isRecoveryDue(session, nowMs))
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
 }

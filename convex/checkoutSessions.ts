@@ -9,6 +9,8 @@ export const create = mutation({
     commerceAddon: v.boolean(),
     customerEmail: v.optional(v.string()),
     createdAt: v.string(),
+    kind: v.optional(v.union(v.literal("bundle"), v.literal("commerce_sku"))),
+    skuId: v.optional(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
