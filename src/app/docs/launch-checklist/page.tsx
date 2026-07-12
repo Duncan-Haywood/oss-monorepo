@@ -46,7 +46,8 @@ export default function LaunchChecklistDocPage() {
           Customer portal) so Growth/Complete/Commerce subscribers can update cards and cancel.
           Then open <strong>Billing</strong> on a paid lead row, or{" "}
           <strong>Manage subscription</strong> on <code>/checkout/success</code> after a
-          subscription checkout.
+          subscription checkout. If a lead has multiple eligible orders, Billing must open against
+          the newest one (<code>listOrders</code> newest-first).
         </li>
         <li>
           After a Starter-only test payment (no Growth/Complete/Commerce), confirm the{" "}
@@ -255,7 +256,8 @@ export default function LaunchChecklistDocPage() {
           logs) the client order notification — SKU, amount, optional customer email, link to
           preview#catalog. Re-deliver the same Stripe <code>checkout.session.completed</code>{" "}
           event and confirm a second inquiry/client email is <em>not</em> created (ledger already
-          recorded). Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
+          recorded). A commerce session missing <code>metadata.skuId</code> must not create an
+          inquiry or client email either. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
           order line and owed total. Confirm <strong>Send daily digest</strong> lists those
           clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.

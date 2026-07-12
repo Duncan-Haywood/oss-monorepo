@@ -16,3 +16,14 @@ export interface OrderRecord {
   status: string;
   createdAt: string;
 }
+
+/**
+ * Newest-first by createdAt (ISO or comparable string). Matches SQLite
+ * `ORDER BY createdAt DESC` so latestEligibleOrder / Billing Portal stay correct
+ * when orders come from Convex (unordered .collect()).
+ */
+export function sortOrdersNewestFirst<T extends { createdAt: string }>(orders: T[]): T[] {
+  return [...orders].sort((a, b) =>
+    a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0,
+  );
+}

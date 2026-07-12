@@ -126,7 +126,10 @@ export default function RoadmapDocPage() {
         paid-not-live. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}
         <strong>Billing</strong> on paid/live leads, customer{" "}
         <strong>Manage subscription</strong> on <code>/checkout/success</code> (
-        <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>). Remaining: run
+        <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>);{" "}
+        <code>listOrders</code> is newest-first on Convex too so the portal picks the latest
+        eligible order. Checkout for an unknown slug creates a paid payment stub lead on both
+        backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
         Stripe Dashboard. Operator path:{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.

@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadHours, LeadPipelineStage, OutreachStep } from "./leads/types";
+import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus, DnsInstruction } from "./deploy/types";
 import type {
@@ -12,6 +13,7 @@ import type {
   CreateClientInquiryInput,
 } from "./inquiries/types";
 import type { OrderRecord } from "./orders/types";
+import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { MarketingContentVariant } from "./marketing/types";
@@ -837,17 +839,26 @@ export async function recordLeadPayment(params: {
 
   const lead = await getLeadBySlug(params.slug);
   if (!lead) {
+    // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
+    const stub = buildPaymentStubLeadFields(params.slug);
     const id = `lead_${Date.now()}`;
-    const businessName = params.slug
-      .split("-")
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
 
     db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, status)
-      VALUES (?, ?, ?, ?, ?, ?, 'paid')
-    `).run(id, params.slug, businessName || "Unknown", "generic", "Colorado", "CO");
+      INSERT INTO leads (id, slug, businessName, category, city, state, phone, tagline, description, recommendedTier, dataSource, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid')
+    `).run(
+      id,
+      stub.slug,
+      stub.businessName,
+      stub.category,
+      stub.city,
+      stub.state,
+      stub.phone,
+      stub.tagline,
+      stub.description,
+      stub.recommendedTier,
+      stub.dataSource,
+    );
   } else {
     const stmt = db.prepare("UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ?");
     stmt.run(params.slug);
@@ -935,17 +946,19 @@ export async function listOrders(): Promise<OrderRecord[]> {
         amountTotal: number;
         createdAt: number;
       }>;
-      return rows.map((row) => ({
-        id: row._id,
-        leadSlug: row.leadSlug,
-        stripeSessionId: row.stripeSessionId,
-        stripeCustomerId: row.stripeCustomerId,
-        tier: row.tier,
-        commerceAddon: row.commerceAddon,
-        amountPaid: row.amountTotal,
-        status: "paid",
-        createdAt: new Date(row.createdAt).toISOString(),
-      }));
+      return sortOrdersNewestFirst(
+        rows.map((row) => ({
+          id: row._id,
+          leadSlug: row.leadSlug,
+          stripeSessionId: row.stripeSessionId,
+          stripeCustomerId: row.stripeCustomerId,
+          tier: row.tier,
+          commerceAddon: row.commerceAddon,
+          amountPaid: row.amountTotal,
+          status: "paid",
+          createdAt: new Date(row.createdAt).toISOString(),
+        })),
+      );
     } catch (e) {
       console.warn("Failed to fetch orders from Convex, falling back to SQLite", e);
     }
