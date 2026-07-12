@@ -226,7 +226,16 @@ export default function ArchitectureDocPage() {
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Unsynced items keep the
-        &quot;Request order&quot; → contact form → inquiry inbox stub.
+        &quot;Request order&quot; → contact form → inquiry inbox stub. A completed Buy now
+        Checkout Session also writes a <code>commerceOrders</code> ledger row (
+        <code>src/lib/commerce/orders.ts</code>, SQLite + Convex, idempotent on Stripe session id)
+        — kept deliberately separate from the <code>orders</code> table used for Local Site
+        Studio&apos;s own revenue, since <code>orderEligibleForBillingPortal</code> /{" "}
+        <code>leadEligibleForStarterUpsell</code> read any <code>commerceAddon</code> order row as
+        &quot;this lead has a recurring Commerce subscription.&quot; Pipeline health surfaces the
+        total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
+        — this money sits in the platform&apos;s own Stripe account with no payout path to the
+        client yet (see <code>commerce-payouts-stripe-connect</code>).
       </p>
 
       <h2>Tech stack</h2>

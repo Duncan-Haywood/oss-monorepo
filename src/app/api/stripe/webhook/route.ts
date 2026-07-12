@@ -62,27 +62,41 @@ export async function POST(request: Request) {
         const skuId = session.metadata.skuId;
         if (orderSlug) {
           try {
-            const { getLeadBySlug, getCommerceCatalog, insertClientInquiry } = await import(
-              "@/lib/db"
-            );
+            const {
+              getLeadBySlug,
+              getCommerceCatalog,
+              insertClientInquiry,
+              insertCommerceOrder,
+            } = await import("@/lib/db");
             const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
             const [lead, catalog] = await Promise.all([
               getLeadBySlug(orderSlug),
               getCommerceCatalog(orderSlug),
             ]);
             const skuName = catalog?.items.find((item) => item.id === skuId)?.name ?? "Catalog item";
-            await insertClientInquiry({
-              leadSlug: orderSlug,
-              businessName: lead?.businessName || orderSlug,
-              email: customerEmail || undefined,
-              message: commerceOrderPaidInquiryMessage({
-                skuName,
-                amountTotalUsd: amountTotal,
-                stripeSessionId: session.id,
-                skuId,
+            await Promise.all([
+              insertClientInquiry({
+                leadSlug: orderSlug,
+                businessName: lead?.businessName || orderSlug,
+                email: customerEmail || undefined,
+                message: commerceOrderPaidInquiryMessage({
+                  skuName,
+                  amountTotalUsd: amountTotal,
+                  stripeSessionId: session.id,
+                  skuId,
+                }),
+                source: "commerce_checkout",
               }),
-              source: "commerce_checkout",
-            });
+              skuId
+                ? insertCommerceOrder({
+                    leadSlug: orderSlug,
+                    skuId,
+                    skuName,
+                    amountPaidUsd: amountTotal,
+                    stripeSessionId: session.id,
+                  })
+                : Promise.resolve(),
+            ]);
           } catch (e) {
             console.error(`Failed to record commerce order inquiry for ${orderSlug}`, e);
           }

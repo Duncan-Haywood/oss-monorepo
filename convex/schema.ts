@@ -136,6 +136,22 @@ export default defineSchema({
   }).index("by_leadSlug", ["leadSlug"]),
 
   /**
+   * End-customer "Buy now" purchases of a Commerce catalog SKU — pass-through
+   * revenue for the lead's own shop, NOT Local Site Studio's own `orders`
+   * revenue. Append-only ledger, one row per completed Checkout Session.
+   */
+  commerceOrders: defineTable({
+    leadSlug: v.string(),
+    skuId: v.string(),
+    skuName: v.string(),
+    amountPaidUsd: v.number(),
+    stripeSessionId: v.string(),
+    createdAt: v.string(),
+  })
+    .index("by_leadSlug", ["leadSlug"])
+    .index("by_stripeSessionId", ["stripeSessionId"]),
+
+  /**
    * Client voice FAQ/script packs for paid Complete leads.
    * One row per lead — regenerating replaces (not month-keyed; scripts are durable).
    */

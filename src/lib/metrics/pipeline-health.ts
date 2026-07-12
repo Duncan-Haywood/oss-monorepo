@@ -7,7 +7,8 @@
  * + closed-leads-pipeline-metric + marketing-packs-due-pipeline-metric
  * + commerce-catalogs-missing-visibility
  * + commerce-catalogs-unsynced-visibility
- * + client-voice-packs-missing-visibility).
+ * + client-voice-packs-missing-visibility
+ * + commerce-order-revenue-ledger).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -27,6 +28,7 @@ import {
   listMarketingPacksDue,
   marketingMonthKey,
 } from "@/lib/marketing/monthly-pack";
+import { sumCommerceOrdersRevenueUsd } from "@/lib/commerce/orders";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -114,6 +116,16 @@ export interface PipelineHealth {
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
   clientVoicePacksDueCount: number;
+  /**
+   * Total USD collected via Commerce "Buy now" purchases (end-customer money
+   * for a client's own catalog SKU, through the platform's Stripe account).
+   * Deliberately separate from revenueTotalUsd — this is NOT Local Site
+   * Studio's own revenue, it is pass-through money owed to the client and not
+   * yet reconciled/paid out (see commerce-payouts-stripe-connect in /docs/process).
+   */
+  commerceOrdersRevenueUsd: number;
+  /** Count of recorded Commerce Buy now orders (see commerceOrdersRevenueUsd). */
+  commerceOrdersCount: number;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -184,6 +196,8 @@ export function computePipelineHealth(input: {
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
+  /** Recorded Commerce Buy now orders (optional) — see commerceOrdersRevenueUsd. */
+  commerceOrders?: ReadonlyArray<{ amountPaidUsd: number }>;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -324,6 +338,9 @@ export function computePipelineHealth(input: {
     input.clientVoicePacks ?? [],
   );
 
+  const commerceOrders = input.commerceOrders ?? [];
+  const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(commerceOrders);
+
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
@@ -356,6 +373,8 @@ export function computePipelineHealth(input: {
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
+    commerceOrdersRevenueUsd,
+    commerceOrdersCount: commerceOrders.length,
   };
 }
 
