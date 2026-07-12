@@ -344,8 +344,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "cold-lead-archive-action",
     summary:
       "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-89f2",
   },
   {
     id: "operator-daily-digest-email",
