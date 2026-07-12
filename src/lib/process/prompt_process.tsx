@@ -588,9 +588,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-order-manual-payout-mark",
     summary:
-      "Commerce payouts (manual) panel shows owed totals but operators cannot mark which commerceOrders lines have already been paid out to the client — at any real volume, double-pay risk grows until Stripe Connect. Free coded path: optional paidOutAt (or similar) on commerceOrders + Mark paid out action on the payout panel, keeping pass-through money out of revenueTotalUsd. Prefer while Connect / Places / Buffer OAuth stay gated.",
-    status: "todo",
+      "Commerce payouts (manual) panel shows owed totals but operators cannot mark which commerceOrders lines have already been paid out to the client — at any real volume, double-pay risk grows until Stripe Connect. Shipped: paidOutAt on commerceOrders (SQLite + Convex), markCommerceOrderPaidOutAction + Mark paid out button per order line, summarizeCommerceOrdersByLead unpaidTotalUsd/unpaidCount driving both the payout panel and daily digest owed totals so settled orders drop out of both.",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "claude/relaxed-galileo-chd6ul",
   },
   {
     id: "commerce-payouts-owed-in-digest",
@@ -1642,6 +1643,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Shipped commerce-order-manual-payout-mark: paidOutAt on commerceOrders (SQLite migration + Convex), markCommerceOrderPaidOut keyed on stripeSessionId (matches recordCheckoutRecoverySent's pattern, not the Convex row id), and an operator 'Mark paid out' button per order line on the Commerce payouts (manual) panel.",
+    rationale:
+      "stripeSessionId is unique and already returned from both SQLite and Convex list paths, so no id/_id plumbing gap; using it as the key mirrors the existing checkoutSessions mutations (markComplete, recordRecoverySent) instead of inventing a new lookup shape.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "summarizeCommerceOrdersByLead now returns both totalUsd (lifetime, unchanged) and unpaidTotalUsd/unpaidCount (excludes paidOutAt rows); the payout panel's 'owed' figure and sort order switched to unpaidTotalUsd, and buildDailyDigest's commercePayoutsOwed now filters to leads with unpaidCount > 0 using unpaidTotalUsd.",
+    rationale:
+      "Without this, marking an order paid out would have no effect on the operator-facing 'owed' totals in either the dashboard panel or the daily digest — both would keep reporting settled money as still owed, defeating the double-pay-risk purpose of the feature. totalUsd is kept for any future lifetime-sales reporting need.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "Every app-owned ledger row (commerceOrders included) must store its id as its own Convex column (e.g. orderId, mirroring packId/inquiryId) and echo it back as `id` on every read — never rely on Convex's internal _id or omit the field, even when the SQLite fallback already generates one correctly.",
     rationale:
       "commerceOrders shipped without an id column in Convex while the SQLite path generated one inline; CommerceOrderRecord.id is a required string consumed as a React list key (Commerce payouts panel) and a plain type-cast (`as CommerceOrderRecord[]`) hid the gap from tsc. Naming the rule explicitly stops the next Convex-backed ledger from repeating the same silent-backend-divergence bug already seen once with lead.address.",
@@ -2606,6 +2621,24 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "claude/relaxed-galileo-chd6ul",
+    summary:
+      "Claimed commerce-order-manual-payout-mark, the free todo queued by both prior Commerce iterations (0907 orphan archive, c75d digest payouts). Shipped paidOutAt on commerceOrders (SQLite migration + Convex schema/mutation) and an operator Mark paid out button per order line on the Commerce payouts (manual) panel. Fixed a real bug while wiring it in: the panel's 'owed' total and the digest's Commerce payouts owed section both summed lifetime totalUsd, so marking an order paid would not have removed it from either owed figure — switched both to summarizeCommerceOrdersByLead's new unpaidTotalUsd/unpaidCount. Verified end-to-end with a live dev server + Playwright (insert a commerce_orders row, click Mark paid out, confirm UI strikethrough + persisted paidOutAt in SQLite). Stripe Price bootstrap / Places lead ingestion / Buffer-GBP-Meta OAuth scheduling / Stripe Connect all stay operator/legal-gated — no other free NEXT_STEPS remained.",
+    shipped: [
+      "src/lib/commerce/orders.ts (+ test) — CommerceOrderRecord.paidOutAt, isCommerceOrderPaidOut, unpaidTotalUsd/unpaidCount on CommerceOrdersByLeadSummary, sort by amount still owed",
+      "src/lib/commerce/index.ts — export isCommerceOrderPaidOut",
+      "convex/schema.ts + convex/commerceOrders.ts — paidOutAt column; markPaidOut mutation keyed on stripeSessionId (matches checkoutSessions.recordRecoverySent)",
+      "src/lib/db.ts — commerce_orders paidOutAt migration column; mapCommerceOrderRow; markCommerceOrderPaidOut (Convex-first, SQLite fallback)",
+      "src/app/dashboard/leads/actions.ts — markCommerceOrderPaidOutAction (operator auth, already-paid guard, revalidatePath)",
+      "src/app/dashboard/leads/leads-client.tsx — commerceOrders state now settable; Mark paid out button + paid-out styling per order line; panel owed total uses unpaidTotalUsd",
+      "src/lib/digest/daily-digest.ts (+ test) — commercePayoutsOwed filters to unpaidCount > 0 and sums unpaidTotalUsd, so paid-out orders drop out of the digest too",
+      "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist Buy now check — document Mark paid out and the owed-total exclusion",
+      "NEXT_STEPS: commerce-order-manual-payout-mark done",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(147, 149),
+  },
+  {
+    date: "2026-07-12",
     branch: "claude/upbeat-dijkstra-noo0a3",
     summary:
       "The only uncoded free NEXT_STEPS item (commerce-stripe-orphan-product-archive) was already claimed by sibling cursor/business-process-evolution-0907 (claim commit only, no feature code at claim time — per AGENT_PROTOCOL's same-minute-dual-claim rule, an earlier remote claim owns the todo when neither side has pushed feature commits, so did not duplicate; confirmed via re-fetch that 0907 and c75d had since shipped and merged it as PR #58/#59, reconciled here). Per AGENT_PROTOCOL's guidance for an empty free backlog, audited commerce/checkout/leads/marketing/voice/email for a genuine sold-capability regression instead of inventing a metric. Found one: commerce-order-revenue-ledger's Convex path (convex/schema.ts + convex/commerceOrders.ts) never stored or returned an id, unlike every other Convex ledger (clientVoicePacks.packId, marketingPacks.packId, clientInquiries.inquiryId) — CommerceOrderRecord.id was silently undefined on every row once Convex was configured, breaking the Commerce payouts panel's React list keys and any future id-keyed lookup. Fixed by generating the id once (newCommerceOrderId, mirrors newCommerceSkuId) in insertCommerceOrder and threading it into both backends; Convex now stores/returns it via a new orderId column, matching the established pattern.",
@@ -2621,7 +2654,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified via npm test (240 passed, +2 new) + lint + build, then npm run dev: loaded /dashboard/leads and /preview/demo-cafe (200s); this sandbox has no NEXT_PUBLIC_CONVEX_URL configured so the Convex code path itself is unreachable here (same limitation noted by prior Convex-touching iterations) — covered by the SQLite-path runtime check plus the new unit test and the mirrored-pattern review of every sibling Convex module instead",
       "merge: reconciled main after PR #58 (business-process-evolution-0907 orphan archive) + PR #59 (prompt-process-evolution-c75d payouts-in-digest); both ITERATIONS + all NEXT_STEPS/BUSINESS_DECISIONS entries kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(147, 148),
+    decisions: BUSINESS_DECISIONS.slice(149, 150),
   },
 ];
 

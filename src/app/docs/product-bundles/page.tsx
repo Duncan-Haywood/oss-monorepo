@@ -89,7 +89,9 @@ export default function ProductBundlesDocPage() {
         totals + recent lines appear on the <strong>Commerce payouts (manual)</strong> panel
         on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for reconciliation, and
         the same per-lead owed totals appear in the operator daily digest so liability is
-        visible without opening the dashboard.
+        visible without opening the dashboard. Once an operator actually pays a client their
+        share, <strong>Mark paid out</strong> on that order line removes it from both owed
+        totals so the same money can&apos;t be double-counted or double-paid.
         There is no automated payout to the client yet — pay clients manually until Stripe
         Connect ships (see <DocLink href="/docs/process">process</DocLink>,
         commerce-payouts-stripe-connect).

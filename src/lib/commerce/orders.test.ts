@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  isCommerceOrderPaidOut,
   newCommerceOrderId,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
@@ -18,6 +19,7 @@ function order(
     amountPaidUsd: partial.amountPaidUsd,
     stripeSessionId: partial.stripeSessionId ?? `cs_${partial.createdAt}`,
     createdAt: partial.createdAt,
+    paidOutAt: partial.paidOutAt,
   };
 }
 
@@ -91,12 +93,16 @@ describe("summarizeCommerceOrdersByLead", () => {
       leadSlug: "bakery",
       orderCount: 1,
       totalUsd: 50,
+      unpaidTotalUsd: 50,
+      unpaidCount: 1,
       latestCreatedAt: "2026-07-12T09:00:00.000Z",
     });
     expect(summaries[1]).toMatchObject({
       leadSlug: "salon",
       orderCount: 2,
       totalUsd: 35,
+      unpaidTotalUsd: 35,
+      unpaidCount: 2,
       latestCreatedAt: "2026-07-12T11:00:00.000Z",
     });
     expect(summaries[1]?.orders.map((o) => o.skuName)).toEqual(["Color", "Cut"]);
@@ -116,5 +122,53 @@ describe("summarizeCommerceOrdersByLead", () => {
       }),
     ]);
     expect(summaries.map((s) => s.leadSlug)).toEqual(["alpha", "zeta"]);
+  });
+
+  it("excludes paid-out orders from unpaidTotalUsd/unpaidCount and sorts by amount still owed", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "fully-paid",
+        amountPaidUsd: 100,
+        createdAt: "2026-07-12T09:00:00.000Z",
+        paidOutAt: "2026-07-12T10:00:00.000Z",
+      }),
+      order({
+        leadSlug: "partially-paid",
+        amountPaidUsd: 30,
+        createdAt: "2026-07-12T08:00:00.000Z",
+        paidOutAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "partially-paid",
+        amountPaidUsd: 20,
+        createdAt: "2026-07-12T09:30:00.000Z",
+      }),
+    ]);
+
+    expect(summaries.map((s) => s.leadSlug)).toEqual(["partially-paid", "fully-paid"]);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "partially-paid",
+      orderCount: 2,
+      totalUsd: 50,
+      unpaidTotalUsd: 20,
+      unpaidCount: 1,
+    });
+    expect(summaries[1]).toMatchObject({
+      leadSlug: "fully-paid",
+      orderCount: 1,
+      totalUsd: 100,
+      unpaidTotalUsd: 0,
+      unpaidCount: 0,
+    });
+  });
+});
+
+describe("isCommerceOrderPaidOut", () => {
+  it("is false when paidOutAt is unset", () => {
+    expect(isCommerceOrderPaidOut({ paidOutAt: undefined })).toBe(false);
+  });
+
+  it("is true once paidOutAt is set", () => {
+    expect(isCommerceOrderPaidOut({ paidOutAt: "2026-07-12T10:00:00.000Z" })).toBe(true);
   });
 });

@@ -254,8 +254,13 @@ export default function ArchitectureDocPage() {
         table&apos;s <code>orderId</code> column, matching the app-owned-id pattern every
         other ledger already used; the Convex path originally had no id column at all,
         so payout rows silently lost React list identity once Convex was configured).
-        The same rollup also appears as a <strong>Commerce payouts owed</strong> section on the
-        operator daily digest so pass-through liability is visible without opening the dashboard.
+        Each order line has a <strong>Mark paid out</strong> button that sets{" "}
+        <code>paidOutAt</code> (SQLite + Convex) once the operator has actually sent the client
+        their share — paid-out lines drop out of the panel&apos;s owed total and the digest{" "}
+        (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look
+        owed twice. The same rollup also appears as a <strong>Commerce payouts owed</strong>{" "}
+        section on the operator daily digest so pass-through liability is visible without opening
+        the dashboard.
         Open Buy now Checkout
         Sessions are recorded with <code>kind=commerce_sku</code> on{" "}
         <code>checkout_sessions</code> (same table as bundle carts, never the same recovery path);
