@@ -437,8 +437,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "complete-client-voice-faq-pack",
     summary:
       "Complete ($199/mo) sells an AI phone receptionist (see /docs/product-bundles + /docs/voice-agent-flow). Before Twilio provisioning (operator-gated), ship an operator-triggered FAQ/script pack for paid/live Complete leads — hours, services, booking CTA, and inbound greeting copy derived from site data — so operators can fulfill the sold promise manually (paste into a temp number / Cal.com) while full telephony stays Phase 7.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/business-process-evolution-b87c",
   },
 ];
 
@@ -1191,6 +1192,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After folding closed-leads (2313) with marketing-packs-due + starter-upsell digest (88c8), leave complete-client-voice-faq-pack free; Stripe/Places/scheduling stay gated.",
     rationale:
       "Closed funnel footnote and pack/upsell digest visibility are shipped. Complete FAQ/script pack is the next sold-capability gap that does not wait on Twilio secrets.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Claimed complete-client-voice-faq-pack on cursor/business-process-evolution-b87c (only free agent-safe todo after PR #45).",
+    rationale:
+      "Stripe Price bootstrap, Places, and marketing-content-scheduling remain operator/legal-gated. Complete FAQ/script pack fulfills the sold AI receptionist promise without Twilio secrets.",
   },
 ];
 
