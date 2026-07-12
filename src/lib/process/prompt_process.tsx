@@ -54,7 +54,7 @@ export const AGENT_PROTOCOL = [
   "Email voice pack requires an existing clientVoicePacks row plus a non-empty lead.email — generate first, then Email voice pack. Never auto-generate on send (same review-before-client rule as marketing Email pack).",
   "After marketing + voice pack email handoffs ship, prefer commerce-abandoned-checkout-tracking (kind discriminator on checkout_sessions) or commerce-buy-now-client-receipt (email the commerceAddon lead when a Buy now completes) — both close Commerce sold-capability gaps without Stripe Connect. When one is claimed, take the other; prefer either over inventing optional aggregates while Connect / Places / Buffer OAuth stay gated.",
   "Commerce Buy now client receipt emails go to lead.email (the local business), never the end-customer shopper email — and never use sendReceiptEmail (that is the Local Site Studio bundle buyer receipt). Missing lead.email skips the client send but still records inquiry + commerceOrders ledger. Failure to send must not roll back inquiry/ledger writes.",
-  "When commerce-buy-now-client-receipt is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-orders-payout-ledger-panel (wire listCommerceOrders into a per-lead payout panel on /dashboard/leads) — the revenue ledger already stores pass-through totals, but without a row-level panel operators cannot reconcile manual client payouts. Prefer wiring the existing listCommerceOrders helper over inventing new aggregates. After that ships, prefer commerce-stripe-orphan-product-archive over inventing optional aggregates.",
+  "When commerce-buy-now-client-receipt is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-orders-payout-ledger-panel (wire listCommerceOrders into a per-lead payout panel on /dashboard/leads) — the revenue ledger already stores pass-through totals, but without a row-level panel operators cannot reconcile manual client payouts. Prefer wiring the existing listCommerceOrders helper over inventing new aggregates. After that ships, prefer commerce-stripe-orphan-product-archive over inventing optional aggregates. When orphan archive is claimed by a sibling and Connect/Places/scheduling stay gated, prefer commerce-payouts-owed-in-digest (wire summarizeCommerceOrdersByLead into the daily digest) so pass-through liability shows up without opening the dashboard — still wiring an existing helper, not inventing a new aggregate.",
   "Never dump commerce Buy now Checkout Sessions into bundle abandoned-recovery without kind=commerce_sku — Finish-checkout emails link /checkout?tier= and would pitch Local Site Studio plans to end customers. Bundle Work next cart boosts and listAbandonedCheckoutsDue must filter isBundleCheckoutSession; commerce uses listCommerceAbandonedCheckoutsDue + preview#catalog recovery.",
   "Starter upsell eligibility must reuse orderEligibleForBillingPortal as the negative check (Billing vs Upsell are mutually exclusive on the same order set) — never invent a parallel 'has recurring' predicate.",
   "Closed-lead visibility reuses stageCounts.closed as closedLeadCount (funnel footnote only) — do not add a second priority panel or invent closedAt without a real timestamp field.",
@@ -69,7 +69,7 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced, commerce payouts owed), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs / listCommerceOrders) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Commerce catalogs unsynced = listCommerceCatalogsUnsynced (eligible commerceAddon paid/live with a saved catalog that still has ≥1 SKU without stripePriceId). Surface as pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section — distinct from catalogs-missing; empty catalogs are not unsynced.",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizeCommerceItems — never persist a normalized draft that drops stripeProductId/stripePriceId, or Buy now silently regresses after any catalog edit. Never trust client-submitted Stripe ids.",
@@ -579,8 +579,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-stripe-orphan-product-archive",
     summary:
       "syncCommerceCatalogToStripe creates/updates Products for current SKUs only — Products for SKUs later removed from a catalog stay active in Stripe (documented follow-up on stripe-commerce-products-sync). Operator-triggered archive of orphaned Products for a lead (reuse STRIPE_SECRET_KEY behind Sync-style button; never auto-delete) keeps the Stripe catalog aligned without silent scope creep. Prefer after client-receipt + payout panel; still free while Connect stays gated.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-0907",
+  },
+  {
+    id: "commerce-payouts-owed-in-digest",
+    summary:
+      "Commerce payouts (manual) panel exists on /dashboard/leads, but the operator daily digest never surfaces pass-through money owed to Commerce clients — a single-operator business can miss growing liability without opening the dashboard. Wire summarizeCommerceOrdersByLead (+ listCommerceOrders) into buildDailyDigest / sendDailyDigestAction as a digest action section (reuse existing helpers; load listCommerceOrders once alongside other digest inputs). Distinct from commerce-orders-payout-ledger-panel (dashboard UI) and commerce-payouts-stripe-connect (automated money movement).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-c75d",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1577,6 +1586,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After payout ledger panel, queue commerce-stripe-orphan-product-archive as the next free Commerce cleanup todo (operator-triggered archive of Stripe Products for removed SKUs) rather than inventing optional aggregates — supersedes the same-hour 'free backlog empty' idle note once this wiring gap was claimed.",
     rationale:
       "stripe-commerce-products-sync explicitly deferred orphan archival. An explicit operator button matches the Sync consent model (reuses STRIPE_SECRET_KEY) and AGENT_PROTOCOL's no-silent-auto-delete rule. Remaining other todos still need secrets, OAuth, or counsel.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Same-hour coop: business-process-evolution-0907 claimed commerce-stripe-orphan-product-archive first; prompt-process-evolution-c75d pivoted to commerce-payouts-owed-in-digest (wire summarizeCommerceOrdersByLead into the daily digest).",
+    rationale:
+      "Earlier remote claim owns when neither side has feature commits. Orphan Product archive and digest payout liability are complementary Commerce surfaces (Stripe catalog hygiene vs operator money-owed visibility) — both reuse existing helpers and both matter while Connect stays gated.",
   },
 ];
 
