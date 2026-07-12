@@ -391,6 +391,11 @@ const api: any = {
     list: "commerceOrders:list",
     markPaidOut: "commerceOrders:markPaidOut",
   },
+  suppressions: {
+    isSuppressed: "suppressions:isSuppressed",
+    suppress: "suppressions:suppress",
+    list: "suppressions:list",
+  },
 };
 
 // Map SQLite row to Lead object
@@ -961,17 +966,49 @@ export async function listOrders(): Promise<OrderRecord[]> {
 // --- Suppression List Functions ---
 
 export async function isEmailSuppressed(email: string): Promise<boolean> {
+  const normalized = email.toLowerCase().trim();
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.suppressions.isSuppressed, {
+        email: normalized,
+      })) as boolean;
+    } catch (e) {
+      console.warn("Failed to check suppression on Convex, falling back to SQLite database", e);
+    }
+  }
+
+  // SQLite Fallback
   const db = getSqliteDb();
-  const row = db.prepare("SELECT email FROM suppression_list WHERE email = ?").get(email.toLowerCase().trim()) as { email: string } | undefined;
+  const row = db.prepare("SELECT email FROM suppression_list WHERE email = ?").get(normalized) as { email: string } | undefined;
   return !!row;
 }
 
 export async function suppressEmail(email: string): Promise<void> {
+  const normalized = email.toLowerCase().trim();
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.suppressions.suppress, { email: normalized });
+      return;
+    } catch (e) {
+      console.warn("Failed to record suppression on Convex, falling back to SQLite database", e);
+    }
+  }
+
+  // SQLite Fallback
   const db = getSqliteDb();
-  db.prepare("INSERT OR IGNORE INTO suppression_list (email) VALUES (?)").run(email.toLowerCase().trim());
+  db.prepare("INSERT OR IGNORE INTO suppression_list (email) VALUES (?)").run(normalized);
 }
 
 export async function getSuppressedEmails(): Promise<string[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.suppressions.list)) as string[];
+    } catch (e) {
+      console.warn("Failed to list suppressions from Convex, falling back to SQLite database", e);
+    }
+  }
+
+  // SQLite Fallback
   const db = getSqliteDb();
   const rows = db.prepare("SELECT email FROM suppression_list").all() as { email: string }[];
   return rows.map((r) => r.email);
