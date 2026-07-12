@@ -100,6 +100,9 @@ export const AGENT_PROTOCOL = [
   "commerceOrdersRevenueUsd / commerceOrdersCount on pipeline-health mean unpaid/owed pass-through totals (filter isCommerceOrderPaidOut), matching summarizeCommerceOrdersByLead unpaid* and the digest Commerce payouts owed section — not lifetime gross. Lifetime remains available via totalUsd on the per-lead summary.",
   "Create-path lead entry (addLeadAction / importLeadsCsvAction) must refuse slug collisions against already-persisted leads — skip (CSV) or return an explicit error (manual add) — rather than calling upsertLead, which would reset stage/outreachStep/notes/snoozedUntil to mostly-empty defaults. Do not change upsertLead itself: intentional update-in-place callers use dedicated helpers (updateLeadStage / recordLeadOutreach / updateLeadNotes / updateLeadSnooze). Prefer partitionLeadsByExistingSlugs against a one-shot getLeads() slug set for CSV batches.",
   "Every persistence surface exported from src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error — including Phase 5 deploy handoffs. After deploy-handoffs-convex-persistence, no table in db.ts should be SQLite-only; if a future table ships SQLite-first, queue a Convex parity todo in the same iteration rather than leaving multi-instance split-brain as follow-up debt. New Convex tables need an explicit app-owned id column (handoffId / packId / orderId / inquiryId) registered on the static API map in the same commit.",
+  "Convex markLeadPaid must create a paid stub lead when the checkout slug has no CRM row yet — parity with SQLite recordLeadPayment. Defaults live in src/lib/leads/payment-stub.ts (buildPaymentStubLeadFields); keep convex/leads.ts in sync. An order without a paid lead breaks paidNotLiveCount, handoff eligibility, and stage funnel accuracy.",
+  "listOrders Convex path must return newest-first (sortOrdersNewestFirst) to match SQLite ORDER BY createdAt DESC — latestEligibleOrder / Billing Portal assume that order. Do not rely on Convex .collect() order.",
+  "commerce_sku webhook side effects require metadata.skuId (ledger gate). If skuId is missing, warn and break — never fire insertClientInquiry / client receipt without the alreadyRecorded path.",
 ] as const;
 
 /**
@@ -683,9 +686,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "billing-portal-orders-newest-first",
     summary:
-      "Discovered during the same empty-backlog audit: listOrders SQLite path ORDER BY createdAt DESC, but Convex orders.list .collect() is unordered and db.ts returns rows as-is. latestEligibleOrder (billing portal) assumes newest-first — a lead with multiple eligible orders can open Manage subscription against an older row missing stripeCustomerId. Sort Convex-sourced orders newest-first in listOrders (or in convex/orders.list) so portal + any other newest-first consumer match SQLite.",
-    status: "todo",
+      "Discovered during the same empty-backlog audit: listOrders SQLite path ORDER BY createdAt DESC, but Convex orders.list .collect() is unordered and db.ts returns rows as-is. latestEligibleOrder (billing portal) assumes newest-first — a lead with multiple eligible orders can open Manage subscription against an older row missing stripeCustomerId. Sort Convex-sourced orders newest-first in listOrders (or in convex/orders.list) so portal + any other newest-first consumer match SQLite. Shipped: sortOrdersNewestFirst on the Convex path in listOrders.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-da3d",
   },
   {
     id: "contact-form-persist-required",
@@ -693,6 +697,22 @@ export const NEXT_STEPS: NextStep[] = [
       "Discovered during the same empty-backlog audit: POST /api/contact/[slug] catches insertClientInquiry failures, still sends the notify email, and returns { ok: true } — preview shows Thanks while no inquiry row lands in the operator inbox. Starter sold promise is contact form + CRM trail; treat persist as required for success (503 on DB failure; do not claim success without a ledger row).",
     status: "todo",
     phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "mark-lead-paid-convex-stub-lead",
+    summary:
+      "Bug found auditing after deploy-handoffs-convex-persistence while the free backlog stayed empty (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect all operator/legal-gated): SQLite recordLeadPayment creates a minimal paid lead when checkout completes for a slug that does not yet exist, but Convex markLeadPaid only patches stage when a lead row is present — otherwise it still inserts the order and never marks anyone paid. listOrders then shows revenue while paidNotLiveCount / deploy-handoff eligibility / outreach stage stay wrong. Shipped: Convex markLeadPaid inserts a payment stub lead (slug-derived businessName + generic defaults matching mapSqliteRowToLead / buildPaymentStubLeadFields) when no lead exists, then records the order — parity with SQLite.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-da3d",
+  },
+  {
+    id: "commerce-webhook-require-sku-for-side-effects",
+    summary:
+      "Related webhook edge case found in the same empty-backlog audit: the commerce_sku branch only runs insertCommerceOrder (the alreadyRecorded gate) when metadata.skuId is present; if skuId is missing, insertClientInquiry + sendCommerceBuyNowClientReceipt still fire on every Stripe redelivery. Normal POST /api/commerce/checkout always sets skuId, but malformed/manual sessions violate AGENT_PROTOCOL ledger-first idempotency. Shipped: require skuId before ledger/side effects (warn + break when missing).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-da3d",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1809,6 +1829,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Convex listOrders is unordered while latestEligibleOrder assumes newest-first (Billing Portal can open against a stale order). Contact form returns ok:true even when insertClientInquiry fails (Starter inbox trail silently missing). Both are shipable without secrets; siblings can claim them next cron while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Convex markLeadPaid inserts a paid payment_stub lead (buildPaymentStubLeadFields defaults) when checkout completes for a slug with no CRM row — matching SQLite recordLeadPayment stub creation.",
+    rationale:
+      "Without the stub, Convex-configured deploys recorded revenue in orders while the lead never reached stage=paid, so paid-not-live counts, deploy-handoff eligibility, and funnel accuracy silently diverged from SQLite. Schema requires full lead fields on insert; shared defaults in payment-stub.ts keep both backends aligned.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "listOrders sorts Convex results newest-first via sortOrdersNewestFirst before returning — Billing Portal latestEligibleOrder depends on that order.",
+    rationale:
+      "SQLite already ORDER BY createdAt DESC; Convex .collect() does not. A lead with multiple eligible orders could open Manage subscription against an older row missing stripeCustomerId. Sorting in listOrders (not only in the portal helper) keeps every newest-first consumer correct.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "commerce_sku webhook requires metadata.skuId before insertCommerceOrder / inquiry / client receipt — missing skuId warns and breaks instead of firing non-idempotent side effects on every Stripe redelivery.",
+    rationale:
+      "The alreadyRecorded gate lived inside `if (skuId)`; without skuId, inquiry + client receipt still ran on retries. Normal Buy now always sets skuId; this closes the malformed-session hole without inventing inquiry dedup.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2924,6 +2965,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — alreadyRecorded gates non-idempotent side effects only; never skip idempotent fulfillment writes on redelivery",
     ],
     decisions: BUSINESS_DECISIONS.slice(157, 159),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-da3d",
+    summary:
+      "Folded PR #68 (3df6 handoff redelivery). Claimed billing-portal-orders-newest-first (queued by sibling) plus mark-lead-paid-convex-stub-lead + commerce-webhook-require-sku-for-side-effects from the empty-backlog audit. Shipped Convex/SQLite payment stub-lead parity, newest-first listOrders for Billing Portal, and commerce skuId-required side-effect gate. Left contact-form-persist-required for a sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/leads/payment-stub.ts (+ test) — buildPaymentStubLeadFields / businessNameFromPaymentSlug",
+      "convex/leads.ts — markLeadPaid inserts paid stub lead when slug missing (parity with SQLite)",
+      "src/lib/db.ts — SQLite recordLeadPayment uses buildPaymentStubLeadFields; listOrders Convex path sortOrdersNewestFirst",
+      "src/lib/orders/types.ts (+ test) — sortOrdersNewestFirst",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku requires skuId before ledger/inquiry/client receipt",
+      "Docs: architecture payments/commerce, roadmap Phase 3/8, launch-checklist Billing + Buy now",
+      "NEXT_STEPS: mark-lead-paid-convex-stub-lead + billing-portal-orders-newest-first + commerce-webhook-require-sku-for-side-effects done; contact-form-persist-required remains free; Stripe/Places/scheduling/Connect gated",
+      "AGENT_PROTOCOL — Convex stub-lead parity; listOrders newest-first; commerce skuId required for side effects",
+      "merge: folded origin/main after PR #68 (3df6) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(159, 162),
   },
 ];
 

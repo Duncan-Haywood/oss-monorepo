@@ -84,20 +84,27 @@ export async function POST(request: Request) {
             // Ledger first — commerceOrders is idempotent on stripeSessionId.
             // Inquiry + client receipt are NOT; skip them on Stripe redelivery
             // (same alreadyRecorded pattern as bundle recordLeadPayment).
-            if (skuId) {
-              const { alreadyRecorded } = await insertCommerceOrder({
-                leadSlug: orderSlug,
-                skuId,
-                skuName,
-                amountPaidUsd: amountTotal,
-                stripeSessionId: session.id,
-              });
-              if (alreadyRecorded) {
-                console.log(
-                  `Commerce order for ${orderSlug} (${session.id}) already recorded — skipping duplicate inquiry/client receipt`,
-                );
-                break;
-              }
+            // skuId is required for the ledger gate — without it we must not
+            // fire non-idempotent side effects on every Stripe retry.
+            if (!skuId) {
+              console.warn(
+                `webhook: commerce_sku session ${session.id} for ${orderSlug} missing skuId — skipping inquiry/client receipt`,
+              );
+              break;
+            }
+
+            const { alreadyRecorded } = await insertCommerceOrder({
+              leadSlug: orderSlug,
+              skuId,
+              skuName,
+              amountPaidUsd: amountTotal,
+              stripeSessionId: session.id,
+            });
+            if (alreadyRecorded) {
+              console.log(
+                `Commerce order for ${orderSlug} (${session.id}) already recorded — skipping duplicate inquiry/client receipt`,
+              );
+              break;
             }
 
             await insertClientInquiry({

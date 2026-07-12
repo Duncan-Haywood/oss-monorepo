@@ -138,6 +138,35 @@ export const markLeadPaid = mutation({
 
     if (lead) {
       await ctx.db.patch(lead._id, { stage: "paid" });
+    } else {
+      // Parity with SQLite recordLeadPayment: checkout can complete before a
+      // CRM lead row exists. Insert a paid stub so listOrders revenue and
+      // paidNotLive / handoff eligibility stay consistent. Defaults must stay
+      // in sync with src/lib/leads/payment-stub.ts buildPaymentStubLeadFields.
+      const businessName =
+        args.slug
+          .split("-")
+          .filter(Boolean)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ") || "Unknown";
+      await ctx.db.insert("leads", {
+        slug: args.slug,
+        businessName,
+        category: "generic",
+        city: "Colorado",
+        state: "CO",
+        tagline: "Local favorites made fresh daily",
+        description: `This is a preview page generated for ${businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
+        phone: "(555) 000-0000",
+        services: [],
+        hours: {
+          weekday: "Mon–Fri 9am–5pm",
+          weekend: "Sat–Sun Closed",
+        },
+        stage: "paid",
+        recommendedTier: "growth",
+        dataSource: "payment_stub",
+      });
     }
 
     await ctx.db.insert("orders", {

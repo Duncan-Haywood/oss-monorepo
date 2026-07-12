@@ -134,9 +134,15 @@ export default function ArchitectureDocPage() {
         Billing Portal: <code>POST /api/stripe/billing-portal</code> (post-checkout{" "}
         <code>sessionId</code>) and the operator <strong>Billing</strong> action on paid/live
         leads. Orders store <code>stripeCustomerId</code> when the webhook records payment;
-        older orders fall back to retrieving the Checkout Session. Activate Customer Portal in
-        the Stripe Dashboard before first live use (see{" "}
-        <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
+        older orders fall back to retrieving the Checkout Session.{" "}
+        <code>listOrders</code> returns newest-first on both backends (
+        <code>sortOrdersNewestFirst</code> on the Convex path) so{" "}
+        <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
+        row. When checkout completes for a slug with no CRM lead yet,{" "}
+        <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
+        <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
+        paid-not-live stay aligned. Activate Customer Portal in the Stripe Dashboard before first
+        live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
       </p>
       <p>
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
@@ -268,7 +274,9 @@ export default function ArchitectureDocPage() {
         <code>insertCommerceOrder</code> returns <code>&#123; alreadyRecorded &#125;</code> so a
         Stripe <code>checkout.session.completed</code> redelivery skips the non-idempotent
         operator inquiry + <code>sendCommerceBuyNowClientReceipt</code> (same pattern as bundle{" "}
-        <code>recordLeadPayment</code>). Pipeline health surfaces the
+        <code>recordLeadPayment</code>). Sessions missing <code>metadata.skuId</code> skip
+        ledger and side effects entirely (warn + break) — the alreadyRecorded gate cannot run
+        without a SKU. Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)
         — unpaid/owed only (rows with <code>paidOutAt</code> are excluded, matching the payout
         panel + digest). This money sits in the platform&apos;s own Stripe account with no automated payout path to
