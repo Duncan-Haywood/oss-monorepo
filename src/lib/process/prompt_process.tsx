@@ -657,8 +657,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "upsert-lead-collision-guard",
     summary:
       "Discovered during the suppression-list-convex-persistence audit: upsertLead (src/lib/db.ts) has update-or-insert semantics with no protection against clobbering an already-advanced lead. importLeadsCsvAction re-importing a CSV whose slug matches an existing lead (e.g. a corrected export) silently resets that lead's stage/outreachStep/notes/snoozedUntil to the CSV row's mostly-empty defaults — csv-import.ts only dedupes slugs within the uploaded file, never against existing DB rows, and convex/leads.ts's leadFields.stage is a required (non-optional) field so ctx.db.patch always overwrites it. addLeadAction (manual single-row entry) has the identical exposure on an operator slug typo/collision. Fix should distinguish create-vs-update at the call site (e.g. CSV import skips or warns on an existing slug instead of silently patching pipeline fields; addLeadAction returns an explicit 'lead already exists' error) rather than changing upsertLead's semantics for every caller that legitimately relies on update-in-place (stage/outreach/notes mutations elsewhere in actions.ts all call upsertLead-adjacent helpers, not upsertLead itself, so check call sites before touching the shared function).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 4 — Data ingestion",
+    owner: "cursor/business-process-evolution-aa64",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
