@@ -40,7 +40,10 @@ export default function ArchitectureDocPage() {
       <p>
         Operator CSV bulk import on <code>/dashboard/leads</code> (see{" "}
         <code>src/lib/leads/csv-import.ts</code>) tags each lead with a <code>dataSource</code> for
-        compliance. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
+        compliance. Re-imports and manual add-lead treat slug collisions as create-path conflicts:
+        existing leads are skipped (CSV) or rejected (add form) so pipeline fields
+        (stage / outreach / notes / snooze) are never silently reset via{" "}
+        <code>upsertLead</code>. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
         require a signed session cookie. Google Places API and other licensed sources remain future
         work after legal review. No UI scraping.
