@@ -103,7 +103,9 @@ export default function ArchitectureDocPage() {
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code>. Pipeline health panel aggregates order revenue, stage
         funnel counts, open handoffs, and leads missing email (
-        <code>src/lib/metrics/pipeline-health.ts</code>).
+        <code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
+        (Work next queue + Quality column).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

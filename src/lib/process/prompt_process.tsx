@@ -42,7 +42,7 @@ export interface ProcessIteration {
 export const AGENT_PROTOCOL = [
   "Read NEXT_STEPS + open PRs/branches before starting; claim an item (status=in_progress, owner=your branch) in the same commit you begin work.",
   "Push the claim commit immediately (before feature body) so the sibling hourly automation can see ownership on the remote within ~1 minute.",
-  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution), unless another agent already owns it.",
+  "Prefer the highest-leverage todo that unblocks revenue (payments → conversion templates → persistence → outreach → lead volume → operator auth → fulfill/deploy → client inquiry CRM → follow-ups → metrics → checkout attribution → lead quality scoring → open tracking → abandoned-checkout recovery), unless another agent already owns it.",
   "When remaining NEXT_STEPS are operator- or legal-gated, ship the next free product-promise gap (what Starter sells but preview lacks) or operator leverage (follow-ups, metrics, inbox, attribution) — still claim it first.",
   "If the top free todo is already claimed on a sibling remote branch, immediately claim the next free todo and push — do not wait or idle on process-only edits.",
   "Append ITERATIONS and BUSINESS_DECISIONS — never rewrite prior entries. Mark completed steps done; do not delete them. Supersede outdated decisions with a new dated entry.",
@@ -225,9 +225,23 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-quality-scoring",
     summary:
       "Pure TypeScript lead scoring (missing email/address/phone, stale outreach, category fit vs. recommendedTier) surfaced on the dashboard so the operator works the highest-probability leads first instead of scanning the full list top-to-bottom.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-8e65",
+  },
+  {
+    id: "checkout-abandoned-recovery",
+    summary:
+      "Operator (or later cron) recovery nudge for Stripe Checkout sessions that were created but not completed — reuse lead slug attribution + Resend, honor suppression, link back to prefilled /checkout?slug=.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
+  {
+    id: "operator-lead-notes",
+    summary:
+      "Optional free-text operator notes on Lead (SQLite + Convex) shown on the dashboard row expand / edit — capture call outcomes without a full CRM, and keep scoring inputs human-auditable.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
   {
     id: "outreach-open-tracking",
@@ -518,6 +532,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Closed lead-address-persistence: added `address` to the Convex schema/leadFields, the SQLite `leads` table (+ migration for pre-existing local.db files), the seed insert, and both read (mapSqliteRowToLead) and write (upsertLead) paths. Also added `address` as an optional column to CSV import and the operator manual-entry form, since those are the only ways a non-demo lead gets an address today.",
     rationale:
       "Lead.address already existed on the TypeScript type and was consumed by the Maps embed pin and LocalBusiness JSON-LD streetAddress, but every persistence path silently dropped it outside the in-memory DEMO_LEADS array — confirmed by seeding a fresh local.db and reading the row back before this fix (address was NULL). Fixing only the demo catalog's address would have left the exact same silent-drop bug for every real client lead added via CSV or the dashboard, which is the more common path once outreach is running at volume.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Lead quality is a pure TypeScript 0–100 score (src/lib/leads/quality-score.ts) computed on the dashboard from already-loaded leads — not a separate analytics store or ML model.",
+    rationale:
+      "Operators were scanning the full lead table top-to-bottom while missing email / stale follow-ups / tier mismatches hid the real conversion queue. A pure scorer stays backend-agnostic (SQLite or Convex), unit-testable, and avoids Date.now() in Convex queries; the Work next panel + default quality sort make the highest-probability outreach targets obvious in one glance.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Quality score prioritizes actionable pipeline stages (discovered→discovery_call), boosts contact completeness + follow-up-due, applies category↔recommendedTier fit from the demo catalog defaults, and deprioritizes demo_catalog/slug_inference sources. Paid/live leads are banded fulfillment and excluded from the Work next queue.",
+    rationale:
+      "Fulfillment debt is already visible via pipeline-health metrics and deploy handoffs. Mixing paid rows into the outreach priority list would distract from revenue still stuck in Email 1–3. Demo leads must not outrank real CSV/manual contacts just because they are complete fixtures.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After lead-quality-scoring, queue checkout-abandoned-recovery and operator-lead-notes as free (non-operator/legal-gated) NEXT_STEPS so sibling hourly agents have clear claims while Stripe bootstrap and Places stay human-gated.",
+    rationale:
+      "Hourly automations idle or thrash process-only when the free backlog empties. Abandoned checkout is the next conversion leak on the payment path; lead notes capture call outcomes that scoring cannot infer — both ship without new secrets.",
   },
 ];
 
@@ -817,6 +852,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-address-persistence done; lead-quality-scoring + outreach-open-tracking queued",
       "Verified via npm run dev: seeded a fresh local.db, confirmed example-bakery's address (1837 Pearl St) renders in the Maps embed and LocalBusiness JSON-LD on /preview/example-bakery, and reads back correctly via node:sqlite",
     ],
-    decisions: BUSINESS_DECISIONS.slice(-1),
+    decisions: BUSINESS_DECISIONS.slice(-4, -3),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-8e65",
+    summary:
+      "Operator leverage after address persistence: pure lead quality scoring (contact gaps, stage momentum, follow-up due, category↔tier fit, demo deprioritization) with a Work next queue and default quality sort on /dashboard/leads. Process: extended revenue priority chain, queued abandoned-checkout recovery + operator lead notes for siblings.",
+    shipped: [
+      "src/lib/leads/quality-score.ts — 0–100 scorer + rankLeadsForOutreach + band helpers",
+      "src/lib/leads/quality-score.test.ts — Vitest coverage for factors, ranking, clamps",
+      "src/app/dashboard/leads/leads-client.tsx — Work next panel, Quality column, sort toggle",
+      "Docs: roadmap Phase 2 + launch-checklist quality check",
+      "NEXT_STEPS: lead-quality-scoring done; checkout-abandoned-recovery + operator-lead-notes queued",
+      "AGENT_PROTOCOL — revenue priority includes scoring → open tracking → abandoned checkout",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(-3),
   },
 ];
