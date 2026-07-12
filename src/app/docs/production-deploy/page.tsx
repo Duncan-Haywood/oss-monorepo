@@ -77,9 +77,10 @@ export default function ProductionDeployDocPage() {
       <p>
         Every contact-form POST creates a <code>client_inquiries</code> row (SQLite always;
         Convex <code>clientInquiries</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set).
-        Operators see new messages on the leads dashboard, can mark them read or archive, and
-        still get the email notify. Preview pages already include the contact form UI (
-        <code>preview-conversion-finish</code>, PR #12).
+        Operators see new messages on the leads dashboard, can <strong>Reply</strong> via Resend
+        (honors suppression, stores <code>operatorReply</code> / <code>repliedAt</code>, status{" "}
+        <code>replied</code>), mark read/archive, and still get the email notify. Preview pages
+        already include the contact form UI (<code>preview-conversion-finish</code>, PR #12).
       </p>
 
       <h2>Env vars</h2>

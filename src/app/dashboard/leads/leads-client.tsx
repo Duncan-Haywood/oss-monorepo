@@ -13,6 +13,7 @@ import {
   importLeadsCsvAction,
   markHandoffLiveAction,
   updateInquiryStatusAction,
+  replyToInquiryAction,
   sendFollowUpAction,
   assignVercelProjectAction,
   sendCheckoutRecoveryAction,
@@ -44,6 +45,10 @@ import {
   MAX_OPERATOR_NOTES_LENGTH,
   leadHasNotes,
 } from "@/lib/leads/notes";
+import {
+  MAX_INQUIRY_REPLY_LENGTH,
+  inquiryCanReceiveReply,
+} from "@/lib/inquiries/reply";
 
 interface LeadsClientProps {
   initialLeads: Lead[];
@@ -89,6 +94,8 @@ export function LeadsClient({
   const [sortByQuality, setSortByQuality] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCsvImport, setShowCsvImport] = useState(false);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Form State
@@ -327,6 +334,29 @@ export function LeadsClient({
       setInquiries((prev) =>
         prev.map((inq) => (inq.id === inquiryId ? { ...inq, status } : inq)),
       );
+    });
+  };
+
+  const handleInquiryReply = (inquiryId: string) => {
+    const body = replyDrafts[inquiryId] ?? "";
+    startTransition(async () => {
+      const res = await replyToInquiryAction(inquiryId, body);
+      if (!res.success) {
+        alert(`Reply failed: ${res.error}`);
+        return;
+      }
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === inquiryId ? res.inquiry : inq)),
+      );
+      setReplyDrafts((prev) => {
+        const next = { ...prev };
+        delete next[inquiryId];
+        return next;
+      });
+      setReplyOpenId(null);
+      if (res.mock) {
+        alert("Reply sent (mock — RESEND_API_KEY not configured).");
+      }
     });
   };
 
@@ -742,8 +772,8 @@ export function LeadsClient({
             </Link>
           </div>
           <p className="mt-1 text-xs text-zinc-600">
-            Contact-form posts from <code>/api/contact/[slug]</code> — persisted for follow-up
-            (not just emailed).
+            Contact-form posts from <code>/api/contact/[slug]</code> — reply from here (Resend +
+            suppression), or archive when done.
           </p>
           <ul className="mt-4 space-y-3">
             {openInquiries.map((inq) => (
@@ -765,6 +795,11 @@ export function LeadsClient({
                           New
                         </span>
                       ) : null}
+                      {inq.status === "replied" ? (
+                        <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+                          Replied
+                        </span>
+                      ) : null}
                     </p>
                     <p className="mt-1 text-xs text-zinc-600">
                       {inq.name || "Anonymous"}
@@ -782,6 +817,19 @@ export function LeadsClient({
                     <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-800">
                       {inq.message}
                     </p>
+                    {inq.operatorReply ? (
+                      <div className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+                          Your reply
+                          {inq.repliedAt
+                            ? ` · ${new Date(inq.repliedAt).toLocaleString()}`
+                            : null}
+                        </p>
+                        <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-800">
+                          {inq.operatorReply}
+                        </p>
+                      </div>
+                    ) : null}
                     <p className="mt-2 text-[11px] text-zinc-400">
                       {new Date(inq.createdAt).toLocaleString()}
                       {inq.source ? (
@@ -791,6 +839,44 @@ export function LeadsClient({
                         </>
                       ) : null}
                     </p>
+                    {replyOpenId === inq.id && inquiryCanReceiveReply(inq) ? (
+                      <div className="mt-3 space-y-2">
+                        <textarea
+                          value={replyDrafts[inq.id] ?? ""}
+                          onChange={(e) =>
+                            setReplyDrafts((prev) => ({
+                              ...prev,
+                              [inq.id]: e.target.value,
+                            }))
+                          }
+                          rows={4}
+                          maxLength={MAX_INQUIRY_REPLY_LENGTH}
+                          placeholder="Write a reply to the inquirer…"
+                          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-900"
+                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => handleInquiryReply(inq.id)}
+                            className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"
+                          >
+                            Send reply
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => setReplyOpenId(null)}
+                            className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60"
+                          >
+                            Cancel
+                          </button>
+                          <span className="text-[11px] text-zinc-400">
+                            {(replyDrafts[inq.id] ?? "").length}/{MAX_INQUIRY_REPLY_LENGTH}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="flex flex-col gap-2">
                     {inq.status === "new" ? (
@@ -801,6 +887,18 @@ export function LeadsClient({
                         className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"
                       >
                         Mark read
+                      </button>
+                    ) : null}
+                    {inquiryCanReceiveReply(inq) ? (
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() =>
+                          setReplyOpenId((prev) => (prev === inq.id ? null : inq.id))
+                        }
+                        className="rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-900 transition hover:bg-sky-50 disabled:opacity-60"
+                      >
+                        {inq.status === "replied" ? "Reply again" : "Reply"}
                       </button>
                     ) : null}
                     <button

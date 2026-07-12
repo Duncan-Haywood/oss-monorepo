@@ -166,7 +166,8 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions land in the
-          operator Inquiries panel on the leads dashboard (and still email the business).
+          operator Inquiries panel on the leads dashboard — reply from the panel (Resend), or
+          archive when done. Email notify to the business still fires on submit.
         </li>
       </ol>
 

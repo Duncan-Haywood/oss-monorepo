@@ -131,7 +131,9 @@ export default function RoadmapDocPage() {
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
         shared project when unset) — full automated project creation remains manual. Remaining:
         registrar DNS automation. Client inquiry inbox (persist contact-form posts + operator
-        panel): shipped.
+        panel + dashboard reply via Resend): shipped. Remaining free operator-leverage gaps:
+        discovery-call notes prompt, Work next snooze — see{" "}
+        <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>
