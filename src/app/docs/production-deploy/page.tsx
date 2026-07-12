@@ -91,7 +91,10 @@ export default function ProductionDeployDocPage() {
         against <code>customDomain</code> (falling back to <code>suggestedHost</code> when unset).
         Only the root path is rewritten; <code>/api/*</code> and <code>/dashboard/*</code> already
         address a lead by slug and are unaffected by Host. Convex-first lookup with a SQLite
-        fallback, same as every other <code>src/lib/db.ts</code> surface.
+        fallback, same as every other <code>src/lib/db.ts</code> surface. A later bundle checkout
+        (Starter→Growth upsell or re-purchase) rebuilds the handoff for the new Stripe session —
+        <code>preserveDeployHandoffOperatorFields</code> keeps the saved domain (and any dedicated{" "}
+        <code>vercelProjectId</code>) so this routing does not silently break after payment.
       </p>
 
       <h2>Client inquiry inbox</h2>

@@ -188,6 +188,9 @@ export default function RoadmapDocPage() {
         own domain on the handoff card, retries Vercel domain provisioning, and{" "}
         <code>src/proxy.ts</code> host-based routing serves that lead&apos;s preview at the
         client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>).
+        Upsell / re-purchase handoff rebuilds preserve operator-set{" "}
+        <code>customDomain</code> / <code>vercelProjectId</code> (
+        <code>deploy-handoff-preserve-custom-domain</code>).
         Remaining: registrar DNS automation. Client inquiry inbox (persist-required contact-form posts —{" "}
         <code>503</code> when the ledger write fails; with Convex configured,{" "}
         <code>requireConvex</code> so SQLite-only success cannot hide the row from other
