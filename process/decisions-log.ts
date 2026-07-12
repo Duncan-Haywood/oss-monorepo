@@ -125,4 +125,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/checklist-novice-audit",
     relatedTaskIds: ["p1-virtual-staging-tech"],
   },
+  {
+    date: "2026-07-12",
+    title: "Zillow listing audit gets a fixed 6-dimension scoring rubric before any real listings are collected",
+    decision:
+      "Added process/listing-audit-rubric.ts: 6 concrete 1-5 dimensions (lighting/exposure, composition/angle, staging/declutter, photo count/coverage, resolution/sharpness, color/white balance), each with explicit worst-vs-best guidance, plus computeOverallScore() (rescales the dimension average to STRATEGY.md's 1-10 'blind quality rating' scale) and auditSummary(). The rubric ships with an empty listingAuditLog — no fabricated listings.",
+    rationale:
+      "p1-listing-audit has stayed human-blocked since the repo's first commit, but the blocker was never just 'needs a human to browse Zillow' — nothing defined what 'mediocre' vs 'excellent' meant, or how 20 scored listings become the single 1-10 number the day-90 success bar (>= 7/10) depends on. An undefined rubric risks inconsistent scoring across listings or a rescore later. This mirrors interview-script.ts's existing scoreWillingnessToPay() pattern: agents can't run the human step, but they can make the instrument objective and ready ahead of time so the human's only remaining job is picking a metro and looking at listings.",
+    madeBy: "claude/dazzling-allen-j509d4",
+    relatedTaskIds: ["p1-listing-audit", "p1-listing-audit-rubric"],
+  },
 ];

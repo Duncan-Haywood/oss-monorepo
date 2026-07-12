@@ -25,6 +25,7 @@ import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
 import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
+import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
 import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual-staging-tech";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
 import type { PhaseStatus } from "./types";
@@ -251,6 +252,25 @@ export function ProcessDashboard() {
               <h3 className="font-medium text-white">{rule.topic}</h3>
               <p className="mt-2 text-sm text-slate-300">{rule.rule}</p>
               <p className="mt-2 text-xs text-slate-500">{rule.implication}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Listing quality audit rubric</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          Objective scoring instrument for the Phase 1 Zillow listing audit (p1-listing-audit). Still
+          needs a human to browse a chosen metro and score real listings — see
+          process/listing-audit-rubric.ts. {listingAuditLog.length === 0
+            ? "No listings scored yet."
+            : `${auditSummary().count} listing(s) scored, avg ${auditSummary().avgOverallScore}/10.`}
+        </p>
+        <div className="mt-4 space-y-4">
+          {AUDIT_DIMENSIONS.map((dim) => (
+            <div key={dim.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <h3 className="font-medium text-white">{dim.label}</h3>
+              <p className="mt-2 text-sm text-slate-300">{dim.guidance}</p>
             </div>
           ))}
         </div>
