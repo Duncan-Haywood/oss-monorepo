@@ -293,8 +293,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "inquiry-dashboard-reply",
     summary:
       "Operator reply-from-dashboard for clientInquiries (Resend, honor suppression, mark replied) so paid Starter contact-form leads get a human response without leaving /dashboard/leads — closes the inbox loop that currently only archives.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-e1af",
   },
   {
     id: "lead-snooze-work-next",
