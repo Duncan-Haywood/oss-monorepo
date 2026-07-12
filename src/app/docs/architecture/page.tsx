@@ -144,7 +144,13 @@ export default function ArchitectureDocPage() {
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is
         surfaced instead as a &quot;Cold&quot; badge on the leads table and a pipeline-health
-        count/oldest-age so it can be manually re-engaged or moved to a closed stage.
+        count/oldest-age. Operators dispose those with one click via{" "}
+        <code>planColdLeadDisposition</code> / <code>disposeColdLeadAction</code>:{" "}
+        <strong>Re-engage</strong> resets <code>outreachStep</code> to 0, clears{" "}
+        <code>lastOutreachAt</code>, and parks the lead at <code>discovered</code> so Email 1
+        fires only when stage moves to <code>outreach_sent</code> again;{" "}
+        <strong>Close</strong> sets the terminal <code>closed</code> stage (keeps outreach
+        history, drops off Work next and cold counts).
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

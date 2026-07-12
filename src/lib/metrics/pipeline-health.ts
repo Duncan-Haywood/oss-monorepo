@@ -87,8 +87,10 @@ const STAGE_LABELS: Record<LeadPipelineStage, string> = {
   discovery_call: "Discovery call",
   paid: "Paid",
   live: "Live",
+  closed: "Closed",
 };
 
+/** Active funnel only — `closed` is counted in stageCounts but not the bar chart. */
 const FUNNEL_ORDER: LeadPipelineStage[] = [
   "discovered",
   "site_built",
@@ -114,6 +116,7 @@ export function emptyStageCounts(): Record<LeadPipelineStage, number> {
     discovery_call: 0,
     paid: 0,
     live: 0,
+    closed: 0,
   };
 }
 

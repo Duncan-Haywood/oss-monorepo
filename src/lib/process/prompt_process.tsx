@@ -344,9 +344,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "cold-lead-archive-action",
     summary:
-      "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes.",
-    status: "todo",
+      "Operator one-click action on a Cold-badged lead (from cold-lead-reengagement) to either reset outreachStep to 0 + clear lastOutreachAt (re-enter the Email 1-3 cadence) or move the lead to a terminal/closed stage — today operators can only see the badge, not act on it without manually editing stage/notes. Shipped: planColdLeadDisposition + disposeColdLeadAction; Re-engage → discovered + cleared cadence; Close → new terminal closed stage.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-89f2",
   },
   {
     id: "operator-daily-digest-email",
@@ -367,6 +368,20 @@ export const NEXT_STEPS: NextStep[] = [
     id: "snoozed-leads-in-digest",
     summary:
       "Optional: include currently-snoozed lead count (and soonest return) in the operator daily digest so parked urgency is visible without opening /dashboard/leads — reuses snoozedLeadCount from pipeline-health / isLeadSnoozed.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "closed-leads-pipeline-metric",
+    summary:
+      "Optional: fold currently-closed lead counts into pipeline-health (or a stage-funnel footnote) so operators see how many cold closes accumulated — only if Closed filter alone is not enough; prefer not adding a second priority panel.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "reengage-send-email1-option",
+    summary:
+      "Optional: when Re-engage runs on a cold lead, offer a checkbox to immediately set stage to outreach_sent and send Email 1 (today Re-engage only resets to discovered so Email 1 stays intentional).",
     status: "todo",
     phase: "Phase 2 — Outreach + platform voice",
   },
@@ -954,7 +969,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty free backlog causes hourly thrash. cold-lead-archive-action gives operators a one-click reset/close for the Cold badge cold-lead-reengagement only made visible; snoozed-leads-pipeline-metric remains the smaller, explicitly-optional aggregate.",
   },
-  {
+    {
     date: "2026-07-12",
     decision:
       "Snoozed-lead visibility is a pipeline-health aggregate (snoozedLeadCount + soonestSnoozeRemainingHours) plus a Work next footnote — not a second priority panel or quality-score factor.",
@@ -974,6 +989,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After snoozed-leads-pipeline-metric, queue follow-ups-due-pipeline-metric (Email 2/3 due counts on pipeline health) and optional snoozed-leads-in-digest; cold-lead-archive-action remains owned by business-process-evolution-89f2; Stripe/Places stay human-gated.",
     rationale:
       "Empty free backlog causes hourly thrash. Follow-ups due are already computed for the Due badge / Work next but have no aggregate beside unreplied inquiries — the next operator-leverage unlock without inventing a new CRM surface.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Cold-lead disposition is an explicit operator choice: Re-engage resets outreachStep to 0, clears lastOutreachAt + snooze, and sets stage to discovered; Close sets the new terminal LeadPipelineStage \"closed\" while keeping outreach history.",
+    rationale:
+      "Cold detection only made silence visible. Without one-click actions, operators had to hand-edit stage/outreach fields and risked re-spamming by flipping outreach_sent while step was still 3. Resetting to discovered means Email 1 fires only when they intentionally move to outreach_sent again (same path as a fresh lead). A real closed stage removes the lead from isColdLead, Work next, and cold counts without deleting audit history.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "Added LeadPipelineStage \"closed\" (SQLite status + Convex stageValidator) rather than overloading discovered or inventing a separate archived boolean.",
+    rationale:
+      "Discovered still means 'worth pursuing.' A boolean would drift from stage filters and funnel counts. closed sits outside the active FUNNEL_ORDER bar chart but remains in stageCounts / the stage dropdown so operators can filter Closed rows.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
+      "After same-cron dual ship (9ebb snoozed aggregates + 89f2 cold-lead archive), leave follow-ups-due-pipeline-metric free and keep optional snoozed-leads-in-digest, closed-leads-pipeline-metric, and reengage-send-email1-option queued; Stripe/Places stay human-gated.",
+    rationale:
+      "Empty free backlog causes hourly thrash. Follow-ups-due aggregates are the next operator-leverage unlock; the optional items remain available once operators use snooze/close buttons in production.",
   },
 ];
 
@@ -1550,4 +1586,22 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     decisions: BUSINESS_DECISIONS.slice(83, 86),
   },
+  {
+    date: "2026-07-12",
+    branch: "cursor/business-process-evolution-89f2",
+    summary:
+      "Shipped cold-lead-archive-action: one-click Re-engage / Close for Cold-badged leads. Added terminal LeadPipelineStage closed, pure planColdLeadDisposition helpers + Vitest, Convex/SQLite applyColdLeadDisposition, disposeColdLeadAction, Cold leads dashboard panel + row actions. Closed leads drop off Work next and cold counts. Merged 9ebb snoozed aggregates (both ITERATIONS kept). Queued optional closed-leads-pipeline-metric + reengage-send-email1-option alongside 9ebb's follow-ups-due / snoozed-in-digest todos.",
+    shipped: [
+      "src/lib/leads/cold-archive.ts (+ .test.ts) — planColdLeadDisposition, disposition labels",
+      "LeadPipelineStage closed on types + Convex stageValidator + schema comment + stage count maps",
+      "src/lib/leads/quality-score.ts — closed → actionable=false; factor id closed",
+      "src/lib/db.ts + convex/leads.applyColdDisposition — single-write stage/outreach/snooze patch",
+      "disposeColdLeadAction + Cold leads panel + table Re-engage/Close buttons",
+      "Docs: roadmap Phase 2, architecture, launch-checklist",
+      "NEXT_STEPS: cold-lead-archive-action done; closed-leads-pipeline-metric + reengage-send-email1-option queued (with 9ebb follow-ups-due + snoozed-in-digest)",
+      "merge: folded prompt-process-evolution-9ebb snoozed-leads-pipeline-metric (PR #37)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(86, 89),
+  },
+
 ];

@@ -169,6 +169,12 @@ export default function LaunchChecklistDocPage() {
           the pipeline-health <strong>Snoozed</strong> count matches parked rows (and soonest
           return time).
         </li>
+        <li>
+          After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}
+          <strong>Re-engage</strong> (reset to Discovered for a fresh Email 1–3 cycle) or{" "}
+          <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
+          actions
+        </li>
       </ul>
 
       <h2>7. After the first paid order (Phase 5)</h2>

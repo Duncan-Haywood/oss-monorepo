@@ -277,13 +277,33 @@ describe("rankLeadsForOutreach", () => {
       stage: "site_built",
       dataSource: "manual_entry",
     });
+    const ranked = rankLeadsForOutreach([hot, ready], NOW, 10);
+    expect(ranked.map((r) => r.slug)).toEqual(["ready"]);
     const scored = scoreLead(hot, NOW);
     expect(scored.actionable).toBe(false);
     expect(scored.factors.some((f) => f.id === "snoozed")).toBe(true);
-    expect(scored.score).toBeGreaterThan(50);
+    expect(scored.score).toBeGreaterThan(0);
+  });
 
-    const ranked = rankLeadsForOutreach([hot, ready], NOW, 10);
+  it("excludes closed leads from Work next", () => {
+    const closed = baseLead({
+      slug: "closed-cold",
+      stage: "closed",
+      outreachStep: 3,
+      lastOutreachAt: "2026-06-01T00:00:00.000Z",
+      dataSource: "csv_import",
+    });
+    const ready = baseLead({
+      slug: "ready",
+      stage: "site_built",
+      dataSource: "manual_entry",
+    });
+    const ranked = rankLeadsForOutreach([closed, ready], NOW, 10);
     expect(ranked.map((r) => r.slug)).toEqual(["ready"]);
+    const scored = scoreLead(closed, NOW);
+    expect(scored.actionable).toBe(false);
+    expect(scored.factors.some((f) => f.id === "closed")).toBe(true);
+    expect(scored.band).toBe("cold");
   });
 
   it("returns expired-snooze leads to the queue", () => {

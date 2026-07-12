@@ -128,8 +128,9 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-zinc-600">
           {health.coldLeadCount} lead{health.coldLeadCount === 1 ? "" : "s"} went silent
           through all 3 outreach emails — the follow-up queue won&apos;t resurface{" "}
-          {health.coldLeadCount === 1 ? "it" : "them"} again. Manually re-engage or move to a
-          closed stage in the lead table below.
+          {health.coldLeadCount === 1 ? "it" : "them"} again. Use{" "}
+          <strong>Re-engage</strong> or <strong>Close</strong> in the Cold leads panel (or
+          row actions) below.
         </p>
       ) : null}
 

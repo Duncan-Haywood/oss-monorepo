@@ -17,6 +17,7 @@ import {
   recordCheckoutRecoverySent,
   updateLeadNotes,
   updateLeadSnooze,
+  applyColdLeadDisposition,
 } from "@/lib/db";
 import { parseLeadsCsv } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -27,6 +28,11 @@ import {
   snoozedUntilFromPreset,
   type SnoozePresetId,
 } from "@/lib/leads/snooze";
+import {
+  isColdLeadDisposition,
+  planColdLeadDisposition,
+  type ColdLeadDisposition,
+} from "@/lib/leads/cold-archive";
 import {
   inquiryCanReceiveReply,
   normalizeInquiryReply,
@@ -329,6 +335,56 @@ export async function snoozeLeadAction(
 }
 
 /**
+ * One-click cold-lead disposition: re-enter the Email 1–3 cadence (reset to
+ * discovered) or move to the terminal `closed` stage. Only valid while
+ * isColdLead is true — see src/lib/leads/cold-archive.ts.
+ */
+export async function disposeColdLeadAction(
+  slug: string,
+  disposition: ColdLeadDisposition | string,
+) {
+  try {
+    const auth = await requireOperatorAuth();
+    if (!auth.ok) {
+      return { success: false as const, error: auth.error };
+    }
+    if (!slug) {
+      return { success: false as const, error: "Slug is required" };
+    }
+    if (!isColdLeadDisposition(disposition)) {
+      return { success: false as const, error: "Invalid cold-lead disposition" };
+    }
+
+    const existing = await getLeadBySlug(slug);
+    if (!existing) {
+      return { success: false as const, error: "Lead not found" };
+    }
+
+    const planned = planColdLeadDisposition(existing, disposition, Date.now());
+    if (!planned.ok) {
+      return { success: false as const, error: planned.error };
+    }
+
+    await applyColdLeadDisposition(slug, planned.patch);
+    revalidatePath("/dashboard/leads");
+    revalidatePath(`/preview/${slug}`);
+    return {
+      success: true as const,
+      stage: planned.patch.stage,
+      outreachStep: planned.patch.outreachStep,
+      lastOutreachAt: planned.patch.lastOutreachAt,
+      snoozedUntil: planned.patch.snoozedUntil,
+    };
+  } catch (error) {
+    console.error("Error in disposeColdLeadAction:", error);
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
  * Send the next outreach follow-up (Email 2 or 3) for a lead that already received Email 1.
  */
 export async function sendFollowUpAction(slug: string) {
@@ -348,8 +404,14 @@ export async function sendFollowUpAction(slug: string) {
     if (!lead.email) {
       return { success: false as const, error: "Lead has no email address" };
     }
-    if (lead.stage === "paid" || lead.stage === "live") {
-      return { success: false as const, error: "Lead already paid or live — skip follow-ups" };
+    if (lead.stage === "paid" || lead.stage === "live" || lead.stage === "closed") {
+      return {
+        success: false as const,
+        error:
+          lead.stage === "closed"
+            ? "Lead is closed — re-engage first or change stage manually"
+            : "Lead already paid or live — skip follow-ups",
+      };
     }
 
     const next = nextFollowUpStep(lead.outreachStep);

@@ -11,7 +11,9 @@ export type LeadPipelineStage =
   | "outreach_sent"
   | "discovery_call"
   | "paid"
-  | "live";
+  | "live"
+  /** Terminal — operator stopped pursuing (cold close / not a fit). */
+  | "closed";
 
 export interface LeadHours {
   weekday: string;

@@ -15,6 +15,7 @@ const stageValidator = v.union(
   v.literal("discovery_call"),
   v.literal("paid"),
   v.literal("live"),
+  v.literal("closed"),
 );
 
 const tierValidator = v.union(
@@ -224,6 +225,39 @@ export const updateSnooze = mutation({
     }
     // Convex patch ignores undefined keys — persist "" so clears stick.
     await ctx.db.patch(lead._id, {
+      snoozedUntil: args.snoozedUntil ?? "",
+    });
+    return null;
+  },
+});
+
+/**
+ * Apply a cold-lead disposition patch (re-engage or close) in one write.
+ * Caller validates via planColdLeadDisposition — this only persists fields.
+ */
+export const applyColdDisposition = mutation({
+  args: {
+    slug: v.string(),
+    stage: stageValidator,
+    outreachStep: v.number(),
+    /** Empty string clears lastOutreachAt. */
+    lastOutreachAt: v.optional(v.string()),
+    /** Empty string clears snooze. */
+    snoozedUntil: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      stage: args.stage,
+      outreachStep: args.outreachStep,
+      lastOutreachAt: args.lastOutreachAt ?? "",
       snoozedUntil: args.snoozedUntil ?? "",
     });
     return null;

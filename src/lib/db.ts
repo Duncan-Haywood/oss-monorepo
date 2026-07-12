@@ -622,6 +622,57 @@ export async function updateLeadSnooze(
   `).run(snoozedUntil ?? null, slug);
 }
 
+/**
+ * Persist a cold-lead disposition patch (re-engage or close) in one write.
+ * Caller must validate via planColdLeadDisposition first.
+ */
+export async function applyColdLeadDisposition(
+  slug: string,
+  patch: {
+    stage: LeadPipelineStage;
+    outreachStep: OutreachStep;
+    lastOutreachAt: string | undefined;
+    snoozedUntil: string | undefined;
+  },
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.applyColdDisposition, {
+        slug,
+        stage: patch.stage,
+        outreachStep: patch.outreachStep,
+        lastOutreachAt: patch.lastOutreachAt ?? "",
+        snoozedUntil: patch.snoozedUntil ?? "",
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET status = ?, outreachStep = ?, lastOutreachAt = ?, snoozedUntil = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(
+    patch.stage,
+    patch.outreachStep,
+    patch.lastOutreachAt ?? null,
+    patch.snoozedUntil ?? null,
+    slug,
+  );
+}
+
 export async function recordLeadPayment(params: {
   slug: string;
   stripeSessionId: string;
@@ -688,6 +739,7 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
     discovery_call: 0,
     paid: 0,
     live: 0,
+    closed: 0,
   };
   for (const lead of leads) {
     if (lead.stage in counts) {

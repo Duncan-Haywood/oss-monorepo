@@ -112,6 +112,7 @@ export function countLeadsByStage(): Record<LeadPipelineStage, number> {
     discovery_call: 0,
     paid: 0,
     live: 0,
+    closed: 0,
   };
   for (const lead of DEMO_LEADS) {
     counts[lead.stage] += 1;
