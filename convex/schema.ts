@@ -89,4 +89,30 @@ export default defineSchema({
     .index("by_stripeSessionId", ["stripeSessionId"])
     .index("by_status", ["status"])
     .index("by_leadSlug", ["leadSlug"]),
+
+  /**
+   * Monthly AI marketing packs for paid Growth/Complete leads.
+   * One row per lead per UTC calendar month — regenerating replaces that month.
+   */
+  marketingPacks: defineTable({
+    packId: v.string(),
+    leadSlug: v.string(),
+    yearMonth: v.string(), // YYYY-MM (UTC)
+    variants: v.array(
+      v.object({
+        contentType: v.string(),
+        title: v.optional(v.string()),
+        body: v.string(),
+        cta: v.optional(v.string()),
+        hashtags: v.optional(v.array(v.string())),
+        scheduledFor: v.optional(v.string()),
+      }),
+    ),
+    generatedAt: v.string(),
+    generator: v.string(), // "stub" | "anthropic"
+    packageTier: v.optional(v.string()),
+  })
+    .index("by_lead_month", ["leadSlug", "yearMonth"])
+    .index("by_month", ["yearMonth"])
+    .index("by_packId", ["packId"]),
 });

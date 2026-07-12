@@ -169,12 +169,15 @@ export default function ArchitectureDocPage() {
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
       <p>
-        Stub at <code>src/lib/marketing/generators.ts</code> — next free backlog item is an
-        operator-triggered monthly pack for paid/live Growth/Complete leads (LLM when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set, stub fallback otherwise). Buffer / GBP / Meta
-        auto-scheduling stays operator-gated on OAuth secrets. See{" "}
-        <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
-        <DocLink href="/docs/process">process log</DocLink>.
+        Monthly packs: <code>src/lib/marketing/</code> builds an 8-post + 2-email pack via{" "}
+        <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set. Operators trigger{" "}
+        <code>generateMarketingPackAction</code> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
+        Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
+        <code>marketingPacks</code>). Copy/paste to post until Buffer / GBP / Meta OAuth is
+        configured. See <DocLink href="/docs/marketing-automation">Marketing automation</DocLink>{" "}
+        and <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>8. Client AI phone (Complete)</h2>

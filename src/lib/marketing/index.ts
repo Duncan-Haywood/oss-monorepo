@@ -10,8 +10,26 @@ export type {
   MarketingPackageTier,
 } from "./types";
 
+export type { MarketingPack, MarketingPackGeneratorKind, UpsertMarketingPackInput } from "./pack";
+
 export {
+  AnthropicMarketingGenerator,
+  createDefaultMarketingGenerator,
   getMarketingGenerator,
+  resetMarketingGeneratorForTests,
   setMarketingGenerator,
   StubMarketingGenerator,
 } from "./generators";
+
+export {
+  bestMarketingOrderTier,
+  contentTypeLabel,
+  isMarketingBundleTier,
+  leadEligibleForMarketingPack,
+  leadStageEligibleForMarketingPack,
+  marketingMonthKey,
+  MONTHLY_MARKETING_PACK_TYPES,
+  packageTierForOrderTier,
+} from "./monthly-pack";
+
+export { businessContextFromLead, monthlyPackRequestForLead } from "./build-request";

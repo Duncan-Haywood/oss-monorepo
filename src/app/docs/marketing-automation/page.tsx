@@ -72,10 +72,13 @@ export default function MarketingAutomationDocPage() {
 
       <h2>Current status</h2>
       <p>
-        Generator module exists as a stub (<code>src/lib/marketing/generators.ts</code>).
-        Operator-triggered monthly pack generation for paid Growth/Complete leads is the next
-        free backlog item on <DocLink href="/docs/process">/docs/process</DocLink>; Buffer /
-        GBP / Meta auto-posting stays operator-gated on OAuth secrets.
+        Operator-triggered monthly pack generation for paid/live Growth/Complete leads is
+        shipped: <strong>Generate pack</strong> on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> persists 8 social/GBP posts
+        + 2 emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
+        otherwise). Buffer / GBP / Meta auto-posting stays operator-gated on OAuth secrets
+        (see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
+        <code>marketing-content-scheduling</code>).
       </p>
 
       <p>
