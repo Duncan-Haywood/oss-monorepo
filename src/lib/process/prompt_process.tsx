@@ -628,11 +628,20 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/business-process-evolution-22f4",
   },
   {
+    id: "commerce-mark-paid-out-convex-wiring",
+    summary:
+      "Bug found auditing while sibling business-process-evolution-22f4 owns commerce-buy-now-webhook-side-effect-idempotency: markCommerceOrderPaidOut calls api.commerceOrders.markPaidOut, and convex/commerceOrders.ts defines the mutation, but the static Convex API map in src/lib/db.ts never registered markPaidOut — so with NEXT_PUBLIC_CONVEX_URL set the mutation is undefined, the catch falls back to SQLite, then listCommerceOrders reads Convex first and returns unpaid rows. Operator sees Mark paid out 'succeed' while owed totals never clear → double-pay risk until Connect. Shipped: registered markPaidOut on the static Convex API map so Mark paid out stays on the Convex primary path.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-6a3c",
+  },
+  {
     id: "commerce-pipeline-health-unpaid-owed",
     summary:
-      "After commerce-order-manual-payout-mark, the payout panel + digest use unpaidTotalUsd, but pipeline-health's Commerce sales (pass-through) card still sums lifetime amountPaidUsd — settled orders keep looking 'owed'. Wire paidOutAt into computePipelineHealth (reuse isCommerceOrderPaidOut / unpaid sum) so the card matches panel + digest. Queued for siblings while commerce-buy-now-webhook-side-effect-idempotency is in progress.",
-    status: "todo",
+      "After commerce-order-manual-payout-mark, the payout panel + digest use unpaidTotalUsd, but pipeline-health's Commerce sales (pass-through) card still sums lifetime amountPaidUsd — settled orders keep looking 'owed'. Shipped: computePipelineHealth filters with isCommerceOrderPaidOut so the card shows unpaid/owed totals matching panel + digest (lifetime remains available via full order list).",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-6a3c",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -1700,6 +1709,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "bundle-order-webhook-idempotency fixed the same hole for Starter/Growth/Complete; Commerce still spam-notified operators and clients on every Stripe retry because insertCommerceOrder returned void and ignored Convex's null-on-duplicate. Returning alreadyRecorded and sequencing ledger-before-side-effects closes the sold order-notification promise without inventing a second dedupe key.",
   },
+  {
+    date: "2026-07-12",
+    decision:
+      "Registered commerceOrders.markPaidOut on the static Convex API map in src/lib/db.ts, and computePipelineHealth now sums only unpaid commerce orders (isCommerceOrderPaidOut) for the Commerce sales (pass-through) card so owed totals match the payout panel + digest after Mark paid out.",
+    rationale:
+      "Without the API-map entry, Mark paid out under NEXT_PUBLIC_CONVEX_URL silently wrote SQLite while listCommerceOrders read Convex — operators would think a client was paid while owed totals never cleared (double-pay risk). Without the unpaid filter, the pipeline-health card kept showing lifetime pass-through after settlement, disagreeing with every other owed surface.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -2715,16 +2731,30 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-12",
     branch: "cursor/business-process-evolution-22f4",
     summary:
-      "Free backlog empty again after PR #61/#62 (manual payout mark + bundle order idempotency). Audited for sold-capability regressions; found Commerce Buy now webhook still fired inquiry + client receipt on every Stripe redelivery even though commerceOrders was ledger-idempotent. Shipped insertCommerceOrder → { alreadyRecorded } and sequenced ledger-before-side-effects in the commerce_sku branch. Queued commerce-pipeline-health-unpaid-owed for sibling prompt-process (panel/digest already unpaid; pipeline-health card still lifetime gross). Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
+      "Free backlog empty again after PR #61/#62 (manual payout mark + bundle order idempotency). Audited for sold-capability regressions; found Commerce Buy now webhook still fired inquiry + client receipt on every Stripe redelivery even though commerceOrders was ledger-idempotent. Shipped insertCommerceOrder → { alreadyRecorded } and sequenced ledger-before-side-effects in the commerce_sku branch. Queued commerce-pipeline-health-unpaid-owed for sibling prompt-process (panel/digest already unpaid; pipeline-health card still lifetime gross). Folded sibling prompt-process-evolution-6a3c (Convex markPaidOut API-map wiring + unpaid pipeline-health card) before PR — both ITERATIONS kept. Stripe Price bootstrap / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/db.ts — insertCommerceOrder returns { alreadyRecorded } (Convex null-on-duplicate + SQLite SELECT-before-insert)",
       "src/app/api/stripe/webhook/route.ts — commerce_sku branch ledgers first; skips insertClientInquiry + sendCommerceBuyNowClientReceipt when alreadyRecorded",
       "Docs: architecture §9, product-bundles, roadmap Phase 8, launch-checklist — document redelivery skip for inquiry/client receipt",
       "Verified live: npm test (250) + lint + build; npm run dev with fake STRIPE_WEBHOOK_SECRET; stripe.webhooks.generateTestHeaderString POSTed the same commerce_sku checkout.session.completed twice — first wrote 1 commerce_orders + 1 client_inquiries row, second logged 'already recorded — skipping duplicate inquiry/client receipt' with counts still 1/1; cleaned up test rows",
-      "NEXT_STEPS: commerce-buy-now-webhook-side-effect-idempotency done; commerce-pipeline-health-unpaid-owed queued for siblings",
+      "NEXT_STEPS: commerce-buy-now-webhook-side-effect-idempotency done; commerce-pipeline-health-unpaid-owed + commerce-mark-paid-out-convex-wiring done via sibling 6a3c (folded)",
       "AGENT_PROTOCOL — idempotent ledger inserts must expose alreadyRecorded and skip non-idempotent side effects; prefer pipeline-health unpaid owed when this todo is claimed/done",
+      "merge: folded origin/cursor/prompt-process-evolution-6a3c (both ITERATIONS kept)",
     ],
     decisions: BUSINESS_DECISIONS.slice(151, 152),
+  },
+  {
+    date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-6a3c",
+    summary:
+      "Sibling business-process-evolution-22f4 claimed commerce-buy-now-webhook-side-effect-idempotency first this cron; pivoted to commerce-mark-paid-out-convex-wiring + commerce-pipeline-health-unpaid-owed (queued by 22f4). Shipped static Convex API-map registration for commerceOrders.markPaidOut (Mark paid out was falling back to SQLite while list read Convex) and filtered pipeline-health Commerce sales to unpaid/owed via isCommerceOrderPaidOut so the card matches panel + digest. Folded into 22f4 PR (both ITERATIONS kept).",
+    shipped: [
+      "src/lib/db.ts — register markPaidOut on static Convex API map",
+      "src/lib/metrics/pipeline-health.ts (+ test) — commerceOrdersRevenueUsd sums unpaid only (isCommerceOrderPaidOut)",
+      "pipeline-health-panel — Commerce sales hint reflects owed/unpaid",
+      "NEXT_STEPS: commerce-mark-paid-out-convex-wiring + commerce-pipeline-health-unpaid-owed done; webhook side-effect idempotency owned by 22f4",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(152, 153),
   },
 ];
 

@@ -574,6 +574,23 @@ describe("computePipelineHealth", () => {
     expect(health.revenueTotalUsd).toBe(500);
   });
 
+  it("excludes paid-out commerce orders from the owed pass-through card", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5, paidOutAt: "2026-07-12T10:00:00.000Z" },
+        { amountPaidUsd: 7.25 },
+        { amountPaidUsd: 3.0, paidOutAt: "2026-07-12T11:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+  });
+
   it("defaults commerce order revenue to zero when none recorded", () => {
     const health = computePipelineHealth({
       leads: [],

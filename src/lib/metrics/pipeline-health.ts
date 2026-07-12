@@ -9,7 +9,8 @@
  * + commerce-catalogs-unsynced-visibility
  * + client-voice-packs-missing-visibility
  * + commerce-order-revenue-ledger
- * + commerce-abandoned-checkout-tracking).
+ * + commerce-abandoned-checkout-tracking
+ * + commerce-pipeline-health-unpaid-owed).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
@@ -31,7 +32,10 @@ import {
   listMarketingPacksDue,
   marketingMonthKey,
 } from "@/lib/marketing/monthly-pack";
-import { sumCommerceOrdersRevenueUsd } from "@/lib/commerce/orders";
+import {
+  isCommerceOrderPaidOut,
+  sumCommerceOrdersRevenueUsd,
+} from "@/lib/commerce/orders";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -124,14 +128,13 @@ export interface PipelineHealth {
    */
   clientVoicePacksDueCount: number;
   /**
-   * Total USD collected via Commerce "Buy now" purchases (end-customer money
-   * for a client's own catalog SKU, through the platform's Stripe account).
-   * Deliberately separate from revenueTotalUsd — this is NOT Local Site
-   * Studio's own revenue, it is pass-through money owed to the client and not
-   * yet reconciled/paid out (see commerce-payouts-stripe-connect in /docs/process).
+   * USD still owed to Commerce clients from Buy now orders (excludes rows with
+   * paidOutAt). Deliberately separate from revenueTotalUsd — this is NOT Local
+   * Site Studio's own revenue. Matches the Commerce payouts panel + digest
+   * unpaid totals until Stripe Connect ships.
    */
   commerceOrdersRevenueUsd: number;
-  /** Count of recorded Commerce Buy now orders (see commerceOrdersRevenueUsd). */
+  /** Count of unpaid Commerce Buy now orders still owed to clients. */
   commerceOrdersCount: number;
 }
 
@@ -203,8 +206,8 @@ export function computePipelineHealth(input: {
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
-  /** Recorded Commerce Buy now orders (optional) — see commerceOrdersRevenueUsd. */
-  commerceOrders?: ReadonlyArray<{ amountPaidUsd: number }>;
+  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt. */
+  commerceOrders?: ReadonlyArray<{ amountPaidUsd: number; paidOutAt?: string }>;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -354,7 +357,10 @@ export function computePipelineHealth(input: {
   );
 
   const commerceOrders = input.commerceOrders ?? [];
-  const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(commerceOrders);
+  const unpaidCommerceOrders = commerceOrders.filter(
+    (order) => !isCommerceOrderPaidOut(order),
+  );
+  const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
 
   return {
     revenueTotalUsd,
@@ -391,7 +397,7 @@ export function computePipelineHealth(input: {
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
     commerceOrdersRevenueUsd,
-    commerceOrdersCount: commerceOrders.length,
+    commerceOrdersCount: unpaidCommerceOrders.length,
   };
 }
 
