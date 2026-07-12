@@ -94,7 +94,8 @@ export default function RoadmapDocPage() {
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
         shipped. Cold-lead archive action (one-click <code>Re-engage</code> resets cadence to{" "}
-        <code>discovered</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
+        <code>discovered</code>; optional Cold-panel checkbox also sends Email 1 immediately via{" "}
+        <code>outreach_sent</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
         shipped. Follow-ups-due pipeline-health aggregate (<code>followUpsDueCount</code> +
         oldest age since last send via <code>isFollowUpDue</code>, sitting beside unreplied
         inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
@@ -147,8 +148,9 @@ export default function RoadmapDocPage() {
         panel + dashboard reply via Resend): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
-        Remaining free operator-leverage gap: cold-lead archive/re-engage one-click (sibling) —
-        see <DocLink href="/docs/process">process log</DocLink>.
+        Cold-lead Re-engage / Close (+ optional Email 1 on re-engage): shipped. Remaining free
+        operator-leverage gaps: snoozed-in-digest / closed-leads aggregates / paid-Starter upsell
+        nudge — see <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>Phase 6 — Marketing engine</h2>
