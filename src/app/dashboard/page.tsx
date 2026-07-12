@@ -6,9 +6,11 @@ import {
   listClientInquiries,
   listOrders,
   listOpenCheckoutSessions,
+  listMarketingPacksForMonth,
 } from "@/lib/db";
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
+import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -37,20 +39,24 @@ export const dynamic = "force-dynamic";
 
 /** Snapshot clock outside the page component (react-hooks/purity). */
 async function loadDashboardHealth(): Promise<PipelineHealth> {
-  const [leads, handoffs, inquiries, orders, openCheckoutSessions] = await Promise.all([
-    getLeads(),
-    listDeployHandoffs(),
-    listClientInquiries(20),
-    listOrders(),
-    listOpenCheckoutSessions(),
-  ]);
   const nowMs = Date.now();
+  const marketingMonth = marketingMonthKey(nowMs);
+  const [leads, handoffs, inquiries, orders, openCheckoutSessions, marketingPacks] =
+    await Promise.all([
+      getLeads(),
+      listDeployHandoffs(),
+      listClientInquiries(20),
+      listOrders(),
+      listOpenCheckoutSessions(),
+      listMarketingPacksForMonth(marketingMonth),
+    ]);
   return computePipelineHealth({
     leads,
     orders,
     handoffs,
     inquiries,
     openCheckoutSessions,
+    marketingPacksThisMonth: marketingPacks,
     nowMs,
   });
 }

@@ -70,6 +70,8 @@ describe("buildDailyDigest", () => {
     expect(digest.followUpsDue).toHaveLength(0);
     expect(digest.checkoutRecoveriesDue).toHaveLength(0);
     expect(digest.unrepliedInquiries).toHaveLength(0);
+    expect(digest.marketingPacksDue).toHaveLength(0);
+    expect(digest.starterUpsellCandidates).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
@@ -198,6 +200,53 @@ describe("buildDailyDigest", () => {
     expect(digest.workNext).toHaveLength(0);
     expect(digest.isEmpty).toBe(true);
   });
+
+  it("lists Growth/Complete leads missing this month's marketing pack", () => {
+    const needsPack = baseLead({
+      slug: "needs-pack",
+      businessName: "Needs Pack Cafe",
+      stage: "paid",
+    });
+    const hasPack = baseLead({
+      slug: "has-pack",
+      businessName: "Has Pack Salon",
+      stage: "live",
+    });
+    const digest = buildDailyDigest({
+      leads: [needsPack, hasPack],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "needs-pack", tier: "growth", commerceAddon: false },
+        { leadSlug: "has-pack", tier: "complete", commerceAddon: false },
+      ],
+      marketingPacksThisMonth: [{ leadSlug: "has-pack", yearMonth: "2026-07" }],
+      nowMs: NOW,
+    });
+    expect(digest.marketingPacksDue).toHaveLength(1);
+    expect(digest.marketingPacksDue[0]?.businessName).toBe("Needs Pack Cafe");
+    expect(digest.marketingPacksDue[0]?.yearMonth).toBe("2026-07");
+    expect(digest.isEmpty).toBe(false);
+  });
+
+  it("lists Starter → MRR upsell candidates", () => {
+    const starter = baseLead({
+      slug: "starter-paid",
+      businessName: "Starter Shop",
+      stage: "paid",
+      recommendedTier: "complete",
+    });
+    const digest = buildDailyDigest({
+      leads: [starter],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [{ leadSlug: "starter-paid", tier: "starter", commerceAddon: false }],
+      nowMs: NOW,
+    });
+    expect(digest.starterUpsellCandidates).toHaveLength(1);
+    expect(digest.starterUpsellCandidates[0]?.targetTier).toBe("complete");
+    expect(digest.isEmpty).toBe(false);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {
@@ -251,5 +300,36 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("<Script>Bakery");
     expect(html).toContain("&lt;Script&gt;Bakery");
     expect(html).toContain("https://example.com/dashboard/leads");
+  });
+
+  it("renders marketing pack due and starter upsell sections", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "pack-due",
+          businessName: "Pack Due Cafe",
+          stage: "paid",
+        }),
+        baseLead({
+          slug: "upsell-me",
+          businessName: "Upsell Me LLC",
+          stage: "live",
+          recommendedTier: "growth",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      orders: [
+        { leadSlug: "pack-due", tier: "growth", commerceAddon: false },
+        { leadSlug: "upsell-me", tier: "starter", commerceAddon: false },
+      ],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Marketing packs due");
+    expect(html).toContain("2026-07 pack not generated");
+    expect(html).toContain("Starter → MRR upsell");
+    expect(html).toContain("suggest growth upsell");
   });
 });

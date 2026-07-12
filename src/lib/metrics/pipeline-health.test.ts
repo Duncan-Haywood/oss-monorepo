@@ -105,6 +105,8 @@ describe("computePipelineHealth", () => {
     expect(health.revenueTotalUsd).toBe(0);
     expect(health.leadCount).toBe(0);
     expect(health.orderCount).toBe(0);
+    expect(health.marketingPacksDueCount).toBe(0);
+    expect(health.marketingPacksDueMonth).toBe("1970-01");
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -397,6 +399,26 @@ describe("computePipelineHealth", () => {
 
     expect(health.followUpsDueCount).toBe(2);
     expect(health.oldestFollowUpDueAgeHours).toBe(10 * 24);
+  });
+
+  it("counts Growth/Complete leads missing this month's marketing pack", () => {
+    const needsPack = makeLead("paid", { slug: "needs-pack" });
+    const hasPack = makeLead("live", { slug: "has-pack" });
+    const starterOnly = makeLead("paid", { slug: "starter-only" });
+    const health = computePipelineHealth({
+      leads: [needsPack, hasPack, starterOnly],
+      orders: [
+        { ...makeOrder(599), id: "o1", leadSlug: "needs-pack", tier: "growth" },
+        { ...makeOrder(699), id: "o2", leadSlug: "has-pack", tier: "complete" },
+        { ...makeOrder(500), id: "o3", leadSlug: "starter-only", tier: "starter" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [{ leadSlug: "has-pack", yearMonth: "2026-07" }],
+      nowMs: NOW,
+    });
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.marketingPacksDueMonth).toBe("2026-07");
   });
 
   it("defaults closed lead count to zero when none are closed", () => {

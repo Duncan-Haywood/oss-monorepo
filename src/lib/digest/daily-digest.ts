@@ -1,7 +1,8 @@
 /**
  * Operator daily digest — one email summarizing everything urgent so a
  * single-operator business doesn't have to open /dashboard/leads to know
- * what needs attention today. See /docs/process (operator-daily-digest-email).
+ * what needs attention today. See /docs/process (operator-daily-digest-email
+ * + marketing-packs-due-pipeline-metric + starter-upsell-candidates-in-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -15,11 +16,22 @@ import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
 import { listAbandonedCheckoutsDue } from "../checkout/abandoned-recovery";
 import { isLeadSnoozed } from "../leads/snooze";
 import { isUnrepliedInquiryStatus } from "../metrics/pipeline-health";
+import {
+  listMarketingPacksDue,
+  marketingMonthKey,
+} from "../marketing/monthly-pack";
+import {
+  listStarterUpsellCandidates,
+  resolveUpsellTargetTier,
+  type UpsellTargetTier,
+} from "../billing/starter-upsell";
 
 const WORK_NEXT_LIMIT = 5;
 const FOLLOW_UPS_LIMIT = 5;
 const RECOVERIES_LIMIT = 5;
 const INQUIRIES_LIMIT = 5;
+const MARKETING_PACKS_LIMIT = 5;
+const UPSELL_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -51,12 +63,26 @@ export interface DigestUnrepliedInquiry {
   messagePreview: string;
 }
 
+export interface DigestMarketingPackDue {
+  slug: string;
+  businessName: string;
+  yearMonth: string;
+}
+
+export interface DigestStarterUpsellLead {
+  slug: string;
+  businessName: string;
+  targetTier: UpsellTargetTier;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
   followUpsDue: DigestFollowUpLead[];
   checkoutRecoveriesDue: DigestCheckoutRecovery[];
   unrepliedInquiries: DigestUnrepliedInquiry[];
+  marketingPacksDue: DigestMarketingPackDue[];
+  starterUpsellCandidates: DigestStarterUpsellLead[];
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -73,6 +99,8 @@ export interface BuildDailyDigestInput {
   leads: Lead[];
   inquiries: ClientInquiry[];
   openCheckoutSessions: CheckoutSessionRecord[];
+  orders?: Array<{ leadSlug: string; tier: string; commerceAddon: boolean }>;
+  marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
   nowMs: number;
 }
 
@@ -85,7 +113,14 @@ function truncateMessage(message: string): string {
 
 /** Builds the digest payload. Pass nowMs from the caller (server action), not Date.now() here. */
 export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
-  const { leads, inquiries, openCheckoutSessions, nowMs } = input;
+  const {
+    leads,
+    inquiries,
+    openCheckoutSessions,
+    orders = [],
+    marketingPacksThisMonth = [],
+    nowMs,
+  } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
 
   const workNext: DigestWorkNextLead[] = rankLeadsForOutreach(leads, nowMs, WORK_NEXT_LIMIT, {
@@ -133,6 +168,31 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       messagePreview: truncateMessage(inquiry.message),
     }));
 
+  const yearMonth = marketingMonthKey(nowMs);
+  const marketingPacksDue: DigestMarketingPackDue[] = listMarketingPacksDue(
+    leads,
+    orders,
+    marketingPacksThisMonth,
+    yearMonth,
+  )
+    .slice(0, MARKETING_PACKS_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+      yearMonth,
+    }));
+
+  const starterUpsellCandidates: DigestStarterUpsellLead[] = listStarterUpsellCandidates(
+    leads,
+    orders,
+  )
+    .slice(0, UPSELL_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+      targetTier: resolveUpsellTargetTier(lead.recommendedTier),
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -156,7 +216,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     workNext.length === 0 &&
     followUpsDue.length === 0 &&
     checkoutRecoveriesDue.length === 0 &&
-    unrepliedInquiries.length === 0;
+    unrepliedInquiries.length === 0 &&
+    marketingPacksDue.length === 0 &&
+    starterUpsellCandidates.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -164,6 +226,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     followUpsDue,
     checkoutRecoveriesDue,
     unrepliedInquiries,
+    marketingPacksDue,
+    starterUpsellCandidates,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -221,7 +285,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, and the inbox are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, inbox, marketing packs, and Starter upsells are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -248,6 +312,16 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtml(inquiry.businessName)}</strong> — “${escapeHtml(inquiry.messagePreview)}”`,
   );
 
+  const packRows = digest.marketingPacksDue.map(
+    (pack) =>
+      `<strong>${escapeHtml(pack.businessName)}</strong> — ${escapeHtml(pack.yearMonth)} pack not generated`,
+  );
+
+  const upsellRows = digest.starterUpsellCandidates.map(
+    (lead) =>
+      `<strong>${escapeHtml(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtml(lead.targetTier)} upsell`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -257,6 +331,8 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Follow-ups due (${digest.followUpsDue.length})`, followUpRows, "No follow-up emails due.")}
     ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDue.length})`, recoveryRows, "No recovery nudges due.")}
     ${section(`Unreplied inquiries (${digest.unrepliedInquiries.length})`, inquiryRows, "Inbox clear.")}
+    ${section(`Marketing packs due (${digest.marketingPacksDue.length})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(`Starter → MRR upsell (${digest.starterUpsellCandidates.length})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

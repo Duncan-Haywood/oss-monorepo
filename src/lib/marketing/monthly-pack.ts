@@ -61,6 +61,47 @@ export function leadEligibleForMarketingPack(
   return orders.some((o) => isMarketingBundleTier(o.tier));
 }
 
+/**
+ * Eligible Growth/Complete lead with no marketing pack row for the given UTC month.
+ * Pass yearMonth from marketingMonthKey(nowMs) — never Date.now() inside callers that
+ * must stay pure.
+ */
+export function leadNeedsMarketingPackForMonth(
+  lead: { slug: string; stage: LeadPipelineStage },
+  ordersForLead: ReadonlyArray<{ tier: string }>,
+  packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
+  yearMonth: string,
+): boolean {
+  if (!leadEligibleForMarketingPack(lead, ordersForLead)) return false;
+  return !packsThisMonth.some(
+    (pack) => pack.leadSlug === lead.slug && pack.yearMonth === yearMonth,
+  );
+}
+
+/**
+ * Paid/live Growth/Complete leads still missing this month's pack — slug-sorted for
+ * stable digest/pipeline lists. Reuses leadEligibleForMarketingPack only.
+ */
+export function listMarketingPacksDue<
+  T extends { slug: string; stage: LeadPipelineStage },
+>(
+  leads: T[],
+  orders: ReadonlyArray<{ leadSlug: string; tier: string }>,
+  packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
+  yearMonth: string,
+): T[] {
+  return leads
+    .filter((lead) =>
+      leadNeedsMarketingPackForMonth(
+        lead,
+        orders.filter((o) => o.leadSlug === lead.slug),
+        packsThisMonth,
+        yearMonth,
+      ),
+    )
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
 /** Prefer Complete over Growth when both exist (newest-first lists still work). */
 export function bestMarketingOrderTier(
   orders: ReadonlyArray<{ tier: string }>,

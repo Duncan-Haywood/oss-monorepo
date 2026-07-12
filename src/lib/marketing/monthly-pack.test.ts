@@ -5,6 +5,8 @@ import {
   contentTypeLabel,
   isMarketingBundleTier,
   leadEligibleForMarketingPack,
+  leadNeedsMarketingPackForMonth,
+  listMarketingPacksDue,
   marketingMonthKey,
   MONTHLY_MARKETING_PACK_TYPES,
 } from "./monthly-pack";
@@ -71,6 +73,38 @@ describe("eligibility", () => {
     expect(bestMarketingOrderTier([{ tier: "growth" }, { tier: "complete" }])).toBe("complete");
     expect(bestMarketingOrderTier([{ tier: "starter" }, { tier: "growth" }])).toBe("growth");
     expect(bestMarketingOrderTier([{ tier: "starter" }])).toBeNull();
+  });
+});
+
+describe("listMarketingPacksDue", () => {
+  const month = "2026-07";
+
+  it("includes eligible leads without a pack for the month", () => {
+    const paid = baseLead({ slug: "needs-pack", stage: "paid" });
+    const live = baseLead({ slug: "has-pack", stage: "live" });
+    const starter = baseLead({ slug: "starter-only", stage: "paid" });
+    const due = listMarketingPacksDue(
+      [paid, live, starter],
+      [
+        { leadSlug: "needs-pack", tier: "growth" },
+        { leadSlug: "has-pack", tier: "complete" },
+        { leadSlug: "starter-only", tier: "starter" },
+      ],
+      [{ leadSlug: "has-pack", yearMonth: month }],
+      month,
+    );
+    expect(due.map((l) => l.slug)).toEqual(["needs-pack"]);
+  });
+
+  it("leadNeedsMarketingPackForMonth is false when pack exists", () => {
+    expect(
+      leadNeedsMarketingPackForMonth(
+        baseLead({ slug: "pine-cafe", stage: "paid" }),
+        [{ tier: "growth" }],
+        [{ leadSlug: "pine-cafe", yearMonth: month }],
+        month,
+      ),
+    ).toBe(false);
   });
 });
 
