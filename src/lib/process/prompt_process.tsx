@@ -2067,9 +2067,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-12",
     decision:
+      "Fold complementary contact-form notify HTML escape regression test from duplicate PR #80 (upbeat-dijkstra-v7yyno) onto main — escape already shipped in PR #78; keep the route.test.ts coverage and close the duplicate PR.",
+    rationale:
+      "AGENT_PROTOCOL: a later claim may fold complementary tests/docs into one PR rather than abandoning coverage. PR #80 duplicated the escape already on main but added the only end-to-end handler test for malicious visitor input through POST /api/contact/[slug]. Keeping the test and closing the competing PR avoids a second process-log rewrite fight.",
+  },
+  {
+    date: "2026-07-12",
+    decision:
       "GET /api/unsubscribe passes requireConvex (UNSUBSCRIBE_CONVEX_PRIMARY) when Convex is configured — success HTML must not follow a SQLite-only suppress write.",
     rationale:
-      "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81.",
+      "PR #65 added Convex persistence for suppressions, but the public unsubscribe route kept the dashboard-style Convex→SQLite fallback. isEmailSuppressed reads Convex-first, so a SQLite-only write after a Convex blip would show the visitor a success page while other instances keep sending — a real CAN-SPAM regression, not just data loss. Fail-closed 500 matches contact-form requireConvex (PR #78). DNS handoff HTML escape shipped on PR #82 (9c45) in the same hour — folded, not re-owned. checkout-session-complete-convex-primary merged as PR #81. PR #80 contact notify test fold landed on main mid-merge.",
   },
 ];
 
@@ -3417,9 +3424,21 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-12",
+    branch: "cursor/prompt-process-evolution-9c45",
+    summary:
+      "After PR #82 (organic attribution) and PR #81 (checkout-session-complete requireConvex) merged, folded the complementary route.test.ts from duplicate open PR #80 (contact notify HTML escape already on main via PR #78) and closed the competing PR.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.test.ts — end-to-end escape coverage for visitor name/message through the real handler (from upbeat-dijkstra-v7yyno)",
+      "NEXT_STEPS unchanged — free backlog remains operator/legal-gated only",
+      "Coop: close PR #80 as duplicate of PR #78 escape; keep its test",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(176, 177),
+  },
+  {
+    date: "2026-07-12",
     branch: "cursor/business-process-evolution-6a13",
     summary:
-      "Free NEXT_STEPS backlog empty after PR #79 except checkout-session-complete-convex-primary (PR #81) and gated secrets/OAuth/counsel. Sibling prompt-process-evolution-9c45 claimed (then merged PR #82) organic-checkout-crm-attribution + DNS handoff HTML escape. Audited public/CAN-SPAM write paths: GET /api/unsubscribe still SQLite-fallbacks on Convex failure then shows success while isEmailSuppressed reads Convex-first — CAN-SPAM split-brain. Shipped UNSUBSCRIBE_CONVEX_PRIMARY + 500 on ConvexPrimaryWriteError. Folded origin/main after PR #81 + #82 — all ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog empty after PR #79 except checkout-session-complete-convex-primary (PR #81) and gated secrets/OAuth/counsel. Sibling prompt-process-evolution-9c45 claimed (then merged PR #82) organic-checkout-crm-attribution + DNS handoff HTML escape. Audited public/CAN-SPAM write paths: GET /api/unsubscribe still SQLite-fallbacks on Convex failure then shows success while isEmailSuppressed reads Convex-first — CAN-SPAM split-brain. Shipped UNSUBSCRIBE_CONVEX_PRIMARY + 500 on ConvexPrimaryWriteError. Folded origin/main after PR #81 + #82 + PR #80 test fold — all ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/email/suppression-persist.ts (+ test) — UNSUBSCRIBE_CONVEX_PRIMARY { requireConvex: true }",
       "src/lib/db.ts — suppressEmail accepts ConvexPrimaryWriteOptions; throws ConvexPrimaryWriteError when requireConvex",
@@ -3428,9 +3447,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: unsubscribe-suppress-convex-primary done; webhook-dns-handoff-email-html-escape co-owned with PR #82",
       "AGENT_PROTOCOL — unsubscribe requireConvex when Convex configured",
       "BUSINESS_DECISIONS — documented CAN-SPAM fail-closed unsubscribe",
-      "merge: folded origin/main after PR #81 (checkout-session requireConvex) + PR #82 (organic attribution / DNS escape) — all ITERATIONS kept",
+      "merge: folded origin/main after PR #81 + #82 + PR #80 contact notify test fold — all ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(176, 177),
+    decisions: BUSINESS_DECISIONS.slice(177, 178),
   },
 ];
-
