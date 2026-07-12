@@ -617,6 +617,30 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/quirky-davinci-wuk0al",
   },
+  {
+    id: "commerce-buy-now-webhook-side-effect-idempotency",
+    summary:
+      "Bug found auditing after bundle-order-webhook-idempotency: commerceOrders ledger was already idempotent on stripeSessionId, but the commerce_sku webhook branch still ran insertClientInquiry + sendCommerceBuyNowClientReceipt on every Stripe redelivery — spamming the operator inbox and re-emailing the local business. insertCommerceOrder returned void and ignored Convex's null-on-duplicate signal. Claimed by sibling to mirror the bundle alreadyRecorded skip path for Commerce Buy now side effects.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-22f4",
+  },
+  {
+    id: "commerce-mark-paid-out-convex-wiring",
+    summary:
+      "Bug found auditing while sibling business-process-evolution-22f4 owns commerce-buy-now-webhook-side-effect-idempotency: markCommerceOrderPaidOut calls api.commerceOrders.markPaidOut, and convex/commerceOrders.ts defines the mutation, but the static Convex API map in src/lib/db.ts never registered markPaidOut — so with NEXT_PUBLIC_CONVEX_URL set the mutation is undefined, the catch falls back to SQLite, then listCommerceOrders reads Convex first and returns unpaid rows. Operator sees Mark paid out 'succeed' while owed totals never clear → double-pay risk until Connect. Claimed to register the mutation and keep Mark paid out on the Convex primary path.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-6a3c",
+  },
+  {
+    id: "commerce-pipeline-health-unpaid-owed",
+    summary:
+      "After commerce-order-manual-payout-mark, the payout panel + digest use unpaidTotalUsd, but pipeline-health's Commerce sales (pass-through) card still sums lifetime amountPaidUsd — settled orders keep looking 'owed'. Wire paidOutAt into computePipelineHealth (reuse isCommerceOrderPaidOut / unpaid sum) so the card matches panel + digest. Queued by sibling 22f4; claimed here alongside the Convex Mark paid out wiring fix.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-6a3c",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
