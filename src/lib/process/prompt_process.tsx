@@ -225,8 +225,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-quality-scoring",
     summary:
       "Pure TypeScript lead scoring (missing email/address/phone, stale outreach, category fit vs. recommendedTier) surfaced on the dashboard so the operator works the highest-probability leads first instead of scanning the full list top-to-bottom.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-f004",
   },
   {
     id: "outreach-open-tracking",
