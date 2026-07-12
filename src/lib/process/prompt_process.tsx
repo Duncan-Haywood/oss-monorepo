@@ -779,6 +779,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/quirky-davinci-c1j0bf",
   },
+  {
+    id: "commerce-webhook-inquiry-retry-on-failure",
+    summary:
+      "PR #72 shipped planCommerceWebhookSideEffects so Stripe redelivery can recover a missing commerce_checkout inquiry/receipt after the ledger already exists — but the webhook catch around insertClientInquiry still logged and returned { received: true } 200, so Stripe never redelivers and recovery never runs. Sold Commerce promise (operator inbox + client order notification) can be permanently lost after a transient inquiry write failure. Prefer 5xx on inquiry failure after a durable ledger write; client receipt stays best-effort only after inquiry succeeds. Queued checkout-session-complete-convex-primary from the same audit (markCheckoutSessionComplete still warn-only).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-3601",
+  },
+  {
+    id: "checkout-session-complete-convex-primary",
+    summary:
+      "Related empty-backlog finding: webhook markCheckoutSessionComplete (bundle + commerce) catches failures, warns, and still ACKs 200 — and the helper has no requireConvex option. When Convex is configured, a failed mark-complete leaves the session open in Convex while payment succeeded; listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue can email Finish-checkout to someone who already paid. Prefer requireConvex + 5xx from the webhook so Stripe retries until the shared store marks the session complete.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
