@@ -1,9 +1,14 @@
 /**
  * Lead quality / actionability scoring — pure TypeScript so the operator
  * dashboard can sort the highest-probability outreach targets first.
- * See /docs/process (lead-quality-scoring).
+ * See /docs/process (lead-quality-scoring / abandoned-checkout-quality-signal).
  */
 
+import type { CheckoutSessionRecord } from "../checkout/types";
+import {
+  isAbandonedCheckout,
+  isRecoveryDue,
+} from "../checkout/abandoned-recovery";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { isFollowUpDue, normalizeOutreachStep } from "../email/outreach-followups";
 
@@ -28,6 +33,15 @@ export interface LeadQualityResult {
   factors: LeadQualityFactor[];
   /** False for paid/live — still scored, but omitted from the "Work next" queue. */
   actionable: boolean;
+}
+
+/**
+ * Optional inputs that are not on the Lead row itself. Pass open checkout
+ * sessions from listOpenCheckoutSessions() so abandoned carts outrank plain
+ * outreach-due leads in Work next.
+ */
+export interface LeadScoreOptions {
+  openCheckoutSessions?: CheckoutSessionRecord[];
 }
 
 /** Category → default recommended tier (matches demo catalog / slug inference). */
@@ -71,8 +85,13 @@ export function bandForScore(
 /**
  * Score a single lead. Pass `nowMs` from the caller (mount snapshot or server)
  * — do not call Date.now() inside render paths that consume this.
+ * Pass open checkout sessions via options so abandoned carts boost the score.
  */
-export function scoreLead(lead: Lead, nowMs: number): LeadQualityResult {
+export function scoreLead(
+  lead: Lead,
+  nowMs: number,
+  options?: LeadScoreOptions,
+): LeadQualityResult {
   const factors: LeadQualityFactor[] = [];
   let score = STAGE_BASE[lead.stage] ?? 40;
 
@@ -238,6 +257,32 @@ export function scoreLead(lead: Lead, nowMs: number): LeadQualityResult {
     });
   }
 
+  // Abandoned checkout is hotter than a preview open: the prospect already
+  // chose a tier and hit Stripe Checkout. Boost unpaid pipeline stages only
+  // (paid/live keep fulfillment banding without Work-next noise).
+  if (lead.stage !== "paid" && lead.stage !== "live") {
+    const abandonedForLead = (options?.openCheckoutSessions ?? []).filter(
+      (session) =>
+        session.leadSlug === lead.slug && isAbandonedCheckout(session, nowMs),
+    );
+    if (abandonedForLead.length > 0) {
+      score += 18;
+      factors.push({
+        id: "abandoned_checkout",
+        label: "Abandoned checkout — highest purchase intent",
+        delta: 18,
+      });
+      if (abandonedForLead.some((session) => isRecoveryDue(session, nowMs))) {
+        score += 6;
+        factors.push({
+          id: "checkout_recovery_due",
+          label: "Checkout recovery nudge due",
+          delta: 6,
+        });
+      }
+    }
+  }
+
   const blocked = !emailOk && lead.stage !== "paid" && lead.stage !== "live";
   const actionable = lead.stage !== "paid" && lead.stage !== "live";
 
@@ -254,8 +299,12 @@ export function scoreLead(lead: Lead, nowMs: number): LeadQualityResult {
   };
 }
 
-export function scoreLeads(leads: Lead[], nowMs: number): LeadQualityResult[] {
-  return leads.map((lead) => scoreLead(lead, nowMs));
+export function scoreLeads(
+  leads: Lead[],
+  nowMs: number,
+  options?: LeadScoreOptions,
+): LeadQualityResult[] {
+  return leads.map((lead) => scoreLead(lead, nowMs, options));
 }
 
 /** Actionable leads sorted highest score first (operator "Work next" queue). */
@@ -263,8 +312,9 @@ export function rankLeadsForOutreach(
   leads: Lead[],
   nowMs: number,
   limit = 8,
+  options?: LeadScoreOptions,
 ): LeadQualityResult[] {
-  return scoreLeads(leads, nowMs)
+  return scoreLeads(leads, nowMs, options)
     .filter((r) => r.actionable)
     .sort((a, b) => b.score - a.score || a.slug.localeCompare(b.slug))
     .slice(0, limit);

@@ -100,7 +100,9 @@ export default function ArchitectureDocPage() {
         to <code>complete</code>. Sessions still <code>open</code> 2+ hours after creation surface
         on an &quot;Abandoned checkouts&quot; panel on <code>/dashboard/leads</code> for an
         operator-triggered recovery email (Resend, honors suppression, cooldown between nudges) —
-        see <code>src/lib/checkout/abandoned-recovery.ts</code>.
+        see <code>src/lib/checkout/abandoned-recovery.ts</code>. The same open sessions feed{" "}
+        <code>scoreLead</code> / Work next (+18 abandoned, +6 when recovery is due) so carts
+        outrank plain outreach-due leads.
       </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>

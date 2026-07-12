@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "./types";
 import {
   CATEGORY_DEFAULT_TIER,
@@ -28,6 +29,22 @@ function baseLead(overrides: Partial<Lead> = {}): Lead {
     recommendedTier: "growth",
     dataSource: "manual_entry",
     outreachStep: 0,
+    ...overrides,
+  };
+}
+
+function openCheckout(
+  overrides: Partial<CheckoutSessionRecord> = {},
+): CheckoutSessionRecord {
+  return {
+    stripeSessionId: "cs_test_abandoned",
+    leadSlug: "test-lead",
+    tier: "starter",
+    commerceAddon: false,
+    customerEmail: "owner@example.com",
+    status: "open",
+    // 3h before NOW → abandoned under the 2h threshold
+    createdAt: "2026-07-11T21:00:00.000Z",
     ...overrides,
   };
 }
@@ -136,6 +153,63 @@ describe("scoreLead", () => {
     expect(silent.factors.some((f) => f.id === "never_opened")).toBe(true);
     expect(opened.score).toBeGreaterThan(silent.score);
   });
+
+  it("boosts abandoned checkout above preview-open and follow-up-due peers", () => {
+    // Use trades/starter + missing phone/address so scores stay under the 100 clamp
+    // and the abandoned-checkout delta is visible as a strict inequality.
+    const coldBase = {
+      category: "trades" as const,
+      recommendedTier: "starter" as const,
+      phone: "",
+      address: undefined,
+      dataSource: "csv_import" as const,
+      stage: "outreach_sent" as const,
+      outreachStep: 1 as const,
+    };
+    const sessions = [openCheckout()];
+    const abandoned = scoreLead(baseLead({ ...coldBase }), NOW, {
+      openCheckoutSessions: sessions,
+    });
+    const openedOnly = scoreLead(
+      baseLead({
+        ...coldBase,
+        slug: "opened-only",
+        lastOutreachAt: "2026-07-01T00:00:00.000Z",
+        lastPreviewOpenAt: "2026-07-10T00:00:00.000Z",
+      }),
+      NOW,
+    );
+    const followUpDue = scoreLead(
+      baseLead({
+        ...coldBase,
+        slug: "follow-up",
+        lastOutreachAt: "2026-07-01T00:00:00.000Z",
+      }),
+      NOW,
+    );
+    expect(abandoned.factors.some((f) => f.id === "abandoned_checkout")).toBe(true);
+    expect(abandoned.factors.some((f) => f.id === "checkout_recovery_due")).toBe(true);
+    expect(abandoned.score).toBeLessThan(100);
+    expect(abandoned.score).toBeGreaterThan(openedOnly.score);
+    expect(abandoned.score).toBeGreaterThan(followUpDue.score);
+  });
+
+  it("ignores abandoned checkout signal for paid/live leads", () => {
+    const sessions = [openCheckout({ leadSlug: "paid-lead" })];
+    const paid = scoreLead(
+      baseLead({ slug: "paid-lead", stage: "paid" }),
+      NOW,
+      { openCheckoutSessions: sessions },
+    );
+    expect(paid.factors.some((f) => f.id === "abandoned_checkout")).toBe(false);
+    expect(paid.actionable).toBe(false);
+  });
+
+  it("does not boost sessions that are still within the abandon window", () => {
+    const fresh = openCheckout({ createdAt: "2026-07-11T23:30:00.000Z" }); // 30m ago
+    const result = scoreLead(baseLead(), NOW, { openCheckoutSessions: [fresh] });
+    expect(result.factors.some((f) => f.id === "abandoned_checkout")).toBe(false);
+  });
 });
 
 describe("rankLeadsForOutreach", () => {
@@ -162,6 +236,30 @@ describe("rankLeadsForOutreach", () => {
       baseLead({ slug: `lead-${i}`, email: `a${i}@example.com` }),
     );
     expect(rankLeadsForOutreach(leads, NOW, 2)).toHaveLength(2);
+  });
+
+  it("ranks abandoned-checkout leads first when sessions are provided", () => {
+    const leads: Lead[] = [
+      baseLead({
+        slug: "follow-up-lead",
+        stage: "outreach_sent",
+        outreachStep: 1,
+        lastOutreachAt: "2026-07-01T00:00:00.000Z",
+        dataSource: "csv_import",
+      }),
+      baseLead({
+        slug: "cart-lead",
+        stage: "outreach_sent",
+        outreachStep: 1,
+        lastOutreachAt: "2026-07-08T00:00:00.000Z",
+        dataSource: "csv_import",
+      }),
+    ];
+    const ranked = rankLeadsForOutreach(leads, NOW, 5, {
+      openCheckoutSessions: [openCheckout({ leadSlug: "cart-lead" })],
+    });
+    expect(ranked[0]?.slug).toBe("cart-lead");
+    expect(ranked[0]?.factors.some((f) => f.id === "abandoned_checkout")).toBe(true);
   });
 });
 

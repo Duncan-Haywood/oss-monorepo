@@ -79,6 +79,10 @@ export default function LaunchChecklistDocPage() {
           missing-email leads as Blocked, and the Quality column sorts the table by score.
         </li>
         <li>
+          With a synthetic open <code>checkout_sessions</code> row older than 2h, confirm Work next
+          shows a Cart badge and ranks that lead above a plain follow-up-due peer.
+        </li>
+        <li>
           Open a preview with <code>?src=outreach</code> (or after stage is{" "}
           <code>outreach_sent</code>), confirm <code>lastPreviewOpenAt</code> appears as an
           Opened badge on the leads table and that Follow-ups due ranks openers first.
@@ -132,7 +136,8 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
-          outreach (real contacts above demos; blocked when email is missing)
+          outreach (real contacts above demos; blocked when email is missing; abandoned checkout
+          carts above plain follow-ups)
         </li>
         <li>
           Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
