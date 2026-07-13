@@ -96,7 +96,9 @@ export default function RoadmapDocPage() {
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*
         template copy). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
         <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald daily-digest-blocked
-        banner (Send daily digest otherwise only errors on click).
+        banner (Send daily digest otherwise only errors on click). Action-level Vitest (
+        <code>send-daily-digest-action.test.ts</code>) locks the dashboard Send daily digest
+        path beyond the pure <code>daily-digest.test.ts</code> builder.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
         1/2/3 send durably marks the step before calling Resend, and with Convex configured

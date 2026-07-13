@@ -134,6 +134,12 @@ export default function ArchitectureDocPage() {
         <code>sendDailyDigestAction</code>&apos;s trim gate (plus documented{" "}
         <code>you@example.com</code> placeholders) so operators see that pipeline-health digest
         delivery is unconfigured before clicking <strong>Send daily digest</strong>.
+        Action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/send-daily-digest-action.test.ts</code> locks auth, the
+        destination trim gate, uncapped <code>listUnrepliedInquiries</code> /{" "}
+        <code>listUnpaidCommerceOrders</code> / <code>listMarketingPacksForMonth</code> wiring,
+        and <code>sendOperatorDailyDigest</code> success/mock/failure —{" "}
+        <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
