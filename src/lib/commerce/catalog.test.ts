@@ -59,6 +59,40 @@ describe("listCommerceCatalogsMissing", () => {
     );
     expect(missing.map((l) => l.slug)).toEqual(["zeta"]);
   });
+
+  it("truncating catalogs to newest N invents false missing for an older fulfilled lead", () => {
+    const fulfilledOld = { slug: "old-fulfilled", stage: "paid" as const };
+    const filler = Array.from({ length: 5 }, (_, i) => ({
+      slug: `filler-${i}`,
+      stage: "paid" as const,
+    }));
+    const orders = [
+      { leadSlug: "old-fulfilled", commerceAddon: true },
+      ...filler.map((l) => ({ leadSlug: l.slug, commerceAddon: true })),
+    ];
+    const fullCatalogs = [
+      { leadSlug: "old-fulfilled" },
+      ...filler.map((l) => ({ leadSlug: l.slug })),
+    ];
+    const truncatedCatalogs = fullCatalogs.filter(
+      (c) => c.leadSlug !== "old-fulfilled",
+    );
+
+    expect(
+      listCommerceCatalogsMissing(
+        [fulfilledOld, ...filler],
+        orders,
+        fullCatalogs,
+      ).map((l) => l.slug),
+    ).toEqual([]);
+    expect(
+      listCommerceCatalogsMissing(
+        [fulfilledOld, ...filler],
+        orders,
+        truncatedCatalogs,
+      ).map((l) => l.slug),
+    ).toEqual(["old-fulfilled"]);
+  });
 });
 
 describe("listCommerceCatalogsUnsynced", () => {
@@ -104,6 +138,46 @@ describe("listCommerceCatalogsUnsynced", () => {
     expect(
       listCommerceCatalogsUnsynced(leads, orders, catalogs).map((l) => l.slug),
     ).toEqual(["partial", "unsynced"]);
+  });
+
+  it("truncating catalogs to newest N hides an older unsynced catalog (false all-synced)", () => {
+    const unsyncedOld = { slug: "old-unsynced", stage: "paid" as const };
+    const filler = Array.from({ length: 5 }, (_, i) => ({
+      slug: `filler-${i}`,
+      stage: "paid" as const,
+    }));
+    const orders = [
+      { leadSlug: "old-unsynced", commerceAddon: true },
+      ...filler.map((l) => ({ leadSlug: l.slug, commerceAddon: true })),
+    ];
+    const fullCatalogs = [
+      {
+        leadSlug: "old-unsynced",
+        items: [{ id: "a", name: "A", priceCents: 100 }],
+      },
+      ...filler.map((l) => ({
+        leadSlug: l.slug,
+        items: [{ id: "x", name: "X", priceCents: 200, stripePriceId: "price_x" }],
+      })),
+    ];
+    const truncatedCatalogs = fullCatalogs.filter(
+      (c) => c.leadSlug !== "old-unsynced",
+    );
+
+    expect(
+      listCommerceCatalogsUnsynced(
+        [unsyncedOld, ...filler],
+        orders,
+        fullCatalogs,
+      ).map((l) => l.slug),
+    ).toEqual(["old-unsynced"]);
+    expect(
+      listCommerceCatalogsUnsynced(
+        [unsyncedOld, ...filler],
+        orders,
+        truncatedCatalogs,
+      ).map((l) => l.slug),
+    ).toEqual([]);
   });
 });
 

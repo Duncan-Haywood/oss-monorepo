@@ -117,10 +117,14 @@ export default function ArchitectureDocPage() {
         handoff (DNS + contact form). The <code>orders</code> insert is idempotent on{" "}
         <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a
         redelivered <code>checkout.session.completed</code> (Stripe retries on timeout) is detected
-        and the receipt/DNS emails are skipped rather than resent — but{" "}
+        and receipt/DNS emails are recovered only when deploy-handoff notes lack a sent-marker for
+        that session (<code>planBundleWebhookSideEffects</code> — twin of Commerce{" "}
+        <code>planCommerceWebhookSideEffects</code>) — but{" "}
         <code>enqueueProductionHandoff</code> still runs on every delivery (idempotent on slug +
         stripeSessionId) so a first-delivery crash after the order insert cannot permanently skip
-        Phase 5 fulfillment. If required fulfillment writes fail (
+        Phase 5 fulfillment. After each successful buyer email, the webhook appends a durable
+        handoff note embedding the session id; marker-write failures return <code>500</code> so
+        Stripe retries. If required fulfillment writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —
         never ACK <code>200</code> after swallowing those errors. When{" "}
@@ -279,7 +283,10 @@ export default function ArchitectureDocPage() {
         digest also lists marketing packs due this UTC month, Starter → MRR upsell candidates,
         Commerce catalogs missing, and Complete voice packs due (action sections, reusing{" "}
         <code>listMarketingPacksDue</code> / <code>listStarterUpsellCandidates</code> /{" "}
-        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>). A lead that
+        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>
+        — fed by uncapped <code>listMarketingPacksForMonth</code> /{" "}
+        <code>listCommerceCatalogs</code> / <code>listClientVoicePacks</code>, not a newest-N
+        page that would invent false Generate debt or hide Sync-to-Stripe debt). A lead that
         exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is

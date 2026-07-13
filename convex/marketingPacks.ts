@@ -97,6 +97,12 @@ export const getByLeadMonth = query({
   },
 });
 
+/**
+ * Every marketing pack for a UTC month — used by listMarketingPacksDue /
+ * pipeline-health / digest. Must not cap at newest N: absence-from-page is
+ * treated as "pack missing", so a truncated page invents false Generate debt.
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
 export const listByMonth = query({
   args: {
     yearMonth: v.string(),
@@ -104,11 +110,13 @@ export const listByMonth = query({
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
-    const limit = Math.min(Math.max(args.limit ?? 100, 1), 200);
+    void args.limit;
     const rows = await ctx.db
       .query("marketingPacks")
       .withIndex("by_month", (q) => q.eq("yearMonth", args.yearMonth))
-      .take(limit);
+      .collect();
+    // Newest-first to match SQLite ORDER BY generatedAt DESC.
+    rows.sort((a, b) => b.generatedAt.localeCompare(a.generatedAt));
     return rows.map((row) => ({
       id: row.packId,
       leadSlug: row.leadSlug,

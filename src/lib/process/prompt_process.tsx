@@ -70,7 +70,7 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced, commerce payouts owed), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs / listUnpaidCommerceOrders) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder. Owed Commerce surfaces must use listUnpaidCommerceOrders (not listCommerceOrders' newest-page cap) so older unpaid Buy now rows stay visible until Connect.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced, commerce payouts owed), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs / listUnpaidCommerceOrders) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder. Owed Commerce surfaces must use listUnpaidCommerceOrders (not listCommerceOrders' newest-page cap) so older unpaid Buy now rows stay visible until Connect. Fulfillment-debt pack/catalog lists (listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs) must also be uncapped — absence-from-page is treated as missing/unsynced, so a newest-N slice invents false Generate debt or hides Sync-to-Stripe debt.",
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Commerce catalogs unsynced = listCommerceCatalogsUnsynced (eligible commerceAddon paid/live with a saved catalog that still has ≥1 SKU without stripePriceId). Surface as pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section — distinct from catalogs-missing; empty catalogs are not unsynced.",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizeCommerceItems — never persist a normalized draft that drops stripeProductId/stripePriceId, or Buy now silently regresses after any catalog edit. Never trust client-submitted Stripe ids.",
@@ -96,6 +96,7 @@ export const AGENT_PROTOCOL = [
   "Idempotent ledger inserts are not enough when the same webhook also fires non-idempotent side effects (operator inquiry, client receipt, deploy handoff email). The insert/record helper must return `{ alreadyRecorded }` (or equivalent) and the webhook must skip those side effects on redelivery — see bundle-order-webhook-idempotency and commerce-buy-now-webhook-side-effect-idempotency. Never Promise.all a ledger insert with an inquiry/email that should only run on the first delivery.",
   "`alreadyRecorded` gates non-idempotent side effects only (emails, operator inquiries) — never skip idempotent fulfillment writes on redelivery. enqueueProductionHandoff is safe to call again (returns existing handoff when slug + stripeSessionId match); if the first delivery recorded the order but failed before handoff enqueue, a Stripe retry must still create the handoff. See bundle-webhook-handoff-on-redelivery.",
   "Commerce Buy now: alreadyRecorded must NOT early-break past inquiry/client receipt. On redelivery, recover missing notifies when no commerce_checkout inquiry embeds the stripeSessionId (planCommerceWebhookSideEffects); skip only when that inquiry already exists. Inquiry write failure after a durable ledger write must return 5xx (commerce_order_inquiry) so Stripe redelivers into that recovery path — never ACK 200 after swallowing inquiry errors. Receipt-only failure after a successful inquiry stays best-effort (operator has the inbox row).",
+  "Bundle (Starter/Growth/Complete) checkout.session.completed: alreadyRecorded must NOT early-break past buyer receipt + DNS handoff emails. On redelivery, recover whichever email lacks a durable deploy-handoff note embedding the stripeSessionId (planBundleWebhookSideEffects in src/lib/payments/bundle-side-effect-recovery.ts — twin of planCommerceWebhookSideEffects). Append bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote via updateDeployHandoffStatus after each successful send (status unchanged); marker-write failure returns 5xx (bundle_email_sent_marker) so Stripe retries. Emails stay independently recoverable. Send failure stays best-effort (no 5xx) — recovery depends on Stripe redelivery after timeouts or marker 5xx. enqueueProductionHandoff remains always-on (idempotent). Do not invent optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
   "Every record type with a required `id: string` field (CommerceOrderRecord, ClientVoicePack, MarketingPack, ClientInquiry, …) must store that id as its own explicit column in the Convex table (e.g. orderId/packId/inquiryId) and return it as `id` from every mutation/query — never let a new Convex table go live without one just because SQLite's insert already generates an id inline. A type-cast (`as T[]`) on the Convex query result hides a missing field from tsc; the id is a React list key and a future lookup/dedupe key, so a silently-undefined id is the same class of bug as a dropped column on the SQLite side (see lead-address-persistence), just on the other backend.",
   "When commerce-buy-now-webhook-side-effect-idempotency is claimed or done and Connect/Places/scheduling stay gated, prefer commerce-pipeline-health-unpaid-owed (wire paidOutAt into computePipelineHealth so the Commerce sales card shows unpaid/owed totals matching the payout panel + digest, not lifetime gross alone) — still wiring existing helpers, not inventing a new aggregate.",
   "The static Convex API map in src/lib/db.ts is the only string→function bridge for Convex calls — every new convex/*.ts mutation/query used from db.ts must be registered there in the same commit. A defined Convex mutation that is missing from the map throws at call time, gets caught by the Convex→SQLite fallback, then list* reads Convex first — the classic silent split-brain (see commerce-mark-paid-out-convex-wiring).",
@@ -133,6 +134,7 @@ export const AGENT_PROTOCOL = [
   "bundle-price-env-readiness uses assessBundlePriceEnvReadiness (src/lib/pricing/price-env-readiness.ts) against BUNDLES + COMMERCE_ADDON env names — surface missing STRIPE_PRICE_ID_* on /dashboard + /dashboard/leads + launch-checklist, never as a pipeline-health metric card. Whitespace-only counts as missing. Does not call Stripe and does not fake-complete stripe-price-objects (ALLOW_STRIPE_BOOTSTRAP + paste envSnippet stays operator-gated). When that readiness helper is done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer commerce-payouts-unpaid-ledger-completeness (or empty-backlog sold-capability / multi-instance regression audits) over inventing optional aggregates.",
   "escapeHtmlForEmail-asymmetry audit done: src/lib/digest/daily-digest.ts's local escapeHtml() (missing the ' → &#39; escape) is gone — it now imports escapeHtmlForEmail from ../inquiries/reply like every other outbound HTML email. Do not reintroduce a second escaper for a new email surface; import escapeHtmlForEmail directly. With bundle-price-env-readiness and commerce-payouts-unpaid-ledger-completeness also done, remaining empty-backlog audit angles are Convex API map completeness (src/lib/db.ts), webhook idempotency, and untested orchestrators.",
   "Empty-backlog regression audit re-run after commerce-payouts-unpaid-ledger-completeness landed (PR #106): re-verified every escapeHtmlForEmail call site (resend.ts, marketing/voice pack delivery, commerce client receipt, contact-form route, webhook DNS handoff HTML) — still clean, no new asymmetry. Re-confirmed the static Convex API map in db.ts covers every live call path; convex/orders.ts's createOrder/getByStripeSessionId remain the two known-dead exports (superseded by leads.markLeadPaid) already reviewed and deliberately left alone by two prior iterations — do not re-litigate a third time. Traced the Commerce payouts (manual) panel's leads-client.tsx row.paidOutAt branch: looked dead at first glance because the server-fetched commerceOrders prop is now unpaid-only (listUnpaidCommerceOrders), but handleMarkCommerceOrderPaidOut optimistically patches paidOutAt into local component state on a successful Mark paid out click, so the branch is live between that click and the next full page load — not a bug, no fix needed. No new free NEXT_STEPS surface without secrets/OAuth/counsel; do not invent an aggregate to manufacture busywork.",
+  "Fulfillment-debt list completeness (fulfillment-debt-list-completeness): listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs must .collect() every row (SQLite without LIMIT; Convex sort newest-first after collect) — the old 100/200 newest .take() undercounted the same way listCommerceOrders undercounted unpaid liability. Debt helpers treat absence-from-page as missing (false Generate pack/voice debt) or can hide an unsynced catalog past the window (false all-synced → Buy now stays broken). Optional limit args are ignored for call-site compatibility. When that ships and free NEXT_STEPS are again gated, prefer unreplied-inquiry-list-completeness (dashboard unrepliedInquiryCount still feeds from listClientInquiries(20/50/100) newest page — older unreplied vanish from health/digest) or empty-backlog audits (webhook idempotency) over inventing optional aggregates.",
   "billing-portal-testable-refactor closed the last untested Stripe orchestration module (src/lib/billing/create-portal-session.ts) — it now matches the stripe-sync.ts / bootstrap-stripe-prices.ts pattern (client passed in behind a minimal structural interface; only the two call sites construct `new Stripe(secretKey)` and gate on STRIPE_SECRET_KEY). Every payment-critical lib module (checkout, webhook, deploy handoff, commerce sync, bootstrap-prices, billing portal) now has direct unit coverage — if a future empty-backlog audit is hunting for the next untested-orchestrator gap via the `find src/lib -name \"*.ts\" -not -name \"*.test.ts\" -not -name \"index.ts\"` minus `.test.ts` diff, the remaining untested files are pure type/data modules (types.ts, bundles.ts, demo-catalog.ts, seo.ts) or generator/pack modules already exercised indirectly through monthly-pack.test.ts / faq-pack.test.ts — re-scan for genuinely uncovered branches in those generators before assuming the diff itself proves a gap.",
 ] as const;
 
@@ -1041,6 +1043,29 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-j03ldn",
+  },
+  {
+    id: "fulfillment-debt-list-completeness",
+    summary:
+      "Empty-backlog audit after PR #106/#109: listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs still capped at 100/200 newest rows (Convex .take unordered) while listMarketingPacksDue / listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced treat absence-from-the-page as missing — past the window a fulfilled lead looks due (false Generate debt) and an unsynced catalog can look synced (Buy now stays broken). Same newest-page undercount class as commerce-payouts-unpaid-ledger-completeness. Shipped: uncapped .collect() + SQLite without LIMIT; newest-first sort on Convex; truncation regression tests. Queued unreplied-inquiry-list-completeness.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-4546",
+  },
+  {
+    id: "unreplied-inquiry-list-completeness",
+    summary:
+      "Empty-backlog follow-up after fulfillment-debt-list-completeness: unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unreplied section still feed from listClientInquiries(20) on /dashboard, (50) on /dashboard/leads, and (100) in sendDailyDigestAction — an unreplied inquiry older than the N newest total inquiries vanishes from Starter CRM health. Prefer listUnrepliedInquiries (status new+read, no newest-page cap) via convex/inquiries by_status + SQLite WHERE, wired into pipeline-health + digest only (capped listClientInquiries can stay for inbox UI).",
+    status: "todo",
+    phase: "Phase 6 — Client inquiry CRM",
+  },
+  {
+    id: "bundle-webhook-side-effect-recovery-on-redelivery",
+    summary:
+      "Empty-backlog audit after PR #109 (bootstrap-stripe-prices test coverage): Commerce Buy now already recovers missing inquiry/client receipt on Stripe redelivery via planCommerceWebhookSideEffects, but the bundle (Starter/Growth/Complete) webhook still early-broke on alreadyRecorded and skipped sendReceiptEmail + DNS handoff email forever — so a first delivery that recorded payment/handoff then failed before Resend permanently lost buyer receipt and go-live DNS instructions. Shipped: planBundleWebhookSideEffects + durable handoff-note sent-markers (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote) per stripeSessionId; webhook recovers only the missing email(s) on retry; marker writes after successful send fail closed (bundle_email_sent_marker 5xx). Twin of commerce-webhook-side-effect-recovery-on-redelivery.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a0bf",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2471,6 +2496,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Refactored src/lib/billing/create-portal-session.ts to take the Stripe client as a parameter behind a new StripeBillingPortalClient minimal structural interface, moved `new Stripe(secretKey)` construction + the STRIPE_SECRET_KEY-missing gate to the two call sites (openBillingPortalAction, POST /api/stripe/billing-portal), and added an 18-test fake-client suite.",
     rationale:
       "With bootstrap-stripe-prices-test-coverage done (PR #109) every remaining coded NEXT_STEPS item stayed operator/legal-gated, so this iteration re-ran the standard empty-backlog audit (escapeHtmlForEmail, Convex API map, webhook idempotency, docs-vs-code accuracy) and found those angles still clean — already covered by four prior iterations. Diffing every src/lib/*.ts file against its .test.ts sibling turned up create-portal-session.ts: the orchestration behind both the operator 'Manage billing' button and the customer self-serve billing-portal route, powering every Growth/Complete/Commerce subscriber's ability to update a card or cancel — genuinely payment-critical, and the one Stripe-object module that had not yet adopted the minimal-structural-interface pattern AGENT_PROTOCOL already mandates (and that stripe-sync.ts / bootstrap-stripe-prices.ts already follow), so it stayed untestable without mocking the entire Stripe SDK class. No behavior change to either call site's status codes, error copy, or the STRIPE_SECRET_KEY gate — verified with npm test (399 passed, +18 new), lint, build, and a dev-server smoke check of the billing-portal route's 400/501 paths plus /dashboard/leads, /dashboard, /preview/demo-cafe, /docs/process all returning 200.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs are uncapped (.collect() on Convex with newest-first sort; SQLite without LIMIT). Debt helpers that treat absence-from-page as missing/unsynced must never feed from a newest-N slice. Queued unreplied-inquiry-list-completeness next (listClientInquiries(20/50/100) undercounts unreplied CRM health).",
+    rationale:
+      "Same newest-page undercount class as commerce-payouts-unpaid-ledger-completeness (PR #106): once Growth/Complete/Commerce fulfillment volume exceeds the old 100/200 window, pipeline-health and digest invent false Generate debt for already-fulfilled leads, and an unsynced Commerce catalog past the window looks fully synced so Buy now stays broken with no Sync due signal. Convex previously used unordered .take(limit) while SQLite used ORDER BY … LIMIT — both wrong for set-membership debt checks. Optional limit args stay on the signature for call-site compatibility but are ignored. Stripe Prices / Places / Buffer OAuth / Connect remain operator/legal-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Bundle checkout.session.completed recovers missing buyer receipt + DNS handoff emails on Stripe redelivery via planBundleWebhookSideEffects and per-session deploy-handoff note markers — alreadyRecorded must not early-break past those emails. Marker writes after a successful send fail closed (bundle_email_sent_marker 5xx).",
+    rationale:
+      "Commerce Buy now already recovered missing inquiry/client receipt on redelivery (planCommerceWebhookSideEffects). The bundle path still early-broke on alreadyRecorded after idempotent payment + handoff, so a first delivery that crashed before Resend permanently lost Starter/Growth/Complete sold buyer emails (receipt + go-live DNS). Handoff notes are the durable sent-marker (already used for upsell audit trail); emails recover independently; send stays best-effort, marker write is required so retries can skip already-sent mail. Sibling prompt-process-evolution-4546 claimed fulfillment-debt-list-completeness in the same window — different surface. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -4263,5 +4302,41 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (399 passed, +18 new) + lint + build all clean; npm run dev — /dashboard/leads, /dashboard, /preview/demo-cafe, /docs/process return 200; POST /api/stripe/billing-portal returns 400 (missing sessionId) and 501 (missing STRIPE_SECRET_KEY) as expected",
     ],
     decisions: BUSINESS_DECISIONS.slice(203, 204),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-4546",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #109 (stripe-bootstrap-prices-test-coverage) — only gated secrets/OAuth/counsel remained. Empty-backlog audit found listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs still capped at 100/200 newest (Convex unordered .take) while debt helpers treat absence-from-page as missing/unsynced — same undercount class as unpaid Commerce ledger. Shipped uncapped collect + truncation regression tests; queued unreplied-inquiry-list-completeness. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "convex/marketingPacks.ts listByMonth — .collect() all rows for month + newest-first sort (limit arg ignored)",
+      "convex/clientVoicePacks.ts list — .collect() all + newest-first sort (limit arg ignored)",
+      "convex/commerceCatalogs.ts list — .collect() all + newest-first sort (limit arg ignored)",
+      "src/lib/db.ts — listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs uncapped (SQLite without LIMIT)",
+      "Vitest truncation regressions — monthly-pack / faq-pack / catalog (false due + hidden unsynced)",
+      "NEXT_STEPS: fulfillment-debt-list-completeness done; queued unreplied-inquiry-list-completeness",
+      "AGENT_PROTOCOL — fulfillment-debt pack/catalog lists must be uncapped; prefer unreplied-inquiry completeness next",
+      "BUSINESS_DECISIONS — documented newest-page undercount for packs/catalogs debt helpers",
+      "Verified on sibling branch before fold into a0bf",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(204, 205),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-a0bf",
+    summary:
+      "Empty-backlog audit after PR #109: Commerce Buy now already recovers missing inquiry/client receipt on Stripe redelivery, but the bundle webhook still early-broke on alreadyRecorded and permanently skipped buyer receipt + DNS handoff emails after durable payment/handoff. Sibling prompt-process-evolution-4546 claimed fulfillment-debt-list-completeness (different surface) — folded into this PR. Shipped planBundleWebhookSideEffects + per-session handoff-note sent-markers; webhook recovers only missing emails; marker writes fail closed. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/payments/bundle-side-effect-recovery.ts (+ test) — planBundleWebhookSideEffects + receipt/DNS sent-note helpers",
+      "src/app/api/stripe/webhook/route.ts — remove alreadyRecorded early-break past emails; recover missing receipt/DNS; append markers after successful send",
+      "src/lib/payments/webhook-fulfillment.ts (+ test) — new WebhookFulfillmentStep bundle_email_sent_marker",
+      "Docs: architecture / roadmap / launch-checklist — bundle email recovery on redelivery",
+      "NEXT_STEPS: bundle-webhook-side-effect-recovery-on-redelivery done",
+      "AGENT_PROTOCOL — bundle alreadyRecorded must not skip receipt/DNS; recover via handoff-note markers",
+      "BUSINESS_DECISIONS — documented bundle/commerce side-effect recovery parity",
+      "merge: folded origin/cursor/prompt-process-evolution-4546 (fulfillment-debt-list-completeness) — both ITERATIONS kept",
+      "Verified: npm test (396 passed after 4546 fold) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(205, 206),
   },
 ];

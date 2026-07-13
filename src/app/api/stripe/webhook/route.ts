@@ -11,6 +11,9 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
  * Required fulfillment writes (bundle payment + handoff, commerce ledger)
  * must succeed or return 5xx so Stripe retries. Email/notify is best-effort
  * after durable writes — do not ACK 200 after swallowing ledger failures.
+ * Bundle receipt/DNS emails recover on redelivery via handoff-note sent-markers
+ * (planBundleWebhookSideEffects); marker writes after a successful send are
+ * required (5xx) so retries can skip already-sent mail.
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -289,46 +292,112 @@ export async function POST(request: Request) {
           return NextResponse.json(failure.body, { status: failure.status });
         }
 
-        if (alreadyRecorded) {
-          // Stripe redelivered a checkout.session.completed we already
-          // processed (retry/timeout) — the order row is idempotent on
-          // stripeSessionId, and the handoff above is too, but the
-          // receipt/DNS emails below are not, so skip them rather than
-          // spamming the customer a second time.
+        // alreadyRecorded must NOT early-break past buyer emails: if the first
+        // delivery recorded payment/handoff then failed before Resend, Stripe
+        // retries must still recover receipt + DNS handoff emails. Durable
+        // sent-markers live on handoff.notes (per stripeSessionId) — twin of
+        // planCommerceWebhookSideEffects for Commerce Buy now.
+        const {
+          planBundleWebhookSideEffects,
+          bundleReceiptEmailSentNote,
+          bundleDnsHandoffEmailSentNote,
+        } = await import("@/lib/payments/bundle-side-effect-recovery");
+        const { updateDeployHandoffStatus } = await import("@/lib/db");
+
+        let handoffNotes = handoff.notes;
+        const sideEffects = planBundleWebhookSideEffects({
+          alreadyRecorded,
+          handoffNotes,
+          stripeSessionId: session.id,
+          hasCustomerEmail: Boolean(customerEmail),
+        });
+
+        if (!sideEffects.runReceiptEmail && !sideEffects.runDnsHandoffEmail) {
           console.log(
-            `Payment for ${slug} (${session.id}) already recorded — skipping duplicate emails (handoff ensured)`,
+            `Payment for ${slug} (${session.id}) ${sideEffects.reason} — skipping duplicate emails (handoff ensured)`,
           );
           break;
         }
-        console.log(`Payment successfully recorded in SQLite for lead ${slug}`);
 
-        // Trigger receipt email — best-effort after durable fulfillment.
+        if (sideEffects.reason === "redelivery_recovery") {
+          console.log(
+            `Payment for ${slug} (${session.id}) already recorded — recovering missing receipt/DNS email(s)`,
+          );
+        } else if (!alreadyRecorded) {
+          console.log(`Payment successfully recorded for lead ${slug}`);
+        }
+
+        // Receipt / DNS emails — best-effort send; durable note marker after
+        // each successful send so redelivery can skip only what already went out.
+        // Marker write failure returns 5xx so Stripe retries (accept one possible
+        // duplicate rather than unbounded re-sends with no marker).
         try {
-          const { sendReceiptEmail } = await import("@/lib/email/resend");
+          const { sendReceiptEmail, sendEmail } = await import("@/lib/email/resend");
           const { formatDnsInstructionsForEmail } = await import("@/lib/deploy/handoff");
+          const { brand } = await import("@/lib/brand");
+          const { escapeHtmlForEmail } = await import("@/lib/inquiries/reply");
 
-          if (customerEmail) {
-            await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+          if (sideEffects.runReceiptEmail && customerEmail) {
+            try {
+              await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+              try {
+                const updated = await updateDeployHandoffStatus(
+                  slug,
+                  handoff.status,
+                  [bundleReceiptEmailSentNote(session.id)],
+                  WEBHOOK_CONVEX_PRIMARY,
+                );
+                if (updated) {
+                  handoffNotes = updated.notes;
+                  handoff = updated;
+                }
+              } catch (markerError) {
+                console.error(
+                  `Failed to record bundle receipt sent-marker for ${slug}`,
+                  markerError,
+                );
+                const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
+                return NextResponse.json(failure.body, { status: failure.status });
+              }
+            } catch (emailError) {
+              console.error(`Failed to send receipt email for ${slug}:`, emailError);
+            }
           }
 
-          if (customerEmail) {
-            const { sendEmail } = await import("@/lib/email/resend");
-            const { brand } = await import("@/lib/brand");
-            const { escapeHtmlForEmail } = await import("@/lib/inquiries/reply");
-            const safeBiz = escapeHtmlForEmail(businessName);
-            const safeBrand = escapeHtmlForEmail(brand.name);
-            await sendEmail({
-              to: customerEmail,
-              subject: `Next steps: go live with ${businessName} — ${brand.name}`,
-              leadSlug: slug,
-              html: `
+          if (sideEffects.runDnsHandoffEmail && customerEmail) {
+            try {
+              const safeBiz = escapeHtmlForEmail(businessName);
+              const safeBrand = escapeHtmlForEmail(brand.name);
+              await sendEmail({
+                to: customerEmail,
+                subject: `Next steps: go live with ${businessName} — ${brand.name}`,
+                leadSlug: slug,
+                html: `
                 <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
                 <p style="margin-bottom: 16px;">Payment received for <strong>${safeBiz}</strong>. Here is your production handoff:</p>
                 ${formatDnsInstructionsForEmail(handoff)}
                 <p style="margin-bottom: 8px;">Reply to this email if you want us to finish DNS for you.</p>
                 <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
               `,
-            });
+              });
+              try {
+                await updateDeployHandoffStatus(
+                  slug,
+                  handoff.status,
+                  [bundleDnsHandoffEmailSentNote(session.id)],
+                  WEBHOOK_CONVEX_PRIMARY,
+                );
+              } catch (markerError) {
+                console.error(
+                  `Failed to record bundle DNS handoff sent-marker for ${slug}`,
+                  markerError,
+                );
+                const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
+                return NextResponse.json(failure.body, { status: failure.status });
+              }
+            } catch (emailError) {
+              console.error(`Failed to send DNS handoff email for ${slug}:`, emailError);
+            }
           }
         } catch (emailError) {
           console.error(`Failed to send receipt/DNS emails for ${slug}:`, emailError);

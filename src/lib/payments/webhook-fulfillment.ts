@@ -10,7 +10,13 @@ export type WebhookFulfillmentStep =
   /** Operator inquiry after a durable commerce ledger write — required for Stripe retry / side-effect recovery. */
   | "commerce_order_inquiry"
   /** Marking a checkout_sessions row complete — required so abandoned-checkout due queues stop targeting a paid session. */
-  | "checkout_session_mark_complete";
+  | "checkout_session_mark_complete"
+  /**
+   * Durable handoff-note marker after a successful bundle buyer receipt / DNS
+   * email — required so Stripe retries rather than leaving recovery unable to
+   * see that the email already went out (duplicate risk on every redelivery).
+   */
+  | "bundle_email_sent_marker";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

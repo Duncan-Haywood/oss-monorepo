@@ -130,7 +130,8 @@ export default function LaunchChecklistDocPage() {
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
           follow-ups due, abandoned-checkout recoveries, unreplied inquiries, marketing packs
-          due (Growth/Complete missing this UTC month), Starter → MRR upsell candidates, and
+          due (Growth/Complete missing this UTC month — from an uncapped pack list, not a
+          newest-N page), Starter → MRR upsell candidates, and
           Complete voice packs due all show up in one email (or the mock log) — plus a
           snoozed-lead footnote (count + soonest return) when any lead is parked off Work next.
           The operator should not need to open the dashboard to know what is urgent today.
@@ -178,7 +179,9 @@ export default function LaunchChecklistDocPage() {
           After a test payment, a deploy handoff appears on the leads dashboard (Convex when
           configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
           Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
-          handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
+          handoff row still exists (idempotent enqueue). Receipt/DNS emails re-send only when
+          the handoff notes lack a per-session sent-marker (recovery after a partial first
+          delivery); once markers are present they are not resent.
           If you save a custom domain (or dedicated Vercel project) then complete a second
           checkout for the same slug (upsell), confirm those operator fields survive the handoff
           rebuild — and if you already <strong>Mark live</strong>&apos;d, confirm status stays{" "}

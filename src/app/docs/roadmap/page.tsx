@@ -196,7 +196,9 @@ export default function RoadmapDocPage() {
         Post-payment handoff: shipped — webhook always enqueues DNS instructions + contact form
         endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), including on Stripe
         redelivery after a partial first attempt (<code>bundle-webhook-handoff-on-redelivery</code>
-        — <code>alreadyRecorded</code> skips receipt/DNS emails only). Required fulfillment write
+        + <code>bundle-webhook-side-effect-recovery-on-redelivery</code> —{" "}
+        <code>alreadyRecorded</code> still enqueues handoff; receipt/DNS emails recover when
+        handoff notes lack a per-session sent-marker). Required fulfillment write
         failures return <code>500</code> so Stripe retries (
         <code>stripe-webhook-retry-on-fulfillment-failure</code>); with Convex configured, webhook
         writes pass <code>requireConvex</code> (
@@ -234,9 +236,11 @@ export default function RoadmapDocPage() {
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
         Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
-        surface on pipeline health + daily digest; Starter upsell candidates also appear in the
-        digest. Closed-leads funnel footnote: shipped (<code>closedLeadCount</code> on pipeline
-        health — see <DocLink href="/docs/process">process log</DocLink>).
+        surface on pipeline health + daily digest from an uncapped{" "}
+        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter upsell candidates
+        also appear in the digest. Closed-leads funnel footnote: shipped (
+        <code>closedLeadCount</code> on pipeline health — see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>

@@ -106,6 +106,38 @@ describe("listMarketingPacksDue", () => {
       ),
     ).toBe(false);
   });
+
+  it("truncating packs to newest N invents false due for an older fulfilled lead", () => {
+    const fulfilledOld = baseLead({ slug: "old-fulfilled", stage: "paid" });
+    const filler = Array.from({ length: 5 }, (_, i) =>
+      baseLead({ slug: `filler-${i}`, stage: "paid" }),
+    );
+    const orders = [
+      { leadSlug: "old-fulfilled", tier: "growth" as const },
+      ...filler.map((l) => ({ leadSlug: l.slug, tier: "growth" as const })),
+    ];
+    const fullPacks = [
+      { leadSlug: "old-fulfilled", yearMonth: month },
+      ...filler.map((l) => ({ leadSlug: l.slug, yearMonth: month })),
+    ];
+    // Simulate listMarketingPacksForMonth's old 100/200 newest cap dropping the
+    // older fulfilled row while filler packs remain.
+    const truncatedPacks = fullPacks.filter((p) => p.leadSlug !== "old-fulfilled");
+
+    expect(
+      listMarketingPacksDue([fulfilledOld, ...filler], orders, fullPacks, month).map(
+        (l) => l.slug,
+      ),
+    ).toEqual([]);
+    expect(
+      listMarketingPacksDue(
+        [fulfilledOld, ...filler],
+        orders,
+        truncatedPacks,
+        month,
+      ).map((l) => l.slug),
+    ).toEqual(["old-fulfilled"]);
+  });
 });
 
 describe("MONTHLY_MARKETING_PACK_TYPES", () => {
