@@ -1255,6 +1255,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-8134",
   },
+  {
+    id: "demo-catalog-unit-coverage",
+    summary:
+      "Empty-backlog after PR #131 (brand-helpers + pricing-bundles) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. src/lib/leads/demo-catalog.ts backs /preview/[slug] fallback rendering (resolvePreviewLead category inference + recommendedTier) and DEMO_LEADS seed data for operator sanity-checks; had zero direct tests. Claimed for Vitest locking catalog slug lookup, restaurant/salon/trades/generic keyword inference, title-case businessName, and countLeadsByStage. Sibling-friendly leftover: category-themes-unit-coverage (src/lib/previews/themes.ts).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-cae5",
+  },
+  {
+    id: "category-themes-unit-coverage",
+    summary:
+      "Sibling twin of demo-catalog-unit-coverage: src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) drives category-specific preview shells for restaurant/salon/trades/generic — sold Starter capability with no direct Vitest yet. Prefer claiming this when demo-catalog is already owned in the same cron window.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
