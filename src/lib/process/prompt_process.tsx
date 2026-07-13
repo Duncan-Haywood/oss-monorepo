@@ -166,6 +166,7 @@ export const AGENT_PROTOCOL = [
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When contact-form-route-orchestration-test-coverage and unsubscribe-route-orchestration-test-coverage are both free in the same cron window, claim different ones (Starter contact CRM persist-then-notify vs CAN-SPAM suppress fail-closed) — they touch different route files. Existing HTML-escape-only route tests are not enough; lock CONTACT_FORM_CONVEX_PRIMARY / UNSUBSCRIBE_CONVEX_PRIMARY pass-through, persist-required 503/500, and validation. When a sibling claims stripe-bootstrap-dashboard-action (operator-visible Price bootstrap), prefer these public-route orchestration suites over inventing optional aggregates.",
+  "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) or fold sibling stripe-bootstrap-dashboard-action if it lands — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1277,8 +1278,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "contact-form-route-orchestration-test-coverage",
     summary:
-      "Empty-backlog after PR #133 — only gated secrets/OAuth/counsel remain. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). POST /api/contact/[slug] had only HTML-escape route coverage; contact-persist.test.ts does not exercise route orchestration (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation). Ship route-level Vitest locking the Starter contact form + CRM trail. Sibling-friendly twin: unsubscribe-route-orchestration-test-coverage.",
-    status: "in_progress",
+      "Empty-backlog after PR #133 — only gated secrets/OAuth/counsel remain. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). POST /api/contact/[slug] had only HTML-escape route coverage; contact-persist.test.ts does not exercise route orchestration (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation). Shipped: route-level Vitest locking Convex-primary pass-through, 400 validation, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure, form-urlencoded, and HTML escape. Sibling-friendly twin: unsubscribe-route-orchestration-test-coverage.",
+    status: "done",
     phase: "Phase 5 — Client sites + handoff",
     owner: "cursor/prompt-process-evolution-cb7f",
   },
@@ -2886,6 +2887,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
     rationale:
       "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "POST /api/contact/[slug] gets full route-orchestration Vitest (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation, form-urlencoded) beyond the prior HTML-escape-only suite and contact-persist helper tests — locks the Starter sold contact form + durable CRM trail.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX — highest revenue unlock while Prices stay gated). Parallel empty-backlog: the contact route's multi-instance fail-closed contract lived only in contact-persist.test.ts + one HTML-escape route test, so a future soft-fallback or notify-before-persist regression would not fail Vitest. Route orchestration coverage mirrors preview-open / Stripe route suites. Leave unsubscribe-route-orchestration-test-coverage free for a sibling. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -5054,5 +5062,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(228, 229),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-cb7f",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). This branch claimed contact-form-route-orchestration-test-coverage — POST /api/contact/[slug] had only HTML-escape route coverage while contact-persist.test.ts covered helpers in isolation. Shipped route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY, persist-required 503, notify-only-after-persist, validation, and form-urlencoded. Left unsubscribe twin free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.test.ts — route orchestration (CONTACT_FORM_CONVEX_PRIMARY, invalid-slug / empty-body 400s, persist-required 503 for missing inquiryId + ConvexPrimaryWriteError, notify skipped on persist fail, best-effort notify failure after durable row, form-urlencoded → lead email, GET contract) plus existing HTML-escape regression",
+      "Docs: architecture — note route-level Vitest for POST /api/contact/[slug] beyond contact-persist helpers",
+      "NEXT_STEPS: contact-form-route-orchestration-test-coverage done; unsubscribe-route-orchestration-test-coverage queued as sibling twin",
+      "AGENT_PROTOCOL — claim contact vs unsubscribe route orchestration separately; helper suites are not enough for route wiring",
+      "BUSINESS_DECISIONS — documented why Starter contact CRM trail needs route orchestration coverage",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(229, 230),
   },
 ];
