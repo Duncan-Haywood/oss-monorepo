@@ -1381,8 +1381,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "anthropic-env-readiness",
     summary:
       "Later empty-backlog twin: Growth/Complete marketing + Complete voice packs silently fall back to Stub* generators when ANTHROPIC_API_KEY is missing/placeholder — operators get no dashboard signal that sold AI copy is stub quality. Prefer when bootstrap-action + checkout-recovery action suites are claimed/done; do not fake-complete gated secrets.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-849c",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
