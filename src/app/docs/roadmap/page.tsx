@@ -87,7 +87,10 @@ export default function RoadmapDocPage() {
         Resend outreach + receipt emails, CAN-SPAM templates, and Convex-first suppression list
         (SQLite fallback for operator reads; public <code>GET /api/unsubscribe</code> uses{" "}
         <code>requireConvex</code> so a multi-instance deploy cannot claim unsubscribe success
-        after a SQLite-only write): shipped.
+        after a SQLite-only write): shipped. Until <code>RESEND_API_KEY</code> is a
+        non-placeholder secret, <code>assessResendEmailEnvReadiness</code> shows a sky
+        outreach-blocked banner on the operator dashboard (mirrors Stripe core readiness —
+        silent mock sends otherwise look like success).
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
         1/2/3 send durably marks the step before calling Resend, and with Convex configured

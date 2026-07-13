@@ -17,10 +17,12 @@ import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
+import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
+import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -108,6 +110,7 @@ export default async function LeadsPage() {
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
+  const resendEnv = assessResendEmailEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -130,6 +133,7 @@ export default async function LeadsPage() {
           readiness={priceEnv}
           bootstrapAllowed={bootstrapAllowed}
         />
+        <ResendEnvBanner readiness={resendEnv} />
       </div>
 
       <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200 pb-5">

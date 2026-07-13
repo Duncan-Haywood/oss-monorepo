@@ -109,6 +109,16 @@ export default function ArchitectureDocPage() {
       <h2>4. Outreach (automated)</h2>
       <p>Email primary; optional outbound voice; inbound callback routes to platform voice agent.</p>
       <p>
+        Until <code>RESEND_API_KEY</code> is a non-placeholder secret,{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a sky outreach-blocked
+        banner via <code>assessResendEmailEnvReadiness</code> (
+        <code>src/lib/email/resend-env-readiness.ts</code>) — missing / whitespace-only /{" "}
+        <code>re_placeholder…</code> / <code>re_...</code> match <code>sendEmail</code>&apos;s
+        mock gate so operators cannot mistake silent mock success for real delivery. Distinct from
+        Stripe core / Price-ID banners.
+      </p>
+      <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
         Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
         <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression

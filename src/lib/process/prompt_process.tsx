@@ -175,6 +175,7 @@ export const AGENT_PROTOCOL = [
   "unsubscribe-get-rate-limiting done: GET /api/unsubscribe now checks checkRateLimit(`unsubscribe:${clientIp}`) BEFORE token verify and returns 429 + Retry-After on exceed — completes the public-write throttle set (four POSTs from PR #138 + this CAN-SPAM GET). Token signing still blocks forged suppressions; the rate limit blunts harvested-footer-link hammering and unbounded HMAC/suppressEmail work. Folded with stripe-core-env-readiness (e756). When free NEXT_STEPS are gated again, prefer proxy-routing-test-coverage or resend-email-env-readiness (operator-visible banner when RESEND_API_KEY is missing/placeholder — silent mock sends block outreach conversion) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "stripe-core-env-readiness done: assessStripeCoreEnvReadiness (src/lib/pricing/stripe-core-env-readiness.ts) + StripeCoreEnvBanner on /dashboard + /dashboard/leads. Surfaces missing STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET (whitespace-only = missing). Distinct from assessBundlePriceEnvReadiness (Price IDs) — show both when both gap. Missing webhook secret is the worst case (checkout can succeed while CRM/handoff never records). Env presence only — does not validate key format, does not call Stripe, does not fake-complete stripe-price-objects. When free NEXT_STEPS stay gated, prefer proxy-routing-test-coverage or resend-email-env-readiness over inventing optional aggregates.",
   "When proxy-routing-test-coverage and resend-email-env-readiness are both free in the same cron window, claim different ones (proxy Host rewrite orchestration vs Resend key readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "resend-email-env-readiness done: assessResendEmailEnvReadiness (src/lib/email/resend-env-readiness.ts) + ResendEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / re_placeholder* / re_... RESEND_API_KEY (matches sendEmail mock gate). Distinct from Stripe core / Price-ID banners. Env presence only — does not call Resend. When free NEXT_STEPS stay gated, prefer stripe-bootstrap-dashboard-action-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1342,8 +1343,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "resend-email-env-readiness",
     summary:
-      "Empty-backlog after PR #140 (unsubscribe-get-rate-limiting + stripe-core-env-readiness). Stripe banners cover payment secrets, but operators still get no early dashboard signal when RESEND_API_KEY is missing or a placeholder — every outreach / receipt / recovery / pack / digest path silently mock-sends. Shipped: assessResendEmailEnvReadiness + ResendEnvBanner on /dashboard + /dashboard/leads. Sibling cbbe owns proxy-routing-test-coverage.",
-    status: "in_progress",
+      "Empty-backlog after PR #140 (unsubscribe-get-rate-limiting + stripe-core-env-readiness). Stripe banners cover payment secrets, but operators still get no early dashboard signal when RESEND_API_KEY is missing or a placeholder — every outreach / receipt / recovery / pack / digest path silently mock-sends. Shipped: assessResendEmailEnvReadiness + ResendEnvBanner on /dashboard + /dashboard/leads + launch-checklist/architecture/roadmap notes. Sibling cbbe owns proxy-routing-test-coverage.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-efe4",
   },
@@ -3000,6 +3001,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Dashboard shows an amber StripeCoreEnvBanner (assessStripeCoreEnvReadiness) when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing or whitespace-only — distinct from the rose BundlePriceEnvBanner for STRIPE_PRICE_ID_*.",
     rationale:
       "Empty-backlog after PR #138: Price-ID readiness already shipped, but operators still had no early signal for the secrets that actually gate checkout create (STRIPE_SECRET_KEY → 501) and fulfillment (STRIPE_WEBHOOK_SECRET → webhook 501 while Stripe can still charge — silent CRM/handoff failure). Sibling prompt-process-evolution-6d42 claimed unsubscribe-get-rate-limiting in the same window; this branch took the complementary operator-visible revenue unlock. Env presence only — does not validate key format, does not call Stripe, and does not fake-complete stripe-price-objects. Launch-checklist / architecture / roadmap document both banners.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Dashboard shows a sky ResendEnvBanner (assessResendEmailEnvReadiness) when RESEND_API_KEY is missing, whitespace-only, or a documented placeholder (re_placeholder* / re_...) — matching sendEmail's silent mock gate.",
+    rationale:
+      "Empty-backlog after PR #140: Stripe core + Price-ID banners already cover payment secrets, but operators still discovered a missing Resend key only after clicking send (mock log looks like success). Every conversion email (outreach 1–3, receipts, abandoned-cart recovery, pack delivery, Starter upsell, digest) funnels through sendEmail — silent mock mode blocks top-of-funnel growth while looking healthy. Sibling business-process-evolution-cbbe claimed proxy-routing-test-coverage; this branch took the complementary operator-visible outreach unlock. Env presence / placeholder detection only — does not call Resend. Do not fake-complete gated NEXT_STEPS.",
   },
 ];
 
@@ -5289,5 +5297,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(235, 236),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-efe4",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #140 (unsubscribe-get-rate-limiting + stripe-core-env-readiness). Sibling business-process-evolution-cbbe claimed proxy-routing-test-coverage (src/proxy.ts Host→preview Vitest). This branch claimed resend-email-env-readiness: Stripe banners cover payment secrets, but operators still had no early signal when RESEND_API_KEY was missing or a placeholder — every automated send silently mock-logs success.",
+    shipped: [
+      "src/lib/email/resend-env-readiness.ts + resend-env-readiness.test.ts — assessResendEmailEnvReadiness (whitespace-only / re_placeholder* / re_... = not ready; matches sendEmail mock gate)",
+      "src/components/dashboard/resend-env-banner.tsx — sky outreach-blocked banner",
+      "src/app/dashboard/page.tsx + leads/page.tsx — ResendEnvBanner below Stripe banners",
+      "Docs: launch-checklist + architecture + roadmap note the Resend readiness banner",
+      "NEXT_STEPS: resend-email-env-readiness done",
+      "AGENT_PROTOCOL — claim proxy-routing vs resend-email-env separately; prefer bootstrap-dashboard-action tests next if free",
+      "BUSINESS_DECISIONS — documented why Stripe readiness alone left outreach conversion blind",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(236, 237),
   },
 ];

@@ -92,7 +92,14 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Set <code>RESEND_API_KEY</code>, <code>EMAIL_FROM</code>, and a real{" "}
-          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> (CAN-SPAM).
+          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> (CAN-SPAM). Until{" "}
+          <code>RESEND_API_KEY</code> is a non-placeholder secret,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a sky
+          outreach-blocked banner via <code>assessResendEmailEnvReadiness</code> — missing or{" "}
+          <code>re_placeholder…</code> keys leave every automated send in silent mock mode
+          (operators see success while no inbox is reached). Distinct from the Stripe core /
+          Price-ID banners.
         </li>
         <li>Configure SPF / DKIM / DMARC on the sending domain.</li>
         <li>
