@@ -107,8 +107,13 @@ describe("POST /api/marketing/generate", () => {
 
   it("returns 400 when leadId is missing", async () => {
     const { POST } = await import("./route");
-    const { leadId: _leadId, ...rest } = validBody;
-    const res = await POST(generateRequest(rest));
+    const res = await POST(
+      generateRequest({
+        contentTypes: validBody.contentTypes,
+        automationLevel: validBody.automationLevel,
+        business: validBody.business,
+      }),
+    );
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "leadId is required" });
   });
