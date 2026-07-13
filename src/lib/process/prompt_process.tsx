@@ -1033,6 +1033,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/quirky-davinci-b0l1eb",
   },
+  {
+    id: "bundle-webhook-side-effect-recovery-on-redelivery",
+    summary:
+      "Empty-backlog audit after PR #109 (bootstrap-stripe-prices test coverage): Commerce Buy now already recovers missing inquiry/client receipt on Stripe redelivery via planCommerceWebhookSideEffects, but the bundle (Starter/Growth/Complete) webhook still early-breaks on alreadyRecorded and skips sendReceiptEmail + DNS handoff email forever — so a first delivery that recorded payment/handoff then failed before Resend permanently loses buyer receipt and go-live DNS instructions. Mirror the commerce recovery pattern: durable sent-markers on deploy-handoff notes (per stripeSessionId), planBundleWebhookSideEffects recovers only the missing email(s) on retry, append markers after successful send.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a0bf",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
