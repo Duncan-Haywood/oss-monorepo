@@ -250,7 +250,10 @@ export default function ArchitectureDocPage() {
         Operator free-text <code>notes</code> on each lead capture call
         outcomes from the dashboard row expander (not shown on client preview sites). Moving a
         lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
-        soft prompt (Skip dismisses without undoing the stage/email change). Optional{" "}
+        soft prompt (Skip dismisses without undoing the stage/email change). When Convex is
+        configured, the notes write passes <code>requireConvex</code> (
+        <code>LEAD_NOTES_CONVEX_PRIMARY</code>) so Save cannot claim success after a SQLite-only
+        write that other instances never see. Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
         the quality score visible — Unsnooze clears it; parked count also appears on pipeline
         health and as a footnote on the operator daily digest (count + soonest return) so
@@ -271,7 +274,11 @@ export default function ArchitectureDocPage() {
         &quot;Also send Email 1&quot; checkbox is checked, moves straight to{" "}
         <code>outreach_sent</code> and sends Email 1 in the same action;{" "}
         <strong>Close</strong> sets the terminal <code>closed</code> stage (keeps outreach
-        history, drops off Work next and cold counts). Every Email 1/2/3 send is{" "}
+        history, drops off Work next and cold counts). When Convex is configured, the
+        disposition write itself passes <code>requireConvex</code> (
+        <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) so Re-engage/Close cannot claim success
+        after a SQLite-only write that leaves cold inventory looking open (or still cold) on
+        other instances. Every Email 1/2/3 send is{" "}
         <em>persist-then-notify</em>: <code>recordLeadOutreach</code> durably marks{" "}
         <code>outreachStep</code>/<code>lastOutreachAt</code> before the Resend call, and when
         Convex is configured it passes <code>requireConvex</code> (
