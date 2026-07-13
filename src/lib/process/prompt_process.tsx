@@ -1001,8 +1001,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-stage-convex-primary",
     summary:
       "Empty-backlog follow-up after lead-upsert-convex-primary: updateLeadStageAction still soft-falls-back on Convex failure while getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first — manual stage moves (and the outreach_sent path's mixed soft-stage + fail-closed outreach mark) can leave funnel state or stage/outreachStep desynced across instances. Prefer requireConvex fail-closed on updateLeadStageAction (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-0b63",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
