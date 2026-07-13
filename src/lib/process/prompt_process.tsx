@@ -156,6 +156,7 @@ export const AGENT_PROTOCOL = [
   "stripe-checkout-route-test-coverage done: src/app/api/stripe/checkout/route.ts has route-level Vitest (config/tier/Price-env guards, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s). Helper suites (organic-attribution, session-persist) are not enough for the route orchestration. When free NEXT_STEPS are gated again, prefer commerce-checkout-route-test-coverage (sibling-friendly Buy now twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "commerce-checkout-route-test-coverage done: src/app/api/commerce/checkout/route.ts has route-level Vitest locking server-resolved stripePriceId (client price/stripePriceId ignored), unsynced-SKU 501, kind=commerce_sku + skuId tracking, and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed 502s. Twin of stripe-checkout-route-test-coverage. When both create-side suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer billing-portal-route-test-coverage (POST /api/stripe/billing-portal — customer self-serve; create-portal-session helper suite is not enough for route JSON/secret/returnUrl wiring) or bootstrap-prices-route-test-coverage (ALLOW_STRIPE_BOOTSTRAP gate + envSnippet; sibling-friendly, different module) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When billing-portal-route-test-coverage and bootstrap-prices-route-test-coverage are both free in the same cron window, claim different ones (customer self-serve portal vs operator Price bootstrap) — they touch different route files and both lock Stripe route orchestration the lib helper suites do not cover.",
+  "billing-portal-route-test-coverage done (claude/relaxed-galileo-gks8ei / PR #127): src/app/api/stripe/billing-portal/route.ts has route-level Vitest (Invalid JSON / missing sessionId 400s, STRIPE_SECRET_KEY 501, default returnUrl from NEXT_PUBLIC_APP_URL or request origin, explicit returnUrl trim, incomplete/Starter/no-customer passthrough, missing-url + Stripe-throw 502s). create-portal-session helper suite is not enough for the route wiring. Later dual-claim on business-process-evolution-df21 pivoted to marketing-generate-route-test-coverage; bootstrap-prices-route-test-coverage stays with prompt-process-evolution-aaf5. Do not invent optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1211,17 +1212,26 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "billing-portal-route-test-coverage",
     summary:
-      "Empty-backlog after PR #126 (commerce-checkout-route-test-coverage): POST /api/stripe/billing-portal is the customer self-serve Manage-subscription path (sessionId-only; leadSlug stays operator-auth). create-portal-session.test.ts covers the lib helper, but the route's Invalid JSON / missing sessionId / STRIPE_SECRET_KEY 501 / default returnUrl / result.status passthrough had zero direct tests. Claimed for route-level Vitest. Sibling-friendly twin: bootstrap-prices-route-test-coverage.",
-    status: "in_progress",
+      "Empty-backlog after PR #126 (commerce-checkout-route-test-coverage): POST /api/stripe/billing-portal is the customer self-serve Manage-subscription path (sessionId-only; leadSlug stays operator-auth). create-portal-session.test.ts covers the lib helper, but the route's Invalid JSON / missing sessionId / STRIPE_SECRET_KEY 501 / default returnUrl / result.status passthrough had zero direct tests. Shipped by claude/relaxed-galileo-gks8ei (PR #127) — earlier feature body owns per AGENT_PROTOCOL; this branch pivoted after a later dual-claim.",
+    status: "done",
     phase: "Phase 3 — Payments",
-    owner: "cursor/business-process-evolution-df21",
+    owner: "claude/relaxed-galileo-gks8ei",
   },
   {
     id: "bootstrap-prices-route-test-coverage",
     summary:
-      "Sibling twin of billing-portal-route-test-coverage: POST /api/stripe/bootstrap-prices gates on ALLOW_STRIPE_BOOTSTRAP=1 (403 when unset), requires STRIPE_SECRET_KEY (501), returns envSnippet on success, and 502s on Stripe throw. bootstrap-stripe-prices + list-all-pages already have lib coverage — this locks the route's opt-in gate + response shape an operator copies into secrets. Free for the parallel hourly automation.",
-    status: "todo",
+      "Sibling twin of billing-portal-route-test-coverage: POST /api/stripe/bootstrap-prices gates on ALLOW_STRIPE_BOOTSTRAP=1 (403 when unset), requires STRIPE_SECRET_KEY (501), returns envSnippet on success, and 502s on Stripe throw. bootstrap-stripe-prices + list-all-pages already have lib coverage — this locks the route's opt-in gate + response shape an operator copies into secrets.",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-aaf5",
+  },
+  {
+    id: "marketing-generate-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #126 + billing-portal claimed by gks8ei (PR #127) + bootstrap-prices claimed by aaf5: POST /api/marketing/generate is the operator-authenticated ad-hoc marketing generation route (prefer generateMarketingPackAction for persisted packs). Auth 401 / JSON + contentTypes + automationLevel + business validation / stub-vs-LLM response shape had zero direct route tests — generators.test.ts covers the LLM path, not the route gates. Claimed for route-level Vitest.",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-df21",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2778,6 +2788,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/commerce/checkout/route.ts (Commerce Buy now Checkout Session create) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db — catalog lookup + CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY stay real so the test exercises create-path orchestration, including the server-resolved price invariant (client-submitted price/stripePriceId must never reach Stripe).",
     rationale:
       "Same-minute dual claim with business-process-evolution-f32f on stripe-checkout-route-test-coverage: earlier remote claim owned the bundle route, so this branch pivoted to the Commerce Buy now twin. Buy now is the Commerce sold-capability money path — a regression that trusts a client price undercharges the local business, and a SQLite-only tracking write after handing out a Stripe URL permanently drops abandoned Buy now recovery on other instances. Helper suites do not cover those route invariants. Folded sibling stripe-checkout ITERATION into this PR so both create-side suites land together. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/stripe/billing-portal/route.ts (customer self-serve Billing Portal from a completed Checkout Session) gets its own route-level Vitest suite, mocking only the Stripe SDK — createBillingPortalForCheckoutSession runs for real so the test exercises route JSON/secret/returnUrl wiring and result.status passthrough, not a restatement of mocks.",
+    rationale:
+      "After PR #126 closed both create-side Checkout suites, the customer self-serve Manage-subscription route still had zero direct tests — create-portal-session.test.ts covered the lib helper, but Invalid JSON / missing sessionId / STRIPE_SECRET_KEY 501 / default returnUrl from NEXT_PUBLIC_APP_URL vs request origin / explicit returnUrl trim / status passthrough live only in the route. Untested route wiring is the same class of gap the checkout suites just closed. Shipped by claude/relaxed-galileo-gks8ei (PR #127); a later dual-claim on business-process-evolution-df21 pivoted per AGENT_PROTOCOL. Sibling prompt-process-evolution-aaf5 claimed bootstrap-prices-route-test-coverage in the same window. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4835,5 +4852,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(221, 222),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-df21",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #126 (commerce + stripe checkout route coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Claimed billing-portal-route-test-coverage; sibling prompt-process-evolution-aaf5 claimed bootstrap-prices-route-test-coverage in the same window. Shipped route-level Vitest locking Invalid JSON / missing sessionId / STRIPE_SECRET_KEY 501 / default returnUrl wiring / result.status passthrough that create-portal-session.test.ts does not cover. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/stripe/billing-portal/route.test.ts — 12 tests (invalid JSON / missing+whitespace sessionId 400s, missing secret 501, success with NEXT_PUBLIC_APP_URL default returnUrl + request-origin fallback + explicit returnUrl trim, incomplete session / Starter one-time 400s, missing customer 404, missing portal URL + Stripe throw 502s)",
+      "Docs: architecture — note route-level Vitest for POST /api/stripe/billing-portal",
+      "NEXT_STEPS: billing-portal-route-test-coverage done; bootstrap-prices-route-test-coverage queued (sibling)",
+      "AGENT_PROTOCOL — claim billing-portal vs bootstrap-prices route coverage separately; create-portal-session helper suite is not enough for the route",
+      "BUSINESS_DECISIONS — documented why lib helper coverage is insufficient for customer self-serve portal wiring",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(222, 223),
   },
 ];
