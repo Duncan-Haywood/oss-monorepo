@@ -124,6 +124,7 @@ export const AGENT_PROTOCOL = [
   "recordLeadOutreach must pass requireConvex (OUTREACH_CADENCE_CONVEX_PRIMARY) from every Email 1/2/3 call site (updateLeadStageAction, disposeColdLeadAction, sendFollowUpAction, addLeadAction) when Convex is configured, and the mark must land BEFORE the Resend call, not after — same persist-then-notify shape as CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY. isFollowUpDue / pipeline-health / the daily digest read Convex-first, so a SQLite-only outreachStep advance landing after a successful send would leave the lead looking due for the same step on every other instance and risk a duplicate Email 2/3 (CAN-SPAM / reputation risk) — worse than the accepted trade-off of a mark succeeding right before a Resend failure, which just leaves that one step off the due queue until the operator retries. When a new outreach send path is added, mark first, send second, and skip the send entirely on a ConvexPrimaryWriteError.",
   "upsertCommerceCatalog must pass requireConvex (COMMERCE_CATALOG_CONVEX_PRIMARY) from saveCommerceCatalogAction / syncCommerceCatalogToStripeAction when Convex is configured — getCommerceCatalog / listCommerceCatalogs (Buy now, Sync to Stripe due, pipeline-health, digest) read Convex-first, so a SQLite-only catalog write after Sync to Stripe leaves stripePriceId missing on other instances (Commerce Buy now blocked + false unsynced debt). Fail closed and surface to the operator (retry); Sync to Stripe Product/Price creation is idempotent on commerceSkuStripeKey so a failed persist after a successful Stripe sync can safely retry. When free NEXT_STEPS are gated, prefer this sold-capability fail-closed path (or inquiry-reply-convex-primary) over inventing optional aggregates.",
   "recordClientInquiryReply + updateClientInquiryStatus must pass requireConvex (INQUIRY_REPLY_CONVEX_PRIMARY) from replyToInquiryAction / updateInquiryStatusAction when Convex is configured, and replyToInquiryAction must durably mark replied BEFORE Resend (persist-then-notify) — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a SQLite-only replied mark after a successful visitor reply (or a send-then-soft-fallback) leaves the inquiry looking unreplied elsewhere and risks a duplicate operator reply. Mark-read on composer open is the same split-brain class. When free NEXT_STEPS are gated, prefer inquiry-reply-convex-primary over inventing optional aggregates.",
+  "applyColdLeadDisposition must pass requireConvex (COLD_DISPOSITION_CONVEX_PRIMARY) from disposeColdLeadAction when Convex is configured — getLeads / cold badges / pipeline-health cold counts / the stage funnel read Convex-first, so a SQLite-only Re-engage or Close after soft-fallback leaves cold inventory looking open (or still cold) on other instances. Email 1 on re-engage already uses OUTREACH_CADENCE_CONVEX_PRIMARY for the outreach mark; fail-closed on the disposition write itself. When free NEXT_STEPS are gated after cold-disposition, prefer lead-notes-convex-primary (updateLeadNotes requireConvex) over inventing optional aggregates.",
 ] as const;
 
 /**
@@ -956,7 +957,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "cold-disposition-convex-primary",
     summary:
       "Empty-backlog follow-up: applyColdLeadDisposition still soft-falls-back on Convex failure while getLeads / cold-lead badges / stage funnel read Convex-first — Re-engage/Close can succeed locally and leave cold inventory looking open (or closed) on other instances. Prefer requireConvex fail-closed on disposeColdLeadAction's disposition write (Email 1 mark already uses OUTREACH_CADENCE_CONVEX_PRIMARY).",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-c5ed",
   },
@@ -2305,6 +2306,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Shipped direct Vitest coverage for src/lib/deploy/handoff.ts (enqueueProductionHandoff, tryProvisionVercelDomain, assignVercelProjectAndProvision, assignCustomDomainAndProvision, markHandoffLive) instead of picking a new requireConvex item — cold-disposition-convex-primary and lead-notes-convex-primary were left free by the sibling iterations above (queued for another run), but this session's own audit had already independently converged on the untested handoff.ts orchestrator as the highest-value gap before those two were folded in; both remain valid free NEXT_STEPS for a future iteration.",
     rationale:
       "handoff.ts is the highest-branching, most frequently edited module in the entire fail-closed hardening series (deploy-handoff-preserve-custom-domain, deploy-handoff-preserve-status-on-upsell, deploy-handoff-operator-writes-convex-primary all touched it) yet had zero direct tests — every sibling file in src/lib/deploy/ (handoff-persist, handoff-preserve, dns-email, custom-domain-routing) already had one. The untested surface included subtle, easy-to-regress logic that gates real money-flow correctness: enqueueProductionHandoff's three-way idempotency guard (existing + same session + not-failed → return as-is; anything else → rebuild), the live-never-downgrades-to-provisioned rule inside tryProvisionVercelDomain's five branches (unconfigured, 200, 409, other HTTP error, network exception), and the skip-note string-equality dedup that silently produces duplicate operator-facing notes if the message text ever drifts. A regression here is a live-site routing bug (getLeadSlugByCustomDomain / listDeployHandoffs both read Convex-first off this same write path), not a cosmetic one, and nothing in CI would have caught it. Did not touch convex/orders.ts's dead createOrder/getByStripeSessionId (already reviewed and intentionally left alone by a prior iteration) to avoid re-litigating a settled call.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "applyColdLeadDisposition accepts ConvexPrimaryWriteOptions; disposeColdLeadAction passes COLD_DISPOSITION_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for Re-engage and Close.",
+    rationale:
+      "Empty-backlog after PR #97 (deploy-handoff orchestrator tests) left cold-disposition-convex-primary + lead-notes-convex-primary as the free requireConvex follow-ups queued by a425. applyColdLeadDisposition still soft-fell-back while getLeads / cold badges / pipeline-health cold counts / the stage funnel read Convex-first — Re-engage or Close on one instance could succeed locally while other instances still showed the lead as cold (or still open after Close). Email 1 on re-engage already used OUTREACH_CADENCE_CONVEX_PRIMARY for the outreach mark; the disposition write itself was the remaining split-brain. Operator-action fail-closed matches LEAD_SNOOZE / COMMERCE_PAID_OUT. lead-notes-convex-primary stays free for sibling prompt-process-evolution-111d; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
   },
 ];
 
@@ -3886,5 +3894,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (357 passed, +18 new) + lint + build all clean after merge",
     ],
     decisions: BUSINESS_DECISIONS.slice(190, 191),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-c5ed",
+    summary:
+      "Free NEXT_STEPS backlog after PR #97 (deploy-handoff orchestrator tests): cold-disposition-convex-primary and lead-notes-convex-primary were the free requireConvex follow-ups queued by a425; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain operator/legal-gated. Sibling prompt-process-evolution-111d started the same cron window — claimed cold-disposition-convex-primary (pushed claim first) and left lead-notes free. applyColdLeadDisposition still soft-fell-back while getLeads / cold badges / pipeline-health / the stage funnel read Convex-first — Re-engage/Close could succeed locally and leave cold inventory looking open (or still cold) elsewhere. Shipped COLD_DISPOSITION_CONVEX_PRIMARY + fail-closed disposeColdLeadAction. Email 1 mark on re-engage already used OUTREACH_CADENCE_CONVEX_PRIMARY.",
+    shipped: [
+      "src/lib/leads/cold-disposition-persist.ts (+ test) — COLD_DISPOSITION_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — applyColdLeadDisposition(slug, patch, options?) throws ConvexPrimaryWriteError when requireConvex and Convex mutation fails",
+      "src/app/dashboard/leads/actions.ts — disposeColdLeadAction passes COLD_DISPOSITION_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as an operator retry message before any Email 1 send",
+      "Docs: architecture / roadmap / launch-checklist — cold disposition requireConvex",
+      "NEXT_STEPS: cold-disposition-convex-primary done; lead-notes-convex-primary left free for sibling",
+      "AGENT_PROTOCOL — applyColdLeadDisposition requireConvex; prefer lead-notes-convex-primary next",
+      "BUSINESS_DECISIONS — documented Re-engage/Close split-brain risk of soft-fallback applyColdLeadDisposition",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(191, 192),
   },
 ];

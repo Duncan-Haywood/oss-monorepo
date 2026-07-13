@@ -210,7 +210,9 @@ export default function LaunchChecklistDocPage() {
           <strong>Close</strong> (terminal Closed stage) from the Cold leads panel or row
           actions. Optionally check <strong>Also send Email 1 when Re-engaging</strong> to fire
           Email 1 immediately (requires an email on the lead; default remains off so sends stay
-          intentional).
+          intentional). With Convex configured, Re-engage/Close must fail closed on Convex
+          errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
+          that leaves cold inventory looking open (or still cold) on other instances.
         </li>
         <li>
           When a lead becomes due for Email 2 or 3, confirm the pipeline-health{" "}

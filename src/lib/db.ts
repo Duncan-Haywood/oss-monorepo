@@ -794,6 +794,10 @@ export async function updateLeadSnooze(
 /**
  * Persist a cold-lead disposition patch (re-engage or close) in one write.
  * Caller must validate via planColdLeadDisposition first.
+ * Pass { requireConvex: true } (COLD_DISPOSITION_CONVEX_PRIMARY) from
+ * disposeColdLeadAction so a Convex mutation failure does not silently leave
+ * stage/outreach only in instance-local SQLite while Convex-first readers
+ * (getLeads, cold badges, pipeline-health) never see the Re-engage/Close.
  */
 export async function applyColdLeadDisposition(
   slug: string,
@@ -803,6 +807,7 @@ export async function applyColdLeadDisposition(
     lastOutreachAt: string | undefined;
     snoozedUntil: string | undefined;
   },
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -815,6 +820,9 @@ export async function applyColdLeadDisposition(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
+      }
       console.warn(
         `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
         e,

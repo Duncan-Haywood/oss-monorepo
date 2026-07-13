@@ -271,7 +271,11 @@ export default function ArchitectureDocPage() {
         &quot;Also send Email 1&quot; checkbox is checked, moves straight to{" "}
         <code>outreach_sent</code> and sends Email 1 in the same action;{" "}
         <strong>Close</strong> sets the terminal <code>closed</code> stage (keeps outreach
-        history, drops off Work next and cold counts). Every Email 1/2/3 send is{" "}
+        history, drops off Work next and cold counts). When Convex is configured, the
+        disposition write itself passes <code>requireConvex</code> (
+        <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) so Re-engage/Close cannot claim success
+        after a SQLite-only write that leaves cold inventory looking open (or still cold) on
+        other instances. Every Email 1/2/3 send is{" "}
         <em>persist-then-notify</em>: <code>recordLeadOutreach</code> durably marks{" "}
         <code>outreachStep</code>/<code>lastOutreachAt</code> before the Resend call, and when
         Convex is configured it passes <code>requireConvex</code> (

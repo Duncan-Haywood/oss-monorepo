@@ -35,6 +35,7 @@ import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-pe
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
 import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
+import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -545,7 +546,22 @@ export async function disposeColdLeadAction(
       return { success: false as const, error: planned.error };
     }
 
-    await applyColdLeadDisposition(slug, planned.patch);
+    try {
+      await applyColdLeadDisposition(
+        slug,
+        planned.patch,
+        COLD_DISPOSITION_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the cold-lead disposition in the shared store — other instances may still show this lead as cold. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     let outreachStep = planned.patch.outreachStep;
     let lastOutreachAt = planned.patch.lastOutreachAt;

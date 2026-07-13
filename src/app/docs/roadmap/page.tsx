@@ -211,7 +211,10 @@ export default function RoadmapDocPage() {
         <code>inquiry-reply-convex-primary</code>): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
-        Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
+        Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage; with Convex
+        configured, the disposition write uses <code>requireConvex</code> so Re-engage/Close
+        cannot succeed only in instance-local SQLite —{" "}
+        <code>cold-disposition-convex-primary</code>): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
         Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
