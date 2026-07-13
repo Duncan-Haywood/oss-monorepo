@@ -281,7 +281,7 @@ export const RECOMMENDED_TIERS = [
   "Agent Pro: $79/mo unlimited (fair use)",
   "Starter: $29/mo, 3 listings",
   "Team: $249/mo, 10 seats",
-  "Host pack: $19/listing one-time",
+  "Host pack: $19-79/listing one-time (scales with unit size)",
 ] as const;
 
 export const UNIT_ECONOMICS =

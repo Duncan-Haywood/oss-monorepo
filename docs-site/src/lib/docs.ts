@@ -8,26 +8,37 @@ export type DocPage = {
   order: number;
 };
 
-const CONTENT_DIR = path.join(process.cwd(), "content");
+// Repo root, one level up from docs-site/ (this package's cwd during build).
+const REPO_ROOT = path.join(process.cwd(), "..");
 
+/**
+ * `file` is resolved relative to REPO_ROOT, not CONTENT_DIR — strategy and
+ * replication docs are read live from their single canonical source
+ * (root STRATEGY.md, docs/REPLICATION_PROMPT.md) instead of a manually
+ * copied duplicate. A prior hand-synced copy in content/strategy.md drifted
+ * for weeks (STRATEGY.md answered 3 open questions that the docs-site copy
+ * kept showing as unanswered) before anyone noticed — see
+ * process/decisions-log.ts. deployment.md has no canonical source elsewhere
+ * in the repo, so it stays a real file directly under content/.
+ */
 const DOC_REGISTRY: Array<DocPage & { file: string }> = [
   {
     slug: "strategy",
-    file: "strategy.md",
+    file: "STRATEGY.md",
     title: "Strategy",
     description: "Product strategy, positioning, GTM, and success criteria.",
     order: 1,
   },
   {
     slug: "replication",
-    file: "replication.md",
+    file: "docs/REPLICATION_PROMPT.md",
     title: "Replication Prompt",
     description: "Bootstrap instructions for reproducing this repository.",
     order: 2,
   },
   {
     slug: "deployment",
-    file: "deployment.md",
+    file: "docs-site/content/deployment.md",
     title: "Deployment",
     description: "Cloudflare Pages and Access configuration.",
     order: 3,
@@ -63,7 +74,7 @@ export function getDocBySlug(slug: string): {
     return null;
   }
 
-  const filePath = path.join(CONTENT_DIR, entry.file);
+  const filePath = path.join(REPO_ROOT, entry.file);
   const content = fs.readFileSync(filePath, "utf8");
 
   return {

@@ -65,6 +65,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "next bumped to 14.2.35 (latest 14.x patch) in both packages, npm run build verified clean in both. See decisions-log.ts for why the full next@16 major-version migration (needed to clear every advisory npm audit flags) was deliberately deferred rather than attempted in the same session.",
       },
+      {
+        id: "p0-docs-content-drift-fix",
+        title: "Fix stale docs-site /docs/strategy content and the Host-pack pricing drift it exposed",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "docs-site/content/strategy.md was a hand-copied duplicate of root STRATEGY.md that had silently drifted for weeks — the live docs site still showed 3 already-answered open questions as unanswered. Auditing it also surfaced a second, longer-standing drift: STRATEGY.md's own Business model table and research/'s public site said Host pack pricing was a flat '$19/listing', contradicting the actual $19-79/listing decision logged on day one and used everywhere else in the repo.",
+        doneWhen:
+          "docs-site/src/lib/docs.ts reads STRATEGY.md and docs/REPLICATION_PROMPT.md directly from their canonical repo-root paths (no more hand-synced duplicates in docs-site/content/); STRATEGY.md and research/src/lib/data.ts both say Host pack is $19-79/listing; docs-site `npm run build` and research `npm run build` both pass. See decisions-log.ts.",
+      },
     ],
   },
   {

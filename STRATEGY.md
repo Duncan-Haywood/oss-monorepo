@@ -80,7 +80,7 @@ Listing Lens should compete against mediocre DIY and slow outsourcing, not luxur
 | Starter | $29/mo | Occasional agents | 3 listings included |
 | Agent Pro | $79/mo | Active agents | Unlimited listings with fair use |
 | Team | $249/mo | Small teams / brokerage marketing | 10 seats, templates, batch export |
-| Host pack | $19/listing | Airbnb / STR hosts | One-time listing refresh |
+| Host pack | $19-79/listing | Airbnb / STR hosts | One-time listing refresh, scales with unit size |
 
 Validation pricing can start lower:
 

@@ -225,4 +225,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-l25h2i",
     relatedTaskIds: ["p2-referral-followup", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-13",
+    title: "Fix stale Host-pack pricing copy and eliminate the docs-site content duplication that let it drift",
+    decision:
+      "STRATEGY.md's own Business model table and research/'s public site both said Host pack (Airbnb/STR) pricing was a flat '$19/listing', contradicting the actual pricing decision this repo logged on day one ($19-79/listing, scaling with unit size — see the 2026-06-13 'Pricing anchors' entry above) and contradicting every other place that figure appears (process/interview-script.ts, process/outreach-templates.ts's str-host-dm template). Fixed both to read '$19-79/listing'. Separately, the private docs site's /docs/strategy page was rendering docs-site/content/strategy.md, a manually hand-copied duplicate of root STRATEGY.md that had silently fallen behind — it still showed 3 open questions (MLS compliance, virtual staging tech, brokerage-vs-PLG GTM) as unanswered checkboxes weeks after STRATEGY.md itself had checked them off. Rather than just re-syncing the copy (which would drift again), changed docs-site/src/lib/docs.ts to read STRATEGY.md and docs/REPLICATION_PROMPT.md directly from their canonical repo-root locations at build time, and deleted the now-unused docs-site/content/strategy.md and docs-site/content/replication.md duplicates entirely.",
+    rationale:
+      "Same root cause blockers.ts fixed for human-blocker facts (three independently hand-maintained copies drift apart quietly until something forces a diff), just discovered in a different pair of files. A manually-synced copy is a standing liability the moment the canonical source changes and nobody remembers to re-copy it — the fix that actually prevents recurrence is removing the duplicate, not re-syncing it once more. docs-site/content/deployment.md has no canonical source elsewhere in the repo, so it was left as a real file, just resolved via the same repo-root-relative path for consistency.",
+    madeBy: "claude/dazzling-allen-mf5cdg",
+    relatedTaskIds: ["p0-docs-site"],
+  },
 ];
