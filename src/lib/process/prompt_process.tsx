@@ -1161,6 +1161,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-4792",
   },
+  {
+    id: "seo-helpers-unit-coverage",
+    summary:
+      "Empty-backlog after PR #120 (marketing/voice build-request coverage + convex-orders-list-newest-first) — only gated secrets/OAuth/counsel remained. src/lib/seo.ts backs the Starter-sold 'Basic SEO' promise (canonical URL, per-page metadata, LocalBusiness JSON-LD) and had zero direct tests: siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL trimmed+trailing-slash-stripped > VERCEL_URL > localhost default) and the per-category schema.org @type mapping were unlocked.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-t4ass7",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
