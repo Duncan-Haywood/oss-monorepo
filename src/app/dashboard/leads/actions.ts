@@ -33,6 +33,7 @@ import {
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
+import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -1454,11 +1455,26 @@ export async function saveCommerceCatalogAction(
     const existing = await getCommerceCatalog(slug);
     const items = preserveCommerceStripeIds(normalized.items, existing?.items);
 
-    const catalog = await upsertCommerceCatalog({
-      leadSlug: lead.slug,
-      items,
-      updatedAt: new Date().toISOString(),
-    });
+    let catalog;
+    try {
+      catalog = await upsertCommerceCatalog(
+        {
+          leadSlug: lead.slug,
+          items,
+          updatedAt: new Date().toISOString(),
+        },
+        COMMERCE_CATALOG_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the catalog in the shared store — Buy now may still miss stripePriceId elsewhere. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${lead.slug}`);
@@ -1539,11 +1555,26 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
       catalog.items,
     );
 
-    const updated = await upsertCommerceCatalog({
-      leadSlug: lead.slug,
-      items: synced,
-      updatedAt: new Date().toISOString(),
-    });
+    let updated;
+    try {
+      updated = await upsertCommerceCatalog(
+        {
+          leadSlug: lead.slug,
+          items: synced,
+          updatedAt: new Date().toISOString(),
+        },
+        COMMERCE_CATALOG_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Stripe Products/Prices may already exist, but the catalog could not be saved in the shared store — Buy now may still miss stripePriceId elsewhere. Retry Sync to Stripe (idempotent).",
+        };
+      }
+      throw error;
+    }
 
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${lead.slug}`);

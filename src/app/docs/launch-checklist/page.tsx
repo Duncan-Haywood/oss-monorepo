@@ -258,7 +258,10 @@ export default function LaunchChecklistDocPage() {
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
           Products; changing a price should create a new Price on the same Product. After Sync,
           edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
-          server-side; only a price change clears the Price id). Remove a previously synced SKU,
+          server-side; only a price change clears the Price id). With Convex configured, Save
+          catalog / Sync to Stripe fail closed on Convex errors (<code>requireConvex</code>) —
+          never claim success after a SQLite-only write that other instances would still treat
+          as unsynced (Buy now blocked). Remove a previously synced SKU,
           Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
           Stripe Product becomes inactive and current SKUs stay active. Before Sync, confirm
           pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with

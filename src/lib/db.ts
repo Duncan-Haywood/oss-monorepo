@@ -2057,8 +2057,17 @@ function mapCommerceCatalogRow(row: SqliteCommerceCatalogRow): CommerceCatalog {
   };
 }
 
+/**
+ * Persist (or replace) a Commerce catalog row.
+ *
+ * Pass { requireConvex: true } from saveCommerceCatalogAction /
+ * syncCommerceCatalogToStripeAction so a Convex mutation failure surfaces
+ * instead of SQLite-only success while Convex-first Buy now / unsynced
+ * readers still miss stripePriceId on other instances.
+ */
 export async function upsertCommerceCatalog(
   input: UpsertCommerceCatalogInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<CommerceCatalog> {
   const catalog: CommerceCatalog = {
     leadSlug: input.leadSlug,
@@ -2075,6 +2084,9 @@ export async function upsertCommerceCatalog(
       });
       return catalog;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("upsertCommerceCatalog", e);
+      }
       console.warn(
         `Failed to upsert commerce catalog for ${catalog.leadSlug} on Convex, falling back to SQLite`,
         e,

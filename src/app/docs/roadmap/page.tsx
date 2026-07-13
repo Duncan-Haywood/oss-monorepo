@@ -259,7 +259,9 @@ export default function RoadmapDocPage() {
         <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
-        edits clear the Price id until the next Sync). Sync does not archive Products for
+        edits clear the Price id until the next Sync). Save catalog / Sync to Stripe persist with{" "}
+        <code>requireConvex</code> when Convex is configured so SQLite-only success cannot leave
+        Buy now blocked on other instances. Sync does not archive Products for
         removed SKUs — operators use <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProducts</code>, <code>active=false</code>, never
         auto-delete). Saved-but-unsynced catalogs count on

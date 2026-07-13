@@ -74,7 +74,9 @@ export default function ProductBundlesDocPage() {
         Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview. Operator
         clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU
         (reuses STRIPE_SECRET_KEY, idempotent on re-run); synced items show a Buy now button
-        that opens Stripe Checkout directly. Unsynced items still fall back to Request order →
+        that opens Stripe Checkout directly. When Convex is configured, Save catalog / Sync to
+        Stripe fail closed (<code>requireConvex</code>) so a multi-instance deploy cannot claim
+        success after a SQLite-only write that leaves Buy now blocked elsewhere. Unsynced items still fall back to Request order →
         inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
         Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync). A
         completed Buy now also emails the local business (<code>lead.email</code>

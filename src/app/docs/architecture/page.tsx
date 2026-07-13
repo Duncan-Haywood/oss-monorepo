@@ -322,7 +322,10 @@ export default function ArchitectureDocPage() {
         <code>src/lib/commerce/stripe-sync.ts</code>) to idempotently create/find a Stripe
         Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets), then persists
-        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. Catalog
+        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. When Convex
+        is configured, Save catalog and Sync to Stripe pass <code>requireConvex</code> (
+        <code>COMMERCE_CATALOG_CONVEX_PRIMARY</code>) so a mutation failure surfaces instead of
+        SQLite-only success while Buy now / unsynced readers stay Convex-first. Catalog
         saves re-attach those ids from the existing DB row via{" "}
         <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.
         Sync never archives Products for removed SKUs — operators click{" "}
