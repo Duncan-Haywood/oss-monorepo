@@ -712,10 +712,15 @@ export async function recordLeadPreviewOpen(
 /**
  * Persist free-text operator notes on a lead (call outcomes, next steps).
  * Pass undefined/empty to clear. Caller should normalize via normalizeOperatorNotes.
+ * Pass { requireConvex: true } (LEAD_NOTES_CONVEX_PRIMARY) from
+ * updateLeadNotesAction so a Convex mutation failure does not silently leave
+ * notes only in instance-local SQLite while Convex-first readers (getLeads)
+ * never see discovery-call / Email 3 outcomes.
  */
 export async function updateLeadNotes(
   slug: string,
   notes: string | undefined,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -725,6 +730,9 @@ export async function updateLeadNotes(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadNotes", e);
+      }
       console.warn(
         `Failed to update notes for ${slug} on Convex, falling back to SQLite database`,
         e,

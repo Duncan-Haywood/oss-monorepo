@@ -191,7 +191,9 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           Operator can open <strong>Notes</strong> on a lead row, save call outcomes, and find
-          them again via search — notes stay off the public preview site
+          them again via search — notes stay off the public preview site. With Convex
+          configured, Save must fail closed on Convex errors (<code>requireConvex</code>) —
+          never claim success after a SQLite-only write that other instances never see.
         </li>
         <li>
           Setting stage to <strong>Discovery Call</strong> or sending <strong>Email 3</strong>{" "}
