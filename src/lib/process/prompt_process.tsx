@@ -1357,6 +1357,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-efe4",
   },
+  {
+    id: "stripe-bootstrap-dashboard-action-test-coverage",
+    summary:
+      "Empty-backlog after PR #141 (resend-email-env-readiness + proxy-routing-test-coverage) — only gated secrets/OAuth/counsel remain. stripe-bootstrap-dashboard-action (PR #134) shipped bootstrapStripePricesAction on the checkout-blocked banner, but only assessStripeBootstrapGate + POST /api/stripe/bootstrap-prices had Vitest — the operator-auth'd dashboard action (auth fail, gate fail, success envSnippet, Stripe throw) had zero coverage. Claim: action-level Vitest locking requireOperatorAuth + assessStripeBootstrapGate + bootstrapStripePrices wiring. Sibling-friendly twin: checkout-recovery-actions-orchestration-test-coverage (sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction mark-before-send).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-29a6",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
