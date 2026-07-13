@@ -282,7 +282,8 @@ export default function RoadmapDocPage() {
         services, booking CTA, after-hours, take-a-message; Anthropic when{" "}
         <code>ANTHROPIC_API_KEY</code> is set; one pack per lead; when Convex is configured the
         persist uses <code>requireConvex</code> so Generate voice cannot succeed only in
-        instance-local SQLite — <code>client-voice-pack-convex-primary</code>).{" "}
+        instance-local SQLite — <code>client-voice-pack-convex-primary</code>; action-level Vitest
+        in <code>generate-client-voice-pack-action.test.ts</code>).{" "}
         <strong>Email voice pack</strong> (<code>sendClientVoicePackToClientAction</code>)
         delivers the pack to <code>lead.email</code> via Resend. Eligible-but-missing packs count
         on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.

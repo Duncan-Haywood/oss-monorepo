@@ -457,7 +457,12 @@ export default function ArchitectureDocPage() {
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}
         <code>our services</code>, hours/state omission). Eligibility: paid/live + Complete order;
         one row per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.
-        When Convex is configured, Generate voice passes <code>requireConvex</code> (
+        Action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/generate-client-voice-pack-action.test.ts</code> locks auth,
+        Complete-only eligibility, <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code> persist,
+        stub-vs-anthropic labeling, and <code>ConvexPrimaryWriteError</code> fail-closed —
+        generators / faq-pack / build-request suites alone do not cover that glue. When Convex is
+        configured, Generate voice passes <code>requireConvex</code> (
         <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a mutation failure surfaces a retry
         instead of leaving voice-packs-due / Email voice pack blind on other instances.{" "}
         <code>sendClientVoicePackToClientAction</code> emails the pack to <code>lead.email</code>{" "}

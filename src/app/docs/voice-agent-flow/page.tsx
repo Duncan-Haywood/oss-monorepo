@@ -88,7 +88,11 @@ export default function VoiceAgentFlowDocPage() {
         <code>src/lib/voice/generators.test.ts</code>). Lead→request shaping (
         <code>src/lib/voice/build-request.ts</code>) has direct edge coverage in{" "}
         <code>build-request.test.ts</code> so empty services/hours cannot silently feed thin
-        scripts. When Convex is configured, Generate voice fails closed (
+        scripts. Action-level Vitest in{" "}
+        <code>generate-client-voice-pack-action.test.ts</code> locks auth, Complete-only
+        eligibility, <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic
+        labeling, and <code>ConvexPrimaryWriteError</code> fail-closed — generators / faq-pack
+        suites alone do not cover that glue. When Convex is configured, Generate voice fails closed (
         <code>requireConvex</code> / <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a
         multi-instance deploy cannot claim success after a SQLite-only write. With an email on the
         lead, <strong>Email voice pack</strong> (
