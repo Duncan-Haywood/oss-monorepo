@@ -866,6 +866,28 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-51f0",
   },
+  {
+    id: "commerce-paid-out-convex-primary",
+    summary:
+      "Empty-backlog audit after PR #87 (checkout-recovery-sent requireConvex): markCommerceOrderPaidOut still soft-falls-back on Convex failure while listCommerceOrders / summarizeCommerceOrdersByLead / pipeline-health unpaid owed read Convex-first — Mark paid out can return success after a SQLite-only write and never clear owed totals on other instances (Commerce double-pay risk until Connect). Prefer requireConvex on the operator Mark paid out action (fail closed, operator retries) over inventing optional aggregates. Queued deploy-handoff-operator-writes-convex-primary + lead-snooze-convex-primary as next free sold-capability / CAN-SPAM regressions.",
+    status: "in_progress",
+    phase: "Phase 6 — Commerce",
+    owner: "cursor/prompt-process-evolution-3f93",
+  },
+  {
+    id: "deploy-handoff-operator-writes-convex-primary",
+    summary:
+      "Empty-backlog follow-up: assignCustomDomain / assignVercelProject / markHandoffLive still SQLite-fallback on Convex failure then return success while getLeadSlugByCustomDomain + listDeployHandoffs read Convex-first — Starter Host→preview routing and Mark live can silently miss on other instances. Prefer requireConvex on those operator writes when Convex is configured.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "lead-snooze-convex-primary",
+    summary:
+      "Empty-backlog follow-up: updateLeadSnooze still SQLite-fallbacks on Convex failure then returns success while isFollowUpDue (PR #74) reads Convex-first lead rows — a snooze on one instance can leave Follow-ups due / digest Send live on another (CAN-SPAM). Prefer requireConvex on snoozeLeadAction when Convex is configured.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
