@@ -4006,6 +4006,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: client-voice-pack-convex-primary done; queued lead-upsert-convex-primary",
       "AGENT_PROTOCOL — upsertClientVoicePack requireConvex; prefer lead-upsert-convex-primary when pack persists are done",
       "BUSINESS_DECISIONS — documented Generate voice split-brain risk + next upsertLead regression",
+      "Verified: npm test (365 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(194, 195),
   },
