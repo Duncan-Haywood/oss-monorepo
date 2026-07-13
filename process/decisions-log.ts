@@ -235,4 +235,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-mf5cdg",
     relatedTaskIds: ["p0-docs-site"],
   },
+  {
+    date: "2026-07-13",
+    title: "Make the delivery guarantee wording depend on repeat-client status instead of always claiming 'first delivery'",
+    decision:
+      "process/delivery-message.ts's deliveryMessageText() gained an optional isRepeatClient input (default false). First-delivery output is byte-for-byte unchanged ('the redo is free on this first delivery' / 'Thanks for trying Listing Lens!'); when isRepeatClient is true it instead says 'same free-redo guarantee as always' / 'Thanks again for using Listing Lens!'. Also re-checked pricing-one-pager.tsx, outreach-templates.ts, payment-collection.ts, and referral-followup.ts against each other for price ($19), turnaround (1 business day), and payment-instructions drift — all consistent, no further changes needed there.",
+    rationale:
+      "outreach-templates.ts, delivery-message.ts, payment-collection.ts, and referral-followup.ts were each written by a different session, one funnel step at a time, with no session ever cross-reading all of them for a promise that drifts between surfaces. deliveryMessageText() unconditionally told every recipient this was their first delivery, which is wrong on its face once referral-followup.ts's own incentive loop produces a repeat or referred booking — a minor inconsistency today (zero real deliveries so far) but exactly the kind of silent gap this repo's progress-log keeps finding after the fact. Cheap to fix now, before any real customer sees the message.",
+    madeBy: "claude/promise-consistency-audit-0713",
+    relatedTaskIds: ["p2-promise-consistency-audit", "p2-delivery-message", "p2-referral-followup"],
+  },
 ];

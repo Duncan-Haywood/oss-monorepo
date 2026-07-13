@@ -291,6 +291,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/referral-followup.ts exists with followUpMessageText() (a 3-7-days-after-delivery check-in that asks for a concrete testimonial and offers a zero-cash-spend discount-based referral incentive), a TESTIMONIAL_PROMPT for turning a vague reply into a usable quote, and REFERRAL_INCENTIVE defined as future-delivery discounts (not cash) so it doesn't violate the no-real-spend guardrail; has a passing self-test (npm test) with no real listing/customer data required. See process/referral-followup.ts, pipeline/src/referral-followup.test.ts.",
       },
+      {
+        id: "p2-promise-consistency-audit",
+        title: "Audit outreach/delivery/referral copy for drifted customer promises",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "With booking, payment, delivery, and referral messages all shipped as separate files by separate sessions, nothing had ever cross-checked them for a promise that drifts between surfaces. deliveryMessageText() unconditionally said 'the redo is free on this first delivery' and 'Thanks for trying Listing Lens!' regardless of whether the recipient was actually a first-time or repeat/referred client — harmless today (no real deliveries yet) but would read oddly or understate the guarantee on any 2nd+ delivery once referral-followup.ts's referral loop starts producing repeat/referred bookings.",
+        doneWhen:
+          "process/delivery-message.ts's DeliveryMessageInput gains an optional isRepeatClient flag (default false, preserving today's exact output) that swaps the guarantee/signoff wording for repeat clients instead of always claiming 'this first delivery'; delivery-message.test.ts covers both branches. All other cross-file promises (price $19, 1-business-day turnaround, free-redo guarantee scope, payment instructions) re-checked and found consistent. See process/delivery-message.ts, pipeline/src/delivery-message.test.ts.",
+      },
     ],
   },
   {

@@ -431,4 +431,20 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): the docs-site/content/ dedup pattern (read canonical files live instead of hand-copying) is worth applying proactively if any future session adds a new docs-site page mirroring another repo-root doc — don't reintroduce a hand-synced copy. With nextActionableTasks() still empty and leads-log.ts/loggedInterviewResults/listingAuditLog still empty, check for other cross-file numeric/pricing claims (turnaround times, photo counts, fee percentages) that might have drifted the same way pricing did, before defaulting to a blockers.ts-only re-confirmation.",
     ],
   },
+  {
+    date: "2026-07-13",
+    agent: "claude/promise-consistency-audit-0713",
+    summary:
+      "Every open PR check across both this repo and local-site-studio came back clean (no open PRs on either besides the pre-existing, human-blocked cursor/fix-pages-access-4a7e), and leads-log.ts/loggedInterviewResults/listingAuditLog are all still empty — nextActionableTasks() is empty and every process/blockers.ts item genuinely still needs Duncan. Took up the prior session's own suggestion: audited outreach-templates.ts, pricing-one-pager.tsx, payment-collection.ts, delivery-message.ts, and referral-followup.ts against each other for promise drift. Price ($19), turnaround (1 business day), and payment instructions were all consistent (the latter shared via paymentInstructionsText(), so there was no way for it to drift). Found one real gap: deliveryMessageText() unconditionally told every recipient 'the redo is free on this first delivery' and signed off 'Thanks for trying Listing Lens!' regardless of whether they were actually a first-time or repeat/referred client — harmless with zero real deliveries so far, but wrong on its face the moment referral-followup.ts's own incentive loop produces a repeat booking.",
+    changes: [
+      "process/delivery-message.ts: DeliveryMessageInput gains an optional isRepeatClient flag (default false); first-delivery output is byte-for-byte unchanged, repeat-client output swaps in 'same free-redo guarantee as always' / 'Thanks again for using Listing Lens!'.",
+      "pipeline/src/delivery-message.test.ts: added assertions for the default (first-delivery) wording and the new isRepeatClient branch.",
+      "roadmap.ts: added p2-promise-consistency-audit (done). decisions-log.ts: logged the decision and rationale.",
+      "Verified: pipeline/ `npm test` (still 6 self-tests, extended assertions) + `npx tsc --noEmit` pass; docs-site/ untouched, not rebuilt; research/ untouched, not rebuilt.",
+    ],
+    nextUp: [
+      "Human: process/blockers.ts unchanged in substance — p2-first-deliveries (book, shoot, deliver one real concierge listing) remains the single highest-leverage next step; the toolchain now correctly handles a repeat/referred 2nd delivery too, not just the first.",
+      "Agent (next session): with nextActionableTasks() empty again, check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first. cli-microsite.ts still always calls deliveryMessageText() with isRepeatClient left at its default (false) — once leads-log.ts has a real 'paid' entry for a given contact, wiring an actual repeat-client lookup into the CLI (instead of leaving the flag manual/unused) would be the natural next increment, but isn't worth building ahead of any real repeat customer existing.",
+    ],
+  },
 ];
