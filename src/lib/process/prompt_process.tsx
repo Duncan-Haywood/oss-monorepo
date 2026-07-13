@@ -174,6 +174,7 @@ export const AGENT_PROTOCOL = [
   "When unsubscribe-get-rate-limiting and stripe-core-env-readiness are both free in the same cron window, claim different ones (CAN-SPAM suppress throttle vs core Stripe secret readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
   "unsubscribe-get-rate-limiting done: GET /api/unsubscribe now checks checkRateLimit(`unsubscribe:${clientIp}`) BEFORE token verify and returns 429 + Retry-After on exceed — completes the public-write throttle set (four POSTs from PR #138 + this CAN-SPAM GET). Token signing still blocks forged suppressions; the rate limit blunts harvested-footer-link hammering and unbounded HMAC/suppressEmail work. Folded with stripe-core-env-readiness (e756). When free NEXT_STEPS are gated again, prefer proxy-routing-test-coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "stripe-core-env-readiness done: assessStripeCoreEnvReadiness (src/lib/pricing/stripe-core-env-readiness.ts) + StripeCoreEnvBanner on /dashboard + /dashboard/leads. Surfaces missing STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET (whitespace-only = missing). Distinct from assessBundlePriceEnvReadiness (Price IDs) — show both when both gap. Missing webhook secret is the worst case (checkout can succeed while CRM/handoff never records). Env presence only — does not validate key format, does not call Stripe, does not fake-complete stripe-price-objects. When free NEXT_STEPS stay gated, prefer proxy-routing-test-coverage or another sold-capability / multi-instance regression over inventing optional aggregates.",
+  "proxy-routing-test-coverage done: src/proxy.test.ts locks dashboard auth gate (open when password unset; redirect when set + missing cookie; allow with valid session; /dashboard/login never gated), preview-subdomain rewrite only when getLeadBySlug resolves (unrecognized label → next(), no demo-catalog fallthrough), custom-domain rewrite only on non-platform Host + exact `/`, and never Host-diverts /api/* or /dashboard/*. Helper suites (custom-domain-routing.test.ts, operator.test.ts) are not enough for orchestrator ordering. When free NEXT_STEPS stay gated, prefer another sold-capability / multi-instance regression or operator-visible unlock over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1341,8 +1342,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "proxy-routing-test-coverage",
     summary:
-      "Empty-backlog after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only gated secrets/OAuth/counsel remain. src/proxy.ts orchestrates dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite, but helper suites (custom-domain-routing.test.ts, operator.test.ts) do not lock the ordering or fail-closed paths (preview subdomain before isPlatformHost; unrecognized subdomain must not rewrite; /api and /dashboard must never Host-divert; auth redirect when password set). Claimed for route-level Vitest on the proxy orchestrator.",
-    status: "in_progress",
+      "Empty-backlog after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only gated secrets/OAuth/counsel remain. src/proxy.ts orchestrates dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite, but helper suites (custom-domain-routing.test.ts, operator.test.ts) do not lock the ordering or fail-closed paths (preview subdomain before isPlatformHost; unrecognized subdomain must not rewrite; /api and /dashboard must never Host-divert; auth redirect when password set). Shipped: src/proxy.test.ts (10 tests) locking auth gate, preview-subdomain rewrite + unrecognized-label next(), custom-domain rewrite, platform-host skip of DB lookup, and never Host-divert /api/* or /dashboard/*.",
+    status: "done",
     phase: "Phase 5 — Client sites + handoff",
     owner: "cursor/business-process-evolution-cbbe",
   },
@@ -2999,6 +3000,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Dashboard shows an amber StripeCoreEnvBanner (assessStripeCoreEnvReadiness) when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing or whitespace-only — distinct from the rose BundlePriceEnvBanner for STRIPE_PRICE_ID_*.",
     rationale:
       "Empty-backlog after PR #138: Price-ID readiness already shipped, but operators still had no early signal for the secrets that actually gate checkout create (STRIPE_SECRET_KEY → 501) and fulfillment (STRIPE_WEBHOOK_SECRET → webhook 501 while Stripe can still charge — silent CRM/handoff failure). Sibling prompt-process-evolution-6d42 claimed unsubscribe-get-rate-limiting in the same window; this branch took the complementary operator-visible revenue unlock. Env presence only — does not validate key format, does not call Stripe, and does not fake-complete stripe-price-objects. Launch-checklist / architecture / roadmap document both banners.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/proxy.ts gets its own Vitest orchestration suite (src/proxy.test.ts) locking dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite ordering — helper suites alone are not enough for the sold Host→preview contracts.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #140 (stripe-core-env + unsubscribe-get). custom-domain-routing.test.ts and operator.test.ts cover pure helpers, but not the proxy orchestrator: preview subdomain must run before isPlatformHost, unrecognized subdomain labels must next() (never demo-catalog fallthrough), custom-domain DB lookup must skip platform hosts, and /api/* + /dashboard/* must never Host-divert. A silent reorder or fallthrough would break Starter 'Preview subdomain → custom domain handoff' or divert authenticated/API traffic. Prefer this sold-capability regression lock over inventing optional aggregates while Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -5288,5 +5296,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(235, 236),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-cbbe",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Claimed proxy-routing-test-coverage: src/proxy.ts is the Starter Host→preview orchestrator (dashboard auth + preview subdomain + custom domain) but had no direct Vitest — helper suites alone cannot catch reorder/fallthrough regressions. Same-window sibling prompt-process-evolution-efe4 left free to claim a different empty-backlog surface.",
+    shipped: [
+      "src/proxy.test.ts — 10 orchestration tests (dashboard auth open/redirect/allow/login-bypass; preview-subdomain rewrite + unrecognized next(); custom-domain rewrite; platform-host skips DB lookup; never Host-divert /api/* or /dashboard/*; non-root paths untouched)",
+      "Docs: architecture + production-deploy + roadmap note proxy Vitest coverage",
+      "NEXT_STEPS: proxy-routing-test-coverage done",
+      "AGENT_PROTOCOL — proxy orchestrator coverage done; next empty-backlog prefer sold-capability / multi-instance regression or operator-visible unlock",
+      "BUSINESS_DECISIONS — documented why helper suites were insufficient for Host→preview contracts",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(236, 237),
   },
 ];

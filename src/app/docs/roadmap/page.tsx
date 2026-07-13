@@ -220,7 +220,8 @@ export default function RoadmapDocPage() {
         subdomain → custom domain handoff: shipped end-to-end — operator saves a client&apos;s
         own domain on the handoff card, retries Vercel domain provisioning, and{" "}
         <code>src/proxy.ts</code> host-based routing serves that lead&apos;s preview at the
-        client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>).
+        client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>;
+        orchestration Vitest in <code>src/proxy.test.ts</code>).
         Upsell / re-purchase handoff rebuilds preserve operator-set{" "}
         <code>customDomain</code> / <code>vercelProjectId</code> (
         <code>deploy-handoff-preserve-custom-domain</code>) and progressed{" "}

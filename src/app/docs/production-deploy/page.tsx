@@ -93,7 +93,9 @@ export default function ProductionDeployDocPage() {
         {brand.name} marketing page. Saving also retries the best-effort Vercel Domains API call
         against <code>customDomain</code> (falling back to <code>suggestedHost</code> when unset).
         Only the root path is rewritten; <code>/api/*</code> and <code>/dashboard/*</code> already
-        address a lead by slug and are unaffected by Host. The <em>read</em> path (
+        address a lead by slug and are unaffected by Host. Orchestration Vitest in{" "}
+        <code>src/proxy.test.ts</code> locks that contract (plus preview-subdomain ordering and
+        unrecognized-label <code>next()</code>). The <em>read</em> path (
         <code>getLeadSlugByCustomDomain</code>, used by <code>src/proxy.ts</code>) is Convex-first
         with a SQLite fallback, same as every other <code>src/lib/db.ts</code> lookup. The{" "}
         <strong>write</strong> path is different: when Convex is configured, saving a custom
