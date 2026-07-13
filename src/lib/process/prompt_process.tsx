@@ -4303,7 +4303,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — bundle alreadyRecorded must not skip receipt/DNS; recover via handoff-note markers",
       "BUSINESS_DECISIONS — documented bundle/commerce side-effect recovery parity",
       "merge: folded origin/cursor/prompt-process-evolution-4546 (fulfillment-debt-list-completeness) — both ITERATIONS kept",
-      "Verified: npm test (392 passed, +11 new) + lint + build all clean before fold; re-verify after fold",
+      "Verified: npm test (396 passed after 4546 fold) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(204, 205),
   },
