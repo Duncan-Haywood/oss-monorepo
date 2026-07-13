@@ -351,7 +351,8 @@ export default function LaunchChecklistDocPage() {
           <strong>Commerce sales (pass-through)</strong>, and from the next digest&apos;s Commerce payouts
           owed section — this is what prevents double-paying the same order. When Convex is
           configured, a Convex write failure must surface an error (not silent success) so
-          unpaid owed totals cannot stay split-brain across instances.
+          unpaid owed totals cannot stay split-brain across instances. Action-level Vitest in{" "}
+          <code>mark-commerce-order-paid-out-action.test.ts</code> locks that glue.
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
