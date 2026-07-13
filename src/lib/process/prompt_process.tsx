@@ -160,8 +160,9 @@ export const AGENT_PROTOCOL = [
   "When billing-portal / bootstrap-prices are claimed and free NEXT_STEPS stay gated, prefer marketing-generate-route-test-coverage (POST /api/marketing/generate — operator auth + validation gates; generators.test.ts is not enough) over inventing optional aggregates.",
   "marketing-generate-route-test-coverage done: src/app/api/marketing/generate/route.ts has route-level Vitest (auth 401, JSON/contentTypes/automationLevel/business validation, stub-vs-LLM response messaging). Prefer generateMarketingPackAction for persisted packs; generators.test.ts is not enough for the route gates. When free NEXT_STEPS are gated again, prefer bootstrap-prices-route-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "bootstrap-prices-route-test-coverage done: src/app/api/stripe/bootstrap-prices/route.ts has route-level Vitest (ALLOW_STRIPE_BOOTSTRAP unset/non-1 → 403, missing STRIPE_SECRET_KEY → 501, ok+results+envSnippet on success, 502 on Error and non-Error throws). Mock bootstrapStripePrices + Stripe ctor — lib helper suites stay authoritative for Product/Price idempotency. Every Stripe-facing API route (checkout, commerce/checkout, webhook, billing-portal, bootstrap-prices) plus marketing/generate now has direct route-orchestration coverage. When free NEXT_STEPS are gated again, prefer remaining untested pure-logic modules (brand/company/bundles/themes/demo-catalog/pack helpers), a Convex API map / webhook-idempotency / HTML-injection re-audit, or a fresh sold-capability gap over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "When brand-helpers-unit-coverage and demo-catalog-resolve-preview-unit-coverage are both free in the same cron window, claim different ones (CAN-SPAM two-layer brand env reads vs /preview/[slug] demo/slug-inference catalog) — they touch different modules. Sibling-friendly: themes/bundles remain after both.",
-  "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-resolve-preview-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When pricing-bundles-unit-coverage / brand-helpers-unit-coverage / demo-catalog-unit-coverage / category-themes-unit-coverage are free in the same cron window, claim different ones (sold USD+Price-env source of truth vs CAN-SPAM brand lines vs preview slug inference vs category theme map) — they touch different modules. price-env-readiness / bootstrap suites that import BUNDLES are not enough for display USD amounts or getBundle lookup.",
+  "pricing-bundles-unit-coverage done: src/lib/pricing/bundles.test.ts locks Starter/Growth/Complete + Commerce add-on sold USD amounts, Stripe Price env var names, Starter monthly=null, and getBundle unknown-id behavior — the source of truth for checkout UI, tier upsell, bootstrap-stripe-prices, and price-env-readiness. When free NEXT_STEPS are gated again, prefer brand-helpers-unit-coverage (if still free), demo-catalog-unit-coverage (resolvePreviewLead category inference), or category-themes-unit-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1239,9 +1240,17 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/business-process-evolution-df21",
   },
   {
+    id: "pricing-bundles-unit-coverage",
+    summary:
+      "Empty-backlog after PR #129 (every Stripe-facing API route + marketing/generate now have route orchestration coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all secrets/OAuth/counsel-gated. src/lib/pricing/bundles.ts is the display + env-name source of truth for Starter/Growth/Complete + Commerce add-on (checkout UI, tier upsell, bootstrap-stripe-prices, price-env-readiness) and had zero direct tests — only exercised indirectly via readiness/bootstrap suites that import the constants. Shipped: bundles.test.ts locking sold USD amounts, Stripe Price env var names, Starter monthly=null, and getBundle lookup so a silent price/env drift cannot ship without failing Vitest. Sibling-friendly leftovers: brand-helpers-unit-coverage, demo-catalog-unit-coverage, category-themes-unit-coverage.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-35a5",
+  },
+  {
     id: "brand-helpers-unit-coverage",
     summary:
-      "Empty-backlog after PR #129 (bootstrap-prices route coverage) — only gated secrets/OAuth/counsel remained. src/lib/brand.ts is the CAN-SPAM / two-layer branding source of truth for every outbound email footer + Stripe seller identity, but had zero direct tests: NEXT_PUBLIC_BRAND_NAME > NEXT_PUBLIC_APP_NAME > fallback precedence, legalEntity/legalLocation/postalAddress legacy env aliases, whitespace-only treated as unset, and marketingFooterLine / legalEntityLine / outreachSenderLine composition. Shipped: brand getters (env read at access time) + trim/whitespace-as-unset parity with price-env-readiness; brand.test.ts (20 tests) including deprecated company re-exports. Sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window.",
+      "Empty-backlog after PR #129 (bootstrap-prices route coverage) — only gated secrets/OAuth/counsel remained. src/lib/brand.ts is the CAN-SPAM / two-layer branding source of truth for every outbound email footer + Stripe seller identity, but had zero direct tests: NEXT_PUBLIC_BRAND_NAME > NEXT_PUBLIC_APP_NAME > fallback precedence, legalEntity/legalLocation/postalAddress legacy env aliases, whitespace-only treated as unset, and marketingFooterLine / legalEntityLine / outreachSenderLine composition. Shipped: brand getters (env read at access time) + trim/whitespace-as-unset parity with price-env-readiness; brand.test.ts (20 tests) including deprecated company re-exports. Sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window (PR #130).",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-8134",
@@ -2826,9 +2835,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-13",
     decision:
+      "src/lib/pricing/bundles.ts (Starter/Growth/Complete + Commerce add-on display USD amounts and Stripe Price env var names) gets its own Vitest suite — price-env-readiness and bootstrap-stripe-prices import the constants but do not lock sold prices or getBundle lookup.",
+    rationale:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #129. bundles.ts is the source of truth for checkout UI, tier upsell cards, bootstrap Product amounts, and readiness env names — a silent drift (e.g. Growth monthly 99→149 while Stripe Price stays at the old amount, or renaming STRIPE_PRICE_ID_* without updating readiness) would misprice the storefront or break every sale without failing existing suites. Direct coverage is the cheapest sold-capability regression lock while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated. Sibling can take brand-helpers / demo-catalog / category-themes coverage. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
       "src/lib/brand.ts (two-layer CAN-SPAM branding) reads every brand env via getters with trim + whitespace-only-as-unset, and gets direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence plus marketingFooterLine / legalEntityLine / outreachSenderLine — including the deprecated company re-export mirror.",
     rationale:
-      "After PR #129 closed the last Stripe-facing route gap, free NEXT_STEPS stayed fully gated. brand.ts feeds every outbound email footer and Stripe seller identity but had zero direct tests and evaluated env only at module load — whitespace-only LEGAL_ENTITY/ADDRESS would silently stick as a blank-looking seller identity, and Vitest could not flip env between cases. Getters + trim match price-env-readiness; company.ts mirrors via getters so the migration shim stays live. Sibling prompt-process-evolution-35a5 claimed pricing-bundles in the same window. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+      "After PR #129 closed the last Stripe-facing route gap, free NEXT_STEPS stayed fully gated. brand.ts feeds every outbound email footer and Stripe seller identity but had zero direct tests and evaluated env only at module load — whitespace-only LEGAL_ENTITY/ADDRESS would silently stick as a blank-looking seller identity, and Vitest could not flip env between cases. Getters + trim match price-env-readiness; company.ts mirrors via getters so the migration shim stays live. Sibling prompt-process-evolution-35a5 claimed pricing-bundles in the same window (PR #130). Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4936,19 +4952,35 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-35a5",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #129 (billing-portal + marketing-generate + bootstrap-prices route coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. AGENT_PROTOCOL named remaining untested pure-logic modules next; claimed pricing-bundles-unit-coverage (left brand / demo-catalog / themes for sibling business-process-evolution-8134). Shipped direct Vitest locking sold USD amounts + Stripe Price env names + getBundle. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/pricing/bundles.test.ts — locks Starter/Growth/Complete + Commerce add-on sold USD amounts, Stripe Price env var names, Starter monthly=null, getBundle unknown-id behavior",
+      "Docs: architecture + product-bundles — note direct Vitest coverage for bundles.ts as sold-price source of truth",
+      "NEXT_STEPS: pricing-bundles-unit-coverage done",
+      "AGENT_PROTOCOL — claim pricing-bundles vs brand vs demo-catalog vs themes separately; bundles direct coverage required beyond readiness/bootstrap importers",
+      "BUSINESS_DECISIONS — documented why display USD + env-name drift needs its own suite",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(225, 226),
+  },
+  {
+    date: "2026-07-13",
     branch: "cursor/business-process-evolution-8134",
     summary:
-      "Free NEXT_STEPS backlog fully gated after PR #129. Claimed brand-helpers-unit-coverage (CAN-SPAM two-layer brand env reads); sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window. Refactored brand.ts to getters + whitespace-as-unset, shipped brand.test.ts (20 tests) including deprecated company re-exports. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog fully gated after PR #129. Claimed brand-helpers-unit-coverage (CAN-SPAM two-layer brand env reads); sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window (PR #130). Refactored brand.ts to getters + whitespace-as-unset, shipped brand.test.ts (20 tests) including deprecated company re-exports. Folded sibling ITERATION. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/brand.ts — getters for all brand fields; trim + whitespace-only-as-unset; exported fallback constants",
       "src/lib/company.ts — deprecated re-export now uses getters so it mirrors live brand env",
       "src/lib/brand.test.ts — 20 tests (name/legal/location/postal/dba/support/from precedence + footer helpers + company mirror)",
       "Docs: architecture + legal — note Vitest coverage and whitespace-as-unset for brand env reads",
-      "NEXT_STEPS: brand-helpers-unit-coverage done",
+      "NEXT_STEPS: brand-helpers-unit-coverage done; folded sibling pricing-bundles-unit-coverage (done on 35a5 / PR #130)",
       "AGENT_PROTOCOL — brand getters required; next empty-backlog prefer demo-catalog / themes if still free",
       "BUSINESS_DECISIONS — documented why module-load brand snapshots + missing trim were insufficient",
+      "merge: folded origin/cursor/prompt-process-evolution-35a5 — both ITERATIONS kept",
       "Verified: npm test + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(225, 226),
+    decisions: BUSINESS_DECISIONS.slice(226, 227),
   },
 ];
