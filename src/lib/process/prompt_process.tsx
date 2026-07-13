@@ -5594,7 +5594,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: mark-commerce-order-paid-out-action-test-coverage done; send-daily-digest-action-test-coverage left with 2753; queued send-marketing-pack-to-client-action-test-coverage + send-client-voice-pack-to-client-action-test-coverage",
       "AGENT_PROTOCOL — claim Mark paid out action Vitest vs Email pack/voice action Vitest vs Send daily digest action Vitest separately",
       "BUSINESS_DECISIONS — documented dual-claim pivot and why helper suites were insufficient for Mark paid out action glue",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (754 passed — Mark paid out action 8) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(244, 245),
   },
