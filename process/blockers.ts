@@ -83,17 +83,17 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 5,
+    confirmedByCount: 6,
   },
   {
     id: "stale-branch-cleanup",
     title: "Delete ~26 confirmed-stale, fully-merged branches",
     whatsNeeded:
-      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main (27 non-main branches exist as of this count; only cursor/fix-pages-access-4a7e is live, as PR #4) — agent sessions get HTTP 403 deleting refs on this repo both via `git push --delete` and the GitHub REST `DELETE /git/refs/heads/...` endpoint (re-confirmed this session; the GitHub MCP tool surface has no branch-delete method either). Re-check with `git diff origin/main origin/<branch> --stat` (not the triple-dot form, which false-positives after squash merges) before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
+      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main (now ~40+ non-main branches, growing weekly as sessions keep short-lived branches without cleanup; only cursor/fix-pages-access-4a7e is live, as PR #4). This is now confirmed a proxy-level restriction, not a repo-permissions issue: the GitHub REST `DELETE /git/refs/heads/...` endpoint returns a distinct 403 ('Write access to this GitHub API path is not permitted through this proxy'), different from a plain permissions 403 — no agent session behind this proxy can ever delete a ref, regardless of GITHUB_TOKEN scope. Re-check with `git diff origin/main origin/<branch> --stat` (not the triple-dot form, which false-positives after squash merges) before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
     unblocks: [],
     firstFlagged: "2026-07-12",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 5,
+    confirmedByCount: 6,
   },
   {
     id: "payment-handle-setup",
