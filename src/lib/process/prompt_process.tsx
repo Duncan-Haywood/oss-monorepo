@@ -4066,6 +4066,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-stage-convex-primary done; free coded CRM requireConvex gaps closed",
       "AGENT_PROTOCOL — updateLeadStage requireConvex; prefer empty-backlog regression audits when only gated todos remain",
       "BUSINESS_DECISIONS — documented stage-dropdown split-brain + outreach_sent desync risk",
+      "Verified: npm test (369 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(196, 197),
   },
