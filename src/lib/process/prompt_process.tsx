@@ -1087,6 +1087,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach",
     owner: "cursor/business-process-evolution-872f",
   },
+  {
+    id: "list-all-pages-unit-coverage",
+    summary:
+      "Empty-backlog audit after PR #115 (resend-brand-name-html-escape): src/lib/stripe/list-all-pages.ts — the shared has_more/starting_after pagination helper extracted for stripe-sync + bootstrap-stripe-prices (PR #109) and named by AGENT_PROTOCOL as the next free coverage target — still had zero direct unit tests. Only exercised indirectly via those callers. Claim: add Vitest coverage for multi-page walk, early until-stop, empty/has_more=false, and starting_after chaining so a future third Stripe list() caller cannot silently regress the >100-Product idempotency class.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-f726",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
