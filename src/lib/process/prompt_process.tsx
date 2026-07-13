@@ -1078,6 +1078,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-0ed2",
   },
+  {
+    id: "resend-brand-name-html-escape",
+    summary:
+      "Empty-backlog audit after unreplied-inquiry-list-completeness (PR #113): src/lib/email/resend.ts still interpolates brand.name (and CAN-SPAM footer brand.legalEntity / brand.postalAddress) raw into outbound HTML — outreach Email 1/2/3, abandoned checkout, inquiry reply, Starter upsell, receipt, and the shared sendEmail footer — while marketing/voice pack delivery, commerce client receipt, commerce abandoned recovery, and the Stripe webhook DNS handoff already use escapeHtmlForEmail(brand.name). NEXT_PUBLIC_BRAND_NAME / legal entity / postal address are env-sourced operator strings; an apostrophe or angle bracket breaks HTML and is the same asymmetry class as the PR #76 businessName escape. Prefer this over inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach",
+    owner: "cursor/business-process-evolution-872f",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -4398,6 +4406,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — webhook session dedup must not use capped listClientInquiriesBySlug",
       "BUSINESS_DECISIONS — documented newest-page false-recovery risk + slice-index plumbing fix",
       "ITERATIONS — tightened slice(198..207) off-by-ones from 3eea through ez3zfp to absolute indices",
+      "fold: kept sibling 872f claim resend-brand-name-html-escape (in_progress) so both NEXT_STEPS survive merge",
     ],
     decisions: BUSINESS_DECISIONS.slice(206, 207),
   },
