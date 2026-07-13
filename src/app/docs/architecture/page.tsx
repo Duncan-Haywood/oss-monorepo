@@ -139,7 +139,11 @@ export default function ArchitectureDocPage() {
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
         creates Products/Prices and returns env var snippets. Remaining for first paid order: run
-        bootstrap (or Dashboard) so Price ID env vars are set. Deploy details:{" "}
+        bootstrap (or Dashboard) so Price ID env vars are set — until then{" "}
+        <code>assessBundlePriceEnvReadiness</code> surfaces a checkout-blocked banner on{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (env presence only; does not
+        fake-complete the operator bootstrap todo). Deploy details:{" "}
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
       </p>
       <p>

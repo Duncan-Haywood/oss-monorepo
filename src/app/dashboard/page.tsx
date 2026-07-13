@@ -14,6 +14,8 @@ import {
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
+import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
+import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -82,6 +84,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = await searchParams;
   const health = await loadDashboardHealth();
+  const priceEnv = assessBundlePriceEnvReadiness();
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -92,6 +95,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         description="Operator console for lead management, outreach, and sales tracking. Protected when OPERATOR_DASHBOARD_PASSWORD is set."
         docsHref="/docs/launch-checklist"
       />
+
+      <div className="mt-6">
+        <BundlePriceEnvBanner readiness={priceEnv} />
+      </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>
       <p className="mt-3 text-zinc-600">

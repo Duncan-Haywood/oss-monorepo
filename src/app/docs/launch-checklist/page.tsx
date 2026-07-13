@@ -31,6 +31,14 @@ export default function LaunchChecklistDocPage() {
           Create Prices: set <code>ALLOW_STRIPE_BOOTSTRAP=1</code>,{" "}
           <code>POST /api/stripe/bootstrap-prices</code>, paste the returned{" "}
           <code>envSnippet</code> into secrets, then <strong>unset</strong> the bootstrap flag.
+          Until every <code>STRIPE_PRICE_ID_*</code> from{" "}
+          <code>BUNDLES</code> + <code>COMMERCE_ADDON</code> is set,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a
+          checkout-blocked banner (via{" "}
+          <code>assessBundlePriceEnvReadiness</code>) — fix that before outreach
+          that points at Checkout. Bootstrap itself stays operator-gated; the
+          banner is an early signal, not a substitute for pasting secrets.
         </li>
         <li>
           Point the Stripe webhook to <code>/api/stripe/webhook</code> for{" "}
@@ -357,7 +365,9 @@ export default function LaunchChecklistDocPage() {
 
       <p>
         Track engineering backlog in the <DocLink href="/docs/process">process log</DocLink>.
-        Stripe Price bootstrap remains an operator-owned todo until secrets are pasted.
+        Stripe Price bootstrap remains an operator-owned todo until secrets are pasted — the
+        dashboard checkout-blocked banner only reports missing{" "}
+        <code>STRIPE_PRICE_ID_*</code> env names; it does not run bootstrap for you.
       </p>
     </DocPage>
   );
