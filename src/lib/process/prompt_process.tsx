@@ -4073,6 +4073,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-stage-convex-primary done; queued bundle-price-env-readiness",
       "AGENT_PROTOCOL — updateLeadStageAction requireConvex; prefer bundle-price-env-readiness when CRM write requireConvex chain is done",
       "BUSINESS_DECISIONS — documented stage dropdown split-brain risk + next Price env readiness unlock",
+      "Verified: npm test (369 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(196, 197),
   },
