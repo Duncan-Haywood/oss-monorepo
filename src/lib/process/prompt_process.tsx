@@ -168,6 +168,7 @@ export const AGENT_PROTOCOL = [
   "When contact-form-route-orchestration-test-coverage and unsubscribe-route-orchestration-test-coverage are both free in the same cron window, claim different ones (Starter contact CRM persist-then-notify vs CAN-SPAM suppress fail-closed) — they touch different route files. Existing HTML-escape-only route tests are not enough; lock CONTACT_FORM_CONVEX_PRIMARY / UNSUBSCRIBE_CONVEX_PRIMARY pass-through, persist-required 503/500, and validation. When a sibling claims stripe-bootstrap-dashboard-action (operator-visible Price bootstrap), prefer these public-route orchestration suites over inventing optional aggregates.",
   "stripe-bootstrap-dashboard-action done: when ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard + /dashboard/leads offers operator-auth'd Run bootstrap (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Does not fake-complete stripe-price-objects (paste secrets + unset flag still required); removes curl friction on the #1 sale blocker. When free NEXT_STEPS stay gated, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. Folded sibling stripe-bootstrap-dashboard-action (a606). When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "unsubscribe-route-orchestration-test-coverage done: GET /api/unsubscribe has route-level Vitest locking missing/empty-email 400s (suppressEmail never called), UNSUBSCRIBE_CONVEX_PRIMARY pass-through, the fail-closed 500-with-retry-message branch on ConvexPrimaryWriteError, a distinct generic 500 on any other suppressEmail throw, plus the existing HTML-escape regression. Twin of contact-form-route-orchestration-test-coverage — every public visitor-facing route with a requireConvex fail-closed contract (contact, unsubscribe, preview-open, checkout, webhook) now has route-orchestration coverage, not just its persist-helper suite. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression audit or a fresh operator-visible revenue unlock over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1295,8 +1296,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "unsubscribe-route-orchestration-test-coverage",
     summary:
-      "Sibling twin of contact-form-route-orchestration-test-coverage. GET /api/unsubscribe had only HTML-escape route coverage; no test exercised missing-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through to suppressEmail, or the ConvexPrimaryWriteError-vs-generic-error 500 branches. Ship route-level Vitest locking the CAN-SPAM suppress fail-closed contract.",
-    status: "in_progress",
+      "Sibling twin of contact-form-route-orchestration-test-coverage. GET /api/unsubscribe had only HTML-escape route coverage; no test exercised missing-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through to suppressEmail, or the ConvexPrimaryWriteError-vs-generic-error 500 branches. Shipped: route-level Vitest locking the CAN-SPAM suppress fail-closed contract (missing/empty-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through, 500-with-retry-message on ConvexPrimaryWriteError vs generic 500 on any other error) plus the existing HTML-escape regression.",
+    status: "done",
     phase: "Phase 5 — Client sites + handoff",
     owner: "claude/relaxed-galileo-fys8gf",
   },
@@ -2918,6 +2919,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "POST /api/contact/[slug] gets full route-orchestration Vitest (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation, form-urlencoded) beyond the prior HTML-escape-only suite and contact-persist helper tests — locks the Starter sold contact form + durable CRM trail.",
     rationale:
       "Free NEXT_STEPS stayed fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX — highest revenue unlock while Prices stay gated). Parallel empty-backlog: the contact route's multi-instance fail-closed contract lived only in contact-persist.test.ts + one HTML-escape route test, so a future soft-fallback or notify-before-persist regression would not fail Vitest. Route orchestration coverage mirrors preview-open / Stripe route suites. Leave unsubscribe-route-orchestration-test-coverage free for a sibling. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "GET /api/unsubscribe gets full route-orchestration Vitest (missing/empty-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through, fail-closed 500-with-retry-message on ConvexPrimaryWriteError vs a distinct generic 500 on any other error) beyond the prior HTML-escape-only suite — the CAN-SPAM suppress twin of contact-form-route-orchestration-test-coverage.",
+    rationale:
+      "cursor/prompt-process-evolution-cb7f had finished contact-form-route-orchestration-test-coverage and folded stripe-bootstrap-dashboard-action into its own branch, but only its claim-only process-log commits reached main via PR #134 — the feature branch itself was never merged, leaving the NEXT_STEPS entry marked done with no coverage behind it. Folded cb7f's actual feature commits into main first (same content, now a real merge), then picked up the sibling-friendly twin it had explicitly left free. The unsubscribe route's fail-closed CAN-SPAM contract (UNSUBSCRIBE_CONVEX_PRIMARY) had the same coverage gap contact-form had before this run: a future soft-fallback or a swapped error-branch could silently re-enable double-sends to unsubscribed recipients with no test catching it.",
   },
 ];
 
@@ -5121,5 +5129,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (629 passed after fold — contact + bootstrap-gate) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(230, 231),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/relaxed-galileo-fys8gf",
+    summary:
+      "PR #134 (business-process-evolution-a606) merged with only claim-only process-log commits for contact-form-route-orchestration-test-coverage — cb7f's actual feature branch (route.test.ts + docs) was never merged into main, even though the NEXT_STEPS entry already read status=done. Folded cb7f's real feature commits into main as a proper two-parent merge (content-identical to what the claim already described) so the done status has coverage behind it, then picked up the sibling-friendly twin it explicitly left free: unsubscribe-route-orchestration-test-coverage. GET /api/unsubscribe had only HTML-escape route coverage; no test exercised missing-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through, or the ConvexPrimaryWriteError-vs-generic-error 500 split. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "merge: folded origin/cursor/prompt-process-evolution-cb7f (contact-form-route-orchestration-test-coverage feature commits, previously landed on main as claim-only) — no new NEXT_STEPS/BUSINESS_DECISIONS content, just the missing coverage",
+      "src/app/api/unsubscribe/route.test.ts — route orchestration (missing/empty-email 400 with suppressEmail never called, UNSUBSCRIBE_CONVEX_PRIMARY pass-through, 500-with-retry-message on ConvexPrimaryWriteError, distinct generic 500 on any other throw) plus the existing HTML-escape regression",
+      "Docs: architecture — note route-level Vitest for GET /api/unsubscribe alongside the contact-form orchestration suite",
+      "NEXT_STEPS: contact-form-route-orchestration-test-coverage now has real coverage behind its done status; unsubscribe-route-orchestration-test-coverage done",
+      "AGENT_PROTOCOL — documented both route-orchestration suites as complete; every public visitor-facing requireConvex fail-closed route now has its own suite",
+      "BUSINESS_DECISIONS — documented the orphaned-feature-branch fold and why the unsubscribe twin needed the same coverage class",
+      "Verified: npm test (634 passed, +7 new) + lint clean + build clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(231, 232),
   },
 ];
