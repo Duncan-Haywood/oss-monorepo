@@ -145,6 +145,7 @@ export const AGENT_PROTOCOL = [
   "When marketing-anthropic-generator-unit-coverage and voice-anthropic-generator-unit-coverage are both free in the same cron window, claim different ones (Growth/Complete marketing LLM path vs Complete phone-script LLM path) — they touch different modules and both lock sold-fulfillment fallback branches. Stub smoke in monthly-pack / faq-pack is not enough; Anthropic* generators need direct mocked-fetch coverage (empty key, HTTP error, malformed/wrong-count JSON, successful parse).",
   "marketing-anthropic-generator-unit-coverage done: src/lib/marketing/generators.ts has direct Vitest coverage for StubMarketingGenerator edge branches + AnthropicMarketingGenerator (blank-key fallback, HTTP/parse/length-mismatch → stub, packageTier for generate_schedule_optimize vs social_email, prose-wrapped JSON extract, hashtag sanitize/cap, contentType override). monthly-pack.test.ts stub smoke is not enough for the LLM path that ships Growth/Complete packs. When free NEXT_STEPS are gated again, prefer voice-anthropic-generator-unit-coverage (src/lib/voice/generators.ts twin — different module; sibling-friendly) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "voice-anthropic-generator-unit-coverage done: src/lib/voice/generators.test.ts locks StubClientVoiceGenerator edge branches + AnthropicClientVoiceGenerator blank-key / HTTP / parse / length-mismatch fallbacks, prose-wrapped JSON extract, title fallback, and factory memoization — do not rely only on faq-pack.test.ts stub smoke. Twin of marketing-anthropic-generator-unit-coverage. When both generator suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, build-request edge cases) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When marketing-build-request-unit-coverage and voice-build-request-unit-coverage are both free in the same cron window, claim different ones (Growth/Complete lead→GenerateMarketingRequest vs Complete lead→GenerateClientVoiceRequest) — they touch different modules and both lock sold-fulfillment request-shaping edge branches (empty services → 'our services', hours/state omission, automationLevel defaults, packageTier). monthly-pack / faq-pack only smoke the happy path; build-request helpers need direct edge coverage.",
 ] as const;
 
 /**
@@ -1132,6 +1133,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-8d92",
+  },
+  {
+    id: "marketing-build-request-unit-coverage",
+    summary:
+      "Empty-backlog after PR #119 (marketing + voice Anthropic generator coverage): AGENT_PROTOCOL named build-request edge cases next. businessContextFromLead / monthlyPackRequestForLead (empty services → 'our services', hours/state omission, automationLevel defaults, packageTier, MONTHLY_MARKETING_PACK_TYPES) were only smoked via monthly-pack.test.ts happy path. Direct Vitest locks the lead→GenerateMarketingRequest shaping that feeds Growth/Complete pack generation. Sibling can take voice-build-request-unit-coverage (different module).",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-5383",
+  },
+  {
+    id: "voice-build-request-unit-coverage",
+    summary:
+      "Twin of marketing-build-request-unit-coverage for Complete phone scripts: clientVoiceBusinessContextFromLead / clientVoicePackRequestForLead (empty services → 'our services', hours/state omission, CLIENT_VOICE_FAQ_SCRIPT_TYPES) were only smoked via faq-pack.test.ts happy path. Direct Vitest locks the lead→GenerateClientVoiceRequest shaping that feeds Complete voice-pack generation.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
