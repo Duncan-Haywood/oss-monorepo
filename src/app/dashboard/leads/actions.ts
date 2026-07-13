@@ -33,6 +33,7 @@ import {
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
+import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
@@ -401,7 +402,18 @@ export async function snoozeLeadAction(
       return { success: false as const, error: normalized.error };
     }
 
-    await updateLeadSnooze(slug, normalized.snoozedUntil);
+    try {
+      await updateLeadSnooze(slug, normalized.snoozedUntil, LEAD_SNOOZE_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the snooze in the shared store — lead may still show as due elsewhere. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
     revalidatePath("/dashboard/leads");
     return { success: true as const, snoozedUntil: normalized.snoozedUntil };
   } catch (error) {

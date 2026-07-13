@@ -738,10 +738,15 @@ export async function updateLeadNotes(
 /**
  * Persist Work next snooze until (ISO) or clear with undefined.
  * Caller should normalize via normalizeSnoozedUntil / snoozedUntilFromPreset.
+ * Pass { requireConvex: true } (LEAD_SNOOZE_CONVEX_PRIMARY) from
+ * snoozeLeadAction so a Convex mutation failure does not silently leave
+ * snoozedUntil only in instance-local SQLite while Convex-first readers
+ * (isFollowUpDue, pipeline-health, the daily digest) never see it.
  */
 export async function updateLeadSnooze(
   slug: string,
   snoozedUntil: string | undefined,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -751,6 +756,9 @@ export async function updateLeadSnooze(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadSnooze", e);
+      }
       console.warn(
         `Failed to update snooze for ${slug} on Convex, falling back to SQLite database`,
         e,

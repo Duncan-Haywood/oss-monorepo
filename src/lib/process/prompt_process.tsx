@@ -895,9 +895,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "lead-snooze-convex-primary",
     summary:
-      "Empty-backlog follow-up: updateLeadSnooze still SQLite-fallbacks on Convex failure then returns success while isFollowUpDue (PR #74) reads Convex-first lead rows — a snooze on one instance can leave Follow-ups due / digest Send live on another (CAN-SPAM). Prefer requireConvex on snoozeLeadAction when Convex is configured.",
-    status: "todo",
+      "Empty-backlog follow-up after PR #88: updateLeadSnooze still soft-fell-back on Convex failure then returned success while isFollowUpDue (PR #74) / pipeline-health / the daily digest read Convex-first lead rows — a snooze (or Unsnooze clear) on one instance could silently leave Follow-ups due / Work next / digest Send live on another (CAN-SPAM exposure both directions). Shipped: LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze; snoozeLeadAction (both Snooze presets and Unsnooze share this one action) fails closed on ConvexPrimaryWriteError and surfaces a retry message to the operator instead of a false success.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/lead-snooze-convex-primary",
   },
   {
     id: "deploy-handoff-preserve-status-on-upsell",
@@ -2210,6 +2211,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "preserveDeployHandoffOperatorFields keeps progressed status (live/provisioned), notes audit trail, and vercelDomainStatus on upsell rebuild — not only customDomain/vercelProjectId. tryProvisionVercelDomain never downgrades live→provisioned.",
     rationale:
       "PR #86 closed the routing-field half of handoff preserve; empty-backlog audit after PR #87 found Mark live still silently reset to awaiting_dns (and notes wiped) when Starter→Growth rebuilt the handoff for a new stripeSessionId — reopening paidNotLive / open-handoff debt the operator already cleared. Same class as preserveCommerceStripeIds. Queued outreach-cadence-persist-then-send for sibling (send-then-soft-persist Email 2/3 CAN-SPAM risk). Folded PR #89 commerce-paid-out requireConvex (3f93). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "updateLeadSnooze accepts ConvexPrimaryWriteOptions; snoozeLeadAction passes LEAD_SNOOZE_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for both Snooze presets and Unsnooze clear.",
+    rationale:
+      "Empty-backlog follow-up after PR #88 (deploy-handoff-preserve-status-on-upsell) and PR #90 (commerce-stripe-sync-pagination): updateLeadSnooze was one of the last operator writes still soft-falling-back on Convex failure. isFollowUpDue (PR #74) deliberately excludes snoozed leads from Follow-ups due / pipeline-health / the digest, but that guarantee only holds if every instance reading Convex-first actually sees the snooze — a SQLite-only write on one instance while others read Convex-first would leave a lead the operator explicitly parked still eligible for a live Send button elsewhere. The same risk runs in reverse for Unsnooze: a SQLite-only clear could leave a lead invisible on Work next/Follow-ups due after the operator asked to resurface it. Operator-action fail-closed matches the house pattern (checkout recoverySentAt, commerce paidOutAt): retry surfaces to the operator, no silent split-brain. deploy-handoff-operator-writes-convex-primary and outreach-cadence-persist-then-send remain queued for a sibling run. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -3698,5 +3706,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #89 (3f93 commerce-paid-out) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(184, 185),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/lead-snooze-convex-primary",
+    summary:
+      "Free NEXT_STEPS backlog stayed empty after PR #90 (commerce-stripe-sync-pagination) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain operator/legal-gated; deploy-handoff-operator-writes-convex-primary, lead-snooze-convex-primary, and outreach-cadence-persist-then-send were the free requireConvex follow-ups queued by prior sessions. Picked lead-snooze-convex-primary (single-function, bounded scope): updateLeadSnooze still soft-fell-back on Convex failure while isFollowUpDue / pipeline-health / the daily digest read Convex-first lead rows, so a Snooze (or Unsnooze) on one instance could silently miss on another — a live Send button on a lead the operator just parked, or a parked lead invisible after the operator asked to resurface it (CAN-SPAM risk both directions). Shipped LEAD_SNOOZE_CONVEX_PRIMARY (fail-closed) on updateLeadSnooze; snoozeLeadAction surfaces a retry message on ConvexPrimaryWriteError instead of a false success. Verified with a running dev server (no Convex configured, so the SQLite path is exercised): clicked Snooze 1 day on a demo lead in /dashboard/leads, confirmed Unsnooze appeared; clicked Unsnooze, confirmed it cleared — no client errors. deploy-handoff-operator-writes-convex-primary and outreach-cadence-persist-then-send remain queued for a sibling run.",
+    shipped: [
+      "src/lib/leads/snooze-persist.ts (+ test) — LEAD_SNOOZE_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — updateLeadSnooze(slug, snoozedUntil, options?) throws ConvexPrimaryWriteError when requireConvex and Convex mutation fails",
+      "src/app/dashboard/leads/actions.ts — snoozeLeadAction passes LEAD_SNOOZE_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as a retry message covering both Snooze presets and Unsnooze",
+      "NEXT_STEPS: lead-snooze-convex-primary done",
+      "BUSINESS_DECISIONS — documented Snooze/Unsnooze split-brain risk of soft-fallback updateLeadSnooze",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(185, 186),
   },
 ];
