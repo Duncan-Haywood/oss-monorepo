@@ -22,12 +22,24 @@ function createFakeStripe(): StripeProductsAndPrices & {
   const prices: Array<{ id: string; product: string; unit_amount: number; active: boolean }> = [];
   let nextId = 1;
 
+  /** Real Stripe list endpoints cap a page at `limit` and set has_more/starting_after. */
+  function paginate<T extends { id: string }>(
+    all: T[],
+    limit: number,
+    startingAfter: string | undefined,
+  ): { data: T[]; has_more: boolean } {
+    const startIndex = startingAfter
+      ? all.findIndex((item) => item.id === startingAfter) + 1
+      : 0;
+    const page = all.slice(startIndex, startIndex + limit);
+    return { data: page, has_more: startIndex + page.length < all.length };
+  }
+
   return {
     products: {
-      async list({ active }) {
-        return {
-          data: products.filter((p) => (active ? p.active : true)),
-        };
+      async list({ active, limit, starting_after }) {
+        const matching = products.filter((p) => (active ? p.active : true));
+        return paginate(matching, limit, starting_after);
       },
       async create({ name, metadata }) {
         const product = { id: `prod_${nextId++}`, name, metadata, active: true };
@@ -42,10 +54,9 @@ function createFakeStripe(): StripeProductsAndPrices & {
       },
     },
     prices: {
-      async list({ product, active }) {
-        return {
-          data: prices.filter((p) => p.product === product && (active ? p.active : true)),
-        };
+      async list({ product, active, limit, starting_after }) {
+        const matching = prices.filter((p) => p.product === product && (active ? p.active : true));
+        return paginate(matching, limit, starting_after);
       },
       async create({ product, unit_amount }) {
         const price = { id: `price_${nextId++}`, product, unit_amount, active: true };
@@ -116,6 +127,29 @@ describe("syncCommerceCatalogToStripe", () => {
 
     expect(stripe.productCount()).toBe(4);
   });
+
+  it("finds an existing Product/Price past Stripe's 100-item list page on re-sync", async () => {
+    const stripe = createFakeStripe();
+    // Fill the account with >100 active Products for other leads so the target
+    // SKU's Product/Price fall past the first page.
+    for (let i = 0; i < 60; i++) {
+      await syncCommerceCatalogToStripe(stripe, `filler-lead-${i}`, "Filler", [
+        { id: "sku_a", name: "A", priceCents: 100 },
+        { id: "sku_b", name: "B", priceCents: 200 },
+      ]);
+    }
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    expect(stripe.activeProductCount()).toBeGreaterThan(100);
+
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    // Without pagination, findProductByKey/findMatchingPrice only scan page 1
+    // (limit 100) and would wrongly create duplicate Products/Prices here.
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(122);
+    expect(stripe.priceCount()).toBe(122);
+  });
 });
 
 describe("listOrphanCommerceStripeProducts / archiveOrphanCommerceStripeProducts", () => {
@@ -168,5 +202,29 @@ describe("listOrphanCommerceStripeProducts / archiveOrphanCommerceStripeProducts
     const { archived } = await archiveOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
     expect(archived).toHaveLength(2);
     expect(stripe.activeProductCount()).toBe(0);
+  });
+
+  it("finds an orphan Product past Stripe's 100-item list page", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    for (let i = 0; i < 60; i++) {
+      await syncCommerceCatalogToStripe(stripe, `filler-lead-${i}`, "Filler", [
+        { id: "sku_a", name: "A", priceCents: 100 },
+        { id: "sku_b", name: "B", priceCents: 200 },
+      ]);
+    }
+    expect(stripe.activeProductCount()).toBeGreaterThan(100);
+
+    // Without pagination, listOrphanCommerceStripeProducts only scans page 1
+    // (limit 100) and would wrongly report acme-cafe's removed sku_2 as clean.
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", [items[0]!]);
+    expect(orphans).toHaveLength(1);
+    expect(orphans[0]?.skuId).toBe("sku_2");
+
+    const { archived } = await archiveOrphanCommerceStripeProducts(stripe, "acme-cafe", [
+      items[0]!,
+    ]);
+    expect(archived).toHaveLength(1);
+    expect(archived[0]?.skuId).toBe("sku_2");
   });
 });

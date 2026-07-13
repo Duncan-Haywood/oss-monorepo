@@ -64,12 +64,25 @@ function allPriceSpecs(): PriceSpec[] {
   return specs;
 }
 
+/**
+ * Stripe list endpoints cap a single page at 100 items. Bootstrap only creates
+ * a fixed handful of platform Products today, but the Stripe account itself
+ * can already hold >100 active Products from Commerce catalog syncs (see
+ * src/lib/commerce/stripe-sync.ts) — an un-paginated lookup here would miss
+ * an existing bootstrap Product/Price past page 1 and create a duplicate.
+ */
 async function findProductByKey(
   stripe: Stripe,
   key: string,
 ): Promise<Stripe.Product | null> {
-  const listed = await stripe.products.list({ limit: 100, active: true });
-  return listed.data.find((product) => product.metadata.local_site_studio_key === key) ?? null;
+  let startingAfter: string | undefined;
+  for (;;) {
+    const listed = await stripe.products.list({ limit: 100, active: true, starting_after: startingAfter });
+    const match = listed.data.find((product) => product.metadata.local_site_studio_key === key);
+    if (match) return match;
+    if (!listed.has_more) return null;
+    startingAfter = listed.data[listed.data.length - 1]?.id;
+  }
 }
 
 async function findMatchingPrice(
@@ -78,16 +91,26 @@ async function findMatchingPrice(
   unitAmount: number,
   recurring: boolean,
 ): Promise<Stripe.Price | null> {
-  const listed = await stripe.prices.list({ product: productId, active: true, limit: 100 });
-  return (
-    listed.data.find((price) => {
-      const amountMatches = price.unit_amount === unitAmount;
-      const recurringMatches = recurring
-        ? price.recurring?.interval === "month"
-        : price.type === "one_time";
-      return amountMatches && recurringMatches;
-    }) ?? null
-  );
+  const matches = (price: Stripe.Price) => {
+    const amountMatches = price.unit_amount === unitAmount;
+    const recurringMatches = recurring
+      ? price.recurring?.interval === "month"
+      : price.type === "one_time";
+    return amountMatches && recurringMatches;
+  };
+  let startingAfter: string | undefined;
+  for (;;) {
+    const listed = await stripe.prices.list({
+      product: productId,
+      active: true,
+      limit: 100,
+      starting_after: startingAfter,
+    });
+    const match = listed.data.find(matches);
+    if (match) return match;
+    if (!listed.has_more) return null;
+    startingAfter = listed.data[listed.data.length - 1]?.id;
+  }
 }
 
 export async function bootstrapStripePrices(

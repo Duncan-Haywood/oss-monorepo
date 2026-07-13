@@ -118,6 +118,7 @@ export const AGENT_PROTOCOL = [
   "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
   "recordCheckoutSessionCreated (POST /api/stripe/checkout + POST /api/commerce/checkout) must pass requireConvex (CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as webhook markCheckoutSessionComplete. Returning { url } after a SQLite-only create leaves the open cart invisible to Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue / digest (lost Finish-checkout recovery revenue). Prefer 502 so the buyer retries rather than silently dropping multi-instance tracking.",
   "recordCheckoutRecoverySent must pass requireConvex (CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) from sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction when Convex is configured — durable mark BEFORE the Resend send (persist-then-notify). A SQLite-only recoverySentAt after a successful email leaves Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue due and risks a second Finish-checkout / Buy now nudge (reputation / CAN-SPAM). Mark failure surfaces to the operator and skips the send; send failure after a durable mark leaves the session off the due queue.",
+  "Any lookup that walks a Stripe `list()` endpoint to enforce idempotency-by-metadata-key (findProductByKey / findMatchingPrice in stripe-sync.ts and bootstrap-stripe-prices.ts, listOrphanCommerceStripeProducts) must paginate via has_more/starting_after until the whole result set is scanned — Stripe caps a single page at 100 items, and once the account holds more active Products than that (trivial once a few Commerce leads each sync a multi-SKU catalog), an un-paginated `limit: 100` lookup silently misses a match past page 1 and either creates a duplicate Product/Price on re-sync or leaves a genuine orphan unarchived while reporting success. Never assume a single Stripe list() page is exhaustive.",
 ] as const;
 
 /**
@@ -865,6 +866,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-51f0",
+  },
+  {
+    id: "commerce-stripe-sync-pagination",
+    summary:
+      "Bug found auditing after PR #87 (checkout-recovery-sent requireConvex) left only gated NEXT_STEPS: findProductByKey / findMatchingPrice (src/lib/commerce/stripe-sync.ts, mirrored in src/lib/pricing/bootstrap-stripe-prices.ts) and listOrphanCommerceStripeProducts each called Stripe's products.list/prices.list with limit: 100 and no has_more/starting_after pagination loop — Stripe caps a single page at 100 items. Once an account's active Products exceed 100 (trivial once a handful of Commerce-addon leads each sync a multi-SKU catalog, since every SKU gets its own Product), a re-sync of an already-synced SKU whose Product/Price fell past page 1 would silently create a duplicate Product + Price instead of finding the existing one — violating the AGENT_PROTOCOL idempotent-metadata-key rule (line ~90) despite the key itself being stable — and Archive orphans would silently leave a genuine orphan un-archived while reporting success. Shipped: listAllPages walks has_more/starting_after until a match is found or the list is exhausted, used by all three lookups in stripe-sync.ts; matching fix in bootstrap-stripe-prices.ts. New stripe-sync.test.ts coverage seeds >100 active Products across filler leads and asserts re-sync still finds the existing Product/Price (no duplicate) and orphan detection still finds a removed SKU past page 1.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/upbeat-dijkstra-cfwf5k",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2141,6 +2150,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "recordCheckoutRecoverySent accepts ConvexPrimaryWriteOptions; bundle + commerce recovery dashboard actions pass CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY and durable-mark recoverySentAt BEFORE the Resend send.",
     rationale:
       "Queued by f005; left free after c1a0 shipped deploy-handoff-preserve (PR #86) while 6946 dual-claimed that todo claim-only and pivoted. Send-then-soft-fallback left Convex-first abandoned queues able to re-nudge after a successful email — reputation / CAN-SPAM risk, not just data loss. Persist-then-notify matches contact/webhook house pattern: mark failure skips the send; send failure after a durable mark leaves the session off the due queue (operator sees the error, no automatic second nudge). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Every Stripe list()-based idempotent lookup (stripe-sync.ts, bootstrap-stripe-prices.ts) must paginate via has_more/starting_after rather than trusting a single limit:100 page.",
+    rationale:
+      "Free NEXT_STEPS backlog stayed empty after PR #87 (checkout-recovery-sent requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Audit found findProductByKey/findMatchingPrice/listOrphanCommerceStripeProducts only scanned the first 100 active Products/Prices; Commerce sells one Stripe Product per SKU per lead, so a real account can exceed that page cap quickly. An un-paginated lookup breaks the idempotent-metadata-key contract silently — duplicate Products/Prices on re-sync, or a genuine orphan reported as clean by Archive orphans — with no error surfaced to the operator. Pagination is cheap and the failure mode (Stripe dashboard pollution, revenue reconciliation drift, false-positive cleanup) is worse than the extra list() calls.",
   },
 ];
 
@@ -3580,5 +3596,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main after PR #86 (c1a0 handoff preserve) — both ITERATIONS kept",
     ],
     decisions: BUSINESS_DECISIONS.slice(181, 182),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/upbeat-dijkstra-cfwf5k",
+    summary:
+      "Free NEXT_STEPS backlog stayed empty after PR #87 (checkout-recovery-sent requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Subagent-assisted audit found Stripe list() pagination missing from every idempotent-metadata-key lookup in Commerce: findProductByKey/findMatchingPrice (stripe-sync.ts + mirrored bootstrap-stripe-prices.ts) and listOrphanCommerceStripeProducts only scanned the first 100 active Products/Prices, so an account with >100 active Products (reachable once a handful of Commerce leads sync multi-SKU catalogs, since every SKU gets its own Product) could get duplicate Products/Prices on re-sync or a false-clean Archive orphans result. Shipped pagination via has_more/starting_after. Also closed duplicate open PR #80 (fix + test already on main via PR #78/#82).",
+    shipped: [
+      "src/lib/commerce/stripe-sync.ts — listAllPages helper; findProductByKey/findMatchingPrice/listOrphanCommerceStripeProducts now walk every page instead of trusting limit:100",
+      "src/lib/commerce/stripe-sync.test.ts — fake Stripe client now paginates like the real SDK (has_more/starting_after); new tests seed >100 active Products across filler leads and assert re-sync avoids duplicates and orphan detection still finds a removed SKU past page 1",
+      "src/lib/pricing/bootstrap-stripe-prices.ts — same has_more/starting_after pagination fix for findProductByKey/findMatchingPrice",
+      "NEXT_STEPS: commerce-stripe-sync-pagination done",
+      "AGENT_PROTOCOL — Stripe list() idempotent lookups must paginate, never trust a single page",
+      "BUSINESS_DECISIONS — documented pagination-required rule for Stripe metadata-key lookups",
+      "Coop: closed duplicate open PR #80 (claude/upbeat-dijkstra-v7yyno) with a comment pointing to PR #78/#82 where the same fix + test already merged to main",
+      "Verified: npm test (323 passed) + lint + build all clean on main tip (70d5c0e)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(182, 183),
   },
 ];
