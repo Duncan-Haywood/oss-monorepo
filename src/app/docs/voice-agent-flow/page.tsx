@@ -85,10 +85,13 @@ export default function VoiceAgentFlowDocPage() {
         CTA, after-hours, and take-a-message — derived from site data via{" "}
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (both paths covered by{" "}
-        <code>src/lib/voice/generators.test.ts</code>). When Convex is configured, Generate voice
-        fails closed (<code>requireConvex</code> / <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>)
-        so a multi-instance deploy cannot claim success after a SQLite-only write. With an email on
-        the lead, <strong>Email voice pack</strong> (
+        <code>src/lib/voice/generators.test.ts</code>). Lead→request shaping (
+        <code>src/lib/voice/build-request.ts</code>) has direct edge coverage in{" "}
+        <code>build-request.test.ts</code> so empty services/hours cannot silently feed thin
+        scripts. When Convex is configured, Generate voice fails closed (
+        <code>requireConvex</code> / <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a
+        multi-instance deploy cannot claim success after a SQLite-only write. With an email on the
+        lead, <strong>Email voice pack</strong> (
         <code>sendClientVoicePackToClientAction</code>) delivers the scripts via Resend so the
         client can paste into a temporary number or Cal.com. Scripts persist one row per lead (not
         monthly). Eligible Complete leads still missing a pack surface on pipeline health (
