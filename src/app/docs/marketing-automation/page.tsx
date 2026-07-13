@@ -84,7 +84,10 @@ export default function MarketingAutomationDocPage() {
         mistaken for sold AI copy. Ad-hoc{" "}
         <code>POST /api/marketing/generate</code> keeps route-level Vitest coverage for operator
         auth and request validation (<code>route.test.ts</code>) — prefer the dashboard pack
-        action for persisted fulfillment.{" "}
+        action for persisted fulfillment. Action-level Vitest in{" "}
+        <code>generate-marketing-pack-action.test.ts</code> locks auth, eligibility,{" "}
+        <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, and Convex fail-closed on that
+        dashboard path.{" "}
         <strong>Email pack</strong> sends that month&apos;s pack to{" "}
         <code>lead.email</code> via Resend so clients can post themselves without waiting on
         Buffer / GBP OAuth. Eligible leads missing this month&apos;s pack surface on pipeline

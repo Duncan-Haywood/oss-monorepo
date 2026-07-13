@@ -266,7 +266,8 @@ export default function RoadmapDocPage() {
         emails, Anthropic when <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
         per lead/month; when Convex is configured the persist uses <code>requireConvex</code>{" "}
         so Generate pack cannot succeed only in instance-local SQLite —{" "}
-        <code>marketing-pack-convex-primary</code>). <strong>Email pack</strong> (
+        <code>marketing-pack-convex-primary</code>; action-level Vitest in{" "}
+        <code>generate-marketing-pack-action.test.ts</code>). <strong>Email pack</strong> (
         <code>sendMarketingPackToClientAction</code>) delivers the pack to{" "}
         <code>lead.email</code> via Resend. Eligible-but-missing packs count on pipeline health
         and list in the daily digest. Buffer / GBP / Meta auto-scheduling stays operator-gated
