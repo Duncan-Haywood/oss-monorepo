@@ -212,7 +212,13 @@ export default function ArchitectureDocPage() {
         <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
         <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
         paid-not-live stay aligned. Activate Customer Portal in the Stripe Dashboard before first
-        live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
+        live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>). Route-level
+        Vitest coverage in <code>src/app/api/stripe/billing-portal/route.test.ts</code> locks body
+        parsing, the <code>STRIPE_SECRET_KEY</code> gate, and <code>returnUrl</code> derivation
+        (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin) —
+        the fourth and final Stripe-facing route (alongside checkout, commerce/checkout, and
+        webhook) to get direct orchestration tests rather than relying only on its extracted
+        helper&apos;s suite.
       </p>
       <p>
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
@@ -345,7 +351,10 @@ export default function ArchitectureDocPage() {
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
-        <code>marketingPacks</code>). When Convex is configured, Generate pack passes{" "}
+        <code>marketingPacks</code>). Ad-hoc operator generation remains available at{" "}
+        <code>POST /api/marketing/generate</code> (auth + validation + stub-vs-LLM messaging
+        covered by <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
+        dashboard pack action for persisted fulfillment. When Convex is configured, Generate pack passes{" "}
         <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
