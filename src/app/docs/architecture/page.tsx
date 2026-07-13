@@ -112,7 +112,13 @@ export default function ArchitectureDocPage() {
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
         Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
         <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression
-        list before sending and <code>GET /api/unsubscribe</code> writes to it. The suppression
+        list before sending and <code>GET /api/unsubscribe</code> writes to it. The unsubscribe
+        link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}
+        <code>verifyUnsubscribeToken</code>, <code>src/lib/email/unsubscribe-token.ts</code>,
+        keyed on <code>RESEND_API_KEY</code>) bound to that recipient&apos;s address — the route
+        rejects a missing or mismatched token with <code>400</code> before calling{" "}
+        <code>suppressEmail</code>, so an attacker who merely knows an address (scraped from the
+        same public listings CSV import targets) cannot silently suppress it. The suppression
         list (SQLite + Convex <code>suppressions</code>) follows the same Convex-first,
         SQLite-fallback pattern as every other table for operator reads — but the public
         unsubscribe route passes <code>requireConvex</code> (

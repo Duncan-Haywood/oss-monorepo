@@ -1,5 +1,6 @@
 import { isEmailSuppressed } from "../db";
 import { brand } from "../brand";
+import { signUnsubscribeToken } from "./unsubscribe-token";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
 import {
@@ -38,7 +39,8 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
 
   // Determine base URL for unsubscribe link
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(normalizedTo)}`;
+  const unsubscribeToken = signUnsubscribeToken(normalizedTo);
+  const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(normalizedTo)}&token=${encodeURIComponent(unsubscribeToken)}`;
 
   // Wrap HTML content with standard CAN-SPAM footer.
   // brand.* are env-sourced operator strings — same escapeHtmlForEmail rule as

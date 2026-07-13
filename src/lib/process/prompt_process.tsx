@@ -165,6 +165,7 @@ export const AGENT_PROTOCOL = [
   "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "unsubscribe-token-signing done: GET /api/unsubscribe now rejects a missing or mismatched token (400, before calling suppressEmail) via signUnsubscribeToken/verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts). Every automated send funnels through sendEmail (src/lib/email/resend.ts), which is the one and only place that builds the unsubscribe link — it now appends &token=signUnsubscribeToken(normalizedTo), so no template needs to change individually. Prior audits treated 'unsubscribe honored' as done once requireConvex + escapeHtmlForEmail landed on this route; neither addressed that the route had no authorization at all. When adding any new public link that triggers a state-changing GET/POST keyed only by an email or slug in the URL (no session), check whether it needs the same signed-token treatment before assuming a persistence/escaping audit already covered it. Signing key is RESEND_API_KEY (already required for a real send to leave the building) with a fixed dev-only fallback — do not introduce a new required secret for this class of problem when an existing one already gates whether the link is ever delivered to a real recipient. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression or security audit (e.g. rate limiting on public write endpoints — contact form, checkout create, preview-open beacon — none currently exists) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1272,6 +1273,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-fa0a",
+  },
+  {
+    id: "unsubscribe-token-signing",
+    summary:
+      "Security audit while free NEXT_STEPS backlog stayed gated: GET /api/unsubscribe?email=X suppressed X for anyone who merely knew the address — no signature, no rate limit, no format check — and isEmailSuppressed gates every sendEmail() call (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff), so a scraper could silently and permanently suppress outreach or, worse, a paying customer's receipt/DNS instructions. Shipped: signUnsubscribeToken / verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts, HMAC keyed on RESEND_API_KEY — already a required production secret, no new operator setup); sendEmail's footer link now embeds &token=; the route rejects a missing/mismatched token with 400 before calling suppressEmail. Route-level tests updated to cover missing/forged/garbage tokens.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/upbeat-dijkstra-o8942x",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2877,6 +2886,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
     rationale:
       "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "GET /api/unsubscribe now requires a per-recipient HMAC token (signUnsubscribeToken / verifyUnsubscribeToken, src/lib/email/unsubscribe-token.ts, keyed on RESEND_API_KEY with a fixed dev-only fallback) bound to the email address before suppressEmail runs — an unsigned or mismatched token returns 400 without touching the suppression store.",
+    rationale:
+      "Empty-backlog security audit while free NEXT_STEPS stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). The unsubscribe route had zero authorization: GET /api/unsubscribe?email=X suppressed X for anyone who merely knew the address — no signature, no rate limit, not even format validation. isEmailSuppressed gates every sendEmail() call (outreach Email 1-3, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, the post-payment DNS handoff instructions), so a scraper iterating known/guessed business emails (the same public-listing sources the platform's own CSV import targets) could permanently and silently block outreach, receipts, or DNS setup instructions for any address, including a paying customer's — a live authorization bug with concrete revenue/deliverability/support risk, not test-coverage padding. Chose RESEND_API_KEY as the signing key over introducing a new required secret: it is already the production dependency for a real send to ever reach a recipient, so no new operator setup step is needed and the dev/demo fallback only ever has to protect a link nobody actually receives (sendEmail mock-logs instead of sending when RESEND_API_KEY is unset). Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -5045,5 +5061,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(228, 229),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/upbeat-dijkstra-o8942x",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133 (category-themes + demo-catalog unit coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Ran an empty-backlog security audit instead of another pure-logic test-coverage sweep (that class of gap was thoroughly closed by the last ~20 iterations). Found GET /api/unsubscribe had no authorization at all: anyone who knew an email address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff instructions) — a live bug with concrete revenue/deliverability/support impact, not a hypothetical. Shipped a signed per-recipient token so the route can tell a real unsubscribe click from a guessed URL.",
+    shipped: [
+      "src/lib/email/unsubscribe-token.ts — signUnsubscribeToken / verifyUnsubscribeToken (HMAC-SHA256, timing-safe compare), keyed on RESEND_API_KEY with a fixed dev-only fallback for mock-email mode",
+      "src/lib/email/resend.ts — sendEmail's unsubscribe footer link now embeds &token=signUnsubscribeToken(normalizedTo); every automated send template gets this for free since sendEmail is the single place that builds the link",
+      "src/app/api/unsubscribe/route.ts — verifies the token before calling suppressEmail; missing/mismatched/garbage token returns 400 without touching the suppression store",
+      "src/lib/email/unsubscribe-token.test.ts — 8 tests (round-trip, case/whitespace-insensitive address matching, wrong-address rejection, missing/empty/garbage/wrong-length token rejection, secret-rotation invalidation, dev fallback)",
+      "src/app/api/unsubscribe/route.test.ts — rewrote to sign valid tokens for the existing HTML-escaping tests, added 4 new tests (missing token, forged token for a different address, garbage token, valid token succeeds)",
+      "Docs: architecture — note the signed-token requirement beside the existing requireConvex/escapeHtmlForEmail unsubscribe coverage; compliance — added an unsubscribe-authorization checklist line",
+      "NEXT_STEPS: unsubscribe-token-signing done",
+      "AGENT_PROTOCOL — documented the finding + a note that no public write endpoint has rate limiting (contact form, checkout create, preview-open beacon) as the next audit angle",
+      "BUSINESS_DECISIONS — documented the vulnerability, its blast radius, and why RESEND_API_KEY (not a new secret) is the signing key",
+      "Verified: npm test (627 passed, +13 new) + lint clean + build clean + npm run dev — curled /api/unsubscribe with no token (400), a garbage token (400), and a correctly-signed token (200, suppression recorded); confirmed /dashboard/leads and /preview/[slug] still 200",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(229, 230),
   },
 ];

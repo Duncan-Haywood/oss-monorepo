@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { suppressEmail } from "@/lib/db";
 import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
+  const token = searchParams.get("token");
 
   if (!email) {
     return new NextResponse("Missing email parameter", { status: 400 });
+  }
+
+  if (!verifyUnsubscribeToken(email, token)) {
+    return new NextResponse(
+      "Invalid or expired unsubscribe link. Use the link from a recent email instead.",
+      { status: 400 },
+    );
   }
 
   try {

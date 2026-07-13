@@ -60,6 +60,12 @@ export default function ComplianceDocPage() {
           Convex is configured (<code>requireConvex</code>); a transient Convex failure returns
           500 so the visitor can retry rather than a false success page
         </li>
+        <li>
+          Unsubscribe links are per-recipient signed tokens (
+          <code>src/lib/email/unsubscribe-token.ts</code>) so a third party who only knows an
+          address cannot suppress it without ever having received a message — the route rejects
+          a missing/invalid token with 400 before touching the suppression store
+        </li>
         <li>Non-deceptive subject lines</li>
       </ul>
 
