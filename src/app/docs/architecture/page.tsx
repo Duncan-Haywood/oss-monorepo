@@ -125,7 +125,10 @@ export default function ArchitectureDocPage() {
       <h2 id="payments">6. Payments (self-serve)</h2>
       <p>
         <code>POST /api/stripe/checkout</code> creates a real Stripe Checkout Session (501 only
-        when Price IDs / secret key are missing).{" "}
+        when Price IDs / secret key are missing). Route-level Vitest coverage in{" "}
+        <code>src/app/api/stripe/checkout/route.test.ts</code> locks organic slug minting, Price ID
+        line items, cancel URL attribution, and requireConvex fail-closed session tracking (create-side
+        twin of the webhook orchestration suite).{" "}
         <code>POST /api/stripe/webhook</code> verifies signatures, marks the lead paid, records the
         order, sends a receipt email when Resend is configured, and enqueues a production deploy
         handoff (DNS + contact form). The <code>orders</code> insert is idempotent on{" "}

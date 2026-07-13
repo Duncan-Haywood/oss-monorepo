@@ -151,6 +151,9 @@ export const AGENT_PROTOCOL = [
   "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "seo-helpers-unit-coverage done: src/lib/seo.test.ts locks siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL trimmed + trailing-slash-stripped > VERCEL_URL > localhost default; whitespace-only values treated as unset for both), previewUrl composition, leadMetaTitle/leadMetaDescription, and leadLocalBusinessJsonLd (per-BusinessCategory schema.org @type + nested PostalAddress, including an absent lead.address passing through as undefined streetAddress) — src/lib/seo.ts backs the Starter 'Basic SEO' promise and had zero direct tests before this. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, escapeHtmlForEmail asymmetry re-scan, remaining untested pure-logic modules) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "preview-jsonld-script-escape done: any value embedded via dangerouslySetInnerHTML into a <script> tag (not just email HTML) must be escaped against a literal '</script>' breakout — JSON.stringify alone is not enough (the seo-helpers-unit-coverage suite above locked leadLocalBusinessJsonLd's shape but did not catch this, since it never exercised the dangerouslySetInnerHTML call site). Use safeJsonLdScript (src/lib/seo.ts) for JSON-LD; do not reuse escapeHtmlForEmail here, it HTML-entity-escapes for email bodies and is the wrong tool for JS-string/script-tag content. Before assuming email-HTML audits (escapeHtmlForEmail sweeps) covered every injection surface, grep the whole codebase for dangerouslySetInnerHTML — it currently has exactly one call site — and check page-rendered output too, not only outbound email. Lead fields (businessName/description/address/city/state) are free text from CSV import (and future Places ingestion), not just operator-typed, so treat them as untrusted at every render sink, not only at persistence. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression or security audit over inventing optional aggregates.",
+  "stripe-webhook-route-test-coverage done: src/app/api/stripe/webhook/route.ts has route-level Vitest covering bundle + commerce_sku orchestration (5xx-per-failure-step, redelivery recovery). When free NEXT_STEPS are gated again, prefer stripe-checkout-route-test-coverage (create-side twin — organic slug minting, Price ID line items, requireConvex fail-closed session tracking) or commerce-checkout-route-test-coverage (Buy now twin; different module; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When stripe-checkout-route-test-coverage and commerce-checkout-route-test-coverage are both free in the same cron window, claim different ones (bundle Checkout create vs Commerce Buy now create) — they touch different route files and both lock money-critical create-path orchestration that the webhook suite does not cover.",
+  "stripe-checkout-route-test-coverage done: src/app/api/stripe/checkout/route.ts has route-level Vitest (config/tier/Price-env guards, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s). Helper suites (organic-attribution, session-persist) are not enough for the route orchestration. When free NEXT_STEPS are gated again, prefer commerce-checkout-route-test-coverage (sibling-friendly Buy now twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1190,10 +1193,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-checkout-route-test-coverage",
     summary:
-      "Empty-backlog after PR #124 (stripe-webhook-route-test-coverage): create-side twin of the webhook suite. src/app/api/stripe/checkout/route.ts is the only path that starts every Starter/Growth/Complete (+ Commerce add-on) sale — organic slug minting, Price ID line items, requireConvex fail-closed session tracking, and cancel URL attribution — and had zero direct route tests (helpers organic-attribution + session-persist were covered in isolation). Claimed for route-level Vitest mirroring the webhook pattern. Sibling-friendly twin: commerce-checkout-route-test-coverage.",
-    status: "in_progress",
+      "Empty-backlog after PR #124 (stripe-webhook-route-test-coverage): create-side twin of the webhook suite. src/app/api/stripe/checkout/route.ts is the only path that starts every Starter/Growth/Complete (+ Commerce add-on) sale — organic slug minting, Price ID line items, requireConvex fail-closed session tracking, and cancel URL attribution — and had zero direct route tests (helpers organic-attribution + session-persist were covered in isolation). Shipped route.test.ts (15 tests): missing secret/Price-env 501s, invalid JSON / unknown tier 400s, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + whitespace-slug mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s. Sibling claimed the same todo ~55s later (claim-only); earlier remote claim owns — sibling should take commerce-checkout-route-test-coverage.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-f32f",
+  },
+  {
+    id: "commerce-checkout-route-test-coverage",
+    summary:
+      "Sibling twin of stripe-checkout-route-test-coverage for Commerce Buy now: POST /api/commerce/checkout resolves stripePriceId server-side from the catalog (never trusts client price), records kind=commerce_sku + skuId for abandoned-cart tracking, and fail-closes on CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY. Zero direct tests today — queued by prompt-process-evolution-7d1d in the same window; free for a sibling (or a later run) when the bundle checkout route is claimed/done.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2736,6 +2746,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/stripe/webhook/route.ts (checkout.session.completed orchestration — bundle payment/handoff and Commerce Buy now ledger, both with redelivery recovery) gets its own route-level Vitest suite, mocking only the Stripe SDK, @/lib/db, and @/lib/email/resend — the pure decision helpers it calls (planBundleWebhookSideEffects, planCommerceWebhookSideEffects, commerceOrderPaidInquiryMessage) run for real so the test exercises actual orchestration, not a restatement of its own mocks.",
     rationale:
       "A fresh empty-backlog audit (Convex/SQLite table parity, static Convex API map registration, webhook side-effect idempotency, HTML/script injection sinks, capped-list truncation feeding an eligibility/idempotency check) found every previously-shipped guard still holding and no new bug — the systematic fix series across ~20 prior iterations (PRs #104-#122) has genuinely closed this class of gap. Rather than force another speculative bug hunt or add a 21st optional aggregate, this iteration shipped coverage on the highest money-criticality file in the repo that had none: every other module the webhook calls into (bundle-side-effect-recovery.ts, commerce/side-effect-recovery.ts) was unit-tested in isolation, but the route itself — the exact ordering of ledger-write-before-email, which failure returns 5xx vs. stays best-effort, and the branch split between commerce_sku and bundle sessions — was never exercised end-to-end. That orchestration is exactly where the fix series' own past regressions lived (missing kind discriminator, alreadyRecorded early-breaking past recoverable emails, marker-write failures needing to force a Stripe retry) — untested orchestration is where the next one would hide. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/stripe/checkout/route.ts (bundle Checkout Session create — Starter/Growth/Complete + Commerce add-on) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db — organic slug resolution and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY stay real so the test exercises create-path orchestration, not a restatement of mocks.",
+    rationale:
+      "After PR #124 covered webhook fulfillment orchestration, the create-side twin that starts every sale still had zero direct route tests — helpers organic-attribution + session-persist were covered in isolation, but Price-env 501s, payment vs subscription mode, Commerce add-on line items, organic-* mint + cancel URL attribution, and fail-closed 502 on tracking failure (ConvexPrimaryWriteError or otherwise) live only in the route. Untested create-path orchestration is the same class of gap the webhook suite just closed on the fulfill side. Sibling prompt-process-evolution-7d1d dual-claimed ~55s later (claim-only); earlier remote claim owns per AGENT_PROTOCOL — commerce-checkout-route-test-coverage stays free for them. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4762,5 +4779,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (514 passed, +21 new) + lint clean + build clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(219, 220),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-f32f",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #124 (stripe-webhook-route-test-coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Claimed stripe-checkout-route-test-coverage (create-side twin of the webhook suite). Sibling prompt-process-evolution-7d1d dual-claimed the same todo ~55s later (claim-only, no feature body); earlier remote claim owns — left commerce-checkout-route-test-coverage free for them. Shipped route-level Vitest locking Price-env guards, payment vs subscription mode, Commerce add-on line items, organic slug minting, and requireConvex fail-closed tracking 502s. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/stripe/checkout/route.test.ts — 15 tests (missing secret/Price-env 501s, invalid JSON / unknown tier 400s, Starter payment + Growth subscription + Commerce add-on line items + cancel URL commerce=1, organic-* mint + whitespace-slug mint, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s)",
+      "Docs: architecture — note route-level Vitest for POST /api/stripe/checkout create-path orchestration",
+      "NEXT_STEPS: stripe-checkout-route-test-coverage done; commerce-checkout-route-test-coverage queued (sibling twin)",
+      "AGENT_PROTOCOL — claim bundle vs commerce checkout route coverage separately; create-side orchestration coverage required beyond helper suites",
+      "BUSINESS_DECISIONS — documented why organic-attribution + session-persist helper tests are insufficient for the route",
+      "Verified: npm test (+15 new) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(220, 221),
   },
 ];
