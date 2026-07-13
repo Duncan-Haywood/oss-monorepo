@@ -69,7 +69,11 @@ export default function ArchitectureDocPage() {
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>. Tier upsell cards link to
-        checkout with <code>slug</code> + recommended <code>tier</code>.
+        checkout with <code>slug</code> + recommended <code>tier</code>.{" "}
+        <code>resolvePreviewLead</code> (slug keyword → category + recommended tier) and the
+        demo catalog have direct Vitest coverage in{" "}
+        <code>src/lib/leads/demo-catalog.test.ts</code>. Category theme shells live in{" "}
+        <code>src/lib/previews/themes.ts</code>.
       </p>
 
       <h2 id="seo">2b. SEO &amp; discoverability</h2>

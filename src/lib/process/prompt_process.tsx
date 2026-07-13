@@ -163,6 +163,7 @@ export const AGENT_PROTOCOL = [
   "When pricing-bundles-unit-coverage / brand-helpers-unit-coverage / demo-catalog-unit-coverage / category-themes-unit-coverage are free in the same cron window, claim different ones (sold USD+Price-env source of truth vs CAN-SPAM brand lines vs preview slug inference vs category theme map) — they touch different modules. price-env-readiness / bootstrap suites that import BUNDLES are not enough for display USD amounts or getBundle lookup.",
   "pricing-bundles-unit-coverage done: src/lib/pricing/bundles.test.ts locks Starter/Growth/Complete + Commerce add-on sold USD amounts, Stripe Price env var names, Starter monthly=null, and getBundle unknown-id behavior — the source of truth for checkout UI, tier upsell, bootstrap-stripe-prices, and price-env-readiness. When free NEXT_STEPS are gated again, prefer brand-helpers-unit-coverage (if still free), demo-catalog-unit-coverage (resolvePreviewLead category inference), or category-themes-unit-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1258,8 +1259,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "demo-catalog-unit-coverage",
     summary:
-      "Empty-backlog after PR #131 (brand-helpers + pricing-bundles) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. src/lib/leads/demo-catalog.ts backs /preview/[slug] fallback rendering (resolvePreviewLead category inference + recommendedTier) and DEMO_LEADS seed data for operator sanity-checks; had zero direct tests. Claimed for Vitest locking catalog slug lookup, restaurant/salon/trades/generic keyword inference, title-case businessName, and countLeadsByStage. Sibling-friendly leftover: category-themes-unit-coverage (src/lib/previews/themes.ts).",
-    status: "in_progress",
+      "Empty-backlog after PR #131 (brand-helpers + pricing-bundles) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. src/lib/leads/demo-catalog.ts backs /preview/[slug] fallback rendering (resolvePreviewLead category inference + recommendedTier) and DEMO_LEADS seed data for operator sanity-checks; had zero direct tests. Shipped: demo-catalog.test.ts locking catalog slug lookup, restaurant/salon/trades/generic keyword inference (case-insensitive), title-case businessName, recommendedTier mapping, and countLeadsByStage. Sibling-friendly leftover: category-themes-unit-coverage (src/lib/previews/themes.ts).",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-cae5",
   },
@@ -2860,6 +2861,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/brand.ts (two-layer CAN-SPAM branding) reads every brand env via getters with trim + whitespace-only-as-unset, and gets direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence plus marketingFooterLine / legalEntityLine / outreachSenderLine — including the deprecated company re-export mirror.",
     rationale:
       "After PR #129 closed the last Stripe-facing route gap, free NEXT_STEPS stayed fully gated. brand.ts feeds every outbound email footer and Stripe seller identity but had zero direct tests and evaluated env only at module load — whitespace-only LEGAL_ENTITY/ADDRESS would silently stick as a blank-looking seller identity, and Vitest could not flip env between cases. Getters + trim match price-env-readiness; company.ts mirrors via getters so the migration shim stays live. Sibling prompt-process-evolution-35a5 claimed pricing-bundles in the same window (PR #130). Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/leads/demo-catalog.ts (DEMO_LEADS + resolvePreviewLead + countLeadsByStage) gets its own Vitest suite locking stable demo slugs, category/tier alignment, keyword inference (restaurant/salon/trades/generic, case-insensitive), title-case businessName, and stage counts — the /preview/[slug] fallback path for not-yet-persisted slugs.",
+    rationale:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #131 (brand-helpers + pricing-bundles). resolvePreviewLead chooses which category template and tier upsell card an operator sees when sanity-checking a slug before persistence — a silent drift (e.g. trades keyword → growth instead of starter, or bakery no longer matching restaurant) would mis-sell Starter vs Growth vs Complete on the preview itself with no existing suite catching it. Direct coverage is the cheapest sold-capability regression lock while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated. Sibling can take category-themes-unit-coverage. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4997,5 +5005,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(226, 227),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-cae5",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #131 (brand-helpers + pricing-bundles). Claimed demo-catalog-unit-coverage (resolvePreviewLead category inference + DEMO_LEADS); left category-themes-unit-coverage free for a sibling. Shipped demo-catalog.test.ts locking stable demo slugs, keyword→category/tier mapping, title-case businessName, and stage counts. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/leads/demo-catalog.test.ts — DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case + restaurant/salon/trades/generic inference (case-insensitive) + recommendedTier, countLeadsByStage",
+      "Docs: architecture — note Vitest coverage for resolvePreviewLead / demo catalog under Site generation",
+      "NEXT_STEPS: demo-catalog-unit-coverage done; category-themes-unit-coverage queued as todo for sibling",
+      "AGENT_PROTOCOL — demo-catalog coverage done; next empty-backlog prefer category-themes if still free",
+      "BUSINESS_DECISIONS — documented why preview slug inference needs its own suite beyond quality-score CATEGORY_DEFAULT_TIER",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(227, 228),
   },
 ];
