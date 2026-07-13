@@ -1338,6 +1338,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-e756",
   },
+  {
+    id: "proxy-routing-test-coverage",
+    summary:
+      "Empty-backlog after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only gated secrets/OAuth/counsel remain. src/proxy.ts orchestrates dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite, but helper suites (custom-domain-routing.test.ts, operator.test.ts) do not lock the ordering or fail-closed paths (preview subdomain before isPlatformHost; unrecognized subdomain must not rewrite; /api and /dashboard must never Host-divert; auth redirect when password set). Claimed for route-level Vitest on the proxy orchestrator.",
+    status: "in_progress",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "cursor/business-process-evolution-cbbe",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
