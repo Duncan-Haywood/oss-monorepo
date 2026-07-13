@@ -4119,6 +4119,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: bundle-price-env-readiness done; free backlog again gated",
       "AGENT_PROTOCOL — readiness is env presence banner, not a pipeline-health card; prefer empty-backlog audits next",
       "BUSINESS_DECISIONS — documented sale-blocking early signal without fake-completing bootstrap",
+      "Verified: npm test (374 passed, +5 new) + lint + build all clean; npm run dev — /dashboard and /dashboard/leads show checkout-blocked banner (7/7 missing Price env vars)",
     ],
     decisions: BUSINESS_DECISIONS.slice(198, 199),
   },
