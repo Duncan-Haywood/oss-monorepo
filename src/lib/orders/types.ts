@@ -19,8 +19,10 @@ export interface OrderRecord {
 
 /**
  * Newest-first by createdAt (ISO or comparable string). Matches SQLite
- * `ORDER BY createdAt DESC` so latestEligibleOrder / Billing Portal stay correct
- * when orders come from Convex (unordered .collect()).
+ * `ORDER BY createdAt DESC` and convex/orders.list (createdAt desc) so
+ * latestEligibleOrder / Billing Portal stay correct. db.ts keeps calling this
+ * even though Convex already sorts — belt-and-suspenders against a future
+ * unordered query consumer.
  */
 export function sortOrdersNewestFirst<T extends { createdAt: string }>(orders: T[]): T[] {
   return [...orders].sort((a, b) =>

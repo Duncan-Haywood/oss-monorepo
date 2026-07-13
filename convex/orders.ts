@@ -50,7 +50,11 @@ export const list = query({
     }),
   ),
   handler: async (ctx) => {
-    return await ctx.db.query("orders").collect();
+    // Newest-first by createdAt — matches SQLite ORDER BY createdAt DESC and
+    // db.ts sortOrdersNewestFirst. Do not rely on .collect() insertion order;
+    // Billing Portal latestEligibleOrder assumes newest row first.
+    const rows = await ctx.db.query("orders").collect();
+    return rows.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 

@@ -193,8 +193,9 @@ export default function ArchitectureDocPage() {
         leads. Orders store <code>stripeCustomerId</code> when the webhook records payment;
         older orders fall back to retrieving the Checkout Session.{" "}
         <code>listOrders</code> returns newest-first on both backends (
-        <code>sortOrdersNewestFirst</code> on the Convex path) so{" "}
-        <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
+        <code>convex/orders.list</code> sorts by <code>createdAt</code> desc at the source,
+        plus <code>sortOrdersNewestFirst</code> in <code>db.ts</code> as belt-and-suspenders)
+        so <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
         row. When checkout completes for a slug with no CRM lead yet,{" "}
         <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
         <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
@@ -326,7 +327,9 @@ export default function ArchitectureDocPage() {
         <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
-        parse / length-mismatch fallbacks and <code>packageTier</code>). Operators trigger{" "}
+        parse / length-mismatch fallbacks and <code>packageTier</code>;{" "}
+        <code>build-request.test.ts</code> for empty services/hours defaults and growth vs
+        complete <code>automationLevel</code>). Operators trigger{" "}
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
@@ -346,15 +349,19 @@ export default function ArchitectureDocPage() {
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>src/lib/voice/generators.test.ts</code> for stub edge branches + Anthropic blank-key /
-        HTTP / parse / length-mismatch fallbacks and title fallback). Eligibility: paid/live +
-        Complete order; one row per lead (SQLite + Convex <code>clientVoicePacks</code>) —
-        regenerating replaces. When Convex is configured, Generate voice passes{" "}
-        <code>requireConvex</code> (<code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a mutation
-        failure surfaces a retry instead of leaving voice-packs-due / Email voice pack blind on
-        other instances. <code>sendClientVoicePackToClientAction</code> emails the pack to{" "}
-        <code>lead.email</code> via Resend (<code>src/lib/voice/deliver-pack.ts</code>) so clients
-        can paste into a temp number / Cal.com. Twilio + <code>/api/voice/client/webhook</code>{" "}
-        remain Phase 7. See <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink> and{" "}
+        HTTP / parse / length-mismatch fallbacks and title fallback). Lead→request shaping (
+        <code>clientVoiceBusinessContextFromLead</code> /{" "}
+        <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
+        <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}
+        <code>our services</code>, hours/state omission). Eligibility: paid/live + Complete order;
+        one row per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.
+        When Convex is configured, Generate voice passes <code>requireConvex</code> (
+        <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a mutation failure surfaces a retry
+        instead of leaving voice-packs-due / Email voice pack blind on other instances.{" "}
+        <code>sendClientVoicePackToClientAction</code> emails the pack to <code>lead.email</code>{" "}
+        via Resend (<code>src/lib/voice/deliver-pack.ts</code>) so clients can paste into a temp
+        number / Cal.com. Twilio + <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>
 

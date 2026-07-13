@@ -165,8 +165,9 @@ export default function RoadmapDocPage() {
         <strong>Billing</strong> on paid/live leads, customer{" "}
         <strong>Manage subscription</strong> on <code>/checkout/success</code> (
         <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>);{" "}
-        <code>listOrders</code> is newest-first on Convex too so the portal picks the latest
-        eligible order. Checkout for an unknown slug creates a paid payment stub lead on both
+        <code>listOrders</code> is newest-first on Convex too (
+        <code>convex/orders.list</code> + <code>sortOrdersNewestFirst</code>) so the portal
+        picks the latest eligible order. Checkout for an unknown slug creates a paid payment stub lead on both
         backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
         Stripe Dashboard. Until Price env vars are pasted,{" "}
