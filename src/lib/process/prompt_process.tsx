@@ -1310,6 +1310,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-o8942x",
   },
+  {
+    id: "public-write-rate-limiting",
+    summary:
+      "unsubscribe-token-signing (PR #137) flagged that no public write endpoint has rate limiting — POST /api/contact/[slug], POST /api/stripe/checkout, POST /api/commerce/checkout, and POST /api/preview/[slug]/open can all be hit unboundedly by a script (contact-form spam, Stripe Checkout Session churn, preview-open beacon flooding). Claiming to add a small in-memory, per-instance rate limiter keyed on client IP + route name.",
+    status: "in_progress",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "claude/quirky-davinci-swhbug",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
