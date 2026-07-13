@@ -11,6 +11,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { generateMicrositeForDelivery } from "./microsite";
+import { deliveryMessageText } from "../../process/delivery-message";
 
 type CliArgs = {
   dir: string;
@@ -82,6 +83,14 @@ async function main() {
   console.log(`  Photos: ${result.photoCount}`);
   if (result.photoCount === 0) {
     console.warn(`  Warning: no gallery photos found in ${args.dir} — run enhance first.`);
+  } else {
+    const message = deliveryMessageText({
+      listingAddress: args.listing,
+      recipientName: args.agentName,
+      photoCount: result.photoCount,
+      micrositeFilename: args.out,
+    });
+    console.log(`\nReady-to-send delivery message:\n${message}`);
   }
 }
 

@@ -261,6 +261,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/payment-collection.ts exists with a sourced comparison of zero-setup payment methods (no new business infrastructure, no real spend), an explicit decision, and ready-to-use instructions addressed to Duncan's known real inbox; pricing-one-pager.tsx's FAQ and howItWorks reference it; leads-log.ts's Lead type gains optional paymentMethod/paymentReference fields so a real 'paid' entry can record how; pipeline/src/log-lead.ts's CLI accepts them. Rendered on the docs site.",
       },
+      {
+        id: "p2-delivery-message",
+        title: "Ready-to-send delivery handoff message (photos + microsite + payment ask)",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The same class of silent gap booking-link.ts and payment-collection.ts each found and fixed: outreach-templates.ts covers getting booked and payment-collection.ts covers how to pay, but nothing ever combined 'here are your photos/microsite' with the payment ask into one ready-to-send message for the actual delivery moment — p2-first-deliveries' doneWhen says 'deliver it' but a human would have had to improvise that message from scratch, including re-deriving the payment ask by hand every time.",
+        doneWhen:
+          "process/delivery-message.ts exists with deliveryMessageText(), combining listing address, photo count, an optional microsite mention, payment-collection.ts's paymentInstructionsText(), and the existing free-redo guarantee into one ready-to-paste message; pipeline/src/cli-microsite.ts prints it automatically after a successful microsite build; has a passing self-test (npm test) with no real listing photos required. See process/delivery-message.ts, pipeline/src/cli-microsite.ts, delivery-message.test.ts.",
+      },
     ],
   },
   {

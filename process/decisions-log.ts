@@ -205,4 +205,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "real-estate-photography-continuous-improvement-2",
     relatedTaskIds: ["p2-payment-collection", "p2-first-deliveries", "p2-pricing-page"],
   },
+  {
+    date: "2026-07-13",
+    title: "Combine the delivery handoff and payment ask into one ready-to-send message",
+    decision:
+      "Added process/delivery-message.ts's deliveryMessageText(), which composes the listing address, photo count, an optional microsite mention, payment-collection.ts's paymentInstructionsText(), and the existing free-redo guarantee into a single ready-to-paste message. Wired it into pipeline/src/cli-microsite.ts so it prints automatically right after a successful microsite build — the exact moment a real delivery is ready to hand over.",
+    rationale:
+      "Same class of silent gap as booking-link.ts (no way to book) and payment-collection.ts (no way to pay), just one step later in the funnel: p2-first-deliveries' doneWhen says 'deliver it' and STRATEGY.md's 5-step workflow ends at 'Brand' (the microsite), but nothing ever defined what a human actually sends at handoff. Without this, every real delivery would require improvising a message from scratch and re-deriving the payment ask by hand each time, risking the same kind of inconsistency (or omission) that let the booking-link and payment-collection gaps go unnoticed for weeks. Printing it straight from the microsite CLI (rather than a separate step to remember) means the first real delivery gets the message for free, not as a thing to look up.",
+    madeBy: "claude/dazzling-allen-rb6omk",
+    relatedTaskIds: ["p2-delivery-message", "p2-first-deliveries", "p2-brand-microsite", "p2-payment-collection"],
+  },
 ];

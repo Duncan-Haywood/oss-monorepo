@@ -50,11 +50,11 @@ export const humanBlockers: HumanBlocker[] = [
     id: "first-concierge-delivery",
     title: "Book and shoot one real concierge listing",
     whatsNeeded:
-      "Use process/outreach-templates.ts + process/booking-link.ts to book one real listing, shoot it with process/capture-checklist.ts, run pipeline/ (enhance + microsite), and deliver it.",
+      "Use process/outreach-templates.ts + process/booking-link.ts to book one real listing, shoot it with process/capture-checklist.ts, run pipeline/ (enhance + microsite), and deliver it using process/delivery-message.ts's ready-to-send handoff message (printed automatically by `npm run microsite`).",
     unblocks: ["p2-first-deliveries", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 2,
+    confirmedByCount: 3,
   },
   {
     id: "phase-1-interviews",
@@ -63,7 +63,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-run-interviews", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 2,
+    confirmedByCount: 3,
   },
   {
     id: "zillow-listing-audit",
@@ -73,7 +73,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-listing-audit"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 2,
+    confirmedByCount: 3,
   },
   {
     id: "cloudflare-access-dashboard",
@@ -83,7 +83,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 2,
+    confirmedByCount: 3,
   },
   {
     id: "stale-branch-cleanup",
@@ -93,13 +93,13 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: [],
     firstFlagged: "2026-07-12",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 2,
+    confirmedByCount: 3,
   },
   {
     id: "payment-handle-setup",
     title: "Confirm/set the real payment handle prospects will pay",
     whatsNeeded:
-      "process/payment-collection.ts defaults to requesting payment via PayPal/Venmo/Zelle sent to duncan.andrew.haywood@gmail.com (the same known real address already used for booking-link.ts and Cloudflare Access). Confirm that email actually receives payments on at least one of those apps (or link it), or swap in a different real handle in payment-collection.ts if not. Quick (a few minutes), independent of booking a shoot — worth doing before the first delivery, not blocking on it.",
+      "process/payment-collection.ts (built 2026-07-13) defaults to requesting payment via Zelle (primary) / PayPal goods & services (fallback) sent to duncan.andrew.haywood@gmail.com (the same known real address already used for booking-link.ts and Cloudflare Access). Confirm that email actually receives payments on at least one of those apps (or link it), or swap in a different real handle in payment-collection.ts if not. Quick (a few minutes), independent of booking a shoot — worth doing before the first delivery, not blocking on it.",
     unblocks: ["p2-first-deliveries"],
     firstFlagged: "2026-07-13",
     lastConfirmed: "2026-07-13",
