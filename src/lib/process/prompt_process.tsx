@@ -5488,7 +5488,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — Generate pack action coverage required beyond generators/route suites; prefer Generate voice twin or operator-digest-email-env-readiness next",
       "BUSINESS_DECISIONS — documented why action glue Vitest beats inventing optional aggregates after Anthropic readiness",
       "merge: folded origin/cursor/business-process-evolution-849c (anthropic-env-readiness) — both ITERATIONS kept",
-      "Verified: npm test (generate-marketing-pack-action 11 passed) + lint + build",
+      "Verified: npm test (725 passed — marketing pack action 11 + folded anthropic readiness 10) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(241, 242),
   },
