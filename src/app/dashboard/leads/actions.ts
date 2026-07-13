@@ -115,7 +115,19 @@ export async function markHandoffLiveAction(slug: string) {
     if (!slug) {
       return { success: false as const, error: "Slug is required" };
     }
-    const handoff = await markHandoffLive(slug);
+    let handoff;
+    try {
+      handoff = await markHandoffLive(slug);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record Mark live in the shared store — handoff/lead stage may still show as pre-live elsewhere. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
     if (!handoff) {
       return { success: false as const, error: "No deploy handoff found for this lead" };
     }
@@ -141,7 +153,19 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
       return { success: false as const, error: "Slug is required" };
     }
     const trimmed = vercelProjectId.trim();
-    const handoff = await assignVercelProjectAndProvision(slug, trimmed || null);
+    let handoff;
+    try {
+      handoff = await assignVercelProjectAndProvision(slug, trimmed || null);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the Vercel project in the shared store — deploy may still route to the old project elsewhere. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
     if (!handoff) {
       return { success: false as const, error: "No deploy handoff found for this lead" };
     }
@@ -166,7 +190,19 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
       return { success: false as const, error: "Slug is required" };
     }
     const trimmed = customDomain.trim();
-    const handoff = await assignCustomDomainAndProvision(slug, trimmed || null);
+    let handoff;
+    try {
+      handoff = await assignCustomDomainAndProvision(slug, trimmed || null);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the custom domain in the shared store — routing may still miss on other instances. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
     if (!handoff) {
       return { success: false as const, error: "No deploy handoff found for this lead" };
     }
