@@ -3973,6 +3973,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: marketing-pack-convex-primary done; queued client-voice-pack-convex-primary",
       "AGENT_PROTOCOL — upsertMarketingPack requireConvex; prefer client-voice-pack twin when marketing-pack is claimed",
       "BUSINESS_DECISIONS — documented Generate pack split-brain risk + same-cron fold/pivot with c5ed",
+      "Verified: npm test (363 passed, +2 new) + lint + build all clean; tsc --noEmit shows only the pre-existing unrelated daily-digest/pipeline-health test-fixture type errors already noted in prior iterations",
     ],
     decisions: BUSINESS_DECISIONS.slice(193, 194),
   },
