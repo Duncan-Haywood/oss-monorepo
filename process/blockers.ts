@@ -54,7 +54,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p2-first-deliveries", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 3,
+    confirmedByCount: 4,
   },
   {
     id: "phase-1-interviews",
@@ -63,7 +63,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-run-interviews", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 3,
+    confirmedByCount: 4,
   },
   {
     id: "zillow-listing-audit",
@@ -73,7 +73,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-listing-audit"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 3,
+    confirmedByCount: 4,
   },
   {
     id: "cloudflare-access-dashboard",
@@ -83,17 +83,17 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 3,
+    confirmedByCount: 4,
   },
   {
     id: "stale-branch-cleanup",
-    title: "Delete ~19 confirmed-stale, fully-merged branches",
+    title: "Delete ~23 confirmed-stale, fully-merged branches",
     whatsNeeded:
-      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main — agent sessions get HTTP 403 deleting refs on this repo (re-confirmed this session; the GitHub MCP tool surface has no branch-delete method either). Re-check with `git diff origin/main origin/<branch> --stat` before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
+      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main (24 non-main branches exist as of this count; only cursor/fix-pages-access-4a7e is live, as PR #4) — agent sessions get HTTP 403 deleting refs on this repo both via `git push --delete` and the GitHub REST `DELETE /git/refs/heads/...` endpoint (re-confirmed this session; the GitHub MCP tool surface has no branch-delete method either). Re-check with `git diff origin/main origin/<branch> --stat` (not the triple-dot form, which false-positives after squash merges) before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
     unblocks: [],
     firstFlagged: "2026-07-12",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 3,
+    confirmedByCount: 4,
   },
   {
     id: "payment-handle-setup",
