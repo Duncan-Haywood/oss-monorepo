@@ -279,7 +279,10 @@ export default function ArchitectureDocPage() {
         digest also lists marketing packs due this UTC month, Starter → MRR upsell candidates,
         Commerce catalogs missing, and Complete voice packs due (action sections, reusing{" "}
         <code>listMarketingPacksDue</code> / <code>listStarterUpsellCandidates</code> /{" "}
-        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>). A lead that
+        <code>listCommerceCatalogsMissing</code> / <code>listClientVoicePacksDue</code>
+        — fed by uncapped <code>listMarketingPacksForMonth</code> /{" "}
+        <code>listCommerceCatalogs</code> / <code>listClientVoicePacks</code>, not a newest-N
+        page that would invent false Generate debt or hide Sync-to-Stripe debt). A lead that
         exhausts all 3 outreach
         emails with no reply (<code>isColdLead</code> in{" "}
         <code>src/lib/email/outreach-followups.ts</code>) never becomes due again, so it is

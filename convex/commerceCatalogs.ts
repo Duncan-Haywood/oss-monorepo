@@ -67,12 +67,21 @@ export const getByLeadSlug = query({
   },
 });
 
+/**
+ * Every commerce catalog — used by listCommerceCatalogsMissing /
+ * listCommerceCatalogsUnsynced / pipeline-health / digest. Must not cap at
+ * newest N: absence-from-page looks "missing" (false Generate debt) and an
+ * unsynced catalog past the window looks synced (Buy now stays broken).
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
 export const list = query({
   args: { limit: v.optional(v.number()) },
   returns: v.array(catalogReturn),
   handler: async (ctx, args) => {
-    const limit = Math.min(Math.max(args.limit ?? 100, 1), 200);
-    const rows = await ctx.db.query("commerceCatalogs").take(limit);
+    void args.limit;
+    const rows = await ctx.db.query("commerceCatalogs").collect();
+    // Newest-first to match SQLite ORDER BY updatedAt DESC.
+    rows.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     return rows.map((row) => ({
       leadSlug: row.leadSlug,
       items: row.items,
