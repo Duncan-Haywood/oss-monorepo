@@ -307,7 +307,8 @@ export default function RoadmapDocPage() {
         operator clicks Sync to Stripe on a saved catalog (
         <code>syncCommerceCatalogToStripeAction</code> →{" "}
         <code>syncCommerceCatalogToStripe</code>) to idempotently create a Stripe
-        Product + Price per SKU (reuses <code>STRIPE_SECRET_KEY</code>, no new secrets);
+        Product + Price per SKU (reuses <code>STRIPE_SECRET_KEY</code>, no new secrets;
+        action-level Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code>);
         <code>/preview/[slug]</code> shows Buy now (<code>/api/commerce/checkout</code>,
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
