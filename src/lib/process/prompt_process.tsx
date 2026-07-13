@@ -139,6 +139,7 @@ export const AGENT_PROTOCOL = [
   "Unreplied-inquiry list completeness (unreplied-inquiry-list-completeness) done: listUnrepliedInquiries (src/lib/db.ts) returns every status new+read row uncapped — convex/inquiries.listUnreplied merges two by_status index .collect() scans (new, read) and sorts newest-first; SQLite fallback is WHERE status IN ('new','read') ORDER BY createdAt DESC with no LIMIT. computePipelineHealth's `inquiries` field and buildDailyDigest's `inquiries` field are both fully covered by status new+read (newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unrepliedInquiries) — feed them listUnrepliedInquiries(), never a capped listClientInquiries(N) page. Where a page also needs inbox display (e.g. /dashboard/leads' LeadsClient initialInquiries), fetch both: the capped page for display, the uncapped unreplied set for health/digest — do not reuse one fetch for both purposes. Empty-backlog Convex API map audit re-run — no missing registrations (api.leads.seed is registered-but-unused by db.ts, which is fine; it is called from the seed script, not a db.ts wrapper). Remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — do not fake-complete; queue a fresh empty-backlog sold-capability or multi-instance regression audit next.",
   "Commerce Buy now webhook session dedup (planCommerceWebhookSideEffects) must feed from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — never listClientInquiriesBySlug's newest 50/200 page. Once contact / Request-order / Buy now volume exceeds that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Remaining NEXT_STEPS stay operator/legal-gated; prefer empty-backlog sold-capability / multi-instance regression audits next — do not invent optional aggregates.",
   "resend-brand-name-html-escape done: every brand.name / brand.legalEntity / brand.postalAddress interpolation in outbound HTML (src/lib/email/resend.ts signatures + shared CAN-SPAM sendEmail footer, plus marketing/voice/commerce pack templates that already escaped brand.name) must go through escapeHtmlForEmail — env-sourced operator strings are not exempt. Subject lines and From display names stay plain text. Prior escapeHtml audits that only checked businessName missed this asymmetry; when free NEXT_STEPS are gated again, prefer list-all-pages unit coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "Sibling business-process-evolution-f726 claimed list-all-pages-unit-coverage (direct Vitest for src/lib/stripe/list-all-pages.ts). Parallel empty-backlog on this branch: (1) commerce-unpaid-ledger-truncation-regression-tests — PR #106 fixed listUnpaidCommerceOrders at call sites, but pipeline-health + daily-digest lacked the newest-N truncation guard unreplied/fulfillment-debt already have (a future capped re-wire silently undercounts owed → double-pay risk); (2) unsubscribe-escape-html-consolidation — GET /api/unsubscribe still uses a private escapeHtml (&#039;) instead of shared escapeHtmlForEmail (&#39;), the same second-escaper class PR #105 closed for digest. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
 ] as const;
 
 /**
@@ -1086,6 +1087,30 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach",
     owner: "cursor/business-process-evolution-872f",
+  },
+  {
+    id: "list-all-pages-unit-coverage",
+    summary:
+      "Empty-backlog audit after PR #115 (resend-brand-name-html-escape): src/lib/stripe/list-all-pages.ts — the shared has_more/starting_after pagination helper extracted for stripe-sync + bootstrap-stripe-prices (PR #109) and named by AGENT_PROTOCOL as the next free coverage target — still had zero direct unit tests. Only exercised indirectly via those callers. Claim: add Vitest coverage for multi-page walk, early until-stop, empty/has_more=false, and starting_after chaining so a future third Stripe list() caller cannot silently regress the >100-Product idempotency class.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-f726",
+  },
+  {
+    id: "commerce-unpaid-ledger-truncation-regression-tests",
+    summary:
+      "Empty-backlog after PR #106/#115: listUnpaidCommerceOrders is wired at dashboard/digest call sites, and orders.test.ts documents newest-N undercount, but computePipelineHealth + buildDailyDigest lacked the truncation-regression guard unreplied-inquiry and fulfillment-debt already have. Without it, a future re-wire to capped listCommerceOrders silently drops older unpaid Buy now rows from owed totals (operator double-pay risk). Claim: add mirror tests at the health/digest boundary.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-dd75",
+  },
+  {
+    id: "unsubscribe-escape-html-consolidation",
+    summary:
+      "Empty-backlog escapeHtml asymmetry after PR #105 (digest) + PR #115 (brand.*): GET /api/unsubscribe still uses a private escapeHtml() that emits &#039; for apostrophe instead of the shared escapeHtmlForEmail (&#39;). Same second-escaper drift class. Claim: import escapeHtmlForEmail; drop the private helper; add a route-level apostrophe regression test.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach",
+    owner: "cursor/prompt-process-evolution-dd75",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
