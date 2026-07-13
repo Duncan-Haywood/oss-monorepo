@@ -175,8 +175,11 @@ export default function RoadmapDocPage() {
         CSV bulk import on the leads dashboard: shipped (tagged <code>dataSource</code> per batch).
         Slug collisions on re-import or manual add skip/reject instead of overwriting pipeline
         state (see <DocLink href="/docs/process">process log</DocLink>{" "}
-        <code>upsert-lead-collision-guard</code>). Google Places API and other licensed sources
-        still require legal review — no Maps/Facebook scrapers.
+        <code>upsert-lead-collision-guard</code>). When Convex is configured, Add lead / CSV
+        import fail closed on shared-store mutation failure (
+        <code>lead-upsert-convex-primary</code>) so new inventory cannot succeed only in
+        instance-local SQLite. Google Places API and other licensed sources still require legal
+        review — no Maps/Facebook scrapers.
       </p>
 
       <h2 id="phase-5">Phase 5 — Production deploy</h2>

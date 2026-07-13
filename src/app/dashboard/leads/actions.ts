@@ -38,6 +38,7 @@ import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
+import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
 import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
@@ -998,7 +999,18 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       return { success: false, error: existingLeadSlugConflictMessage(lead.slug) };
     }
 
-    await upsertLead(lead);
+    try {
+      await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false,
+          error:
+            "Could not save the lead in the shared store — other instances may not see it. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     // If added directly in outreach_sent stage, durably mark Email 1 sent
     // BEFORE sending (persist-then-notify) — see OUTREACH_CADENCE_CONVEX_PRIMARY.
@@ -1089,7 +1101,7 @@ export async function importLeadsCsvAction(input: {
 
     for (const [index, lead] of fresh.entries()) {
       try {
-        await upsertLead(lead);
+        await upsertLead(lead, LEAD_UPSERT_CONVEX_PRIMARY);
         importedSlugs.push(lead.slug);
         // Prevent later rows in the same batch from colliding with earlier inserts.
         existingSlugs.add(lead.slug);
@@ -1097,7 +1109,12 @@ export async function importLeadsCsvAction(input: {
       } catch (error) {
         upsertErrors.push({
           row: index + 1,
-          message: error instanceof Error ? error.message : "Failed to upsert lead",
+          message:
+            error instanceof ConvexPrimaryWriteError
+              ? "Could not save this lead in the shared store — other instances may not see it. Retry import for this row."
+              : error instanceof Error
+                ? error.message
+                : "Failed to upsert lead",
         });
       }
     }

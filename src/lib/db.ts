@@ -541,12 +541,18 @@ export async function updateLeadStage(
   stmt.run(stage, slug);
 }
 
-export async function upsertLead(lead: Lead): Promise<void> {
+export async function upsertLead(
+  lead: Lead,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   if (convexClient) {
     try {
       await convexClient.mutation(api.leads.upsertLead, lead);
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("upsertLead", e);
+      }
       console.warn("Failed to upsert lead on Convex, falling back to SQLite database", e);
     }
   }
