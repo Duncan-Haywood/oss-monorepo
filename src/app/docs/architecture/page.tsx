@@ -216,8 +216,10 @@ export default function ArchitectureDocPage() {
         <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> plus{" "}
         <code>bootstrap-gate.test.ts</code> lock the opt-in{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP</code> gate (403), missing <code>STRIPE_SECRET_KEY</code>{" "}
-        (501), success <code>envSnippet</code> shape, and 502 on Stripe throw — the lib helper
-        suite alone does not cover that route/action glue. Display USD amounts and Stripe Price env var
+        (501), success <code>envSnippet</code> shape, and 502 on Stripe throw;{" "}
+        <code>src/app/dashboard/actions.test.ts</code> locks the same contracts on{" "}
+        <code>bootstrapStripePricesAction</code> (auth rejection + gate + success + throw) — the
+        lib helper suite alone does not cover that route/action glue. Display USD amounts and Stripe Price env var
         names live in <code>src/lib/pricing/bundles.ts</code> (direct Vitest in{" "}
         <code>bundles.test.ts</code>) — readiness/bootstrap suites import those constants but do
         not lock sold prices or <code>getBundle</code>. Remaining for first paid order: set core
