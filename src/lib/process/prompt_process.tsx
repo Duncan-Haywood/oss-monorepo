@@ -983,8 +983,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "client-voice-pack-convex-primary",
     summary:
       "Empty-backlog follow-up twin of marketing-pack-convex-primary: upsertClientVoicePack still soft-falls-back on Convex failure while getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue read Convex-first — Generate voice pack can succeed locally and leave Complete phone-script fulfillment + Email voice pack looking missing elsewhere. Prefer requireConvex fail-closed on generateClientVoicePackAction.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/prompt-process-evolution-1f28",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
