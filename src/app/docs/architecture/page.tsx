@@ -194,9 +194,15 @@ export default function ArchitectureDocPage() {
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>
       <p>
         Handoff records live in SQLite (<code>deploy_handoffs</code>) with Convex{" "}
-        <code>deployHandoffs</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set — same
+        <code>deployHandoffs</code> when <code>NEXT_PUBLIC_CONVEX_URL</code> is set — reads
+        (<code>getLeadSlugByCustomDomain</code>, <code>listDeployHandoffs</code>) use the same
         Convex-first, SQLite-fallback pattern as leads/orders/suppressions (explicit{" "}
-        <code>handoffId</code> column round-trips as <code>id</code>). Suggested host{" "}
+        <code>handoffId</code> column round-trips as <code>id</code>). The three operator
+        writes — <strong>Mark live</strong>, <strong>Assign Vercel project</strong>, and{" "}
+        <strong>Assign custom domain</strong> — pass <code>requireConvex</code> (
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) when Convex is configured, so a
+        mutation failure surfaces as an operator retry message instead of a SQLite-only success
+        that other instances (reading Convex-first) would never see. Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
