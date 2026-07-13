@@ -25,11 +25,12 @@ import {
   upsertCommerceCatalog,
   getCommerceCatalog,
   listCommerceCatalogs,
-  listCommerceOrders,
+  getCommerceOrderByStripeSessionId,
   markCommerceOrderPaidOut,
   upsertClientVoicePack,
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
+  listUnpaidCommerceOrders,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -946,8 +947,7 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
       return { success: false as const, error: "Checkout session id is required" };
     }
 
-    const orders = await listCommerceOrders();
-    const order = orders.find((o) => o.stripeSessionId === stripeSessionId);
+    const order = await getCommerceOrderByStripeSessionId(stripeSessionId);
     if (!order) {
       return { success: false as const, error: "Commerce order not found" };
     }
@@ -1316,7 +1316,7 @@ export async function sendDailyDigestAction() {
       listMarketingPacksForMonth(yearMonth),
       listCommerceCatalogs(),
       listClientVoicePacks(),
-      listCommerceOrders(),
+      listUnpaidCommerceOrders(),
     ]);
 
     const headerStore = await headers();

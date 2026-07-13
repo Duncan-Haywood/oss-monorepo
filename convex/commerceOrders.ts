@@ -75,6 +75,59 @@ export const list = query({
 });
 
 /**
+ * Every unpaid pass-through Buy now order for manual payout reconciliation.
+ * Must not reuse list()'s 200/500 newest cap — once volume exceeds that window,
+ * older unpaid rows vanish from owed totals / Mark paid out lookups.
+ *
+ * Collect + filter is intentional: unpaid liability is a bounded operator ledger
+ * until Stripe Connect, and completeness beats a truncated recent page.
+ */
+export const listUnpaid = query({
+  args: {},
+  returns: v.array(orderReturn),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("commerceOrders").order("desc").collect();
+    return rows
+      .filter((row) => row.paidOutAt === undefined)
+      .map((row) => ({
+        id: row.orderId,
+        leadSlug: row.leadSlug,
+        skuId: row.skuId,
+        skuName: row.skuName,
+        amountPaidUsd: row.amountPaidUsd,
+        stripeSessionId: row.stripeSessionId,
+        createdAt: row.createdAt,
+        paidOutAt: row.paidOutAt,
+      }));
+  },
+});
+
+/** Lookup one commerce order by Stripe Checkout Session id (Mark paid out). */
+export const getByStripeSessionId = query({
+  args: { stripeSessionId: v.string() },
+  returns: v.union(orderReturn, v.null()),
+  handler: async (ctx, args) => {
+    const row = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (!row) return null;
+    return {
+      id: row.orderId,
+      leadSlug: row.leadSlug,
+      skuId: row.skuId,
+      skuName: row.skuName,
+      amountPaidUsd: row.amountPaidUsd,
+      stripeSessionId: row.stripeSessionId,
+      createdAt: row.createdAt,
+      paidOutAt: row.paidOutAt,
+    };
+  },
+});
+
+/**
  * Marks a commerce order as manually paid out to the client. Keyed on
  * stripeSessionId (unique, always present) rather than the Convex row id —
  * matches the checkoutSessions mutation pattern (recordRecoverySent).

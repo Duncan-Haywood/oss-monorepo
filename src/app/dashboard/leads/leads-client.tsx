@@ -891,7 +891,9 @@ export function LeadsClient({
     orders,
     commerceCatalogs,
   );
-  const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders);
+  const commercePayoutsByLead = summarizeCommerceOrdersByLead(commerceOrders).filter(
+    (summary) => summary.unpaidCount > 0,
+  );
   const businessNameBySlug = new Map(leads.map((l) => [l.slug, l.businessName]));
 
   return (
@@ -1146,9 +1148,10 @@ export function LeadsClient({
             </Link>
           </div>
           <p className="mt-1 text-xs text-zinc-600">
-            Pass-through Buy now money collected on the platform Stripe account — owed to each
-            Commerce client until Stripe Connect ships. Use these per-lead totals to reconcile
-            manual payouts; this is not Local Site Studio revenue.
+            Pass-through Buy now money collected on the platform Stripe account — every unpaid
+            order owed to each Commerce client until Stripe Connect ships (not just the newest
+            page). Use these per-lead totals to reconcile manual payouts; this is not Local Site
+            Studio revenue.
           </p>
           <ul className="mt-4 space-y-3">
             {commercePayoutsByLead.map((summary) => (

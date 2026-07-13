@@ -9,7 +9,7 @@ import {
   listMarketingPacksForMonth,
   listCommerceCatalogs,
   listClientVoicePacks,
-  listCommerceOrders,
+  listUnpaidCommerceOrders,
 } from "@/lib/db";
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -63,7 +63,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     listMarketingPacksForMonth(marketingMonth),
     listCommerceCatalogs(),
     listClientVoicePacks(),
-    listCommerceOrders(),
+    listUnpaidCommerceOrders(),
   ]);
   return computePipelineHealth({
     leads,

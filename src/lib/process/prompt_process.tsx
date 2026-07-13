@@ -70,7 +70,7 @@ export const AGENT_PROTOCOL = [
   "Prefer wiring an existing signal into the quality scorer / Work next queue over adding a second dashboard panel for the same fact — operators already have one priority list.",
   "Ranking vs aggregates: when a signal already ranks Work next (e.g. abandoned carts), still fold counts into pipeline-health aggregates if the operator needs stuck-money totals beside paid-not-live — that is not a competing priority panel.",
   "Digest footnotes for parked urgency (snoozed / cold) reuse the same pure predicates as pipeline-health — never invent a parallel due-date or snooze check inside the digest renderer.",
-  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced, commerce payouts owed), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs / listCommerceOrders) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder.",
+  "When extending the daily digest with order-backed sections (marketing packs due, Starter upsell, voice packs due, commerce catalogs missing / unsynced, commerce payouts owed), load listOrders (+ listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs / listUnpaidCommerceOrders) once in sendDailyDigestAction and pass them into buildDailyDigest — do not add a second digest builder. Owed Commerce surfaces must use listUnpaidCommerceOrders (not listCommerceOrders' newest-page cap) so older unpaid Buy now rows stay visible until Connect.",
   "Commerce catalogs missing = listCommerceCatalogsMissing (eligible commerceAddon paid/live without a catalog row). Surface as pipeline-health commerceCatalogsMissingCount + digest action section — reuse the helper; do not invent a parallel eligibility check.",
   "Commerce catalogs unsynced = listCommerceCatalogsUnsynced (eligible commerceAddon paid/live with a saved catalog that still has ≥1 SKU without stripePriceId). Surface as pipeline-health commerceCatalogsUnsyncedCount + digest Sync to Stripe due section — distinct from catalogs-missing; empty catalogs are not unsynced.",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizeCommerceItems — never persist a normalized draft that drops stripeProductId/stripePriceId, or Buy now silently regresses after any catalog edit. Never trust client-submitted Stripe ids.",
@@ -129,7 +129,7 @@ export const AGENT_PROTOCOL = [
   "upsertMarketingPack must pass requireConvex (MARKETING_PACK_CONVEX_PRIMARY) from generateMarketingPackAction when Convex is configured — getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest Marketing packs due + Email pack precondition) read Convex-first, so a SQLite-only Generate pack leaves Growth/Complete fulfillment looking missing on other instances (Email pack blocked + false packs-due debt). Fail closed and surface a retry to the operator; regenerating the same UTC month is idempotent replace. When marketing-pack is claimed by a sibling, prefer client-voice-pack-convex-primary (upsertClientVoicePack twin) over inventing optional aggregates.",
   "upsertClientVoicePack must pass requireConvex (CLIENT_VOICE_PACK_CONVEX_PRIMARY) from generateClientVoicePackAction when Convex is configured — getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest Complete voice packs due + Email voice pack precondition) read Convex-first, so a SQLite-only Generate voice leaves Complete phone-script fulfillment looking missing on other instances (Email voice pack blocked + false voice-packs-due debt). Fail closed and surface a retry to the operator; regenerating replaces the one-row-per-lead pack (idempotent). When marketing + voice pack requireConvex are both done and free NEXT_STEPS are gated, prefer lead-upsert-convex-primary (upsertLead requireConvex on create/import/CSV paths that feed Convex-first getLeads) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "upsertLead must pass requireConvex (LEAD_UPSERT_CONVEX_PRIMARY) from addLeadAction / importLeadsCsvAction when Convex is configured — getLeads / getLeadBySlug (Work next, pipeline-health, digest, outreach eligibility) read Convex-first, so a SQLite-only Add lead / CSV import leaves new inventory invisible on other instances (empty CRM + false funnel + outreach blocked). Fail closed and surface a retry to the operator; scope is create/import only — field-level updates keep their own requireConvex helpers (notes/stage/outreach/snooze/cold). Payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. When lead-upsert is claimed or done and free NEXT_STEPS are gated, prefer lead-stage-convex-primary (updateLeadStageAction requireConvex — dashboard stage dropdown still soft-falls-back while getLeads reads Convex-first, and outreach_sent can desync stage vs outreachStep) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect. Empty-backlog sold-capability / multi-instance regression audits (Convex API map, escapeHtmlForEmail asymmetries, webhook idempotency, untested orchestrators) remain valid when that readiness todo is claimed or done.",
+  "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect. When bundle-price-env-readiness is claimed by a sibling, prefer commerce-payouts-unpaid-ledger-completeness (listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId — listCommerceOrders' 200/500 newest cap undercounts owed liability and can miss Mark paid out) over inventing optional aggregates. Empty-backlog sold-capability / multi-instance regression audits (Convex API map, escapeHtmlForEmail asymmetries, webhook idempotency, untested orchestrators) remain valid when those todos are claimed or done.",
 ] as const;
 
 /**
@@ -1018,7 +1018,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "commerce-payouts-unpaid-ledger-completeness",
     summary:
       "Empty-backlog audit while sibling owns bundle-price-env-readiness: owed Commerce surfaces (manual payout panel, digest, pipeline-health) and Mark paid out lookup all call listCommerceOrders() which caps at 200/500 newest rows — older unpaid Buy now orders vanish from owed totals and can fail Mark paid out with 'not found'. Prefer listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId (no recent-page truncation) for reconciliation until Connect.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-63a8",
   },
@@ -2409,6 +2409,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After PR #102 (business-process-evolution-0b63) merged lead-stage-convex-primary first in the same-cron dual claim, fold complementary process from prompt-process-evolution-d238: queue bundle-price-env-readiness as the next free coded unlock (missing STRIPE_PRICE_ID_* still blocks every sale with no early operator signal) and prefer that concrete readiness helper over inventing optional aggregates.",
     rationale:
       "Both hourly automations claimed lead-stage-convex-primary in the same window; 0b63's earlier remote claim + PR #102 owns the feature body. Closing a pure duplicate would drop the concrete next free unlock (Price env readiness) that unblocks operator awareness of the sale-blocking gap without fake-completing stripe-price-objects. Keep both ITERATIONS; one merge PR for the fold.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Owed Commerce surfaces (pipeline-health, daily digest, Commerce payouts panel) and Mark paid out lookup must use listUnpaidCommerceOrders / getCommerceOrderByStripeSessionId — not listCommerceOrders()'s newest 200/500 page. Paid-out settlement still uses markCommerceOrderPaidOut; Connect remains operator/legal-gated.",
+    rationale:
+      "Sibling business-process-evolution-3eea claimed bundle-price-env-readiness first this cron. Empty-backlog audit found listCommerceOrders caps undercount pass-through liability once Buy now volume exceeds the window, and Mark paid out scanned that truncated list so older unpaid rows could 404 as 'not found'. Dedicated unpaid + by-session reads close the sold Commerce reconciliation gap without inventing aggregates or fake-completing Connect.",
   },
 ];
 
@@ -4105,5 +4112,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented same-cron fold + Price env readiness queue",
     ],
     decisions: BUSINESS_DECISIONS.slice(197, 198),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-63a8",
+    summary:
+      "Sibling business-process-evolution-3eea claimed bundle-price-env-readiness first this cron — pivoted to commerce-payouts-unpaid-ledger-completeness. Owed Commerce surfaces and Mark paid out still used listCommerceOrders()'s newest 200/500 page, so older unpaid Buy now orders vanished from liability totals and could fail Mark paid out as not found. Shipped listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId (Convex listUnpaid/getByStripeSessionId + SQLite unpaid/by-session paths), wired dashboard/leads/digest/Mark paid out, and documented the completeness rule in AGENT_PROTOCOL. Stripe Prices / Places / Buffer OAuth / Connect stay gated; Price env readiness remains owned by the sibling.",
+    shipped: [
+      "convex/commerceOrders.ts — listUnpaid (all unpaid, no newest-page cap) + getByStripeSessionId",
+      "src/lib/db.ts — listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId; static API map registration",
+      "Dashboard + /dashboard/leads + sendDailyDigestAction — owed inputs use listUnpaidCommerceOrders",
+      "markCommerceOrderPaidOutAction — lookup by stripeSessionId (not truncated list scan)",
+      "leads-client — payout panel filters to unpaidCount > 0",
+      "orders.test.ts — truncation undercount regression coverage",
+      "Docs: architecture — listUnpaidCommerceOrders for owed reconciliation",
+      "NEXT_STEPS: commerce-payouts-unpaid-ledger-completeness done; mirrored sibling claim on bundle-price-env-readiness",
+      "AGENT_PROTOCOL — prefer unpaid-ledger completeness when Price readiness is claimed; digest loads listUnpaidCommerceOrders",
+      "BUSINESS_DECISIONS — documented newest-page undercount + by-session Mark paid out lookup",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(198, 199),
   },
 ];

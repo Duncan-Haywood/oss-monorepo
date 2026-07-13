@@ -297,7 +297,9 @@ export default function LaunchChecklistDocPage() {
           <em>not</em> created. A commerce session missing <code>metadata.skuId</code> must not create an
           inquiry or client email either. Confirm the <strong>Commerce payouts (manual)</strong> panel on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> lists the lead with the
-          order line and owed total. Confirm <strong>Send daily digest</strong> lists those
+          order line and owed total — including older unpaid Buy now rows past the recent-order
+          window (owed reads use <code>listUnpaidCommerceOrders</code>). Confirm{" "}
+          <strong>Send daily digest</strong> lists those
           clients under Commerce payouts owed when <code>OPERATOR_DIGEST_EMAIL</code> is set.
           This money is collected for the client, not platform revenue —
           pay clients manually until Stripe Connect ships (see{" "}
