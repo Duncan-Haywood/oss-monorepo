@@ -260,7 +260,12 @@ export default function ArchitectureDocPage() {
         Operator recovery actions durable-mark <code>recoverySentAt</code> with{" "}
         <code>requireConvex</code> (<code>CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY</code>){" "}
         <em>before</em> the Resend send — a SQLite-only mark after a successful email would leave
-        Convex-first due queues able to nudge again. Only <code>kind=bundle</code> open sessions feed <code>scoreLead</code> / Work next (+18
+        Convex-first due queues able to nudge again. Action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/checkout-recovery-actions.test.ts</code> locks auth, kind
+        mismatch, missing email, mark-before-send order, and{" "}
+        <code>ConvexPrimaryWriteError</code> skip-send —{" "}
+        <code>session-persist.test.ts</code> / <code>abandoned-recovery.test.ts</code> alone do
+        not cover that glue. Only <code>kind=bundle</code> open sessions feed <code>scoreLead</code> / Work next (+18
         abandoned, +6 when recovery is due). Pipeline health aggregates bundle abandoned-cart +
         recovery-due counts beside paid-not-live, plus separate Buy now cart counts.
       </p>
