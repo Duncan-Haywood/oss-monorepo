@@ -196,7 +196,9 @@ export default function RoadmapDocPage() {
         Post-payment handoff: shipped — webhook always enqueues DNS instructions + contact form
         endpoint (Convex <code>deployHandoffs</code> + SQLite fallback), including on Stripe
         redelivery after a partial first attempt (<code>bundle-webhook-handoff-on-redelivery</code>
-        — <code>alreadyRecorded</code> skips receipt/DNS emails only). Required fulfillment write
+        + <code>bundle-webhook-side-effect-recovery-on-redelivery</code> —{" "}
+        <code>alreadyRecorded</code> still enqueues handoff; receipt/DNS emails recover when
+        handoff notes lack a per-session sent-marker). Required fulfillment write
         failures return <code>500</code> so Stripe retries (
         <code>stripe-webhook-retry-on-fulfillment-failure</code>); with Convex configured, webhook
         writes pass <code>requireConvex</code> (
