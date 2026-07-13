@@ -300,12 +300,14 @@ export default function RoadmapDocPage() {
         <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
         already exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
         actually redelivers into that recovery path (client receipt stays best-effort after
-        inquiry succeeds). Per-lead owed totals and recent
-        order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
+        inquiry succeeds). Per-lead owed totals from{" "}
+        <code>listUnpaidCommerceOrders</code> (every unpaid row — not a newest-page slice) and
+        recent unpaid order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
-        <strong>Mark paid out</strong> action (<code>paidOutAt</code>,{" "}
-        <code>requireConvex</code> when Convex is configured) so settled orders drop out
+        <strong>Mark paid out</strong> action (<code>getCommerceOrderByStripeSessionId</code>,{" "}
+        <code>paidOutAt</code>, <code>requireConvex</code> when Convex is configured) so settled
+        orders drop out
         of the health card, panel, and digest owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an

@@ -394,14 +394,18 @@ export default function ArchitectureDocPage() {
         the client yet (see <code>commerce-payouts-stripe-connect</code>). Operators reconcile
         manual payouts from the <strong>Commerce payouts (manual)</strong> panel on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, which groups{" "}
-        <code>listCommerceOrders</code> by lead via <code>summarizeCommerceOrdersByLead</code>{" "}
-        (each row keyed by <code>CommerceOrderRecord.id</code> —{" "}
+        <code>listUnpaidCommerceOrders</code> by lead via{" "}
+        <code>summarizeCommerceOrdersByLead</code>{" "}
+        (not <code>listCommerceOrders</code>&apos; newest 200/500 page — that undercounts
+        older unpaid liability). Each row is keyed by <code>CommerceOrderRecord.id</code> —{" "}
         <code>newCommerceOrderId()</code> generates it once in{" "}
         <code>insertCommerceOrder</code> and passes it to both backends as the Convex
         table&apos;s <code>orderId</code> column, matching the app-owned-id pattern every
         other ledger already used; the Convex path originally had no id column at all,
         so payout rows silently lost React list identity once Convex was configured).
-        Each order line has a <strong>Mark paid out</strong> button that sets{" "}
+        Each order line has a <strong>Mark paid out</strong> button (
+        <code>getCommerceOrderByStripeSessionId</code> lookup — never a truncated list scan)
+        that sets{" "}
         <code>paidOutAt</code> (SQLite + Convex — the static <code>api.commerceOrders.markPaidOut</code>{" "}
         map entry is required so Convex primary deploys actually persist; when Convex is configured
         the operator action also passes <code>requireConvex</code> via{" "}

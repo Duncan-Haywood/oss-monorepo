@@ -172,3 +172,42 @@ describe("isCommerceOrderPaidOut", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: "2026-07-12T10:00:00.000Z" })).toBe(true);
   });
 });
+
+describe("owed totals need unpaid completeness", () => {
+  it("truncating to newest N undercounts older unpaid liability", () => {
+    const olderUnpaid = order({
+      leadSlug: "old-client",
+      amountPaidUsd: 40,
+      createdAt: "2026-01-01T00:00:00.000Z",
+    });
+    const recentPaid = Array.from({ length: 5 }, (_, i) =>
+      order({
+        leadSlug: "new-client",
+        amountPaidUsd: 10,
+        createdAt: `2026-06-0${i + 1}T00:00:00.000Z`,
+        paidOutAt: "2026-06-10T00:00:00.000Z",
+      }),
+    );
+    const full = [olderUnpaid, ...recentPaid];
+    const newestOnly = [...full]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 5);
+    const fullUnpaid = sumCommerceOrdersRevenueUsd(
+      full.filter((row) => !isCommerceOrderPaidOut(row)),
+    );
+    const truncatedUnpaid = sumCommerceOrdersRevenueUsd(
+      newestOnly.filter((row) => !isCommerceOrderPaidOut(row)),
+    );
+    expect(fullUnpaid).toBe(40);
+    expect(truncatedUnpaid).toBe(0);
+    expect(
+      summarizeCommerceOrdersByLead(full).find((row) => row.leadSlug === "old-client")
+        ?.unpaidTotalUsd,
+    ).toBe(40);
+    expect(
+      summarizeCommerceOrdersByLead(newestOnly).find(
+        (row) => row.leadSlug === "old-client",
+      ),
+    ).toBeUndefined();
+  });
+});

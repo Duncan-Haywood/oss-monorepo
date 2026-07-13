@@ -7,7 +7,7 @@ import {
   listMarketingPacksForMonth,
   listCommerceCatalogs,
   listClientVoicePacks,
-  listCommerceOrders,
+  listUnpaidCommerceOrders,
 } from "@/lib/db";
 import { computePipelineHealth } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
@@ -34,7 +34,7 @@ async function loadLeadsPipelineHealth(): Promise<{
   commerceCatalogs: Awaited<ReturnType<typeof listCommerceCatalogs>>;
   marketingMonth: string;
   clientVoicePacks: Awaited<ReturnType<typeof listClientVoicePacks>>;
-  commerceOrders: Awaited<ReturnType<typeof listCommerceOrders>>;
+  commerceOrders: Awaited<ReturnType<typeof listUnpaidCommerceOrders>>;
 }> {
   const nowMs = Date.now();
   const marketingMonth = marketingMonthKey(nowMs);
@@ -57,7 +57,7 @@ async function loadLeadsPipelineHealth(): Promise<{
     listMarketingPacksForMonth(marketingMonth),
     listCommerceCatalogs(),
     listClientVoicePacks(),
-    listCommerceOrders(),
+    listUnpaidCommerceOrders(),
   ]);
   return {
     leads,

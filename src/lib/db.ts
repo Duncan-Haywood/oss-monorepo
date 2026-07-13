@@ -401,6 +401,8 @@ const api: any = {
   commerceOrders: {
     insert: "commerceOrders:insert",
     list: "commerceOrders:list",
+    listUnpaid: "commerceOrders:listUnpaid",
+    getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
   },
   suppressions: {
@@ -2336,6 +2338,63 @@ export async function listCommerceOrders(
     )
     .all(safeLimit) as unknown as SqliteCommerceOrderRow[];
   return rows.map(mapCommerceOrderRow);
+}
+
+/**
+ * Every unpaid commerce order for manual payout reconciliation / owed totals.
+ * Prefer this over listCommerceOrders() for pipeline-health, digest, and the
+ * Commerce payouts panel — list()'s newest-page cap undercounts liability.
+ */
+export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(
+        api.commerceOrders.listUnpaid,
+        {},
+      )) as CommerceOrderRecord[];
+    } catch (e) {
+      console.warn(
+        "Failed to list unpaid commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE paidOutAt IS NULL OR paidOutAt = ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
+/** Single commerce order by Stripe Checkout Session id (Mark paid out lookup). */
+export async function getCommerceOrderByStripeSessionId(
+  stripeSessionId: string,
+): Promise<CommerceOrderRecord | null> {
+  if (convexClient) {
+    try {
+      const row = (await convexClient.query(
+        api.commerceOrders.getByStripeSessionId,
+        { stripeSessionId },
+      )) as CommerceOrderRecord | null;
+      return row;
+    } catch (e) {
+      console.warn(
+        `Failed to get commerce order ${stripeSessionId} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare("SELECT * FROM commerce_orders WHERE stripeSessionId = ?")
+    .get(stripeSessionId) as SqliteCommerceOrderRow | undefined;
+  return row ? mapCommerceOrderRow(row) : null;
 }
 
 /**
