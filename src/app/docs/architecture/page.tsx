@@ -122,7 +122,11 @@ export default function ArchitectureDocPage() {
         <code>src/lib/email/resend-env-readiness.ts</code>) — missing / whitespace-only /{" "}
         <code>re_placeholder…</code> / <code>re_...</code> match <code>sendEmail</code>&apos;s
         mock gate so operators cannot mistake silent mock success for real delivery. Distinct from
-        Stripe core / Price-ID banners.
+        Stripe core / Price-ID banners. Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder
+        secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
+        <code>assessAnthropicEnvReadiness</code> (
+        <code>src/lib/ai/anthropic-env-readiness.ts</code>) — matching the Stub* factory gate in
+        marketing/voice generators (plus documented <code>sk-ant-...</code> placeholders).
       </p>
       <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
@@ -418,7 +422,9 @@ export default function ArchitectureDocPage() {
         <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
         parse / length-mismatch fallbacks and <code>packageTier</code>;{" "}
         <code>build-request.test.ts</code> for empty services/hours defaults and growth vs
-        complete <code>automationLevel</code>). Operators trigger{" "}
+        complete <code>automationLevel</code>). Until the key is a non-placeholder secret,{" "}
+        <code>assessAnthropicEnvReadiness</code> surfaces a teal dashboard banner so operators
+        cannot mistake Stub* template packs for sold AI quality. Operators trigger{" "}
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}

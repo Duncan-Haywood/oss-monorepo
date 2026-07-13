@@ -18,9 +18,11 @@ import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
+import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
+import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -92,6 +94,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
   const resendEnv = assessResendEmailEnvReadiness();
+  const anthropicEnv = assessAnthropicEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -111,6 +114,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           bootstrapAllowed={bootstrapAllowed}
         />
         <ResendEnvBanner readiness={resendEnv} />
+        <AnthropicEnvBanner readiness={anthropicEnv} />
       </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>

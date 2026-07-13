@@ -101,7 +101,11 @@ export default function LaunchChecklistDocPage() {
           outreach-blocked banner via <code>assessResendEmailEnvReadiness</code> — missing or{" "}
           <code>re_placeholder…</code> keys leave every automated send in silent mock mode
           (operators see success while no inbox is reached). Distinct from the Stripe core /
-          Price-ID banners.
+          Price-ID banners. Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,
+          the same dashboards show a teal AI-packs-on-stub banner via{" "}
+          <code>assessAnthropicEnvReadiness</code> — Growth/Complete{" "}
+          <strong>Generate pack</strong> / Complete <strong>Generate voice</strong> still
+          produce packs, but via Stub* template copy (sold AI quality gap).
         </li>
         <li>Configure SPF / DKIM / DMARC on the sending domain.</li>
         <li>
@@ -271,7 +275,10 @@ export default function LaunchChecklistDocPage() {
           For a paid/live Growth or Complete lead, click <strong>Generate pack</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
           posts + 2 emails appear for the current UTC month (stub copy without{" "}
-          <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
+          <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Until the key is a
+          non-placeholder secret, the teal <code>assessAnthropicEnvReadiness</code> banner
+          surfaces that sold AI quality is stub — set it before fulfilling paid Growth/Complete
+          clients. Regenerating replaces
           that month. When Convex is configured, Generate pack must fail closed on Convex
           errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
           that other instances (Email pack / packs-due) cannot see. With an email on the lead,
