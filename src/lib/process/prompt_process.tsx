@@ -956,8 +956,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "cold-disposition-convex-primary",
     summary:
       "Empty-backlog follow-up: applyColdLeadDisposition still soft-falls-back on Convex failure while getLeads / cold-lead badges / stage funnel read Convex-first — Re-engage/Close can succeed locally and leave cold inventory looking open (or closed) on other instances. Prefer requireConvex fail-closed on disposeColdLeadAction's disposition write (Email 1 mark already uses OUTREACH_CADENCE_CONVEX_PRIMARY).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-c5ed",
   },
   {
     id: "lead-notes-convex-primary",
