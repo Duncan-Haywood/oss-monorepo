@@ -4040,6 +4040,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: lead-upsert-convex-primary done; queued lead-stage-convex-primary",
       "AGENT_PROTOCOL — upsertLead requireConvex on create/import; prefer lead-stage-convex-primary next",
       "BUSINESS_DECISIONS — documented CRM create-path split-brain risk + same-cron pivot off 1f28",
+      "Verified: npm test (367 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(195, 196),
   },
