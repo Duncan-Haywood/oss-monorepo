@@ -129,7 +129,7 @@ export const AGENT_PROTOCOL = [
   "upsertMarketingPack must pass requireConvex (MARKETING_PACK_CONVEX_PRIMARY) from generateMarketingPackAction when Convex is configured — getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest Marketing packs due + Email pack precondition) read Convex-first, so a SQLite-only Generate pack leaves Growth/Complete fulfillment looking missing on other instances (Email pack blocked + false packs-due debt). Fail closed and surface a retry to the operator; regenerating the same UTC month is idempotent replace. When marketing-pack is claimed by a sibling, prefer client-voice-pack-convex-primary (upsertClientVoicePack twin) over inventing optional aggregates.",
   "upsertClientVoicePack must pass requireConvex (CLIENT_VOICE_PACK_CONVEX_PRIMARY) from generateClientVoicePackAction when Convex is configured — getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest Complete voice packs due + Email voice pack precondition) read Convex-first, so a SQLite-only Generate voice leaves Complete phone-script fulfillment looking missing on other instances (Email voice pack blocked + false voice-packs-due debt). Fail closed and surface a retry to the operator; regenerating replaces the one-row-per-lead pack (idempotent). When marketing + voice pack requireConvex are both done and free NEXT_STEPS are gated, prefer lead-upsert-convex-primary (upsertLead requireConvex on create/import/CSV paths that feed Convex-first getLeads) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "upsertLead must pass requireConvex (LEAD_UPSERT_CONVEX_PRIMARY) from addLeadAction / importLeadsCsvAction when Convex is configured — getLeads / getLeadBySlug (Work next, pipeline-health, digest, outreach eligibility) read Convex-first, so a SQLite-only Add lead / CSV import leaves new inventory invisible on other instances (empty CRM + false funnel + outreach blocked). Fail closed and surface a retry to the operator; scope is create/import only — field-level updates keep their own requireConvex helpers (notes/stage/outreach/snooze/cold). Payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. When lead-upsert is claimed or done and free NEXT_STEPS are gated, prefer lead-stage-convex-primary (updateLeadStageAction requireConvex — dashboard stage dropdown still soft-falls-back while getLeads reads Convex-first, and outreach_sent can desync stage vs outreachStep) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and only gated NEXT_STEPS remain (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer empty-backlog sold-capability / multi-instance regression fixes (Convex API map registration, escapeHtmlForEmail asymmetries, webhook side-effect idempotency, untested orchestrators) or AGENT_PROTOCOL / docs clarity — do not invent optional aggregates or fake-complete operator secrets.",
+  "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect. Empty-backlog sold-capability / multi-instance regression audits (Convex API map, escapeHtmlForEmail asymmetries, webhook idempotency, untested orchestrators) remain valid when that readiness todo is claimed or done.",
 ] as const;
 
 /**
@@ -1005,6 +1005,13 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-0b63",
+  },
+  {
+    id: "bundle-price-env-readiness",
+    summary:
+      "Empty-backlog follow-up after lead-stage-convex-primary closed the CRM write requireConvex chain: checkout still fails only at session-create time when required STRIPE_PRICE_ID_* env vars are missing — operators get no earlier dashboard/docs signal that every sale is blocked. Prefer a pure readiness helper (list missing bundle/commerce Price env names from BUNDLES + COMMERCE_ADDON) surfaced on /dashboard + launch-checklist, not a new pipeline aggregate. Does not fake-complete stripe-price-objects (bootstrap + paste secrets stays operator-gated).",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2386,6 +2393,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "updateLeadStageAction passes LEAD_STAGE_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for dashboard stage moves. Mark live already fail-closes via DEPLOY_HANDOFF_CONVEX_PRIMARY on the same helper. With create-path upsert + stage dropdown both fail-closed, remaining NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Queued by PR #101 (lead-upsert-convex-primary). updateLeadStageAction still soft-fell-back while getLeads / pipeline-health / the stage funnel read Convex-first — and the outreach_sent path mixed a soft stage write with a fail-closed OUTREACH_CADENCE mark, so stage vs outreachStep could desync across instances. Operator-action fail-closed matches LEAD_NOTES / LEAD_UPSERT. After this ships, free coded requireConvex gaps on CRM writes are closed; prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated. Same-cron sibling prompt-process-evolution-d238 may claim a different free todo or fold helpers — keep both ITERATIONS.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "After PR #102 (business-process-evolution-0b63) merged lead-stage-convex-primary first in the same-cron dual claim, fold complementary process from prompt-process-evolution-d238: queue bundle-price-env-readiness as the next free coded unlock (missing STRIPE_PRICE_ID_* still blocks every sale with no early operator signal) and prefer that concrete readiness helper over inventing optional aggregates.",
+    rationale:
+      "Both hourly automations claimed lead-stage-convex-primary in the same window; 0b63's earlier remote claim + PR #102 owns the feature body. Closing a pure duplicate would drop the concrete next free unlock (Price env readiness) that unblocks operator awareness of the sale-blocking gap without fake-completing stripe-price-objects. Keep both ITERATIONS; one merge PR for the fold.",
   },
 ];
 
@@ -4069,5 +4083,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (369 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(196, 197),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-d238",
+    summary:
+      "Same-cron dual claim on lead-stage-convex-primary: sibling business-process-evolution-0b63 owned the earlier remote claim and merged as PR #102 before this branch could land. Per AGENT_PROTOCOL, folded origin/main (keep both ITERATIONS) and retained complementary process: queue bundle-price-env-readiness (missing STRIPE_PRICE_ID_* still blocks every sale with no early operator signal) and prefer that concrete readiness helper in AGENT_PROTOCOL over inventing optional aggregates. No second stage-requireConvex implementation.",
+    shipped: [
+      "merge: folded origin/main after PR #102 (lead-stage-convex-primary on 0b63) — both ITERATIONS kept; single LEAD_STAGE_CONVEX_PRIMARY implementation",
+      "NEXT_STEPS: queued bundle-price-env-readiness as next free coded unlock",
+      "AGENT_PROTOCOL — prefer bundle-price-env-readiness after lead-stage; empty-backlog audits remain valid after that",
+      "BUSINESS_DECISIONS — documented same-cron fold + Price env readiness queue",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(197, 198),
   },
 ];

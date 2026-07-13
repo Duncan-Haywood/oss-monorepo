@@ -255,7 +255,14 @@ export default function ArchitectureDocPage() {
         failure returns <code>503</code> instead of claiming <code>recorded:true</code> after a
         SQLite-only write that Convex-first Work next / Opened-badge readers never see.
         Operator free-text <code>notes</code> on each lead capture call
-        outcomes from the dashboard row expander (not shown on client preview sites). Moving a
+        outcomes from the dashboard row expander (not shown on client preview sites). The
+        pipeline stage dropdown on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> passes{" "}
+        <code>requireConvex</code> (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) when Convex is
+        configured so a stage move cannot claim success after a SQLite-only write that leaves
+        the funnel (or the <code>outreach_sent</code> + Email 1 path) desynced on other
+        instances — Mark live already used the same fail-closed path via{" "}
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>. Moving a
         lead to <code>discovery_call</code> or sending Email 3 auto-opens that expander with a
         soft prompt (Skip dismisses without undoing the stage/email change). When Convex is
         configured, the notes write passes <code>requireConvex</code> (
