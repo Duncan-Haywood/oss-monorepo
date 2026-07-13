@@ -4155,7 +4155,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: commerce-payouts-unpaid-ledger-completeness done; bundle-price-env-readiness done on fold",
       "AGENT_PROTOCOL — prefer unpaid-ledger completeness when Price readiness is claimed; digest loads listUnpaidCommerceOrders",
       "BUSINESS_DECISIONS — documented newest-page undercount + by-session Mark paid out lookup",
-      "Verified: npm test (370 passed, +1 new) + lint + build all clean",
+      "Verified: npm test (375 passed) + lint + build all clean (after folding PR #104)",
     ],
     decisions: BUSINESS_DECISIONS.slice(199, 200),
   },
