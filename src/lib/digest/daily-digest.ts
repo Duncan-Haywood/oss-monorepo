@@ -18,6 +18,7 @@ import type { CheckoutSessionRecord } from "../checkout/types";
 import type { Lead } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
+import { escapeHtmlForEmail } from "../inquiries/reply";
 import {
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
@@ -378,14 +379,6 @@ export function formatSnoozeRemainingHours(hours: number | null): string {
   return rem === 0 ? `${days}d` : `${days}d ${rem}h`;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
 function section(title: string, rows: string[], emptyNote: string): string {
   const body =
     rows.length > 0
@@ -427,58 +420,58 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
 
   const workNextRows = digest.workNext.map(
     (lead) =>
-      `<strong>${escapeHtml(lead.businessName)}</strong> — ${lead.score}/100 (${lead.band})${
-        lead.topFactorLabel ? ` · ${escapeHtml(lead.topFactorLabel)}` : ""
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — ${lead.score}/100 (${lead.band})${
+        lead.topFactorLabel ? ` · ${escapeHtmlForEmail(lead.topFactorLabel)}` : ""
       }`,
   );
 
   const followUpRows = digest.followUpsDue.map(
-    (lead) => `<strong>${escapeHtml(lead.businessName)}</strong> — Email ${lead.outreachStep + 1} due`,
+    (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Email ${lead.outreachStep + 1} due`,
   );
 
   const recoveryRows = digest.checkoutRecoveriesDue.map(
     (recovery) =>
-      `<strong>${escapeHtml(recovery.businessName)}</strong> — abandoned ${escapeHtml(recovery.tier)} checkout`,
+      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned ${escapeHtmlForEmail(recovery.tier)} checkout`,
   );
 
   const commerceRecoveryRows = digest.commerceCheckoutRecoveriesDue.map(
     (recovery) =>
-      `<strong>${escapeHtml(recovery.businessName)}</strong> — abandoned Buy now (${escapeHtml(recovery.skuId)})`,
+      `<strong>${escapeHtmlForEmail(recovery.businessName)}</strong> — abandoned Buy now (${escapeHtmlForEmail(recovery.skuId)})`,
   );
 
   const inquiryRows = digest.unrepliedInquiries.map(
     (inquiry) =>
-      `<strong>${escapeHtml(inquiry.businessName)}</strong> — “${escapeHtml(inquiry.messagePreview)}”`,
+      `<strong>${escapeHtmlForEmail(inquiry.businessName)}</strong> — “${escapeHtmlForEmail(inquiry.messagePreview)}”`,
   );
 
   const packRows = digest.marketingPacksDue.map(
     (pack) =>
-      `<strong>${escapeHtml(pack.businessName)}</strong> — ${escapeHtml(pack.yearMonth)} pack not generated`,
+      `<strong>${escapeHtmlForEmail(pack.businessName)}</strong> — ${escapeHtmlForEmail(pack.yearMonth)} pack not generated`,
   );
 
   const upsellRows = digest.starterUpsellCandidates.map(
     (lead) =>
-      `<strong>${escapeHtml(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtml(lead.targetTier)} upsell`,
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Starter paid, suggest ${escapeHtmlForEmail(lead.targetTier)} upsell`,
   );
 
   const commerceRows = digest.commerceCatalogsMissing.map(
     (lead) =>
-      `<strong>${escapeHtml(lead.businessName)}</strong> — Commerce catalog not created`,
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Commerce catalog not created`,
   );
 
   const commerceUnsyncedRows = digest.commerceCatalogsUnsynced.map(
     (lead) =>
-      `<strong>${escapeHtml(lead.businessName)}</strong> — Sync to Stripe still due`,
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Sync to Stripe still due`,
   );
 
   const voicePackRows = digest.clientVoicePacksDue.map(
     (lead) =>
-      `<strong>${escapeHtml(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — Complete voice FAQ pack not generated`,
   );
 
   const payoutRows = digest.commercePayoutsOwed.map(
     (row) =>
-      `<strong>${escapeHtml(row.businessName)}</strong> — $${row.totalUsd.toFixed(2)} owed (${row.orderCount} order${row.orderCount === 1 ? "" : "s"})`,
+      `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.totalUsd.toFixed(2)} owed (${row.orderCount} order${row.orderCount === 1 ? "" : "s"})`,
   );
   const payoutTitle =
     digest.commercePayoutsOwed.length > 0
