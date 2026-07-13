@@ -215,4 +215,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-rb6omk",
     relatedTaskIds: ["p2-delivery-message", "p2-first-deliveries", "p2-brand-microsite", "p2-payment-collection"],
   },
+  {
+    date: "2026-07-13",
+    title: "Add a post-delivery testimonial + referral follow-up, with a discount (not cash) incentive",
+    decision:
+      "Added process/referral-followup.ts's followUpMessageText(): a message sent 3-7 days after delivery (once the agent has seen real showing traffic) that asks for a concrete, usable testimonial quote and offers a referral to another agent. The incentive (REFERRAL_INCENTIVE) is a discount off a *future* paid delivery for both sides ($10 off for the referrer, $5 off for the referee), not a cash payout, so it costs nothing until a referral actually converts and doesn't violate the 'no spend of real money' guardrail.",
+    rationale:
+      "The funnel had messages for getting booked, paying, and the delivery handoff, but nothing for the moment that actually grows the business past a single $19 transaction. STRATEGY.md's target customer has 4-12 listings/month and mid-market agents talk to each other; with ad spend and paid tools both ruled out by the guardrails, word-of-mouth from a satisfied first customer is the cheapest credible growth channel available, and this repo had never built the ask for it.",
+    madeBy: "claude/dazzling-allen-l25h2i",
+    relatedTaskIds: ["p2-referral-followup", "p2-first-deliveries"],
+  },
 ];

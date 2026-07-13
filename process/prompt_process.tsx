@@ -36,6 +36,7 @@ import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual
 import { gtmMotionOptions, gtmMotionDecision } from "./gtm-motion";
 import { paymentMethodOptions, paymentDecision } from "./payment-collection";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
+import { REFERRAL_INCENTIVE, followUpTiming } from "./referral-followup";
 import type { PhaseStatus } from "./types";
 
 export const AGENT_PROCESS_INSTRUCTIONS = `
@@ -413,6 +414,21 @@ export function ProcessDashboard() {
               <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Referral &amp; follow-up (p2-referral-followup)</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          The growth step past the first delivery: a ready-to-send check-in that asks for a testimonial and a
+          referral once an agent has actually seen the photos work. See process/referral-followup.ts. Timing:{" "}
+          {followUpTiming}
+        </p>
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <h3 className="font-medium text-white">Incentive: discount, not cash</h3>
+          <p className="mt-2 text-sm text-slate-300">{REFERRAL_INCENTIVE.summary}</p>
+          <p className="mt-2 text-xs text-slate-500">Referrer: {REFERRAL_INCENTIVE.referrerReward}</p>
+          <p className="mt-1 text-xs text-slate-500">Referee: {REFERRAL_INCENTIVE.refereeReward}</p>
         </div>
       </section>
 

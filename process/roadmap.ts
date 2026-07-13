@@ -271,6 +271,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/delivery-message.ts exists with deliveryMessageText(), combining listing address, photo count, an optional microsite mention, payment-collection.ts's paymentInstructionsText(), and the existing free-redo guarantee into one ready-to-paste message; pipeline/src/cli-microsite.ts prints it automatically after a successful microsite build; has a passing self-test (npm test) with no real listing photos required. See process/delivery-message.ts, pipeline/src/cli-microsite.ts, delivery-message.test.ts.",
       },
+      {
+        id: "p2-referral-followup",
+        title: "Post-delivery follow-up message: testimonial + referral ask",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The funnel had a message for getting booked (outreach-templates.ts), a way to pay (payment-collection.ts), and a handoff message for the delivery moment (delivery-message.ts) — but nothing for the moment that actually grows the business past one transaction. STRATEGY.md's own target customer has 4-12 listings/month and mid-market agents talk to each other; with zero ad spend available under the guardrails, turning a single $19 delivery into a repeat booking and a referral is the cheapest credible growth channel this business has, and nothing agent-doable stood between 'delivered' and 'hope they come back'.",
+        doneWhen:
+          "process/referral-followup.ts exists with followUpMessageText() (a 3-7-days-after-delivery check-in that asks for a concrete testimonial and offers a zero-cash-spend discount-based referral incentive), a TESTIMONIAL_PROMPT for turning a vague reply into a usable quote, and REFERRAL_INCENTIVE defined as future-delivery discounts (not cash) so it doesn't violate the no-real-spend guardrail; has a passing self-test (npm test) with no real listing/customer data required. See process/referral-followup.ts, pipeline/src/referral-followup.test.ts.",
+      },
     ],
   },
   {
