@@ -128,6 +128,7 @@ export const AGENT_PROTOCOL = [
   "updateLeadNotes must pass requireConvex (LEAD_NOTES_CONVEX_PRIMARY) from updateLeadNotesAction when Convex is configured — getLeads reads Convex-first, so a SQLite-only notes write after soft-fallback leaves discovery-call / Email 3 outcomes invisible on other instances (operator loses call notes across deploys). Fail closed and surface a retry to the operator. When free NEXT_STEPS are gated after lead-notes, prefer marketing-pack-convex-primary / client-voice-pack-convex-primary (upsertMarketingPack / upsertClientVoicePack requireConvex — Growth/Complete + Complete sold fulfillment read Convex-first) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "upsertMarketingPack must pass requireConvex (MARKETING_PACK_CONVEX_PRIMARY) from generateMarketingPackAction when Convex is configured — getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest Marketing packs due + Email pack precondition) read Convex-first, so a SQLite-only Generate pack leaves Growth/Complete fulfillment looking missing on other instances (Email pack blocked + false packs-due debt). Fail closed and surface a retry to the operator; regenerating the same UTC month is idempotent replace. When marketing-pack is claimed by a sibling, prefer client-voice-pack-convex-primary (upsertClientVoicePack twin) over inventing optional aggregates.",
   "upsertClientVoicePack must pass requireConvex (CLIENT_VOICE_PACK_CONVEX_PRIMARY) from generateClientVoicePackAction when Convex is configured — getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest Complete voice packs due + Email voice pack precondition) read Convex-first, so a SQLite-only Generate voice leaves Complete phone-script fulfillment looking missing on other instances (Email voice pack blocked + false voice-packs-due debt). Fail closed and surface a retry to the operator; regenerating replaces the one-row-per-lead pack (idempotent). When marketing + voice pack requireConvex are both done and free NEXT_STEPS are gated, prefer lead-upsert-convex-primary (upsertLead requireConvex on create/import/CSV paths that feed Convex-first getLeads) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "upsertLead must pass requireConvex (LEAD_UPSERT_CONVEX_PRIMARY) from addLeadAction / importLeadsCsvAction when Convex is configured — getLeads / getLeadBySlug (Work next, pipeline-health, digest, outreach eligibility) read Convex-first, so a SQLite-only Add lead / CSV import leaves new inventory invisible on other instances (empty CRM + false funnel + outreach blocked). Fail closed and surface a retry to the operator; scope is create/import only — field-level updates keep their own requireConvex helpers (notes/stage/outreach/snooze/cold). Payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. When lead-upsert is claimed or done and free NEXT_STEPS are gated, prefer lead-stage-convex-primary (updateLeadStageAction requireConvex — dashboard stage dropdown still soft-falls-back while getLeads reads Convex-first, and outreach_sent can desync stage vs outreachStep) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -991,10 +992,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "lead-upsert-convex-primary",
     summary:
-      "Empty-backlog follow-up after marketing + voice pack requireConvex: upsertLead still soft-falls-back on Convex failure while getLeads / getLeadBySlug read Convex-first — CSV import / Add lead / payment-stub create paths can claim success after a SQLite-only write that other instances never see (operator loses new inventory; outreach/checkout attribution miss the lead). Prefer requireConvex fail-closed on create/import call sites that must land in the shared store.",
-    status: "in_progress",
+      "Empty-backlog follow-up after marketing + voice pack requireConvex: upsertLead still soft-fell-back on Convex failure while getLeads / getLeadBySlug read Convex-first — CSV import / Add lead create paths could claim success after a SQLite-only write that other instances never see (operator loses new inventory; outreach/checkout attribution miss the lead). Shipped: LEAD_UPSERT_CONVEX_PRIMARY; upsertLead accepts ConvexPrimaryWriteOptions and throws ConvexPrimaryWriteError when requireConvex; addLeadAction / importLeadsCsvAction fail closed and surface an operator retry. Payment-stub organic checkout already uses recordLeadPayment requireConvex.",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-098b",
+  },
+  {
+    id: "lead-stage-convex-primary",
+    summary:
+      "Empty-backlog follow-up after lead-upsert-convex-primary: updateLeadStageAction still soft-falls-back on Convex failure while getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first — manual stage moves (and the outreach_sent path's mixed soft-stage + fail-closed outreach mark) can leave funnel state or stage/outreachStep desynced across instances. Prefer requireConvex fail-closed on updateLeadStageAction (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY).",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2362,6 +2370,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "upsertClientVoicePack accepts ConvexPrimaryWriteOptions; generateClientVoicePackAction passes CLIENT_VOICE_PACK_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for Complete Generate voice. Queued lead-upsert-convex-primary as the next free sold-capability / multi-instance regression (upsertLead still soft-falls-back while getLeads reads Convex-first).",
     rationale:
       "PR #99 closed marketing-pack-convex-primary and left client-voice-pack-convex-primary as the Complete twin. upsertClientVoicePack still soft-fell-back while getClientVoicePackByLeadSlug / listClientVoicePacksDue / Email voice pack read Convex-first — Generate voice could succeed locally and leave Complete phone-script fulfillment looking missing elsewhere (false voice-packs-due debt + Email voice pack blocked). Operator-action fail-closed matches MARKETING_PACK / COMMERCE_CATALOG; regenerating replaces the one-row-per-lead pack. After both pack persists are fail-closed, the next free coded regression is upsertLead on create/import paths (CSV / Add lead) — not inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "upsertLead accepts ConvexPrimaryWriteOptions; addLeadAction and importLeadsCsvAction pass LEAD_UPSERT_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for CRM create/import. Queued lead-stage-convex-primary as the next free regression (dashboard updateLeadStageAction still soft-falls-back).",
+    rationale:
+      "Sibling prompt-process-evolution-1f28 (PR #100) shipped client-voice-pack-convex-primary and queued lead-upsert-convex-primary. Same-cron window: this branch pivoted off client-voice (earlier remote claim) and claimed lead-upsert. upsertLead still soft-fell-back while getLeads / getLeadBySlug / Work next / pipeline-health / digest read Convex-first — Add lead and CSV import could claim success after a SQLite-only write invisible elsewhere (empty CRM, false funnel, outreach blocked). Create-path-only scope: field updates keep their own requireConvex helpers; payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. Operator-action fail-closed matches MARKETING_PACK / CLIENT_VOICE_PACK. After create-path is fail-closed, the next free coded regression is updateLeadStageAction (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY; the stage dropdown does not — and outreach_sent can desync soft stage vs fail-closed outreach mark). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -4010,5 +4025,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (365 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(194, 195),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-098b",
+    summary:
+      "Same-cron window as prompt-process-evolution-1f28 on client-voice-pack-convex-primary: sibling's earlier remote claim + feature body already merged as PR #100 before this branch pushed — pivoted per AGENT_PROTOCOL and claimed the queued lead-upsert-convex-primary instead. upsertLead still soft-fell-back while getLeads / getLeadBySlug / Work next / pipeline-health / digest read Convex-first — Add lead and CSV import could claim success after a SQLite-only write invisible elsewhere. Shipped LEAD_UPSERT_CONVEX_PRIMARY + fail-closed addLeadAction / importLeadsCsvAction. Queued lead-stage-convex-primary (dashboard stage dropdown still soft-falls-back; Mark live already fail-closed). Stripe Prices / Places / Buffer OAuth / Connect stay gated. Improved AGENT_PROTOCOL to prefer lead-stage after create-path upsert is fail-closed.",
+    shipped: [
+      "merge: folded origin/main after PR #100 (client-voice-pack-convex-primary) — both ITERATIONS kept",
+      "src/lib/leads/upsert-persist.ts (+ test) — LEAD_UPSERT_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — upsertLead(lead, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/dashboard/leads/actions.ts — addLeadAction / importLeadsCsvAction pass LEAD_UPSERT_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as an operator retry (per-row on CSV)",
+      "Docs: architecture / roadmap / launch-checklist — Add lead / CSV import requireConvex",
+      "NEXT_STEPS: lead-upsert-convex-primary done; queued lead-stage-convex-primary",
+      "AGENT_PROTOCOL — upsertLead requireConvex on create/import; prefer lead-stage-convex-primary next",
+      "BUSINESS_DECISIONS — documented CRM create-path split-brain risk + same-cron pivot off 1f28",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(195, 196),
   },
 ];

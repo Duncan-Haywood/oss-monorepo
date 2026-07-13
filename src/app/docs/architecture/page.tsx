@@ -43,7 +43,10 @@ export default function ArchitectureDocPage() {
         compliance. Re-imports and manual add-lead treat slug collisions as create-path conflicts:
         existing leads are skipped (CSV) or rejected (add form) so pipeline fields
         (stage / outreach / notes / snooze) are never silently reset via{" "}
-        <code>upsertLead</code>. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
+        <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
+        <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
+        surfaces a retry instead of claiming success after a SQLite-only write other instances
+        cannot see. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
         require a signed session cookie. <code>src/proxy.ts</code> also rewrites the root path to a
         lead&apos;s <code>/preview/[slug]</code> when the request Host matches a client&apos;s own
