@@ -508,7 +508,9 @@ export default function ArchitectureDocPage() {
         Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets; product/price list
         lookups paginate via shared <code>listAllPages</code> in{" "}
-        <code>src/lib/stripe/list-all-pages.ts</code> with direct unit coverage), then persists
+        <code>src/lib/stripe/list-all-pages.ts</code> with direct unit coverage) — action-level
+        Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks auth, secret
+        gate, empty catalog, requireConvex persist, and fail-closed Convex errors — then persists
         <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. When Convex
         is configured, Save catalog and Sync to Stripe pass <code>requireConvex</code> (
         <code>COMMERCE_CATALOG_CONVEX_PRIMARY</code>) so a mutation failure surfaces instead of
