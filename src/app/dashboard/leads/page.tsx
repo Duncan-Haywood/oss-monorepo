@@ -17,6 +17,7 @@ import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
+import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
@@ -104,6 +105,7 @@ export default async function LeadsPage() {
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
+  const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -120,7 +122,10 @@ export default async function LeadsPage() {
       />
 
       <div className="mt-6">
-        <BundlePriceEnvBanner readiness={priceEnv} />
+        <BundlePriceEnvBanner
+          readiness={priceEnv}
+          bootstrapAllowed={bootstrapAllowed}
+        />
       </div>
 
       <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200 pb-5">

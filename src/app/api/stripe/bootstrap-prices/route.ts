@@ -1,27 +1,29 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
 
 /**
  * Operator-only bootstrap for Stripe Price objects.
  * Requires ALLOW_STRIPE_BOOTSTRAP=1 and STRIPE_SECRET_KEY.
  * See /docs/roadmap#phase-3-payments and the stripe-price-objects backlog item.
+ * Dashboard twin: bootstrapStripePricesAction on the checkout-blocked banner.
  */
 
 export async function POST() {
-  if (process.env.ALLOW_STRIPE_BOOTSTRAP !== "1") {
+  const gate = assessStripeBootstrapGate();
+  if (!gate.ok) {
     return NextResponse.json(
       {
-        error: "Stripe price bootstrap disabled",
-        message:
-          "Set ALLOW_STRIPE_BOOTSTRAP=1 (and STRIPE_SECRET_KEY) in the environment, then POST again. Disable the flag after copying Price IDs into secrets.",
+        error: gate.error,
+        message: gate.message,
         docs: "/docs/roadmap#phase-3-payments",
       },
-      { status: 403 },
+      { status: gate.status },
     );
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
   if (!secretKey) {
     return NextResponse.json(
       {
