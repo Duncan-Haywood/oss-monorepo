@@ -1161,6 +1161,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-4792",
   },
+  {
+    id: "preview-jsonld-script-escape",
+    summary:
+      "Security audit while free NEXT_STEPS backlog stayed gated: /preview/[slug] (public, unauthenticated) embeds leadLocalBusinessJsonLd via dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} — JSON.stringify does not escape '<', so a lead field (businessName/description/address/city/state — free text from CSV import or a future Places scrape, not just operator-typed) containing the literal '</script>' would prematurely close the JSON-LD <script> tag and let an attacker-controlled '<script>' after it execute for every real site visitor (stored XSS). No prior escapeHtmlForEmail/requireConvex/truncation audit covered this file — those all scoped to outbound email HTML, not page-rendered JSON-LD.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/relaxed-galileo-e13pc6",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
