@@ -131,6 +131,7 @@ export const AGENT_PROTOCOL = [
   "upsertLead must pass requireConvex (LEAD_UPSERT_CONVEX_PRIMARY) from addLeadAction / importLeadsCsvAction when Convex is configured — getLeads / getLeadBySlug (Work next, pipeline-health, digest, outreach eligibility) read Convex-first, so a SQLite-only Add lead / CSV import leaves new inventory invisible on other instances (empty CRM + false funnel + outreach blocked). Fail closed and surface a retry to the operator; scope is create/import only — field-level updates keep their own requireConvex helpers (notes/stage/outreach/snooze/cold). Payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. When lead-upsert is claimed or done and free NEXT_STEPS are gated, prefer lead-stage-convex-primary (updateLeadStageAction requireConvex — dashboard stage dropdown still soft-falls-back while getLeads reads Convex-first, and outreach_sent can desync stage vs outreachStep) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect. Empty-backlog sold-capability / multi-instance regression audits (Convex API map, escapeHtmlForEmail asymmetries, webhook idempotency, untested orchestrators) remain valid when that readiness todo is claimed or done.",
   "bundle-price-env-readiness uses assessBundlePriceEnvReadiness (src/lib/pricing/price-env-readiness.ts) against BUNDLES + COMMERCE_ADDON env names — surface missing STRIPE_PRICE_ID_* on /dashboard + /dashboard/leads + launch-checklist, never as a pipeline-health metric card. Whitespace-only counts as missing. Does not call Stripe and does not fake-complete stripe-price-objects (ALLOW_STRIPE_BOOTSTRAP + paste envSnippet stays operator-gated). When that readiness helper is done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates.",
+  "escapeHtmlForEmail-asymmetry audit done: src/lib/digest/daily-digest.ts's local escapeHtml() (missing the ' → &#39; escape) is gone — it now imports escapeHtmlForEmail from ../inquiries/reply like every other outbound HTML email. Do not reintroduce a second escaper for a new email surface; import escapeHtmlForEmail directly. With bundle-price-env-readiness also done, remaining empty-backlog audit angles are Convex API map completeness (src/lib/db.ts), webhook idempotency, and untested orchestrators.",
 ] as const;
 
 /**
@@ -2410,6 +2411,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Queued by PR #103 fold after lead-stage closed the CRM requireConvex chain. Checkout already 501s per missing Price ID at session-create, but operators had no earlier dashboard signal that every sale was blocked. A pure readiness helper unblocks that awareness without fake-completing operator bootstrap (ALLOW_STRIPE_BOOTSTRAP + paste envSnippet). After this ships, free NEXT_STEPS are again only gated secrets/OAuth/counsel — prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates.",
   },
+  {
+    date: "2026-07-13",
+    decision:
+      "Consolidated src/lib/digest/daily-digest.ts's local escapeHtml() into the shared escapeHtmlForEmail() (src/lib/inquiries/reply.ts) used by every other outbound HTML email.",
+    rationale:
+      "bundle-price-env-readiness was claimed by sibling business-process-evolution-3eea within the minute this run started (fresh claim, not stale) — AGENT_PROTOCOL directs picking a different free todo rather than duplicating. With NEXT_STEPS otherwise operator/legal-gated, AGENT_PROTOCOL's own empty-backlog guidance names escapeHtmlForEmail asymmetries as a valid audit target. The digest's private escaper matched escapeHtmlForEmail on &, <, >, \" but silently dropped the ' → &#39; escape, and every digest section (Work next, follow-ups, checkout/commerce recoveries, unreplied inquiries, marketing packs, Starter upsell, commerce catalogs, voice packs, commerce payouts) interpolated operator-facing but ultimately lead/customer-sourced businessName/tier/skuId/messagePreview text through it. Text-node HTML injection risk from an unescaped quote alone is low, but a second, drifting escaper implementation is exactly the class of asymmetry the protocol line warns about — one canonical escaper is safer than two that can silently diverge further. No behavior change for &/</>/\"; digest output now also escapes stray apostrophes consistently with every other outbound email.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -4122,5 +4130,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (374 passed, +5 new) + lint + build all clean; npm run dev — /dashboard and /dashboard/leads show checkout-blocked banner (7/7 missing Price env vars)",
     ],
     decisions: BUSINESS_DECISIONS.slice(198, 199),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/upbeat-dijkstra-y47f7i",
+    summary:
+      "bundle-price-env-readiness was already claimed (fresh, not stale) by sibling business-process-evolution-3eea when this run started, so per AGENT_PROTOCOL's empty-backlog guidance this iteration ran the named audit instead: escapeHtmlForEmail asymmetries. Found src/lib/digest/daily-digest.ts had its own local escapeHtml() duplicating src/lib/inquiries/reply.ts's escapeHtmlForEmail() but missing the single-quote escape, and used it for every interpolated businessName/tier/skuId/messagePreview in the operator daily digest HTML email. Removed the duplicate, switched all 13 call sites to the shared escapeHtmlForEmail so the digest matches every other outbound HTML email's escaping contract. Folded origin/main (PR #104, bundle-price-env-readiness) — kept both ITERATIONS.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — removed local escapeHtml(); import + use escapeHtmlForEmail from ../inquiries/reply at all interpolation sites (Work next, follow-ups, checkout/commerce recoveries, unreplied inquiries, marketing packs due, Starter upsell, commerce catalogs missing/unsynced, voice packs due, commerce payouts owed)",
+      "AGENT_PROTOCOL — recorded that the empty-backlog escapeHtmlForEmail-asymmetry audit found and closed a real duplicate-escaper gap in the daily digest",
+      "BUSINESS_DECISIONS — documented the digest escaper consolidation",
+      "Verified: npm test (369 passed) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(199, 200),
   },
 ];
