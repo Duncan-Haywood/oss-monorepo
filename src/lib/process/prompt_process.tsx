@@ -165,7 +165,10 @@ export const AGENT_PROTOCOL = [
   "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "unsubscribe-token-signing done: GET /api/unsubscribe now rejects a missing or mismatched token (400, before calling suppressEmail) via signUnsubscribeToken/verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts). Every automated send funnels through sendEmail (src/lib/email/resend.ts), which is the one and only place that builds the unsubscribe link — it now appends &token=signUnsubscribeToken(normalizedTo), so no template needs to change individually. Prior audits treated 'unsubscribe honored' as done once requireConvex + escapeHtmlForEmail landed on this route; neither addressed that the route had no authorization at all. When adding any new public link that triggers a state-changing GET/POST keyed only by an email or slug in the URL (no session), check whether it needs the same signed-token treatment before assuming a persistence/escaping audit already covered it. Signing key is RESEND_API_KEY (already required for a real send to leave the building) with a fixed dev-only fallback — do not introduce a new required secret for this class of problem when an existing one already gates whether the link is ever delivered to a real recipient. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression or security audit (e.g. rate limiting on public write endpoints — contact form, checkout create, preview-open beacon — none currently exists) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When contact-form-route-orchestration-test-coverage and unsubscribe-route-orchestration-test-coverage are both free in the same cron window, claim different ones (Starter contact CRM persist-then-notify vs CAN-SPAM suppress fail-closed) — they touch different route files. Existing HTML-escape-only route tests are not enough; lock CONTACT_FORM_CONVEX_PRIMARY / UNSUBSCRIBE_CONVEX_PRIMARY pass-through, persist-required 503/500, and validation. When a sibling claims stripe-bootstrap-dashboard-action (operator-visible Price bootstrap), prefer these public-route orchestration suites over inventing optional aggregates.",
+  "stripe-bootstrap-dashboard-action done: when ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard + /dashboard/leads offers operator-auth'd Run bootstrap (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Does not fake-complete stripe-price-objects (paste secrets + unset flag still required); removes curl friction on the #1 sale blocker. When free NEXT_STEPS stay gated, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. Folded sibling stripe-bootstrap-dashboard-action (a606 / PR #134). When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "unsubscribe-token-signing done (supersedes the unsubscribe-route-orchestration-test-coverage suggestion above — a real bug, not just a coverage gap): GET /api/unsubscribe had zero authorization — anyone who knew an address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app. Now rejects a missing or mismatched token (400, before calling suppressEmail) via signUnsubscribeToken/verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts). Every automated send funnels through sendEmail (src/lib/email/resend.ts), which is the one and only place that builds the unsubscribe link — it now appends &token=signUnsubscribeToken(normalizedTo), so no template needs to change individually. Prior audits treated 'unsubscribe honored' as done once requireConvex + escapeHtmlForEmail landed on this route; neither addressed that the route had no authorization at all. When adding any new public link that triggers a state-changing GET/POST keyed only by an email or slug in the URL (no session), check whether it needs the same signed-token treatment before assuming a persistence/escaping audit already covered it. Signing key is RESEND_API_KEY (already required for a real send to leave the building) with a fixed dev-only fallback — do not introduce a new required secret for this class of problem when an existing one already gates whether the link is ever delivered to a real recipient. Route-level tests now sign valid tokens and cover missing/forged/garbage-token rejection, so unsubscribe-route-orchestration-test-coverage's remaining scope is CONTACT_FORM_CONVEX_PRIMARY's twin (UNSUBSCRIBE_CONVEX_PRIMARY pass-through/500) if not already folded in — check before reclaiming. When free NEXT_STEPS are gated again, prefer that remaining scope, rate limiting on public write endpoints (contact form, checkout create, preview-open beacon — none currently exists), or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1275,9 +1278,25 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "cursor/prompt-process-evolution-fa0a",
   },
   {
+    id: "stripe-bootstrap-dashboard-action",
+    summary:
+      "Empty-backlog after PR #133 (demo-catalog + category-themes coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; operators previously had to curl POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1. Shipped: assessStripeBootstrapGate (shared with the API route), bootstrapStripePricesAction (operator-auth'd), Run bootstrap + copyable envSnippet on the checkout-blocked banner. Does not fake-complete stripe-price-objects — paste secrets + unset flag still required.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a606",
+  },
+  {
+    id: "contact-form-route-orchestration-test-coverage",
+    summary:
+      "Empty-backlog after PR #133 — only gated secrets/OAuth/counsel remain. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). POST /api/contact/[slug] had only HTML-escape route coverage; contact-persist.test.ts does not exercise route orchestration (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation). Shipped: route-level Vitest locking Convex-primary pass-through, 400 validation, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure, form-urlencoded, and HTML escape. Sibling-friendly twin: unsubscribe-route-orchestration-test-coverage.",
+    status: "done",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "cursor/prompt-process-evolution-cb7f",
+  },
+  {
     id: "unsubscribe-token-signing",
     summary:
-      "Security audit while free NEXT_STEPS backlog stayed gated: GET /api/unsubscribe?email=X suppressed X for anyone who merely knew the address — no signature, no rate limit, no format check — and isEmailSuppressed gates every sendEmail() call (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff), so a scraper could silently and permanently suppress outreach or, worse, a paying customer's receipt/DNS instructions. Shipped: signUnsubscribeToken / verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts, HMAC keyed on RESEND_API_KEY — already a required production secret, no new operator setup); sendEmail's footer link now embeds &token=; the route rejects a missing/mismatched token with 400 before calling suppressEmail. Route-level tests updated to cover missing/forged/garbage tokens.",
+      "Security audit while free NEXT_STEPS backlog stayed gated: GET /api/unsubscribe?email=X suppressed X for anyone who merely knew the address — no signature, no rate limit, no format check — and isEmailSuppressed gates every sendEmail() call (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff), so a scraper could silently and permanently suppress outreach or, worse, a paying customer's receipt/DNS instructions. Shipped: signUnsubscribeToken / verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts, HMAC keyed on RESEND_API_KEY — already a required production secret, no new operator setup); sendEmail's footer link now embeds &token=; the route rejects a missing/mismatched token with 400 before calling suppressEmail. Route-level tests updated to cover missing/forged/garbage tokens. Supersedes the unsubscribe-route-orchestration-test-coverage suggestion above with a real authorization fix, not just added coverage of the previously-unauthenticated behavior.",
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/upbeat-dijkstra-o8942x",
@@ -2886,6 +2905,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
     rationale:
       "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "When ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard and /dashboard/leads offers an operator-auth'd Run bootstrap button (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Paste secrets + unset the flag remain required; the button does not auto-write env or fake-complete stripe-price-objects.",
+    rationale:
+      "After PR #133 closed preview foundation unit coverage, free NEXT_STEPS stayed fully gated (Prices / Places / Buffer OAuth / Connect). The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; the prior path required curling the bootstrap API. Putting Run bootstrap on the same banner that lists missing env names removes curl friction for the operator launch path without inventing optional aggregates or claiming the gated todo done. Prefer this operator-visible revenue unlock over another pure-logic test sweep when the remaining backlog is secrets/OAuth/counsel only.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "POST /api/contact/[slug] gets full route-orchestration Vitest (CONTACT_FORM_CONVEX_PRIMARY pass-through, persist-required 503, notify-only-after-persist, validation, form-urlencoded) beyond the prior HTML-escape-only suite and contact-persist helper tests — locks the Starter sold contact form + durable CRM trail.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX — highest revenue unlock while Prices stay gated). Parallel empty-backlog: the contact route's multi-instance fail-closed contract lived only in contact-persist.test.ts + one HTML-escape route test, so a future soft-fallback or notify-before-persist regression would not fail Vitest. Route orchestration coverage mirrors preview-open / Stripe route suites. Leave unsubscribe-route-orchestration-test-coverage free for a sibling. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
   {
     date: "2026-07-13",
@@ -5064,9 +5097,43 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-13",
+    branch: "cursor/business-process-evolution-a606",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133 (demo-catalog + category-themes). Claimed stripe-bootstrap-dashboard-action — operator-visible Run bootstrap on the checkout-blocked banner so Price IDs can be created without curling the API. Shared assessStripeBootstrapGate with the existing bootstrap-prices route; action is operator-auth'd and returns a copyable envSnippet. Does not fake-complete stripe-price-objects (paste + unset flag still required). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/pricing/bootstrap-gate.ts + bootstrap-gate.test.ts — ALLOW_STRIPE_BOOTSTRAP=1 + STRIPE_SECRET_KEY gate (403/501), whitespace-only secret = missing",
+      "src/app/dashboard/actions.ts — bootstrapStripePricesAction (requireOperatorAuth + gate + bootstrapStripePrices)",
+      "src/components/dashboard/bundle-price-env-banner.tsx — client Run bootstrap + copyable envSnippet when bootstrapAllowed",
+      "src/app/api/stripe/bootstrap-prices/route.ts — uses shared assessStripeBootstrapGate",
+      "Docs: architecture + launch-checklist — dashboard Run bootstrap path documented",
+      "NEXT_STEPS: stripe-bootstrap-dashboard-action done; stripe-price-objects remains operator todo",
+      "AGENT_PROTOCOL — prefer operator-visible revenue unlock (banner bootstrap) when free backlog is gated",
+      "BUSINESS_DECISIONS — documented why one-click bootstrap on the sale-blocking banner beats another pure-logic test sweep",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(229, 230),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-cb7f",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX; merged PR #134). This branch claimed contact-form-route-orchestration-test-coverage — POST /api/contact/[slug] had only HTML-escape route coverage while contact-persist.test.ts covered helpers in isolation. Shipped route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY, persist-required 503, notify-only-after-persist, validation, and form-urlencoded. Folded origin/main (PR #134). Left unsubscribe twin free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.test.ts — route orchestration (CONTACT_FORM_CONVEX_PRIMARY, invalid-slug / empty-body 400s, persist-required 503 for missing inquiryId + ConvexPrimaryWriteError, notify skipped on persist fail, best-effort notify failure after durable row, form-urlencoded → lead email, GET contract) plus existing HTML-escape regression",
+      "Docs: architecture + production-deploy — note route-level Vitest for POST /api/contact/[slug] beyond contact-persist helpers",
+      "NEXT_STEPS: contact-form-route-orchestration-test-coverage done; unsubscribe-route-orchestration-test-coverage queued as sibling twin",
+      "AGENT_PROTOCOL — claim contact vs unsubscribe route orchestration separately; helper suites are not enough for route wiring",
+      "BUSINESS_DECISIONS — documented why Starter contact CRM trail needs route orchestration coverage",
+      "merge: folded origin/main PR #134 (stripe-bootstrap-dashboard-action) — both ITERATIONS kept",
+      "Verified: npm test (629 passed after fold — contact + bootstrap-gate) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(230, 231),
+  },
+  {
+    date: "2026-07-13",
     branch: "claude/upbeat-dijkstra-o8942x",
     summary:
-      "Free NEXT_STEPS backlog fully gated after PR #133 (category-themes + demo-catalog unit coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Ran an empty-backlog security audit instead of another pure-logic test-coverage sweep (that class of gap was thoroughly closed by the last ~20 iterations). Found GET /api/unsubscribe had no authorization at all: anyone who knew an email address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff instructions) — a live bug with concrete revenue/deliverability/support impact, not a hypothetical. Shipped a signed per-recipient token so the route can tell a real unsubscribe click from a guessed URL.",
+      "Free NEXT_STEPS backlog fully gated after PR #135 (stripe-bootstrap-dashboard-action + contact-form-route-orchestration-test-coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Ran an empty-backlog security audit instead of another pure-logic test-coverage sweep (that class of gap was thoroughly closed by the last ~20 iterations). Found GET /api/unsubscribe had no authorization at all: anyone who knew an email address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app (outreach, receipts, marketing/voice pack delivery, Commerce receipts, Starter upsell, post-payment DNS handoff instructions) — a live bug with concrete revenue/deliverability/support impact, not a hypothetical. Shipped a signed per-recipient token so the route can tell a real unsubscribe click from a guessed URL — this also closes the unsubscribe-route-orchestration-test-coverage todo the two merged siblings above left open for a sibling, with a stronger fix than added coverage alone.",
     shipped: [
       "src/lib/email/unsubscribe-token.ts — signUnsubscribeToken / verifyUnsubscribeToken (HMAC-SHA256, timing-safe compare), keyed on RESEND_API_KEY with a fixed dev-only fallback for mock-email mode",
       "src/lib/email/resend.ts — sendEmail's unsubscribe footer link now embeds &token=signUnsubscribeToken(normalizedTo); every automated send template gets this for free since sendEmail is the single place that builds the link",
@@ -5077,8 +5144,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: unsubscribe-token-signing done",
       "AGENT_PROTOCOL — documented the finding + a note that no public write endpoint has rate limiting (contact form, checkout create, preview-open beacon) as the next audit angle",
       "BUSINESS_DECISIONS — documented the vulnerability, its blast radius, and why RESEND_API_KEY (not a new secret) is the signing key",
-      "Verified: npm test (627 passed, +13 new) + lint clean + build clean + npm run dev — curled /api/unsubscribe with no token (400), a garbage token (400), and a correctly-signed token (200, suppression recorded); confirmed /dashboard/leads and /preview/[slug] still 200",
+      "merge: folded origin/main PR #135 (stripe-bootstrap-dashboard-action + contact-form-route-orchestration-test-coverage) — all three ITERATIONS kept",
+      "Verified: npm test (627 passed pre-merge, +13 new) + lint clean + build clean + npm run dev — curled /api/unsubscribe with no token (400), a garbage token (400), and a correctly-signed token (200, suppression recorded); confirmed /dashboard/leads and /preview/[slug] still 200; re-ran npm test + lint + build after the merge",
     ],
-    decisions: BUSINESS_DECISIONS.slice(229, 230),
+    decisions: BUSINESS_DECISIONS.slice(231, 232),
   },
 ];

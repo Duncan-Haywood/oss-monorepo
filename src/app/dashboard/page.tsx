@@ -14,6 +14,7 @@ import {
 import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
+import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
@@ -85,6 +86,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const params = await searchParams;
   const health = await loadDashboardHealth();
   const priceEnv = assessBundlePriceEnvReadiness();
+  const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -97,7 +99,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       <div className="mt-6">
-        <BundlePriceEnvBanner readiness={priceEnv} />
+        <BundlePriceEnvBanner
+          readiness={priceEnv}
+          bootstrapAllowed={bootstrapAllowed}
+        />
       </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>
