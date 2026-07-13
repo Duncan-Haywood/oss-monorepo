@@ -185,6 +185,8 @@ export const AGENT_PROTOCOL = [
   "When generate-marketing-pack-action-test-coverage and generate-client-voice-pack-action-test-coverage are both free in the same cron window, claim different ones (Growth/Complete Generate pack action vs Complete Generate voice action) — they touch different action surfaces and both lock sold-fulfillment operator paths that generators.test.ts / route suites do not cover.",
   "generate-marketing-pack-action-test-coverage done: src/app/dashboard/leads/generate-marketing-pack-action.test.ts locks requireOperatorAuth, empty/missing slug, Starter-only + discovered-stage eligibility, MARKETING_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic generator labeling, ConvexPrimaryWriteError fail-closed (no revalidate), and leadSlug order filtering — generators.test.ts / monthly-pack / marketing/generate route suites are not enough for the dashboard action glue. When free NEXT_STEPS stay gated, prefer generate-client-voice-pack-action-test-coverage (Complete twin; sibling-friendly) or operator-digest-email-env-readiness (OPERATOR_DIGEST_EMAIL missing → Send daily digest errors only on click) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "generate-client-voice-pack-action-test-coverage done: src/app/dashboard/leads/generate-client-voice-pack-action.test.ts locks requireOperatorAuth, empty/missing slug, Growth-only + discovered-stage eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic generator labeling, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering — generators.test.ts / faq-pack / build-request suites are not enough for the dashboard Generate voice action glue. Twin of generate-marketing-pack-action-test-coverage (e889 / PR #145). When free NEXT_STEPS stay gated, prefer operator-digest-email-env-readiness (OPERATOR_DIGEST_EMAIL missing → Send daily digest errors only on click) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "operator-digest-email-env-readiness done: assessOperatorDigestEmailEnvReadiness (src/lib/digest/operator-digest-email-env-readiness.ts) + OperatorDigestEmailEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / you@example.com-style OPERATOR_DIGEST_EMAIL — matching sendDailyDigestAction's trim gate (plus documented .env.example placeholders). Distinct from Stripe / Resend / Anthropic banners. Env presence only — does not call Resend. When free NEXT_STEPS stay gated, prefer send-daily-digest-action-test-coverage (dashboard Send daily digest action Vitest twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When operator-digest-email-env-readiness and send-daily-digest-action-test-coverage are both free in the same cron window, claim different ones (destination readiness banner vs Send daily digest action Vitest) — they touch different surfaces and both lock the operator digest path that daily-digest.test.ts alone does not cover.",
 ] as const;
 
 /**
@@ -1408,10 +1410,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "operator-digest-email-env-readiness",
     summary:
-      "Later empty-backlog twin: Send daily digest only errors on click when OPERATOR_DIGEST_EMAIL is missing — operators get no early dashboard signal that pipeline-health digest delivery is unconfigured. Prefer when Generate pack/voice action suites are claimed/done; do not fake-complete gated secrets.",
-    status: "in_progress",
+      "Empty-backlog twin after Generate pack/voice action Vitest: Send daily digest only erred on click when OPERATOR_DIGEST_EMAIL was missing — operators had no early dashboard signal that pipeline-health digest delivery was unconfigured. Shipped: assessOperatorDigestEmailEnvReadiness + OperatorDigestEmailEnvBanner (emerald). Sibling-friendly next: send-daily-digest-action-test-coverage.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-dde6",
+  },
+  {
+    id: "send-daily-digest-action-test-coverage",
+    summary:
+      "Empty-backlog twin after operator-digest-email-env-readiness: sendDailyDigestAction is the operator Send daily digest path (requireOperatorAuth + OPERATOR_DIGEST_EMAIL + uncapped list* feeds into buildDailyDigest), but only daily-digest.test.ts covers the pure builder — no action-level Vitest for auth, missing destination, or list wiring. Prefer when digest banner is done; do not invent optional aggregates.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3115,6 +3124,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for generateClientVoicePackAction (Complete Generate voice) as the twin of generate-marketing-pack-action-test-coverage — generators/faq-pack/build-request suites do not lock auth, Complete-only eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic labeling, or ConvexPrimaryWriteError fail-closed. Leave operator-digest-email-env-readiness free for a sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Generate voice is the sold Complete phone-script fulfillment button operators click after Anthropic readiness is green. A future soft-fallback / Growth-tier false-positive / missing requireConvex regression would not fail Vitest without action glue coverage — the same class of gap Generate pack / checkout-recovery / bootstrap action suites already closed. Prefer locking that path over inventing OPERATOR_DIGEST_EMAIL banners or optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Dashboard shows an emerald OperatorDigestEmailEnvBanner (assessOperatorDigestEmailEnvReadiness) when OPERATOR_DIGEST_EMAIL is missing, whitespace-only, or a documented placeholder (you@example.com / *@example.com|org) — matching sendDailyDigestAction's trim gate.",
+    rationale:
+      "Empty-backlog after PR #146 (Generate voice action Vitest). Stripe / Resend / Anthropic banners already cover payment, outbound transport, and AI pack quality, but Send daily digest still only surfaced a missing destination on click — operators could miss Work next / follow-ups / abandoned carts / unreplied inquiries / packs due / Commerce payouts owed until they pressed the button. Env presence / placeholder detection only — does not call Resend, does not fake-complete gated secrets. Queued send-daily-digest-action-test-coverage as the sibling-friendly action Vitest twin.",
   },
 ];
 
@@ -5516,5 +5532,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (736 passed — Generate voice action 11) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(242, 243),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-dde6",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #146 (Generate voice action Vitest). Sibling business-process-evolution-b17e claimed + shipped generate-client-voice-pack-action-test-coverage (folded via main). This branch claimed operator-digest-email-env-readiness — Send daily digest only erred on click when OPERATOR_DIGEST_EMAIL was missing, with no early dashboard signal that pipeline-health digest delivery was unconfigured. Left send-daily-digest-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/digest/operator-digest-email-env-readiness.ts + operator-digest-email-env-readiness.test.ts — assessOperatorDigestEmailEnvReadiness (whitespace-only / you@example.com / *@example.com|org = not ready; matches sendDailyDigestAction trim gate)",
+      "src/components/dashboard/operator-digest-email-env-banner.tsx — emerald daily-digest-blocked banner",
+      "src/app/dashboard/page.tsx + leads/page.tsx — OperatorDigestEmailEnvBanner below AnthropicEnvBanner",
+      "Docs: launch-checklist + architecture + roadmap note the digest destination readiness banner",
+      "NEXT_STEPS: operator-digest-email-env-readiness done; generate-client-voice-pack-action-test-coverage done (b17e / PR #146); queued send-daily-digest-action-test-coverage",
+      "AGENT_PROTOCOL — claim digest destination readiness vs Send daily digest action Vitest separately next",
+      "BUSINESS_DECISIONS — documented why Stripe/Resend/Anthropic readiness still left digest delivery blind until click",
+      "merge: folded origin/main PR #146 (Generate voice action Vitest) — both ITERATIONS kept",
+      "Verified: npm test (746 passed — +10 digest email readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(243, 244),
   },
 ];
