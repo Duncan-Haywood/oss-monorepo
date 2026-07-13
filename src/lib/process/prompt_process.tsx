@@ -1318,6 +1318,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Client sites + handoff",
     owner: "claude/quirky-davinci-swhbug",
   },
+  {
+    id: "unsubscribe-get-rate-limiting",
+    summary:
+      "Sibling twin of public-write-rate-limiting: extend the same checkRateLimit helper to GET /api/unsubscribe (state-changing CAN-SPAM suppress). Claimed by cursor/prompt-process-evolution-6d42.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-6d42",
+  },
+  {
+    id: "stripe-core-env-readiness",
+    summary:
+      "Empty-backlog after public-write-rate-limiting: BundlePriceEnvBanner only covers STRIPE_PRICE_ID_* — operators still get no early dashboard signal when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing. Missing secret key → checkout 501; missing webhook secret → Stripe can charge while CRM/handoff never records (silent fulfillment failure). Sibling 6d42 owns unsubscribe-get-rate-limiting.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-e756",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
