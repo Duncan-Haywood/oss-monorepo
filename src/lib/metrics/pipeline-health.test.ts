@@ -630,6 +630,45 @@ describe("computePipelineHealth", () => {
     expect(health.commerceOrdersCount).toBe(1);
   });
 
+  it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
+    // Simulate listCommerceOrders(N)'s newest-first page: an old unpaid Buy now
+    // row pushed off the page by newer paid-out traffic. Callers must feed
+    // computePipelineHealth from listUnpaidCommerceOrders() (uncapped unpaid),
+    // not a capped newest-N page of every commerce order — otherwise owed
+    // totals undercount and the operator can double-pay a client.
+    const olderUnpaid = { amountPaidUsd: 40, paidOutAt: undefined as string | undefined };
+    const recentPaidOut = Array.from({ length: 5 }, () => ({
+      amountPaidUsd: 10,
+      paidOutAt: "2026-06-10T00:00:00.000Z",
+    }));
+    // Full unpaid set = just the older unpaid row (what listUnpaidCommerceOrders returns).
+    const unpaidOnly = [olderUnpaid];
+    // Newest-5 page of mixed status hides the older unpaid row (created earlier).
+    const truncatedNewestFive = [...recentPaidOut];
+
+    const fromUnpaidSet = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: unpaidOnly,
+      nowMs: NOW,
+    });
+    const fromTruncatedPage = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: truncatedNewestFive,
+      nowMs: NOW,
+    });
+
+    expect(fromUnpaidSet.commerceOrdersRevenueUsd).toBe(40);
+    expect(fromUnpaidSet.commerceOrdersCount).toBe(1);
+    expect(fromTruncatedPage.commerceOrdersRevenueUsd).toBe(0);
+    expect(fromTruncatedPage.commerceOrdersCount).toBe(0);
+  });
+
   it("defaults commerce order revenue to zero when none recorded", () => {
     const health = computePipelineHealth({
       leads: [],

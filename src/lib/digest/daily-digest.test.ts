@@ -486,6 +486,62 @@ describe("buildDailyDigest", () => {
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
   });
+
+  it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
+    // Callers must feed buildDailyDigest from listUnpaidCommerceOrders()
+    // (uncapped unpaid), not a capped newest-N page of every commerce order —
+    // a capped page can drop an older unpaid Buy now row past the window and
+    // undercount Commerce payouts owed (double-pay risk).
+    const oldClient = baseLead({
+      slug: "old-client",
+      businessName: "Old Client Cafe",
+      stage: "live",
+    });
+    const olderUnpaid = {
+      id: "co_old",
+      leadSlug: "old-client",
+      skuId: "sku_old",
+      skuName: "Old SKU",
+      amountPaidUsd: 40,
+      stripeSessionId: "cs_old",
+      createdAt: "2026-01-01T00:00:00.000Z",
+    };
+    const recentPaidOut = Array.from({ length: 5 }, (_, i) => ({
+      id: `co_new_${i}`,
+      leadSlug: "new-client",
+      skuId: `sku_new_${i}`,
+      skuName: `New SKU ${i}`,
+      amountPaidUsd: 10,
+      stripeSessionId: `cs_new_${i}`,
+      createdAt: `2026-06-0${i + 1}T00:00:00.000Z`,
+      paidOutAt: "2026-06-10T00:00:00.000Z",
+    }));
+    const full = [olderUnpaid, ...recentPaidOut];
+    const truncatedToNewestFive = [...full]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 5);
+    const unpaidOnly = full.filter((row) => !row.paidOutAt);
+
+    const fromUnpaidSet = buildDailyDigest({
+      leads: [oldClient],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: unpaidOnly,
+      nowMs: NOW,
+    });
+    const fromTruncatedPage = buildDailyDigest({
+      leads: [oldClient],
+      inquiries: [],
+      openCheckoutSessions: [],
+      commerceOrders: truncatedToNewestFive,
+      nowMs: NOW,
+    });
+
+    expect(fromUnpaidSet.commercePayoutsOwedTotalUsd).toBe(40);
+    expect(fromUnpaidSet.commercePayoutsOwed[0]?.businessName).toBe("Old Client Cafe");
+    expect(fromTruncatedPage.commercePayoutsOwed).toHaveLength(0);
+    expect(fromTruncatedPage.commercePayoutsOwedTotalUsd).toBe(0);
+  });
 });
 
 describe("formatSnoozeRemainingHours", () => {

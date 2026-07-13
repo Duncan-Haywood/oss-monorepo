@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { suppressEmail } from "@/lib/db";
 import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 
 export async function GET(request: NextRequest) {
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
         <body>
           <div class="card">
             <h1>You have been unsubscribed</h1>
-            <p>We have added <strong>${escapeHtml(email)}</strong> to our suppression list. You will no longer receive automated outreach emails from us.</p>
+            <p>We have added <strong>${escapeHtmlForEmail(email)}</strong> to our suppression list. You will no longer receive automated outreach emails from us.</p>
           </div>
         </body>
       </html>
@@ -76,13 +77,4 @@ export async function GET(request: NextRequest) {
     }
     return new NextResponse("Error processing request", { status: 500 });
   }
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
