@@ -65,6 +65,33 @@ function run() {
   };
   validateLeadInput(input); // should not throw
 
+  threw = false;
+  try {
+    validateLeadInput({ ...input, paymentMethod: "not_a_real_method" as never });
+  } catch {
+    threw = true;
+  }
+  assert(threw, "validateLeadInput should reject an unknown payment method");
+
+  threw = false;
+  try {
+    validateLeadInput({ ...input, stage: "contacted", paymentReference: "conf-1234" });
+  } catch {
+    threw = true;
+  }
+  assert(threw, "validateLeadInput should reject a payment reference on a non-paid stage");
+
+  const paidInput = {
+    ...input,
+    stage: "paid" as const,
+    paymentMethod: "zelle" as const,
+    paymentReference: "conf-1234",
+  };
+  validateLeadInput(paidInput); // should not throw
+  const paidEntry = formatLeadEntry("lead-paid", paidInput);
+  assert(paidEntry.includes('paymentMethod: "zelle"'), "formatted entry should include paymentMethod");
+  assert(paidEntry.includes('paymentReference: "conf-1234"'), "formatted entry should include paymentReference");
+
   assert(nextLeadId(EMPTY_SOURCE) === "lead-001", `expected lead-001, got ${nextLeadId(EMPTY_SOURCE)}`);
 
   const entry = formatLeadEntry("lead-001", input);

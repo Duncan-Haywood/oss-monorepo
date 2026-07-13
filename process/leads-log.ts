@@ -12,6 +12,7 @@
  */
 
 import type { OutreachTemplate } from "./outreach-templates";
+import type { PaymentMethodOption } from "./payment-collection";
 
 export type LeadStage =
   | "identified"
@@ -33,6 +34,10 @@ export type Lead = {
   stage: LeadStage;
   dateLogged: string; // YYYY-MM-DD
   notes?: string;
+  /** Only set once stage reaches "paid" — which of payment-collection.ts's paymentMethodOptions was actually used. */
+  paymentMethod?: PaymentMethodOption["id"];
+  /** Only set once stage reaches "paid" — a non-identifying reference (e.g. last 4 of a Zelle/PayPal confirmation), not full account/card details. */
+  paymentReference?: string;
 };
 
 /**

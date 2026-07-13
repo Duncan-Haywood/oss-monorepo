@@ -345,4 +345,23 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first, same as every recent session. If still empty and nextActionableTasks() is still empty, this session's approach (actually reading `npm install`/`npm audit` output instead of assuming dependencies are fine) is a reasonable place to look again — check pipeline/'s and docs-site/'s other dependencies for anything similarly newly-flagged, but don't attempt a major-version bump without a human able to verify the deployed result.",
     ],
   },
+  {
+    date: "2026-07-13",
+    agent: "real-estate-photography-continuous-improvement-2",
+    summary:
+      "Completed p2-payment-collection, which a prior session (commit 9505fa7, ~4h earlier) had claimed in_progress but never finished — no branch or open PR had the actual work, so leads-log.ts/loggedInterviewResults/listingAuditLog were all still empty and this was the highest-leverage agent-doable task left. Closed the same class of silent gap p2-booking-link found for the booking step: pricing-one-pager.tsx has said 'Book your first listing for $19' since it was written, but nothing anywhere said HOW to actually pay.",
+    changes: [
+      "New process/payment-collection.ts: sourced comparison of Zelle / PayPal / Venmo (setup cost, fee, how-to-pay, tradeoffs, sources) plus a decision (Zelle primary, PayPal goods & services fallback, both to duncan.andrew.haywood@gmail.com) and a revisit condition (real merchant processor once volume/price outgrows peer-to-peer transfers).",
+      "pricing-one-pager.tsx: howItWorks step 4 now says 'Pay & get the folder'; added a 'How do I pay?' FAQ entry rendering paymentInstructionsText().",
+      "leads-log.ts: Lead type gained optional paymentMethod/paymentReference fields. pipeline/src/log-lead.ts: CLI accepts --payment-method/--payment-reference, validates paymentMethod against payment-collection.ts's options and rejects paymentReference on any non-'paid' stage.",
+      "prompt_process.tsx: new 'Payment collection' dashboard section (decision + per-method cards), same pattern as the existing virtual-staging-tech/gtm-motion sections.",
+      "roadmap.ts: p2-payment-collection in_progress -> done. decisions-log.ts: logged the Zelle/PayPal decision and rationale.",
+      "pipeline/src/log-lead.test.ts: added assertions for invalid payment method, payment-reference-without-paid-stage rejection, and correct formatting of paid entries.",
+      "Verified: pipeline/ `npm test` (all 3 self-tests) + `npx tsc --noEmit` pass; docs-site/ `npm run build` passes clean (9/9 static pages including /process, /pricing).",
+    ],
+    nextUp: [
+      "Human: process/blockers.ts's 5 items unchanged by this session (still all confirmed 2026-07-13 by the prior session) — p2-first-deliveries remains the single highest-leverage next step, now that both booking (p2-booking-link) and payment (this session) have real, working instructions behind them. payment-handle-setup in blockers.ts specifically still needs a human to confirm duncan.andrew.haywood@gmail.com actually receives Zelle/PayPal payments before the first real delivery.",
+      "Agent (next session): with p2-payment-collection done, re-run nextActionableTasks() fresh — if it's empty again (likely, since phase 2's agent-doable tasks are now essentially all done), fall back to checking leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first, then process-quality passes (this session didn't audit outreach-templates.ts or interview-script.ts against the new payment/booking info for consistency, which would be a reasonable next look).",
+    ],
+  },
 ];

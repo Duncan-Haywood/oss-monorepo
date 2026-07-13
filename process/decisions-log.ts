@@ -195,4 +195,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "real-estate-photography-continuous-improvement-2",
     relatedTaskIds: ["p0-docs-site", "p0-research-site"],
   },
+  {
+    date: "2026-07-13",
+    title: "Collect the $19 concierge payment via Zelle (primary) / PayPal goods & services (fallback)",
+    decision:
+      "process/payment-collection.ts defines how a concierge customer actually pays: lead with Zelle (zero fee, fastest, bank-to-bank) to duncan.andrew.haywood@gmail.com, with PayPal goods & services (~$0.85 fee on $19, buyer protection) as the fallback for prospects whose bank doesn't support Zelle or who prefer PayPal. Venmo is documented as a distant third option but not offered by default since no handle is confirmed for it. pricing-one-pager.tsx's howItWorks step 4 and a new FAQ entry now state this; leads-log.ts's Lead type gained optional paymentMethod/paymentReference fields and pipeline/src/log-lead.ts's CLI validates and accepts them (paymentReference only valid with --stage paid).",
+    rationale:
+      "This was the same class of silent gap p2-booking-link found for the booking step: pricing-one-pager.tsx has said 'Book your first listing for $19' and leads-log.ts has tracked a 'paid' stage since early sessions, but nothing anywhere ever said HOW a prospect pays — no method, no instructions, no FAQ mention. A prospect who read the offer, replied to book, and got their photos delivered had no stated way to actually pay. Zelle-primary/PayPal-fallback was chosen over Venmo (no confirmed handle yet, higher effective fee) and over standing up a real merchant processor like Stripe (real setup cost and a paid tool, which the guardrails explicitly rule out before there's proven demand) — both route to the same already-known real inbox already used by outreach-templates.ts and booking-link.ts, so zero new business infrastructure is needed to take the first paid delivery. Confirming the inbox actually receives funds via these apps remains a human step, tracked separately in blockers.ts's payment-handle-setup entry — this decision defines the process, not the confirmation.",
+    madeBy: "real-estate-photography-continuous-improvement-2",
+    relatedTaskIds: ["p2-payment-collection", "p2-first-deliveries", "p2-pricing-page"],
+  },
 ];

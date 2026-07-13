@@ -1,7 +1,9 @@
 /**
  * log-lead.ts — `npm run log-lead -- --audience agent --contact "Agent —
  * Keller Williams downtown" --channel email --stage contacted [--template
- * agent-cold-email] [--notes "..."] [--date 2026-07-12] [--dry-run]`
+ * agent-cold-email] [--notes "..."] [--date 2026-07-12]
+ * [--payment-method zelle --payment-reference "..." (only with --stage paid)]
+ * [--dry-run]`
  *
  * Appends one real entry to process/leads-log.ts's `leadsLog` array without
  * hand-editing TypeScript, so a human can log a real reply/booking from a
@@ -18,6 +20,8 @@ import { dirname, join } from "node:path";
 
 import type { Lead, LeadStage } from "../../process/leads-log";
 import type { OutreachTemplate } from "../../process/outreach-templates";
+import type { PaymentMethodOption } from "../../process/payment-collection";
+import { paymentMethodOptions } from "../../process/payment-collection";
 
 export const AUDIENCES: OutreachTemplate["audience"][] = ["agent", "brokerage", "str_host"];
 export const CHANNELS: OutreachTemplate["channel"][] = ["email", "dm", "in_person_script", "sms"];
@@ -31,6 +35,7 @@ export const STAGES: LeadStage[] = [
   "paid",
   "declined",
 ];
+export const PAYMENT_METHODS: PaymentMethodOption["id"][] = paymentMethodOptions.map((m) => m.id);
 
 export type LeadInput = Omit<Lead, "id">;
 
@@ -49,6 +54,12 @@ export function validateLeadInput(input: Partial<LeadInput>): asserts input is L
   }
   if (!input.dateLogged || !/^\d{4}-\d{2}-\d{2}$/.test(input.dateLogged)) {
     throw new Error("--date must be in YYYY-MM-DD form");
+  }
+  if (input.paymentMethod && !PAYMENT_METHODS.includes(input.paymentMethod)) {
+    throw new Error(`--payment-method must be one of: ${PAYMENT_METHODS.join(", ")}`);
+  }
+  if (input.paymentReference && input.stage !== "paid") {
+    throw new Error("--payment-reference only makes sense with --stage paid");
   }
 }
 
@@ -75,6 +86,8 @@ export function formatLeadEntry(id: string, input: LeadInput): string {
   lines.push(`    stage: "${input.stage}",`);
   lines.push(`    dateLogged: "${input.dateLogged}",`);
   if (input.notes) lines.push(`    notes: "${escapeString(input.notes)}",`);
+  if (input.paymentMethod) lines.push(`    paymentMethod: "${input.paymentMethod}",`);
+  if (input.paymentReference) lines.push(`    paymentReference: "${escapeString(input.paymentReference)}",`);
   lines.push(`  },`);
   return lines.join("\n");
 }
@@ -114,6 +127,8 @@ function parseArgs(argv: string[]): Partial<LeadInput> & { dryRun: boolean } {
     stage: (get("--stage") ?? "contacted") as LeadStage,
     dateLogged: get("--date") ?? new Date().toISOString().slice(0, 10),
     notes: get("--notes"),
+    paymentMethod: get("--payment-method") as LeadInput["paymentMethod"] | undefined,
+    paymentReference: get("--payment-reference"),
     dryRun: argv.includes("--dry-run"),
   };
 }
@@ -121,7 +136,8 @@ function parseArgs(argv: string[]): Partial<LeadInput> & { dryRun: boolean } {
 const USAGE =
   'Usage: npm run log-lead -- --audience <agent|brokerage|str_host> --contact "<non-identifying label>" ' +
   "--channel <email|dm|in_person_script|sms> [--stage contacted] [--template <outreach-template-id>] " +
-  '[--notes "..."] [--date YYYY-MM-DD] [--dry-run]';
+  '[--notes "..."] [--date YYYY-MM-DD] [--payment-method <zelle|paypal|venmo>] ' +
+  '[--payment-reference "<non-identifying confirmation ref, only with --stage paid>"] [--dry-run]';
 
 async function main() {
   const { dryRun, ...rest } = parseArgs(process.argv.slice(2));

@@ -13,6 +13,7 @@
  */
 
 import { BOOKING_LINK, BOOKING_CONTACT_EMAIL } from "./booking-link";
+import { paymentInstructionsText } from "./payment-collection";
 
 export type PricingLineItem = {
   label: string;
@@ -64,7 +65,10 @@ export const conciergeOffer: ConciergeOffer = {
       label: "3. We process the photos",
       detail: "AI enhancement pass + a manual quality check before delivery.",
     },
-    { label: "4. You get the folder", detail: "MLS-ready photos delivered within 1 business day." },
+    {
+      label: "4. Pay & get the folder",
+      detail: "Send the $19 (Zelle or PayPal — see FAQ below); MLS-ready photos delivered within 1 business day.",
+    },
   ],
   faq: [
     {
@@ -80,6 +84,10 @@ export const conciergeOffer: ConciergeOffer = {
       label: "Is this a subscription?",
       detail:
         "No — this concierge offer is pay-per-listing while we validate the workflow. A monthly plan (Agent Pro, unlimited listings) comes later once this is proven out.",
+    },
+    {
+      label: "How do I pay?",
+      detail: paymentInstructionsText(),
     },
   ],
   guarantee: "If you're not happy with the delivered photos, we'll redo the edit pass at no charge.",

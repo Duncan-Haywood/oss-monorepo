@@ -34,6 +34,7 @@ import { mlsComplianceRules } from "./mls-compliance";
 import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
 import { virtualStagingTechOptions, virtualStagingTechDecision } from "./virtual-staging-tech";
 import { gtmMotionOptions, gtmMotionDecision } from "./gtm-motion";
+import { paymentMethodOptions, paymentDecision } from "./payment-collection";
 import { leadsLog, LEAD_STAGE_ORDER, funnelCounts } from "./leads-log";
 import type { PhaseStatus } from "./types";
 
@@ -380,6 +381,35 @@ export function ProcessDashboard() {
               </div>
               <p className="mt-2 text-sm text-slate-300">{option.cycleLength}</p>
               <p className="mt-2 text-xs text-slate-500">{option.contractValue}</p>
+              <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Payment collection (p2-payment-collection)</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          How a concierge customer actually pays the $19 — a zero-setup, zero-new-infrastructure
+          answer to the same class of silent gap p2-booking-link found for the booking step. See
+          process/payment-collection.ts for sourced comparisons and the human step (confirming the
+          apps below deliver to the listed inbox) that's still tracked in blockers.ts.
+        </p>
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <h3 className="font-medium text-white">
+            Decision: {paymentDecision.primary} primary, {paymentDecision.fallback} fallback
+          </h3>
+          <p className="mt-2 text-sm text-slate-300">{paymentDecision.summary}</p>
+          <p className="mt-2 text-xs text-slate-500">Revisit when: {paymentDecision.revisitWhen}</p>
+        </div>
+        <div className="mt-4 space-y-4">
+          {paymentMethodOptions.map((option) => (
+            <div key={option.id} className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+              <h3 className="font-medium text-white">{option.name}</h3>
+              <p className="mt-2 text-sm text-slate-300">
+                {option.setupCost} {option.feePerTransaction}
+              </p>
+              <p className="mt-2 text-xs text-slate-500">{option.howToPay}</p>
               <p className="mt-2 text-xs text-slate-500">{option.tradeoffs}</p>
             </div>
           ))}
