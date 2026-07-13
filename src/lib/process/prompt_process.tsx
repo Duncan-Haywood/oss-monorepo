@@ -913,8 +913,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "outreach-cadence-persist-then-send",
     summary:
       "Empty-backlog audit follow-up (queued for sibling): recordLeadOutreach still soft-falls-back and follow-up / Email 1 actions send Resend THEN persist — Convex-first isFollowUpDue / digest can re-nudge Email 2/3 after a SQLite-only outreachStep advance (CAN-SPAM). Prefer requireConvex + durable mark BEFORE send (same house pattern as checkout recoverySentAt).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "claude/relaxed-galileo-6ty1m2",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
