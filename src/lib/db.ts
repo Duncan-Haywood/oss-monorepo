@@ -1957,6 +1957,7 @@ function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {
 
 export async function upsertMarketingPack(
   input: UpsertMarketingPackInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<MarketingPack> {
   const pack: MarketingPack = {
     id: `mp_${input.leadSlug}_${input.yearMonth}`,
@@ -1981,6 +1982,9 @@ export async function upsertMarketingPack(
       });
       return pack;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("upsertMarketingPack", e);
+      }
       console.warn(
         `Failed to upsert marketing pack for ${pack.leadSlug} on Convex, falling back to SQLite`,
         e,

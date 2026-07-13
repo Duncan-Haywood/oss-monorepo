@@ -974,8 +974,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-pack-convex-primary",
     summary:
-      "Empty-backlog follow-up after cold-disposition + lead-notes requireConvex: upsertMarketingPack still soft-falls-back on Convex failure while getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest + Email pack) read Convex-first — Generate pack can succeed locally and leave Growth/Complete fulfillment + Email pack looking missing on other instances. Prefer requireConvex fail-closed on generateMarketingPackAction.",
-    status: "in_progress",
+      "Empty-backlog follow-up after cold-disposition + lead-notes requireConvex: upsertMarketingPack still soft-falls-back on Convex failure while getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest + Email pack) read Convex-first — Generate pack can succeed locally and leave Growth/Complete fulfillment + Email pack looking missing on other instances. Shipped: MARKETING_PACK_CONVEX_PRIMARY; upsertMarketingPack accepts ConvexPrimaryWriteOptions and throws ConvexPrimaryWriteError when requireConvex; generateMarketingPackAction fails closed and surfaces an operator retry.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/prompt-process-evolution-111d",
   },
@@ -2338,6 +2338,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "updateLeadNotes accepts ConvexPrimaryWriteOptions; updateLeadNotesAction passes LEAD_NOTES_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for discovery-call / Email 3 notes.",
     rationale:
       "Sibling prompt-process-evolution-111d had not claimed lead-notes after cold-disposition shipped on c5ed, so this branch claimed the next free todo. updateLeadNotes still soft-fell-back while getLeads reads Convex-first — an operator could save call outcomes on one instance and lose them on every other deploy. Same house pattern as LEAD_SNOOZE / COLD_DISPOSITION. With both free requireConvex follow-ups closed, remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect).",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "upsertMarketingPack accepts ConvexPrimaryWriteOptions; generateMarketingPackAction passes MARKETING_PACK_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for Growth/Complete Generate pack. Queued client-voice-pack-convex-primary as the Complete twin.",
+    rationale:
+      "Same-cron dual claim: this branch (111d) claimed cold-disposition ~1 min after c5ed's earlier remote claim + feature body — folded c5ed (cold-disposition + lead-notes) per AGENT_PROTOCOL and pivoted rather than shipping a duplicate. Empty-backlog audit after those two closed found upsertMarketingPack still soft-falling-back while getMarketingPack / listMarketingPacksDue / Email pack read Convex-first — Generate pack could succeed locally and leave Growth/Complete fulfillment looking missing elsewhere (false packs-due debt + Email pack blocked). Operator-action fail-closed matches COMMERCE_CATALOG / LEAD_NOTES; same-month regenerate is idempotent replace. client-voice-pack-convex-primary left free for siblings; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated. Also noted claude/relaxed-galileo-9czsah's earlier cold-disposition feature body as a complementary duplicate to close once c5ed/111d lands.",
   },
 ];
 
@@ -3951,5 +3958,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented notes split-brain risk of soft-fallback updateLeadNotes",
     ],
     decisions: BUSINESS_DECISIONS.slice(192, 193),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-111d",
+    summary:
+      "Same-cron window as c5ed / 9czsah on cold-disposition-convex-primary: this branch's claim landed after c5ed's earlier remote claim + feature body, so per AGENT_PROTOCOL we folded origin/cursor/business-process-evolution-c5ed (cold-disposition + lead-notes requireConvex, both ITERATIONS kept) and pivoted instead of shipping a duplicate disposition write. Empty-backlog audit next found upsertMarketingPack still soft-falling-back while getMarketingPack / listMarketingPacksDue / Email pack read Convex-first — Growth/Complete Generate pack could claim success after a SQLite-only write invisible elsewhere. Shipped MARKETING_PACK_CONVEX_PRIMARY + fail-closed generateMarketingPackAction. Queued client-voice-pack-convex-primary for siblings. Noted 9czsah's earlier cold-disposition body as a complementary duplicate to close on merge. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "merge: folded origin/cursor/business-process-evolution-c5ed — cold-disposition-convex-primary + lead-notes-convex-primary (both ITERATIONS kept)",
+      "src/lib/marketing/pack-persist.ts (+ test) — MARKETING_PACK_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — upsertMarketingPack(input, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/dashboard/leads/actions.ts — generateMarketingPackAction passes MARKETING_PACK_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as an operator retry",
+      "Docs: architecture / roadmap / launch-checklist / product-bundles — marketing pack Generate requireConvex",
+      "NEXT_STEPS: marketing-pack-convex-primary done; queued client-voice-pack-convex-primary",
+      "AGENT_PROTOCOL — upsertMarketingPack requireConvex; prefer client-voice-pack twin when marketing-pack is claimed",
+      "BUSINESS_DECISIONS — documented Generate pack split-brain risk + same-cron fold/pivot with c5ed",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(193, 194),
   },
 ];

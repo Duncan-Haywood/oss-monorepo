@@ -298,7 +298,10 @@ export default function ArchitectureDocPage() {
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
-        <code>marketingPacks</code>). <code>sendMarketingPackToClientAction</code> emails the
+        <code>marketingPacks</code>). When Convex is configured, Generate pack passes{" "}
+        <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
+        failure surfaces a retry instead of leaving packs-due / Email pack blind on other
+        instances. <code>sendMarketingPackToClientAction</code> emails the
         pack to <code>lead.email</code> via Resend (<code>src/lib/marketing/deliver-pack.ts</code>
         ) so clients can post themselves. Buffer / GBP / Meta OAuth auto-posting remains
         optional. See <DocLink href="/docs/marketing-automation">Marketing automation</DocLink>{" "}

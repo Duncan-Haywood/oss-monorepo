@@ -39,6 +39,7 @@ import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-pe
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
+import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
@@ -1376,14 +1377,29 @@ export async function generateMarketingPackAction(slug: string) {
     const usedAnthropic = Boolean(process.env.ANTHROPIC_API_KEY?.trim()) &&
       !result.variants.some((v) => v.body.startsWith("[Stub"));
 
-    const pack = await upsertMarketingPack({
-      leadSlug: lead.slug,
-      yearMonth,
-      variants: result.variants,
-      generatedAt: result.generatedAt,
-      generator: usedAnthropic ? "anthropic" : "stub",
-      packageTier: result.packageTier ?? packageTier,
-    });
+    let pack;
+    try {
+      pack = await upsertMarketingPack(
+        {
+          leadSlug: lead.slug,
+          yearMonth,
+          variants: result.variants,
+          generatedAt: result.generatedAt,
+          generator: usedAnthropic ? "anthropic" : "stub",
+          packageTier: result.packageTier ?? packageTier,
+        },
+        MARKETING_PACK_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the marketing pack in the shared store — other instances may still show packs due. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     revalidatePath("/dashboard/leads");
     return { success: true as const, pack };
