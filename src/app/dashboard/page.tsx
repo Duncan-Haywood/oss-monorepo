@@ -19,10 +19,12 @@ import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
+import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
+import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -95,6 +97,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const coreEnv = assessStripeCoreEnvReadiness();
   const resendEnv = assessResendEmailEnvReadiness();
   const anthropicEnv = assessAnthropicEnvReadiness();
+  const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -115,6 +118,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
         <ResendEnvBanner readiness={resendEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />
+        <OperatorDigestEmailEnvBanner readiness={digestEmailEnv} />
       </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>

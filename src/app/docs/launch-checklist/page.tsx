@@ -156,6 +156,11 @@ export default function LaunchChecklistDocPage() {
           Complete voice packs due all show up in one email (or the mock log) — plus a
           snoozed-lead footnote (count + soonest return) when any lead is parked off Work next.
           The operator should not need to open the dashboard to know what is urgent today.
+          Until that env is a non-placeholder inbox,{" "}
+          <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald
+          daily-digest-blocked banner on <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (missing / whitespace-only
+          / <code>you@example.com</code>-style placeholders) so the gap is visible before click.
         </li>
       </ol>
 

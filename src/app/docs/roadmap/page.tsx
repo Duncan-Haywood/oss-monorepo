@@ -94,7 +94,9 @@ export default function RoadmapDocPage() {
         <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,{" "}
         <code>assessAnthropicEnvReadiness</code> shows a teal AI-packs-on-stub banner
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*
-        template copy).
+        template copy). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
+        <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald daily-digest-blocked
+        banner (Send daily digest otherwise only errors on click).
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
         1/2/3 send durably marks the step before calling Resend, and with Convex configured
