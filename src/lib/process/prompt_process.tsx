@@ -165,6 +165,7 @@ export const AGENT_PROTOCOL = [
   "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "stripe-bootstrap-dashboard-action done: when ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard + /dashboard/leads offers operator-auth'd Run bootstrap (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Does not fake-complete stripe-price-objects (paste secrets + unset flag still required); removes curl friction on the #1 sale blocker. When free NEXT_STEPS stay gated, prefer another sold-capability / multi-instance regression or operator-visible revenue unlock over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1276,8 +1277,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-bootstrap-dashboard-action",
     summary:
-      "Empty-backlog after PR #133 (demo-catalog + category-themes coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; operators today must curl POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1. Ship an operator-auth'd dashboard Run bootstrap action on the checkout-blocked banner that returns a copyable envSnippet when the flag is set — reduces friction for stripe-price-objects without fake-completing it (paste secrets + unset flag still required).",
-    status: "in_progress",
+      "Empty-backlog after PR #133 (demo-catalog + category-themes coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; operators previously had to curl POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1. Shipped: assessStripeBootstrapGate (shared with the API route), bootstrapStripePricesAction (operator-auth'd), Run bootstrap + copyable envSnippet on the checkout-blocked banner. Does not fake-complete stripe-price-objects — paste secrets + unset flag still required.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-a606",
   },
@@ -2885,6 +2886,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
     rationale:
       "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "When ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard and /dashboard/leads offers an operator-auth'd Run bootstrap button (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Paste secrets + unset the flag remain required; the button does not auto-write env or fake-complete stripe-price-objects.",
+    rationale:
+      "After PR #133 closed preview foundation unit coverage, free NEXT_STEPS stayed fully gated (Prices / Places / Buffer OAuth / Connect). The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; the prior path required curling the bootstrap API. Putting Run bootstrap on the same banner that lists missing env names removes curl friction for the operator launch path without inventing optional aggregates or claiming the gated todo done. Prefer this operator-visible revenue unlock over another pure-logic test sweep when the remaining backlog is secrets/OAuth/counsel only.",
   },
 ];
 
@@ -5053,5 +5061,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(228, 229),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-a606",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133 (demo-catalog + category-themes). Claimed stripe-bootstrap-dashboard-action — operator-visible Run bootstrap on the checkout-blocked banner so Price IDs can be created without curling the API. Shared assessStripeBootstrapGate with the existing bootstrap-prices route; action is operator-auth'd and returns a copyable envSnippet. Does not fake-complete stripe-price-objects (paste + unset flag still required). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/pricing/bootstrap-gate.ts + bootstrap-gate.test.ts — ALLOW_STRIPE_BOOTSTRAP=1 + STRIPE_SECRET_KEY gate (403/501), whitespace-only secret = missing",
+      "src/app/dashboard/actions.ts — bootstrapStripePricesAction (requireOperatorAuth + gate + bootstrapStripePrices)",
+      "src/components/dashboard/bundle-price-env-banner.tsx — client Run bootstrap + copyable envSnippet when bootstrapAllowed",
+      "src/app/api/stripe/bootstrap-prices/route.ts — uses shared assessStripeBootstrapGate",
+      "Docs: architecture + launch-checklist — dashboard Run bootstrap path documented",
+      "NEXT_STEPS: stripe-bootstrap-dashboard-action done; stripe-price-objects remains operator todo",
+      "AGENT_PROTOCOL — prefer operator-visible revenue unlock (banner bootstrap) when free backlog is gated",
+      "BUSINESS_DECISIONS — documented why one-click bootstrap on the sale-blocking banner beats another pure-logic test sweep",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(229, 230),
   },
 ];
