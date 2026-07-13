@@ -36,7 +36,7 @@ export function leadMetaDescription(lead: Lead): string {
   return lead.description;
 }
 
-/** JSON-LD LocalBusiness object for a lead's preview site. Serialize with JSON.stringify. */
+/** JSON-LD LocalBusiness object for a lead's preview site. Serialize with safeJsonLdScript. */
 export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
@@ -52,4 +52,20 @@ export function leadLocalBusinessJsonLd(lead: Lead): Record<string, unknown> {
       addressRegion: lead.state,
     },
   };
+}
+
+/**
+ * Serialize JSON-LD for embedding via dangerouslySetInnerHTML inside a
+ * <script type="application/ld+json"> tag. The HTML parser scans for the
+ * literal byte sequence "</script" to close that element before any
+ * JSON/JS parsing happens, regardless of surrounding content — so an
+ * unescaped lead field containing "</script>" (businessName, description,
+ * address, city, state are free text from scraped/CSV-imported leads, not
+ * just operator-typed) would prematurely close the script and let anything
+ * after it execute as live HTML/script on the public, unauthenticated
+ * /preview/[slug] page. Escaping "<" to its unicode escape neutralizes that
+ * while JSON.parse still recovers an identical object.
+ */
+export function safeJsonLdScript(jsonLd: Record<string, unknown>): string {
+  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
 }

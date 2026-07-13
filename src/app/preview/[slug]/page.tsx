@@ -4,7 +4,13 @@ import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
 import { getCommerceCatalog, getLeadBySlug, listOrders } from "@/lib/db";
 import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
 import { resolvePreviewLead } from "@/lib/leads/demo-catalog";
-import { leadLocalBusinessJsonLd, leadMetaDescription, leadMetaTitle, previewUrl } from "@/lib/seo";
+import {
+  leadLocalBusinessJsonLd,
+  leadMetaDescription,
+  leadMetaTitle,
+  previewUrl,
+  safeJsonLdScript,
+} from "@/lib/seo";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
@@ -56,7 +62,7 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
       />
       <PreviewOpenBeacon
         slug={slug}

@@ -149,6 +149,7 @@ export const AGENT_PROTOCOL = [
   "marketing-build-request-unit-coverage done: src/lib/marketing/build-request.test.ts locks businessContextFromLead empty services/hours/optional-field defaults + monthlyPackRequestForLead growth vs complete packageTier/automationLevel (and explicit override). monthly-pack.test.ts stub smoke is not enough for the request shape that feeds AnthropicMarketingGenerator. Sibling can take voice-build-request-unit-coverage (different module).",
   "voice-build-request-unit-coverage done: src/lib/voice/build-request.test.ts locks clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead edge branches (empty services → 'our services', hours by-appointment / omit, omitted state/phone/tagline, CLIENT_VOICE_FAQ_SCRIPT_TYPES) — do not rely only on faq-pack.test.ts happy-path smoke. Twin of marketing-build-request-unit-coverage. When both build-request suites and convex-orders-list-newest-first are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "preview-jsonld-script-escape done: any value embedded via dangerouslySetInnerHTML into a <script> tag (not just email HTML) must be escaped against a literal '</script>' breakout — JSON.stringify alone is not enough. Use safeJsonLdScript (src/lib/seo.ts) for JSON-LD; do not reuse escapeHtmlForEmail here, it HTML-entity-escapes for email bodies and is the wrong tool for JS-string/script-tag content. Before assuming email-HTML audits (escapeHtmlForEmail sweeps) covered every injection surface, grep the whole codebase for dangerouslySetInnerHTML — it currently has exactly one call site — and check page-rendered output too, not only outbound email. Lead fields (businessName/description/address/city/state) are free text from CSV import (and future Places ingestion), not just operator-typed, so treat them as untrusted at every render sink, not only at persistence. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression or security audit over inventing optional aggregates.",
 ] as const;
 
 /**
@@ -1164,8 +1165,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "preview-jsonld-script-escape",
     summary:
-      "Security audit while free NEXT_STEPS backlog stayed gated: /preview/[slug] (public, unauthenticated) embeds leadLocalBusinessJsonLd via dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} — JSON.stringify does not escape '<', so a lead field (businessName/description/address/city/state — free text from CSV import or a future Places scrape, not just operator-typed) containing the literal '</script>' would prematurely close the JSON-LD <script> tag and let an attacker-controlled '<script>' after it execute for every real site visitor (stored XSS). No prior escapeHtmlForEmail/requireConvex/truncation audit covered this file — those all scoped to outbound email HTML, not page-rendered JSON-LD.",
-    status: "in_progress",
+      "Security audit while free NEXT_STEPS backlog stayed gated: /preview/[slug] (public, unauthenticated) embedded leadLocalBusinessJsonLd via dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} — JSON.stringify does not escape '<', so a lead field (businessName/description/address/city/state — free text from CSV import or a future Places scrape, not just operator-typed) containing the literal '</script>' would prematurely close the JSON-LD <script> tag and let an attacker-controlled '<script>' after it execute for every real site visitor (stored XSS). No prior escapeHtmlForEmail/requireConvex/truncation audit covered this file — those all scoped to outbound email HTML, not page-rendered JSON-LD. Shipped: safeJsonLdScript (src/lib/seo.ts) escaping '<' to \\u003c before embedding (JSON.parse still recovers an identical object); wired into the one dangerouslySetInnerHTML call site in the codebase; seo.test.ts (8 tests, including </script> breakout attempts in businessName and address).",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/relaxed-galileo-e13pc6",
   },
@@ -2689,6 +2690,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/voice/build-request.ts (clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead) gets its own Vitest suite — faq-pack.test.ts happy-path smoke is not enough for the empty services/hours/optional-field contract that shapes Complete phone-script packs.",
     rationale:
       "AGENT_PROTOCOL after PR #119 named build-request edge cases as the next free empty-backlog target. Sibling prompt-process-evolution-4792 claimed marketing-build-request + convex-orders-list-newest-first in the same window; this branch took the voice twin left free. Empty services must become ['our services'] and missing hours/state/phone/tagline must omit cleanly — without direct tests those sold Complete fulfillment branches can regress while generator/eligibility suites still pass. Direct coverage locks the contract. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "/preview/[slug] JSON-LD is now serialized via safeJsonLdScript (escapes '<' to \\u003c), never a raw JSON.stringify inside dangerouslySetInnerHTML.",
+    rationale:
+      "With the free NEXT_STEPS backlog fully gated (secrets/OAuth/counsel), a security-focused empty-backlog audit checked every dangerouslySetInnerHTML sink in the codebase (there is exactly one) rather than re-running the already-repeated email-HTML escaping / requireConvex / truncation sweeps. Lead fields feeding the JSON-LD block (businessName, description, address, city, state) are free text from CSV import today and a future Places scrape per lead-ingestion — untrusted input reaching an unauthenticated public page. A value containing the literal '</script>' would close the JSON-LD script element early and let attacker HTML/script execute for every real visitor of that lead's preview site — a stored XSS with real reputational and legal exposure for a business selling trust to local business owners. escapeHtmlForEmail was deliberately not reused: it HTML-entity-escapes for email bodies, not JS/script-tag content.",
   },
 ];
 
@@ -4669,5 +4677,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: folded into prompt-process-evolution-4792 PR",
     ],
     decisions: BUSINESS_DECISIONS.slice(215, 216),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/relaxed-galileo-e13pc6",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #120 (marketing/voice build-request coverage + convex-orders-list-newest-first) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. Ran a security-focused empty-backlog audit instead of another test-coverage or truncation sweep: grepped every dangerouslySetInnerHTML sink in the codebase (exactly one) rather than re-checking already-repeated email-HTML/requireConvex/truncation classes. Found the public, unauthenticated /preview/[slug] page embedded LocalBusiness JSON-LD via a raw JSON.stringify inside dangerouslySetInnerHTML — a lead field containing the literal '</script>' (businessName/description/address/city/state are free text from CSV import, not just operator-typed) would prematurely close the script tag and let injected HTML/script execute for real site visitors (stored XSS). Fixed by escaping at the serialization boundary, not by sanitizing every write path — matches the existing pattern of centralizing HTML-injection defense in one shared escaper rather than scattering input validation.",
+    shipped: [
+      "src/lib/seo.ts — safeJsonLdScript(jsonLd): escapes '<' to \\u003c before embedding JSON-LD in a <script> tag (JSON.parse still recovers an identical object)",
+      "src/app/preview/[slug]/page.tsx — dangerouslySetInnerHTML now uses safeJsonLdScript instead of raw JSON.stringify",
+      "src/lib/seo.test.ts (new, 8 tests) — category→schema.org type mapping, meta title/description, safeJsonLdScript round-trip, and two explicit </script> breakout attempts (businessName, address)",
+      "NEXT_STEPS: preview-jsonld-script-escape done",
+      "AGENT_PROTOCOL — dangerouslySetInnerHTML/script-tag content needs its own escaping (not escapeHtmlForEmail); audit page-rendered output, not only outbound email, for every future email-HTML sweep",
+      "BUSINESS_DECISIONS — documented the stored-XSS finding and why the fix lives at serialization rather than at each lead-data write path",
+      "Verified: npm test (483 passed, +8 seo.test.ts) + lint clean + build clean + npm run dev with /preview/pine-cafe and /dashboard/leads loaded (200s, JSON-LD renders correctly, no runtime errors)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(217, 218),
   },
 ];
