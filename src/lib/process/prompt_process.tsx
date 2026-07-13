@@ -992,8 +992,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-upsert-convex-primary",
     summary:
       "Empty-backlog follow-up after marketing + voice pack requireConvex: upsertLead still soft-falls-back on Convex failure while getLeads / getLeadBySlug read Convex-first — CSV import / Add lead / payment-stub create paths can claim success after a SQLite-only write that other instances never see (operator loses new inventory; outreach/checkout attribution miss the lead). Prefer requireConvex fail-closed on create/import call sites that must land in the shared store.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-098b",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
