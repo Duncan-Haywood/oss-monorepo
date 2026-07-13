@@ -166,7 +166,12 @@ export default function ArchitectureDocPage() {
         <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>), and the preview-open beacon (
         <code>PREVIEW_OPEN_CONVEX_PRIMARY</code> on <code>POST /api/preview/[slug]/open</code>) —
         persist-required / fail-closed Convex avoids claiming success after a SQLite-only write
-        other instances cannot see. Matches the same idempotency
+        other instances cannot see. Route-level Vitest in{" "}
+        <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
+        (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
+        after a durable inquiry row, validation) beyond{" "}
+        <code>contact-persist.test.ts</code> helpers — same pattern as preview-open and the
+        Stripe route suites. Matches the same idempotency
         guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, then either click <strong>Run bootstrap</strong> on
