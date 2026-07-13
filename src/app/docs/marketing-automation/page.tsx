@@ -76,7 +76,9 @@ export default function MarketingAutomationDocPage() {
         shipped: <strong>Generate pack</strong> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> persists 8 social/GBP posts
         + 2 emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
-        otherwise — both paths covered by <code>src/lib/marketing/generators.test.ts</code>).{" "}
+        otherwise — both paths covered by <code>src/lib/marketing/generators.test.ts</code>;
+        request shape from lead data covered by{" "}
+        <code>src/lib/marketing/build-request.test.ts</code>).{" "}
         <strong>Email pack</strong> sends that month&apos;s pack to{" "}
         <code>lead.email</code> via Resend so clients can post themselves without waiting on
         Buffer / GBP OAuth. Eligible leads missing this month&apos;s pack surface on pipeline

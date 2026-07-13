@@ -1016,6 +1016,11 @@ function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
 /**
  * List paid orders for operator pipeline health (revenue totals).
  * Convex when configured; SQLite join otherwise.
+ *
+ * Newest-first: convex/orders.list sorts by createdAt desc at the source;
+ * sortOrdersNewestFirst here stays as belt-and-suspenders so Billing Portal
+ * latestEligibleOrder cannot regress if a future caller bypasses that query
+ * shape or the Convex sort is accidentally removed.
  */
 export async function listOrders(): Promise<OrderRecord[]> {
   if (convexClient) {

@@ -193,8 +193,9 @@ export default function ArchitectureDocPage() {
         leads. Orders store <code>stripeCustomerId</code> when the webhook records payment;
         older orders fall back to retrieving the Checkout Session.{" "}
         <code>listOrders</code> returns newest-first on both backends (
-        <code>sortOrdersNewestFirst</code> on the Convex path) so{" "}
-        <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
+        <code>convex/orders.list</code> sorts by <code>createdAt</code> desc at the source,
+        plus <code>sortOrdersNewestFirst</code> in <code>db.ts</code> as belt-and-suspenders)
+        so <code>latestEligibleOrder</code> opens Manage subscription against the newest eligible
         row. When checkout completes for a slug with no CRM lead yet,{" "}
         <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
         <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
@@ -326,7 +327,9 @@ export default function ArchitectureDocPage() {
         <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
-        parse / length-mismatch fallbacks and <code>packageTier</code>). Operators trigger{" "}
+        parse / length-mismatch fallbacks and <code>packageTier</code>;{" "}
+        <code>build-request.test.ts</code> for empty services/hours defaults and growth vs
+        complete <code>automationLevel</code>). Operators trigger{" "}
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
