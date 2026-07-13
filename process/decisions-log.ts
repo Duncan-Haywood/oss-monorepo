@@ -245,4 +245,24 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/promise-consistency-audit-0713",
     relatedTaskIds: ["p2-promise-consistency-audit", "p2-delivery-message", "p2-referral-followup"],
   },
+  {
+    date: "2026-07-13",
+    title: "Fix stale photo-count claim left in mls-compliance.ts by the checklist-scaling fix",
+    decision:
+      "process/mls-compliance.ts's photo-count-guidance rule now states the real current capture-checklist.ts default (19 shots for a typical home; 16-22 depending on bed/bath count) instead of the pre-scaling '~9-11 shots' figure that p2-capture-checklist-scaling (2026-07-12) made obsolete but never updated here.",
+    rationale:
+      "mls-compliance.ts is the one file whose entire job is to state accurate, sourced facts about MLS photo rules, and it's rendered live on the docs site — a stale number there is worse than the same staleness elsewhere, since a reader would reasonably treat it as current. This is the same class of drift p0-docs-content-drift-fix and p2-promise-consistency-audit already found and fixed in other files (a change in one file not propagating to a related claim in another); found by doing the exact cross-file numeric audit (turnaround times, photo counts, fee percentages) the prior session's progress-log entry suggested as the next check, since nextActionableTasks() was empty and leads-log.ts/loggedInterviewResults/listingAuditLog remain empty.",
+    madeBy: "claude/mls-photo-count-drift-fix-0713",
+    relatedTaskIds: ["p2-mls-compliance-photo-count-drift-fix", "p1-mls-compliance", "p2-capture-checklist-scaling"],
+  },
+  {
+    date: "2026-07-13",
+    title: "Correct the customer-facing '~30 minute' capture-time promise to match the scaled checklist",
+    decision:
+      "process/pricing-one-pager.tsx (2 spots) and process/outreach-templates.ts (3 spots, across the agent cold-email, in-person script, and brokerage-intro templates) now quote '~35-40 minutes' for the guided on-site capture step instead of '~30 minutes'. STRATEGY.md's own tagline/positioning ('in 30 minutes') is deliberately left as-is — same precedent as the 'under 2 hours' STRATEGY.md delivery target being left loose while decisions-log.ts's actual customer-facing turnaround promise was independently tightened to '1 business day'.",
+    rationale:
+      "process/capture-checklist.ts's totalTargetMinutes() (scaled by p2-capture-checklist-scaling on 2026-07-12 to hit the promised 15-25 photo range) now computes 33-47.5 minutes depending on bed/bath count, 38.5 for the typical-home default — every one of those is already above the '~30 minutes' quoted verbatim in the actual outreach copy a human will read to a real prospect. This is the same silent gap p2-promise-consistency-audit found in delivery-message.ts's guarantee wording: one session's fix (scaling the checklist for photo-count accuracy) created a new drift in a claim living in a different file, and nobody had re-checked outreach-templates.ts's specific time promise since. Also updated capture-checklist.ts's own preShootPrep doc comment, which still cited the old '30-minute-fix' figure.",
+    madeBy: "claude/mls-photo-count-drift-fix-0713",
+    relatedTaskIds: ["p2-outreach-templates", "p2-pricing-page", "p2-capture-checklist-scaling"],
+  },
 ];

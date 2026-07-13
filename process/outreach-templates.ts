@@ -26,8 +26,8 @@ export const outreachTemplates: OutreachTemplate[] = [
 
 I saw your listing at [address/neighborhood] — quick question: who's doing your listing photos right now?
 
-I run a concierge photo service for agents: I come by, guide a ~30 minute
-iPhone shoot using a room-by-room checklist, then hand back 15-25
+I run a concierge photo service for agents: I come by, guide a ~35-40
+minute iPhone shoot using a room-by-room checklist, then hand back 15-25
 enhanced, MLS-ready photos within a business day. No photographer
 scheduling, no software for you to learn.
 
@@ -57,7 +57,7 @@ by for the next one?`,
     body: `Opener: "Quick one — who's shooting your listing photos right now,
 and how's that working out?"
 
-If DIY/mediocre: "I do a $19 guided shoot — about 30 minutes with your
+If DIY/mediocre: "I do a $19 guided shoot — about 35-40 minutes with your
 phone, I hand you back MLS-ready photos the next day. Want to try it on
 your next listing? If it's not better than what you've got now, I'll redo
 the edit for free."
@@ -81,7 +81,7 @@ proposed shoot time.`,
 A chunk of agents at most brokerages still shoot their own listing
 photos, which usually means slower days-on-market on Zillow. I run a
 concierge service that fixes that without asking anyone to change tools:
-I guide a ~30 minute iPhone shoot and hand back MLS-ready photos within a
+I guide a ~35-40 minute iPhone shoot and hand back MLS-ready photos within a
 business day, for $19/listing.
 
 Would it be useful to pilot this with 2-3 of your agents on their next

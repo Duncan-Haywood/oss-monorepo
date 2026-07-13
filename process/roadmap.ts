@@ -301,6 +301,26 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/delivery-message.ts's DeliveryMessageInput gains an optional isRepeatClient flag (default false, preserving today's exact output) that swaps the guarantee/signoff wording for repeat clients instead of always claiming 'this first delivery'; delivery-message.test.ts covers both branches. All other cross-file promises (price $19, 1-business-day turnaround, free-redo guarantee scope, payment instructions) re-checked and found consistent. See process/delivery-message.ts, pipeline/src/delivery-message.test.ts.",
       },
+      {
+        id: "p2-mls-compliance-photo-count-drift-fix",
+        title: "Fix stale photo-count claim left behind in mls-compliance.ts by the checklist-scaling fix",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "p2-capture-checklist-scaling (2026-07-12) rewrote capture-checklist.ts's shot counts to scale per bed/bath (typical default 19, up from a fixed ~9-11) but never touched mls-compliance.ts's 'photo-count-guidance' rule, whose implication field still asserted the checklist 'currently specs roughly 9-11 shots ... near the low end of the effective range' — a factually stale claim sitting in the one file whose whole job is to state accurate photo-count facts, rendered live on the docs site. Found while auditing for the exact class of cross-file numeric drift the prior session's progress-log entry flagged as the next thing to check (turnaround times, photo counts, fee percentages).",
+        doneWhen:
+          "process/mls-compliance.ts's photo-count-guidance implication now states the real current default (19 shots typical; 16-22 range) instead of the pre-scaling 9-11 figure. Repo-wide grep for the old '9-11' figure confirms every remaining mention is correctly past-tense (describing what the checklist used to specify, not a claim about its current behavior).",
+      },
+      {
+        id: "p2-capture-time-promise-drift-fix",
+        title: "Correct the '~30 minute' capture-time promise in outreach/pricing copy to match the scaled checklist",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The same p2-capture-checklist-scaling change that made mls-compliance.ts's photo count stale also pushed totalTargetMinutes() to 33-47.5 minutes (38.5 typical) — above the '~30 minutes' quoted verbatim in process/pricing-one-pager.tsx and 3 spots in process/outreach-templates.ts, copy a human will actually read/send to a real prospect. An unbacked time promise in outreach copy is the same class of real business risk p2-capture-checklist-scaling itself flagged for the photo-count promise.",
+        doneWhen:
+          "process/pricing-one-pager.tsx and process/outreach-templates.ts quote '~35-40 minutes' instead of '~30 minutes' for the guided capture step; process/capture-checklist.ts's preShootPrep doc comment updated to match. STRATEGY.md's own looser 'in 30 minutes' tagline is deliberately left unchanged (aspirational whole-workflow positioning, not a literal capture-time SLA) — same treatment as the 'under 2 hours' delivery target vs. the actual '1 business day' customer promise.",
+      },
     ],
   },
   {

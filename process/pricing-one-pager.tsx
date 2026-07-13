@@ -41,7 +41,7 @@ export const conciergeOffer: ConciergeOffer = {
   turnaround: "Delivered within 1 business day of the shoot",
   whatsIncluded: [
     {
-      label: "Guided capture, ~30 minutes on-site",
+      label: "Guided capture, ~35-40 minutes on-site",
       detail:
         "A room-by-room shot list (exterior, living space, kitchen, primary bed/bath, secondary rooms) run from your own iPhone, so nothing important gets missed and nothing gets over-shot.",
     },
@@ -59,7 +59,7 @@ export const conciergeOffer: ConciergeOffer = {
     { label: "1. Book a slot", detail: "Pick a time; share the property address and access details." },
     {
       label: "2. We guide the shoot",
-      detail: "Follow the room-by-room checklist on-site (about 30 minutes for an average home).",
+      detail: "Follow the room-by-room checklist on-site (about 35-40 minutes for an average home).",
     },
     {
       label: "3. We process the photos",

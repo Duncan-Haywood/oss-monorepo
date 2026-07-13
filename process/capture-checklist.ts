@@ -73,8 +73,11 @@ export type PrepItem = {
  * room-by-room checklist. Without this, a first-time shooter tends to
  * discover mid-shoot that a light was off, a car was in the driveway
  * shot, or their phone had no storage — each of which costs a re-shoot
- * trip, blowing the 30-minute-fix / same-day-turnaround promise in
- * STRATEGY.md and process/pricing-one-pager.tsx.
+ * trip, blowing the ~35-40-minute on-site / same-day-turnaround promise in
+ * process/pricing-one-pager.tsx (STRATEGY.md's own "30 minutes" is a
+ * looser, whole-workflow tagline — see decisions-log.ts for why the
+ * customer-facing capture-time promise was tightened to match this
+ * checklist's real, scaled totalTargetMinutes() default instead).
  */
 export const preShootPrep: PrepItem[] = [
   {

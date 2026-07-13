@@ -54,7 +54,7 @@ export const mlsComplianceRules: ComplianceRule[] = [
     rule:
       "Most boards set only a low required minimum (e.g. CRMLS: 1 photo minimum), but engagement data favors far more: under ~9 photos measurably hurts engagement, and 22-27+ is the commonly cited best-performing range on major portals.",
     implication:
-      "process/capture-checklist.ts currently specs roughly 9-11 shots depending on bedroom/bathroom count, near the low end of the effective range. Not a compliance problem (boards don't require more), but a quality/competitiveness gap worth revisiting once real deliveries produce feedback on whether prospects want more shots per room for the same $19 flat price.",
+      "process/capture-checklist.ts's totalShotCount() now scales per bed/bath (typical-home default: 19 shots; a 5-bed/3-bath listing: 22; a 0-extra-bed/bath listing: 16) — already inside the promised 15-25 range and close to, though still shy of, the 22-27+ best-performing range this rule cites. Not a compliance problem (boards don't require more), but still a quality/competitiveness gap worth revisiting once real deliveries produce feedback on whether prospects want more shots per room for the same $19 flat price.",
     sources: ["https://brokerless.com/mls-photo-rules", "https://www.stellarmls.com/photorules"],
   },
 ];
