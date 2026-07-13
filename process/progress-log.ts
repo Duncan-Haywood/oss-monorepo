@@ -309,4 +309,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first. STRATEGY.md's only remaining open checkbox (v1 app scope) is correctly gatedOn p1-run-interviews + p2-first-deliveries via p3-app-scope — don't answer it early without that data, unlike this session's question which was genuinely desk-researchable. If nothing new and no fresh product gap is found, don't pad the session; a short re-verification is fine and honest.",
     ],
   },
+  {
+    date: "2026-07-13",
+    agent: "claude/dazzling-allen-k4o1nz",
+    summary:
+      "Re-verified the human-blocked state (all roadmap tasks still done/blocked-on-human as of the last session, PR #4 still open/draft, all other remote branches still confirmed strictly merged/behind main via `git diff origin/main...origin/<branch> --stat`, docs-site's /pricing flow re-checked and confirmed not actually broken — it's an internal copy-from page backed by a mailto: link by deliberate design, not a public prospect-facing URL, per the existing booking-link.ts decision). Rather than add yet another prose re-confirmation, fixed the repeated-re-confirmation problem itself: added process/blockers.ts as the one place blocker state lives, so future sessions with nothing new to report can update it in a one-line diff instead of writing a new paragraph.",
+    changes: [
+      "Added process/blockers.ts: typed HumanBlocker[] for the 5 known human-blocked items (first concierge delivery, Phase 1 interviews, Zillow listing audit, Cloudflare Access dashboard step, stale-branch cleanup), each with whatsNeeded/unblocks/firstFlagged/lastConfirmed/confirmedByCount, plus staleFirst() to sort oldest-confirmed first.",
+      "process/prompt_process.tsx: imports blockers.ts, adds step 0 to AGENT_PROCESS_INSTRUCTIONS telling sessions to bump a blocker's lastConfirmed/confirmedByCount instead of writing a new progress-log paragraph when nothing changed, adds a 'Human blockers' dashboard section above Roadmap, and adds humanBlockerCount to ProcessSnapshot.",
+      "README.md: replaced the hand-written 5-item 'Human action needed' list with a short pointer to process/blockers.ts as the single source of truth (was independently drifting from roadmap.ts's blockedReason text — different wording, same facts, both hand-maintained).",
+      "AGENTS.md: added blockers.ts to the process read-order list with the same instruction.",
+      "decisions-log.ts: logged the consolidation decision and why (progress-log.ts had grown to ~300 lines with much of the growth being 'still blocked' restatements; three independently hand-written blocker copies is a real drift risk, not just verbosity).",
+      "Verified: docs-site `npm run build` passes with the new dashboard section; research untouched (doesn't import process/, not rebuilt); pipeline untouched, not rebuilt.",
+    ],
+    nextUp: [
+      "Human: process/blockers.ts is now the one place to check — same 5 items, unchanged this session.",
+      "Agent (next session): read process/blockers.ts first. If your finding is 'still blocked, nothing changed,' bump lastConfirmed/confirmedByCount there instead of writing a new progress-log paragraph — that's the entire point of this session's change. If a blocker's confirmedByCount climbs into the double digits with lastConfirmed dates spanning weeks and it's still unresolved, that's a real signal worth surfacing to Duncan directly (e.g. in a PR description) rather than silently re-bumping forever.",
+    ],
+  },
 ];

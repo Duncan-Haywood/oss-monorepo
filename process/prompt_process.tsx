@@ -7,14 +7,19 @@
  *
  * Read order for a new session:
  *   1. This file's AGENT_PROCESS_INSTRUCTIONS.
- *   2. roadmap.ts — what's done, in progress, blocked, or next.
- *   3. decisions-log.ts — why things are the way they are.
- *   4. progress-log.ts — what the last few sessions actually did.
+ *   2. blockers.ts — the current human-blocked items, at a glance.
+ *   3. roadmap.ts — what's done, in progress, blocked, or next.
+ *   4. decisions-log.ts — why things are the way they are.
+ *   5. progress-log.ts — what the last few sessions actually did.
  *
  * Write order when a session finishes real work:
  *   1. Update the relevant task(s)/phase(s) in roadmap.ts.
  *   2. Append to decisions-log.ts if a real business/product decision was made.
- *   3. Append one entry to progress-log.ts summarizing the session.
+ *   3. Append one entry to progress-log.ts summarizing the session — unless
+ *      the entire session's finding was "everything is still blocked on the
+ *      same humans, nothing changed," in which case just bump the affected
+ *      blockers.ts entries' lastConfirmed/confirmedByCount instead (see
+ *      blockers.ts's own doc comment for why).
  *   4. Keep this file's process itself improving: if the process was hard
  *      to follow, unclear, or missing a check, edit AGENT_PROCESS_INSTRUCTIONS
  *      and note the change as its own progress-log entry.
@@ -23,6 +28,7 @@
 import { roadmap, nextActionableTasks, isGateSatisfied } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
+import { humanBlockers, staleFirst } from "./blockers";
 import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
 import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
@@ -37,6 +43,16 @@ The goal is a profitable, growing business — not a finished app. Every
 agent session should move that forward by a bounded, honest increment.
 
 Each session:
+0. Check blockers.ts first — it's the single source of truth for what's
+   blocked on a human right now (README.md and this file's dashboard both
+   read from it, so it should never need updating in more than one place).
+   If your session's only finding is "still blocked, nothing changed,"
+   bump the relevant entries' lastConfirmed/confirmedByCount there and
+   do not also write a new progress-log.ts paragraph restating the same
+   blockers a 20th time (that's the one exception to step 5 below). If you
+   resolve a blocker (a human did the thing) or find a genuinely new
+   blocker, edit blockers.ts for real and that DOES warrant a normal
+   progress-log entry.
 1. Read roadmap.ts, decisions-log.ts, progress-log.ts (or the rendered
    /process page on the docs site).
 2. Call nextActionableTasks() mentally: pick ONE not-started task owned by
@@ -100,6 +116,7 @@ export type ProcessSnapshot = {
   doneTaskCount: number;
   totalTaskCount: number;
   blockedOnHumanCount: number;
+  humanBlockerCount: number;
   nextForAgent: ReturnType<typeof nextActionableTasks>;
 };
 
@@ -110,6 +127,7 @@ export function getProcessSnapshot(): ProcessSnapshot {
     doneTaskCount: allTasks.filter((t) => t.status === "done").length,
     totalTaskCount: allTasks.length,
     blockedOnHumanCount: allTasks.filter((t) => t.status === "blocked" && t.owner === "human").length,
+    humanBlockerCount: humanBlockers.length,
     nextForAgent: nextActionableTasks(),
   };
 }
@@ -153,11 +171,37 @@ export function ProcessDashboard() {
         <h2 className="font-display text-2xl font-semibold text-white">Agent process</h2>
         <p className="mt-2 max-w-3xl text-sm text-slate-400">
           {snapshot.doneTaskCount}/{snapshot.totalTaskCount} tasks done across {snapshot.phaseCount}{" "}
-          phases. {snapshot.blockedOnHumanCount} task(s) are blocked on a human action.
+          phases. {snapshot.blockedOnHumanCount} task(s) are blocked on a human action, tracked as{" "}
+          {snapshot.humanBlockerCount} distinct blocker(s) below.
         </p>
         <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs leading-relaxed text-slate-300">
           {AGENT_PROCESS_INSTRUCTIONS}
         </pre>
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold text-white">Human blockers</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+          The single source of truth for what's blocked on a human right now — see process/blockers.ts.
+          Sorted oldest-confirmed first, so the top row is the one that's gone longest without anyone
+          re-checking it.
+        </p>
+        <div className="mt-4 space-y-3">
+          {staleFirst().map((b) => (
+            <div key={b.id} className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-medium text-white">{b.title}</h3>
+                <span className="text-xs text-slate-500">
+                  confirmed {b.confirmedByCount}x · last {b.lastConfirmed} · since {b.firstFlagged}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-slate-300">{b.whatsNeeded}</p>
+              {b.unblocks.length > 0 && (
+                <p className="mt-2 text-xs text-slate-500">Unblocks: {b.unblocks.join(", ")}</p>
+              )}
+            </div>
+          ))}
+        </div>
       </section>
 
       <section>

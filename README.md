@@ -6,28 +6,15 @@ Listing Lens is an AI-first iPhone real estate photography concept: pro-level li
 
 ## ⚠ Human action needed to unblock the next stage
 
-As of 2026-07-12, every agent-doable task in `process/roadmap.ts` is done. All remaining
-roadmap tasks are `owner: "human"` (or gated on one). Dozens of agent sessions since
-2026-06-13 have kept re-confirming this same state — the prep work (checklist, pricing,
+As of 2026-07-13, every agent-doable task in `process/roadmap.ts` is done. All remaining
+roadmap tasks are `owner: "human"` (or gated on one). The prep work (checklist, pricing,
 outreach copy, enhancement pipeline, lead-intake CLI, listing-audit rubric, interview
-script) is ready and waiting. Nothing else agent-side moves the business forward until one
-of these happens:
-
-1. **Book and shoot one real concierge listing** (`process/capture-checklist.ts` +
-   `pipeline/` + `process/outreach-templates.ts`, now with a real `process/booking-link.ts`
-   mailto: link instead of a placeholder, and `pipeline/src/microsite.ts` to turn the delivery
-   into a branded property microsite) — the single highest-leverage next step; unblocks
-   `p2-first-deliveries` and, eventually, `p3-app-scope`.
-2. **Run the Phase 1 interviews** (`process/interview-script.ts`, 10 agents + 5 STR hosts)
-   — unblocks `p1-run-interviews`.
-3. **Score 20 Zillow listings** in a chosen metro against `process/listing-audit-rubric.ts`
-   — unblocks `p1-listing-audit`.
-4. **Flip the Cloudflare Access policy on** for the docs site in the Cloudflare dashboard
-   — merges PR #4 (`cursor/fix-pages-access-4a7e`), unblocks `p0-docs-site`.
-5. **Delete the ~12 confirmed-stale, fully-merged branches** — agent sessions get a hard
-   `HTTP 403` trying to delete refs on this repo (confirmed across multiple sessions, not a
-   transient error); this needs a token/permission fix or manual deletion from
-   github.com.
+script) is ready and waiting. Nothing else agent-side moves the business forward until a
+human resolves one of the items in **`process/blockers.ts`** — the single source of truth
+for what's blocked (highest-leverage first: book and shoot one real concierge listing,
+run the Phase 1 interviews, score the Zillow listing audit, flip the Cloudflare Access
+policy on, delete the stale branches). It's also rendered as the top section of the
+`/process` page on the docs site, sorted by how long each has gone unconfirmed.
 
 See `process/prompt_process.tsx` → `AGENT_PROCESS_INSTRUCTIONS` for the full agent process,
 and `process/progress-log.ts` for what every session has tried.
@@ -52,6 +39,7 @@ real-estate-agent-photo-app/
 │   └── wrangler.toml
 ├── process/
 │   ├── prompt_process.tsx      # start here — agent playbook + live dashboard
+│   ├── blockers.ts              # single source of truth for what's blocked on a human
 │   ├── roadmap.ts               # phases/tasks with status + owner
 │   ├── decisions-log.ts         # append-only business decisions
 │   ├── progress-log.ts          # append-only per-session log

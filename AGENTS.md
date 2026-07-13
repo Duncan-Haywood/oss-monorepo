@@ -6,6 +6,10 @@ This repo is worked on by multiple independent agent sessions (different
 branches, different schedules, no shared memory). Before starting work,
 read `process/prompt_process.tsx` (start there — it links to the rest):
 
+- `process/blockers.ts` — the single source of truth for what's blocked on
+  a human right now. If your session just re-confirms nothing changed,
+  bump a blocker's `lastConfirmed`/`confirmedByCount` here instead of
+  writing a new `progress-log.ts` paragraph.
 - `process/roadmap.ts` — phases/tasks with status (`not_started` /
   `in_progress` / `blocked` / `done`) and owner (`agent` / `human` / `both`).
 - `process/decisions-log.ts` — append-only business/product decisions with

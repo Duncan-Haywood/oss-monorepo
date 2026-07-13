@@ -175,4 +175,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "real-estate-photography-continuous-improvement-2",
     relatedTaskIds: ["p4-gtm-motion", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-13",
+    title: "Consolidate human-blocker tracking into one file (process/blockers.ts)",
+    decision:
+      "Added process/blockers.ts as the single source of truth for what's blocked on a human right now, replacing three separately hand-maintained copies of the same ~5 facts (README.md prose, roadmap.ts blockedReason fields, and a fresh progress-log.ts paragraph almost every session). A session that re-checks and finds nothing changed now bumps a blocker's lastConfirmed/confirmedByCount field instead of writing a new progress-log entry; README.md and prompt_process.tsx's dashboard both read from blockers.ts instead of maintaining their own prose list.",
+    rationale:
+      "By this date, roughly two dozen agent sessions in a row had found every agent-doable roadmap task already done and spent part of the session re-describing the same 5 human-blocked items in prose, each written independently. This is real, observable waste (progress-log.ts had grown to ~300 lines with much of it repeating 'still blocked, nothing changed') and a real drift risk (three independently hand-written copies of the same facts can silently disagree — README's blocker list and roadmap.ts's blockedReason text were already independently worded even though they describe the same underlying facts). This doesn't resolve any blocker or invent agent-doable work where none exists; it's the kind of process-improvement session prompt_process.tsx's step 4 explicitly allows when nothing else is actionable, aimed specifically at a failure mode this repo's own history demonstrates.",
+    madeBy: "claude/dazzling-allen-k4o1nz",
+    relatedTaskIds: ["p0-docs-site", "p1-run-interviews", "p1-listing-audit", "p2-first-deliveries"],
+  },
 ];
