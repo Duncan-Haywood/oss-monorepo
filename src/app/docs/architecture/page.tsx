@@ -345,7 +345,10 @@ export default function ArchitectureDocPage() {
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
-        <code>marketingPacks</code>). When Convex is configured, Generate pack passes{" "}
+        <code>marketingPacks</code>). Ad-hoc operator generation remains available at{" "}
+        <code>POST /api/marketing/generate</code> (auth + validation + stub-vs-LLM messaging
+        covered by <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
+        dashboard pack action for persisted fulfillment. When Convex is configured, Generate pack passes{" "}
         <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
