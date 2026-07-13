@@ -1419,8 +1419,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "send-daily-digest-action-test-coverage",
     summary:
       "Empty-backlog twin after operator-digest-email-env-readiness: sendDailyDigestAction is the operator Send daily digest path (requireOperatorAuth + OPERATOR_DIGEST_EMAIL + uncapped list* feeds into buildDailyDigest), but only daily-digest.test.ts covers the pure builder — no action-level Vitest for auth, missing destination, or list wiring. Prefer when digest banner is done; do not invent optional aggregates.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-2753",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
