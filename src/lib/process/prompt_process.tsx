@@ -583,6 +583,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
   },
   {
+    id: "deploy-handoff-orchestrator-test-coverage",
+    summary:
+      "src/lib/deploy/handoff.ts (enqueueProductionHandoff, tryProvisionVercelDomain, assignVercelProjectAndProvision, assignCustomDomainAndProvision, markHandoffLive) had zero direct test coverage despite being the most frequently edited, highest-branching module in the fail-closed hardening series (5+ iterations touched it: preserve-custom-domain, preserve-status-on-upsell, operator-writes-convex-primary). Every sibling file in src/lib/deploy/ had a test except the orchestrator itself. Shipped src/lib/deploy/handoff.test.ts covering the enqueue idempotency guard (same session/non-failed → return existing; failed → rebuild; new session → preserve via preserveDeployHandoffOperatorFields), all 5 tryProvisionVercelDomain branches (unconfigured skip incl. no-duplicate-note, 200, 409, other HTTP error, network exception) including the live-never-downgrades rule, assignVercelProjectAndProvision / assignCustomDomainAndProvision null-handoff + re-provision-and-persist paths, and markHandoffLive updating both handoff status and lead stage.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "claude/upbeat-dijkstra-3xf88o",
+  },
+  {
     id: "commerce-abandoned-checkout-tracking",
     summary:
       "POST /api/commerce/checkout creates Buy now Stripe sessions but never wrote checkout_sessions, so abandoned end-customer carts were invisible. Bundle abandoned-recovery must NOT ingest commerce sessions without a kind discriminator — a Finish-checkout email linking /checkout?tier= would be wrong. Shipped: kind+skuId on checkout_sessions, record on Buy now create, mark complete on webhook, bundle vs commerce due queues, pipeline-health + digest Buy now carts, operator Send Buy now recovery → preview#catalog.",
@@ -2236,6 +2244,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Last free NEXT_STEPS item — everything else remaining (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) is operator/legal-gated. recordLeadOutreach previously soft-fell-back to SQLite on a Convex mutation failure, and every caller sent the email via Resend first, persisting the step advance only after a successful send. isFollowUpDue / pipeline-health / the daily digest all read Convex-first, so a Convex write failure (soft fallback) or any crash between a successful Resend send and the persist call would leave the lead looking due for the same step on every other instance — the next automation run or operator click could send Email 2 or Email 3 a second time, a CAN-SPAM and sender-reputation risk, not just a display bug. Flipping to persist-then-notify (same shape as CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) closes both gaps: the mark is fail-closed AND lands before the side effect it's supposed to prevent from duplicating. The accepted trade-off — a lead can go one cadence step behind if Resend itself fails right after a successful durable mark — mirrors recoverySentAt's already-accepted behavior and was judged safer than the alternative (silently risking duplicate sends across instances) for a codebase multiple concurrent agents deploy against. disposeColdLeadAction's Email 1 mark reuses the same sentAt timestamp for both the mark and (on success) the reported lastOutreachAt, keeping the two in sync without a second write.",
   },
+  {
+    date: "2026-07-13",
+    decision:
+      "Shipped direct Vitest coverage for src/lib/deploy/handoff.ts (enqueueProductionHandoff, tryProvisionVercelDomain, assignVercelProjectAndProvision, assignCustomDomainAndProvision, markHandoffLive) instead of picking a new feature — the free requireConvex fail-closed backlog closed with outreach-cadence-persist-then-send, and the four remaining NEXT_STEPS are all operator/legal-gated with no fresh sold-capability gap surfaced by audit.",
+    rationale:
+      "handoff.ts is the highest-branching, most frequently edited module in the entire fail-closed hardening series (deploy-handoff-preserve-custom-domain, deploy-handoff-preserve-status-on-upsell, deploy-handoff-operator-writes-convex-primary all touched it) yet had zero direct tests — every sibling file in src/lib/deploy/ (handoff-persist, handoff-preserve, dns-email, custom-domain-routing) already had one. The untested surface included subtle, easy-to-regress logic that gates real money-flow correctness: enqueueProductionHandoff's three-way idempotency guard (existing + same session + not-failed → return as-is; anything else → rebuild), the live-never-downgrades-to-provisioned rule inside tryProvisionVercelDomain's five branches (unconfigured, 200, 409, other HTTP error, network exception), and the skip-note string-equality dedup that silently produces duplicate operator-facing notes if the message text ever drifts. A regression here is a live-site routing bug (getLeadSlugByCustomDomain / listDeployHandoffs both read Convex-first off this same write path), not a cosmetic one, and nothing in CI would have caught it. Chose test-coverage over inventing a new optional aggregate, per AGENT_PROTOCOL's empty-free-backlog guidance to prefer sold-capability / regression-risk work; did not touch convex/orders.ts's dead createOrder/getByStripeSessionId (already reviewed and intentionally left alone by a prior iteration) to avoid re-litigating a settled call.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -3768,5 +3783,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm install (fresh checkout had no node_modules) + npm test (335 passed, +2 new) + lint + tsc --noEmit (only the two pre-existing unrelated test-fixture failures noted in PR #91) + build all clean; npm run dev + a temporary local route exercised all four call sites' real runtime behavior end to end",
     ],
     decisions: BUSINESS_DECISIONS.slice(187, 188),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/upbeat-dijkstra-3xf88o",
+    summary:
+      "Free NEXT_STEPS backlog stayed empty after PR #94 (outreach-cadence-persist-then-send) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Ran a subagent-assisted audit across docs-vs-code accuracy, correctness bugs in recently-touched code, unshipped-but-buildable sold-capability gaps, and missing test coverage. Docs (product-bundles, business-model), proxy.ts custom-domain + preview-subdomain routing, and the db.ts Convex-parity/API-map surfaces all checked out clean. Confirmed (without re-litigating) that convex/orders.ts's dead createOrder/getByStripeSessionId were already deliberately left alone by a prior iteration. Found src/lib/deploy/handoff.ts — the orchestrator behind every paid-checkout production handoff, Vercel domain provisioning, and Mark live transition, and the most frequently edited file in the whole fail-closed hardening series — had zero direct test coverage, unlike every sibling file in src/lib/deploy/. Shipped src/lib/deploy/handoff.test.ts (18 tests) covering enqueueProductionHandoff's idempotency guard, all 5 tryProvisionVercelDomain branches including the live-never-downgrades rule and skip-note dedup, assignVercelProjectAndProvision/assignCustomDomainAndProvision's null + re-provision-and-persist paths, and markHandoffLive's dual handoff-status + lead-stage update. Verified: npm test (353 passed, +18 new), lint, and build all clean; tsc --noEmit shows only the pre-existing unrelated daily-digest/pipeline-health test-fixture type errors already noted in prior iterations.",
+    shipped: [
+      "src/lib/deploy/handoff.test.ts — 18 new Vitest cases for enqueueProductionHandoff, tryProvisionVercelDomain, assignVercelProjectAndProvision, assignCustomDomainAndProvision, markHandoffLive",
+      "NEXT_STEPS: deploy-handoff-orchestrator-test-coverage done",
+      "BUSINESS_DECISIONS — documented why test coverage was chosen over inventing a new optional aggregate, and why convex/orders.ts dead code was left untouched",
+      "Verified: npm test (353 passed, +18 new) + lint + build all clean on this branch",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(188, 189),
   },
 ];
