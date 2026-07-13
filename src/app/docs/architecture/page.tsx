@@ -176,8 +176,11 @@ export default function ArchitectureDocPage() {
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, validation) beyond{" "}
-        <code>contact-persist.test.ts</code> helpers — same pattern as preview-open and the
-        Stripe route suites. Matches the same idempotency
+        <code>contact-persist.test.ts</code> helpers, and{" "}
+        <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
+        (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, and the
+        <code>ConvexPrimaryWriteError</code>-vs-generic-error <code>500</code> branches) — same
+        pattern as preview-open and the Stripe route suites. Matches the same idempotency
         guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap: set{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, then either click <strong>Run bootstrap</strong> on

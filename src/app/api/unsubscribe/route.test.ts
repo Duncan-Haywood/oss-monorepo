@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { signUnsubscribeToken } from "@/lib/email/unsubscribe-token";
+import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+
+const suppressEmail = vi.fn();
 
 vi.mock("@/lib/db", () => ({
-  suppressEmail: vi.fn(async () => undefined),
+  suppressEmail: (...args: unknown[]) => suppressEmail(...args),
 }));
 
 function unsubscribeUrl(email: string, token?: string): string {
@@ -14,18 +17,40 @@ function unsubscribeUrl(email: string, token?: string): string {
   return `http://localhost/api/unsubscribe?${params.toString()}`;
 }
 
-describe("GET /api/unsubscribe — token verification", () => {
+describe("GET /api/unsubscribe", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    suppressEmail.mockReset();
+    suppressEmail.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     vi.resetModules();
   });
 
+  it("returns 400 and never calls suppressEmail when the email param is missing", async () => {
+    const { GET } = await import("./route");
+    const request = new NextRequest("http://localhost/api/unsubscribe");
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(400);
+    expect(text).toMatch(/missing email/i);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 and never calls suppressEmail when the email param is empty", async () => {
+    const { GET } = await import("./route");
+    const request = new NextRequest("http://localhost/api/unsubscribe?email=");
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(400);
+    expect(suppressEmail).not.toHaveBeenCalled();
+  });
+
   it("400s when the token is missing (no query param)", async () => {
     const { GET } = await import("./route");
-    const { suppressEmail } = await import("@/lib/db");
     const request = new NextRequest(unsubscribeUrl("victim@example.com"));
 
     const response = await GET(request);
@@ -36,7 +61,6 @@ describe("GET /api/unsubscribe — token verification", () => {
 
   it("400s when the token does not match the email (forged/guessed link)", async () => {
     const { GET } = await import("./route");
-    const { suppressEmail } = await import("@/lib/db");
     const tokenForSomeoneElse = signUnsubscribeToken("someone-else@example.com");
     const request = new NextRequest(
       unsubscribeUrl("victim@example.com", tokenForSomeoneElse),
@@ -50,7 +74,6 @@ describe("GET /api/unsubscribe — token verification", () => {
 
   it("400s on a garbage token string", async () => {
     const { GET } = await import("./route");
-    const { suppressEmail } = await import("@/lib/db");
     const request = new NextRequest(unsubscribeUrl("victim@example.com", "not-a-real-token"));
 
     const response = await GET(request);
@@ -59,26 +82,45 @@ describe("GET /api/unsubscribe — token verification", () => {
     expect(suppressEmail).not.toHaveBeenCalled();
   });
 
-  it("suppresses the email when the token matches (valid link from a real email)", async () => {
+  it("suppresses the email and passes UNSUBSCRIBE_CONVEX_PRIMARY when the token matches", async () => {
     const { GET } = await import("./route");
-    const { suppressEmail } = await import("@/lib/db");
-    const token = signUnsubscribeToken("owner@example.com");
-    const request = new NextRequest(unsubscribeUrl("owner@example.com", token));
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token));
 
     const response = await GET(request);
 
     expect(response.status).toBe(200);
-    expect(suppressEmail).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("GET /api/unsubscribe — HTML escaping", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+    expect(suppressEmail).toHaveBeenCalledWith("pat@example.com", UNSUBSCRIBE_CONVEX_PRIMARY);
   });
 
-  afterEach(() => {
-    vi.resetModules();
+  it("returns a fail-closed 500 with a retry message when suppressEmail throws ConvexPrimaryWriteError", async () => {
+    const { ConvexPrimaryWriteError } = await import("@/lib/payments/convex-primary");
+    suppressEmail.mockRejectedValue(
+      new ConvexPrimaryWriteError("suppressEmail", new Error("boom")),
+    );
+    const { GET } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token));
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(text).toMatch(/try again/i);
+  });
+
+  it("returns a generic 500 when suppressEmail throws a non-Convex error", async () => {
+    suppressEmail.mockRejectedValue(new Error("sqlite is locked"));
+    const { GET } = await import("./route");
+    const token = signUnsubscribeToken("pat@example.com");
+    const request = new NextRequest(unsubscribeUrl("pat@example.com", token));
+
+    const response = await GET(request);
+    const text = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(text).toMatch(/error processing request/i);
+    expect(text).not.toMatch(/try again/i);
   });
 
   it("escapes apostrophes in the email via shared escapeHtmlForEmail (&#39;)", async () => {
