@@ -1273,6 +1273,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-fa0a",
   },
+  {
+    id: "stripe-bootstrap-dashboard-action",
+    summary:
+      "Empty-backlog after PR #133 (demo-catalog + category-themes coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; operators today must curl POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1. Ship an operator-auth'd dashboard Run bootstrap action on the checkout-blocked banner that returns a copyable envSnippet when the flag is set — reduces friction for stripe-price-objects without fake-completing it (paste secrets + unset flag still required).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a606",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
