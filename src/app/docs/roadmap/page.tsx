@@ -162,8 +162,9 @@ export default function RoadmapDocPage() {
         Convex-first abandoned queues cannot miss a cart that only landed in instance-local
         SQLite — the create-side twin of webhook <code>markCheckoutSessionComplete</code>. Operator
         recovery emails durable-mark <code>recoverySentAt</code> with <code>requireConvex</code>{" "}
-        before send so a Convex blip cannot leave the session due on other instances after a nudge.
-        Those open sessions also boost the
+        before send so a Convex blip cannot leave the session due on other instances after a nudge
+        (action orchestration covered by{" "}
+        <code>checkout-recovery-actions.test.ts</code>). Those open sessions also boost the
         Work next quality score (hotter than preview opens) so carts do not hide behind cold
         follow-ups, and pipeline health shows abandoned-cart + recovery-due counts next to
         paid-not-live. Stripe Billing Portal: shipped for Growth/Complete/Commerce — operator{" "}

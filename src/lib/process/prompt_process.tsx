@@ -177,7 +177,8 @@ export const AGENT_PROTOCOL = [
   "When proxy-routing-test-coverage and resend-email-env-readiness are both free in the same cron window, claim different ones (proxy Host rewrite orchestration vs Resend key readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
   "proxy-routing-test-coverage done: src/proxy.test.ts locks dashboard auth gate (open when password unset; redirect when set + missing cookie; allow with valid session; /dashboard/login never gated), preview-subdomain rewrite only when getLeadBySlug resolves (unrecognized label → next(), no demo-catalog fallthrough), custom-domain rewrite only on non-platform Host + exact `/`, and never Host-diverts /api/* or /dashboard/*. Helper suites (custom-domain-routing.test.ts, operator.test.ts) are not enough for orchestrator ordering. Folded with resend-email-env-readiness (efe4).",
   "resend-email-env-readiness done: assessResendEmailEnvReadiness (src/lib/email/resend-env-readiness.ts) + ResendEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / re_placeholder* / re_... RESEND_API_KEY (matches sendEmail mock gate). Distinct from Stripe core / Price-ID banners. Env presence only — does not call Resend. Folded with proxy-routing-test-coverage (cbbe). When free NEXT_STEPS stay gated, prefer stripe-bootstrap-dashboard-action-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "When stripe-bootstrap-dashboard-action-test-coverage and anthropic-env-readiness are both free in the same cron window, claim different ones (dashboard Run bootstrap orchestration vs Anthropic key readiness for Growth/Complete packs) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "When stripe-bootstrap-dashboard-action-test-coverage and checkout-recovery-actions-orchestration-test-coverage are both free in the same cron window, claim different ones (dashboard Run bootstrap action Vitest vs abandoned-cart recovery action orchestration) — they touch different action files and both lock revenue-critical operator paths. anthropic-env-readiness remains a later empty-backlog twin when those are claimed.",
+  "checkout-recovery-actions-orchestration-test-coverage done: src/app/dashboard/leads/checkout-recovery-actions.test.ts locks sendCheckoutRecoveryAction + sendCommerceCheckoutRecoveryAction (auth fail, empty/missing session, kind mismatch, missing email, persist-then-notify mark-before-Resend, ConvexPrimaryWriteError skip-send, suppressed-send after durable mark). session-persist + abandoned-recovery helper suites are not enough for action glue. Folded/cooperated with stripe-bootstrap-dashboard-action-test-coverage (29a6 earlier claim). When free NEXT_STEPS stay gated, prefer anthropic-env-readiness (Growth/Complete stub-LLM dashboard signal) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1361,15 +1362,23 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "stripe-bootstrap-dashboard-action-test-coverage",
     summary:
-      "Empty-backlog after PR #141 (proxy-routing + resend-email-env-readiness). bootstrapStripePricesAction is the operator-visible #1 sale unlock (Run bootstrap on the checkout-blocked banner) but only bootstrap-gate + bootstrap-prices route suites existed — auth fail / gate fail / success envSnippet / Stripe throw on the dashboard action path had zero direct Vitest. Claimed: action-level coverage locking requireOperatorAuth + assessStripeBootstrapGate + bootstrapStripePrices orchestration.",
+      "Empty-backlog after PR #141 (resend-email-env-readiness + proxy-routing-test-coverage) — only gated secrets/OAuth/counsel remain. stripe-bootstrap-dashboard-action (PR #134) shipped bootstrapStripePricesAction on the checkout-blocked banner, but only assessStripeBootstrapGate + POST /api/stripe/bootstrap-prices had Vitest — the operator-auth'd dashboard action (auth fail, gate fail, success envSnippet, Stripe throw) had zero coverage. Claim: action-level Vitest locking requireOperatorAuth + assessStripeBootstrapGate + bootstrapStripePrices wiring. Sibling-friendly twin: checkout-recovery-actions-orchestration-test-coverage.",
     status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-29a6",
+  },
+  {
+    id: "checkout-recovery-actions-orchestration-test-coverage",
+    summary:
+      "Empty-backlog after PR #141. Dual-claim: 29a6 earlier remote claim owns stripe-bootstrap-dashboard-action-test-coverage; this branch pivoted to the twin they left free. sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction are the operator Finish-checkout / Buy now recovery paths (persist-then-notify + CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) but had zero action-level Vitest — helper suites do not lock auth, kind mismatch, missing email, mark-before-send, or ConvexPrimaryWriteError skip-send. Shipped: checkout-recovery-actions.test.ts.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-3a4a",
   },
   {
     id: "anthropic-env-readiness",
     summary:
-      "Sibling-friendly empty-backlog twin: Growth/Complete marketing + Complete voice packs silently fall back to Stub* generators when ANTHROPIC_API_KEY is missing/placeholder — operators get no dashboard signal that sold AI copy is stub quality. Prefer after or beside stripe-bootstrap-dashboard-action-test-coverage; do not fake-complete gated secrets.",
+      "Later empty-backlog twin: Growth/Complete marketing + Complete voice packs silently fall back to Stub* generators when ANTHROPIC_API_KEY is missing/placeholder — operators get no dashboard signal that sold AI copy is stub quality. Prefer when bootstrap-action + checkout-recovery action suites are claimed/done; do not fake-complete gated secrets.",
     status: "todo",
     phase: "Phase 6 — Marketing automation",
   },
@@ -3040,6 +3049,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Dashboard shows a sky ResendEnvBanner (assessResendEmailEnvReadiness) when RESEND_API_KEY is missing, whitespace-only, or a documented placeholder (re_placeholder* / re_...) — matching sendEmail's silent mock gate.",
     rationale:
       "Empty-backlog after PR #140: Stripe core + Price-ID banners already cover payment secrets, but operators still discovered a missing Resend key only after clicking send (mock log looks like success). Every conversion email (outreach 1–3, receipts, abandoned-cart recovery, pack delivery, Starter upsell, digest) funnels through sendEmail — silent mock mode blocks top-of-funnel growth while looking healthy. Sibling business-process-evolution-cbbe claimed proxy-routing-test-coverage; this branch took the complementary operator-visible outreach unlock. Env presence / placeholder detection only — does not call Resend. Do not fake-complete gated NEXT_STEPS.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Abandoned-checkout recovery dashboard actions (sendCheckoutRecoveryAction + sendCommerceCheckoutRecoveryAction) get their own Vitest orchestration suite — helper suites alone do not lock auth, kind mismatch, missing email, persist-then-notify, or ConvexPrimaryWriteError skip-send.",
+    rationale:
+      "Empty-backlog after PR #141. Same-minute dual claim: prompt-process-evolution-29a6 owned stripe-bootstrap-dashboard-action-test-coverage (~11s earlier) and left checkout-recovery-actions-orchestration-test-coverage free. session-persist.test.ts and abandoned-recovery.test.ts cover Convex-primary constants and due-queue math, but a future soft-fallback / send-before-mark / wrong-kind recovery regression would not fail Vitest without action glue coverage. Finish-checkout and Buy now recovery are direct revenue unlocks (stuck carts); locking mark-before-Resend prevents duplicate nudges (CAN-SPAM / reputation). Prefer this over inventing optional aggregates while Prices / Places / Buffer OAuth / Connect stay gated. Queued anthropic-env-readiness for a later sibling.",
   },
 ];
 
@@ -5362,5 +5378,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(237, 238),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-3a4a",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #141 (proxy-routing + resend-email-env-readiness). Dual-claimed stripe-bootstrap-dashboard-action-test-coverage with sibling prompt-process-evolution-29a6 (~11s earlier remote claim + feature body already pushed) — pivoted per AGENT_PROTOCOL to checkout-recovery-actions-orchestration-test-coverage (the twin 29a6 left free). sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction had zero action-level Vitest despite being the operator Finish-checkout / Buy now recovery paths with persist-then-notify + requireConvex. Shipped 13 orchestration tests. Queued anthropic-env-readiness for a later sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/checkout-recovery-actions.test.ts — 13 tests locking auth fail, empty/missing session, kind mismatch (bundle vs commerce_sku), missing email, persist-then-notify mark-before-Resend order, ConvexPrimaryWriteError skip-send, suppressed-send after durable mark, commerce SKU name from catalog",
+      "Docs: architecture notes action-level Vitest for abandoned-checkout recovery beside session-persist helpers",
+      "NEXT_STEPS: checkout-recovery-actions-orchestration-test-coverage done; stripe-bootstrap-dashboard-action-test-coverage ownership corrected to 29a6; anthropic-env-readiness queued",
+      "AGENT_PROTOCOL — claim bootstrap-action tests vs checkout-recovery action tests separately; prefer anthropic-env-readiness next when free",
+      "BUSINESS_DECISIONS — documented dual-claim pivot and why helper suites were insufficient for recovery action glue",
+      "Verified: npm test (recovery suite 13 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(238, 239),
   },
 ];
