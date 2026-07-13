@@ -1,5 +1,5 @@
-import Stripe from "stripe";
 import { BUNDLES, COMMERCE_ADDON } from "./bundles";
+import { listAllPages } from "../stripe/list-all-pages";
 
 /**
  * Creates Stripe Product + Price objects for every bundle component and returns
@@ -8,6 +8,14 @@ import { BUNDLES, COMMERCE_ADDON } from "./bundles";
  * Idempotent-ish: looks up existing products by metadata.local_site_studio_key
  * before creating, so re-runs don't duplicate products (new Prices are still
  * created only when missing for that product).
+ *
+ * The Stripe client is passed in behind a minimal structural interface (not
+ * `import Stripe from "stripe"` types) so this stays unit testable with a
+ * fake client — mirrors src/lib/commerce/stripe-sync.ts, see
+ * bootstrap-stripe-prices.test.ts. The real `new Stripe(secretKey)` client
+ * from the SDK satisfies this interface structurally; only the route handler
+ * (src/app/api/stripe/bootstrap-prices/route.ts) constructs it and gates on
+ * ALLOW_STRIPE_BOOTSTRAP + STRIPE_SECRET_KEY.
  */
 
 export type BootstrapPriceResult = {
@@ -16,6 +24,44 @@ export type BootstrapPriceResult = {
   productId: string;
   created: boolean;
 };
+
+type MinimalStripeProduct = { id: string; metadata?: Record<string, string> };
+type MinimalStripePrice = {
+  id: string;
+  unit_amount: number | null;
+  type?: "one_time" | "recurring";
+  recurring?: { interval?: string } | null;
+};
+
+/** Interface subset this module calls — matches the real Stripe SDK shape. */
+export interface StripeProductsAndPricesForBootstrap {
+  products: {
+    list(params: {
+      limit: number;
+      active: boolean;
+      starting_after?: string;
+    }): Promise<{ data: MinimalStripeProduct[]; has_more: boolean }>;
+    create(params: {
+      name: string;
+      metadata: Record<string, string>;
+    }): Promise<MinimalStripeProduct>;
+  };
+  prices: {
+    list(params: {
+      product: string;
+      active: boolean;
+      limit: number;
+      starting_after?: string;
+    }): Promise<{ data: MinimalStripePrice[]; has_more: boolean }>;
+    create(params: {
+      product: string;
+      currency: string;
+      unit_amount: number;
+      recurring?: { interval: "month" };
+      metadata: Record<string, string>;
+    }): Promise<MinimalStripePrice>;
+  };
+}
 
 type PriceSpec = {
   envVar: string;
@@ -64,57 +110,42 @@ function allPriceSpecs(): PriceSpec[] {
   return specs;
 }
 
-/**
- * Stripe list endpoints cap a single page at 100 items. Bootstrap only creates
- * a fixed handful of platform Products today, but the Stripe account itself
- * can already hold >100 active Products from Commerce catalog syncs (see
- * src/lib/commerce/stripe-sync.ts) — an un-paginated lookup here would miss
- * an existing bootstrap Product/Price past page 1 and create a duplicate.
- */
 async function findProductByKey(
-  stripe: Stripe,
+  stripe: StripeProductsAndPricesForBootstrap,
   key: string,
-): Promise<Stripe.Product | null> {
-  let startingAfter: string | undefined;
-  for (;;) {
-    const listed = await stripe.products.list({ limit: 100, active: true, starting_after: startingAfter });
-    const match = listed.data.find((product) => product.metadata.local_site_studio_key === key);
-    if (match) return match;
-    if (!listed.has_more) return null;
-    startingAfter = listed.data[listed.data.length - 1]?.id;
-  }
+): Promise<MinimalStripeProduct | null> {
+  const matchesKey = (product: MinimalStripeProduct) =>
+    product.metadata?.local_site_studio_key === key;
+  const listed = await listAllPages(
+    (starting_after) => stripe.products.list({ limit: 100, active: true, starting_after }),
+    matchesKey,
+  );
+  return listed.find(matchesKey) ?? null;
 }
 
 async function findMatchingPrice(
-  stripe: Stripe,
+  stripe: StripeProductsAndPricesForBootstrap,
   productId: string,
   unitAmount: number,
   recurring: boolean,
-): Promise<Stripe.Price | null> {
-  const matches = (price: Stripe.Price) => {
+): Promise<MinimalStripePrice | null> {
+  const matches = (price: MinimalStripePrice) => {
     const amountMatches = price.unit_amount === unitAmount;
     const recurringMatches = recurring
       ? price.recurring?.interval === "month"
       : price.type === "one_time";
     return amountMatches && recurringMatches;
   };
-  let startingAfter: string | undefined;
-  for (;;) {
-    const listed = await stripe.prices.list({
-      product: productId,
-      active: true,
-      limit: 100,
-      starting_after: startingAfter,
-    });
-    const match = listed.data.find(matches);
-    if (match) return match;
-    if (!listed.has_more) return null;
-    startingAfter = listed.data[listed.data.length - 1]?.id;
-  }
+  const listed = await listAllPages(
+    (starting_after) =>
+      stripe.prices.list({ product: productId, active: true, limit: 100, starting_after }),
+    matches,
+  );
+  return listed.find(matches) ?? null;
 }
 
 export async function bootstrapStripePrices(
-  stripe: Stripe,
+  stripe: StripeProductsAndPricesForBootstrap,
 ): Promise<{ results: BootstrapPriceResult[]; envSnippet: string }> {
   const results: BootstrapPriceResult[] = [];
 

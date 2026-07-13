@@ -11,6 +11,7 @@
  */
 
 import type { CommerceSku } from "./types";
+import { listAllPages } from "../stripe/list-all-pages";
 
 /** Stable per-lead-per-SKU key stored in Product metadata for idempotent lookup. */
 export function commerceSkuStripeKey(leadSlug: string, skuId: string): string {
@@ -55,28 +56,6 @@ export interface StripeProductsAndPrices {
       metadata: Record<string, string>;
     }): Promise<MinimalStripePrice>;
   };
-}
-
-/**
- * Stripe list endpoints cap a single page at 100 items. Every idempotent
- * lookup here keys off a stable metadata value, so a match past page 1 must
- * still be found — walk has_more/starting_after until either a match turns
- * up (stop early via `until`) or the list is exhausted.
- */
-async function listAllPages<T extends { id: string }>(
-  fetchPage: (startingAfter?: string) => Promise<{ data: T[]; has_more: boolean }>,
-  until?: (item: T) => boolean,
-): Promise<T[]> {
-  const all: T[] = [];
-  let startingAfter: string | undefined;
-  for (;;) {
-    const page = await fetchPage(startingAfter);
-    all.push(...page.data);
-    if (until && page.data.some(until)) break;
-    if (!page.has_more || page.data.length === 0) break;
-    startingAfter = page.data[page.data.length - 1]?.id;
-  }
-  return all;
 }
 
 async function findProductByKey(
