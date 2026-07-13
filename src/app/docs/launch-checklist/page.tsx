@@ -324,10 +324,13 @@ export default function LaunchChecklistDocPage() {
           the operator Inquiries panel (persist required — a DB failure returns 503, not a fake
           Thanks). With Convex configured, contact inserts must fail closed on Convex errors (
           <code>requireConvex</code>) — never claim success after a SQLite-only write that other
-          instances cannot see. Reply from the panel (Resend), or archive when done. Email notify
-          to the business fires only after a successful insert. Confirm unreplied-inquiry count on
-          pipeline health drops after reply (new + read count as unreplied; replied/archived do
-          not).
+          instances cannot see. Reply from the panel (Resend), or archive when done. With Convex
+          configured, Reply / Mark read / Archive also fail closed (
+          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and Reply marks <code>replied</code> before
+          the email leaves — never claim success after a SQLite-only replied mark, and never send
+          before the durable mark. Email notify to the business fires only after a successful
+          insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
+          count as unreplied; replied/archived do not).
         </li>
       </ol>
 

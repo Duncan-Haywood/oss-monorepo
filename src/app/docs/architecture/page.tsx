@@ -219,7 +219,11 @@ export default function ArchitectureDocPage() {
         <code>live</code> → <code>provisioned</code>.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
-        <code>replied</code> with stored body). Opening the reply composer on a{" "}
+        <code>replied</code> with stored body). When Convex is configured, reply + status
+        marks pass <code>requireConvex</code> (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and
+        Reply durably marks <code>replied</code> before Resend (persist-then-notify) so
+        unreplied metrics on other instances cannot miss a successful reply or risk a
+        duplicate send. Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
         unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage

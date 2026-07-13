@@ -119,7 +119,7 @@ export const AGENT_PROTOCOL = [
   "recordCheckoutSessionCreated (POST /api/stripe/checkout + POST /api/commerce/checkout) must pass requireConvex (CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as webhook markCheckoutSessionComplete. Returning { url } after a SQLite-only create leaves the open cart invisible to Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue / digest (lost Finish-checkout recovery revenue). Prefer 502 so the buyer retries rather than silently dropping multi-instance tracking.",
   "recordCheckoutRecoverySent must pass requireConvex (CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) from sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction when Convex is configured — durable mark BEFORE the Resend send (persist-then-notify). A SQLite-only recoverySentAt after a successful email leaves Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue due and risks a second Finish-checkout / Buy now nudge (reputation / CAN-SPAM). Mark failure surfaces to the operator and skips the send; send failure after a durable mark leaves the session off the due queue.",
   "markCommerceOrderPaidOut must pass requireConvex (COMMERCE_PAID_OUT_CONVEX_PRIMARY) from markCommerceOrderPaidOutAction when Convex is configured — listCommerceOrders / summarizeCommerceOrdersByLead / pipeline-health unpaid owed read Convex-first, so a SQLite-only paidOutAt after Mark paid out leaves the order looking owed on other instances (Commerce double-pay risk until Connect). Fail closed and surface to the operator (retry); do not invent a separate fallback policy for manual payout marks vs checkout recoverySentAt.",
-  "preserveDeployHandoffOperatorFields must also keep progressed status (live / provisioned), the notes audit trail, and vercelDomainStatus when enqueueProductionHandoff rebuilds for a new stripeSessionId — not only customDomain / vercelProjectId. buildHandoffRecord always starts at awaiting_dns with fresh default notes; wiping Mark live on Starter→Growth silently reopens paidNotLive / open-handoff debt. tryProvisionVercelDomain must never downgrade live → provisioned on re-provision. When free NEXT_STEPS are gated, prefer outreach-cadence-persist-then-send (recordLeadOutreach requireConvex + mark before Resend) over inventing optional aggregates.",
+  "preserveDeployHandoffOperatorFields must also keep progressed status (live / provisioned), the notes audit trail, and vercelDomainStatus when enqueueProductionHandoff rebuilds for a new stripeSessionId — not only customDomain / vercelProjectId. buildHandoffRecord always starts at awaiting_dns with fresh default notes; wiping Mark live on Starter→Growth silently reopens paidNotLive / open-handoff debt. tryProvisionVercelDomain must never downgrade live → provisioned on re-provision. When free NEXT_STEPS are gated after outreach-cadence-persist-then-send, prefer inquiry-reply-convex-primary (recordClientInquiryReply + updateClientInquiryStatus requireConvex + mark before Resend) over inventing optional aggregates.",
   "Any lookup that walks a Stripe `list()` endpoint to enforce idempotency-by-metadata-key (findProductByKey / findMatchingPrice in stripe-sync.ts and bootstrap-stripe-prices.ts, listOrphanCommerceStripeProducts) must paginate via has_more/starting_after until the whole result set is scanned — Stripe caps a single page at 100 items, and once the account holds more active Products than that (trivial once a few Commerce leads each sync a multi-SKU catalog), an un-paginated `limit: 100` lookup silently misses a match past page 1 and either creates a duplicate Product/Price on re-sync or leaves a genuine orphan unarchived while reporting success. Never assume a single Stripe list() page is exhaustive.",
   "recordLeadOutreach must pass requireConvex (OUTREACH_CADENCE_CONVEX_PRIMARY) from every Email 1/2/3 call site (updateLeadStageAction, disposeColdLeadAction, sendFollowUpAction, addLeadAction) when Convex is configured, and the mark must land BEFORE the Resend call, not after — same persist-then-notify shape as CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY. isFollowUpDue / pipeline-health / the daily digest read Convex-first, so a SQLite-only outreachStep advance landing after a successful send would leave the lead looking due for the same step on every other instance and risk a duplicate Email 2/3 (CAN-SPAM / reputation risk) — worse than the accepted trade-off of a mark succeeding right before a Resend failure, which just leaves that one step off the due queue until the operator retries. When a new outreach send path is added, mark first, send second, and skip the send entirely on a ConvexPrimaryWriteError.",
   "recordClientInquiryReply + updateClientInquiryStatus must pass requireConvex (INQUIRY_REPLY_CONVEX_PRIMARY) from replyToInquiryAction / updateInquiryStatusAction when Convex is configured, and replyToInquiryAction must durably mark replied BEFORE Resend (persist-then-notify) — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a SQLite-only replied mark after a successful visitor reply (or a send-then-soft-fallback) leaves the inquiry looking unreplied elsewhere and risks a duplicate operator reply. Mark-read on composer open is the same split-brain class. When free NEXT_STEPS are gated, prefer inquiry-reply-convex-primary over inventing optional aggregates.",
@@ -922,10 +922,40 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "inquiry-reply-convex-primary",
     summary:
-      "Empty-backlog audit after PR #94 (outreach persist-then-send) left only gated NEXT_STEPS: replyToInquiryAction still sends Resend THEN soft-falls-back on recordClientInquiryReply, and updateClientInquiryStatus (mark-read on composer open / Archive) still SQLite-fallbacks — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a successful visitor reply (or mark-read) can leave the inquiry looking unreplied on other instances and risk a duplicate operator reply. Shipped: INQUIRY_REPLY_CONVEX_PRIMARY; recordClientInquiryReply + updateClientInquiryStatus accept ConvexPrimaryWriteOptions and throw ConvexPrimaryWriteError when requireConvex; replyToInquiryAction durably marks replied BEFORE Resend (persist-then-notify) and surfaces a retry on mark failure without sending; updateInquiryStatusAction fails closed the same way.",
-    status: "in_progress",
+      "Empty-backlog audit after PR #94 (outreach persist-then-send) left only gated NEXT_STEPS: replyToInquiryAction still sends Resend THEN soft-falls-back on recordClientInquiryReply, and updateClientInquiryStatus (mark-read on composer open / Archive) still SQLite-fallbacks — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a successful visitor reply (or mark-read) can leave the inquiry looking unreplied on other instances and risk a duplicate operator reply. Shipped: INQUIRY_REPLY_CONVEX_PRIMARY; recordClientInquiryReply + updateClientInquiryStatus accept ConvexPrimaryWriteOptions and throw ConvexPrimaryWriteError when requireConvex; replyToInquiryAction durably marks replied BEFORE Resend (persist-then-notify) and surfaces a retry on mark failure without sending; updateInquiryStatusAction fails closed the same way. Same work as sibling-queued inquiry-reply-persist-then-send (d82b). Queued cold-disposition-convex-primary + lead-notes-convex-primary; folded sibling commerce-catalog-convex-primary claim.",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-a425",
+  },
+  {
+    id: "inquiry-reply-persist-then-send",
+    summary:
+      "Queued by sibling prompt-process-evolution-d82b as the inquiry requireConvex + persist-then-notify follow-up — shipped on a425 as inquiry-reply-convex-primary (same implementation; both NEXT_STEPS kept on fold).",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-a425",
+  },
+  {
+    id: "commerce-catalog-convex-primary",
+    summary:
+      "Empty-backlog audit after PR #94 (outreach-cadence-persist-then-send): upsertCommerceCatalog still soft-falls-back on Convex failure while getCommerceCatalog / listCommerceCatalogs (Buy now, Sync to Stripe due, pipeline-health, digest) read Convex-first — Save catalog / Sync to Stripe can return success after a SQLite-only write that leaves stripePriceId missing on other instances (Commerce Buy now blocked + false unsynced debt). Claim: fail-closed COMMERCE_CATALOG_CONVEX_PRIMARY on save + sync persist. Queued inquiry-reply-persist-then-send for sibling.",
+    status: "in_progress",
+    phase: "Phase 6 — Commerce",
+    owner: "cursor/prompt-process-evolution-d82b",
+  },
+  {
+    id: "cold-disposition-convex-primary",
+    summary:
+      "Empty-backlog follow-up: applyColdLeadDisposition still soft-falls-back on Convex failure while getLeads / cold-lead badges / stage funnel read Convex-first — Re-engage/Close can succeed locally and leave cold inventory looking open (or closed) on other instances. Prefer requireConvex fail-closed on disposeColdLeadAction's disposition write (Email 1 mark already uses OUTREACH_CADENCE_CONVEX_PRIMARY).",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "lead-notes-convex-primary",
+    summary:
+      "Empty-backlog follow-up: updateLeadNotes still soft-falls-back on Convex failure while getLeads reads Convex-first — discovery-call / Email 3 notes prompts can claim success after a SQLite-only write that other instances never see (operator loses call outcomes across deploys). Prefer requireConvex fail-closed on updateLeadNotesAction.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2244,6 +2274,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "recordLeadOutreach accepts ConvexPrimaryWriteOptions; every Email 1/2/3 call site (updateLeadStageAction, disposeColdLeadAction, sendFollowUpAction, addLeadAction) now durably marks the outreach step via OUTREACH_CADENCE_CONVEX_PRIMARY BEFORE calling Resend, not after — mark failure skips the send and surfaces a retry to the operator; send failure after a durable mark leaves that step off the due queue until the operator manually retries.",
     rationale:
       "Last free NEXT_STEPS item — everything else remaining (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) is operator/legal-gated. recordLeadOutreach previously soft-fell-back to SQLite on a Convex mutation failure, and every caller sent the email via Resend first, persisting the step advance only after a successful send. isFollowUpDue / pipeline-health / the daily digest all read Convex-first, so a Convex write failure (soft fallback) or any crash between a successful Resend send and the persist call would leave the lead looking due for the same step on every other instance — the next automation run or operator click could send Email 2 or Email 3 a second time, a CAN-SPAM and sender-reputation risk, not just a display bug. Flipping to persist-then-notify (same shape as CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) closes both gaps: the mark is fail-closed AND lands before the side effect it's supposed to prevent from duplicating. The accepted trade-off — a lead can go one cadence step behind if Resend itself fails right after a successful durable mark — mirrors recoverySentAt's already-accepted behavior and was judged safer than the alternative (silently risking duplicate sends across instances) for a codebase multiple concurrent agents deploy against. disposeColdLeadAction's Email 1 mark reuses the same sentAt timestamp for both the mark and (on success) the reported lastOutreachAt, keeping the two in sync without a second write.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "recordClientInquiryReply + updateClientInquiryStatus accept ConvexPrimaryWriteOptions; replyToInquiryAction / updateInquiryStatusAction pass INQUIRY_REPLY_CONVEX_PRIMARY and replyToInquiryAction durably marks replied BEFORE Resend (persist-then-notify) — mark failure skips the send; send failure after a durable mark leaves the inquiry off the unreplied queue until the operator retries.",
+    rationale:
+      "Empty-backlog after PR #94 closed outreach cadence: replyToInquiryAction was still send-then-soft-fallback while unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first — a successful visitor reply (or composer mark-read) could leave the inquiry looking unreplied on other instances and risk a duplicate operator reply. Same house pattern as OUTREACH_CADENCE / CHECKOUT_RECOVERY_SENT. Queued cold-disposition-convex-primary + lead-notes-convex-primary for siblings; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
   },
 ];
 
@@ -3777,5 +3814,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm install (fresh checkout had no node_modules) + npm test (335 passed, +2 new) + lint + tsc --noEmit (only the two pre-existing unrelated test-fixture failures noted in PR #91) + build all clean; npm run dev + a temporary local route exercised all four call sites' real runtime behavior end to end",
     ],
     decisions: BUSINESS_DECISIONS.slice(187, 188),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-a425",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #94 (outreach persist-then-send) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. Empty-backlog audit found replyToInquiryAction still send-then-soft-fallback and updateClientInquiryStatus still SQLite-fallback while unrepliedInquiryCount / digest read Convex-first (duplicate-reply / mark-read split-brain). Shipped INQUIRY_REPLY_CONVEX_PRIMARY + persist-then-notify. Sibling prompt-process-evolution-d82b claimed commerce-catalog-convex-primary same hour and queued inquiry-reply-persist-then-send — folded both NEXT_STEPS; inquiry work shipped here. Queued cold-disposition-convex-primary + lead-notes-convex-primary. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/inquiries/reply-persist.ts (+ test) — INQUIRY_REPLY_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — recordClientInquiryReply / updateClientInquiryStatus accept ConvexPrimaryWriteOptions; throw ConvexPrimaryWriteError when requireConvex; null Convex result does not invent from SQLite under requireConvex",
+      "src/app/dashboard/leads/actions.ts — replyToInquiryAction marks replied BEFORE Resend; updateInquiryStatusAction fails closed; both surface retry messages on ConvexPrimaryWriteError",
+      "Docs: architecture / roadmap / launch-checklist — inquiry reply requireConvex + persist-then-notify",
+      "NEXT_STEPS: inquiry-reply-convex-primary + inquiry-reply-persist-then-send done; folded sibling commerce-catalog-convex-primary claim (d82b in_progress); queued cold-disposition-convex-primary + lead-notes-convex-primary",
+      "AGENT_PROTOCOL — inquiry reply/status requireConvex + mark before Resend",
+      "BUSINESS_DECISIONS — documented unreplied-metrics split-brain closed by INQUIRY_REPLY_CONVEX_PRIMARY",
+      "Coop: complementary with d82b commerce-catalog claim — different files, both ITERATIONS kept on merge",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(188, 189),
   },
 ];

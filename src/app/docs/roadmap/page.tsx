@@ -207,7 +207,8 @@ export default function RoadmapDocPage() {
         <code>503</code> when the ledger write fails; with Convex configured,{" "}
         <code>requireConvex</code> so SQLite-only success cannot hide the row from other
         instances — + operator panel + dashboard reply via
-        Resend): shipped. Unreplied inquiry counts on pipeline
+        Resend with <code>requireConvex</code> + persist-then-notify on reply/status marks —
+        <code>inquiry-reply-convex-primary</code>): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
