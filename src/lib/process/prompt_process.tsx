@@ -5643,7 +5643,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: send-marketing-pack-to-client-action-test-coverage done; send-client-voice-pack-to-client-action-test-coverage left free",
       "AGENT_PROTOCOL — Email pack action coverage required beyond deliver-pack helpers; prefer Email voice twin next",
       "BUSINESS_DECISIONS — documented why Email pack action glue Vitest beats inventing optional aggregates after Mark paid out / digest action coverage",
-      "Verified: npm test (+13 Email pack action) + lint + build",
+      "Verified: npm test (777 passed — Email pack action 13 from 764) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(246, 247),
   },
