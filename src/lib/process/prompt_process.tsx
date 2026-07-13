@@ -139,6 +139,7 @@ export const AGENT_PROTOCOL = [
   "Unreplied-inquiry list completeness (unreplied-inquiry-list-completeness) done: listUnrepliedInquiries (src/lib/db.ts) returns every status new+read row uncapped — convex/inquiries.listUnreplied merges two by_status index .collect() scans (new, read) and sorts newest-first; SQLite fallback is WHERE status IN ('new','read') ORDER BY createdAt DESC with no LIMIT. computePipelineHealth's `inquiries` field and buildDailyDigest's `inquiries` field are both fully covered by status new+read (newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unrepliedInquiries) — feed them listUnrepliedInquiries(), never a capped listClientInquiries(N) page. Where a page also needs inbox display (e.g. /dashboard/leads' LeadsClient initialInquiries), fetch both: the capped page for display, the uncapped unreplied set for health/digest — do not reuse one fetch for both purposes. Empty-backlog Convex API map audit re-run — no missing registrations (api.leads.seed is registered-but-unused by db.ts, which is fine; it is called from the seed script, not a db.ts wrapper). Remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — do not fake-complete; queue a fresh empty-backlog sold-capability or multi-instance regression audit next.",
   "Commerce Buy now webhook session dedup (planCommerceWebhookSideEffects) must feed from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — never listClientInquiriesBySlug's newest 50/200 page. Once contact / Request-order / Buy now volume exceeds that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Remaining NEXT_STEPS stay operator/legal-gated; prefer empty-backlog sold-capability / multi-instance regression audits next — do not invent optional aggregates.",
   "resend-brand-name-html-escape done: every brand.name / brand.legalEntity / brand.postalAddress interpolation in outbound HTML (src/lib/email/resend.ts signatures + shared CAN-SPAM sendEmail footer, plus marketing/voice/commerce pack templates that already escaped brand.name) must go through escapeHtmlForEmail — env-sourced operator strings are not exempt. Subject lines and From display names stay plain text. Prior escapeHtml audits that only checked businessName missed this asymmetry; when free NEXT_STEPS are gated again, prefer list-all-pages unit coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "list-all-pages-unit-coverage done: src/lib/stripe/list-all-pages.ts has direct Vitest coverage (multi-page walk, until early-stop, empty/has_more=false, starting_after chaining) — do not rely only on stripe-sync / bootstrap-stripe-prices caller suites. Any new Stripe list() idempotency lookup must import listAllPages (never copy a limit:100 loop) and extend list-all-pages.test.ts when changing helper semantics. When free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer generator/pack branch coverage (marketing/voice generators exercised only indirectly today) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1090,8 +1091,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "list-all-pages-unit-coverage",
     summary:
-      "Empty-backlog audit after PR #115 (resend-brand-name-html-escape): src/lib/stripe/list-all-pages.ts — the shared has_more/starting_after pagination helper extracted for stripe-sync + bootstrap-stripe-prices (PR #109) and named by AGENT_PROTOCOL as the next free coverage target — still had zero direct unit tests. Only exercised indirectly via those callers. Claim: add Vitest coverage for multi-page walk, early until-stop, empty/has_more=false, and starting_after chaining so a future third Stripe list() caller cannot silently regress the >100-Product idempotency class.",
-    status: "in_progress",
+      "Empty-backlog audit after PR #115 (resend-brand-name-html-escape): src/lib/stripe/list-all-pages.ts — the shared has_more/starting_after pagination helper extracted for stripe-sync + bootstrap-stripe-prices (PR #109) and named by AGENT_PROTOCOL as the next free coverage target — still had zero direct unit tests. Only exercised indirectly via those callers. Shipped: list-all-pages.test.ts (6 tests: single-page, multi-page starting_after walk, until early-stop on match page, until match on later page, empty-page guard, empty first page). Sibling prompt-process-evolution-dd75 shipped complementary unpaid-ledger truncation guards + unsubscribe escapeHtml consolidation in the same window.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-f726",
   },
@@ -2559,6 +2560,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Outbound HTML emails must escapeHtmlForEmail brand.name, brand.legalEntity, and brand.postalAddress — not only lead/customer-sourced fields like businessName. Subject lines and From display names remain plain text.",
     rationale:
       "NEXT_PUBLIC_BRAND_NAME / legal entity / postal address are env-sourced operator strings that routinely include apostrophes and ampersands. marketing/voice pack delivery and commerce client receipt already escaped brand.name; resend.ts signatures + the shared CAN-SPAM footer did not — the same asymmetry class as the PR #76 businessName escape, just on brand fields prior audits skipped. Escaping keeps outreach/receipt/upsell HTML well-formed when the operator sets a real brand name, without inventing optional aggregates while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/stripe/list-all-pages.ts gets its own Vitest suite — caller coverage in stripe-sync / bootstrap-stripe-prices is not enough for the shared pagination contract (multi-page walk, until early-stop, empty/has_more guards).",
+    rationale:
+      "AGENT_PROTOCOL after PR #115 named list-all-pages unit coverage as the next free empty-backlog target. The helper is the single choke point for >100-Product Stripe idempotency lookups; a silent regression in starting_after chaining or until-stop would recreate duplicate Products/Prices or missed orphans even if caller suites still pass on happy paths. Direct tests lock the contract for any future third list() caller without inventing optional aggregates. Sibling prompt-process-evolution-dd75 took unpaid-ledger truncation guards + unsubscribe escapeHtml in the same window — complementary surfaces.",
   },
 ];
 
@@ -4442,5 +4450,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (422 passed, +5 brand.* HTML escape) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(207, 208),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-f726",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #115 (resend-brand-name-html-escape) — only gated secrets/OAuth/counsel remained. AGENT_PROTOCOL named list-all-pages unit coverage as the next free target; claimed and shipped direct Vitest coverage for the shared Stripe list pagination helper. Sibling prompt-process-evolution-dd75 claimed complementary unpaid-ledger truncation regression guards + unsubscribe escapeHtml consolidation in the same window — fold both ITERATIONS on merge. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/stripe/list-all-pages.test.ts — 6 tests (single page, multi-page starting_after walk, until early-stop, until later-page match, empty-page has_more guard, empty first page)",
+      "NEXT_STEPS: list-all-pages-unit-coverage done",
+      "AGENT_PROTOCOL — listAllPages direct coverage required; next empty-backlog prefer generator/pack branch coverage",
+      "BUSINESS_DECISIONS — documented why caller suites alone are insufficient for the shared pagination contract",
+      "Coop: sibling dd75 owns unpaid-ledger truncation guards + unsubscribe escapeHtml — different surface, both ITERATIONS kept on fold",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(208, 209),
   },
 ];
