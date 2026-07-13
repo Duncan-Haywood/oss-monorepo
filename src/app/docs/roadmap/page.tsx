@@ -146,7 +146,9 @@ export default function RoadmapDocPage() {
         sends receipt email. Required fulfillment writes return <code>500</code> on failure so
         Stripe retries; when Convex is configured those writes use <code>requireConvex</code>{" "}
         (no SQLite-only ACK). To create Prices without the Stripe UI: set{" "}
-        <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and <code>POST /api/stripe/bootstrap-prices</code>,
+        <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and either{" "}
+        <strong>Run bootstrap</strong> on the dashboard checkout-blocked banner or{" "}
+        <code>POST /api/stripe/bootstrap-prices</code>,
         paste the returned <code>envSnippet</code> into secrets, then unset the flag.
         Abandoned-checkout recovery: shipped — sessions created but not completed after 2h surface
         on an operator-triggered recovery queue on{" "}

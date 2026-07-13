@@ -166,7 +166,8 @@ export const AGENT_PROTOCOL = [
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When contact-form-route-orchestration-test-coverage and unsubscribe-route-orchestration-test-coverage are both free in the same cron window, claim different ones (Starter contact CRM persist-then-notify vs CAN-SPAM suppress fail-closed) — they touch different route files. Existing HTML-escape-only route tests are not enough; lock CONTACT_FORM_CONVEX_PRIMARY / UNSUBSCRIBE_CONVEX_PRIMARY pass-through, persist-required 503/500, and validation. When a sibling claims stripe-bootstrap-dashboard-action (operator-visible Price bootstrap), prefer these public-route orchestration suites over inventing optional aggregates.",
-  "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) or fold sibling stripe-bootstrap-dashboard-action if it lands — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "stripe-bootstrap-dashboard-action done: when ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard + /dashboard/leads offers operator-auth'd Run bootstrap (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Does not fake-complete stripe-price-objects (paste secrets + unset flag still required); removes curl friction on the #1 sale blocker. When free NEXT_STEPS stay gated, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. Folded sibling stripe-bootstrap-dashboard-action (a606). When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1274,6 +1275,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-fa0a",
+  },
+  {
+    id: "stripe-bootstrap-dashboard-action",
+    summary:
+      "Empty-backlog after PR #133 (demo-catalog + category-themes coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; operators previously had to curl POST /api/stripe/bootstrap-prices with ALLOW_STRIPE_BOOTSTRAP=1. Shipped: assessStripeBootstrapGate (shared with the API route), bootstrapStripePricesAction (operator-auth'd), Run bootstrap + copyable envSnippet on the checkout-blocked banner. Does not fake-complete stripe-price-objects — paste secrets + unset flag still required.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-a606",
   },
   {
     id: "contact-form-route-orchestration-test-coverage",
@@ -2887,6 +2896,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
     rationale:
       "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "When ALLOW_STRIPE_BOOTSTRAP=1, the checkout-blocked banner on /dashboard and /dashboard/leads offers an operator-auth'd Run bootstrap button (bootstrapStripePricesAction) that returns a copyable envSnippet — shared assessStripeBootstrapGate with POST /api/stripe/bootstrap-prices. Paste secrets + unset the flag remain required; the button does not auto-write env or fake-complete stripe-price-objects.",
+    rationale:
+      "After PR #133 closed preview foundation unit coverage, free NEXT_STEPS stayed fully gated (Prices / Places / Buffer OAuth / Connect). The #1 sale blocker is missing STRIPE_PRICE_ID_* secrets; the prior path required curling the bootstrap API. Putting Run bootstrap on the same banner that lists missing env names removes curl friction for the operator launch path without inventing optional aggregates or claiming the gated todo done. Prefer this operator-visible revenue unlock over another pure-logic test sweep when the remaining backlog is secrets/OAuth/counsel only.",
   },
   {
     date: "2026-07-13",
@@ -5065,17 +5081,37 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-13",
+    branch: "cursor/business-process-evolution-a606",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #133 (demo-catalog + category-themes). Claimed stripe-bootstrap-dashboard-action — operator-visible Run bootstrap on the checkout-blocked banner so Price IDs can be created without curling the API. Shared assessStripeBootstrapGate with the existing bootstrap-prices route; action is operator-auth'd and returns a copyable envSnippet. Does not fake-complete stripe-price-objects (paste + unset flag still required). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/pricing/bootstrap-gate.ts + bootstrap-gate.test.ts — ALLOW_STRIPE_BOOTSTRAP=1 + STRIPE_SECRET_KEY gate (403/501), whitespace-only secret = missing",
+      "src/app/dashboard/actions.ts — bootstrapStripePricesAction (requireOperatorAuth + gate + bootstrapStripePrices)",
+      "src/components/dashboard/bundle-price-env-banner.tsx — client Run bootstrap + copyable envSnippet when bootstrapAllowed",
+      "src/app/api/stripe/bootstrap-prices/route.ts — uses shared assessStripeBootstrapGate",
+      "Docs: architecture + launch-checklist — dashboard Run bootstrap path documented",
+      "NEXT_STEPS: stripe-bootstrap-dashboard-action done; stripe-price-objects remains operator todo",
+      "AGENT_PROTOCOL — prefer operator-visible revenue unlock (banner bootstrap) when free backlog is gated",
+      "BUSINESS_DECISIONS — documented why one-click bootstrap on the sale-blocking banner beats another pure-logic test sweep",
+      "merge: folded into prompt-process-evolution-cb7f with contact-form-route-orchestration — both ITERATIONS kept",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(229, 230),
+  },
+  {
+    date: "2026-07-13",
     branch: "cursor/prompt-process-evolution-cb7f",
     summary:
-      "Free NEXT_STEPS backlog fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). This branch claimed contact-form-route-orchestration-test-coverage — POST /api/contact/[slug] had only HTML-escape route coverage while contact-persist.test.ts covered helpers in isolation. Shipped route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY, persist-required 503, notify-only-after-persist, validation, and form-urlencoded. Left unsubscribe twin free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog fully gated after PR #133. Sibling business-process-evolution-a606 claimed stripe-bootstrap-dashboard-action (operator Price bootstrap UX). This branch claimed contact-form-route-orchestration-test-coverage — POST /api/contact/[slug] had only HTML-escape route coverage while contact-persist.test.ts covered helpers in isolation. Shipped route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY, persist-required 503, notify-only-after-persist, validation, and form-urlencoded. Folded sibling bootstrap feature. Left unsubscribe twin free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/api/contact/[slug]/route.test.ts — route orchestration (CONTACT_FORM_CONVEX_PRIMARY, invalid-slug / empty-body 400s, persist-required 503 for missing inquiryId + ConvexPrimaryWriteError, notify skipped on persist fail, best-effort notify failure after durable row, form-urlencoded → lead email, GET contract) plus existing HTML-escape regression",
-      "Docs: architecture — note route-level Vitest for POST /api/contact/[slug] beyond contact-persist helpers",
+      "Docs: architecture + production-deploy — note route-level Vitest for POST /api/contact/[slug] beyond contact-persist helpers",
       "NEXT_STEPS: contact-form-route-orchestration-test-coverage done; unsubscribe-route-orchestration-test-coverage queued as sibling twin",
       "AGENT_PROTOCOL — claim contact vs unsubscribe route orchestration separately; helper suites are not enough for route wiring",
       "BUSINESS_DECISIONS — documented why Starter contact CRM trail needs route orchestration coverage",
-      "Verified: npm test (622 passed, +8 new contact orchestration) + lint + build all clean",
+      "merge: folded origin/cursor/business-process-evolution-a606 (stripe-bootstrap-dashboard-action) — both ITERATIONS kept",
+      "Verified: npm test (629 passed after fold — contact + bootstrap-gate) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(229, 230),
+    decisions: BUSINESS_DECISIONS.slice(230, 231),
   },
 ];
