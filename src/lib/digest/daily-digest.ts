@@ -154,6 +154,12 @@ export interface DailyDigest {
 
 export interface BuildDailyDigestInput {
   leads: Lead[];
+  /**
+   * Only the unrepliedInquiries section reads this. Pass
+   * listUnrepliedInquiries() (uncapped status new+read), not a newest-N page
+   * of every status — a capped page can drop an older unreplied inquiry once
+   * total inquiry volume exceeds the page size.
+   */
   inquiries: ClientInquiry[];
   openCheckoutSessions: CheckoutSessionRecord[];
   orders?: Array<{ leadSlug: string; tier: string; commerceAddon: boolean }>;

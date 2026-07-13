@@ -214,6 +214,45 @@ describe("computePipelineHealth", () => {
     expect(health.oldestUnrepliedInquiryAgeHours).toBeNull();
   });
 
+  it("a newest-N inquiries page hides an older unreplied inquiry that the uncapped set catches", () => {
+    // Simulate listClientInquiries(N)'s newest-first page: an old unreplied
+    // inquiry pushed off the page by newer replied/archived traffic. Callers
+    // must feed computePipelineHealth from listUnrepliedInquiries() (uncapped
+    // status new+read), not a capped newest-N page of every status.
+    const oldUnreplied = makeInquiry("new", {
+      id: "inq_old_unreplied",
+      createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+    });
+    const newerReplied = Array.from({ length: 3 }, (_, i) =>
+      makeInquiry("replied", {
+        id: `inq_replied_${i}`,
+        createdAt: new Date(NOW - i * HOUR_MS).toISOString(),
+      }),
+    );
+    const fullSet = [oldUnreplied, ...newerReplied];
+    const truncatedToNewestTwo = [...fullSet]
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, 2);
+
+    const fromFullSet = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: fullSet,
+      nowMs: NOW,
+    });
+    const fromTruncatedPage = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: truncatedToNewestTwo,
+      nowMs: NOW,
+    });
+
+    expect(fromFullSet.unrepliedInquiryCount).toBe(1);
+    expect(fromTruncatedPage.unrepliedInquiryCount).toBe(0);
+  });
+
   it("counts paid-not-live leads as those still in the paid stage", () => {
     const health = computePipelineHealth({
       leads: [makeLead("paid"), makeLead("paid"), makeLead("live")],

@@ -369,6 +369,7 @@ const api: any = {
   inquiries: {
     create: "inquiries:create",
     list: "inquiries:list",
+    listUnreplied: "inquiries:listUnreplied",
     listBySlug: "inquiries:listBySlug",
     getById: "inquiries:getById",
     updateStatus: "inquiries:updateStatus",
@@ -1596,6 +1597,34 @@ export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]>
       "SELECT * FROM client_inquiries ORDER BY createdAt DESC LIMIT ?",
     )
     .all(safeLimit) as unknown as SqliteClientInquiryRow[];
+  return rows.map(mapClientInquiryRow);
+}
+
+/**
+ * Every inquiry still awaiting an operator reply (status "new" or "read"),
+ * uncapped — feeds pipeline-health unrepliedInquiryCount /
+ * oldestUnrepliedInquiryAgeHours and the daily digest Unreplied inquiries
+ * section, both of which must never miss an inquiry older than the newest N
+ * total inquiries. `listClientInquiries`'s capped page stays for inbox UI.
+ */
+export async function listUnrepliedInquiries(): Promise<ClientInquiry[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(api.inquiries.listUnreplied, {})) as ClientInquiry[];
+    } catch (e) {
+      console.warn(
+        "Failed to list unreplied client inquiries from Convex, falling back to SQLite",
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      "SELECT * FROM client_inquiries WHERE status IN ('new', 'read') ORDER BY createdAt DESC",
+    )
+    .all() as unknown as SqliteClientInquiryRow[];
   return rows.map(mapClientInquiryRow);
 }
 
