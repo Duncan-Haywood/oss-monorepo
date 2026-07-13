@@ -105,7 +105,8 @@ export default function ArchitectureDocPage() {
         instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see. Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
-        <code>brand.postalAddress</code> in signatures and the shared footer — goes through{" "}
+        <code>brand.postalAddress</code> in signatures and the shared footer, and the email
+        echoed on the <code>GET /api/unsubscribe</code> success page — goes through{" "}
         <code>escapeHtmlForEmail</code>; subject lines and From display names stay plain text.
       </p>
 
@@ -430,7 +431,9 @@ export default function ArchitectureDocPage() {
         their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
         card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look
-        owed twice. The same rollup also appears as a <strong>Commerce payouts owed</strong>{" "}
+        owed twice. Pipeline-health and daily-digest tests guard against a future re-wire to a
+        newest-N <code>listCommerceOrders</code> page (same truncation class as unreplied
+        inquiries). The same rollup also appears as a <strong>Commerce payouts owed</strong>{" "}
         section on the operator daily digest so pass-through liability is visible without opening
         the dashboard.
         Open Buy now Checkout

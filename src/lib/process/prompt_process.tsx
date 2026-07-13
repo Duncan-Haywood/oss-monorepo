@@ -139,6 +139,8 @@ export const AGENT_PROTOCOL = [
   "Unreplied-inquiry list completeness (unreplied-inquiry-list-completeness) done: listUnrepliedInquiries (src/lib/db.ts) returns every status new+read row uncapped — convex/inquiries.listUnreplied merges two by_status index .collect() scans (new, read) and sorts newest-first; SQLite fallback is WHERE status IN ('new','read') ORDER BY createdAt DESC with no LIMIT. computePipelineHealth's `inquiries` field and buildDailyDigest's `inquiries` field are both fully covered by status new+read (newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unrepliedInquiries) — feed them listUnrepliedInquiries(), never a capped listClientInquiries(N) page. Where a page also needs inbox display (e.g. /dashboard/leads' LeadsClient initialInquiries), fetch both: the capped page for display, the uncapped unreplied set for health/digest — do not reuse one fetch for both purposes. Empty-backlog Convex API map audit re-run — no missing registrations (api.leads.seed is registered-but-unused by db.ts, which is fine; it is called from the seed script, not a db.ts wrapper). Remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — do not fake-complete; queue a fresh empty-backlog sold-capability or multi-instance regression audit next.",
   "Commerce Buy now webhook session dedup (planCommerceWebhookSideEffects) must feed from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — never listClientInquiriesBySlug's newest 50/200 page. Once contact / Request-order / Buy now volume exceeds that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Remaining NEXT_STEPS stay operator/legal-gated; prefer empty-backlog sold-capability / multi-instance regression audits next — do not invent optional aggregates.",
   "resend-brand-name-html-escape done: every brand.name / brand.legalEntity / brand.postalAddress interpolation in outbound HTML (src/lib/email/resend.ts signatures + shared CAN-SPAM sendEmail footer, plus marketing/voice/commerce pack templates that already escaped brand.name) must go through escapeHtmlForEmail — env-sourced operator strings are not exempt. Subject lines and From display names stay plain text. Prior escapeHtml audits that only checked businessName missed this asymmetry; when free NEXT_STEPS are gated again, prefer list-all-pages unit coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "Sibling business-process-evolution-f726 claimed list-all-pages-unit-coverage (direct Vitest for src/lib/stripe/list-all-pages.ts). Parallel empty-backlog on this branch: (1) commerce-unpaid-ledger-truncation-regression-tests — PR #106 fixed listUnpaidCommerceOrders at call sites, but pipeline-health + daily-digest lacked the newest-N truncation guard unreplied/fulfillment-debt already have (a future capped re-wire silently undercounts owed → double-pay risk); (2) unsubscribe-escape-html-consolidation — GET /api/unsubscribe still uses a private escapeHtml (&#039;) instead of shared escapeHtmlForEmail (&#39;), the same second-escaper class PR #105 closed for digest. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  "commerce-unpaid-ledger-truncation-regression-tests done: pipeline-health.test.ts + daily-digest.test.ts now assert that a newest-N commerce-orders page undercounts older unpaid liability while the unpaid-only set does not — callers must keep feeding listUnpaidCommerceOrders(). unsubscribe-escape-html-consolidation done: GET /api/unsubscribe imports escapeHtmlForEmail (no private escaper). list-all-pages-unit-coverage also done on f726 (folded here). When free NEXT_STEPS are gated again, prefer generator/pack branch coverage or another sold-capability / multi-instance regression over inventing optional aggregates.",
   "list-all-pages-unit-coverage done: src/lib/stripe/list-all-pages.ts has direct Vitest coverage (multi-page walk, until early-stop, empty/has_more=false, starting_after chaining) — do not rely only on stripe-sync / bootstrap-stripe-prices caller suites. Any new Stripe list() idempotency lookup must import listAllPages (never copy a limit:100 loop) and extend list-all-pages.test.ts when changing helper semantics. When free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer generator/pack branch coverage (marketing/voice generators exercised only indirectly today) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
@@ -1095,6 +1097,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-f726",
+  },
+  {
+    id: "commerce-unpaid-ledger-truncation-regression-tests",
+    summary:
+      "Empty-backlog after PR #106/#115: listUnpaidCommerceOrders is wired at dashboard/digest call sites, and orders.test.ts documents newest-N undercount, but computePipelineHealth + buildDailyDigest lacked the truncation-regression guard unreplied-inquiry and fulfillment-debt already have. Without it, a future re-wire to capped listCommerceOrders silently drops older unpaid Buy now rows from owed totals (operator double-pay risk). Shipped: mirror truncation tests at the health/digest boundary (unpaid-only set keeps older liability; newest-N paid-out page reports $0 owed).",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-dd75",
+  },
+  {
+    id: "unsubscribe-escape-html-consolidation",
+    summary:
+      "Empty-backlog escapeHtml asymmetry after PR #105 (digest) + PR #115 (brand.*): GET /api/unsubscribe still used a private escapeHtml() that emits &#039; for apostrophe instead of the shared escapeHtmlForEmail (&#39;). Same second-escaper drift class. Shipped: import escapeHtmlForEmail; drop the private helper; route-level apostrophe + metacharacter regression tests.",
+    status: "done",
+    phase: "Phase 2 — Outreach",
+    owner: "cursor/prompt-process-evolution-dd75",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2567,6 +2585,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/stripe/list-all-pages.ts gets its own Vitest suite — caller coverage in stripe-sync / bootstrap-stripe-prices is not enough for the shared pagination contract (multi-page walk, until early-stop, empty/has_more guards).",
     rationale:
       "AGENT_PROTOCOL after PR #115 named list-all-pages unit coverage as the next free empty-backlog target. The helper is the single choke point for >100-Product Stripe idempotency lookups; a silent regression in starting_after chaining or until-stop would recreate duplicate Products/Prices or missed orphans even if caller suites still pass on happy paths. Direct tests lock the contract for any future third list() caller without inventing optional aggregates. Sibling prompt-process-evolution-dd75 took unpaid-ledger truncation guards + unsubscribe escapeHtml in the same window — complementary surfaces.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "pipeline-health + daily-digest must keep truncation-regression tests proving a newest-N commerce-orders page undercounts older unpaid Buy now liability while listUnpaidCommerceOrders (unpaid-only) does not — same boundary-guard shape unreplied-inquiry and fulfillment-debt already have.",
+    rationale:
+      "PR #106 fixed the call sites, but without health/digest guards a future agent can silently re-wire capped listCommerceOrders and the operator will undercount owed pass-through (double-pay risk). Sibling business-process-evolution-f726 owns list-all-pages-unit-coverage in the same window — different surface. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "GET /api/unsubscribe success HTML must use shared escapeHtmlForEmail — never a private escapeHtml helper (&#039; vs &#39; drift).",
+    rationale:
+      "PR #105 closed the digest second-escaper; PR #115 closed brand.* in resend.ts. Unsubscribe was the remaining HTML surface with its own escaper. One canonical escaper keeps CAN-SPAM success pages consistent with every outbound email body. Do not invent optional aggregates while gated NEXT_STEPS remain.",
   },
 ];
 
@@ -4461,8 +4493,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: list-all-pages-unit-coverage done",
       "AGENT_PROTOCOL — listAllPages direct coverage required; next empty-backlog prefer generator/pack branch coverage",
       "BUSINESS_DECISIONS — documented why caller suites alone are insufficient for the shared pagination contract",
-      "Coop: sibling dd75 owns unpaid-ledger truncation guards + unsubscribe escapeHtml — different surface, both ITERATIONS kept on fold",
+      "merge: folded origin/cursor/prompt-process-evolution-dd75 — both ITERATIONS kept; remapped decision slices",
     ],
     decisions: BUSINESS_DECISIONS.slice(208, 209),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-dd75",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #115 (resend-brand-name-html-escape) — only gated secrets/OAuth/counsel remained. Sibling business-process-evolution-f726 claimed list-all-pages-unit-coverage (different surface). Empty-backlog audit found two remaining gaps: (1) PR #106 wired listUnpaidCommerceOrders at call sites but pipeline-health + daily-digest lacked the newest-N truncation regression guard unreplied/fulfillment-debt already have — a future capped re-wire silently undercounts owed (double-pay risk); (2) GET /api/unsubscribe still used a private escapeHtml (&#039;) instead of shared escapeHtmlForEmail (&#39;), the same second-escaper class PR #105 closed for digest. Shipped both. Kept sibling list-all-pages claim. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "pipeline-health.test.ts + daily-digest.test.ts — commerce unpaid ledger truncation regression (unpaid-only set keeps older liability; newest-N paid-out page reports $0 owed)",
+      "src/app/api/unsubscribe/route.ts — escapeHtmlForEmail; drop private escapeHtml helper",
+      "src/app/api/unsubscribe/route.test.ts — apostrophe (&#39;) + HTML metacharacter escaping",
+      "Docs: architecture + compliance — unsubscribe success page + health/digest unpaid truncation guards",
+      "NEXT_STEPS: commerce-unpaid-ledger-truncation-regression-tests + unsubscribe-escape-html-consolidation done; folded with sibling list-all-pages-unit-coverage (done on f726)",
+      "AGENT_PROTOCOL — health/digest unpaid truncation guards + unsubscribe uses shared escaper",
+      "BUSINESS_DECISIONS — documented truncation-guard + unsubscribe escaper consolidation",
+      "Verified: npm test (426 passed, +4 new) + lint clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(209, 211),
   },
 ];
