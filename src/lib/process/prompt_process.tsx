@@ -1025,6 +1025,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-63a8",
   },
+  {
+    id: "stripe-bootstrap-prices-test-coverage",
+    summary:
+      "Empty-backlog audit after PR #107/#108's re-confirmed-clean escapeHtmlForEmail/Convex-API-map/payout-panel sweep: src/lib/pricing/bootstrap-stripe-prices.ts (the Stripe Price bootstrap logic behind the gated stripe-price-objects operator step — touched 4x in the last 30 days) had zero test coverage and duplicated the has_more/starting_after pagination loop that src/lib/commerce/stripe-sync.ts already implements against a minimal structural Stripe interface (the exact pattern AGENT_PROTOCOL requires for testability). bootstrap-stripe-prices.ts instead imported the full `Stripe` SDK class for its client parameter type, which is why it never got the fake-client unit tests stripe-sync.ts has — including the page-1-only-lookup regression class AGENT_PROTOCOL already flags as a real risk once an account holds >100 active Products/Prices (trivial after a few Commerce catalog syncs). No behavior change to the idempotency contract; this closes a coverage/consistency gap on payment-critical code, not a product feature.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "claude/quirky-davinci-b0l1eb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
