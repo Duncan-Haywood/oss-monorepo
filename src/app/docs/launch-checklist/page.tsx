@@ -40,7 +40,9 @@ export default function LaunchChecklistDocPage() {
           <strong>Run bootstrap</strong> on the checkout-blocked banner, copy the returned{" "}
           <code>envSnippet</code> into secrets, then <strong>unset</strong> the bootstrap flag.
           (API twin: <code>POST /api/stripe/bootstrap-prices</code> — same gate via{" "}
-          <code>assessStripeBootstrapGate</code>.) Until every{" "}
+          <code>assessStripeBootstrapGate</code>. Action-level Vitest in{" "}
+          <code>src/app/dashboard/actions.test.ts</code> locks the banner path operators click.)
+          Until every{" "}
           <code>STRIPE_PRICE_ID_*</code> from <code>BUNDLES</code> +{" "}
           <code>COMMERCE_ADDON</code> is set, those pages show a checkout-blocked banner (via{" "}
           <code>assessBundlePriceEnvReadiness</code>) — fix that before outreach that points at

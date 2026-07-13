@@ -152,7 +152,9 @@ export default function RoadmapDocPage() {
         <code>ALLOW_STRIPE_BOOTSTRAP=1</code> and either{" "}
         <strong>Run bootstrap</strong> on the dashboard checkout-blocked banner or{" "}
         <code>POST /api/stripe/bootstrap-prices</code>,
-        paste the returned <code>envSnippet</code> into secrets, then unset the flag.
+        paste the returned <code>envSnippet</code> into secrets, then unset the flag. Banner
+        action Vitest (<code>src/app/dashboard/actions.test.ts</code>) locks auth + gate +
+        envSnippet beside the route suite.{" "}
         Abandoned-checkout recovery: shipped — sessions created but not completed after 2h surface
         on an operator-triggered recovery queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (see{" "}
