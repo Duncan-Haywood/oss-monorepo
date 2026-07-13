@@ -965,8 +965,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "lead-notes-convex-primary",
     summary:
       "Empty-backlog follow-up: updateLeadNotes still soft-falls-back on Convex failure while getLeads reads Convex-first — discovery-call / Email 3 notes prompts can claim success after a SQLite-only write that other instances never see (operator loses call outcomes across deploys). Prefer requireConvex fail-closed on updateLeadNotesAction.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-c5ed",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
