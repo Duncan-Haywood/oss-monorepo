@@ -122,6 +122,7 @@ export const AGENT_PROTOCOL = [
   "preserveDeployHandoffOperatorFields must also keep progressed status (live / provisioned), the notes audit trail, and vercelDomainStatus when enqueueProductionHandoff rebuilds for a new stripeSessionId — not only customDomain / vercelProjectId. buildHandoffRecord always starts at awaiting_dns with fresh default notes; wiping Mark live on Starter→Growth silently reopens paidNotLive / open-handoff debt. tryProvisionVercelDomain must never downgrade live → provisioned on re-provision. When free NEXT_STEPS are gated, prefer outreach-cadence-persist-then-send (recordLeadOutreach requireConvex + mark before Resend) over inventing optional aggregates.",
   "Any lookup that walks a Stripe `list()` endpoint to enforce idempotency-by-metadata-key (findProductByKey / findMatchingPrice in stripe-sync.ts and bootstrap-stripe-prices.ts, listOrphanCommerceStripeProducts) must paginate via has_more/starting_after until the whole result set is scanned — Stripe caps a single page at 100 items, and once the account holds more active Products than that (trivial once a few Commerce leads each sync a multi-SKU catalog), an un-paginated `limit: 100` lookup silently misses a match past page 1 and either creates a duplicate Product/Price on re-sync or leaves a genuine orphan unarchived while reporting success. Never assume a single Stripe list() page is exhaustive.",
   "recordLeadOutreach must pass requireConvex (OUTREACH_CADENCE_CONVEX_PRIMARY) from every Email 1/2/3 call site (updateLeadStageAction, disposeColdLeadAction, sendFollowUpAction, addLeadAction) when Convex is configured, and the mark must land BEFORE the Resend call, not after — same persist-then-notify shape as CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY. isFollowUpDue / pipeline-health / the daily digest read Convex-first, so a SQLite-only outreachStep advance landing after a successful send would leave the lead looking due for the same step on every other instance and risk a duplicate Email 2/3 (CAN-SPAM / reputation risk) — worse than the accepted trade-off of a mark succeeding right before a Resend failure, which just leaves that one step off the due queue until the operator retries. When a new outreach send path is added, mark first, send second, and skip the send entirely on a ConvexPrimaryWriteError.",
+  "recordClientInquiryReply + updateClientInquiryStatus must pass requireConvex (INQUIRY_REPLY_CONVEX_PRIMARY) from replyToInquiryAction / updateInquiryStatusAction when Convex is configured, and replyToInquiryAction must durably mark replied BEFORE Resend (persist-then-notify) — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a SQLite-only replied mark after a successful visitor reply (or a send-then-soft-fallback) leaves the inquiry looking unreplied elsewhere and risks a duplicate operator reply. Mark-read on composer open is the same split-brain class. When free NEXT_STEPS are gated, prefer inquiry-reply-convex-primary over inventing optional aggregates.",
 ] as const;
 
 /**
@@ -917,6 +918,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/relaxed-galileo-6ty1m2",
+  },
+  {
+    id: "inquiry-reply-convex-primary",
+    summary:
+      "Empty-backlog audit after PR #94 (outreach persist-then-send) left only gated NEXT_STEPS: replyToInquiryAction still sends Resend THEN soft-falls-back on recordClientInquiryReply, and updateClientInquiryStatus (mark-read on composer open / Archive) still SQLite-fallbacks — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest read Convex-first, so a successful visitor reply (or mark-read) can leave the inquiry looking unreplied on other instances and risk a duplicate operator reply. Shipped: INQUIRY_REPLY_CONVEX_PRIMARY; recordClientInquiryReply + updateClientInquiryStatus accept ConvexPrimaryWriteOptions and throw ConvexPrimaryWriteError when requireConvex; replyToInquiryAction durably marks replied BEFORE Resend (persist-then-notify) and surfaces a retry on mark failure without sending; updateInquiryStatusAction fails closed the same way.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-a425",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
