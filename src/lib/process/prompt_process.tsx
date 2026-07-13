@@ -1292,6 +1292,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Client sites + handoff",
     owner: "cursor/prompt-process-evolution-cb7f",
   },
+  {
+    id: "unsubscribe-route-orchestration-test-coverage",
+    summary:
+      "Sibling twin of contact-form-route-orchestration-test-coverage. GET /api/unsubscribe had only HTML-escape route coverage; no test exercised missing-email 400, UNSUBSCRIBE_CONVEX_PRIMARY pass-through to suppressEmail, or the ConvexPrimaryWriteError-vs-generic-error 500 branches. Ship route-level Vitest locking the CAN-SPAM suppress fail-closed contract.",
+    status: "in_progress",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "claude/relaxed-galileo-fys8gf",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
