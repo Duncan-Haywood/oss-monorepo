@@ -324,7 +324,9 @@ export default function ArchitectureDocPage() {
       <p>
         Monthly packs: <code>src/lib/marketing/</code> builds an 8-post + 2-email pack via{" "}
         <code>StubMarketingGenerator</code> or <code>AnthropicMarketingGenerator</code> when{" "}
-        <code>ANTHROPIC_API_KEY</code> is set. Operators trigger{" "}
+        <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
+        <code>generators.test.ts</code> for stub edge branches + Anthropic blank-key / HTTP /
+        parse / length-mismatch fallbacks and <code>packageTier</code>). Operators trigger{" "}
         <code>generateMarketingPackAction</code> on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
