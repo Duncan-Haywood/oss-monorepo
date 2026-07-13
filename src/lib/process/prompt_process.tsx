@@ -118,6 +118,8 @@ export const AGENT_PROTOCOL = [
   "Homepage / pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session via resolveBundleCheckoutLeadSlug (mint organic-* when missing). Never store slug:\"\" : the webhook requires slug && tier for recordLeadPayment + deploy handoff, and an empty slug permanently drops paid organic buyers from CRM/fulfillment. Cancel URLs should preserve the minted slug so retries stay attributed.",
   "recordCheckoutSessionCreated (POST /api/stripe/checkout + POST /api/commerce/checkout) must pass requireConvex (CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY) when Convex is configured — same fail-closed policy as webhook markCheckoutSessionComplete. Returning { url } after a SQLite-only create leaves the open cart invisible to Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue / digest (lost Finish-checkout recovery revenue). Prefer 502 so the buyer retries rather than silently dropping multi-instance tracking.",
   "recordCheckoutRecoverySent must pass requireConvex (CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY) from sendCheckoutRecoveryAction / sendCommerceCheckoutRecoveryAction when Convex is configured — durable mark BEFORE the Resend send (persist-then-notify). A SQLite-only recoverySentAt after a successful email leaves Convex-first listAbandonedCheckoutsDue / listCommerceAbandonedCheckoutsDue due and risks a second Finish-checkout / Buy now nudge (reputation / CAN-SPAM). Mark failure surfaces to the operator and skips the send; send failure after a durable mark leaves the session off the due queue.",
+  "markCommerceOrderPaidOut must pass requireConvex (COMMERCE_PAID_OUT_CONVEX_PRIMARY) from markCommerceOrderPaidOutAction when Convex is configured — listCommerceOrders / summarizeCommerceOrdersByLead / pipeline-health unpaid owed read Convex-first, so a SQLite-only paidOutAt after Mark paid out leaves the order looking owed on other instances (Commerce double-pay risk until Connect). Fail closed and surface to the operator (retry); do not invent a separate fallback policy for manual payout marks vs checkout recoverySentAt.",
+  "preserveDeployHandoffOperatorFields must also keep progressed status (live / provisioned), the notes audit trail, and vercelDomainStatus when enqueueProductionHandoff rebuilds for a new stripeSessionId — not only customDomain / vercelProjectId. buildHandoffRecord always starts at awaiting_dns with fresh default notes; wiping Mark live on Starter→Growth silently reopens paidNotLive / open-handoff debt. tryProvisionVercelDomain must never downgrade live → provisioned on re-provision. When free NEXT_STEPS are gated, prefer outreach-cadence-persist-then-send (recordLeadOutreach requireConvex + mark before Resend) over inventing optional aggregates.",
   "Any lookup that walks a Stripe `list()` endpoint to enforce idempotency-by-metadata-key (findProductByKey / findMatchingPrice in stripe-sync.ts and bootstrap-stripe-prices.ts, listOrphanCommerceStripeProducts) must paginate via has_more/starting_after until the whole result set is scanned — Stripe caps a single page at 100 items, and once the account holds more active Products than that (trivial once a few Commerce leads each sync a multi-SKU catalog), an un-paginated `limit: 100` lookup silently misses a match past page 1 and either creates a duplicate Product/Price on re-sync or leaves a genuine orphan unarchived while reporting success. Never assume a single Stripe list() page is exhaustive.",
 ] as const;
 
@@ -874,6 +876,43 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "claude/upbeat-dijkstra-cfwf5k",
+  },
+  {
+    id: "commerce-paid-out-convex-primary",
+    summary:
+      "Empty-backlog audit after PR #87 (checkout-recovery-sent requireConvex): markCommerceOrderPaidOut still soft-falls-back on Convex failure while listCommerceOrders / summarizeCommerceOrdersByLead / pipeline-health unpaid owed read Convex-first — Mark paid out can return success after a SQLite-only write and never clear owed totals on other instances (Commerce double-pay risk until Connect). Shipped: COMMERCE_PAID_OUT_CONVEX_PRIMARY; markCommerceOrderPaidOutAction fails closed on ConvexPrimaryWriteError. Queued deploy-handoff-operator-writes-convex-primary + lead-snooze-convex-primary; folded sibling 4810 claim deploy-handoff-preserve-status-on-upsell + outreach-cadence-persist-then-send.",
+    status: "done",
+    phase: "Phase 6 — Commerce",
+    owner: "cursor/prompt-process-evolution-3f93",
+  },
+  {
+    id: "deploy-handoff-operator-writes-convex-primary",
+    summary:
+      "Empty-backlog follow-up: assignCustomDomain / assignVercelProject / markHandoffLive still SQLite-fallback on Convex failure then return success while getLeadSlugByCustomDomain + listDeployHandoffs read Convex-first — Starter Host→preview routing and Mark live can silently miss on other instances. Prefer requireConvex on those operator writes when Convex is configured.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
+  {
+    id: "lead-snooze-convex-primary",
+    summary:
+      "Empty-backlog follow-up: updateLeadSnooze still SQLite-fallbacks on Convex failure then returns success while isFollowUpDue (PR #74) reads Convex-first lead rows — a snooze on one instance can leave Follow-ups due / digest Send live on another (CAN-SPAM). Prefer requireConvex on snoozeLeadAction when Convex is configured.",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
+  },
+  {
+    id: "deploy-handoff-preserve-status-on-upsell",
+    summary:
+      "Empty-backlog audit after PR #86/#87: preserveDeployHandoffOperatorFields kept customDomain/vercelProjectId but buildHandoffRecord still reset status to awaiting_dns and wiped notes/vercelDomainStatus on upsell rebuild — Mark live / provisioned progress and operator audit trail silently regress after Starter→Growth. Shipped: preserve progressed status + notes + vercelDomainStatus; tryProvisionVercelDomain never downgrades live→provisioned. Queued outreach-cadence-persist-then-send for sibling.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-4810",
+  },
+  {
+    id: "outreach-cadence-persist-then-send",
+    summary:
+      "Empty-backlog audit follow-up (queued for sibling): recordLeadOutreach still soft-falls-back and follow-up / Email 1 actions send Resend THEN persist — Convex-first isFollowUpDue / digest can re-nudge Email 2/3 after a SQLite-only outreachStep advance (CAN-SPAM). Prefer requireConvex + durable mark BEFORE send (same house pattern as checkout recoverySentAt).",
+    status: "todo",
+    phase: "Phase 2 — Outreach + platform voice",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2157,6 +2196,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Every Stripe list()-based idempotent lookup (stripe-sync.ts, bootstrap-stripe-prices.ts) must paginate via has_more/starting_after rather than trusting a single limit:100 page.",
     rationale:
       "Free NEXT_STEPS backlog stayed empty after PR #87 (checkout-recovery-sent requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all operator/legal-gated. Audit found findProductByKey/findMatchingPrice/listOrphanCommerceStripeProducts only scanned the first 100 active Products/Prices; Commerce sells one Stripe Product per SKU per lead, so a real account can exceed that page cap quickly. An un-paginated lookup breaks the idempotent-metadata-key contract silently — duplicate Products/Prices on re-sync, or a genuine orphan reported as clean by Archive orphans — with no error surfaced to the operator. Pagination is cheap and the failure mode (Stripe dashboard pollution, revenue reconciliation drift, false-positive cleanup) is worse than the extra list() calls.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "markCommerceOrderPaidOut accepts ConvexPrimaryWriteOptions; markCommerceOrderPaidOutAction passes COMMERCE_PAID_OUT_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success.",
+    rationale:
+      "Empty-backlog after PR #87: commerce-mark-paid-out-convex-wiring registered the static API map, but transient Convex failures still soft-fell-back while listCommerceOrders / unpaid owed aggregates read Convex-first — Mark paid out could succeed locally and leave double-pay liability visible on other instances. Operator-action fail-closed matches checkout recoverySentAt (retry surfaces; no silent split-brain). Queued deploy-handoff-operator-writes-convex-primary + lead-snooze-convex-primary; folded sibling 4810 claim deploy-handoff-preserve-status-on-upsell + outreach-cadence-persist-then-send. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "preserveDeployHandoffOperatorFields keeps progressed status (live/provisioned), notes audit trail, and vercelDomainStatus on upsell rebuild — not only customDomain/vercelProjectId. tryProvisionVercelDomain never downgrades live→provisioned.",
+    rationale:
+      "PR #86 closed the routing-field half of handoff preserve; empty-backlog audit after PR #87 found Mark live still silently reset to awaiting_dns (and notes wiped) when Starter→Growth rebuilt the handoff for a new stripeSessionId — reopening paidNotLive / open-handoff debt the operator already cleared. Same class as preserveCommerceStripeIds. Queued outreach-cadence-persist-then-send for sibling (send-then-soft-persist Email 2/3 CAN-SPAM risk). Folded PR #89 commerce-paid-out requireConvex (3f93). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -3613,5 +3666,37 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (323 passed) + lint + build all clean on main tip (70d5c0e)",
     ],
     decisions: BUSINESS_DECISIONS.slice(182, 183),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-3f93",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #87 (checkout-recovery-sent requireConvex) — only gated secrets/OAuth/counsel remained. Empty-backlog audit found markCommerceOrderPaidOut still soft-fell-back while Convex-first unpaid owed readers could double-pay. Shipped COMMERCE_PAID_OUT_CONVEX_PRIMARY + fail-closed Mark paid out action. Queued deploy-handoff-operator-writes + lead-snooze requireConvex; folded sibling 4810 claim (deploy-handoff-preserve-status-on-upsell) + outreach-cadence-persist-then-send. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/commerce/paid-out-persist.ts (+ test) — COMMERCE_PAID_OUT_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — markCommerceOrderPaidOut(stripeSessionId, paidOutAt?, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/dashboard/leads/actions.ts — markCommerceOrderPaidOutAction passes COMMERCE_PAID_OUT_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError",
+      "Docs: architecture / roadmap / launch-checklist / product-bundles — Mark paid out requireConvex",
+      "NEXT_STEPS: commerce-paid-out-convex-primary done; queued deploy-handoff-operator-writes-convex-primary + lead-snooze-convex-primary; folded sibling 4810 claim + outreach-cadence-persist-then-send",
+      "AGENT_PROTOCOL — Mark paid out requireConvex when Convex configured",
+      "BUSINESS_DECISIONS — documented Commerce double-pay risk of soft-fallback Mark paid out",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(183, 184),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-4810",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #87 (checkout recovery requireConvex) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain gated. Empty-backlog audit found preserveDeployHandoffOperatorFields still reset live/provisioned → awaiting_dns and wiped notes on upsell rebuild. Shipped status+notes+vercelDomainStatus preserve; tryProvision never downgrades live. Queued outreach-cadence-persist-then-send. Folded PR #89 commerce-paid-out (3f93) — both ITERATIONS kept. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/deploy/handoff-preserve.ts (+ test) — preserve progressed status / notes / vercelDomainStatus; isProgressedHandoffStatus",
+      "src/lib/deploy/handoff.ts — tryProvisionVercelDomain never downgrades live→provisioned; keep prior vercelDomainStatus when skip-unconfigured",
+      "Docs: architecture / production-deploy / roadmap / launch-checklist — status preserve on upsell",
+      "NEXT_STEPS: deploy-handoff-preserve-status-on-upsell done; queued outreach-cadence-persist-then-send; commerce-paid-out done via PR #89",
+      "AGENT_PROTOCOL — preserve progressed handoff status on rebuild; prefer outreach persist-then-send next",
+      "BUSINESS_DECISIONS — documented Mark live must survive Starter→Growth handoff rebuild",
+      "merge: folded origin/main after PR #89 (3f93 commerce-paid-out) — both ITERATIONS kept",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(184, 185),
   },
 ];

@@ -94,7 +94,9 @@ export default function ProductionDeployDocPage() {
         fallback, same as every other <code>src/lib/db.ts</code> surface. A later bundle checkout
         (Starter→Growth upsell or re-purchase) rebuilds the handoff for the new Stripe session —
         <code>preserveDeployHandoffOperatorFields</code> keeps the saved domain (and any dedicated{" "}
-        <code>vercelProjectId</code>) so this routing does not silently break after payment.
+        <code>vercelProjectId</code>), plus <code>live</code>/<code>provisioned</code> status
+        and operator notes, so routing and Mark live progress do not silently break after an
+        upsell payment.
       </p>
 
       <h2>Client inquiry inbox</h2>

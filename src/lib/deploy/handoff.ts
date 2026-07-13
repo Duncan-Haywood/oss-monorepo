@@ -16,7 +16,10 @@ import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
-export { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
+export {
+  isProgressedHandoffStatus,
+  preserveDeployHandoffOperatorFields,
+} from "./handoff-preserve";
 
 function appBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -113,13 +116,16 @@ async function tryProvisionVercelDomain(
   const teamId = process.env.VERCEL_TEAM_ID?.trim();
 
   if (!token || !projectId) {
+    // On upsell rebuild, keep a prior vercelDomainStatus (e.g. already_exists)
+    // rather than clobbering it with skipped_unconfigured when tokens are still unset.
+    const skipNote =
+      "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID, or assign a per-client Vercel project, to enable).";
     return {
       ...handoff,
-      vercelDomainStatus: "skipped_unconfigured",
-      notes: [
-        ...handoff.notes,
-        "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID, or assign a per-client Vercel project, to enable).",
-      ],
+      vercelDomainStatus: handoff.vercelDomainStatus ?? "skipped_unconfigured",
+      notes: handoff.notes.includes(skipNote)
+        ? handoff.notes
+        : [...handoff.notes, skipNote],
     };
   }
 
@@ -140,7 +146,8 @@ async function tryProvisionVercelDomain(
     if (response.ok) {
       return {
         ...handoff,
-        status: "provisioned",
+        // Never downgrade Mark live → provisioned on an upsell re-provision.
+        status: handoff.status === "live" ? "live" : "provisioned",
         vercelDomainStatus: "created",
         notes: [
           ...handoff.notes,
@@ -151,11 +158,12 @@ async function tryProvisionVercelDomain(
     }
 
     const body = await response.text();
-    // 409 often means domain already on the project — treat as provisioned.
+    // 409 often means domain already on the project — treat as provisioned
+    // (or keep live when the operator already confirmed DNS).
     if (response.status === 409) {
       return {
         ...handoff,
-        status: "provisioned",
+        status: handoff.status === "live" ? "live" : "provisioned",
         vercelDomainStatus: "already_exists",
         notes: [...handoff.notes, `Vercel already has domain ${domain}.`],
         updatedAt: new Date().toISOString(),

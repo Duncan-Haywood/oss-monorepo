@@ -2232,10 +2232,15 @@ export async function listCommerceOrders(
  * Marks a commerce order as manually paid out to the client — reduces
  * double-pay risk on the payout panel until Stripe Connect ships. Keyed on
  * stripeSessionId (unique, always present), matching recordCheckoutRecoverySent.
+ *
+ * Pass { requireConvex: true } from markCommerceOrderPaidOutAction so a
+ * Convex mutation failure surfaces instead of SQLite-only success while
+ * Convex-first unpaid owed readers still show the order as owed.
  */
 export async function markCommerceOrderPaidOut(
   stripeSessionId: string,
   paidOutAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -2245,6 +2250,9 @@ export async function markCommerceOrderPaidOut(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderPaidOut", e);
+      }
       console.warn(
         `Failed to mark commerce order ${stripeSessionId} paid out on Convex, falling back to SQLite`,
         e,

@@ -164,7 +164,8 @@ export default function LaunchChecklistDocPage() {
           handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
           If you save a custom domain (or dedicated Vercel project) then complete a second
           checkout for the same slug (upsell), confirm those operator fields survive the handoff
-          rebuild. If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
+          rebuild — and if you already <strong>Mark live</strong>&apos;d, confirm status stays{" "}
+          <code>live</code> (not reset to <code>awaiting_dns</code>). If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
           <code>200</code>) so Stripe retries. With Convex configured, webhook fulfillment writes
           must fail closed on Convex errors (<code>requireConvex</code>) — never ACK after a
           SQLite-only write that other instances cannot see. The same fail-closed policy applies
@@ -285,7 +286,9 @@ export default function LaunchChecklistDocPage() {
           click <strong>Mark paid out</strong> on that order line and confirm it disappears
           from the panel&apos;s owed total, from pipeline-health{" "}
           <strong>Commerce sales (pass-through)</strong>, and from the next digest&apos;s Commerce payouts
-          owed section — this is what prevents double-paying the same order.
+          owed section — this is what prevents double-paying the same order. When Convex is
+          configured, a Convex write failure must surface an error (not silent success) so
+          unpaid owed totals cannot stay split-brain across instances.
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
