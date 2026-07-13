@@ -1187,6 +1187,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/quirky-davinci-jyedzb",
   },
+  {
+    id: "stripe-checkout-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #124 (stripe-webhook-route-test-coverage): create-side twin of the webhook suite. src/app/api/stripe/checkout/route.ts is the only path that starts every Starter/Growth/Complete (+ Commerce add-on) sale — organic slug minting, Price ID line items, requireConvex fail-closed session tracking, and cancel URL attribution — and had zero direct route tests (helpers organic-attribution + session-persist were covered in isolation). Claimed for route-level Vitest mirroring the webhook pattern. Sibling-friendly twin: commerce-checkout-route-test-coverage.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-f32f",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
