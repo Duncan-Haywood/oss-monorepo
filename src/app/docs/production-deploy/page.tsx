@@ -47,7 +47,10 @@ export default function ProductionDeployDocPage() {
           Contact form at <code>POST /api/contact/[slug]</code> (UI wired on{" "}
           <code>/preview/[slug]</code>) persists an inquiry to the operator inbox first, then
           best-effort emails the lead (or support). Persist failure returns{" "}
-          <code>503</code> — never <code>ok: true</code> without a ledger row.
+          <code>503</code> — never <code>{"{ ok: true }"}</code> without a durable CRM trail.
+          When Convex is configured, the route passes <code>CONTACT_FORM_CONVEX_PRIMARY</code>{" "}
+          so a mutation failure fails closed instead of SQLite-only success. Route-level Vitest
+          in <code>src/app/api/contact/[slug]/route.test.ts</code> locks that orchestration.
         </li>
       </ol>
 
