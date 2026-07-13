@@ -388,7 +388,10 @@ export default function ArchitectureDocPage() {
         Stripe <code>checkout.session.completed</code> redelivery, missing operator inquiry +{" "}
         <code>sendCommerceBuyNowClientReceipt</code> are recovered when no{" "}
         <code>commerce_checkout</code> inquiry embeds the session id (
-        <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
+        <code>planCommerceWebhookSideEffects</code> fed by{" "}
+        <code>listCommerceCheckoutInquiriesBySlug</code> — uncapped{" "}
+        <code>source=commerce_checkout</code> only; not a newest-N{" "}
+        <code>listClientInquiriesBySlug</code> page); duplicates skip only when that inquiry
         already exists. Inquiry write failures after a durable ledger write return HTTP 500 (
         <code>commerce_order_inquiry</code>) so Stripe redelivers into that recovery path —
         client receipt stays best-effort only after inquiry succeeds. Sessions missing{" "}

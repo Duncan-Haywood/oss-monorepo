@@ -89,7 +89,7 @@ export async function POST(request: Request) {
               getCommerceCatalog,
               insertClientInquiry,
               insertCommerceOrder,
-              listClientInquiriesBySlug,
+              listCommerceCheckoutInquiriesBySlug,
             } = await import("@/lib/db");
             const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
             const { planCommerceWebhookSideEffects } = await import(
@@ -139,8 +139,12 @@ export async function POST(request: Request) {
             // wrote the ledger then failed before inquiry/receipt, Stripe
             // retries must still recover those sold-capability notifies.
             // Idempotency key = stripeSessionId embedded in the inquiry
-            // message (commerceOrderPaidInquiryMessage).
-            const inquiriesForLead = await listClientInquiriesBySlug(orderSlug);
+            // message (commerceOrderPaidInquiryMessage). Use the uncapped
+            // commerce_checkout-only list — listClientInquiriesBySlug's
+            // newest 50/200 page can hide an older Buy now notify once
+            // contact/Request-order volume exceeds the window.
+            const inquiriesForLead =
+              await listCommerceCheckoutInquiriesBySlug(orderSlug);
             const sideEffects = planCommerceWebhookSideEffects({
               alreadyRecorded,
               inquiriesForLead,

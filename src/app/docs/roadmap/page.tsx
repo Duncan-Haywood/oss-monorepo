@@ -301,7 +301,8 @@ export default function RoadmapDocPage() {
         that money is owed to the client, not the platform. Stripe redeliveries of the same
         Buy now session recover missing operator inquiry + client receipt when the ledger
         exists but no <code>commerce_checkout</code> inquiry embeds the session id (
-        <code>planCommerceWebhookSideEffects</code>); duplicates skip only when that inquiry
+        <code>planCommerceWebhookSideEffects</code> via uncapped{" "}
+        <code>listCommerceCheckoutInquiriesBySlug</code>); duplicates skip only when that inquiry
         already exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
         actually redelivers into that recovery path (client receipt stays best-effort after
         inquiry succeeds). Per-lead owed totals from{" "}
