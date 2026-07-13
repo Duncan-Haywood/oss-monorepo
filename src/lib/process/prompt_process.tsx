@@ -1236,6 +1236,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/business-process-evolution-df21",
   },
+  {
+    id: "pricing-bundles-unit-coverage",
+    summary:
+      "Empty-backlog after PR #129 (every Stripe-facing API route + marketing/generate now have route orchestration coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain, all secrets/OAuth/counsel-gated. src/lib/pricing/bundles.ts is the display + env-name source of truth for Starter/Growth/Complete + Commerce add-on (checkout UI, tier upsell, bootstrap-stripe-prices, price-env-readiness) and had zero direct tests — only exercised indirectly via readiness/bootstrap suites that import the constants. Direct coverage locks sold USD amounts, Stripe Price env var names, Starter monthly=null, and getBundle lookup so a silent price/env drift cannot ship without failing Vitest. Sibling-friendly leftovers: brand-helpers-unit-coverage, demo-catalog-unit-coverage, category-themes-unit-coverage.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-35a5",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
