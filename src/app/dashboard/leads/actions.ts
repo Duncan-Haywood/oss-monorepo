@@ -386,7 +386,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
         return {
           success: false,
           error:
-            "Could not save the pipeline stage in the shared store — other instances may still show the previous stage. Retry in a moment.",
+            "Could not save the stage in the shared store — other instances may not see this move. Retry in a moment.",
         };
       }
       throw error;

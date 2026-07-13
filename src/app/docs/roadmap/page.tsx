@@ -181,9 +181,11 @@ export default function RoadmapDocPage() {
         <code>upsert-lead-collision-guard</code>). When Convex is configured, Add lead / CSV
         import fail closed on shared-store mutation failure (
         <code>lead-upsert-convex-primary</code>) so new inventory cannot succeed only in
-        instance-local SQLite. Dashboard stage moves likewise fail closed (
-        <code>lead-stage-convex-primary</code>) so the funnel cannot desync across instances.
-        Google Places API and other licensed sources still require legal
+        instance-local SQLite. Dashboard stage moves fail closed the same way (
+        <code>lead-stage-convex-primary</code>) — Mark live already passed{" "}
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; the stage dropdown now matches so funnel /
+        Work next / digest cannot desync from an <code>outreach_sent</code> mark that already
+        fails closed. Google Places API and other licensed sources still require legal
         review — no Maps/Facebook scrapers.
       </p>
 
