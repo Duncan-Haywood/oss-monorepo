@@ -82,7 +82,11 @@ export default function ArchitectureDocPage() {
         <code>/robots.txt</code> allows crawling except <code>/dashboard</code> and{" "}
         <code>/api</code>. Canonical origin comes from <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
         <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap
-        don&apos;t point at localhost.
+        don&apos;t point at localhost. <code>siteUrl()</code>&apos;s precedence (
+        <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
+        <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
+        <code>@type</code> mapping have direct Vitest coverage in{" "}
+        <code>src/lib/seo.test.ts</code>.
       </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>

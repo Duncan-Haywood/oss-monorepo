@@ -149,6 +149,7 @@ export const AGENT_PROTOCOL = [
   "marketing-build-request-unit-coverage done: src/lib/marketing/build-request.test.ts locks businessContextFromLead empty services/hours/optional-field defaults + monthlyPackRequestForLead growth vs complete packageTier/automationLevel (and explicit override). monthly-pack.test.ts stub smoke is not enough for the request shape that feeds AnthropicMarketingGenerator. Sibling can take voice-build-request-unit-coverage (different module).",
   "voice-build-request-unit-coverage done: src/lib/voice/build-request.test.ts locks clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead edge branches (empty services → 'our services', hours by-appointment / omit, omitted state/phone/tagline, CLIENT_VOICE_FAQ_SCRIPT_TYPES) — do not rely only on faq-pack.test.ts happy-path smoke. Twin of marketing-build-request-unit-coverage. When both build-request suites and convex-orders-list-newest-first are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "seo-helpers-unit-coverage done: src/lib/seo.test.ts locks siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL trimmed + trailing-slash-stripped > VERCEL_URL > localhost default; whitespace-only values treated as unset for both), previewUrl composition, leadMetaTitle/leadMetaDescription, and leadLocalBusinessJsonLd (per-BusinessCategory schema.org @type + nested PostalAddress, including an absent lead.address passing through as undefined streetAddress) — src/lib/seo.ts backs the Starter 'Basic SEO' promise and had zero direct tests before this. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, escapeHtmlForEmail asymmetry re-scan, remaining untested pure-logic modules) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1160,6 +1161,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-4792",
+  },
+  {
+    id: "seo-helpers-unit-coverage",
+    summary:
+      "Empty-backlog after PR #120 (marketing/voice build-request coverage + convex-orders-list-newest-first) — only gated secrets/OAuth/counsel remained. src/lib/seo.ts backs the Starter-sold 'Basic SEO' promise (canonical URL, per-page metadata, LocalBusiness JSON-LD) and had zero direct tests: siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL trimmed+trailing-slash-stripped > VERCEL_URL > localhost default) and the per-category schema.org @type mapping were unlocked. Shipped: src/lib/seo.test.ts (14 tests) locking siteUrl precedence/trimming, previewUrl composition, leadMetaTitle/Description, and leadLocalBusinessJsonLd (per-category @type + nested PostalAddress).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/upbeat-dijkstra-t4ass7",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2681,6 +2690,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/voice/build-request.ts (clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead) gets its own Vitest suite — faq-pack.test.ts happy-path smoke is not enough for the empty services/hours/optional-field contract that shapes Complete phone-script packs.",
     rationale:
       "AGENT_PROTOCOL after PR #119 named build-request edge cases as the next free empty-backlog target. Sibling prompt-process-evolution-4792 claimed marketing-build-request + convex-orders-list-newest-first in the same window; this branch took the voice twin left free. Empty services must become ['our services'] and missing hours/state/phone/tagline must omit cleanly — without direct tests those sold Complete fulfillment branches can regress while generator/eligibility suites still pass. Direct coverage locks the contract. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/seo.ts (siteUrl / previewUrl / leadMetaTitle / leadMetaDescription / leadLocalBusinessJsonLd) gets its own Vitest suite — it backed the Starter-sold 'Basic SEO' promise with zero direct tests before this iteration.",
+    rationale:
+      "This branch's original claim (marketing-voice-build-request-unit-coverage) turned out to already be shipped by a sibling that merged first — the correct move per AGENT_PROTOCOL's same-minute dual-claim rule was to drop the duplicate and re-scan, not ship a second implementation. siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost) determines every canonical URL, OG tag, and JSON-LD url in production; an untested regression there (e.g. losing the trailing-slash strip, or NEXT_PUBLIC_APP_URL silently losing precedence) would misconfigure SEO for every live client site with no test catching it. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4661,5 +4677,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: folded into prompt-process-evolution-4792 PR",
     ],
     decisions: BUSINESS_DECISIONS.slice(215, 216),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/upbeat-dijkstra-t4ass7",
+    summary:
+      "Initially claimed marketing-voice-build-request-unit-coverage, but sibling cursor/prompt-process-evolution-4792 (+ cursor/business-process-evolution-5383) had already claimed and shipped the identical surface a few minutes earlier and merged as PR #120 before this branch pushed its feature commits — same-minute dual-claim, earlier remote claim owns per AGENT_PROTOCOL. Rebased onto the new main, dropped the now-redundant work, and re-scanned for a genuinely free empty-backlog target instead of shipping a duplicate implementation. Found src/lib/seo.ts (backs the Starter-sold 'Basic SEO' promise: canonical URL, per-page metadata, LocalBusiness JSON-LD) with zero direct tests — siteUrl()'s three-way env precedence and the per-category schema.org @type mapping were unlocked. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/seo.test.ts — 14 tests (siteUrl NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost precedence + trailing-slash strip + whitespace-only treated as unset, previewUrl composition, leadMetaTitle/leadMetaDescription, leadLocalBusinessJsonLd per-category @type + nested PostalAddress + absent-address passthrough)",
+      "NEXT_STEPS: seo-helpers-unit-coverage done",
+      "AGENT_PROTOCOL — documented the shipped coverage + next empty-backlog preference",
+      "BUSINESS_DECISIONS — documented the seo.ts coverage gap and the dual-claim pivot",
+      "Docs: architecture — note direct Vitest coverage for siteUrl precedence + JSON-LD mapping in the SEO section",
+      "Verified: npm test (489 passed, +14 new) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(217, 218),
   },
 ];
