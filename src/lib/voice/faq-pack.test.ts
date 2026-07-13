@@ -77,6 +77,35 @@ describe("listClientVoicePacksDue", () => {
     );
     expect(due.map((l) => l.slug)).toEqual(["needs-pack"]);
   });
+
+  it("truncating packs to newest N invents false due for an older fulfilled lead", () => {
+    const fulfilledOld = baseLead({ slug: "old-fulfilled", stage: "paid" });
+    const filler = Array.from({ length: 5 }, (_, i) =>
+      baseLead({ slug: `filler-${i}`, stage: "paid" }),
+    );
+    const orders = [
+      { leadSlug: "old-fulfilled", tier: "complete" as const },
+      ...filler.map((l) => ({ leadSlug: l.slug, tier: "complete" as const })),
+    ];
+    const fullPacks = [
+      { leadSlug: "old-fulfilled" },
+      ...filler.map((l) => ({ leadSlug: l.slug })),
+    ];
+    const truncatedPacks = fullPacks.filter((p) => p.leadSlug !== "old-fulfilled");
+
+    expect(
+      listClientVoicePacksDue([fulfilledOld, ...filler], orders, fullPacks).map(
+        (l) => l.slug,
+      ),
+    ).toEqual([]);
+    expect(
+      listClientVoicePacksDue(
+        [fulfilledOld, ...filler],
+        orders,
+        truncatedPacks,
+      ).map((l) => l.slug),
+    ).toEqual(["old-fulfilled"]);
+  });
 });
 
 describe("script pack composition", () => {

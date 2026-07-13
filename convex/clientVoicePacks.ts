@@ -79,14 +79,22 @@ export const getByLeadSlug = query({
   },
 });
 
+/**
+ * Every client voice pack — used by listClientVoicePacksDue / pipeline-health /
+ * digest. Must not cap at newest N: absence-from-page is treated as "pack
+ * missing", so a truncated page invents false Generate voice debt.
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
 export const list = query({
   args: {
     limit: v.optional(v.number()),
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
-    const limit = Math.min(Math.max(args.limit ?? 100, 1), 200);
-    const rows = await ctx.db.query("clientVoicePacks").take(limit);
+    void args.limit;
+    const rows = await ctx.db.query("clientVoicePacks").collect();
+    // Newest-first to match SQLite ORDER BY generatedAt DESC.
+    rows.sort((a, b) => b.generatedAt.localeCompare(a.generatedAt));
     return rows.map((row) => ({
       id: row.packId,
       leadSlug: row.leadSlug,

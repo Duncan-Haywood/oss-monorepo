@@ -2063,17 +2063,22 @@ export async function getMarketingPack(
   return row ? mapMarketingPackRow(row) : null;
 }
 
+/**
+ * Every marketing pack for a UTC month — feeds listMarketingPacksDue /
+ * pipeline-health / digest. Uncapped: a newest-page slice undercounts
+ * fulfillment (false "packs due" once volume exceeds the window).
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
 export async function listMarketingPacksForMonth(
   yearMonth: string,
-  limit = 100,
+  _limit?: number,
 ): Promise<MarketingPack[]> {
-  const safeLimit = Math.min(Math.max(limit, 1), 200);
+  void _limit;
 
   if (convexClient) {
     try {
       return (await convexClient.query(api.marketingPacks.listByMonth, {
         yearMonth,
-        limit: safeLimit,
       })) as MarketingPack[];
     } catch (e) {
       console.warn(
@@ -2086,9 +2091,9 @@ export async function listMarketingPacksForMonth(
   const db = getSqliteDb();
   const rows = db
     .prepare(
-      "SELECT * FROM marketing_packs WHERE yearMonth = ? ORDER BY generatedAt DESC LIMIT ?",
+      "SELECT * FROM marketing_packs WHERE yearMonth = ? ORDER BY generatedAt DESC",
     )
-    .all(yearMonth, safeLimit) as unknown as SqliteMarketingPackRow[];
+    .all(yearMonth) as unknown as SqliteMarketingPackRow[];
   return rows.map(mapMarketingPackRow);
 }
 
@@ -2198,16 +2203,24 @@ export async function getCommerceCatalog(
   return row ? mapCommerceCatalogRow(row) : null;
 }
 
+/**
+ * Every commerce catalog — feeds listCommerceCatalogsMissing /
+ * listCommerceCatalogsUnsynced / pipeline-health / digest. Uncapped: a
+ * newest-page slice invents false "missing" debt and can hide unsynced SKUs
+ * (Buy now blocked while Sync due looks clean).
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
 export async function listCommerceCatalogs(
-  limit = 100,
+  _limit?: number,
 ): Promise<CommerceCatalog[]> {
-  const safeLimit = Math.min(Math.max(limit, 1), 200);
+  void _limit;
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.commerceCatalogs.list, {
-        limit: safeLimit,
-      })) as CommerceCatalog[];
+      return (await convexClient.query(
+        api.commerceCatalogs.list,
+        {},
+      )) as CommerceCatalog[];
     } catch (e) {
       console.warn(
         "Failed to list commerce catalogs from Convex, falling back to SQLite",
@@ -2218,10 +2231,8 @@ export async function listCommerceCatalogs(
 
   const db = getSqliteDb();
   const rows = db
-    .prepare(
-      "SELECT * FROM commerce_catalogs ORDER BY updatedAt DESC LIMIT ?",
-    )
-    .all(safeLimit) as unknown as SqliteCommerceCatalogRow[];
+    .prepare("SELECT * FROM commerce_catalogs ORDER BY updatedAt DESC")
+    .all() as unknown as SqliteCommerceCatalogRow[];
   return rows.map(mapCommerceCatalogRow);
 }
 
@@ -2552,14 +2563,23 @@ export async function getClientVoicePackByLeadSlug(
   return row ? mapClientVoicePackRow(row) : null;
 }
 
-export async function listClientVoicePacks(limit = 100): Promise<ClientVoicePack[]> {
-  const safeLimit = Math.min(Math.max(limit, 1), 200);
+/**
+ * Every client voice pack — feeds listClientVoicePacksDue / pipeline-health /
+ * digest. Uncapped: a newest-page slice undercounts Complete fulfillment
+ * (false "voice packs due" once volume exceeds the window).
+ * Optional `limit` is ignored (kept for call-site compatibility).
+ */
+export async function listClientVoicePacks(
+  _limit?: number,
+): Promise<ClientVoicePack[]> {
+  void _limit;
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.clientVoicePacks.list, {
-        limit: safeLimit,
-      })) as ClientVoicePack[];
+      return (await convexClient.query(
+        api.clientVoicePacks.list,
+        {},
+      )) as ClientVoicePack[];
     } catch (e) {
       console.warn(
         "Failed to list client voice packs from Convex, falling back to SQLite",
@@ -2570,9 +2590,7 @@ export async function listClientVoicePacks(limit = 100): Promise<ClientVoicePack
 
   const db = getSqliteDb();
   const rows = db
-    .prepare(
-      "SELECT * FROM client_voice_packs ORDER BY generatedAt DESC LIMIT ?",
-    )
-    .all(safeLimit) as unknown as SqliteClientVoicePackRow[];
+    .prepare("SELECT * FROM client_voice_packs ORDER BY generatedAt DESC")
+    .all() as unknown as SqliteClientVoicePackRow[];
   return rows.map(mapClientVoicePackRow);
 }

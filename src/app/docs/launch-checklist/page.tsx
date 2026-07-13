@@ -130,7 +130,8 @@ export default function LaunchChecklistDocPage() {
           Set <code>OPERATOR_DIGEST_EMAIL</code> and use <strong>Send daily digest</strong> on{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> to confirm Work next,
           follow-ups due, abandoned-checkout recoveries, unreplied inquiries, marketing packs
-          due (Growth/Complete missing this UTC month), Starter → MRR upsell candidates, and
+          due (Growth/Complete missing this UTC month — from an uncapped pack list, not a
+          newest-N page), Starter → MRR upsell candidates, and
           Complete voice packs due all show up in one email (or the mock log) — plus a
           snoozed-lead footnote (count + soonest return) when any lead is parked off Work next.
           The operator should not need to open the dashboard to know what is urgent today.
