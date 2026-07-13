@@ -170,6 +170,9 @@ export const AGENT_PROTOCOL = [
   "contact-form-route-orchestration-test-coverage done: POST /api/contact/[slug] has route-level Vitest locking CONTACT_FORM_CONVEX_PRIMARY pass-through, invalid-slug / empty-body 400s, persist-required 503 (missing inquiryId + ConvexPrimaryWriteError), notify-only-after-persist, best-effort notify failure after durable row, form-urlencoded accept, plus the existing HTML-escape regression. contact-persist.test.ts alone is not enough for route wiring. Folded sibling stripe-bootstrap-dashboard-action (a606 / PR #134). When free NEXT_STEPS are gated again, prefer unsubscribe-route-orchestration-test-coverage (sibling-friendly CAN-SPAM twin) — do not invent optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "unsubscribe-route-orchestration-test-coverage done: GET /api/unsubscribe has route-level Vitest locking missing/empty-email 400s (suppressEmail never called), UNSUBSCRIBE_CONVEX_PRIMARY pass-through, the fail-closed 500-with-retry-message branch on ConvexPrimaryWriteError, a distinct generic 500 on any other suppressEmail throw, plus the existing HTML-escape regression. Twin of contact-form-route-orchestration-test-coverage — every public visitor-facing route with a requireConvex fail-closed contract (contact, unsubscribe, preview-open, checkout, webhook) now has route-orchestration coverage, not just its persist-helper suite. Landed the same cron window as unsubscribe-token-signing below (different concern: this covers persistence/error-path branches, that fixes the route having no authorization at all) — folded into one route.test.ts; every test in this suite now signs a real token so it still exercises the Convex-pass-through/500 branches instead of tripping the new 400 gate.",
   "unsubscribe-token-signing done: GET /api/unsubscribe had zero authorization — anyone who knew an address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app. Now rejects a missing or mismatched token (400, before calling suppressEmail) via signUnsubscribeToken/verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts). Every automated send funnels through sendEmail (src/lib/email/resend.ts), which is the one and only place that builds the unsubscribe link — it now appends &token=signUnsubscribeToken(normalizedTo), so no template needs to change individually. Prior audits (including the unsubscribe-route-orchestration-test-coverage suite above) treated 'unsubscribe honored' as done once requireConvex + escapeHtmlForEmail + persistence-error-path coverage landed on this route; none addressed that the route had no authorization at all. When adding any new public link that triggers a state-changing GET/POST keyed only by an email or slug in the URL (no session), check whether it needs the same signed-token treatment before assuming a persistence/escaping/error-path audit already covered it. Signing key is RESEND_API_KEY (already required for a real send to leave the building) with a fixed dev-only fallback — do not introduce a new required secret for this class of problem when an existing one already gates whether the link is ever delivered to a real recipient. When free NEXT_STEPS are gated again, prefer rate limiting on public write endpoints (contact form, checkout create, preview-open beacon — none currently exists) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "public-write-rate-limiting done: POST /api/contact/[slug], POST /api/stripe/checkout, POST /api/commerce/checkout, and POST /api/preview/[slug]/open check checkRateLimit (src/lib/security/rate-limit.ts) first and return 429 + Retry-After on exceed. Per-instance / best-effort — not a distributed store. When free NEXT_STEPS stay gated, prefer unsubscribe-get-rate-limiting (sibling-friendly state-changing GET twin) or stripe-core-env-readiness (operator-visible banner for STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET — distinct from Price-ID readiness) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When unsubscribe-get-rate-limiting and stripe-core-env-readiness are both free in the same cron window, claim different ones (CAN-SPAM suppress throttle vs core Stripe secret readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "stripe-core-env-readiness done: assessStripeCoreEnvReadiness (src/lib/pricing/stripe-core-env-readiness.ts) + StripeCoreEnvBanner on /dashboard + /dashboard/leads. Surfaces missing STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET (whitespace-only = missing). Distinct from assessBundlePriceEnvReadiness (Price IDs) — show both when both gap. Missing webhook secret is the worst case (checkout can succeed while CRM/handoff never records). Env presence only — does not validate key format, does not call Stripe, does not fake-complete stripe-price-objects. When free NEXT_STEPS stay gated, prefer unsubscribe-get-rate-limiting (if still free), proxy-routing-test-coverage, or another sold-capability / multi-instance regression over inventing optional aggregates.",
 ] as const;
 
 /**
@@ -1321,16 +1324,16 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "unsubscribe-get-rate-limiting",
     summary:
-      "Sibling twin of public-write-rate-limiting: extend the same checkRateLimit helper to GET /api/unsubscribe (state-changing CAN-SPAM suppress). Claimed by cursor/prompt-process-evolution-6d42.",
-    status: "in_progress",
+      "Empty-backlog after PR #138 (public-write-rate-limiting) — only gated secrets/OAuth/counsel remain. That PR hardened four POST write routes but left GET /api/unsubscribe — the only remaining public, unauthenticated, state-changing endpoint — unbounded. Token signing (PR #137) blocks forged suppressions, but a harvested footer link or a script hammering HMAC verification + suppressEmail still had no throttle. Shipped: reuse checkRateLimit (`unsubscribe:${clientIp}`) before token verify; return 429 + Retry-After (plain-text, matching the route's response style). Extended route.test.ts with a 429-after-limit case; resetRateLimiterForTests in beforeEach. Sibling-friendly twin on this branch: stripe-core-env-readiness.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-6d42",
   },
   {
     id: "stripe-core-env-readiness",
     summary:
-      "Empty-backlog after public-write-rate-limiting: BundlePriceEnvBanner only covers STRIPE_PRICE_ID_* — operators still get no early dashboard signal when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing. Missing secret key → checkout 501; missing webhook secret → Stripe can charge while CRM/handoff never records (silent fulfillment failure). Sibling 6d42 owns unsubscribe-get-rate-limiting.",
-    status: "in_progress",
+      "Empty-backlog after public-write-rate-limiting: BundlePriceEnvBanner only covers STRIPE_PRICE_ID_* — operators still get no early dashboard signal when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing. Missing secret key → checkout 501; missing webhook secret → Stripe can charge while CRM/handoff never records (silent fulfillment failure). Shipped: assessStripeCoreEnvReadiness + StripeCoreEnvBanner on /dashboard + /dashboard/leads + launch-checklist/architecture/roadmap notes. Sibling 6d42 owns unsubscribe-get-rate-limiting.",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-e756",
   },
@@ -2973,6 +2976,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Added a small in-memory, per-instance rate limiter (src/lib/security/rate-limit.ts) to the four public write endpoints with no prior throttling — POST /api/contact/[slug], POST /api/stripe/checkout, POST /api/commerce/checkout, POST /api/preview/[slug]/open — keyed on route name + client IP (from x-forwarded-for/x-real-ip, or a shared fallback bucket when neither header is present), default 20 requests/60s, returning 429 with a Retry-After header once exceeded.",
     rationale:
       "unsubscribe-token-signing (PR #137) closed an authorization gap but explicitly flagged, as the next audit angle, that no public write endpoint had any rate limiting at all — a scripted burst against the contact form, either Checkout-create route, or the preview-open beacon was previously unbounded on a single instance. Free NEXT_STEPS stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), so this followed the protocol's documented fallback: another sold-capability / multi-instance-adjacent gap rather than inventing an optional aggregate. Chose a pure in-memory fixed-window counter over adding Upstash/Redis: AGENTS.md defaults to TS/TSX without new stack pieces absent strong justification, and a single new dependency is not justified to blunt unsophisticated scripted abuse. This is deliberately NOT a distributed limiter — each serverless/Node instance keeps its own independent counter (a client spread across N instances gets up to N times the nominal allowance), state resets on redeploy, and the IP key is only as trustworthy as the upstream proxy that sets x-forwarded-for; documented all three limits directly in the module's doc comment rather than presenting this as airtight. If real multi-instance abuse shows up in practice, the fix is a shared store keyed the same way (route name + IP), not a second, incompatible scheme. Limit chosen generous enough (20/min) that no legitimate visitor retry pattern trips it, but existing route test suites for stripe/checkout and commerce/checkout call the route handler ~12-15 times per file from the same synthetic (headerless) IP with no per-test module reset — exported resetRateLimiterForTests() and call it in those two files' beforeEach so route tests stay independent of limiter tuning.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Dashboard shows an amber StripeCoreEnvBanner (assessStripeCoreEnvReadiness) when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing or whitespace-only — distinct from the rose BundlePriceEnvBanner for STRIPE_PRICE_ID_*.",
+    rationale:
+      "Empty-backlog after PR #138: Price-ID readiness already shipped, but operators still had no early signal for the secrets that actually gate checkout create (STRIPE_SECRET_KEY → 501) and fulfillment (STRIPE_WEBHOOK_SECRET → webhook 501 while Stripe can still charge — silent CRM/handoff failure). Sibling prompt-process-evolution-6d42 claimed unsubscribe-get-rate-limiting in the same window; this branch took the complementary operator-visible revenue unlock. Env presence only — does not validate key format, does not call Stripe, and does not fake-complete stripe-price-objects. Launch-checklist / architecture / roadmap document both banners.",
   },
 ];
 
@@ -5227,5 +5237,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (661 passed, 75 files, +15 new tests) + lint clean + build clean + npm run dev — curled all four routes for normal 200/501 behavior, then hammered POST /api/contact/[slug] with a fixed x-forwarded-for IP: 20x 200, then 429 with Retry-After: 60 on request 21+, while a different x-forwarded-for IP kept getting 200 throughout.",
     ],
     decisions: BUSINESS_DECISIONS.slice(233, 234),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-e756",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #138 (public-write-rate-limiting) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Sibling prompt-process-evolution-6d42 claimed unsubscribe-get-rate-limiting (GET /api/unsubscribe throttle). This branch claimed stripe-core-env-readiness: BundlePriceEnvBanner already covers STRIPE_PRICE_ID_*, but operators still had no early signal when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET were missing — checkout 501s or, worse, webhook 501s after Stripe charges (silent CRM/handoff failure).",
+    shipped: [
+      "src/lib/pricing/stripe-core-env-readiness.ts + stripe-core-env-readiness.test.ts — assessStripeCoreEnvReadiness (whitespace-only = missing; secretKeyReady / webhookSecretReady / publishableKeyReady)",
+      "src/components/dashboard/stripe-core-env-banner.tsx — amber banner; special copy when webhook secret missing while secret key present",
+      "src/app/dashboard/page.tsx + leads/page.tsx — StripeCoreEnvBanner above BundlePriceEnvBanner",
+      "Docs: launch-checklist + architecture + roadmap note both banners",
+      "NEXT_STEPS: stripe-core-env-readiness done; unsubscribe-get-rate-limiting attributed to 6d42",
+      "AGENT_PROTOCOL — claim unsubscribe-get vs stripe-core-env separately; core-env readiness done",
+      "BUSINESS_DECISIONS — documented why Price-ID readiness alone was insufficient",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(234, 235),
   },
 ];

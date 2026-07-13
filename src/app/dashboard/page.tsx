@@ -16,7 +16,9 @@ import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
+import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
+import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -86,6 +88,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const params = await searchParams;
   const health = await loadDashboardHealth();
   const priceEnv = assessBundlePriceEnvReadiness();
+  const coreEnv = assessStripeCoreEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -99,6 +102,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       />
 
       <div className="mt-6">
+        <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
           bootstrapAllowed={bootstrapAllowed}

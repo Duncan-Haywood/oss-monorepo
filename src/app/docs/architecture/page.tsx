@@ -196,9 +196,12 @@ export default function ArchitectureDocPage() {
         suite alone does not cover that route/action glue. Display USD amounts and Stripe Price env var
         names live in <code>src/lib/pricing/bundles.ts</code> (direct Vitest in{" "}
         <code>bundles.test.ts</code>) — readiness/bootstrap suites import those constants but do
-        not lock sold prices or <code>getBundle</code>. Remaining for first paid order: paste
-        Price ID env vars from the snippet — until then{" "}
-        <code>assessBundlePriceEnvReadiness</code> surfaces a checkout-blocked banner on{" "}
+        not lock sold prices or <code>getBundle</code>. Remaining for first paid order: set core
+        Stripe secrets (<code>STRIPE_SECRET_KEY</code>,{" "}
+        <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code> — amber
+        banner via <code>assessStripeCoreEnvReadiness</code>) and paste Price ID env vars from the
+        snippet — until then{" "}
+        <code>assessBundlePriceEnvReadiness</code> surfaces a rose checkout-blocked banner on{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (env presence only; does not
         fake-complete the operator bootstrap todo). Deploy details:{" "}

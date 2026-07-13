@@ -172,9 +172,11 @@ export default function RoadmapDocPage() {
         picks the latest eligible order. Checkout for an unknown slug creates a paid payment stub lead on both
         backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
-        Stripe Dashboard. Until Price env vars are pasted,{" "}
-        <code>assessBundlePriceEnvReadiness</code> shows a checkout-blocked banner on the operator
-        dashboard (early signal only — bootstrap stays operator-gated). Operator path:{" "}
+        Stripe Dashboard. Until core Stripe secrets are set,{" "}
+        <code>assessStripeCoreEnvReadiness</code> shows an amber banner (missing webhook secret
+        risks silent fulfillment failure); until Price env vars are pasted,{" "}
+        <code>assessBundlePriceEnvReadiness</code> shows a rose checkout-blocked banner on the
+        operator dashboard (early signal only — bootstrap stays operator-gated). Operator path:{" "}
         <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>.
       </p>
 

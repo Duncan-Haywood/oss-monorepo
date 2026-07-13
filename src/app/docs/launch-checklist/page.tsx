@@ -25,7 +25,13 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           Set <code>STRIPE_SECRET_KEY</code>, <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code>, and{" "}
-          <code>STRIPE_WEBHOOK_SECRET</code> in the deployment environment.
+          <code>STRIPE_WEBHOOK_SECRET</code> in the deployment environment. Until all three are
+          present, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber core-secrets
+          banner via <code>assessStripeCoreEnvReadiness</code> — missing{" "}
+          <code>STRIPE_SECRET_KEY</code> blocks checkout create; missing{" "}
+          <code>STRIPE_WEBHOOK_SECRET</code> is worse (Stripe can charge while CRM/handoff never
+          records). Distinct from the rose Price-ID banner below.
         </li>
         <li>
           Create Prices: set <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, open{" "}
