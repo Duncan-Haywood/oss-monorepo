@@ -889,8 +889,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "deploy-handoff-operator-writes-convex-primary",
     summary:
       "Empty-backlog follow-up: assignCustomDomain / assignVercelProject / markHandoffLive still SQLite-fallback on Convex failure then return success while getLeadSlugByCustomDomain + listDeployHandoffs read Convex-first — Starter Host→preview routing and Mark live can silently miss on other instances. Prefer requireConvex on those operator writes when Convex is configured.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Production deploy",
+    owner: "claude/quirky-davinci-dj48ao",
   },
   {
     id: "lead-snooze-convex-primary",
