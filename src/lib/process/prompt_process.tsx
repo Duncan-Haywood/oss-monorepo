@@ -918,6 +918,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "claude/relaxed-galileo-6ty1m2",
   },
+  {
+    id: "commerce-catalog-convex-primary",
+    summary:
+      "Empty-backlog audit after PR #94 (outreach-cadence-persist-then-send): upsertCommerceCatalog still soft-falls-back on Convex failure while getCommerceCatalog / listCommerceCatalogs (Buy now, Sync to Stripe due, pipeline-health, digest) read Convex-first — Save catalog / Sync to Stripe can return success after a SQLite-only write that leaves stripePriceId missing on other instances (Commerce Buy now blocked + false unsynced debt). Claim: fail-closed COMMERCE_CATALOG_CONVEX_PRIMARY on save + sync persist. Queued inquiry-reply-persist-then-send for sibling.",
+    status: "in_progress",
+    phase: "Phase 6 — Commerce",
+    owner: "cursor/prompt-process-evolution-d82b",
+  },
+  {
+    id: "inquiry-reply-persist-then-send",
+    summary:
+      "Empty-backlog follow-up (queued for sibling): replyToInquiryAction still sends Resend THEN recordClientInquiryReply, and recordClientInquiryReply / updateClientInquiryStatus lack requireConvex while listClientInquiries is Convex-first — a successful reply email can leave unreplied pipeline-health / digest wrong on other instances (Starter CRM). Prefer persist-then-notify + fail-closed requireConvex, matching outreach cadence / checkout recovery.",
+    status: "todo",
+    phase: "Phase 5 — Production deploy",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
