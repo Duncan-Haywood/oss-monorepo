@@ -190,6 +190,7 @@ export const AGENT_PROTOCOL = [
   "When send-daily-digest-action-test-coverage is claimed by a sibling and free NEXT_STEPS stay gated, prefer mark-commerce-order-paid-out-action-test-coverage (Mark paid out requireConvex fail-closed + already-paid-out guard — Commerce double-pay risk) or send-marketing-pack-to-client-action-test-coverage / send-client-voice-pack-to-client-action-test-coverage (Email pack / Email voice pack action Vitest twins) over inventing optional aggregates. When mark-paid-out and Email pack/voice are both free in the same cron window, claim different ones (Commerce reconciliation vs Growth/Complete handoff).",
   "send-daily-digest-action-test-coverage done: src/app/dashboard/leads/send-daily-digest-action.test.ts locks requireOperatorAuth, OPERATOR_DIGEST_EMAIL unset/whitespace trim gate, uncapped listUnrepliedInquiries + listUnpaidCommerceOrders + listMarketingPacksForMonth wiring (never capped listClientInquiries / listCommerceOrders), NEXT_PUBLIC_APP_URL dashboard links, sendOperatorDailyDigest success/mock/failure, and unexpected load errors — daily-digest.test.ts alone is not enough for the dashboard Send daily digest action glue. Folded sibling d407 Mark paid out action Vitest (PR #148). When free NEXT_STEPS stay gated, prefer send-marketing-pack-to-client-action-test-coverage / send-client-voice-pack-to-client-action-test-coverage (sibling-friendly Email pack/voice twins) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "mark-commerce-order-paid-out-action-test-coverage done: src/app/dashboard/leads/mark-commerce-order-paid-out-action.test.ts locks requireOperatorAuth, empty/missing session, not-found, already-paid-out, COMMERCE_PAID_OUT_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and stripeSessionId lookup — paid-out-persist / orders helper suites are not enough for the dashboard Mark paid out glue. When free NEXT_STEPS stay gated, prefer send-marketing-pack-to-client-action-test-coverage / send-client-voice-pack-to-client-action-test-coverage (sibling-friendly Email pack/voice twins) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "send-marketing-pack-to-client-action-test-coverage done: src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts locks requireOperatorAuth, empty/missing slug, Starter-only + missing-email eligibility, current-month pack gate (missing/empty variants), NEXT_PUBLIC_APP_URL preview URL, suppression / Resend failure (no revalidate), mock send flag, and leadSlug order filtering — deliver-pack helpers alone are not enough for the dashboard Email pack glue. When free NEXT_STEPS stay gated, prefer send-client-voice-pack-to-client-action-test-coverage (Complete Email voice twin; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1437,14 +1438,15 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "send-marketing-pack-to-client-action-test-coverage",
     summary:
-      "Empty-backlog twin after Generate pack action Vitest: sendMarketingPackToClientAction is the operator Email pack path for sold Growth/Complete handoff (eligibility + existing month pack + Resend), but only deliver-pack helpers exist — no action-level Vitest. Sibling-friendly with send-client-voice-pack-to-client-action-test-coverage; prefer when digest-action / mark-paid-out are claimed.",
-    status: "todo",
+      "Empty-backlog twin after Generate pack / Mark paid out / Send daily digest action Vitest: sendMarketingPackToClientAction is the operator Email pack path for sold Growth/Complete handoff (eligibility + existing month pack + Resend). Shipped: send-marketing-pack-to-client-action.test.ts (13 tests). Sibling-friendly next: send-client-voice-pack-to-client-action-test-coverage.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-85ad",
   },
   {
     id: "send-client-voice-pack-to-client-action-test-coverage",
     summary:
-      "Empty-backlog twin after Generate voice / Email pack action Vitest: sendClientVoicePackToClientAction is the operator Email voice pack path for sold Complete phone-script handoff — no action-level Vitest yet. Prefer when marketing Email pack action coverage is done or claimed; do not invent optional aggregates.",
+      "Empty-backlog twin after Email pack action Vitest: sendClientVoicePackToClientAction is the operator Email voice pack path for sold Complete phone-script handoff — no action-level Vitest yet. Prefer when marketing Email pack action coverage is done or claimed; do not invent optional aggregates.",
     status: "todo",
     phase: "Phase 7 — Client AI phone",
   },
@@ -3171,6 +3173,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for markCommerceOrderPaidOutAction (Commerce Mark paid out) when send-daily-digest-action-test-coverage is claimed by a sibling — paid-out-persist / orders helper suites do not lock auth, already-paid-out, COMMERCE_PAID_OUT_CONVEX_PRIMARY persist, or ConvexPrimaryWriteError fail-closed. Leave Email pack / Email voice pack action Vitest free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Mark paid out is the operator control that drops pass-through Buy now liability from panel/health/digest until Stripe Connect ships. A future soft-fallback / missing already-paid guard / skipped requireConvex regression would not fail Vitest without action glue coverage — the same class of gap Generate pack/voice and checkout-recovery action suites already closed — and would reopen Commerce double-pay risk across multi-instance Convex-first reads. Prefer locking that money path over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Ship action-level Vitest for sendMarketingPackToClientAction (Growth/Complete Email pack) before inventing optional aggregates — deliver-pack helpers alone do not lock auth, paid/live+email eligibility, current-month pack gate, suppression / Resend failure paths, or NEXT_PUBLIC_APP_URL preview URL wiring. Leave send-client-voice-pack-to-client-action-test-coverage free for a sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Email pack is the sold Growth/Complete handoff button operators click after Generate pack — without Buffer/GBP OAuth. A future soft eligibility / missing pack auto-send / skipped suppression / wrong preview host regression would not fail Vitest without action glue coverage — the same class of gap Generate pack, Send daily digest, and Mark paid out action suites already closed. Prefer locking that client-delivery path over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5622,5 +5631,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (764 passed after fold — Mark paid out 8 + digest action 10 from 746) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(245, 246),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-85ad",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #149 (Send daily digest + Mark paid out action Vitest). Claimed send-marketing-pack-to-client-action-test-coverage — sendMarketingPackToClientAction had zero action-level Vitest despite being the sold Growth/Complete Email pack handoff (eligibility + existing month pack + Resend). Left send-client-voice-pack-to-client-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts — 13 tests locking auth fail, empty/missing slug, Starter-only + missing-email eligibility, current-month pack gate (missing/empty variants), NEXT_PUBLIC_APP_URL preview URL + localhost default, suppression / Resend failure (no revalidate), mock send flag, and leadSlug order filtering",
+      "Docs: architecture + marketing-automation + roadmap note action-level Vitest beside deliver-pack helpers",
+      "NEXT_STEPS: send-marketing-pack-to-client-action-test-coverage done; send-client-voice-pack-to-client-action-test-coverage left free",
+      "AGENT_PROTOCOL — Email pack action coverage required beyond deliver-pack helpers; prefer Email voice twin next",
+      "BUSINESS_DECISIONS — documented why Email pack action glue Vitest beats inventing optional aggregates after Mark paid out / digest action coverage",
+      "Verified: npm test (777 passed — Email pack action 13 from 764) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(246, 247),
   },
 ];

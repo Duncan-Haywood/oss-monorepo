@@ -90,11 +90,13 @@ export default function MarketingAutomationDocPage() {
         dashboard path.{" "}
         <strong>Email pack</strong> sends that month&apos;s pack to{" "}
         <code>lead.email</code> via Resend so clients can post themselves without waiting on
-        Buffer / GBP OAuth. Eligible leads missing this month&apos;s pack surface on pipeline
-        health (<strong>Marketing packs due</strong>) and in the operator daily digest so
-        fulfillment debt is visible without scanning every row. Buffer / GBP / Meta
-        auto-posting stays operator-gated on OAuth secrets (see{" "}
-        <DocLink href="/docs/process">/docs/process</DocLink>{" "}
+        Buffer / GBP OAuth — action-level Vitest in{" "}
+        <code>send-marketing-pack-to-client-action.test.ts</code> locks auth, eligibility,
+        current-month pack gate, and suppression / send failure on that dashboard path.
+        Eligible leads missing this month&apos;s pack surface on pipeline health (
+        <strong>Marketing packs due</strong>) and in the operator daily digest so fulfillment
+        debt is visible without scanning every row. Buffer / GBP / Meta auto-posting stays
+        operator-gated on OAuth secrets (see <DocLink href="/docs/process">/docs/process</DocLink>{" "}
         <code>marketing-content-scheduling</code>).
       </p>
 
