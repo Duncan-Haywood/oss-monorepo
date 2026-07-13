@@ -57,7 +57,10 @@ export default function ProductBundlesDocPage() {
         Everything in Starter plus AI marketing engine: 8 social/GBP posts + 2 emails/month,
         brand voice from site data. Operators generate a monthly pack on the leads dashboard and
         can <strong>Email pack</strong> to the client (Resend) so they can post themselves;
-        Buffer / GBP / Meta auto-scheduling stays optional once OAuth is configured.
+        when Convex is configured, Generate pack fails closed (<code>requireConvex</code>) so a
+        multi-instance deploy cannot claim success after a SQLite-only write that leaves Email
+        pack / packs-due blind elsewhere. Buffer / GBP / Meta auto-scheduling stays optional
+        once OAuth is configured.
       </p>
 
       <h2>Complete — $500 + $199/mo</h2>

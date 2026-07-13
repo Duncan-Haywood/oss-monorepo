@@ -238,7 +238,10 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — confirm 8 social/GBP
           posts + 2 emails appear for the current UTC month (stub copy without{" "}
           <code>ANTHROPIC_API_KEY</code>; real copy when the key is set). Regenerating replaces
-          that month. With an email on the lead, click <strong>Email pack</strong> — confirm the
+          that month. When Convex is configured, Generate pack must fail closed on Convex
+          errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
+          that other instances (Email pack / packs-due) cannot see. With an email on the lead,
+          click <strong>Email pack</strong> — confirm the
           pack arrives (or a mock send is logged when Resend is unset). Copy/paste or client
           email works until Buffer/GBP OAuth is configured. Before generating, confirm
           pipeline-health <strong>Marketing packs due</strong> counts eligible leads missing
