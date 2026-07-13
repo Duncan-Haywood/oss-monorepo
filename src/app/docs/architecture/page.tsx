@@ -212,7 +212,13 @@ export default function ArchitectureDocPage() {
         <code>recordLeadPayment</code> / Convex <code>markLeadPaid</code> insert a paid{" "}
         <code>payment_stub</code> lead (<code>buildPaymentStubLeadFields</code>) so revenue and
         paid-not-live stay aligned. Activate Customer Portal in the Stripe Dashboard before first
-        live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>).
+        live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>). Route-level
+        Vitest coverage in <code>src/app/api/stripe/billing-portal/route.test.ts</code> locks body
+        parsing, the <code>STRIPE_SECRET_KEY</code> gate, and <code>returnUrl</code> derivation
+        (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin) —
+        the fourth and final Stripe-facing route (alongside checkout, commerce/checkout, and
+        webhook) to get direct orchestration tests rather than relying only on its extracted
+        helper&apos;s suite.
       </p>
       <p>
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an

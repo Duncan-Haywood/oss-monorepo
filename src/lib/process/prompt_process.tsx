@@ -155,6 +155,7 @@ export const AGENT_PROTOCOL = [
   "When stripe-checkout-route-test-coverage and commerce-checkout-route-test-coverage are both free in the same cron window, claim different ones (bundle Checkout create vs Commerce Buy now create) — they touch different route files and both lock money-critical create-path orchestration that the webhook suite does not cover.",
   "stripe-checkout-route-test-coverage done: src/app/api/stripe/checkout/route.ts has route-level Vitest (config/tier/Price-env guards, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s). Helper suites (organic-attribution, session-persist) are not enough for the route orchestration. When free NEXT_STEPS are gated again, prefer commerce-checkout-route-test-coverage (sibling-friendly Buy now twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "commerce-checkout-route-test-coverage done: src/app/api/commerce/checkout/route.ts has route-level Vitest locking server-resolved stripePriceId (client price/stripePriceId ignored), unsynced-SKU 501, kind=commerce_sku + skuId tracking, and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed 502s. Twin of stripe-checkout-route-test-coverage. When both create-side suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (billing-portal route coverage, remaining untested pure-logic modules, Convex API map re-audit) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "billing-portal-route-test-coverage done: src/app/api/stripe/billing-portal/route.ts has route-level Vitest (invalid/missing/whitespace sessionId, missing STRIPE_SECRET_KEY 501, returnUrl derivation precedence — explicit body value > NEXT_PUBLIC_APP_URL > request origin — and status/error passthrough from createBillingPortalForCheckoutSession). All four Stripe-facing routes (checkout, commerce/checkout, webhook, billing-portal) now have direct route-orchestration coverage, not just their extracted helpers. Mock only the Stripe SDK and @/lib/db (the server-only guard fires on any real import, even when the route only calls a helper that doesn't touch listOrders) — matches every other route suite's pattern. When free NEXT_STEPS are gated again, prefer remaining untested pure-logic modules, another Convex API map / webhook-idempotency / HTML-injection audit pass, or a fresh sold-capability gap over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1206,6 +1207,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-7d1d",
+  },
+  {
+    id: "billing-portal-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #125/#126 (stripe/commerce checkout route coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. createBillingPortalForCheckoutSession (src/lib/billing/create-portal-session.ts) already had direct helper coverage, but src/app/api/stripe/billing-portal/route.ts — the customer self-serve entry point from /checkout/success for every Growth/Complete/Commerce subscriber — had zero route-level tests, the same orchestration gap already closed for stripe/checkout, commerce/checkout, and stripe/webhook. Shipped route.test.ts (12 tests): invalid JSON / missing / whitespace-only sessionId 400s, missing STRIPE_SECRET_KEY 501, returnUrl derivation (explicit body value > NEXT_PUBLIC_APP_URL > request origin, both defaulting to /checkout/success?session_id=), and status/error passthrough from the helper (400 not-complete, 400 no-recurring-plan, 404 no-customer, 502 no-url, 502 retrieve-throws). Mocks only the Stripe SDK and @/lib/db (server-only guard), matching the other route suites' pattern.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-gks8ei",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2762,6 +2771,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/commerce/checkout/route.ts (Commerce Buy now Checkout Session create) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db — catalog lookup + CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY stay real so the test exercises create-path orchestration, including the server-resolved price invariant (client-submitted price/stripePriceId must never reach Stripe).",
     rationale:
       "Same-minute dual claim with business-process-evolution-f32f on stripe-checkout-route-test-coverage: earlier remote claim owned the bundle route, so this branch pivoted to the Commerce Buy now twin. Buy now is the Commerce sold-capability money path — a regression that trusts a client price undercharges the local business, and a SQLite-only tracking write after handing out a Stripe URL permanently drops abandoned Buy now recovery on other instances. Helper suites do not cover those route invariants. Folded sibling stripe-checkout ITERATION into this PR so both create-side suites land together. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/stripe/billing-portal/route.ts (customer self-serve Billing Portal from /checkout/success) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db (server-only guard) — createBillingPortalForCheckoutSession stays real so the test exercises the route's own body parsing, STRIPE_SECRET_KEY gating, and returnUrl derivation, not a restatement of the already-covered helper.",
+    rationale:
+      "PRs #125/#126 closed the create-side (stripe/checkout, commerce/checkout) and fulfillment-side (stripe/webhook) route-orchestration gaps; the third Stripe-facing route, billing-portal, was the last one still relying entirely on its extracted helper's unit tests. The route itself derives returnUrl three different ways (explicit body value, NEXT_PUBLIC_APP_URL, request origin) and gates on STRIPE_SECRET_KEY before ever calling the helper — untested route glue in the same class of gap the other three suites just closed. Free NEXT_STEPS stay fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect); do not invent optional aggregates; do not fake-complete secrets/OAuth/counsel-gated work.",
   },
 ];
 
@@ -4819,5 +4835,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(221, 222),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/relaxed-galileo-gks8ei",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #125/#126 (stripe/commerce checkout + billing-portal helper coverage already shipped) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. Sibling prompt-process-evolution-7d1d's last iteration named billing-portal route coverage as the next empty-backlog preference: src/app/api/stripe/billing-portal/route.ts (the customer self-serve entry point from /checkout/success) was the last of the four Stripe-facing routes without direct route-orchestration tests — checkout, commerce/checkout, and webhook all got theirs in PRs #124-#126. Claimed and shipped it solo (no dual-claim collision this run).",
+    shipped: [
+      "src/app/api/stripe/billing-portal/route.test.ts — 12 tests (invalid JSON / missing / whitespace-only sessionId 400s, missing STRIPE_SECRET_KEY 501, returnUrl derivation precedence — explicit body value > NEXT_PUBLIC_APP_URL > request origin, both defaulting to /checkout/success?session_id= — and status/error passthrough from createBillingPortalForCheckoutSession: 400 not-complete, 400 no-recurring-plan, 404 no-customer, 502 no-url, 502 retrieve-throws). Mocks only the Stripe SDK and @/lib/db (server-only guard fires on any real import of the module even though this route path never calls listOrders).",
+      "NEXT_STEPS: billing-portal-route-test-coverage done",
+      "AGENT_PROTOCOL — documented the completed route, noted all four Stripe-facing routes now have direct orchestration coverage, and the next empty-backlog preference (untested pure-logic modules / another regression audit / fresh sold-capability gap)",
+      "BUSINESS_DECISIONS — documented why the route itself (body parsing, secret gate, three-way returnUrl derivation) needed its own suite beyond the already-covered helper",
+      "Docs: architecture — note route-level Vitest for POST /api/stripe/billing-portal alongside the existing Billing Portal description",
+      "Verified: npm test (553 passed, +12 new) + lint clean + build clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(222, 223),
   },
 ];
