@@ -14,7 +14,9 @@ import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
+import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
+import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -98,6 +100,7 @@ export default async function LeadsPage() {
     commerceOrders,
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
+  const priceEnv = assessBundlePriceEnvReadiness();
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -112,6 +115,10 @@ export default async function LeadsPage() {
         }
         docsHref="/docs/architecture#data-ingestion"
       />
+
+      <div className="mt-6">
+        <BundlePriceEnvBanner readiness={priceEnv} />
+      </div>
 
       <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-200 pb-5">
         <div>
