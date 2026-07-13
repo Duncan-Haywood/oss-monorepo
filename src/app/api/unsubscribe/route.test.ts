@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { signUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
+import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 const suppressEmail = vi.fn();
 
@@ -21,6 +22,7 @@ describe("GET /api/unsubscribe", () => {
   beforeEach(() => {
     suppressEmail.mockReset();
     suppressEmail.mockResolvedValue(undefined);
+    resetRateLimiterForTests();
   });
 
   afterEach(() => {
@@ -148,5 +150,27 @@ describe("GET /api/unsubscribe", () => {
     expect(response.status).toBe(200);
     expect(html).not.toContain("<script>alert(1)</script>");
     expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;@x.test");
+  });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    const { GET } = await import("./route");
+    const email = "rate-limit@example.com";
+    const token = signUnsubscribeToken(email);
+    const request = () =>
+      new NextRequest(unsubscribeUrl(email, token), {
+        headers: { "x-forwarded-for": "203.0.113.77" },
+      });
+
+    let lastResponse: Response | undefined;
+    for (let i = 0; i < 21; i += 1) {
+      lastResponse = await GET(request());
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const text = await lastResponse!.text();
+    expect(text).toMatch(/too many requests/i);
+    // The 21st request never reached suppressEmail.
+    expect(suppressEmail).toHaveBeenCalledTimes(20);
   });
 });

@@ -66,6 +66,13 @@ export default function ComplianceDocPage() {
           address cannot suppress it without ever having received a message — the route rejects
           a missing/invalid token with 400 before touching the suppression store
         </li>
+        <li>
+          <code>GET /api/unsubscribe</code> is rate-limited by client IP (
+          <code>src/lib/security/rate-limit.ts</code>, same helper as contact / checkout /
+          preview-open) before token verify — returns 429 + Retry-After so a harvested footer
+          link cannot unboundedly mutate the global suppression list that gates every automated
+          send
+        </li>
         <li>Non-deceptive subject lines</li>
       </ul>
 
