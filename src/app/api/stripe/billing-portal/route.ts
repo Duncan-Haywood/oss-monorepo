@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { createBillingPortalForCheckoutSession } from "@/lib/billing/create-portal-session";
 
 /**
@@ -28,10 +29,19 @@ export async function POST(request: Request) {
     );
   }
 
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    return NextResponse.json(
+      { error: "Set STRIPE_SECRET_KEY before opening the billing portal." },
+      { status: 501 },
+    );
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const returnUrl = body.returnUrl?.trim() || `${appUrl}/checkout/success?session_id=${encodeURIComponent(sessionId)}`;
 
-  const result = await createBillingPortalForCheckoutSession(sessionId, returnUrl);
+  const stripe = new Stripe(secretKey);
+  const result = await createBillingPortalForCheckoutSession(stripe, sessionId, returnUrl);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

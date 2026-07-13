@@ -1253,13 +1253,22 @@ export async function openBillingPortalAction(slug: string) {
       return { success: false as const, error: "Slug is required" };
     }
 
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return {
+        success: false as const,
+        error: "Set STRIPE_SECRET_KEY before opening the billing portal.",
+      };
+    }
+
     const headerStore = await headers();
     const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
     const proto = headerStore.get("x-forwarded-proto") ?? "http";
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
 
-    const result = await createBillingPortalForLead(slug, `${appUrl}/dashboard/leads`);
+    const stripe = new Stripe(secretKey);
+    const result = await createBillingPortalForLead(stripe, slug, `${appUrl}/dashboard/leads`);
     if (!result.ok) {
       return { success: false as const, error: result.error };
     }

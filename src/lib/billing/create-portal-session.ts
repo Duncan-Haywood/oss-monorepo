@@ -1,6 +1,3 @@
-import "server-only";
-
-import Stripe from "stripe";
 import { listOrders } from "@/lib/db";
 import type { OrderRecord } from "@/lib/orders/types";
 import {
@@ -13,14 +10,36 @@ export type BillingPortalResult =
   | { ok: true; url: string }
   | { ok: false; error: string; status: number };
 
-function stripeClient(): Stripe | null {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) return null;
-  return new Stripe(secretKey);
+type MinimalStripeCheckoutSession = {
+  customer: string | { id?: string } | null;
+  status?: string | null;
+  mode?: string | null;
+  metadata?: Record<string, string> | null;
+};
+
+/**
+ * Interface subset this module calls — matches the real Stripe SDK shape.
+ * The Stripe client is passed in (not constructed here) so this stays unit
+ * testable with a fake client — mirrors src/lib/commerce/stripe-sync.ts and
+ * src/lib/pricing/bootstrap-stripe-prices.ts. Only the caller (dashboard
+ * server action / API route) constructs `new Stripe(secretKey)` and gates on
+ * STRIPE_SECRET_KEY — see create-portal-session.test.ts.
+ */
+export interface StripeBillingPortalClient {
+  checkout: {
+    sessions: {
+      retrieve(id: string): Promise<MinimalStripeCheckoutSession>;
+    };
+  };
+  billingPortal: {
+    sessions: {
+      create(params: { customer: string; return_url: string }): Promise<{ url: string | null }>;
+    };
+  };
 }
 
 async function resolveCustomerId(
-  stripe: Stripe,
+  stripe: StripeBillingPortalClient,
   order: OrderRecord,
 ): Promise<string | null> {
   const stored = stripeCustomerIdFromUnknown(order.stripeCustomerId);
@@ -39,21 +58,13 @@ async function resolveCustomerId(
  * Resolves customer id from the stored order, falling back to the Checkout Session.
  */
 export async function createBillingPortalForLead(
+  stripe: StripeBillingPortalClient,
   leadSlug: string,
   returnUrl: string,
 ): Promise<BillingPortalResult> {
   const slug = leadSlug.trim();
   if (!slug) {
     return { ok: false, error: "Lead slug is required", status: 400 };
-  }
-
-  const stripe = stripeClient();
-  if (!stripe) {
-    return {
-      ok: false,
-      error: "Set STRIPE_SECRET_KEY before opening the billing portal.",
-      status: 501,
-    };
   }
 
   const orders = (await listOrders()).filter((o) => o.leadSlug === slug);
@@ -96,21 +107,13 @@ export async function createBillingPortalForLead(
  * Customer self-serve path from /checkout/success — uses the completed Checkout Session.
  */
 export async function createBillingPortalForCheckoutSession(
+  stripe: StripeBillingPortalClient,
   sessionId: string,
   returnUrl: string,
 ): Promise<BillingPortalResult> {
   const id = sessionId.trim();
   if (!id) {
     return { ok: false, error: "Checkout session id is required", status: 400 };
-  }
-
-  const stripe = stripeClient();
-  if (!stripe) {
-    return {
-      ok: false,
-      error: "Set STRIPE_SECRET_KEY before opening the billing portal.",
-      status: 501,
-    };
   }
 
   try {
