@@ -2399,6 +2399,7 @@ function mapClientVoicePackRow(row: SqliteClientVoicePackRow): ClientVoicePack {
 
 export async function upsertClientVoicePack(
   input: UpsertClientVoicePackInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientVoicePack> {
   const pack: ClientVoicePack = {
     id: `cv_${input.leadSlug}`,
@@ -2419,6 +2420,9 @@ export async function upsertClientVoicePack(
       });
       return pack;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("upsertClientVoicePack", e);
+      }
       console.warn(
         `Failed to upsert client voice pack for ${pack.leadSlug} on Convex, falling back to SQLite`,
         e,

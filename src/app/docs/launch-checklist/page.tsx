@@ -306,7 +306,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six
           receptionist scripts (greeting, hours, services, booking, after-hours, take-a-message)
-          appear (stub without <code>ANTHROPIC_API_KEY</code>). With an email on the lead, click{" "}
+          appear (stub without <code>ANTHROPIC_API_KEY</code>). When Convex is configured,
+          Generate voice must fail closed on Convex errors (<code>requireConvex</code>) — never
+          claim success after a SQLite-only write that other instances (Email voice pack /
+          voice-packs-due) cannot see. With an email on the lead, click{" "}
           <strong>Email voice pack</strong> — confirm the scripts arrive (or a mock send is
           logged when Resend is unset). Clients can paste into a temp number / Cal.com until
           Twilio is provisioned. Regenerating replaces the lead&apos;s pack. Before generating,

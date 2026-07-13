@@ -127,6 +127,7 @@ export const AGENT_PROTOCOL = [
   "applyColdLeadDisposition must pass requireConvex (COLD_DISPOSITION_CONVEX_PRIMARY) from disposeColdLeadAction when Convex is configured — getLeads / cold badges / pipeline-health cold counts / the stage funnel read Convex-first, so a SQLite-only Re-engage or Close after soft-fallback leaves cold inventory looking open (or still cold) on other instances. Email 1 on re-engage already uses OUTREACH_CADENCE_CONVEX_PRIMARY for the outreach mark; fail-closed on the disposition write itself. When free NEXT_STEPS are gated after cold-disposition, prefer lead-notes-convex-primary (updateLeadNotes requireConvex) over inventing optional aggregates.",
   "updateLeadNotes must pass requireConvex (LEAD_NOTES_CONVEX_PRIMARY) from updateLeadNotesAction when Convex is configured — getLeads reads Convex-first, so a SQLite-only notes write after soft-fallback leaves discovery-call / Email 3 outcomes invisible on other instances (operator loses call notes across deploys). Fail closed and surface a retry to the operator. When free NEXT_STEPS are gated after lead-notes, prefer marketing-pack-convex-primary / client-voice-pack-convex-primary (upsertMarketingPack / upsertClientVoicePack requireConvex — Growth/Complete + Complete sold fulfillment read Convex-first) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "upsertMarketingPack must pass requireConvex (MARKETING_PACK_CONVEX_PRIMARY) from generateMarketingPackAction when Convex is configured — getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest Marketing packs due + Email pack precondition) read Convex-first, so a SQLite-only Generate pack leaves Growth/Complete fulfillment looking missing on other instances (Email pack blocked + false packs-due debt). Fail closed and surface a retry to the operator; regenerating the same UTC month is idempotent replace. When marketing-pack is claimed by a sibling, prefer client-voice-pack-convex-primary (upsertClientVoicePack twin) over inventing optional aggregates.",
+  "upsertClientVoicePack must pass requireConvex (CLIENT_VOICE_PACK_CONVEX_PRIMARY) from generateClientVoicePackAction when Convex is configured — getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest Complete voice packs due + Email voice pack precondition) read Convex-first, so a SQLite-only Generate voice leaves Complete phone-script fulfillment looking missing on other instances (Email voice pack blocked + false voice-packs-due debt). Fail closed and surface a retry to the operator; regenerating replaces the one-row-per-lead pack (idempotent). When marketing + voice pack requireConvex are both done and free NEXT_STEPS are gated, prefer lead-upsert-convex-primary (upsertLead requireConvex on create/import/CSV paths that feed Convex-first getLeads) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -982,10 +983,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "client-voice-pack-convex-primary",
     summary:
-      "Empty-backlog follow-up twin of marketing-pack-convex-primary: upsertClientVoicePack still soft-falls-back on Convex failure while getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue read Convex-first — Generate voice pack can succeed locally and leave Complete phone-script fulfillment + Email voice pack looking missing elsewhere. Prefer requireConvex fail-closed on generateClientVoicePackAction.",
-    status: "in_progress",
+      "Empty-backlog follow-up twin of marketing-pack-convex-primary: upsertClientVoicePack still soft-fell-back on Convex failure while getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest + Email voice pack) read Convex-first — Generate voice could succeed locally and leave Complete phone-script fulfillment + Email voice pack looking missing on other instances. Shipped: CLIENT_VOICE_PACK_CONVEX_PRIMARY; upsertClientVoicePack accepts ConvexPrimaryWriteOptions and throws ConvexPrimaryWriteError when requireConvex; generateClientVoicePackAction fails closed and surfaces an operator retry.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/prompt-process-evolution-1f28",
+  },
+  {
+    id: "lead-upsert-convex-primary",
+    summary:
+      "Empty-backlog follow-up after marketing + voice pack requireConvex: upsertLead still soft-falls-back on Convex failure while getLeads / getLeadBySlug read Convex-first — CSV import / Add lead / payment-stub create paths can claim success after a SQLite-only write that other instances never see (operator loses new inventory; outreach/checkout attribution miss the lead). Prefer requireConvex fail-closed on create/import call sites that must land in the shared store.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2346,6 +2354,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "upsertMarketingPack accepts ConvexPrimaryWriteOptions; generateMarketingPackAction passes MARKETING_PACK_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for Growth/Complete Generate pack. Queued client-voice-pack-convex-primary as the Complete twin.",
     rationale:
       "Same-cron dual claim: this branch (111d) claimed cold-disposition ~1 min after c5ed's earlier remote claim + feature body — folded c5ed (cold-disposition + lead-notes) per AGENT_PROTOCOL and pivoted rather than shipping a duplicate. Empty-backlog audit after those two closed found upsertMarketingPack still soft-falling-back while getMarketingPack / listMarketingPacksDue / Email pack read Convex-first — Generate pack could succeed locally and leave Growth/Complete fulfillment looking missing elsewhere (false packs-due debt + Email pack blocked). Operator-action fail-closed matches COMMERCE_CATALOG / LEAD_NOTES; same-month regenerate is idempotent replace. client-voice-pack-convex-primary left free for siblings; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated. Also noted claude/relaxed-galileo-9czsah's earlier cold-disposition feature body as a complementary duplicate to close once c5ed/111d lands.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "upsertClientVoicePack accepts ConvexPrimaryWriteOptions; generateClientVoicePackAction passes CLIENT_VOICE_PACK_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for Complete Generate voice. Queued lead-upsert-convex-primary as the next free sold-capability / multi-instance regression (upsertLead still soft-falls-back while getLeads reads Convex-first).",
+    rationale:
+      "PR #99 closed marketing-pack-convex-primary and left client-voice-pack-convex-primary as the Complete twin. upsertClientVoicePack still soft-fell-back while getClientVoicePackByLeadSlug / listClientVoicePacksDue / Email voice pack read Convex-first — Generate voice could succeed locally and leave Complete phone-script fulfillment looking missing elsewhere (false voice-packs-due debt + Email voice pack blocked). Operator-action fail-closed matches MARKETING_PACK / COMMERCE_CATALOG; regenerating replaces the one-row-per-lead pack. After both pack persists are fail-closed, the next free coded regression is upsertLead on create/import paths (CSV / Add lead) — not inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
   },
 ];
 
@@ -3977,5 +3992,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (363 passed, +2 new) + lint + build all clean; tsc --noEmit shows only the pre-existing unrelated daily-digest/pipeline-health test-fixture type errors already noted in prior iterations",
     ],
     decisions: BUSINESS_DECISIONS.slice(193, 194),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-1f28",
+    summary:
+      "Claimed client-voice-pack-convex-primary (Complete twin of marketing-pack-convex-primary / PR #99). upsertClientVoicePack still soft-fell-back while getClientVoicePackByLeadSlug / listClientVoicePacksDue / Email voice pack read Convex-first — Generate voice could claim success after a SQLite-only write invisible elsewhere. Shipped CLIENT_VOICE_PACK_CONVEX_PRIMARY + fail-closed generateClientVoicePackAction. Queued lead-upsert-convex-primary (upsertLead still soft-falls-back while getLeads reads Convex-first). Stripe Prices / Places / Buffer OAuth / Connect stay gated. Improved AGENT_PROTOCOL to prefer lead-upsert after both pack persists are fail-closed.",
+    shipped: [
+      "src/lib/voice/pack-persist.ts (+ test) — CLIENT_VOICE_PACK_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — upsertClientVoicePack(input, options?) throws ConvexPrimaryWriteError when requireConvex",
+      "src/app/dashboard/leads/actions.ts — generateClientVoicePackAction passes CLIENT_VOICE_PACK_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as an operator retry",
+      "Docs: architecture / roadmap / launch-checklist / product-bundles / voice-agent-flow — Generate voice requireConvex",
+      "NEXT_STEPS: client-voice-pack-convex-primary done; queued lead-upsert-convex-primary",
+      "AGENT_PROTOCOL — upsertClientVoicePack requireConvex; prefer lead-upsert-convex-primary when pack persists are done",
+      "BUSINESS_DECISIONS — documented Generate voice split-brain risk + next upsertLead regression",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(194, 195),
   },
 ];

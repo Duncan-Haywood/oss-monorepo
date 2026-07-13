@@ -313,7 +313,10 @@ export default function ArchitectureDocPage() {
         FAQ/script packs: <code>src/lib/voice/</code> builds a 6-script receptionist pack via{" "}
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set. Eligibility: paid/live + Complete order; one row
-        per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces.{" "}
+        per lead (SQLite + Convex <code>clientVoicePacks</code>) — regenerating replaces. When
+        Convex is configured, Generate voice passes <code>requireConvex</code> (
+        <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a mutation failure surfaces a retry
+        instead of leaving voice-packs-due / Email voice pack blind on other instances.{" "}
         <code>sendClientVoicePackToClientAction</code> emails the pack to <code>lead.email</code>{" "}
         via Resend (<code>src/lib/voice/deliver-pack.ts</code>) so clients can paste into a temp
         number / Cal.com. Twilio + <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}

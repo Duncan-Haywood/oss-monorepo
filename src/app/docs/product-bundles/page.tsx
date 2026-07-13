@@ -70,6 +70,9 @@ export default function ProductBundlesDocPage() {
         a generated FAQ/script pack on the leads dashboard and can{" "}
         <strong>Email voice pack</strong> to the client (Resend) so they can paste into a temp
         number / Cal.com (see <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>).
+        When Convex is configured, Generate voice fails closed (<code>requireConvex</code>) so a
+        multi-instance deploy cannot claim success after a SQLite-only write that leaves Email
+        voice pack / voice-packs-due blind elsewhere.
       </p>
 
       <h2>Commerce — +$300 + $49/mo</h2>
