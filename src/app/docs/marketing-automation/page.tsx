@@ -78,7 +78,10 @@ export default function MarketingAutomationDocPage() {
         + 2 emails per UTC month (Anthropic when <code>ANTHROPIC_API_KEY</code> is set; stub
         otherwise — both paths covered by <code>src/lib/marketing/generators.test.ts</code>;
         request shape from lead data covered by{" "}
-        <code>src/lib/marketing/build-request.test.ts</code>). Ad-hoc{" "}
+        <code>src/lib/marketing/build-request.test.ts</code>). Until the key is a
+        non-placeholder secret, <code>assessAnthropicEnvReadiness</code> shows a teal
+        AI-packs-on-stub banner on the operator dashboard so Stub* template quality is not
+        mistaken for sold AI copy. Ad-hoc{" "}
         <code>POST /api/marketing/generate</code> keeps route-level Vitest coverage for operator
         auth and request validation (<code>route.test.ts</code>) — prefer the dashboard pack
         action for persisted fulfillment.{" "}
