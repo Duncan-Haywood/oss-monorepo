@@ -134,6 +134,12 @@ export default function ArchitectureDocPage() {
         <code>sendDailyDigestAction</code>&apos;s trim gate (plus documented{" "}
         <code>you@example.com</code> placeholders) so operators see that pipeline-health digest
         delivery is unconfigured before clicking <strong>Send daily digest</strong>.
+        Action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/send-daily-digest-action.test.ts</code> locks auth, the
+        destination trim gate, uncapped <code>listUnrepliedInquiries</code> /{" "}
+        <code>listUnpaidCommerceOrders</code> / <code>listMarketingPacksForMonth</code> wiring,
+        and <code>sendOperatorDailyDigest</code> success/mock/failure —{" "}
+        <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
@@ -556,7 +562,10 @@ export default function ArchitectureDocPage() {
         map entry is required so Convex primary deploys actually persist; when Convex is configured
         the operator action also passes <code>requireConvex</code> via{" "}
         <code>COMMERCE_PAID_OUT_CONVEX_PRIMARY</code> so a mutation failure surfaces instead of
-        SQLite-only success while unpaid owed readers stay Convex-first) once the operator has actually sent the client
+        SQLite-only success while unpaid owed readers stay Convex-first; action-level Vitest in{" "}
+        <code>mark-commerce-order-paid-out-action.test.ts</code> locks auth, already-paid-out,
+        requireConvex fail-closed, and revalidate glue that paid-out-persist / orders helper
+        suites alone do not cover) once the operator has actually sent the client
         their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
         card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look

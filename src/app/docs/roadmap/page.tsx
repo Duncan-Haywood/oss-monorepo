@@ -96,7 +96,9 @@ export default function RoadmapDocPage() {
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*
         template copy). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
         <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald daily-digest-blocked
-        banner (Send daily digest otherwise only errors on click).
+        banner (Send daily digest otherwise only errors on click). Action-level Vitest (
+        <code>send-daily-digest-action.test.ts</code>) locks the dashboard Send daily digest
+        path beyond the pure <code>daily-digest.test.ts</code> builder.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
         1/2/3 send durably marks the step before calling Resend, and with Convex configured
@@ -331,9 +333,10 @@ export default function RoadmapDocPage() {
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
         <strong>Mark paid out</strong> action (<code>getCommerceOrderByStripeSessionId</code>,{" "}
-        <code>paidOutAt</code>, <code>requireConvex</code> when Convex is configured) so settled
-        orders drop out
-        of the health card, panel, and digest owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
+        <code>paidOutAt</code>, <code>requireConvex</code> when Convex is configured;
+        action-level Vitest in <code>mark-commerce-order-paid-out-action.test.ts</code>) so
+        settled orders drop out of the health card, panel, and digest owed totals, guarding
+        against double-paying a client. Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}
