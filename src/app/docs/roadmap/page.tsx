@@ -234,9 +234,11 @@ export default function RoadmapDocPage() {
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
         Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
-        surface on pipeline health + daily digest; Starter upsell candidates also appear in the
-        digest. Closed-leads funnel footnote: shipped (<code>closedLeadCount</code> on pipeline
-        health — see <DocLink href="/docs/process">process log</DocLink>).
+        surface on pipeline health + daily digest from an uncapped{" "}
+        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter upsell candidates
+        also appear in the digest. Closed-leads funnel footnote: shipped (
+        <code>closedLeadCount</code> on pipeline health — see{" "}
+        <DocLink href="/docs/process">process log</DocLink>).
       </p>
       <h2>Phase 6 — Marketing engine</h2>
       <p>
