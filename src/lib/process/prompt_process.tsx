@@ -154,7 +154,8 @@ export const AGENT_PROTOCOL = [
   "stripe-webhook-route-test-coverage done: src/app/api/stripe/webhook/route.ts has route-level Vitest covering bundle + commerce_sku orchestration (5xx-per-failure-step, redelivery recovery). When free NEXT_STEPS are gated again, prefer stripe-checkout-route-test-coverage (create-side twin — organic slug minting, Price ID line items, requireConvex fail-closed session tracking) or commerce-checkout-route-test-coverage (Buy now twin; different module; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When stripe-checkout-route-test-coverage and commerce-checkout-route-test-coverage are both free in the same cron window, claim different ones (bundle Checkout create vs Commerce Buy now create) — they touch different route files and both lock money-critical create-path orchestration that the webhook suite does not cover.",
   "stripe-checkout-route-test-coverage done: src/app/api/stripe/checkout/route.ts has route-level Vitest (config/tier/Price-env guards, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s). Helper suites (organic-attribution, session-persist) are not enough for the route orchestration. When free NEXT_STEPS are gated again, prefer commerce-checkout-route-test-coverage (sibling-friendly Buy now twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "commerce-checkout-route-test-coverage done: src/app/api/commerce/checkout/route.ts has route-level Vitest locking server-resolved stripePriceId (client price/stripePriceId ignored), unsynced-SKU 501, kind=commerce_sku + skuId tracking, and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed 502s. Twin of stripe-checkout-route-test-coverage. When both create-side suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (billing-portal route coverage, remaining untested pure-logic modules, Convex API map re-audit) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "commerce-checkout-route-test-coverage done: src/app/api/commerce/checkout/route.ts has route-level Vitest locking server-resolved stripePriceId (client price/stripePriceId ignored), unsynced-SKU 501, kind=commerce_sku + skuId tracking, and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed 502s. Twin of stripe-checkout-route-test-coverage. When both create-side suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer billing-portal-route-test-coverage (POST /api/stripe/billing-portal — customer self-serve; create-portal-session helper suite is not enough for route JSON/secret/returnUrl wiring) or bootstrap-prices-route-test-coverage (ALLOW_STRIPE_BOOTSTRAP gate + envSnippet; sibling-friendly, different module) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When billing-portal-route-test-coverage and bootstrap-prices-route-test-coverage are both free in the same cron window, claim different ones (customer self-serve portal vs operator Price bootstrap) — they touch different route files and both lock Stripe route orchestration the lib helper suites do not cover.",
 ] as const;
 
 /**
@@ -1206,6 +1207,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-7d1d",
+  },
+  {
+    id: "billing-portal-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #126 (commerce-checkout-route-test-coverage): POST /api/stripe/billing-portal is the customer self-serve Manage-subscription path (sessionId-only; leadSlug stays operator-auth). create-portal-session.test.ts covers the lib helper, but the route's Invalid JSON / missing sessionId / STRIPE_SECRET_KEY 501 / default returnUrl / result.status passthrough had zero direct tests. Claimed for route-level Vitest. Sibling-friendly twin: bootstrap-prices-route-test-coverage.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-df21",
+  },
+  {
+    id: "bootstrap-prices-route-test-coverage",
+    summary:
+      "Sibling twin of billing-portal-route-test-coverage: POST /api/stripe/bootstrap-prices gates on ALLOW_STRIPE_BOOTSTRAP=1 (403 when unset), requires STRIPE_SECRET_KEY (501), returns envSnippet on success, and 502s on Stripe throw. bootstrap-stripe-prices + list-all-pages already have lib coverage — this locks the route's opt-in gate + response shape an operator copies into secrets. Free for the parallel hourly automation.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
