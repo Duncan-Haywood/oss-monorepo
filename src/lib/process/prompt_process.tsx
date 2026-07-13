@@ -184,6 +184,7 @@ export const AGENT_PROTOCOL = [
   "anthropic-env-readiness done: assessAnthropicEnvReadiness (src/lib/ai/anthropic-env-readiness.ts) + AnthropicEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / sk-ant-... / sk-ant-placeholder* ANTHROPIC_API_KEY — matching Stub* factory gates in marketing/voice generators (plus documented placeholders that would fail then stub-fallback). Distinct from Stripe / Resend banners. Env presence only — does not call Anthropic. When free NEXT_STEPS stay gated, prefer generate-marketing-pack-action-test-coverage / generate-client-voice-pack-action-test-coverage (dashboard Generate pack / Generate voice action Vitest twins; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When generate-marketing-pack-action-test-coverage and generate-client-voice-pack-action-test-coverage are both free in the same cron window, claim different ones (Growth/Complete Generate pack action vs Complete Generate voice action) — they touch different action surfaces and both lock sold-fulfillment operator paths that generators.test.ts / route suites do not cover.",
   "generate-marketing-pack-action-test-coverage done: src/app/dashboard/leads/generate-marketing-pack-action.test.ts locks requireOperatorAuth, empty/missing slug, Starter-only + discovered-stage eligibility, MARKETING_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic generator labeling, ConvexPrimaryWriteError fail-closed (no revalidate), and leadSlug order filtering — generators.test.ts / monthly-pack / marketing/generate route suites are not enough for the dashboard action glue. When free NEXT_STEPS stay gated, prefer generate-client-voice-pack-action-test-coverage (Complete twin; sibling-friendly) or operator-digest-email-env-readiness (OPERATOR_DIGEST_EMAIL missing → Send daily digest errors only on click) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "generate-client-voice-pack-action-test-coverage done: src/app/dashboard/leads/generate-client-voice-pack-action.test.ts locks requireOperatorAuth, empty/missing slug, Growth-only + discovered-stage eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic generator labeling, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering — generators.test.ts / faq-pack / build-request suites are not enough for the dashboard Generate voice action glue. Twin of generate-marketing-pack-action-test-coverage (e889 / PR #145). When free NEXT_STEPS stay gated, prefer operator-digest-email-env-readiness (OPERATOR_DIGEST_EMAIL missing → Send daily digest errors only on click) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1399,9 +1400,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "generate-client-voice-pack-action-test-coverage",
     summary:
-      "Empty-backlog twin after anthropic-env-readiness: generateClientVoicePackAction is the operator Generate voice path for sold Complete phone-script fulfillment, but only generators/faq-pack suites exist — no action-level Vitest. Prefer when anthropic banner is done; claim separately from generate-marketing-pack-action-test-coverage in the same cron window.",
-    status: "todo",
+      "Empty-backlog twin after anthropic-env-readiness / Generate pack action Vitest: generateClientVoicePackAction is the operator Generate voice path for sold Complete phone-script fulfillment (requireConvex + Anthropic/stub), but only generators/faq-pack suites existed — no action-level Vitest. Shipped: generate-client-voice-pack-action.test.ts (11 tests). Sibling-friendly next: operator-digest-email-env-readiness.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/business-process-evolution-b17e",
   },
   {
     id: "operator-digest-email-env-readiness",
@@ -3105,6 +3107,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for generateMarketingPackAction (Growth/Complete Generate pack) before inventing more readiness banners or optional aggregates — generators/monthly-pack/route suites do not lock auth, eligibility, MARKETING_PACK_CONVEX_PRIMARY persist, or ConvexPrimaryWriteError fail-closed. Leave generate-client-voice-pack-action-test-coverage free for a sibling in the same cron window. Fold sibling anthropic-env-readiness (849c) rather than duplicating the banner. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Generate pack is the sold Growth/Complete fulfillment button operators click after Anthropic readiness is green. A future soft-fallback / wrong-eligibility / missing requireConvex regression would not fail Vitest without action glue coverage — the same class of gap checkout-recovery-actions and bootstrapStripePricesAction suites already closed. Prefer locking that path over inventing OPERATOR_DIGEST_EMAIL banners or optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Ship action-level Vitest for generateClientVoicePackAction (Complete Generate voice) as the twin of generate-marketing-pack-action-test-coverage — generators/faq-pack/build-request suites do not lock auth, Complete-only eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic labeling, or ConvexPrimaryWriteError fail-closed. Leave operator-digest-email-env-readiness free for a sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Generate voice is the sold Complete phone-script fulfillment button operators click after Anthropic readiness is green. A future soft-fallback / Growth-tier false-positive / missing requireConvex regression would not fail Vitest without action glue coverage — the same class of gap Generate pack / checkout-recovery / bootstrap action suites already closed. Prefer locking that path over inventing OPERATOR_DIGEST_EMAIL banners or optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5491,5 +5500,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (725 passed — marketing pack action 11 + folded anthropic readiness 10) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(241, 242),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-b17e",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #145 (Generate pack action Vitest). Claimed generate-client-voice-pack-action-test-coverage — the Complete twin e889 left free. generateClientVoicePackAction had zero action-level Vitest despite being the sold Complete phone-script fulfillment path with CLIENT_VOICE_PACK_CONVEX_PRIMARY. Left operator-digest-email-env-readiness free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/generate-client-voice-pack-action.test.ts — 11 tests locking auth fail, empty/missing slug, Growth-only + discovered-stage eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic labeling, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering",
+      "Docs: architecture + voice-agent-flow + roadmap note action-level Vitest beside generators/faq-pack suites",
+      "NEXT_STEPS: generate-client-voice-pack-action-test-coverage done; generate-marketing-pack-action-test-coverage done (e889 / PR #145); operator-digest-email-env-readiness left free",
+      "AGENT_PROTOCOL — Generate voice action coverage required beyond generators/faq-pack suites; prefer operator-digest-email-env-readiness next",
+      "BUSINESS_DECISIONS — documented why Complete Generate voice action glue Vitest beats inventing optional aggregates after Generate pack coverage",
+      "Verified: npm test (736 passed — Generate voice action 11) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(242, 243),
   },
 ];
