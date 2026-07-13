@@ -177,6 +177,7 @@ export const AGENT_PROTOCOL = [
   "When proxy-routing-test-coverage and resend-email-env-readiness are both free in the same cron window, claim different ones (proxy Host rewrite orchestration vs Resend key readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
   "proxy-routing-test-coverage done: src/proxy.test.ts locks dashboard auth gate (open when password unset; redirect when set + missing cookie; allow with valid session; /dashboard/login never gated), preview-subdomain rewrite only when getLeadBySlug resolves (unrecognized label → next(), no demo-catalog fallthrough), custom-domain rewrite only on non-platform Host + exact `/`, and never Host-diverts /api/* or /dashboard/*. Helper suites (custom-domain-routing.test.ts, operator.test.ts) are not enough for orchestrator ordering. Folded with resend-email-env-readiness (efe4).",
   "resend-email-env-readiness done: assessResendEmailEnvReadiness (src/lib/email/resend-env-readiness.ts) + ResendEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / re_placeholder* / re_... RESEND_API_KEY (matches sendEmail mock gate). Distinct from Stripe core / Price-ID banners. Env presence only — does not call Resend. Folded with proxy-routing-test-coverage (cbbe). When free NEXT_STEPS stay gated, prefer stripe-bootstrap-dashboard-action-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When stripe-bootstrap-dashboard-action-test-coverage and anthropic-env-readiness are both free in the same cron window, claim different ones (dashboard Run bootstrap orchestration vs Anthropic key readiness for Growth/Complete packs) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
 ] as const;
 
 /**
@@ -1356,6 +1357,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-efe4",
+  },
+  {
+    id: "stripe-bootstrap-dashboard-action-test-coverage",
+    summary:
+      "Empty-backlog after PR #141 (proxy-routing + resend-email-env-readiness). bootstrapStripePricesAction is the operator-visible #1 sale unlock (Run bootstrap on the checkout-blocked banner) but only bootstrap-gate + bootstrap-prices route suites existed — auth fail / gate fail / success envSnippet / Stripe throw on the dashboard action path had zero direct Vitest. Claimed: action-level coverage locking requireOperatorAuth + assessStripeBootstrapGate + bootstrapStripePrices orchestration.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-3a4a",
+  },
+  {
+    id: "anthropic-env-readiness",
+    summary:
+      "Sibling-friendly empty-backlog twin: Growth/Complete marketing + Complete voice packs silently fall back to Stub* generators when ANTHROPIC_API_KEY is missing/placeholder — operators get no dashboard signal that sold AI copy is stub quality. Prefer after or beside stripe-bootstrap-dashboard-action-test-coverage; do not fake-complete gated secrets.",
+    status: "todo",
+    phase: "Phase 6 — Marketing automation",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
