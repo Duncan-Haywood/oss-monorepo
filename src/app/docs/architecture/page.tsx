@@ -347,7 +347,10 @@ export default function ArchitectureDocPage() {
         so payout rows silently lost React list identity once Convex was configured).
         Each order line has a <strong>Mark paid out</strong> button that sets{" "}
         <code>paidOutAt</code> (SQLite + Convex — the static <code>api.commerceOrders.markPaidOut</code>{" "}
-        map entry is required so Convex primary deploys actually persist) once the operator has actually sent the client
+        map entry is required so Convex primary deploys actually persist; when Convex is configured
+        the operator action also passes <code>requireConvex</code> via{" "}
+        <code>COMMERCE_PAID_OUT_CONVEX_PRIMARY</code> so a mutation failure surfaces instead of
+        SQLite-only success while unpaid owed readers stay Convex-first) once the operator has actually sent the client
         their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
         card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look
