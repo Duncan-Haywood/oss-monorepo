@@ -321,6 +321,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/pricing-one-pager.tsx and process/outreach-templates.ts quote '~35-40 minutes' instead of '~30 minutes' for the guided capture step; process/capture-checklist.ts's preShootPrep doc comment updated to match. STRATEGY.md's own looser 'in 30 minutes' tagline is deliberately left unchanged (aspirational whole-workflow positioning, not a literal capture-time SLA) — same treatment as the 'under 2 hours' delivery target vs. the actual '1 business day' customer promise.",
       },
+      {
+        id: "p2-capture-time-single-source",
+        title: "Make the on-site capture-time promise computed, not a second hand-typed number",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "Two independent agent sessions (this one and p2-capture-time-promise-drift-fix) hand-fixed the exact same stale '~30 minutes' -> '~35-40 minutes' promise within about a minute of each other on 2026-07-13 — the second PR hit a real merge conflict against the first. Both sessions computed the identical correct number by hand from totalTargetMinutes(), which is reassuring (the number itself was right) but also proof the underlying risk is real: nothing connected the quoted promise to the checklist that's supposed to back it, so any future capture-checklist.ts change can silently re-introduce the same gap, and any two concurrent sessions auditing for it will duplicate the same fix again.",
+        doneWhen:
+          "process/capture-checklist.ts exports onSiteTimeRange(additionalBeds?, additionalBaths?), which rounds totalTargetMinutes() outward to the nearest 5 minutes on each end; process/pricing-one-pager.tsx now imports and computes its two on-site-time copy lines from it directly instead of a hardcoded string, so that surface can no longer drift on its own. process/outreach-templates.ts's 3 template bodies are plain string literals (not template functions) and still need a human/agent to eyeball-sync against onSiteTimeRange()'s output — documented in a doc comment there pointing back at the source of truth. See process/capture-checklist.ts, process/pricing-one-pager.tsx, decisions-log.ts.",
+      },
     ],
   },
   {

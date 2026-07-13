@@ -5,8 +5,8 @@
  * This can't verify *which* rooms were captured (that needs vision, not
  * file counting), but a simple count check catches the most common
  * concierge-shoot mistake: leaving with fewer photos than the checklist
- * calls for, which STRATEGY.md flags as costing the 30-minute target to
- * fix after the fact.
+ * calls for, which costs a second on-site trip to fix after the fact —
+ * see process/capture-checklist.ts's preShootPrep doc comment.
  */
 
 import { totalShotCount } from "../../process/capture-checklist";

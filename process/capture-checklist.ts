@@ -355,3 +355,25 @@ export function totalTargetMinutes(additionalBeds?: number, additionalBaths?: nu
     baths * perUnitRoom("secondary-bathroom").targetMinutes
   );
 }
+
+/**
+ * The honest, plain-language on-site time to quote a prospect, derived from
+ * totalTargetMinutes() instead of a separately hand-picked number. Added
+ * after two independent agent sessions on 2026-07-13 each hand-fixed the
+ * same stale "~30 minutes" promise in pricing-one-pager.tsx/
+ * outreach-templates.ts to "~35-40 minutes" within about a minute of each
+ * other (see decisions-log.ts) — proof that leaving this as a hand-typed
+ * number invites exactly this kind of duplicate-or-silently-drift risk
+ * every time this checklist's shot list changes. pricing-one-pager.tsx
+ * computes from this directly; outreach-templates.ts's bodies are static
+ * prose (not template functions) and still need a human/agent to eyeball
+ * them against this function's output when the checklist changes. Rounds
+ * outward (floor the low end, ceil the high end, both to the nearest 5) so
+ * the quoted range never implies a faster shoot than the checklist targets.
+ */
+export function onSiteTimeRange(additionalBeds?: number, additionalBaths?: number): string {
+  const minutes = totalTargetMinutes(additionalBeds, additionalBaths);
+  const low = Math.floor(minutes / 5) * 5;
+  const high = Math.ceil(minutes / 5) * 5;
+  return low === high ? `${low} minutes` : `${low}-${high} minutes`;
+}

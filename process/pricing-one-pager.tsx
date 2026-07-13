@@ -14,6 +14,10 @@
 
 import { BOOKING_LINK, BOOKING_CONTACT_EMAIL } from "./booking-link";
 import { paymentInstructionsText } from "./payment-collection";
+import { onSiteTimeRange } from "./capture-checklist";
+
+/** Typical (default bed/bath) on-site time, quoted consistently across this offer. See capture-checklist.ts's onSiteTimeRange(). */
+const ON_SITE_TIME = onSiteTimeRange();
 
 export type PricingLineItem = {
   label: string;
@@ -41,7 +45,7 @@ export const conciergeOffer: ConciergeOffer = {
   turnaround: "Delivered within 1 business day of the shoot",
   whatsIncluded: [
     {
-      label: "Guided capture, ~35-40 minutes on-site",
+      label: `Guided capture, ~${ON_SITE_TIME} on-site`,
       detail:
         "A room-by-room shot list (exterior, living space, kitchen, primary bed/bath, secondary rooms) run from your own iPhone, so nothing important gets missed and nothing gets over-shot.",
     },
@@ -59,7 +63,7 @@ export const conciergeOffer: ConciergeOffer = {
     { label: "1. Book a slot", detail: "Pick a time; share the property address and access details." },
     {
       label: "2. We guide the shoot",
-      detail: "Follow the room-by-room checklist on-site (about 35-40 minutes for an average home).",
+      detail: `Follow the room-by-room checklist on-site (about ${ON_SITE_TIME} for an average home).`,
     },
     {
       label: "3. We process the photos",

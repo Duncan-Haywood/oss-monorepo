@@ -464,4 +464,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): with nextActionableTasks() empty again, check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first. The cross-file-drift-hunting approach (grep every concrete number — price, time, count, percentage — across process/*.ts, STRATEGY.md, research/, docs-site/, and diff against what the code that backs it actually computes) paid off twice in a row now (this session and the promise-consistency-audit session before it); worth repeating periodically rather than treating either audit as final, since any future change to capture-checklist.ts, payment-collection.ts, etc. can silently re-introduce the same class of gap. ~40+ non-main branches still exist (only cursor/fix-pages-access-4a7e is live); branch deletion remains proxy-blocked (see blockers.ts's stale-branch-cleanup entry) — still needs a human with real GitHub UI/token access.",
     ],
   },
+  {
+    date: "2026-07-13",
+    agent: "claude/dazzling-allen-wrkyk8",
+    summary:
+      "Independently found and fixed the exact same '~30 minutes' capture-time promise-drift bug as the concurrent claude/mls-photo-count-drift-fix-0713 session, computing the identical honest number (35-40 minutes) by hand from capture-checklist.ts's totalTargetMinutes(). Opened PR #34 with that fix; by the time CI finished, PR #33 (the other session's near-identical fix) had already merged to main, and PR #34's merge attempt hit a real conflict. Rather than force through a duplicate, reset this branch onto the new main and kept only the genuinely additive delta: instead of re-landing the same hardcoded '35-40 minutes' strings a second time, made pricing-one-pager.tsx compute that value live from a new capture-checklist.ts export (onSiteTimeRange()) instead of quoting a hand-typed number — the same class of fix each fix-then-drift cycle in this repo's history has eventually converged on (see p0-docs-content-drift-fix's 'stop hand-syncing, read the canonical source' pattern), applied here to a computed number instead of a duplicated file.",
+    changes: [
+      "process/capture-checklist.ts: added onSiteTimeRange(additionalBeds?, additionalBaths?) — rounds totalTargetMinutes() outward to the nearest 5 minutes on each end (default home: '35-40 minutes'), documented with the near-simultaneous-duplicate-fix incident as the reason it exists.",
+      "process/pricing-one-pager.tsx: imports onSiteTimeRange() and computes both on-site-time copy lines from it instead of the (now on main, from PR #33) hardcoded '~35-40 minutes' string — output text unchanged, but can no longer independently drift from the checklist.",
+      "process/outreach-templates.ts: left PR #33's hand-fixed '35-40 minutes' text as-is (these are static string literals, not computed); added a doc comment pointing at onSiteTimeRange() as the source of truth to check by eye if the checklist changes again.",
+      "pipeline/src/coverage.ts: comment cleanup (dropped a stale reference to a fixed '30-minute target'), independent of the duplicate — kept.",
+      "roadmap.ts: added p2-capture-time-single-source (done). decisions-log.ts: logged the near-duplicate-PR incident and the follow-up fix as its own entry. blockers.ts: bumped confirmedByCount on the 4 blockers re-verified this session and corrected the stale-branch count to 31 (up from 26, `git ls-remote --heads origin`).",
+      "Verified: pipeline/ `npm test` (all 5 self-tests) + `npx tsc --noEmit` pass; docs-site/ `npm run build` passes clean (9/9 static pages), spot-checked the built /pricing page's HTML for '35-40 minutes' in both places; research/ untouched, not rebuilt.",
+    ],
+    nextUp: [
+      "Human: process/blockers.ts unchanged in substance — p2-first-deliveries remains the single highest-leverage next step.",
+      "Agent (next session): before opening a PR for a fix found via a repo-wide audit (numeric drift, promise consistency, etc.), re-fetch origin and re-grep for the same symptom immediately before pushing, not just at session start — this session's near-duplicate happened because two sessions started their audits close enough together that neither saw the other's fix land mid-session. When a duplicate is found post-hoc, prefer rebasing onto the winner and shipping only the genuinely additive delta (as here) over re-litigating which PR was 'first'. With nextActionableTasks() empty again, check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first.",
+    ],
+  },
 ];

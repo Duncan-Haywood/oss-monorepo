@@ -6,6 +6,14 @@
  * this is what gets the one-pager in front of them. Everything here is a
  * template a human sends manually — no automated sending, no bulk/spam
  * outreach. Fill in the bracketed placeholders per prospect.
+ *
+ * These bodies are static strings (not template functions), so the
+ * on-site-time quotes below are a plain hand-written number, not computed —
+ * unlike pricing-one-pager.tsx, which computes the same quote from
+ * process/capture-checklist.ts's onSiteTimeRange(). Re-check this file by
+ * hand against that function's output any time capture-checklist.ts's shot
+ * list changes (see decisions-log.ts: two sessions independently hand-fixed
+ * this exact number within a minute of each other on 2026-07-13).
  */
 
 export type OutreachTemplate = {

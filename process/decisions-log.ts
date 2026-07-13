@@ -265,4 +265,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/mls-photo-count-drift-fix-0713",
     relatedTaskIds: ["p2-outreach-templates", "p2-pricing-page", "p2-capture-checklist-scaling"],
   },
+  {
+    date: "2026-07-13",
+    title: "Make the on-site capture-time promise computed, to stop it drifting (and being independently re-fixed) again",
+    decision:
+      "process/capture-checklist.ts gains onSiteTimeRange(), which rounds totalTargetMinutes() outward to the nearest 5 minutes on each end (default home: '35-40 minutes'). process/pricing-one-pager.tsx now computes its two on-site-time copy lines from this function instead of a hardcoded string. process/outreach-templates.ts's 3 template bodies stay hand-typed (they're plain string literals, not template functions) but gained a doc comment pointing at onSiteTimeRange() as the source of truth to check by eye.",
+    rationale:
+      "This session opened a PR (#34) that duplicated PR #33's fix for the exact same '~30 minutes' -> '~35-40 minutes' promise-drift bug, merged roughly a minute apart by two independent sessions auditing the same gap at the same time; #34 hit a real merge conflict against #33's already-landed fix. Both sessions independently computed the same correct number by hand from totalTargetMinutes(), which confirms the number was right, but the near-simultaneous duplicate is itself evidence the underlying design was fragile: a promise with no code connecting it to the value that's supposed to back it will keep drifting (and keep getting rediscovered/refixed from scratch) every time capture-checklist.ts's shot list changes. Closing the loop for at least the computed surface (pricing-one-pager.tsx) removes that specific recurrence risk permanently; outreach-templates.ts's static prose is left as a documented manual-sync point since making it a template function was judged more churn than the actual risk (3 short strings, unlikely to change again soon) currently justifies.",
+    madeBy: "claude/dazzling-allen-wrkyk8",
+    relatedTaskIds: ["p2-capture-time-single-source", "p2-capture-time-promise-drift-fix"],
+  },
 ];
