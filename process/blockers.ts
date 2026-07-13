@@ -87,7 +87,7 @@ export const humanBlockers: HumanBlocker[] = [
   },
   {
     id: "stale-branch-cleanup",
-    title: "Delete ~15 confirmed-stale, fully-merged branches",
+    title: "Delete ~19 confirmed-stale, fully-merged branches",
     whatsNeeded:
       "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main — agent sessions get HTTP 403 deleting refs on this repo (re-confirmed this session; the GitHub MCP tool surface has no branch-delete method either). Re-check with `git diff origin/main origin/<branch> --stat` before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
     unblocks: [],

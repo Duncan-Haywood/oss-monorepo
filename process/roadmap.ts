@@ -55,6 +55,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           ".github/workflows/ci.yml runs `npm test` + `tsc --noEmit` in pipeline/ and `npm run build` in docs-site/ and research/ on every push and pull_request, independent of the existing deploy-docs.yml (which only builds docs-site on push to main).",
       },
+      {
+        id: "p0-nextjs-security-patch",
+        title: "Patch next.js off the vulnerable 14.1.0 pin in docs-site/ and research/",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "npm had been printing a next.js security-vulnerability warning on every install of docs-site/ or research/ since the repo's first commit, unnoticed until this session actually read the install/audit output; several of the 14 flagged advisories were critical (DoS, request smuggling, middleware auth bypass).",
+        doneWhen:
+          "next bumped to 14.2.35 (latest 14.x patch) in both packages, npm run build verified clean in both. See decisions-log.ts for why the full next@16 major-version migration (needed to clear every advisory npm audit flags) was deliberately deferred rather than attempted in the same session.",
+      },
     ],
   },
   {

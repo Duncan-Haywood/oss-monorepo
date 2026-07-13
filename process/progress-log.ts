@@ -327,4 +327,22 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): read process/blockers.ts first. If your finding is 'still blocked, nothing changed,' bump lastConfirmed/confirmedByCount there instead of writing a new progress-log paragraph — that's the entire point of this session's change. If a blocker's confirmedByCount climbs into the double digits with lastConfirmed dates spanning weeks and it's still unresolved, that's a real signal worth surfacing to Duncan directly (e.g. in a PR description) rather than silently re-bumping forever.",
     ],
   },
+  {
+    date: "2026-07-13",
+    agent: "real-estate-photography-continuous-improvement-2",
+    summary:
+      "Re-confirmed process/blockers.ts's 5 items are all still true (leads-log.ts/loggedInterviewResults/listingAuditLog still genuinely empty, PR #4 still open/draft/unchanged since 2026-06-15, branch deletion still hard-403s — re-tested live on claude/dazzling-allen-wg8i3m) and bumped confirmedByCount 1->2 on all 5 rather than writing a new prose paragraph, per blockers.ts's own convention. Also re-verified all 19 non-PR-#4 remote branches are still strictly behind/merged into main (git diff against each, up from the 12 last counted) and updated blockers.ts's stale-branch-cleanup count accordingly. Rather than stop there as an 18th+ re-confirmation session, read the npm install/audit output this session's own `npm install` runs produced (something no prior session's progress-log entry mentions doing) and found a real, agent-fixable gap: next.js had been pinned to a vulnerable 14.1.0 in both docs-site/ and research/ since the repo's first commit.",
+    changes: [
+      "docs-site/package.json + research/package.json: next 14.1.0 -> 14.2.35 (latest 14.x patch release; no App Router/config API changes needed). Verified `npm run build` passes clean in both, with identical route/page output.",
+      "Deliberately did not go further to next@16.x, which is the only version that clears every advisory `npm audit` currently flags for this package (npm reports one combined vulnerable range spanning 9.3.4-canary.0 through 16.3.0-canary.5) — that's a major-version App Router migration with real breaking-change risk and no e2e/visual regression coverage in this repo to catch a silent break, not a same-session patch bump. Logged as a deliberately deferred follow-up in decisions-log.ts, not silently dropped.",
+      "roadmap.ts: added p0-nextjs-security-patch (done). decisions-log.ts: logged the patch-vs-major-bump reasoning and why the major bump was deferred rather than attempted blind.",
+      "process/blockers.ts: confirmedByCount 1->2 on all 5 entries; stale-branch-cleanup title/whatsNeeded updated from ~15 to ~19 confirmed-stale branches.",
+      "Verified: pipeline/ `npm test` (all 3 self-tests) + `npx tsc --noEmit` pass, untouched by this session's changes (ran anyway per step 7 since it imports process/capture-checklist.ts from the same package).",
+    ],
+    nextUp: [
+      "Human: same 5 items in process/blockers.ts — p2-first-deliveries (book+shoot a concierge listing) remains the single highest-leverage next step; Phase 1 interviews; the Zillow listing audit; PR #4's Cloudflare dashboard step; now ~19 stale branches (agent git credential still hard-403s on ref deletion, re-tested live this session).",
+      "Human/agent: the next@16 migration (docs-site/ + research/) is a real, scoped follow-up once someone can eyeball the deployed site after — don't attempt it as a routine hourly-session patch; treat it like p3-app-scope, worth a deliberate session with more build/deploy verification than `npm run build` passing locally.",
+      "Agent (next session): check leads-log.ts/loggedInterviewResults/listingAuditLog for real entries first, same as every recent session. If still empty and nextActionableTasks() is still empty, this session's approach (actually reading `npm install`/`npm audit` output instead of assuming dependencies are fine) is a reasonable place to look again — check pipeline/'s and docs-site/'s other dependencies for anything similarly newly-flagged, but don't attempt a major-version bump without a human able to verify the deployed result.",
+    ],
+  },
 ];

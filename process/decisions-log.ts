@@ -185,4 +185,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-k4o1nz",
     relatedTaskIds: ["p0-docs-site", "p1-run-interviews", "p1-listing-audit", "p2-first-deliveries"],
   },
+  {
+    date: "2026-07-13",
+    title: "Patch docs-site/research off next@14.1.0 to next@14.2.35 (same major); defer the full next@16 migration",
+    decision:
+      "Bumped `next` from 14.1.0 to 14.2.35 in both docs-site/ and research/ (patch-only within the same major version, no App Router / config API changes needed). Verified `npm run build` still passes clean in both. Deliberately did NOT go further to next@16.x, which is the only version `npm audit` reports as clearing every currently-known advisory for this package (npm's audit range for `next` was reported as a single span from 9.3.4-canary.0 up to 16.3.0-canary.5, i.e. it considers all of 14.x and 15.x still partially vulnerable to at least one advisory in that combined set) — that's a major-version App Router migration with real breaking-change risk, not a same-session patch bump, and this repo has no automated visual/e2e regression coverage for docs-site or research to catch a silent breakage before a human notices.",
+    rationale:
+      "`npm install` was printing `next@14.1.0: This version has a security vulnerability` on every session that happened to touch docs-site or research, and `npm audit` on 14.1.0 listed 14 next.js advisories (several critical: DoS via Image Optimizer, HTTP request smuggling in rewrites, middleware authorization bypass, RSC cache poisoning) that no prior session had noticed or acted on — it was pure incidental noise in install logs until this session actually read it. The patch bump closes the specific, already-fixed-in-14.x-line vulnerabilities at zero behavioral risk (build output is byte-for-byte the same route structure, verified). Doing the full 14->16 jump unilaterally in an hourly automated session — especially right when p0-docs-site is about to go from Access-blocked-but-live to actually protected once PR #4 merges — is exactly the kind of change that needs a human able to click through the deployed site afterward, not an agent's local `npm run build` passing as the only signal. Left as a flagged, scoped follow-up rather than either ignoring it (prior status quo) or attempting it blind.",
+    madeBy: "real-estate-photography-continuous-improvement-2",
+    relatedTaskIds: ["p0-docs-site", "p0-research-site"],
+  },
 ];
