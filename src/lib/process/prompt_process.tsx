@@ -161,6 +161,7 @@ export const AGENT_PROTOCOL = [
   "marketing-generate-route-test-coverage done: src/app/api/marketing/generate/route.ts has route-level Vitest (auth 401, JSON/contentTypes/automationLevel/business validation, stub-vs-LLM response messaging). Prefer generateMarketingPackAction for persisted packs; generators.test.ts is not enough for the route gates. When free NEXT_STEPS are gated again, prefer bootstrap-prices-route-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "bootstrap-prices-route-test-coverage done: src/app/api/stripe/bootstrap-prices/route.ts has route-level Vitest (ALLOW_STRIPE_BOOTSTRAP unset/non-1 → 403, missing STRIPE_SECRET_KEY → 501, ok+results+envSnippet on success, 502 on Error and non-Error throws). Mock bootstrapStripePrices + Stripe ctor — lib helper suites stay authoritative for Product/Price idempotency. Every Stripe-facing API route (checkout, commerce/checkout, webhook, billing-portal, bootstrap-prices) plus marketing/generate now has direct route-orchestration coverage. When free NEXT_STEPS are gated again, prefer remaining untested pure-logic modules (brand/company/bundles/themes/demo-catalog/pack helpers), a Convex API map / webhook-idempotency / HTML-injection re-audit, or a fresh sold-capability gap over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When brand-helpers-unit-coverage and demo-catalog-resolve-preview-unit-coverage are both free in the same cron window, claim different ones (CAN-SPAM two-layer brand env reads vs /preview/[slug] demo/slug-inference catalog) — they touch different modules. Sibling-friendly: themes/bundles remain after both.",
+  "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-resolve-preview-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1240,8 +1241,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "brand-helpers-unit-coverage",
     summary:
-      "Empty-backlog after PR #129 (bootstrap-prices route coverage) — only gated secrets/OAuth/counsel remained. src/lib/brand.ts is the CAN-SPAM / two-layer branding source of truth for every outbound email footer + Stripe seller identity, but had zero direct tests: NEXT_PUBLIC_BRAND_NAME > NEXT_PUBLIC_APP_NAME > fallback precedence, legalEntity/legalLocation/postalAddress legacy env aliases, whitespace-only treated as unset, and marketingFooterLine / legalEntityLine / outreachSenderLine composition. Claimed in_progress; sibling should prefer demo-catalog-resolve-preview-unit-coverage or themes/bundles.",
-    status: "in_progress",
+      "Empty-backlog after PR #129 (bootstrap-prices route coverage) — only gated secrets/OAuth/counsel remained. src/lib/brand.ts is the CAN-SPAM / two-layer branding source of truth for every outbound email footer + Stripe seller identity, but had zero direct tests: NEXT_PUBLIC_BRAND_NAME > NEXT_PUBLIC_APP_NAME > fallback precedence, legalEntity/legalLocation/postalAddress legacy env aliases, whitespace-only treated as unset, and marketingFooterLine / legalEntityLine / outreachSenderLine composition. Shipped: brand getters (env read at access time) + trim/whitespace-as-unset parity with price-env-readiness; brand.test.ts (20 tests) including deprecated company re-exports. Sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window.",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-8134",
   },
@@ -2821,6 +2822,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/stripe/bootstrap-prices/route.ts (operator Price bootstrap that unlocks every sale) gets its own route-level Vitest suite — mock bootstrapStripePrices + the Stripe constructor so the test locks ALLOW_STRIPE_BOOTSTRAP=1 gating (403), missing STRIPE_SECRET_KEY (501), ok+results+envSnippet success shape, and 502 on Error/non-Error throws, not a restatement of the already-covered helper.",
     rationale:
       "Sibling PR #127 closed billing-portal and PR #128 closed marketing-generate in the same hour; this branch kept the bootstrap-prices claim those siblings explicitly left free. The route is the only path that returns the envSnippet operators paste into secrets — a regression that skips the ALLOW_STRIPE_BOOTSTRAP opt-in or returns 200 without envSnippet would either leave bootstrap always-on in production or block every sale after a 'successful' bootstrap. Lib helper suites do not cover that glue. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/brand.ts (two-layer CAN-SPAM branding) reads every brand env via getters with trim + whitespace-only-as-unset, and gets direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence plus marketingFooterLine / legalEntityLine / outreachSenderLine — including the deprecated company re-export mirror.",
+    rationale:
+      "After PR #129 closed the last Stripe-facing route gap, free NEXT_STEPS stayed fully gated. brand.ts feeds every outbound email footer and Stripe seller identity but had zero direct tests and evaluated env only at module load — whitespace-only LEGAL_ENTITY/ADDRESS would silently stick as a blank-looking seller identity, and Vitest could not flip env between cases. Getters + trim match price-env-readiness; company.ts mirrors via getters so the migration shim stays live. Sibling prompt-process-evolution-35a5 claimed pricing-bundles in the same window. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4925,5 +4933,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(224, 225),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-8134",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #129. Claimed brand-helpers-unit-coverage (CAN-SPAM two-layer brand env reads); sibling prompt-process-evolution-35a5 claimed pricing-bundles-unit-coverage in the same window. Refactored brand.ts to getters + whitespace-as-unset, shipped brand.test.ts (20 tests) including deprecated company re-exports. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/brand.ts — getters for all brand fields; trim + whitespace-only-as-unset; exported fallback constants",
+      "src/lib/company.ts — deprecated re-export now uses getters so it mirrors live brand env",
+      "src/lib/brand.test.ts — 20 tests (name/legal/location/postal/dba/support/from precedence + footer helpers + company mirror)",
+      "Docs: architecture + legal — note Vitest coverage and whitespace-as-unset for brand env reads",
+      "NEXT_STEPS: brand-helpers-unit-coverage done",
+      "AGENT_PROTOCOL — brand getters required; next empty-backlog prefer demo-catalog / themes if still free",
+      "BUSINESS_DECISIONS — documented why module-load brand snapshots + missing trim were insufficient",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(225, 226),
   },
 ];

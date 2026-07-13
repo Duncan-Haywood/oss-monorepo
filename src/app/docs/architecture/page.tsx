@@ -117,6 +117,10 @@ export default function ArchitectureDocPage() {
         <code>brand.postalAddress</code> in signatures and the shared footer, and the email
         echoed on the <code>GET /api/unsubscribe</code> success page — goes through{" "}
         <code>escapeHtmlForEmail</code>; subject lines and From display names stay plain text.
+        Two-layer brand env reads live in <code>src/lib/brand.ts</code> (getters; whitespace-only
+        counts as unset; <code>NEXT_PUBLIC_BRAND_NAME</code> &gt; legacy{" "}
+        <code>NEXT_PUBLIC_APP_NAME</code>) with direct Vitest coverage in{" "}
+        <code>src/lib/brand.test.ts</code>.
       </p>
 
       <h2>5. Platform voice agent</h2>

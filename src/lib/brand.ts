@@ -4,43 +4,86 @@
  * - Legal entity (`brand.legalEntity`) — Stripe, contracts, compliance footers
  *
  * Set `NEXT_PUBLIC_BRAND_NAME` in `.env.local` before launch.
+ *
+ * Values are read via getters so env is evaluated at access time (Vitest can
+ * flip vars between cases; whitespace-only counts as unset, matching
+ * price-env-readiness).
  */
 
 export const BRAND_NAME_FALLBACK = "Your Brand";
+export const LEGAL_ENTITY_FALLBACK = "Maris Stella Labs";
+export const LEGAL_LOCATION_FALLBACK = "Colorado, USA";
+export const POSTAL_ADDRESS_FALLBACK =
+  "[Registered business address — Colorado, USA]";
+export const SUPPORT_EMAIL_FALLBACK = "support@marisstellalabs.com";
+export const EMAIL_FROM_FALLBACK = "noreply@marisstellalabs.com";
+
+/** Trim and treat whitespace-only as unset. */
+function envTrimmed(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value ? value : undefined;
+}
 
 function readBrandName(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_BRAND_NAME?.trim();
+  const fromEnv = envTrimmed("NEXT_PUBLIC_BRAND_NAME");
   if (fromEnv) return fromEnv;
   // Legacy env var support during migration
-  const legacy = process.env.NEXT_PUBLIC_APP_NAME?.trim();
+  const legacy = envTrimmed("NEXT_PUBLIC_APP_NAME");
   if (legacy) return legacy;
   return BRAND_NAME_FALLBACK;
 }
 
+function readLegalEntity(): string {
+  return (
+    envTrimmed("NEXT_PUBLIC_LEGAL_ENTITY") ??
+    envTrimmed("NEXT_PUBLIC_COMPANY_NAME") ??
+    LEGAL_ENTITY_FALLBACK
+  );
+}
+
+function readLegalLocation(): string {
+  return (
+    envTrimmed("NEXT_PUBLIC_LEGAL_LOCATION") ??
+    envTrimmed("NEXT_PUBLIC_COMPANY_LOCATION") ??
+    LEGAL_LOCATION_FALLBACK
+  );
+}
+
+function readPostalAddress(): string {
+  return envTrimmed("NEXT_PUBLIC_COMPANY_ADDRESS") ?? POSTAL_ADDRESS_FALLBACK;
+}
+
 export const brand = {
   /** Customer-facing public brand (marketing, outreach, voice). */
-  name: readBrandName(),
-  /** True when NEXT_PUBLIC_BRAND_NAME is explicitly set. */
-  isConfigured: Boolean(process.env.NEXT_PUBLIC_BRAND_NAME?.trim()),
+  get name(): string {
+    return readBrandName();
+  },
+  /** True when NEXT_PUBLIC_BRAND_NAME is explicitly set (not legacy APP_NAME). */
+  get isConfigured(): boolean {
+    return Boolean(envTrimmed("NEXT_PUBLIC_BRAND_NAME"));
+  },
   /** Legal entity for Stripe, contracts, and compliance. */
-  legalEntity:
-    process.env.NEXT_PUBLIC_LEGAL_ENTITY ??
-    process.env.NEXT_PUBLIC_COMPANY_NAME ??
-    "Maris Stella Labs",
+  get legalEntity(): string {
+    return readLegalEntity();
+  },
   /** Legal entity location for footers and CAN-SPAM. */
-  legalLocation:
-    process.env.NEXT_PUBLIC_LEGAL_LOCATION ??
-    process.env.NEXT_PUBLIC_COMPANY_LOCATION ??
-    "Colorado, USA",
+  get legalLocation(): string {
+    return readLegalLocation();
+  },
   /** DBA / trade name filed with Colorado SOS — set when registered. */
-  dbaName: process.env.NEXT_PUBLIC_DBA_NAME?.trim() || null,
+  get dbaName(): string | null {
+    return envTrimmed("NEXT_PUBLIC_DBA_NAME") ?? null;
+  },
   /** CAN-SPAM requires a valid physical postal address in outreach emails. */
-  postalAddress:
-    process.env.NEXT_PUBLIC_COMPANY_ADDRESS ??
-    "[Registered business address — Colorado, USA]",
-  supportEmail:
-    process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@marisstellalabs.com",
-  emailFrom: process.env.EMAIL_FROM ?? "noreply@marisstellalabs.com",
+  get postalAddress(): string {
+    return readPostalAddress();
+  },
+  get supportEmail(): string {
+    return envTrimmed("NEXT_PUBLIC_SUPPORT_EMAIL") ?? SUPPORT_EMAIL_FALLBACK;
+  },
+  get emailFrom(): string {
+    return envTrimmed("EMAIL_FROM") ?? EMAIL_FROM_FALLBACK;
+  },
 } as const;
 
 /** Marketing footer: public brand + legal parent company. */
