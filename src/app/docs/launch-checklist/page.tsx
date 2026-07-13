@@ -258,7 +258,10 @@ export default function LaunchChecklistDocPage() {
           ). Re-running Sync to Stripe after editing only a name should not create duplicate
           Products; changing a price should create a new Price on the same Product. After Sync,
           edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
-          server-side; only a price change clears the Price id). Remove a previously synced SKU,
+          server-side; only a price change clears the Price id). With Convex configured, Save
+          catalog / Sync to Stripe fail closed on Convex errors (<code>requireConvex</code>) —
+          never claim success after a SQLite-only write that other instances would still treat
+          as unsynced (Buy now blocked). Remove a previously synced SKU,
           Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
           Stripe Product becomes inactive and current SKUs stay active. Before Sync, confirm
           pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
@@ -324,10 +327,13 @@ export default function LaunchChecklistDocPage() {
           the operator Inquiries panel (persist required — a DB failure returns 503, not a fake
           Thanks). With Convex configured, contact inserts must fail closed on Convex errors (
           <code>requireConvex</code>) — never claim success after a SQLite-only write that other
-          instances cannot see. Reply from the panel (Resend), or archive when done. Email notify
-          to the business fires only after a successful insert. Confirm unreplied-inquiry count on
-          pipeline health drops after reply (new + read count as unreplied; replied/archived do
-          not).
+          instances cannot see. Reply from the panel (Resend), or archive when done. With Convex
+          configured, Reply / Mark read / Archive also fail closed (
+          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and Reply marks <code>replied</code> before
+          the email leaves — never claim success after a SQLite-only replied mark, and never send
+          before the durable mark. Email notify to the business fires only after a successful
+          insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
+          count as unreplied; replied/archived do not).
         </li>
       </ol>
 

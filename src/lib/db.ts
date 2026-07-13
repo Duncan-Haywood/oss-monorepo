@@ -1590,9 +1590,17 @@ export async function listClientInquiriesBySlug(
   return rows.map(mapClientInquiryRow);
 }
 
+/**
+ * Update an inquiry's status (new / read / replied / archived).
+ * Pass { requireConvex: true } (INQUIRY_REPLY_CONVEX_PRIMARY) from
+ * updateInquiryStatusAction so a Convex mutation failure does not silently
+ * leave status only in instance-local SQLite while unrepliedInquiryCount /
+ * mark-read metrics read Convex-first.
+ */
 export async function updateClientInquiryStatus(
   inquiryId: string,
   status: ClientInquiryStatus,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
     try {
@@ -1601,7 +1609,14 @@ export async function updateClientInquiryStatus(
         status,
       })) as ClientInquiry | null;
       if (updated) return updated;
+      // Shared store is authoritative when requireConvex — do not invent from SQLite.
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        return null;
+      }
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateClientInquiryStatus", e);
+      }
       console.warn(
         `Failed to update inquiry ${inquiryId} on Convex, falling back to SQLite`,
         e,
@@ -1649,10 +1664,15 @@ export async function getClientInquiryById(
 
 /**
  * Persist a successful operator reply: status=replied + body + repliedAt.
+ * Pass { requireConvex: true } (INQUIRY_REPLY_CONVEX_PRIMARY) from
+ * replyToInquiryAction so a Convex mutation failure does not silently leave
+ * the replied mark only in instance-local SQLite while unrepliedInquiryCount
+ * reads Convex-first (duplicate-reply risk). Callers must mark BEFORE Resend.
  */
 export async function recordClientInquiryReply(
   inquiryId: string,
   operatorReply: string,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
     try {
@@ -1661,7 +1681,14 @@ export async function recordClientInquiryReply(
         operatorReply,
       })) as ClientInquiry | null;
       if (updated) return updated;
+      // Shared store is authoritative when requireConvex — do not invent from SQLite.
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        return null;
+      }
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordClientInquiryReply", e);
+      }
       console.warn(
         `Failed to record inquiry reply ${inquiryId} on Convex, falling back to SQLite`,
         e,
@@ -2057,8 +2084,17 @@ function mapCommerceCatalogRow(row: SqliteCommerceCatalogRow): CommerceCatalog {
   };
 }
 
+/**
+ * Persist (or replace) a Commerce catalog row.
+ *
+ * Pass { requireConvex: true } from saveCommerceCatalogAction /
+ * syncCommerceCatalogToStripeAction so a Convex mutation failure surfaces
+ * instead of SQLite-only success while Convex-first Buy now / unsynced
+ * readers still miss stripePriceId on other instances.
+ */
 export async function upsertCommerceCatalog(
   input: UpsertCommerceCatalogInput,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<CommerceCatalog> {
   const catalog: CommerceCatalog = {
     leadSlug: input.leadSlug,
@@ -2075,6 +2111,9 @@ export async function upsertCommerceCatalog(
       });
       return catalog;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("upsertCommerceCatalog", e);
+      }
       console.warn(
         `Failed to upsert commerce catalog for ${catalog.leadSlug} on Convex, falling back to SQLite`,
         e,

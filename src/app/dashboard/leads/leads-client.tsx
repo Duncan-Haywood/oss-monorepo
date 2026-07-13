@@ -554,6 +554,13 @@ export function LeadsClient({
     startTransition(async () => {
       const res = await replyToInquiryAction(inquiryId, body);
       if (!res.success) {
+        // Persist-then-notify may have already marked replied before a send
+        // failure — refresh the row so unreplied UI matches the durable mark.
+        if ("inquiry" in res && res.inquiry) {
+          setInquiries((prev) =>
+            prev.map((inq) => (inq.id === inquiryId ? res.inquiry! : inq)),
+          );
+        }
         alert(`Reply failed: ${res.error}`);
         return;
       }

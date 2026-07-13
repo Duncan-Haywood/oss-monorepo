@@ -219,7 +219,11 @@ export default function ArchitectureDocPage() {
         <code>live</code> → <code>provisioned</code>.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
-        <code>replied</code> with stored body). Opening the reply composer on a{" "}
+        <code>replied</code> with stored body). When Convex is configured, reply + status
+        marks pass <code>requireConvex</code> (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and
+        Reply durably marks <code>replied</code> before Resend (persist-then-notify) so
+        unreplied metrics on other instances cannot miss a successful reply or risk a
+        duplicate send. Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
         unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage
@@ -322,7 +326,10 @@ export default function ArchitectureDocPage() {
         <code>src/lib/commerce/stripe-sync.ts</code>) to idempotently create/find a Stripe
         Product + Price per SKU (keyed by <code>commerce_sku_&#123;leadSlug&#125;_&#123;skuId&#125;</code>{" "}
         metadata, reuses <code>STRIPE_SECRET_KEY</code> — no new secrets), then persists
-        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. Catalog
+        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. When Convex
+        is configured, Save catalog and Sync to Stripe pass <code>requireConvex</code> (
+        <code>COMMERCE_CATALOG_CONVEX_PRIMARY</code>) so a mutation failure surfaces instead of
+        SQLite-only success while Buy now / unsynced readers stay Convex-first. Catalog
         saves re-attach those ids from the existing DB row via{" "}
         <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.
         Sync never archives Products for removed SKUs — operators click{" "}
