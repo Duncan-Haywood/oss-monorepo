@@ -122,6 +122,15 @@ export default function ProductBundlesDocPage() {
         <li>Online orders or deposits → add Commerce</li>
       </ul>
 
+      <h2>Source of truth</h2>
+      <p>
+        Sold USD amounts and Stripe Price env var names live in{" "}
+        <code>src/lib/pricing/bundles.ts</code> (direct Vitest coverage in{" "}
+        <code>bundles.test.ts</code>). Checkout UI, tier upsell, bootstrap, and env readiness all
+        read from that module — Stripe Price IDs themselves stay in secrets after operator
+        bootstrap.
+      </p>
+
       <h2>Upsell path</h2>
       <p>Preview tier cards → self-serve Stripe, or platform voice explains tiers → checkout link via SMS.</p>
     </DocPage>
