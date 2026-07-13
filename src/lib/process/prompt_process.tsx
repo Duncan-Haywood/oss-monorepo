@@ -1033,6 +1033,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/quirky-davinci-b0l1eb",
   },
+  {
+    id: "fulfillment-debt-list-completeness",
+    summary:
+      "Empty-backlog audit after PR #106/#109: listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs still cap at 100/200 newest rows (Convex .take unordered) while listMarketingPacksDue / listClientVoicePacksDue / listCommerceCatalogsMissing / listCommerceCatalogsUnsynced treat absence-from-the-page as missing — past the window a fulfilled lead looks due (false Generate debt) and an unsynced catalog can look synced (Buy now stays broken). Same newest-page undercount class as commerce-payouts-unpaid-ledger-completeness. Prefer uncapped collect for debt surfaces.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-4546",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
