@@ -556,7 +556,10 @@ export default function ArchitectureDocPage() {
         map entry is required so Convex primary deploys actually persist; when Convex is configured
         the operator action also passes <code>requireConvex</code> via{" "}
         <code>COMMERCE_PAID_OUT_CONVEX_PRIMARY</code> so a mutation failure surfaces instead of
-        SQLite-only success while unpaid owed readers stay Convex-first) once the operator has actually sent the client
+        SQLite-only success while unpaid owed readers stay Convex-first; action-level Vitest in{" "}
+        <code>mark-commerce-order-paid-out-action.test.ts</code> locks auth, already-paid-out,
+        requireConvex fail-closed, and revalidate glue that paid-out-persist / orders helper
+        suites alone do not cover) once the operator has actually sent the client
         their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
         card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look

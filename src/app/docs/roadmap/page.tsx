@@ -331,9 +331,10 @@ export default function RoadmapDocPage() {
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
         <strong>Mark paid out</strong> action (<code>getCommerceOrderByStripeSessionId</code>,{" "}
-        <code>paidOutAt</code>, <code>requireConvex</code> when Convex is configured) so settled
-        orders drop out
-        of the health card, panel, and digest owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
+        <code>paidOutAt</code>, <code>requireConvex</code> when Convex is configured;
+        action-level Vitest in <code>mark-commerce-order-paid-out-action.test.ts</code>) so
+        settled orders drop out of the health card, panel, and digest owed totals, guarding
+        against double-paying a client. Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
         Abandoned Buy now panel + digest section with a recovery email linking{" "}
