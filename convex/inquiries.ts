@@ -169,6 +169,32 @@ export const listBySlug = query({
   },
 });
 
+/**
+ * Every commerce_checkout inquiry for a lead, uncapped — feeds Commerce Buy
+ * now webhook session dedup (planCommerceWebhookSideEffects). A newest-N
+ * listBySlug page can drop an older commerce_checkout row once contact /
+ * Request-order / Buy now volume exceeds the page, so Stripe redelivery
+ * falsely recovers (duplicate operator inbox + client receipt). See
+ * commerce-webhook-inquiry-idempotency-list-completeness in /docs/process.
+ */
+export const listCommerceCheckoutBySlug = query({
+  args: {
+    leadSlug: v.string(),
+  },
+  returns: v.array(inquiryReturn),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query("clientInquiries")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const commerceCheckout = rows.filter(
+      (row) => row.source === "commerce_checkout",
+    );
+    commerceCheckout.sort((a, b) => b.createdAt - a.createdAt);
+    return commerceCheckout.map(mapInquiry);
+  },
+});
+
 export const getById = query({
   args: {
     inquiryId: v.string(),

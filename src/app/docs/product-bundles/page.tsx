@@ -90,8 +90,9 @@ export default function ProductBundlesDocPage() {
         from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the
         same Checkout Session recover a missing inquiry or client email when the{" "}
         <code>commerceOrders</code> ledger row exists but no prior{" "}
-        <code>commerce_checkout</code> inquiry embeds that session id; they do not re-fire once
-        that inquiry exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
+        <code>commerce_checkout</code> inquiry embeds that session id (lookup uses uncapped{" "}
+        <code>listCommerceCheckoutInquiriesBySlug</code>, not a newest-N inbox page); they do not
+        re-fire once that inquiry exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
         retries into that recovery path. Retail, restaurant
         ordering, booking deposits, or gift cards.
       </p>

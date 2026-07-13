@@ -137,6 +137,7 @@ export const AGENT_PROTOCOL = [
   "Fulfillment-debt list completeness (fulfillment-debt-list-completeness): listMarketingPacksForMonth / listClientVoicePacks / listCommerceCatalogs must .collect() every row (SQLite without LIMIT; Convex sort newest-first after collect) — the old 100/200 newest .take() undercounted the same way listCommerceOrders undercounted unpaid liability. Debt helpers treat absence-from-page as missing (false Generate pack/voice debt) or can hide an unsynced catalog past the window (false all-synced → Buy now stays broken). Optional limit args are ignored for call-site compatibility. When that ships and free NEXT_STEPS are again gated, prefer unreplied-inquiry-list-completeness (dashboard unrepliedInquiryCount still feeds from listClientInquiries(20/50/100) newest page — older unreplied vanish from health/digest) or empty-backlog audits (billing-portal create-portal-session tests, webhook idempotency) over inventing optional aggregates.",
   "billing-portal-testable-refactor closed the last untested Stripe orchestration module (src/lib/billing/create-portal-session.ts) — it now matches the stripe-sync.ts / bootstrap-stripe-prices.ts pattern (client passed in behind a minimal structural interface; only the two call sites construct `new Stripe(secretKey)` and gate on STRIPE_SECRET_KEY). Every payment-critical lib module (checkout, webhook, deploy handoff, commerce sync, bootstrap-prices, billing portal) now has direct unit coverage — if a future empty-backlog audit is hunting for the next untested-orchestrator gap via the `find src/lib -name \"*.ts\" -not -name \"*.test.ts\" -not -name \"index.ts\"` minus `.test.ts` diff, the remaining untested files are pure type/data modules (types.ts, bundles.ts, demo-catalog.ts, seo.ts) or generator/pack modules already exercised indirectly through monthly-pack.test.ts / faq-pack.test.ts — re-scan for genuinely uncovered branches in those generators before assuming the diff itself proves a gap.",
   "Unreplied-inquiry list completeness (unreplied-inquiry-list-completeness) done: listUnrepliedInquiries (src/lib/db.ts) returns every status new+read row uncapped — convex/inquiries.listUnreplied merges two by_status index .collect() scans (new, read) and sorts newest-first; SQLite fallback is WHERE status IN ('new','read') ORDER BY createdAt DESC with no LIMIT. computePipelineHealth's `inquiries` field and buildDailyDigest's `inquiries` field are both fully covered by status new+read (newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unrepliedInquiries) — feed them listUnrepliedInquiries(), never a capped listClientInquiries(N) page. Where a page also needs inbox display (e.g. /dashboard/leads' LeadsClient initialInquiries), fetch both: the capped page for display, the uncapped unreplied set for health/digest — do not reuse one fetch for both purposes. Empty-backlog Convex API map audit re-run — no missing registrations (api.leads.seed is registered-but-unused by db.ts, which is fine; it is called from the seed script, not a db.ts wrapper). Remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — do not fake-complete; queue a fresh empty-backlog sold-capability or multi-instance regression audit next.",
+  "Commerce Buy now webhook session dedup (planCommerceWebhookSideEffects) must feed from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — never listClientInquiriesBySlug's newest 50/200 page. Once contact / Request-order / Buy now volume exceeds that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Remaining NEXT_STEPS stay operator/legal-gated; prefer empty-backlog sold-capability / multi-instance regression audits next — do not invent optional aggregates.",
 ] as const;
 
 /**
@@ -1068,6 +1069,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-a0bf",
+  },
+  {
+    id: "commerce-webhook-inquiry-idempotency-list-completeness",
+    summary:
+      "Empty-backlog audit after unreplied-inquiry-list-completeness: commerce Buy now webhook feeds planCommerceWebhookSideEffects from listClientInquiriesBySlug (default 50 / max 200 newest) — once a lead has more contact/Request-order/Buy-now inquiries than that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Shipped: listCommerceCheckoutInquiriesBySlug (source=commerce_checkout only, uncapped) via convex/inquiries.listCommerceCheckoutBySlug + SQLite WHERE source='commerce_checkout'; wired into the webhook; truncation regression in side-effect-recovery.test.ts.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-0ed2",
+  },
+  {
+    id: "resend-brand-name-html-escape",
+    summary:
+      "Empty-backlog audit after unreplied-inquiry-list-completeness (PR #113): src/lib/email/resend.ts still interpolates brand.name (and CAN-SPAM footer brand.legalEntity / brand.postalAddress) raw into outbound HTML — outreach Email 1/2/3, abandoned checkout, inquiry reply, Starter upsell, receipt, and the shared sendEmail footer — while marketing/voice pack delivery, commerce client receipt, commerce abandoned recovery, and the Stripe webhook DNS handoff already use escapeHtmlForEmail(brand.name). NEXT_PUBLIC_BRAND_NAME / legal entity / postal address are env-sourced operator strings; an apostrophe or angle bracket breaks HTML and is the same asymmetry class as the PR #76 businessName escape. Prefer this over inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach",
+    owner: "cursor/business-process-evolution-872f",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2519,6 +2536,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "listUnrepliedInquiries (status new+read, uncapped) now feeds pipeline-health unrepliedInquiryCount/oldestUnrepliedInquiryAgeHours and the daily digest unrepliedInquiries section on all three call sites (/dashboard, /dashboard/leads, sendDailyDigestAction) — none of them read from a capped listClientInquiries(N) page anymore for those metrics.",
     rationale:
       "Same newest-page undercount class as fulfillment-debt-list-completeness and commerce-payouts-unpaid-ledger-completeness: listClientInquiries(20/50/100) newest-first pages could drop an old unreplied inquiry once total inquiry volume (including replied/archived) exceeded the page size, silently hiding Starter CRM support debt from the operator. convex/inquiries.listUnreplied merges two by_status index scans (new, read) rather than a single .collect() over the whole table, keeping the Convex read scoped to the rows that matter instead of an unindexed full-table filter. /dashboard/leads still needs a separate capped listClientInquiries(50) fetch alongside the new uncapped one because that page also feeds the inbox UI (LeadsClient), which intentionally stays paginated — only the health/digest aggregates needed the uncapped fix.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Commerce Buy now webhook session dedup feeds planCommerceWebhookSideEffects from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — not listClientInquiriesBySlug's newest 50/200 page.",
+    rationale:
+      "Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health: once a lead accrues more than 50 contact/Request-order/Buy now inquiries, an older commerce_checkout inquiry embedding stripeSessionId falls off listClientInquiriesBySlug and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email — sold Commerce promise). Dedicated commerce_checkout-only collect keeps the idempotency key visible without inventing aggregates. Sibling business-process-evolution-872f claimed resend-brand-name-html-escape in the same window — different surface. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -4166,7 +4190,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented Generate voice split-brain risk + next upsertLead regression",
       "Verified: npm test (365 passed, +2 new) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(194, 195),
+    decisions: BUSINESS_DECISIONS.slice(193, 194),
   },
   {
     date: "2026-07-13",
@@ -4184,7 +4208,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented CRM create-path split-brain risk + same-cron pivot off 1f28",
       "Verified: npm test (367 passed, +2 new) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(195, 196),
+    decisions: BUSINESS_DECISIONS.slice(194, 195),
   },
   {
     date: "2026-07-13",
@@ -4201,7 +4225,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented stage-dropdown split-brain + outreach_sent desync risk",
       "Verified: npm test (369 passed, +2 new) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(196, 197),
+    decisions: BUSINESS_DECISIONS.slice(195, 196),
   },
   {
     date: "2026-07-13",
@@ -4214,7 +4238,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — prefer bundle-price-env-readiness after lead-stage; empty-backlog audits remain valid after that",
       "BUSINESS_DECISIONS — documented same-cron fold + Price env readiness queue",
     ],
-    decisions: BUSINESS_DECISIONS.slice(197, 198),
+    decisions: BUSINESS_DECISIONS.slice(196, 197),
   },
   {
     date: "2026-07-13",
@@ -4231,7 +4255,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented sale-blocking early signal without fake-completing bootstrap",
       "Verified: npm test (374 passed, +5 new) + lint + build all clean; npm run dev — /dashboard and /dashboard/leads show checkout-blocked banner (7/7 missing Price env vars)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(198, 199),
+    decisions: BUSINESS_DECISIONS.slice(197, 198),
   },
   {
     date: "2026-07-13",
@@ -4244,7 +4268,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented the digest escaper consolidation",
       "Verified: npm test (369 passed) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(199, 200),
+    decisions: BUSINESS_DECISIONS.slice(198, 199),
   },
   {
     date: "2026-07-13",
@@ -4265,7 +4289,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented newest-page undercount + by-session Mark paid out lookup",
       "Verified: npm test + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(200, 201),
+    decisions: BUSINESS_DECISIONS.slice(199, 200),
   },
   {
     date: "2026-07-13",
@@ -4278,7 +4302,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Closed PR #107 (Duncan-Haywood/local-site-studio) as redundant with already-merged PR #106",
       "Verified: npm test (375 passed) + lint + build clean on the cherry-picked commits before discovering redundancy; no changes carried to main",
     ],
-    decisions: BUSINESS_DECISIONS.slice(201, 202),
+    decisions: BUSINESS_DECISIONS.slice(200, 201),
   },
   {
     date: "2026-07-13",
@@ -4294,7 +4318,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented the shared-pagination-helper + structural-interface refactor and why it closes a real coverage gap without behavior change",
       "Verified: npm test (381 passed, +6 new) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(202, 203),
+    decisions: BUSINESS_DECISIONS.slice(201, 202),
   },
   {
     date: "2026-07-13",
@@ -4310,7 +4334,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented the refactor and why the audit trail (src/lib/*.ts vs *.test.ts diff) surfaced it as the next genuine gap",
       "Verified: npm test (399 passed, +18 new) + lint + build all clean; npm run dev — /dashboard/leads, /dashboard, /preview/demo-cafe, /docs/process return 200; POST /api/stripe/billing-portal returns 400 (missing sessionId) and 501 (missing STRIPE_SECRET_KEY) as expected",
     ],
-    decisions: BUSINESS_DECISIONS.slice(203, 204),
+    decisions: BUSINESS_DECISIONS.slice(202, 203),
   },
   {
     date: "2026-07-13",
@@ -4328,7 +4352,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented newest-page undercount for packs/catalogs debt helpers",
       "Verified on sibling branch before fold into a0bf",
     ],
-    decisions: BUSINESS_DECISIONS.slice(204, 205),
+    decisions: BUSINESS_DECISIONS.slice(203, 204),
   },
   {
     date: "2026-07-13",
@@ -4346,7 +4370,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/prompt-process-evolution-4546 (fulfillment-debt-list-completeness) — both ITERATIONS kept",
       "Verified: npm test (396 passed after 4546 fold) + lint + build all clean",
     ],
-    decisions: BUSINESS_DECISIONS.slice(205, 206),
+    decisions: BUSINESS_DECISIONS.slice(204, 205),
   },
   {
     date: "2026-07-13",
@@ -4364,6 +4388,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — documented the fix + confirmed Convex API map completeness",
       "BUSINESS_DECISIONS — documented the uncapped-unreplied-set decision and rationale",
       "Verified: npm test (398 passed, +2 new) + lint + build all clean; npm run dev manual check of /dashboard and /dashboard/leads (both 200, pipeline-health panel renders, no console errors)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(205, 206),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-0ed2",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #113 (unreplied-inquiry-list-completeness) — only gated secrets/OAuth/counsel remained. Sibling business-process-evolution-872f claimed resend-brand-name-html-escape (different surface). Empty-backlog audit found Commerce Buy now webhook session dedup still fed planCommerceWebhookSideEffects from listClientInquiriesBySlug (newest 50/200) — past that window an older commerce_checkout inquiry embedding stripeSessionId vanishes and Stripe redelivery falsely recovers (duplicate inbox + client receipt). Shipped uncapped listCommerceCheckoutInquiriesBySlug. Tightened prior ITERATIONS decision slices (3eea→ez3zfp) that had drifted one past their written length. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "convex/inquiries.ts listCommerceCheckoutBySlug — by_leadSlug .collect(), filter source=commerce_checkout, newest-first",
+      "src/lib/db.ts listCommerceCheckoutInquiriesBySlug — Convex-first + SQLite WHERE source='commerce_checkout' uncapped; static API map registration",
+      "src/app/api/stripe/webhook/route.ts — commerce_sku branch uses listCommerceCheckoutInquiriesBySlug for planCommerceWebhookSideEffects",
+      "side-effect-recovery.test.ts — truncation regression (newest-50 contact page hides older commerce_checkout; commerce_checkout-only list does not)",
+      "Docs: architecture / roadmap / product-bundles — uncapped commerce_checkout lookup for webhook dedup",
+      "NEXT_STEPS: commerce-webhook-inquiry-idempotency-list-completeness done",
+      "AGENT_PROTOCOL — webhook session dedup must not use capped listClientInquiriesBySlug",
+      "BUSINESS_DECISIONS — documented newest-page false-recovery risk + slice-index plumbing fix",
+      "ITERATIONS — tightened slice(198..207) off-by-ones from 3eea through ez3zfp to absolute indices",
+      "fold: kept sibling 872f claim resend-brand-name-html-escape (in_progress) so both NEXT_STEPS survive merge",
     ],
     decisions: BUSINESS_DECISIONS.slice(206, 207),
   },

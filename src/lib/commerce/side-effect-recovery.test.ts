@@ -125,4 +125,48 @@ describe("planCommerceWebhookSideEffects", () => {
       reason: "already_notified",
     });
   });
+
+  it("truncation regression: newest-50 page can miss an older commerce_checkout notify", () => {
+    // Simulate listClientInquiriesBySlug(50)'s newest-first page: 50 fresh
+    // contact_form rows hide the older commerce_checkout that embeds the
+    // session id. Feeding that page into planCommerceWebhookSideEffects
+    // falsely recovers (duplicate inbox + client receipt). The uncapped
+    // commerce_checkout-only list still sees the notify.
+    const olderSessionId = "cs_test_older_buy_now";
+    const olderCommerceCheckout = {
+      source: "commerce_checkout" as const,
+      message: `Paid order via Buy now: Latte ($5.00) — Stripe session ${olderSessionId}, SKU sku_1.`,
+    };
+    const newestFiftyPage = Array.from({ length: 50 }, (_, i) => ({
+      source: "contact_form" as const,
+      message: `Contact form message ${i}`,
+    }));
+    const commerceCheckoutOnly = [olderCommerceCheckout];
+
+    expect(
+      hasCommerceCheckoutInquiryForSession(newestFiftyPage, olderSessionId),
+    ).toBe(false);
+    expect(
+      planCommerceWebhookSideEffects({
+        alreadyRecorded: true,
+        inquiriesForLead: newestFiftyPage,
+        stripeSessionId: olderSessionId,
+      }).reason,
+    ).toBe("redelivery_recovery");
+
+    expect(
+      hasCommerceCheckoutInquiryForSession(commerceCheckoutOnly, olderSessionId),
+    ).toBe(true);
+    expect(
+      planCommerceWebhookSideEffects({
+        alreadyRecorded: true,
+        inquiriesForLead: commerceCheckoutOnly,
+        stripeSessionId: olderSessionId,
+      }),
+    ).toEqual({
+      runInquiry: false,
+      runClientReceipt: false,
+      reason: "already_notified",
+    });
+  });
 });

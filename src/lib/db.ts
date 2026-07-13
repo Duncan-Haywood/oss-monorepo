@@ -371,6 +371,7 @@ const api: any = {
     list: "inquiries:list",
     listUnreplied: "inquiries:listUnreplied",
     listBySlug: "inquiries:listBySlug",
+    listCommerceCheckoutBySlug: "inquiries:listCommerceCheckoutBySlug",
     getById: "inquiries:getById",
     updateStatus: "inquiries:updateStatus",
     recordReply: "inquiries:recordReply",
@@ -1654,6 +1655,42 @@ export async function listClientInquiriesBySlug(
       "SELECT * FROM client_inquiries WHERE leadSlug = ? ORDER BY createdAt DESC LIMIT ?",
     )
     .all(leadSlug, safeLimit) as unknown as SqliteClientInquiryRow[];
+  return rows.map(mapClientInquiryRow);
+}
+
+/**
+ * Every commerce_checkout inquiry for a lead (uncapped) — feeds Commerce Buy
+ * now webhook session dedup via planCommerceWebhookSideEffects. Prefer this
+ * over listClientInquiriesBySlug's newest 50/200 page: once contact /
+ * Request-order / Buy now volume exceeds that window, an older
+ * commerce_checkout row embedding stripeSessionId falls off the page and
+ * Stripe redelivery falsely recovers (duplicate inbox + client receipt).
+ */
+export async function listCommerceCheckoutInquiriesBySlug(
+  leadSlug: string,
+): Promise<ClientInquiry[]> {
+  if (convexClient) {
+    try {
+      return (await convexClient.query(
+        api.inquiries.listCommerceCheckoutBySlug,
+        { leadSlug },
+      )) as ClientInquiry[];
+    } catch (e) {
+      console.warn(
+        `Failed to list commerce_checkout inquiries for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM client_inquiries
+       WHERE leadSlug = ? AND source = 'commerce_checkout'
+       ORDER BY createdAt DESC`,
+    )
+    .all(leadSlug) as unknown as SqliteClientInquiryRow[];
   return rows.map(mapClientInquiryRow);
 }
 
