@@ -1400,8 +1400,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "generate-client-voice-pack-action-test-coverage",
     summary:
       "Empty-backlog twin after anthropic-env-readiness: generateClientVoicePackAction is the operator Generate voice path for sold Complete phone-script fulfillment, but only generators/faq-pack suites exist — no action-level Vitest. Prefer when anthropic banner is done; claim separately from generate-marketing-pack-action-test-coverage in the same cron window.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/business-process-evolution-b17e",
   },
   {
     id: "operator-digest-email-env-readiness",
