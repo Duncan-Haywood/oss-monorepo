@@ -1179,6 +1179,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "claude/relaxed-galileo-e13pc6",
   },
+  {
+    id: "stripe-webhook-route-test-coverage",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect); a Convex/SQLite parity, webhook-idempotency, HTML-escaping, and truncation audit found no new bugs (all previously-shipped guards held). src/app/api/stripe/webhook/route.ts — the single highest money-criticality file in the repo (bundle payment + handoff, Commerce Buy now ledger, both with redelivery recovery) — had zero direct test coverage; only its extracted pure decision helpers (planBundleWebhookSideEffects, planCommerceWebhookSideEffects) were tested in isolation, not the orchestration itself (ordering, 5xx-per-failure-step, the commerce_sku vs bundle branch split). Shipped route.test.ts: signature/config failures, bundle first-delivery + redelivery skip/recovery + all three 5xx fulfillment steps, commerce first-delivery + redelivery skip/recovery + missing-skuId/missing-slug guards + both 5xx fulfillment steps, and best-effort-vs-durable email/marker distinctions for both branches.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/quirky-davinci-jyedzb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -2713,6 +2721,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "/preview/[slug] JSON-LD is now serialized via safeJsonLdScript (escapes '<' to \\u003c), never a raw JSON.stringify inside dangerouslySetInnerHTML.",
     rationale:
       "With the free NEXT_STEPS backlog fully gated (secrets/OAuth/counsel), a security-focused empty-backlog audit checked every dangerouslySetInnerHTML sink in the codebase (there is exactly one) rather than re-running the already-repeated email-HTML escaping / requireConvex / truncation sweeps. Lead fields feeding the JSON-LD block (businessName, description, address, city, state) are free text from CSV import today and a future Places scrape per lead-ingestion — untrusted input reaching an unauthenticated public page. A value containing the literal '</script>' would close the JSON-LD script element early and let attacker HTML/script execute for every real visitor of that lead's preview site — a stored XSS with real reputational and legal exposure for a business selling trust to local business owners. escapeHtmlForEmail was deliberately not reused: it HTML-entity-escapes for email bodies, not JS/script-tag content. Sibling seo-helpers-unit-coverage tested leadLocalBusinessJsonLd's shape but never exercised the dangerouslySetInnerHTML sink, so it did not catch this — test coverage of a data shape is not the same as coverage of every render sink that consumes it.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/stripe/webhook/route.ts (checkout.session.completed orchestration — bundle payment/handoff and Commerce Buy now ledger, both with redelivery recovery) gets its own route-level Vitest suite, mocking only the Stripe SDK, @/lib/db, and @/lib/email/resend — the pure decision helpers it calls (planBundleWebhookSideEffects, planCommerceWebhookSideEffects, commerceOrderPaidInquiryMessage) run for real so the test exercises actual orchestration, not a restatement of its own mocks.",
+    rationale:
+      "A fresh empty-backlog audit (Convex/SQLite table parity, static Convex API map registration, webhook side-effect idempotency, HTML/script injection sinks, capped-list truncation feeding an eligibility/idempotency check) found every previously-shipped guard still holding and no new bug — the systematic fix series across ~20 prior iterations (PRs #104-#122) has genuinely closed this class of gap. Rather than force another speculative bug hunt or add a 21st optional aggregate, this iteration shipped coverage on the highest money-criticality file in the repo that had none: every other module the webhook calls into (bundle-side-effect-recovery.ts, commerce/side-effect-recovery.ts) was unit-tested in isolation, but the route itself — the exact ordering of ledger-write-before-email, which failure returns 5xx vs. stays best-effort, and the branch split between commerce_sku and bundle sessions — was never exercised end-to-end. That orchestration is exactly where the fix series' own past regressions lived (missing kind discriminator, alreadyRecorded early-breaking past recoverable emails, marker-write failures needing to force a Stripe retry) — untested orchestration is where the next one would hide. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4725,5 +4740,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (493 passed, +22 net new from the merged seo.test.ts) + lint clean + build clean + npm run dev with /preview/pine-cafe and /dashboard/leads loaded (200s, JSON-LD renders correctly, no runtime errors)",
     ],
     decisions: BUSINESS_DECISIONS.slice(218, 219),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/quirky-davinci-jyedzb",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #123 (preview-jsonld-script-escape) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. Ran a full empty-backlog audit (Convex/SQLite table parity, static Convex API map registration entries, webhook side-effect idempotency, every dangerouslySetInnerHTML/HTML-template-literal sink, capped-list-feeding-eligibility truncation) and found every previously-shipped guard still holding — no new bug. Per AGENT_PROTOCOL's empty-backlog fallback order, shipped route-level test coverage on src/app/api/stripe/webhook/route.ts instead: the single highest money-criticality file in the repo (bundle payment/handoff + Commerce Buy now ledger, both with Stripe-redelivery recovery) had zero direct tests — only its extracted pure decision helpers were covered in isolation, never the orchestration itself.",
+    shipped: [
+      "src/app/api/stripe/webhook/route.test.ts — 21 tests: config/signature/unhandled-event guards; bundle first-delivery (payment + handoff + both buyer emails), redelivery skip (both sent-markers present) and redelivery recovery (only missing email resent), missing slug/tier warn path, and all 3 failure→5xx steps (checkout_session_mark_complete, bundle_payment_or_handoff, bundle_email_sent_marker) plus a best-effort-send-failure-does-not-block-DNS-email case; commerce_sku first-delivery (ledger + inquiry + client receipt), redelivery skip (inquiry already embeds session id) and redelivery recovery (ledger recorded, inquiry missing), missing-skuId and missing-slug guards, no-client-email skip, and both failure→5xx steps (commerce_order_ledger, commerce_order_inquiry) plus a best-effort receipt-email-failure case. Mocks only the Stripe SDK, @/lib/db, and @/lib/email/resend — planBundleWebhookSideEffects / planCommerceWebhookSideEffects / commerceOrderPaidInquiryMessage / @/lib/deploy/handoff run for real so this exercises actual route orchestration, not its own mocks restated.",
+      "NEXT_STEPS: stripe-webhook-route-test-coverage done",
+      "AGENT_PROTOCOL — documented the completed audit categories (Convex parity / API map / webhook idempotency / HTML injection / truncation) as clean, and the route-orchestration-coverage fallback taken instead of inventing a new aggregate",
+      "BUSINESS_DECISIONS — documented why route-level orchestration coverage was the right next move over another speculative bug hunt",
+      "Verified: npm test (514 passed, +21 new) + lint clean + build clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(219, 220),
   },
 ];
