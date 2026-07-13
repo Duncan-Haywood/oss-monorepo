@@ -147,7 +147,8 @@ export const AGENT_PROTOCOL = [
   "voice-anthropic-generator-unit-coverage done: src/lib/voice/generators.test.ts locks StubClientVoiceGenerator edge branches + AnthropicClientVoiceGenerator blank-key / HTTP / parse / length-mismatch fallbacks, prose-wrapped JSON extract, title fallback, and factory memoization — do not rely only on faq-pack.test.ts stub smoke. Twin of marketing-anthropic-generator-unit-coverage. When both generator suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, build-request edge cases) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When marketing-build-request-unit-coverage and voice-build-request-unit-coverage are both free in the same cron window, claim different ones (Growth/Complete monthly-pack request shape vs Complete voice-pack request shape) — they touch different modules. faq-pack / monthly-pack happy-path smoke is not enough for empty services/hours defaults or growth vs complete automationLevel. When both build-request suites are done (or one is claimed), prefer convex-orders-list-newest-first (sort at convex/orders.list source) or another sold-capability / multi-instance regression over inventing optional aggregates.",
   "marketing-build-request-unit-coverage done: src/lib/marketing/build-request.test.ts locks businessContextFromLead empty services/hours/optional-field defaults + monthlyPackRequestForLead growth vs complete packageTier/automationLevel (and explicit override). monthly-pack.test.ts stub smoke is not enough for the request shape that feeds AnthropicMarketingGenerator. Sibling can take voice-build-request-unit-coverage (different module).",
-  "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer voice-build-request-unit-coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "voice-build-request-unit-coverage done: src/lib/voice/build-request.test.ts locks clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead edge branches (empty services → 'our services', hours by-appointment / omit, omitted state/phone/tagline, CLIENT_VOICE_FAQ_SCRIPT_TYPES) — do not rely only on faq-pack.test.ts happy-path smoke. Twin of marketing-build-request-unit-coverage. When both build-request suites and convex-orders-list-newest-first are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1147,9 +1148,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "voice-build-request-unit-coverage",
     summary:
-      "Twin of marketing-build-request-unit-coverage for Complete phone scripts: src/lib/voice/build-request.ts (clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead) is only lightly exercised via faq-pack.test.ts happy path — empty services→[\"our services\"], empty hours→undefined, omitted optional state/phone/tagline need direct coverage. Leave free for a sibling when marketing-build-request is claimed.",
-    status: "todo",
+      "Twin of marketing-build-request-unit-coverage for Complete phone scripts: src/lib/voice/build-request.ts (clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead) was only lightly exercised via faq-pack.test.ts happy path — empty services→[\"our services\"], empty hours→undefined, omitted optional state/phone/tagline, and CLIENT_VOICE_FAQ_SCRIPT_TYPES composition need direct coverage. Shipped: src/lib/voice/build-request.test.ts locking those sold Complete request-shape branches.",
+    status: "done",
     phase: "Phase 7 — Client AI phone",
+    owner: "cursor/business-process-evolution-5383",
   },
   {
     id: "convex-orders-list-newest-first",
@@ -2672,6 +2674,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "convex/orders.list sorts rows newest-first by createdAt at the Convex source; db.ts sortOrdersNewestFirst stays as belt-and-suspenders for Billing Portal latestEligibleOrder.",
     rationale:
       "billing-portal-orders-newest-first already sorted in listOrders after mapping Convex rows, but the Convex query itself still returned unordered .collect(). Sorting at the source closes the gap for any future direct consumer and prevents a one-line db.ts regression from reopening Manage-subscription against a stale order missing stripeCustomerId. Keeping both layers is intentional defense-in-depth, not duplication for its own sake. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/voice/build-request.ts (clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead) gets its own Vitest suite — faq-pack.test.ts happy-path smoke is not enough for the empty services/hours/optional-field contract that shapes Complete phone-script packs.",
+    rationale:
+      "AGENT_PROTOCOL after PR #119 named build-request edge cases as the next free empty-backlog target. Sibling prompt-process-evolution-4792 claimed marketing-build-request + convex-orders-list-newest-first in the same window; this branch took the voice twin left free. Empty services must become ['our services'] and missing hours/state/phone/tagline must omit cleanly — without direct tests those sold Complete fulfillment branches can regress while generator/eligibility suites still pass. Direct coverage locks the contract. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4624,18 +4633,33 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-13",
     branch: "cursor/prompt-process-evolution-4792",
     summary:
-      "Free NEXT_STEPS backlog empty after PR #118/#119 — only gated secrets/OAuth/counsel remained. AGENT_PROTOCOL named build-request edge cases next; claimed marketing-build-request-unit-coverage (left voice twin for sibling business-process-evolution-5383) and complementary convex-orders-list-newest-first. Shipped direct Vitest coverage for businessContextFromLead / monthlyPackRequestForLead edge branches, plus newest-first sort at convex/orders.list (db.ts sort kept as belt-and-suspenders). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog empty after PR #118/#119 — only gated secrets/OAuth/counsel remained. AGENT_PROTOCOL named build-request edge cases next; claimed marketing-build-request-unit-coverage (left voice twin for sibling business-process-evolution-5383) and complementary convex-orders-list-newest-first. Shipped direct Vitest coverage for businessContextFromLead / monthlyPackRequestForLead edge branches, plus newest-first sort at convex/orders.list (db.ts sort kept as belt-and-suspenders). Folded sibling 5383 voice-build-request. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/marketing/build-request.test.ts — businessContextFromLead empty services/hours/optional fields + monthlyPackRequestForLead growth vs complete packageTier/automationLevel + explicit override + contentTypes copy",
       "convex/orders.ts list — sort by createdAt desc at Convex source",
       "src/lib/db.ts listOrders — comment that Convex sorts at source; keep sortOrdersNewestFirst belt-and-suspenders",
       "Docs: architecture / roadmap / marketing-automation — build-request coverage + orders.list newest-first at source",
-      "NEXT_STEPS: marketing-build-request-unit-coverage + convex-orders-list-newest-first done; voice-build-request-unit-coverage left todo for sibling",
+      "NEXT_STEPS: marketing-build-request-unit-coverage + convex-orders-list-newest-first done",
       "AGENT_PROTOCOL — claim marketing vs voice build-request separately; Convex orders.list must sort newest-first at source",
       "BUSINESS_DECISIONS — documented request-shape coverage + dual-layer newest-first ordering",
-      "Verified: npm test (468 passed, +9 build-request) + lint clean",
-      "Sibling business-process-evolution-5383 dual-claimed marketing-build-request after our earlier remote claim — keep our implementation; voice-build-request stays free for their pivot",
+      "merge: folded origin/cursor/business-process-evolution-5383 (voice-build-request-unit-coverage) — both ITERATIONS kept",
+      "Verified: npm test (468+ voice twin) + lint clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(213, 215),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-5383",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #119 — only gated secrets/OAuth/counsel remained. Sibling prompt-process-evolution-4792 claimed marketing-build-request-unit-coverage + convex-orders-list-newest-first first; this branch claimed the voice-build-request twin left free. clientVoiceBusinessContextFromLead / clientVoicePackRequestForLead were only smoked via faq-pack.test.ts happy path; empty services/hours/optional-field edges that shape Complete phone scripts had no direct tests. Shipped build-request.test.ts. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/voice/build-request.test.ts — edge coverage for empty services → our services, hours by-appointment / omit, omitted state/phone/tagline, CLIENT_VOICE_FAQ_SCRIPT_TYPES request composition",
+      "NEXT_STEPS: voice-build-request-unit-coverage done; kept sibling marketing-build-request + convex-orders-list-newest-first",
+      "AGENT_PROTOCOL — claim marketing vs voice build-request separately",
+      "BUSINESS_DECISIONS — documented why faq-pack happy-path smoke is insufficient for request-shape edges",
+      "Docs: architecture + voice-agent-flow — note direct Vitest coverage for voice build-request",
+      "Verified: folded into prompt-process-evolution-4792 PR",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(215, 216),
   },
 ];
