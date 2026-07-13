@@ -1025,6 +1025,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-63a8",
   },
+  {
+    id: "stripe-bootstrap-prices-test-coverage",
+    summary:
+      "Empty-backlog audit after PR #107/#108's re-confirmed-clean escapeHtmlForEmail/Convex-API-map/payout-panel sweep: src/lib/pricing/bootstrap-stripe-prices.ts (the Stripe Price bootstrap logic behind the gated stripe-price-objects operator step — touched 4x in the last 30 days) had zero test coverage and duplicated the has_more/starting_after pagination loop that src/lib/commerce/stripe-sync.ts already implements against a minimal structural Stripe interface (the exact pattern AGENT_PROTOCOL requires for testability). bootstrap-stripe-prices.ts instead imported the full `Stripe` SDK class for its client parameter type, which is why it never got the fake-client unit tests stripe-sync.ts has — including the page-1-only-lookup regression class AGENT_PROTOCOL already flags as a real risk once an account holds >100 active Products/Prices (trivial after a few Commerce catalog syncs). Shipped: src/lib/stripe/list-all-pages.ts (shared pagination helper, also adopted by stripe-sync.ts in the same commit — no behavior change there); bootstrap-stripe-prices.ts now takes StripeProductsAndPricesForBootstrap (minimal structural interface) instead of the full Stripe SDK type; bootstrap-stripe-prices.test.ts (7 tests: create, idempotent reuse, stale-price repricing, one-time-vs-recurring disambiguation, full env var coverage, >100-Product pagination). No behavior change to the idempotency contract or the bootstrap-prices route.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/quirky-davinci-b0l1eb",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
@@ -2440,6 +2448,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "No new code shipped this run — re-ran the empty-backlog regression audit (escapeHtmlForEmail asymmetry, Convex API map completeness, Commerce payouts panel data model) after PR #106 landed and found everything already correct; documented the findings instead of manufacturing an aggregate to justify a commit.",
     rationale:
       "A branch opened for this run (commerce-payouts-unpaid-ledger-completeness, cherry-picked from sibling cursor/prompt-process-evolution-63a8) turned out fully redundant once fetched — the sibling had already merged the identical fix directly as PR #106 while this run was verifying it, and main had folded further work (PR #105's digest escapeHtml fix) this run's branch lacked. Closed that PR without merging (see closed PR #107) and reset the designated branch to fresh main per the merged/superseded-branch restart rule. AGENT_PROTOCOL explicitly warns against inventing optional aggregates just to ship something when NEXT_STEPS is gated; a documented clean audit (plus the note that the payout panel's row.paidOutAt branch is a live optimistic-update path, not dead code) is more valuable to sibling agents than a low-value cosmetic change, and matches the precedent set by prior audit-only iterations (e.g. the createOrder/getByStripeSessionId dead-code review already recorded twice above).",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Extracted the has_more/starting_after Stripe list-pagination loop into a shared src/lib/stripe/list-all-pages.ts helper (used by both src/lib/commerce/stripe-sync.ts and src/lib/pricing/bootstrap-stripe-prices.ts), and rewrote bootstrap-stripe-prices.ts to take its Stripe client behind a minimal structural interface (StripeProductsAndPricesForBootstrap) instead of importing the full `Stripe` SDK class for its parameter type — matching the pattern AGENT_PROTOCOL already mandates for testable Stripe-object-sync code.",
+    rationale:
+      "All prior remaining NEXT_STEPS stayed operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect), and a fresh empty-backlog audit re-confirmed escapeHtmlForEmail call sites, the Convex API map, and webhook idempotency were all already clean (three prior iterations had already covered those angles). bootstrap-stripe-prices.ts — the logic behind the gated Stripe Price bootstrap operator step, edited 4 times in the last 30 days — was the one payment-critical module with zero test coverage, and it duplicated (rather than reused) the exact pagination loop stripe-sync.ts already had fully covered, including the >100-active-Products regression class AGENT_PROTOCOL calls out by name. This is a coverage/consistency fix with no behavior change to the idempotency contract (same metadata-key lookup, same one-time-vs-recurring price matching, same envSnippet output) — verified via a fake-Stripe-client test suite covering create, idempotent reuse, stale/mismatched-price repricing, one-time-vs-recurring disambiguation, the full BUNDLES + COMMERCE_ADDON env var set, and the same past-page-1 pagination scenario stripe-sync.test.ts already exercises.",
   },
 ];
 
@@ -4200,5 +4215,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (375 passed) + lint + build clean on the cherry-picked commits before discovering redundancy; no changes carried to main",
     ],
     decisions: BUSINESS_DECISIONS.slice(201, 202),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/quirky-davinci-b0l1eb",
+    summary:
+      "All coded NEXT_STEPS stayed operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect). Re-ran the empty-backlog audit named in AGENT_PROTOCOL (escapeHtmlForEmail asymmetry, Convex API map completeness, webhook idempotency, product-bundles promises vs implementation) and found everything already clean — three prior iterations (PR #104-#108) had already covered those angles. Found a genuine untested-orchestrator gap instead: src/lib/pricing/bootstrap-stripe-prices.ts (the logic behind the gated Stripe Price bootstrap step, edited 4x in the last 30 days) had zero test coverage and duplicated the has_more/starting_after pagination loop that src/lib/commerce/stripe-sync.ts already implements against a minimal structural Stripe interface — the exact testability pattern AGENT_PROTOCOL mandates. Shipped a shared pagination helper + the same structural-interface refactor for bootstrap-stripe-prices.ts, plus a fake-Stripe-client test suite covering idempotent reuse, stale-price repricing, one-time-vs-recurring disambiguation, and the >100-Product pagination regression class. No behavior change to the bootstrap-prices route or the idempotency contract.",
+    shipped: [
+      "src/lib/stripe/list-all-pages.ts — shared Stripe list() has_more/starting_after pagination helper",
+      "src/lib/commerce/stripe-sync.ts — imports the shared listAllPages instead of a locally duplicated copy (no behavior change; existing stripe-sync.test.ts still passes unmodified)",
+      "src/lib/pricing/bootstrap-stripe-prices.ts — takes StripeProductsAndPricesForBootstrap (minimal structural interface) instead of the full Stripe SDK class; reuses listAllPages for findProductByKey/findMatchingPrice",
+      "src/lib/pricing/bootstrap-stripe-prices.test.ts — 7 tests: create-per-spec, idempotent re-run, stale/mismatched-price repricing, one-time-vs-recurring disambiguation, full BUNDLES + COMMERCE_ADDON env var coverage, >100-active-Product pagination",
+      "NEXT_STEPS: stripe-bootstrap-prices-test-coverage done",
+      "BUSINESS_DECISIONS — documented the shared-pagination-helper + structural-interface refactor and why it closes a real coverage gap without behavior change",
+      "Verified: npm test (381 passed, +6 new) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(202, 203),
   },
 ];
