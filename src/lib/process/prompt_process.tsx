@@ -1010,8 +1010,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "bundle-price-env-readiness",
     summary:
       "Empty-backlog follow-up after lead-stage-convex-primary closed the CRM write requireConvex chain: checkout still fails only at session-create time when required STRIPE_PRICE_ID_* env vars are missing — operators get no earlier dashboard/docs signal that every sale is blocked. Prefer a pure readiness helper (list missing bundle/commerce Price env names from BUNDLES + COMMERCE_ADDON) surfaced on /dashboard + launch-checklist, not a new pipeline aggregate. Does not fake-complete stripe-price-objects (bootstrap + paste secrets stays operator-gated).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-3eea",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
