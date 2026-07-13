@@ -1153,8 +1153,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "convex-orders-list-newest-first",
     summary:
       "Defense-in-depth after billing-portal-orders-newest-first: listOrders sorts Convex rows in db.ts via sortOrdersNewestFirst, but convex/orders.list still returns unordered .collect(). Sort newest-first at the Convex source (createdAt desc) so any future direct consumer / accidental db.ts sort removal cannot reopen Billing Portal latestEligibleOrder against a stale order missing stripeCustomerId. Keep db.ts sort as belt-and-suspenders.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-4792",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
