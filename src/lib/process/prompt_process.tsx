@@ -132,6 +132,7 @@ export const AGENT_PROTOCOL = [
   "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only manual stage move leaves funnel state invisible elsewhere (and the outreach_sent path can desync soft stage vs fail-closed OUTREACH_CADENCE mark). Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY into the same helper — this constant covers the dashboard dropdown only. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect. When bundle-price-env-readiness is claimed by a sibling, prefer commerce-payouts-unpaid-ledger-completeness (listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId — listCommerceOrders' 200/500 newest cap undercounts owed liability and can miss Mark paid out) over inventing optional aggregates. Empty-backlog sold-capability / multi-instance regression audits (Convex API map, escapeHtmlForEmail asymmetries, webhook idempotency, untested orchestrators) remain valid when those todos are claimed or done.",
   "bundle-price-env-readiness uses assessBundlePriceEnvReadiness (src/lib/pricing/price-env-readiness.ts) against BUNDLES + COMMERCE_ADDON env names — surface missing STRIPE_PRICE_ID_* on /dashboard + /dashboard/leads + launch-checklist, never as a pipeline-health metric card. Whitespace-only counts as missing. Does not call Stripe and does not fake-complete stripe-price-objects (ALLOW_STRIPE_BOOTSTRAP + paste envSnippet stays operator-gated). When that readiness helper is done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer commerce-payouts-unpaid-ledger-completeness (or empty-backlog sold-capability / multi-instance regression audits) over inventing optional aggregates.",
   "escapeHtmlForEmail-asymmetry audit done: src/lib/digest/daily-digest.ts's local escapeHtml() (missing the ' → &#39; escape) is gone — it now imports escapeHtmlForEmail from ../inquiries/reply like every other outbound HTML email. Do not reintroduce a second escaper for a new email surface; import escapeHtmlForEmail directly. With bundle-price-env-readiness and commerce-payouts-unpaid-ledger-completeness also done, remaining empty-backlog audit angles are Convex API map completeness (src/lib/db.ts), webhook idempotency, and untested orchestrators.",
+  "Empty-backlog regression audit re-run after commerce-payouts-unpaid-ledger-completeness landed (PR #106): re-verified every escapeHtmlForEmail call site (resend.ts, marketing/voice pack delivery, commerce client receipt, contact-form route, webhook DNS handoff HTML) — still clean, no new asymmetry. Re-confirmed the static Convex API map in db.ts covers every live call path; convex/orders.ts's createOrder/getByStripeSessionId remain the two known-dead exports (superseded by leads.markLeadPaid) already reviewed and deliberately left alone by two prior iterations — do not re-litigate a third time. Traced the Commerce payouts (manual) panel's leads-client.tsx row.paidOutAt branch: looked dead at first glance because the server-fetched commerceOrders prop is now unpaid-only (listUnpaidCommerceOrders), but handleMarkCommerceOrderPaidOut optimistically patches paidOutAt into local component state on a successful Mark paid out click, so the branch is live between that click and the next full page load — not a bug, no fix needed. No new free NEXT_STEPS surface without secrets/OAuth/counsel; do not invent an aggregate to manufacture busywork.",
 ] as const;
 
 /**
@@ -2433,6 +2434,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Sibling business-process-evolution-3eea claimed bundle-price-env-readiness first this cron (merged PR #104); claude/upbeat-dijkstra-y47f7i shipped digest escapeHtml consolidation (PR #105). Empty-backlog audit found listCommerceOrders caps undercount pass-through liability once Buy now volume exceeds the window, and Mark paid out scanned that truncated list so older unpaid rows could 404 as 'not found'. Dedicated unpaid + by-session reads close the sold Commerce reconciliation gap without inventing aggregates or fake-completing Connect.",
   },
+  {
+    date: "2026-07-13",
+    decision:
+      "No new code shipped this run — re-ran the empty-backlog regression audit (escapeHtmlForEmail asymmetry, Convex API map completeness, Commerce payouts panel data model) after PR #106 landed and found everything already correct; documented the findings instead of manufacturing an aggregate to justify a commit.",
+    rationale:
+      "A branch opened for this run (commerce-payouts-unpaid-ledger-completeness, cherry-picked from sibling cursor/prompt-process-evolution-63a8) turned out fully redundant once fetched — the sibling had already merged the identical fix directly as PR #106 while this run was verifying it, and main had folded further work (PR #105's digest escapeHtml fix) this run's branch lacked. Closed that PR without merging (see closed PR #107) and reset the designated branch to fresh main per the merged/superseded-branch restart rule. AGENT_PROTOCOL explicitly warns against inventing optional aggregates just to ship something when NEXT_STEPS is gated; a documented clean audit (plus the note that the payout panel's row.paidOutAt branch is a live optimistic-update path, not dead code) is more valuable to sibling agents than a low-value cosmetic change, and matches the precedent set by prior audit-only iterations (e.g. the createOrder/getByStripeSessionId dead-code review already recorded twice above).",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -4179,5 +4187,18 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(200, 201),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/relaxed-galileo-5gk8o6",
+    summary:
+      "Fetched sibling cursor/prompt-process-evolution-63a8's unmerged commerce-payouts-unpaid-ledger-completeness commits (no PR open yet), cherry-picked and re-verified them (npm test 375, lint, build, dev-server smoke of /dashboard, /dashboard/leads, /docs/process) as PR #107 — then discovered the sibling had merged the identical fix directly as PR #106 while this run was verifying it, making PR #107 fully redundant (main had also folded PR #105's digest escapeHtml fix, which this branch lacked). Closed PR #107 without merging and reset the designated branch to fresh main per the merged/superseded-branch restart rule. Re-ran the empty-backlog regression audit named in AGENT_PROTOCOL (escapeHtmlForEmail asymmetry, Convex API map completeness, Commerce payouts panel data model) and found everything already correct — no new free NEXT_STEPS surface without secrets/OAuth/counsel. Shipped no product code this run; documented the audit and the redundant-PR lesson instead of inventing an aggregate to manufacture a commit.",
+    shipped: [
+      "AGENT_PROTOCOL — recorded the re-run audit result (escapeHtmlForEmail, Convex API map, payout panel optimistic-update path) so a future agent doesn't re-investigate the same clean surfaces or the row.paidOutAt branch as a suspected bug",
+      "BUSINESS_DECISIONS — documented the redundant-PR-close lesson: check whether a sibling branch already self-merged before opening a PR for cherry-picked work",
+      "Closed PR #107 (Duncan-Haywood/local-site-studio) as redundant with already-merged PR #106",
+      "Verified: npm test (375 passed) + lint + build clean on the cherry-picked commits before discovering redundancy; no changes carried to main",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(201, 202),
   },
 ];
