@@ -4,8 +4,26 @@ import { UNSUBSCRIBE_CONVEX_PRIMARY } from "@/lib/email/suppression-persist";
 import { verifyUnsubscribeToken } from "@/lib/email/unsubscribe-token";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
+/**
+ * CAN-SPAM one-click unsubscribe. Token-gated (PR #137) so a guessed
+ * email alone cannot suppress; rate-limited (this iteration) so a
+ * harvested footer link or a script hammering HMAC + suppressEmail
+ * cannot unboundedly mutate the global suppression list that gates
+ * every automated send. Check the limiter BEFORE token verify so
+ * garbage traffic does not burn HMAC work either.
+ */
 export async function GET(request: NextRequest) {
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`unsubscribe:${clientIp}`);
+  if (!rate.allowed) {
+    return new NextResponse("Too many requests. Please try again shortly.", {
+      status: 429,
+      headers: { "Retry-After": String(rate.retryAfterSeconds) },
+    });
+  }
+
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
   const token = searchParams.get("token");

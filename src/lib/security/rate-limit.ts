@@ -1,6 +1,7 @@
 /**
  * Minimal in-memory rate limiter for public write endpoints (contact form,
- * checkout create, commerce checkout create, preview-open beacon).
+ * checkout create, commerce checkout create, preview-open beacon, and
+ * CAN-SPAM unsubscribe GET).
  *
  * IMPORTANT — this is per-instance, best-effort protection, not a hard
  * security boundary:
@@ -15,10 +16,11 @@
  *  - The client key derives from x-forwarded-for / x-real-ip, which a
  *    direct (non-proxied) client can spoof; it still blunts unsophisticated
  *    scripted abuse (contact-form spam, checkout-session churn, preview-open
- *    flooding) on a single instance without adding a new infra dependency
- *    (no Upstash/Redis). If real multi-instance abuse shows up in practice,
- *    upgrade to a shared store keyed the same way (route name + client IP)
- *    rather than inventing a second scheme alongside this one.
+ *    flooding, unsubscribe-link hammering) on a single instance without
+ *    adding a new infra dependency (no Upstash/Redis). If real
+ *    multi-instance abuse shows up in practice, upgrade to a shared store
+ *    keyed the same way (route name + client IP) rather than inventing a
+ *    second scheme alongside this one.
  */
 
 export interface RateLimitConfig {
