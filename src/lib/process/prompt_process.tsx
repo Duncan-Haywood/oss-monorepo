@@ -1207,6 +1207,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "cursor/prompt-process-evolution-7d1d",
   },
+  {
+    id: "billing-portal-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #125/#126 (stripe/commerce checkout route coverage) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. createBillingPortalForCheckoutSession (src/lib/billing/create-portal-session.ts) already had direct helper coverage, but src/app/api/stripe/billing-portal/route.ts — the customer self-serve entry point from /checkout/success for every Growth/Complete/Commerce subscriber — had zero route-level tests. Claimed and shipped by sibling claude/relaxed-galileo-gks8ei (PR #127).",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-gks8ei",
+  },
+  {
+    id: "bootstrap-prices-route-test-coverage",
+    summary:
+      "Empty-backlog after PR #125/#126 — sibling PR #127 owns billing-portal-route-test-coverage. bootstrapStripePrices (src/lib/pricing/bootstrap-stripe-prices.ts) already has direct helper coverage, but POST /api/stripe/bootstrap-prices — the operator gate that unlocks every Starter/Growth/Complete Price ID env var (ALLOW_STRIPE_BOOTSTRAP + STRIPE_SECRET_KEY + envSnippet return) — had zero route-level tests. Route glue (403 when flag unset, 501 when secret missing, 502 on Stripe throw, ok+envSnippet on success) is the same orchestration gap already closed for the other Stripe routes.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-aaf5",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
