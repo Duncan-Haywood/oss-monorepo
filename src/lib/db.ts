@@ -518,12 +518,19 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
   return mapSqliteRowToLead(row);
 }
 
-export async function updateLeadStage(slug: string, stage: LeadPipelineStage): Promise<void> {
+export async function updateLeadStage(
+  slug: string,
+  stage: LeadPipelineStage,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
   if (convexClient) {
     try {
       await convexClient.mutation(api.leads.updateStage, { slug, stage });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadStage", e);
+      }
       console.warn(`Failed to update lead stage for ${slug} on Convex, falling back to SQLite database`, e);
     }
   }
@@ -1260,6 +1267,7 @@ export async function updateDeployHandoffStatus(
   leadSlug: string,
   status: DeployHandoffStatus,
   extraNotes: string[] = [],
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
   const updatedAt = new Date().toISOString();
 
@@ -1272,6 +1280,9 @@ export async function updateDeployHandoffStatus(
         updatedAt,
       })) as DeployHandoff | null;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateDeployHandoffStatus", e);
+      }
       console.warn(
         "Failed to update deploy handoff status on Convex, falling back to SQLite database",
         e,
@@ -1307,6 +1318,7 @@ export async function updateDeployHandoffStatus(
 export async function updateDeployHandoffVercelProject(
   leadSlug: string,
   vercelProjectId: string | null,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
   const updatedAt = new Date().toISOString();
 
@@ -1318,6 +1330,9 @@ export async function updateDeployHandoffVercelProject(
         updatedAt,
       })) as DeployHandoff | null;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateDeployHandoffVercelProject", e);
+      }
       console.warn(
         "Failed to update deploy handoff Vercel project on Convex, falling back to SQLite database",
         e,
@@ -1349,6 +1364,7 @@ export async function updateDeployHandoffVercelProject(
 export async function updateDeployHandoffCustomDomain(
   leadSlug: string,
   customDomain: string | null,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
   const updatedAt = new Date().toISOString();
   const normalized = customDomain?.trim().toLowerCase() || null;
@@ -1361,6 +1377,9 @@ export async function updateDeployHandoffCustomDomain(
         updatedAt,
       })) as DeployHandoff | null;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateDeployHandoffCustomDomain", e);
+      }
       console.warn(
         "Failed to update deploy handoff custom domain on Convex, falling back to SQLite database",
         e,

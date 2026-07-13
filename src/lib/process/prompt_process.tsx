@@ -888,9 +888,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "deploy-handoff-operator-writes-convex-primary",
     summary:
-      "Empty-backlog follow-up: assignCustomDomain / assignVercelProject / markHandoffLive still SQLite-fallback on Convex failure then return success while getLeadSlugByCustomDomain + listDeployHandoffs read Convex-first — Starter Host→preview routing and Mark live can silently miss on other instances. Prefer requireConvex on those operator writes when Convex is configured.",
-    status: "todo",
+      "Empty-backlog follow-up: assignCustomDomain / assignVercelProject / markHandoffLive still SQLite-fallback on Convex failure then return success while getLeadSlugByCustomDomain + listDeployHandoffs read Convex-first — Starter Host→preview routing and Mark live can silently miss on other instances. Shipped: DEPLOY_HANDOFF_CONVEX_PRIMARY (src/lib/deploy/handoff-persist.ts); updateDeployHandoffStatus / updateDeployHandoffVercelProject / updateDeployHandoffCustomDomain / updateLeadStage accept ConvexPrimaryWriteOptions and throw ConvexPrimaryWriteError instead of silently falling back when required; assignVercelProjectAndProvision / assignCustomDomainAndProvision / markHandoffLive pass it through (including the insertDeployHandoff re-persist and the Mark live lead-stage write); markHandoffLiveAction / assignVercelProjectAction / assignCustomDomainAction surface a retry message on ConvexPrimaryWriteError. outreach-cadence-persist-then-send remains queued for a sibling run.",
+    status: "done",
     phase: "Phase 5 — Production deploy",
+    owner: "claude/quirky-davinci-dj48ao",
   },
   {
     id: "lead-snooze-convex-primary",
@@ -2218,6 +2219,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "updateLeadSnooze accepts ConvexPrimaryWriteOptions; snoozeLeadAction passes LEAD_SNOOZE_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for both Snooze presets and Unsnooze clear.",
     rationale:
       "Empty-backlog follow-up after PR #88 (deploy-handoff-preserve-status-on-upsell) and PR #90 (commerce-stripe-sync-pagination): updateLeadSnooze was one of the last operator writes still soft-falling-back on Convex failure. isFollowUpDue (PR #74) deliberately excludes snoozed leads from Follow-ups due / pipeline-health / the digest, but that guarantee only holds if every instance reading Convex-first actually sees the snooze — a SQLite-only write on one instance while others read Convex-first would leave a lead the operator explicitly parked still eligible for a live Send button elsewhere. The same risk runs in reverse for Unsnooze: a SQLite-only clear could leave a lead invisible on Work next/Follow-ups due after the operator asked to resurface it. Operator-action fail-closed matches the house pattern (checkout recoverySentAt, commerce paidOutAt): retry surfaces to the operator, no silent split-brain. deploy-handoff-operator-writes-convex-primary and outreach-cadence-persist-then-send remain queued for a sibling run. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "updateDeployHandoffStatus / updateDeployHandoffVercelProject / updateDeployHandoffCustomDomain / updateLeadStage accept ConvexPrimaryWriteOptions; assignVercelProjectAndProvision, assignCustomDomainAndProvision, and markHandoffLive pass DEPLOY_HANDOFF_CONVEX_PRIMARY through both the field write and the subsequent insertDeployHandoff re-persist (and, for Mark live, the lead-stage write) — fail closed instead of SQLite-only success.",
+    rationale:
+      "Last free requireConvex follow-up after lead-snooze-convex-primary (PR #91): getLeadSlugByCustomDomain (proxy.ts host-based routing) and listDeployHandoffs (operator dashboard) both read Convex-first, so a SQLite-only write on one instance after a Convex mutation failure would silently miss everywhere else — a newly assigned custom domain would never route (breaking the Starter Host→preview promise), a dedicated Vercel project assignment would not isolate the client's deploy, and Mark live would leave the handoff (and the lead's pipeline stage, via updateLeadStage) looking pre-live on other instances despite the operator confirming DNS/publish. Included updateLeadStage in the fail-closed set, not just the handoff row, because Mark live's two writes must agree across instances — a handoff marked live on Convex while the lead stage silently fell back to SQLite would desync paidNotLiveCount / funnel accuracy in a subtler way than an outright write failure. Matches the house pattern (checkout recoverySentAt, commerce paidOutAt, lead snooze): operator retries on ConvexPrimaryWriteError, no silent split-brain. Only outreach-cadence-persist-then-send remains free; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay operator/legal-gated.",
   },
 ];
 
@@ -3720,5 +3728,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented Snooze/Unsnooze split-brain risk of soft-fallback updateLeadSnooze",
     ],
     decisions: BUSINESS_DECISIONS.slice(185, 186),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/quirky-davinci-dj48ao",
+    summary:
+      "Free NEXT_STEPS backlog after PR #91 (lead-snooze-convex-primary): deploy-handoff-operator-writes-convex-primary and outreach-cadence-persist-then-send were the only two free items; stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remain operator/legal-gated. Picked deploy-handoff-operator-writes-convex-primary (explicitly queued first by the prior two iterations). assignVercelProjectAndProvision / assignCustomDomainAndProvision / markHandoffLive still SQLite-fallback on Convex failure then returned success while getLeadSlugByCustomDomain (proxy.ts custom-domain routing) and listDeployHandoffs (operator dashboard) read Convex-first — a custom domain assignment could silently never route, a dedicated Vercel project assignment could silently not isolate the deploy, and Mark live could leave the handoff (and the lead's pipeline stage) looking pre-live on other instances. Shipped DEPLOY_HANDOFF_CONVEX_PRIMARY (src/lib/deploy/handoff-persist.ts) threaded through updateDeployHandoffStatus / updateDeployHandoffVercelProject / updateDeployHandoffCustomDomain / updateLeadStage in db.ts (fail closed with ConvexPrimaryWriteError, mirroring insertDeployHandoff's existing options param) and through the three handoff.ts entry points, including the insertDeployHandoff re-persist and (for Mark live) the lead-stage write. markHandoffLiveAction / assignVercelProjectAction / assignCustomDomainAction now surface a retry message on ConvexPrimaryWriteError instead of the raw thrown message. Verified: npm run build, npm run lint, npm test (333 passed) all clean; npm run dev with no Convex configured (SQLite path) — /dashboard/leads loads with no client errors. outreach-cadence-persist-then-send remains queued for a sibling run.",
+    shipped: [
+      "src/lib/deploy/handoff-persist.ts (+ test) — DEPLOY_HANDOFF_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — updateDeployHandoffStatus / updateDeployHandoffVercelProject / updateDeployHandoffCustomDomain / updateLeadStage accept ConvexPrimaryWriteOptions and throw ConvexPrimaryWriteError when requireConvex and the Convex mutation fails",
+      "src/lib/deploy/handoff.ts — assignVercelProjectAndProvision / assignCustomDomainAndProvision / markHandoffLive pass DEPLOY_HANDOFF_CONVEX_PRIMARY through the field write, the insertDeployHandoff re-persist, and (Mark live) the updateLeadStage call",
+      "src/app/dashboard/leads/actions.ts — markHandoffLiveAction / assignVercelProjectAction / assignCustomDomainAction catch ConvexPrimaryWriteError and surface an operator retry message",
+      "NEXT_STEPS: deploy-handoff-operator-writes-convex-primary done",
+      "BUSINESS_DECISIONS — documented deploy-handoff operator-write split-brain risk closed by DEPLOY_HANDOFF_CONVEX_PRIMARY",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(186, 187),
   },
 ];

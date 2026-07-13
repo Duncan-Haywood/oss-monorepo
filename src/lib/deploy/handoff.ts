@@ -13,6 +13,7 @@ import {
   updateLeadStage,
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
 import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
@@ -225,11 +226,15 @@ export async function assignVercelProjectAndProvision(
   leadSlug: string,
   vercelProjectId: string | null,
 ): Promise<DeployHandoff | null> {
-  const updated = await updateDeployHandoffVercelProject(leadSlug, vercelProjectId);
+  const updated = await updateDeployHandoffVercelProject(
+    leadSlug,
+    vercelProjectId,
+    DEPLOY_HANDOFF_CONVEX_PRIMARY,
+  );
   if (!updated) return null;
 
   const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned);
+  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return provisioned;
 }
 
@@ -244,11 +249,15 @@ export async function assignCustomDomainAndProvision(
   leadSlug: string,
   customDomain: string | null,
 ): Promise<DeployHandoff | null> {
-  const updated = await updateDeployHandoffCustomDomain(leadSlug, customDomain);
+  const updated = await updateDeployHandoffCustomDomain(
+    leadSlug,
+    customDomain,
+    DEPLOY_HANDOFF_CONVEX_PRIMARY,
+  );
   if (!updated) return null;
 
   const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned);
+  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return provisioned;
 }
 
@@ -256,10 +265,13 @@ export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff |
   const handoff = await getDeployHandoffBySlug(leadSlug);
   if (!handoff) return null;
 
-  const updated = await updateDeployHandoffStatus(leadSlug, "live", [
-    "Operator confirmed DNS / publish — lead marked live.",
-  ]);
-  await updateLeadStage(leadSlug, "live");
+  const updated = await updateDeployHandoffStatus(
+    leadSlug,
+    "live",
+    ["Operator confirmed DNS / publish — lead marked live."],
+    DEPLOY_HANDOFF_CONVEX_PRIMARY,
+  );
+  await updateLeadStage(leadSlug, "live", DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return updated;
 }
 
