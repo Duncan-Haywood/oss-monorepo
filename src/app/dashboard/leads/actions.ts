@@ -40,6 +40,7 @@ import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
+import { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "@/lib/voice/pack-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
@@ -1757,12 +1758,27 @@ export async function generateClientVoicePackAction(slug: string) {
       Boolean(process.env.ANTHROPIC_API_KEY?.trim()) &&
       !result.variants.some((v) => v.body.includes("[Stub"));
 
-    const pack = await upsertClientVoicePack({
-      leadSlug: lead.slug,
-      variants: result.variants,
-      generatedAt: result.generatedAt,
-      generator: usedAnthropic ? "anthropic" : "stub",
-    });
+    let pack;
+    try {
+      pack = await upsertClientVoicePack(
+        {
+          leadSlug: lead.slug,
+          variants: result.variants,
+          generatedAt: result.generatedAt,
+          generator: usedAnthropic ? "anthropic" : "stub",
+        },
+        CLIENT_VOICE_PACK_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not save the voice pack in the shared store — other instances may still show voice packs due. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     revalidatePath("/dashboard/leads");
     return { success: true as const, pack };

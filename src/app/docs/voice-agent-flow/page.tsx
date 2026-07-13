@@ -82,7 +82,10 @@ export default function VoiceAgentFlowDocPage() {
         Before Twilio provisioning, operators generate a FAQ/script pack on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live Complete leads
         (<code>generateClientVoicePackAction</code>): inbound greeting, hours, services, booking
-        CTA, after-hours, and take-a-message — derived from site data. With an email on the lead,{" "}
+        CTA, after-hours, and take-a-message — derived from site data. When Convex is configured,
+        Generate voice fails closed (<code>requireConvex</code> /{" "}
+        <code>CLIENT_VOICE_PACK_CONVEX_PRIMARY</code>) so a multi-instance deploy cannot claim
+        success after a SQLite-only write. With an email on the lead,{" "}
         <strong>Email voice pack</strong> (<code>sendClientVoicePackToClientAction</code>) delivers
         the scripts via Resend so the client can paste into a temporary number or Cal.com. Scripts
         persist one row per lead (not monthly). Eligible Complete leads still missing a pack

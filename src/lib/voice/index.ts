@@ -41,3 +41,5 @@ export {
   clientVoiceBusinessContextFromLead,
   clientVoicePackRequestForLead,
 } from "./build-request";
+
+export { CLIENT_VOICE_PACK_CONVEX_PRIMARY } from "./pack-persist";
