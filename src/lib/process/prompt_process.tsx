@@ -1318,6 +1318,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Client sites + handoff",
     owner: "claude/quirky-davinci-swhbug",
   },
+  {
+    id: "unsubscribe-get-rate-limiting",
+    summary:
+      "Empty-backlog after PR #138 (public-write-rate-limiting) — only gated secrets/OAuth/counsel remain. That PR hardened four POST write routes but left GET /api/unsubscribe — the only remaining public, unauthenticated, state-changing endpoint — unbounded. Token signing (PR #137) blocks forged suppressions, but a harvested footer link or a script hammering HMAC verification + suppressEmail still has no throttle. Claimed: reuse checkRateLimit (`unsubscribe:${clientIp}`) before token verify; return 429 + Retry-After. Sibling-friendly twin: stripe-bootstrap-dashboard-action-test-coverage.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-6d42",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
