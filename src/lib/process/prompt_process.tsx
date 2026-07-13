@@ -4261,7 +4261,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: bundle-webhook-side-effect-recovery-on-redelivery done",
       "AGENT_PROTOCOL — bundle alreadyRecorded must not skip receipt/DNS; recover via handoff-note markers",
       "BUSINESS_DECISIONS — documented bundle/commerce side-effect recovery parity",
-      "Verified: npm test + lint + build (recorded in follow-up commit if needed)",
+      "Verified: npm test (392 passed, +11 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(203, 204),
   },
