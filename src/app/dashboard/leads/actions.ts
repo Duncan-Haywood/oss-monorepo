@@ -34,6 +34,7 @@ import {
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
+import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
@@ -337,14 +338,25 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
 
     await updateLeadStage(slug, stage);
 
-    // If stage is changed to outreach_sent, trigger Email 1 and record step
+    // If stage is changed to outreach_sent, durably mark Email 1 sent BEFORE
+    // sending (persist-then-notify) so a Convex mutation failure never lets a
+    // real send land unrecorded — see OUTREACH_CADENCE_CONVEX_PRIMARY.
     if (stage === "outreach_sent") {
       const lead = await getLeadBySlug(slug);
       if (lead?.email) {
-        const sent = await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
-        if (sent.success) {
-          await recordLeadOutreach(slug, 1);
+        try {
+          await recordLeadOutreach(slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+        } catch (error) {
+          if (error instanceof ConvexPrimaryWriteError) {
+            return {
+              success: false,
+              error:
+                "Stage saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry in a moment.",
+            };
+          }
+          throw error;
         }
+        await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
       }
     }
 
@@ -512,6 +524,30 @@ export async function disposeColdLeadAction(
           error: "Cannot send Email 1 on re-engage — lead has no email address",
         };
       }
+
+      // Durably mark Email 1 sent BEFORE calling Resend (persist-then-notify)
+      // so a Convex mutation failure never lets a real send land unrecorded.
+      const sentAt = new Date().toISOString();
+      try {
+        await recordLeadOutreach(slug, 1, sentAt, OUTREACH_CADENCE_CONVEX_PRIMARY);
+      } catch (error) {
+        if (error instanceof ConvexPrimaryWriteError) {
+          return {
+            success: false as const,
+            error:
+              "Re-engage saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry in a moment.",
+            stage: planned.patch.stage,
+            outreachStep,
+            lastOutreachAt,
+            snoozedUntil: planned.patch.snoozedUntil,
+            emailSent: false,
+          };
+        }
+        throw error;
+      }
+      outreachStep = 1;
+      lastOutreachAt = sentAt;
+
       const sent = await sendOutreachEmail(email, existing.businessName, existing.slug);
       if (!sent.success) {
         return {
@@ -521,7 +557,7 @@ export async function disposeColdLeadAction(
               ? "Email is on the suppression list"
               : "error" in sent && typeof sent.error === "string"
                 ? sent.error
-                : "Re-engage saved, but Email 1 failed to send — set stage to Outreach Sent to retry",
+                : "Re-engage saved and marked Outreach Sent, but Email 1 failed to send — set stage to Outreach Sent to retry",
           stage: planned.patch.stage,
           outreachStep,
           lastOutreachAt,
@@ -529,10 +565,6 @@ export async function disposeColdLeadAction(
           emailSent: false,
         };
       }
-      const sentAt = new Date().toISOString();
-      await recordLeadOutreach(slug, 1, sentAt);
-      outreachStep = 1;
-      lastOutreachAt = sentAt;
       emailSent = true;
       emailMock = "mock" in sent ? Boolean(sent.mock) : false;
     }
@@ -602,6 +634,22 @@ export async function sendFollowUpAction(slug: string) {
       };
     }
 
+    // Durably mark the follow-up step sent BEFORE calling Resend
+    // (persist-then-notify) so a Convex mutation failure never lets a real
+    // send land unrecorded and risk a duplicate on another instance.
+    try {
+      await recordLeadOutreach(slug, next, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record the outreach mark in the shared store — follow-up was not sent. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+
     const sent =
       next === 2
         ? await sendOutreachFollowUp2(lead.email, lead.businessName, lead.slug)
@@ -616,10 +664,10 @@ export async function sendFollowUpAction(slug: string) {
             : "error" in sent && typeof sent.error === "string"
               ? sent.error
               : "Failed to send follow-up email",
+        outreachStep: next,
       };
     }
 
-    await recordLeadOutreach(slug, next);
     revalidatePath("/dashboard/leads");
     return {
       success: true as const,
@@ -885,12 +933,23 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
 
     await upsertLead(lead);
 
-    // If added directly in outreach_sent stage, trigger Email 1
+    // If added directly in outreach_sent stage, durably mark Email 1 sent
+    // BEFORE sending (persist-then-notify) — see OUTREACH_CADENCE_CONVEX_PRIMARY.
     if (stage === "outreach_sent" && lead.email) {
-      const sent = await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
-      if (sent.success) {
-        await recordLeadOutreach(lead.slug, 1);
+      try {
+        await recordLeadOutreach(lead.slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
+      } catch (error) {
+        if (error instanceof ConvexPrimaryWriteError) {
+          return {
+            success: false,
+            error:
+              "Lead saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry Email 1 from the dashboard in a moment.",
+            slug: lead.slug,
+          };
+        }
+        throw error;
       }
+      await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
     }
 
     revalidatePath("/dashboard/leads");

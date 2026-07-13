@@ -89,7 +89,11 @@ export default function RoadmapDocPage() {
         <code>requireConvex</code> so a multi-instance deploy cannot claim unsubscribe success
         after a SQLite-only write): shipped.
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
-        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped. Lead quality
+        <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
+        1/2/3 send durably marks the step before calling Resend, and with Convex configured
+        that mark uses <code>requireConvex</code> (
+        <code>outreach-cadence-persist-then-send</code>) so a mutation failure skips the send
+        rather than risking a duplicate on another instance. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links;

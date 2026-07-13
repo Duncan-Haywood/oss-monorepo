@@ -90,7 +90,10 @@ export default function LaunchChecklistDocPage() {
         <li>
           After a few days (or by forcing <code>lastOutreachAt</code> older in SQLite for a
           test lead), confirm the Follow-ups due panel offers Email 2 / Email 3 and that
-          suppression still blocks sends.
+          suppression still blocks sends. Every Email 1/2/3 send durably marks{" "}
+          <code>outreachStep</code> before calling Resend; with Convex configured that mark
+          fails closed (<code>requireConvex</code>) — a mutation failure skips the send and
+          shows a retry message instead of a false success.
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
