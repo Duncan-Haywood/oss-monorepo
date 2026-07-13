@@ -241,6 +241,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "`npm run log-lead -- --audience ... --contact ... --channel ... [--dry-run]` in pipeline/ validates required fields against the Lead/LeadStage/OutreachTemplate types and appends a correctly-formatted entry to process/leads-log.ts; has a passing self-test (npm test) that never touches the real file. See pipeline/src/log-lead.ts.",
       },
+      {
+        id: "p2-payment-collection",
+        title: "Define how the $19 concierge payment actually gets collected",
+        status: "in_progress",
+        owner: "agent",
+        rationale:
+          "pricing-one-pager.tsx's callToAction has said 'Book your first listing for $19' since it was written, and leads-log.ts has tracked a 'paid' stage since p2-leads-tracking, but nothing anywhere in the repo ever said HOW a prospect actually pays — no payment method, no instructions, no mention in the one-pager's FAQ or in any outreach copy. This is the same class of silent gap p2-booking-link found for the booking step (prospects could read the offer and even reply to book, but had no way to pay once delivered).",
+        doneWhen:
+          "process/payment-collection.ts exists with a sourced comparison of zero-setup payment methods (no new business infrastructure, no real spend), an explicit decision, and ready-to-use instructions addressed to Duncan's known real inbox; pricing-one-pager.tsx's FAQ and howItWorks reference it; leads-log.ts's Lead type gains optional paymentMethod/paymentReference fields so a real 'paid' entry can record how; pipeline/src/log-lead.ts's CLI accepts them. Rendered on the docs site.",
+      },
     ],
   },
   {

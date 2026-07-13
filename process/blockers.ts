@@ -54,7 +54,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p2-first-deliveries", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 1,
+    confirmedByCount: 2,
   },
   {
     id: "phase-1-interviews",
@@ -63,7 +63,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-run-interviews", "p3-app-scope"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 1,
+    confirmedByCount: 2,
   },
   {
     id: "zillow-listing-audit",
@@ -73,7 +73,7 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p1-listing-audit"],
     firstFlagged: "2026-06-13",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 1,
+    confirmedByCount: 2,
   },
   {
     id: "cloudflare-access-dashboard",
@@ -83,15 +83,25 @@ export const humanBlockers: HumanBlocker[] = [
     unblocks: ["p0-docs-site"],
     firstFlagged: "2026-06-15",
     lastConfirmed: "2026-07-13",
-    confirmedByCount: 1,
+    confirmedByCount: 2,
   },
   {
     id: "stale-branch-cleanup",
     title: "Delete ~15 confirmed-stale, fully-merged branches",
     whatsNeeded:
-      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main — agent sessions get HTTP 403 deleting refs on this repo. Re-check with `git diff origin/main...origin/<branch> --stat` before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
+      "From github.com (or a token with delete permission) delete the branches confirmed strictly merged/behind main — agent sessions get HTTP 403 deleting refs on this repo (re-confirmed this session; the GitHub MCP tool surface has no branch-delete method either). Re-check with `git diff origin/main origin/<branch> --stat` before deleting any branch that isn't empty-diff, in case a new session pushed real work to an old branch name.",
     unblocks: [],
     firstFlagged: "2026-07-12",
+    lastConfirmed: "2026-07-13",
+    confirmedByCount: 2,
+  },
+  {
+    id: "payment-handle-setup",
+    title: "Confirm/set the real payment handle prospects will pay",
+    whatsNeeded:
+      "process/payment-collection.ts defaults to requesting payment via PayPal/Venmo/Zelle sent to duncan.andrew.haywood@gmail.com (the same known real address already used for booking-link.ts and Cloudflare Access). Confirm that email actually receives payments on at least one of those apps (or link it), or swap in a different real handle in payment-collection.ts if not. Quick (a few minutes), independent of booking a shoot — worth doing before the first delivery, not blocking on it.",
+    unblocks: ["p2-first-deliveries"],
+    firstFlagged: "2026-07-13",
     lastConfirmed: "2026-07-13",
     confirmedByCount: 1,
   },
