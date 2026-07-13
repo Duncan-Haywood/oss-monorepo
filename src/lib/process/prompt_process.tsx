@@ -1407,8 +1407,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "operator-digest-email-env-readiness",
     summary:
       "Later empty-backlog twin: Send daily digest only errors on click when OPERATOR_DIGEST_EMAIL is missing — operators get no early dashboard signal that pipeline-health digest delivery is unconfigured. Prefer when Generate pack/voice action suites are claimed/done; do not fake-complete gated secrets.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-dde6",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
