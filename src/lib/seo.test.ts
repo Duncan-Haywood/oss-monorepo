@@ -1,6 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Lead } from "@/lib/leads/types";
-import { leadLocalBusinessJsonLd, leadMetaDescription, leadMetaTitle, safeJsonLdScript } from "./seo";
+import {
+  leadLocalBusinessJsonLd,
+  leadMetaDescription,
+  leadMetaTitle,
+  previewUrl,
+  safeJsonLdScript,
+  siteUrl,
+} from "./seo";
 
 function baseLead(overrides: Partial<Lead> = {}): Lead {
   return {
@@ -11,7 +18,7 @@ function baseLead(overrides: Partial<Lead> = {}): Lead {
     state: "CO",
     address: "123 Main St",
     tagline: "Fresh local plates",
-    description: "Neighborhood cafe",
+    description: "Neighborhood cafe serving brunch and coffee.",
     phone: "303-555-0100",
     email: "hello@pine.example",
     services: ["brunch", "coffee", "catering"],
@@ -22,31 +29,98 @@ function baseLead(overrides: Partial<Lead> = {}): Lead {
   };
 }
 
+const ORIGINAL_ENV = { ...process.env };
+
+beforeEach(() => {
+  delete process.env.NEXT_PUBLIC_APP_URL;
+  delete process.env.VERCEL_URL;
+});
+
+afterEach(() => {
+  process.env = { ...ORIGINAL_ENV };
+});
+
+describe("siteUrl", () => {
+  it("falls back to localhost when neither env var is set", () => {
+    expect(siteUrl()).toBe("http://localhost:3000");
+  });
+
+  it("prefers NEXT_PUBLIC_APP_URL and strips a trailing slash", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com/";
+    expect(siteUrl()).toBe("https://app.example.com");
+  });
+
+  it("leaves a NEXT_PUBLIC_APP_URL without a trailing slash untouched", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    expect(siteUrl()).toBe("https://app.example.com");
+  });
+
+  it("falls back to VERCEL_URL (https-prefixed) when NEXT_PUBLIC_APP_URL is unset", () => {
+    process.env.VERCEL_URL = "my-deployment.vercel.app";
+    expect(siteUrl()).toBe("https://my-deployment.vercel.app");
+  });
+
+  it("prefers NEXT_PUBLIC_APP_URL over VERCEL_URL when both are set", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    process.env.VERCEL_URL = "my-deployment.vercel.app";
+    expect(siteUrl()).toBe("https://app.example.com");
+  });
+
+  it("treats a whitespace-only NEXT_PUBLIC_APP_URL as unset and falls through to VERCEL_URL", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "   ";
+    process.env.VERCEL_URL = "my-deployment.vercel.app";
+    expect(siteUrl()).toBe("https://my-deployment.vercel.app");
+  });
+
+  it("treats a whitespace-only VERCEL_URL as unset and falls back to localhost", () => {
+    process.env.VERCEL_URL = "   ";
+    expect(siteUrl()).toBe("http://localhost:3000");
+  });
+});
+
+describe("previewUrl", () => {
+  it("builds an absolute preview URL from siteUrl + slug", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    expect(previewUrl("pine-cafe")).toBe("https://app.example.com/preview/pine-cafe");
+  });
+
+  it("uses the localhost fallback when no site URL env var is configured", () => {
+    expect(previewUrl("pine-cafe")).toBe("http://localhost:3000/preview/pine-cafe");
+  });
+});
+
 describe("leadMetaTitle / leadMetaDescription", () => {
-  it("composes title from businessName/city/state/tagline", () => {
+  it("formats the title as 'Business — City, State | Tagline'", () => {
     expect(leadMetaTitle(baseLead())).toBe("Pine Cafe — Boulder, CO | Fresh local plates");
   });
 
-  it("uses description verbatim", () => {
-    expect(leadMetaDescription(baseLead())).toBe("Neighborhood cafe");
+  it("returns the lead description verbatim", () => {
+    expect(leadMetaDescription(baseLead())).toBe("Neighborhood cafe serving brunch and coffee.");
   });
 });
 
 describe("leadLocalBusinessJsonLd", () => {
-  it("maps category to the matching schema.org subtype", () => {
+  it("maps each BusinessCategory to its schema.org @type", () => {
+    expect(leadLocalBusinessJsonLd(baseLead({ category: "restaurant" }))["@type"]).toBe(
+      "Restaurant",
+    );
     expect(leadLocalBusinessJsonLd(baseLead({ category: "salon" }))["@type"]).toBe("HairSalon");
     expect(leadLocalBusinessJsonLd(baseLead({ category: "trades" }))["@type"]).toBe(
       "HomeAndConstructionBusiness",
     );
-    expect(leadLocalBusinessJsonLd(baseLead({ category: "generic" }))["@type"]).toBe("LocalBusiness");
+    expect(leadLocalBusinessJsonLd(baseLead({ category: "generic" }))["@type"]).toBe(
+      "LocalBusiness",
+    );
   });
 
-  it("embeds lead identity and address fields", () => {
-    const jsonLd = leadLocalBusinessJsonLd(baseLead());
-    expect(jsonLd).toMatchObject({
+  it("builds the full JSON-LD object with nested PostalAddress", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    expect(leadLocalBusinessJsonLd(baseLead())).toEqual({
       "@context": "https://schema.org",
+      "@type": "Restaurant",
       name: "Pine Cafe",
-      description: "Neighborhood cafe",
+      description: "Neighborhood cafe serving brunch and coffee.",
+      url: "https://app.example.com/preview/pine-cafe",
       telephone: "303-555-0100",
       address: {
         "@type": "PostalAddress",
@@ -55,6 +129,11 @@ describe("leadLocalBusinessJsonLd", () => {
         addressRegion: "CO",
       },
     });
+  });
+
+  it("passes an undefined streetAddress through when the lead has no address", () => {
+    const jsonLd = leadLocalBusinessJsonLd(baseLead({ address: undefined }));
+    expect((jsonLd.address as Record<string, unknown>).streetAddress).toBeUndefined();
   });
 });
 
@@ -65,7 +144,7 @@ describe("safeJsonLdScript", () => {
   });
 
   it("neutralizes a </script> breakout attempt in a free-text lead field", () => {
-    const malicious = '</script><script>alert(document.cookie)</script>';
+    const malicious = "</script><script>alert(document.cookie)</script>";
     const jsonLd = leadLocalBusinessJsonLd(baseLead({ businessName: malicious }));
     const serialized = safeJsonLdScript(jsonLd);
 
@@ -76,7 +155,7 @@ describe("safeJsonLdScript", () => {
   });
 
   it("neutralizes a breakout attempt in a scraped/CSV address field", () => {
-    const malicious = '</script><img src=x onerror=alert(1)>';
+    const malicious = "</script><img src=x onerror=alert(1)>";
     const jsonLd = leadLocalBusinessJsonLd(baseLead({ address: malicious }));
     const serialized = safeJsonLdScript(jsonLd);
 
