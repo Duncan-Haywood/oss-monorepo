@@ -1438,8 +1438,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "send-marketing-pack-to-client-action-test-coverage",
     summary:
       "Empty-backlog twin after Generate pack action Vitest: sendMarketingPackToClientAction is the operator Email pack path for sold Growth/Complete handoff (eligibility + existing month pack + Resend), but only deliver-pack helpers exist — no action-level Vitest. Sibling-friendly with send-client-voice-pack-to-client-action-test-coverage; prefer when digest-action / mark-paid-out are claimed.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-85ad",
   },
   {
     id: "send-client-voice-pack-to-client-action-test-coverage",
