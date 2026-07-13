@@ -100,7 +100,9 @@ export default function RoadmapDocPage() {
         public beacon uses <code>requireConvex</code> when Convex is configured so multi-instance
         Work next / Opened badge cannot miss a SQLite-only write): shipped. Operator lead notes
         (free-text call outcomes on{" "}
-        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex): shipped.
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex; with Convex
+        configured, Save uses <code>requireConvex</code> so notes cannot succeed only in
+        instance-local SQLite — <code>lead-notes-convex-primary</code>): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
         presets — parks a lead off the queue without wiping score history): shipped. Snoozed-lead
@@ -110,7 +112,9 @@ export default function RoadmapDocPage() {
         pipeline-health count/oldest-age since the follow-up queue never resurfaces them):
         shipped. Cold-lead archive action (one-click <code>Re-engage</code> resets cadence to{" "}
         <code>discovered</code>; optional Cold-panel checkbox also sends Email 1 immediately via{" "}
-        <code>outreach_sent</code>; <code>Close</code> moves to terminal <code>closed</code> stage):
+        <code>outreach_sent</code>; <code>Close</code> moves to terminal <code>closed</code> stage;
+        with Convex configured, the disposition write uses <code>requireConvex</code> —{" "}
+        <code>cold-disposition-convex-primary</code>):
         shipped. Follow-ups-due pipeline-health aggregate (<code>followUpsDueCount</code> +
         oldest age since last send via <code>isFollowUpDue</code>, sitting beside unreplied
         inquiries and abandoned carts so Email 2/3 backlog is visible without scanning Due
@@ -211,7 +215,10 @@ export default function RoadmapDocPage() {
         <code>inquiry-reply-convex-primary</code>): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
-        Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage): shipped.
+        Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage; with Convex
+        configured, the disposition write uses <code>requireConvex</code> so Re-engage/Close
+        cannot succeed only in instance-local SQLite —{" "}
+        <code>cold-disposition-convex-primary</code>): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
         Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month

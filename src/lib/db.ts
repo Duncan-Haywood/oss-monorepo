@@ -712,10 +712,15 @@ export async function recordLeadPreviewOpen(
 /**
  * Persist free-text operator notes on a lead (call outcomes, next steps).
  * Pass undefined/empty to clear. Caller should normalize via normalizeOperatorNotes.
+ * Pass { requireConvex: true } (LEAD_NOTES_CONVEX_PRIMARY) from
+ * updateLeadNotesAction so a Convex mutation failure does not silently leave
+ * notes only in instance-local SQLite while Convex-first readers (getLeads)
+ * never see discovery-call / Email 3 outcomes.
  */
 export async function updateLeadNotes(
   slug: string,
   notes: string | undefined,
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -725,6 +730,9 @@ export async function updateLeadNotes(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadNotes", e);
+      }
       console.warn(
         `Failed to update notes for ${slug} on Convex, falling back to SQLite database`,
         e,
@@ -794,6 +802,10 @@ export async function updateLeadSnooze(
 /**
  * Persist a cold-lead disposition patch (re-engage or close) in one write.
  * Caller must validate via planColdLeadDisposition first.
+ * Pass { requireConvex: true } (COLD_DISPOSITION_CONVEX_PRIMARY) from
+ * disposeColdLeadAction so a Convex mutation failure does not silently leave
+ * stage/outreach only in instance-local SQLite while Convex-first readers
+ * (getLeads, cold badges, pipeline-health) never see the Re-engage/Close.
  */
 export async function applyColdLeadDisposition(
   slug: string,
@@ -803,6 +815,7 @@ export async function applyColdLeadDisposition(
     lastOutreachAt: string | undefined;
     snoozedUntil: string | undefined;
   },
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
@@ -815,6 +828,9 @@ export async function applyColdLeadDisposition(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
+      }
       console.warn(
         `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
         e,
