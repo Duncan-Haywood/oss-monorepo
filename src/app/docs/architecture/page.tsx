@@ -159,8 +159,12 @@ export default function ArchitectureDocPage() {
         guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap:{" "}
         <code>POST /api/stripe/bootstrap-prices</code> with <code>ALLOW_STRIPE_BOOTSTRAP=1</code>{" "}
-        creates Products/Prices and returns env var snippets. Remaining for first paid order: run
-        bootstrap (or Dashboard) so Price ID env vars are set — until then{" "}
+        creates Products/Prices and returns env var snippets. Route-level Vitest in{" "}
+        <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> locks the opt-in{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP</code> gate (403), missing <code>STRIPE_SECRET_KEY</code>{" "}
+        (501), success <code>envSnippet</code> shape, and 502 on Stripe throw — the lib helper
+        suite alone does not cover that route glue. Remaining for first paid order: run bootstrap
+        (or Dashboard) so Price ID env vars are set — until then{" "}
         <code>assessBundlePriceEnvReadiness</code> surfaces a checkout-blocked banner on{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> (env presence only; does not

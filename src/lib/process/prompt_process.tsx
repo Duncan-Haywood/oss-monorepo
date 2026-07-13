@@ -159,6 +159,7 @@ export const AGENT_PROTOCOL = [
   "billing-portal-route-test-coverage done (claude/relaxed-galileo-gks8ei / PR #127): src/app/api/stripe/billing-portal/route.ts has route-level Vitest (invalid/missing/whitespace sessionId, missing STRIPE_SECRET_KEY 501, returnUrl derivation precedence — explicit body value > NEXT_PUBLIC_APP_URL > request origin — and status/error passthrough from createBillingPortalForCheckoutSession). Mock only the Stripe SDK and @/lib/db (server-only guard fires on any real import). All four Stripe-facing routes now have direct route-orchestration coverage. Later dual-claim on business-process-evolution-df21 pivoted to marketing-generate-route-test-coverage; bootstrap-prices-route-test-coverage stays with prompt-process-evolution-aaf5. Do not invent optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When billing-portal / bootstrap-prices are claimed and free NEXT_STEPS stay gated, prefer marketing-generate-route-test-coverage (POST /api/marketing/generate — operator auth + validation gates; generators.test.ts is not enough) over inventing optional aggregates.",
   "marketing-generate-route-test-coverage done: src/app/api/marketing/generate/route.ts has route-level Vitest (auth 401, JSON/contentTypes/automationLevel/business validation, stub-vs-LLM response messaging). Prefer generateMarketingPackAction for persisted packs; generators.test.ts is not enough for the route gates. When free NEXT_STEPS are gated again, prefer bootstrap-prices-route-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "bootstrap-prices-route-test-coverage done: src/app/api/stripe/bootstrap-prices/route.ts has route-level Vitest (ALLOW_STRIPE_BOOTSTRAP unset/non-1 → 403, missing STRIPE_SECRET_KEY → 501, ok+results+envSnippet on success, 502 on Error and non-Error throws). Mock bootstrapStripePrices + Stripe ctor — lib helper suites stay authoritative for Product/Price idempotency. Every Stripe-facing API route (checkout, commerce/checkout, webhook, billing-portal, bootstrap-prices) plus marketing/generate now has direct route-orchestration coverage. When free NEXT_STEPS are gated again, prefer remaining untested pure-logic modules (brand/company/bundles/themes/demo-catalog/pack helpers), a Convex API map / webhook-idempotency / HTML-injection re-audit, or a fresh sold-capability gap over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1222,8 +1223,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "bootstrap-prices-route-test-coverage",
     summary:
-      "Sibling twin of billing-portal-route-test-coverage: POST /api/stripe/bootstrap-prices gates on ALLOW_STRIPE_BOOTSTRAP=1 (403 when unset), requires STRIPE_SECRET_KEY (501), returns envSnippet on success, and 502s on Stripe throw. bootstrap-stripe-prices + list-all-pages already have lib coverage — this locks the route's opt-in gate + response shape an operator copies into secrets.",
-    status: "in_progress",
+      "Sibling twin of billing-portal-route-test-coverage: POST /api/stripe/bootstrap-prices gates on ALLOW_STRIPE_BOOTSTRAP=1 (403 when unset / non-1), requires STRIPE_SECRET_KEY (501), returns ok+results+envSnippet on success, and 502s on Stripe throw (Error message + non-Error fallback). bootstrap-stripe-prices + list-all-pages already have lib coverage — this locks the route's opt-in gate + response shape an operator copies into secrets. Shipped route.test.ts (6 tests). Claimed by cursor/prompt-process-evolution-aaf5 while siblings shipped billing-portal (PR #127) and marketing-generate (PR #128).",
+    status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-aaf5",
   },
@@ -2804,6 +2805,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/marketing/generate/route.ts (operator-authenticated ad-hoc marketing generation) gets its own route-level Vitest suite — mock requireOperatorAuth + the marketing generator so the test locks auth 401, JSON/contentTypes/automationLevel/business validation, and stub-vs-LLM response messaging that generators.test.ts does not cover.",
     rationale:
       "billing-portal was already owned by claude/relaxed-galileo-gks8ei (PR #127 feature body) and bootstrap-prices by prompt-process-evolution-aaf5 when this branch dual-claimed billing-portal later — AGENT_PROTOCOL requires an immediate pivot. POST /api/marketing/generate is the last untested API route besides bootstrap-prices: operator auth gate, content-type allowlist, automationLevel enum, and BusinessContext shape all live only in the route. generators.test.ts covers Stub/Anthropic paths in isolation, not those gates. Prefer generateMarketingPackAction for persisted Growth/Complete packs; this route remains the ad-hoc operator path and still needs coverage. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/stripe/bootstrap-prices/route.ts (operator Price bootstrap that unlocks every sale) gets its own route-level Vitest suite — mock bootstrapStripePrices + the Stripe constructor so the test locks ALLOW_STRIPE_BOOTSTRAP=1 gating (403), missing STRIPE_SECRET_KEY (501), ok+results+envSnippet success shape, and 502 on Error/non-Error throws, not a restatement of the already-covered helper.",
+    rationale:
+      "Sibling PR #127 closed billing-portal and PR #128 closed marketing-generate in the same hour; this branch kept the bootstrap-prices claim those siblings explicitly left free. The route is the only path that returns the envSnippet operators paste into secrets — a regression that skips the ALLOW_STRIPE_BOOTSTRAP opt-in or returns 200 without envSnippet would either leave bootstrap always-on in production or block every sale after a 'successful' bootstrap. Lib helper suites do not cover that glue. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4892,5 +4900,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(223, 224),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-aaf5",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #126. Sibling PR #127 claimed billing-portal; this branch claimed bootstrap-prices-route-test-coverage (operator Price bootstrap gate that unlocks every sale). Sibling business-process-evolution-df21 dual-claimed billing-portal later, pivoted to marketing-generate (PR #128), and left bootstrap with aaf5. Folded origin/main (#127/#128). Shipped route-level Vitest locking ALLOW_STRIPE_BOOTSTRAP 403, missing secret 501, ok+envSnippet success, and 502 on throws. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/stripe/bootstrap-prices/route.test.ts — 6 tests (ALLOW_STRIPE_BOOTSTRAP unset/non-1 → 403, missing STRIPE_SECRET_KEY → 501, ok+results+envSnippet on success, 502 on Error + non-Error throws)",
+      "Docs: architecture — note route-level Vitest for POST /api/stripe/bootstrap-prices opt-in gate + envSnippet",
+      "NEXT_STEPS: bootstrap-prices-route-test-coverage done; folded sibling billing-portal + marketing-generate done entries",
+      "AGENT_PROTOCOL — every Stripe-facing API route + marketing/generate now has route orchestration coverage; next empty-backlog prefer pure-logic modules or sold-capability / multi-instance regression audits",
+      "BUSINESS_DECISIONS — documented why the bootstrap route gate + envSnippet shape needed its own suite beyond the helper",
+      "merge: folded origin/main PR #127/#128 — all three ITERATIONS kept",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(224, 225),
   },
 ];
