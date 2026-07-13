@@ -1114,6 +1114,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach",
     owner: "cursor/prompt-process-evolution-dd75",
   },
+  {
+    id: "marketing-anthropic-generator-unit-coverage",
+    summary:
+      "Empty-backlog after PR #117 (list-all-pages + unpaid-ledger truncation + unsubscribe escaper): AGENT_PROTOCOL named generator/pack branch coverage next. StubMarketingGenerator is only lightly exercised via monthly-pack.test.ts; AnthropicMarketingGenerator (empty-key fallback, HTTP/parse/length mismatch → stub, packageTiers for generate_schedule_optimize, hashtag/body sanitization) has zero direct tests. Claim: add generators.test.ts locking those sold Growth/Complete fulfillment branches so a future LLM-path regression cannot silently ship broken packs. Sibling can take voice-anthropic-generator-unit-coverage (different module).",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-7337",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
