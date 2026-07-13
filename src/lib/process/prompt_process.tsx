@@ -5074,7 +5074,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: contact-form-route-orchestration-test-coverage done; unsubscribe-route-orchestration-test-coverage queued as sibling twin",
       "AGENT_PROTOCOL — claim contact vs unsubscribe route orchestration separately; helper suites are not enough for route wiring",
       "BUSINESS_DECISIONS — documented why Starter contact CRM trail needs route orchestration coverage",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (622 passed, +8 new contact orchestration) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(229, 230),
   },
