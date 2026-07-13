@@ -4494,6 +4494,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — listAllPages direct coverage required; next empty-backlog prefer generator/pack branch coverage",
       "BUSINESS_DECISIONS — documented why caller suites alone are insufficient for the shared pagination contract",
       "merge: folded origin/cursor/prompt-process-evolution-dd75 — both ITERATIONS kept; remapped decision slices",
+      "Verified: npm test (432 passed, +6 listAllPages +4 sibling) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(208, 209),
   },
