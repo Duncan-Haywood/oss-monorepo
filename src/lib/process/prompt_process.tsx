@@ -187,6 +187,7 @@ export const AGENT_PROTOCOL = [
   "generate-client-voice-pack-action-test-coverage done: src/app/dashboard/leads/generate-client-voice-pack-action.test.ts locks requireOperatorAuth, empty/missing slug, Growth-only + discovered-stage eligibility, CLIENT_VOICE_PACK_CONVEX_PRIMARY persist, stub-vs-anthropic generator labeling, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering — generators.test.ts / faq-pack / build-request suites are not enough for the dashboard Generate voice action glue. Twin of generate-marketing-pack-action-test-coverage (e889 / PR #145). When free NEXT_STEPS stay gated, prefer operator-digest-email-env-readiness (OPERATOR_DIGEST_EMAIL missing → Send daily digest errors only on click) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "operator-digest-email-env-readiness done: assessOperatorDigestEmailEnvReadiness (src/lib/digest/operator-digest-email-env-readiness.ts) + OperatorDigestEmailEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / you@example.com-style OPERATOR_DIGEST_EMAIL — matching sendDailyDigestAction's trim gate (plus documented .env.example placeholders). Distinct from Stripe / Resend / Anthropic banners. Env presence only — does not call Resend. When free NEXT_STEPS stay gated, prefer send-daily-digest-action-test-coverage (dashboard Send daily digest action Vitest twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When operator-digest-email-env-readiness and send-daily-digest-action-test-coverage are both free in the same cron window, claim different ones (destination readiness banner vs Send daily digest action Vitest) — they touch different surfaces and both lock the operator digest path that daily-digest.test.ts alone does not cover.",
+  "When send-daily-digest-action-test-coverage is claimed by a sibling and free NEXT_STEPS stay gated, prefer mark-commerce-order-paid-out-action-test-coverage (Mark paid out requireConvex fail-closed + already-paid-out guard — Commerce double-pay risk) or send-marketing-pack-to-client-action-test-coverage / send-client-voice-pack-to-client-action-test-coverage (Email pack / Email voice pack action Vitest twins) over inventing optional aggregates. When mark-paid-out and Email pack/voice are both free in the same cron window, claim different ones (Commerce reconciliation vs Growth/Complete handoff).",
 ] as const;
 
 /**
@@ -1419,8 +1420,31 @@ export const NEXT_STEPS: NextStep[] = [
     id: "send-daily-digest-action-test-coverage",
     summary:
       "Empty-backlog twin after operator-digest-email-env-readiness: sendDailyDigestAction is the operator Send daily digest path (requireOperatorAuth + OPERATOR_DIGEST_EMAIL + uncapped list* feeds into buildDailyDigest), but only daily-digest.test.ts covers the pure builder — no action-level Vitest for auth, missing destination, or list wiring. Prefer when digest banner is done; do not invent optional aggregates.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-2753",
+  },
+  {
+    id: "mark-commerce-order-paid-out-action-test-coverage",
+    summary:
+      "Empty-backlog pivot while sibling owns send-daily-digest-action-test-coverage: markCommerceOrderPaidOutAction is the operator Mark paid out path (COMMERCE_PAID_OUT_CONVEX_PRIMARY fail-closed + already-paid-out guard) that drops owed liability from panel/health/digest — helper suites alone do not lock auth, missing session, ConvexPrimaryWriteError, or revalidate. Prefer over inventing optional aggregates; leave Email pack/voice action Vitest free for siblings.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-d407",
+  },
+  {
+    id: "send-marketing-pack-to-client-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Generate pack action Vitest: sendMarketingPackToClientAction is the operator Email pack path for sold Growth/Complete handoff (eligibility + existing month pack + Resend), but only deliver-pack helpers exist — no action-level Vitest. Sibling-friendly with send-client-voice-pack-to-client-action-test-coverage; prefer when digest-action / mark-paid-out are claimed.",
+    status: "todo",
+    phase: "Phase 6 — Marketing automation",
+  },
+  {
+    id: "send-client-voice-pack-to-client-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Generate voice / Email pack action Vitest: sendClientVoicePackToClientAction is the operator Email voice pack path for sold Complete phone-script handoff — no action-level Vitest yet. Prefer when marketing Email pack action coverage is done or claimed; do not invent optional aggregates.",
+    status: "todo",
+    phase: "Phase 7 — Client AI phone",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
