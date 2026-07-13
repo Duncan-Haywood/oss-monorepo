@@ -86,7 +86,12 @@ export default function ArchitectureDocPage() {
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}
-        <code>src/lib/seo.test.ts</code>.
+        <code>src/lib/seo.test.ts</code>. The JSON-LD block is embedded via{" "}
+        <code>dangerouslySetInnerHTML</code>, so it is serialized with{" "}
+        <code>safeJsonLdScript</code> (not a raw <code>JSON.stringify</code>) — lead fields
+        (business name, description, address) are free text from CSV import or a future Places
+        scrape, and an unescaped <code>&lt;/script&gt;</code> in one would end the JSON-LD tag
+        early and let injected HTML run for every real visitor to that lead&apos;s preview site.
       </p>
 
       <h2 id="preview-hosting">3. Preview hosting</h2>

@@ -150,6 +150,7 @@ export const AGENT_PROTOCOL = [
   "voice-build-request-unit-coverage done: src/lib/voice/build-request.test.ts locks clientVoiceBusinessContextFromLead + clientVoicePackRequestForLead edge branches (empty services → 'our services', hours by-appointment / omit, omitted state/phone/tagline, CLIENT_VOICE_FAQ_SCRIPT_TYPES) — do not rely only on faq-pack.test.ts happy-path smoke. Twin of marketing-build-request-unit-coverage. When both build-request suites and convex-orders-list-newest-first are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "convex-orders-list-newest-first done: convex/orders.list sorts by createdAt desc at the source; db.ts sortOrdersNewestFirst remains belt-and-suspenders. Do not remove either side without replacing the other — Billing Portal latestEligibleOrder assumes newest-first. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "seo-helpers-unit-coverage done: src/lib/seo.test.ts locks siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL trimmed + trailing-slash-stripped > VERCEL_URL > localhost default; whitespace-only values treated as unset for both), previewUrl composition, leadMetaTitle/leadMetaDescription, and leadLocalBusinessJsonLd (per-BusinessCategory schema.org @type + nested PostalAddress, including an absent lead.address passing through as undefined streetAddress) — src/lib/seo.ts backs the Starter 'Basic SEO' promise and had zero direct tests before this. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, escapeHtmlForEmail asymmetry re-scan, remaining untested pure-logic modules) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "preview-jsonld-script-escape done: any value embedded via dangerouslySetInnerHTML into a <script> tag (not just email HTML) must be escaped against a literal '</script>' breakout — JSON.stringify alone is not enough (the seo-helpers-unit-coverage suite above locked leadLocalBusinessJsonLd's shape but did not catch this, since it never exercised the dangerouslySetInnerHTML call site). Use safeJsonLdScript (src/lib/seo.ts) for JSON-LD; do not reuse escapeHtmlForEmail here, it HTML-entity-escapes for email bodies and is the wrong tool for JS-string/script-tag content. Before assuming email-HTML audits (escapeHtmlForEmail sweeps) covered every injection surface, grep the whole codebase for dangerouslySetInnerHTML — it currently has exactly one call site — and check page-rendered output too, not only outbound email. Lead fields (businessName/description/address/city/state) are free text from CSV import (and future Places ingestion), not just operator-typed, so treat them as untrusted at every render sink, not only at persistence. When free NEXT_STEPS are gated again, prefer another sold-capability / multi-instance regression or security audit over inventing optional aggregates.",
 ] as const;
 
 /**
@@ -1169,6 +1170,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "claude/upbeat-dijkstra-t4ass7",
+  },
+  {
+    id: "preview-jsonld-script-escape",
+    summary:
+      "Security audit while free NEXT_STEPS backlog stayed gated: /preview/[slug] (public, unauthenticated) embedded leadLocalBusinessJsonLd via dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} — JSON.stringify does not escape '<', so a lead field (businessName/description/address/city/state — free text from CSV import or a future Places scrape, not just operator-typed) containing the literal '</script>' would prematurely close the JSON-LD <script> tag and let an attacker-controlled '<script>' after it execute for every real site visitor (stored XSS). Sibling claude/upbeat-dijkstra-t4ass7's seo-helpers-unit-coverage (merged first as PR #122) tested leadLocalBusinessJsonLd's shape but never exercised the dangerouslySetInnerHTML call site, so it did not catch this. No prior escapeHtmlForEmail/requireConvex/truncation audit covered this file either — those all scoped to outbound email HTML, not page-rendered JSON-LD. Shipped: safeJsonLdScript (src/lib/seo.ts) escaping '<' to \\u003c before embedding (JSON.parse still recovers an identical object); wired into the one dangerouslySetInnerHTML call site in the codebase; folded into the merged seo.test.ts (which now also covers the </script> breakout attempts in businessName and address).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/relaxed-galileo-e13pc6",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2697,6 +2706,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/seo.ts (siteUrl / previewUrl / leadMetaTitle / leadMetaDescription / leadLocalBusinessJsonLd) gets its own Vitest suite — it backed the Starter-sold 'Basic SEO' promise with zero direct tests before this iteration.",
     rationale:
       "This branch's original claim (marketing-voice-build-request-unit-coverage) turned out to already be shipped by a sibling that merged first — the correct move per AGENT_PROTOCOL's same-minute dual-claim rule was to drop the duplicate and re-scan, not ship a second implementation. siteUrl()'s three-way env precedence (NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost) determines every canonical URL, OG tag, and JSON-LD url in production; an untested regression there (e.g. losing the trailing-slash strip, or NEXT_PUBLIC_APP_URL silently losing precedence) would misconfigure SEO for every live client site with no test catching it. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "/preview/[slug] JSON-LD is now serialized via safeJsonLdScript (escapes '<' to \\u003c), never a raw JSON.stringify inside dangerouslySetInnerHTML.",
+    rationale:
+      "With the free NEXT_STEPS backlog fully gated (secrets/OAuth/counsel), a security-focused empty-backlog audit checked every dangerouslySetInnerHTML sink in the codebase (there is exactly one) rather than re-running the already-repeated email-HTML escaping / requireConvex / truncation sweeps. Lead fields feeding the JSON-LD block (businessName, description, address, city, state) are free text from CSV import today and a future Places scrape per lead-ingestion — untrusted input reaching an unauthenticated public page. A value containing the literal '</script>' would close the JSON-LD script element early and let attacker HTML/script execute for every real visitor of that lead's preview site — a stored XSS with real reputational and legal exposure for a business selling trust to local business owners. escapeHtmlForEmail was deliberately not reused: it HTML-entity-escapes for email bodies, not JS/script-tag content. Sibling seo-helpers-unit-coverage tested leadLocalBusinessJsonLd's shape but never exercised the dangerouslySetInnerHTML sink, so it did not catch this — test coverage of a data shape is not the same as coverage of every render sink that consumes it.",
   },
 ];
 
@@ -4692,5 +4708,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (489 passed, +14 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(217, 218),
+  },
+  {
+    date: "2026-07-13",
+    branch: "claude/relaxed-galileo-e13pc6",
+    summary:
+      "Free NEXT_STEPS backlog fully gated after PR #120 (marketing/voice build-request coverage + convex-orders-list-newest-first) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained, all secrets/OAuth/counsel-gated. Ran a security-focused empty-backlog audit instead of another test-coverage or truncation sweep: grepped every dangerouslySetInnerHTML sink in the codebase (exactly one) rather than re-checking already-repeated email-HTML/requireConvex/truncation classes. Found the public, unauthenticated /preview/[slug] page embedded LocalBusiness JSON-LD via a raw JSON.stringify inside dangerouslySetInnerHTML — a lead field containing the literal '</script>' (businessName/description/address/city/state are free text from CSV import, not just operator-typed) would prematurely close the script tag and let injected HTML/script execute for real site visitors (stored XSS). Fixed by escaping at the serialization boundary, not by sanitizing every write path — matches the existing pattern of centralizing HTML-injection defense in one shared escaper rather than scattering input validation. Sibling claude/upbeat-dijkstra-t4ass7's seo-helpers-unit-coverage merged first as PR #122 (same file, no overlap in intent — theirs tests the JSON-LD shape, this fixes the injection at the one render sink that consumes it); folded that merge and combined both test suites into one seo.test.ts.",
+    shipped: [
+      "src/lib/seo.ts — safeJsonLdScript(jsonLd): escapes '<' to \\u003c before embedding JSON-LD in a <script> tag (JSON.parse still recovers an identical object)",
+      "src/app/preview/[slug]/page.tsx — dangerouslySetInnerHTML now uses safeJsonLdScript instead of raw JSON.stringify",
+      "src/lib/seo.test.ts — merged with sibling's seo-helpers-unit-coverage suite; added safeJsonLdScript round-trip + two explicit </script> breakout attempts (businessName, address)",
+      "NEXT_STEPS: preview-jsonld-script-escape done",
+      "AGENT_PROTOCOL — dangerouslySetInnerHTML/script-tag content needs its own escaping (not escapeHtmlForEmail); audit page-rendered output, not only outbound email, for every future email-HTML sweep; test coverage of a data shape does not imply coverage of every render sink that consumes it",
+      "BUSINESS_DECISIONS — documented the stored-XSS finding and why the fix lives at serialization rather than at each lead-data write path",
+      "merge: folded origin/main (PR #122 seo-helpers-unit-coverage) — combined seo.test.ts suites, kept both NEXT_STEPS/BUSINESS_DECISIONS/ITERATIONS entries",
+      "Verified: npm test (493 passed, +22 net new from the merged seo.test.ts) + lint clean + build clean + npm run dev with /preview/pine-cafe and /dashboard/leads loaded (200s, JSON-LD renders correctly, no runtime errors)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(218, 219),
   },
 ];
