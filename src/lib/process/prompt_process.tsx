@@ -154,6 +154,7 @@ export const AGENT_PROTOCOL = [
   "stripe-webhook-route-test-coverage done: src/app/api/stripe/webhook/route.ts has route-level Vitest covering bundle + commerce_sku orchestration (5xx-per-failure-step, redelivery recovery). When free NEXT_STEPS are gated again, prefer stripe-checkout-route-test-coverage (create-side twin — organic slug minting, Price ID line items, requireConvex fail-closed session tracking) or commerce-checkout-route-test-coverage (Buy now twin; different module; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When stripe-checkout-route-test-coverage and commerce-checkout-route-test-coverage are both free in the same cron window, claim different ones (bundle Checkout create vs Commerce Buy now create) — they touch different route files and both lock money-critical create-path orchestration that the webhook suite does not cover.",
   "stripe-checkout-route-test-coverage done: src/app/api/stripe/checkout/route.ts has route-level Vitest (config/tier/Price-env guards, Starter payment + Growth subscription + Commerce add-on line items, organic-* mint + cancel URL attribution, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s). Helper suites (organic-attribution, session-persist) are not enough for the route orchestration. When free NEXT_STEPS are gated again, prefer commerce-checkout-route-test-coverage (sibling-friendly Buy now twin) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "commerce-checkout-route-test-coverage done: src/app/api/commerce/checkout/route.ts has route-level Vitest locking server-resolved stripePriceId (client price/stripePriceId ignored), unsynced-SKU 501, kind=commerce_sku + skuId tracking, and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed 502s. Twin of stripe-checkout-route-test-coverage. When both create-side suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (billing-portal route coverage, remaining untested pure-logic modules, Convex API map re-audit) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1201,9 +1202,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "commerce-checkout-route-test-coverage",
     summary:
-      "Sibling twin of stripe-checkout-route-test-coverage for Commerce Buy now: POST /api/commerce/checkout resolves stripePriceId server-side from the catalog (never trusts client price), records kind=commerce_sku + skuId for abandoned-cart tracking, and fail-closes on CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY. Zero direct tests today — queued by prompt-process-evolution-7d1d in the same window; free for a sibling (or a later run) when the bundle checkout route is claimed/done.",
-    status: "todo",
+      "Sibling twin of stripe-checkout-route-test-coverage for Commerce Buy now: POST /api/commerce/checkout resolves stripePriceId server-side from the catalog (never trusts client price), records kind=commerce_sku + skuId for abandoned-cart tracking, and fail-closes on CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY. Shipped route.test.ts (12 tests): missing secret 501, invalid JSON / missing slug|skuId 400s, unknown catalog/item 404, unsynced SKU 501, payment session from server-resolved price (client price/stripePriceId ignored), trim slug/skuId, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s. Folded sibling stripe-checkout ITERATION after dual-claim pivot.",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-7d1d",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2753,6 +2755,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/app/api/stripe/checkout/route.ts (bundle Checkout Session create — Starter/Growth/Complete + Commerce add-on) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db — organic slug resolution and CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY stay real so the test exercises create-path orchestration, not a restatement of mocks.",
     rationale:
       "After PR #124 covered webhook fulfillment orchestration, the create-side twin that starts every sale still had zero direct route tests — helpers organic-attribution + session-persist were covered in isolation, but Price-env 501s, payment vs subscription mode, Commerce add-on line items, organic-* mint + cancel URL attribution, and fail-closed 502 on tracking failure (ConvexPrimaryWriteError or otherwise) live only in the route. Untested create-path orchestration is the same class of gap the webhook suite just closed on the fulfill side. Sibling prompt-process-evolution-7d1d dual-claimed ~55s later (claim-only); earlier remote claim owns per AGENT_PROTOCOL — commerce-checkout-route-test-coverage stays free for them. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/app/api/commerce/checkout/route.ts (Commerce Buy now Checkout Session create) gets its own route-level Vitest suite, mocking only the Stripe SDK and @/lib/db — catalog lookup + CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY stay real so the test exercises create-path orchestration, including the server-resolved price invariant (client-submitted price/stripePriceId must never reach Stripe).",
+    rationale:
+      "Same-minute dual claim with business-process-evolution-f32f on stripe-checkout-route-test-coverage: earlier remote claim owned the bundle route, so this branch pivoted to the Commerce Buy now twin. Buy now is the Commerce sold-capability money path — a regression that trusts a client price undercharges the local business, and a SQLite-only tracking write after handing out a Stripe URL permanently drops abandoned Buy now recovery on other instances. Helper suites do not cover those route invariants. Folded sibling stripe-checkout ITERATION into this PR so both create-side suites land together. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
 ];
 
@@ -4794,5 +4803,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (+15 new) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(220, 221),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-7d1d",
+    summary:
+      "Same-minute dual claim on stripe-checkout-route-test-coverage with sibling business-process-evolution-f32f — earlier remote claim (11:02 vs 11:03) owned the bundle route; pivoted to commerce-checkout-route-test-coverage. Shipped route-level Vitest for POST /api/commerce/checkout locking server-resolved stripePriceId, unsynced-SKU 501, kind=commerce_sku tracking, and requireConvex fail-closed 502s. Folded sibling stripe-checkout ITERATION + tests into this PR. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/api/commerce/checkout/route.test.ts — 12 tests (missing secret 501, invalid JSON / missing slug|skuId 400s, unknown catalog/item 404, unsynced SKU 501, payment session from server-resolved price ignoring client price/stripePriceId, trim slug/skuId, missing-url / Stripe-throw / ConvexPrimaryWriteError / generic tracking 502s)",
+      "merge: folded cursor/business-process-evolution-f32f (stripe-checkout-route-test-coverage) — kept both ITERATIONS",
+      "Docs: architecture — note route-level Vitest for POST /api/commerce/checkout Buy now create path",
+      "NEXT_STEPS: commerce-checkout-route-test-coverage done; stripe-checkout already done by sibling",
+      "AGENT_PROTOCOL — commerce create-side orchestration coverage required beyond catalog/session-persist helpers; next empty-backlog prefer billing-portal route coverage or another sold-capability regression",
+      "BUSINESS_DECISIONS — documented dual-claim pivot + why client price must never reach Stripe",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(221, 222),
   },
 ];

@@ -406,7 +406,11 @@ export default function ArchitectureDocPage() {
         <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata).{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
-        client-submitted price) and creates a one-time Checkout Session. Unsynced items keep the
+        client-submitted price) and creates a one-time Checkout Session. Route-level Vitest
+        coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
+        server-resolved price invariant, unsynced-SKU 501s, <code>kind=commerce_sku</code>{" "}
+        tracking, and requireConvex fail-closed session create (Buy now twin of the bundle
+        checkout suite). Unsynced items keep the
         &quot;Request order&quot; → contact form → inquiry inbox stub. A completed Buy now
         Checkout Session also writes a <code>commerceOrders</code> ledger row (
         <code>src/lib/commerce/orders.ts</code>, SQLite + Convex, idempotent on Stripe session id)
