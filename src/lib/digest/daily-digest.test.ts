@@ -171,6 +171,44 @@ describe("buildDailyDigest", () => {
     ]);
   });
 
+  it("a newest-N inquiries page hides an older unreplied inquiry that the uncapped set catches", () => {
+    // Callers must feed buildDailyDigest from listUnrepliedInquiries()
+    // (uncapped status new+read), not a capped newest-N page of every status —
+    // a capped page can drop an older unreplied inquiry past the window.
+    const oldUnreplied = baseInquiry({
+      id: "inq_old_unreplied",
+      status: "new",
+      createdAt: "2026-06-01T00:00:00.000Z",
+    });
+    const newerReplied = Array.from({ length: 3 }, (_, i) =>
+      baseInquiry({
+        id: `inq_replied_${i}`,
+        status: "replied",
+        createdAt: `2026-07-1${i}T00:00:00.000Z`,
+      }),
+    );
+    const fullSet = [oldUnreplied, ...newerReplied];
+    const truncatedToNewestTwo = [...fullSet]
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, 2);
+
+    const fromFullSet = buildDailyDigest({
+      leads: [],
+      inquiries: fullSet,
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const fromTruncatedPage = buildDailyDigest({
+      leads: [],
+      inquiries: truncatedToNewestTwo,
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+
+    expect(fromFullSet.unrepliedInquiries.map((i) => i.id)).toEqual(["inq_old_unreplied"]);
+    expect(fromTruncatedPage.unrepliedInquiries).toHaveLength(0);
+  });
+
   it("truncates a long inquiry message", () => {
     const longMessage = "a".repeat(200);
     const digest = buildDailyDigest({

@@ -3,7 +3,7 @@ import { PlaceholderBanner } from "@/components/placeholder-banner";
 import {
   getLeads,
   listDeployHandoffs,
-  listClientInquiries,
+  listUnrepliedInquiries,
   listOrders,
   listOpenCheckoutSessions,
   listMarketingPacksForMonth,
@@ -59,7 +59,7 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
-    listClientInquiries(20),
+    listUnrepliedInquiries(),
     listOrders(),
     listOpenCheckoutSessions(),
     listMarketingPacksForMonth(marketingMonth),

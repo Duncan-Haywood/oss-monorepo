@@ -14,7 +14,7 @@ import {
   listOrders,
   recordLeadOutreach,
   listOpenCheckoutSessions,
-  listClientInquiries,
+  listUnrepliedInquiries,
   recordCheckoutRecoverySent,
   updateLeadNotes,
   updateLeadSnooze,
@@ -1319,7 +1319,7 @@ export async function sendDailyDigestAction() {
       commerceOrders,
     ] = await Promise.all([
       getLeads(),
-      listClientInquiries(100),
+      listUnrepliedInquiries(),
       listOpenCheckoutSessions(),
       listOrders(),
       listMarketingPacksForMonth(yearMonth),

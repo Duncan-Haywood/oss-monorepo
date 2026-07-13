@@ -122,6 +122,35 @@ export const list = query({
   },
 });
 
+/**
+ * Every inquiry still awaiting an operator reply (status "new" or "read"),
+ * uncapped — feeds pipeline-health unrepliedInquiryCount /
+ * oldestUnrepliedInquiryAgeHours and the daily digest Unreplied inquiries
+ * section. A newest-N `list` page can drop an older unreplied inquiry once
+ * total inquiry volume exceeds the page size, silently hiding CRM health
+ * debt. Capped `list` stays for inbox UI. See
+ * unreplied-inquiry-list-completeness in /docs/process.
+ */
+export const listUnreplied = query({
+  args: {},
+  returns: v.array(inquiryReturn),
+  handler: async (ctx) => {
+    const [newRows, readRows] = await Promise.all([
+      ctx.db
+        .query("clientInquiries")
+        .withIndex("by_status", (q) => q.eq("status", "new"))
+        .collect(),
+      ctx.db
+        .query("clientInquiries")
+        .withIndex("by_status", (q) => q.eq("status", "read"))
+        .collect(),
+    ]);
+    const rows = [...newRows, ...readRows];
+    rows.sort((a, b) => b.createdAt - a.createdAt);
+    return rows.map(mapInquiry);
+  },
+});
+
 export const listBySlug = query({
   args: {
     leadSlug: v.string(),

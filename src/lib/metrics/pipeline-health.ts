@@ -195,6 +195,13 @@ export function computePipelineHealth(input: {
   leads: Lead[];
   orders: OrderRecord[];
   handoffs: DeployHandoff[];
+  /**
+   * Only newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours
+   * read this — all three are fully covered by status new+read. Pass
+   * listUnrepliedInquiries() (uncapped), not a newest-N page of every status;
+   * a capped page can drop an older unreplied inquiry once total inquiry
+   * volume exceeds the page size and silently hide CRM health debt.
+   */
   inquiries: ClientInquiry[];
   openCheckoutSessions?: CheckoutSessionRecord[];
   /** Packs already generated for the current UTC month (optional). */
