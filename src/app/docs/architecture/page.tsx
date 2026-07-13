@@ -46,7 +46,11 @@ export default function ArchitectureDocPage() {
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
         <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
         surfaces a retry instead of claiming success after a SQLite-only write other instances
-        cannot see. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
+        cannot see. Dashboard stage moves likewise pass{" "}
+        <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so funnel state cannot desync from
+        Convex-first readers — especially the <code>outreach_sent</code> path, where the
+        outreach mark already fails closed. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
         require a signed session cookie. <code>src/proxy.ts</code> also rewrites the root path to a
         lead&apos;s <code>/preview/[slug]</code> when the request Host matches a client&apos;s own

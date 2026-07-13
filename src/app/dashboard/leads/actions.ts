@@ -38,6 +38,7 @@ import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
+import { LEAD_STAGE_CONVEX_PRIMARY } from "@/lib/leads/stage-persist";
 import { LEAD_UPSERT_CONVEX_PRIMARY } from "@/lib/leads/upsert-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { MARKETING_PACK_CONVEX_PRIMARY } from "@/lib/marketing/pack-persist";
@@ -378,7 +379,18 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
       return { success: false, error: auth.error };
     }
 
-    await updateLeadStage(slug, stage);
+    try {
+      await updateLeadStage(slug, stage, LEAD_STAGE_CONVEX_PRIMARY);
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false,
+          error:
+            "Could not save the stage in the shared store — other instances may not see this move. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
 
     // If stage is changed to outreach_sent, durably mark Email 1 sent BEFORE
     // sending (persist-then-notify) so a Convex mutation failure never lets a
