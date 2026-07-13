@@ -164,6 +164,7 @@ export const AGENT_PROTOCOL = [
   "pricing-bundles-unit-coverage done: src/lib/pricing/bundles.test.ts locks Starter/Growth/Complete + Commerce add-on sold USD amounts, Stripe Price env var names, Starter monthly=null, and getBundle unknown-id behavior — the source of truth for checkout UI, tier upsell, bootstrap-stripe-prices, and price-env-readiness. When free NEXT_STEPS are gated again, prefer brand-helpers-unit-coverage (if still free), demo-catalog-unit-coverage (resolvePreviewLead category inference), or category-themes-unit-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "brand-helpers-unit-coverage done: src/lib/brand.ts uses getters (env evaluated at access time), trims and treats whitespace-only as unset for every brand env (matching price-env-readiness), and has direct Vitest coverage for name/legalEntity/legalLocation/postalAddress/dba/support/emailFrom precedence + marketingFooterLine / legalEntityLine / outreachSenderLine + deprecated company re-exports. Do not reintroduce module-load snapshots of brand env — they break tests and hide whitespace-only misconfig. When free NEXT_STEPS are gated again, prefer demo-catalog-unit-coverage / category-themes-unit-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "demo-catalog-unit-coverage done: src/lib/leads/demo-catalog.ts has direct Vitest coverage for DEMO_LEADS stable slugs + category/tier alignment, getLeadBySlug miss, resolvePreviewLead catalog hit + title-case businessName + restaurant/salon/trades/generic keyword inference (case-insensitive) + recommendedTier mapping, and countLeadsByStage. When free NEXT_STEPS are gated again, prefer category-themes-unit-coverage (src/lib/previews/themes.ts) if still free, or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "category-themes-unit-coverage done: src/lib/previews/themes.ts has direct Vitest coverage for CATEGORY_THEMES keys (restaurant/salon/trades/generic), sold labels + hero eyebrows + accent/CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map — do not rely only on category-preview.tsx import smoke. Twin of demo-catalog-unit-coverage (folded from business-process-evolution-cae5). When both preview foundation suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map / webhook-idempotency / HTML-injection re-audit, remaining untested pure-logic modules, or a fresh operator-visible revenue unlock) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1267,9 +1268,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "category-themes-unit-coverage",
     summary:
-      "Sibling twin of demo-catalog-unit-coverage: src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) drives category-specific preview shells for restaurant/salon/trades/generic — sold Starter capability with no direct Vitest yet. Prefer claiming this when demo-catalog is already owned in the same cron window.",
-    status: "todo",
+      "Sibling twin of demo-catalog-unit-coverage: src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) drives category-specific preview shells for restaurant/salon/trades/generic — sold Starter capability with no direct Vitest yet. Shipped: themes.test.ts locking the four BusinessCategory keys, sold labels/hero eyebrows/accent+CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity with the map. Folded sibling demo-catalog-unit-coverage (cae5). Remaining NEXT_STEPS stay operator/legal-gated.",
+    status: "done",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-fa0a",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2868,6 +2870,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "src/lib/leads/demo-catalog.ts (DEMO_LEADS + resolvePreviewLead + countLeadsByStage) gets its own Vitest suite locking stable demo slugs, category/tier alignment, keyword inference (restaurant/salon/trades/generic, case-insensitive), title-case businessName, and stage counts — the /preview/[slug] fallback path for not-yet-persisted slugs.",
     rationale:
       "Free NEXT_STEPS backlog stayed fully gated after PR #131 (brand-helpers + pricing-bundles). resolvePreviewLead chooses which category template and tier upsell card an operator sees when sanity-checking a slug before persistence — a silent drift (e.g. trades keyword → growth instead of starter, or bakery no longer matching restaurant) would mis-sell Starter vs Growth vs Complete on the preview itself with no existing suite catching it. Direct coverage is the cheapest sold-capability regression lock while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated. Sibling can take category-themes-unit-coverage. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/previews/themes.ts (CATEGORY_THEMES + getCategoryTheme) gets its own Vitest suite locking restaurant/salon/trades/generic labels, hero eyebrows, accent/CTA classes, and distinct full-bleed gradient shells — the Starter category-template atmosphere source of truth consumed by category-preview.tsx.",
+    rationale:
+      "After PR #131 and the demo-catalog twin claim in the same cron window, free NEXT_STEPS stayed fully gated. themes.ts chooses the sold preview shell atmosphere per BusinessCategory; a silent drift (shared shell classes across categories, flat single-color backgrounds, or swapped labels/eyebrows) would ship mismatched Starter previews with no suite failing. Direct coverage pairs with demo-catalog's keyword→category lock so inference and rendering cannot diverge unnoticed. Prefer this over inventing optional aggregates while Places / Buffer OAuth / Connect / Price bootstrap stay operator-gated.",
   },
 ];
 
@@ -5020,5 +5029,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (608 passed, +12 new) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(227, 228),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-fa0a",
+    summary:
+      "Sibling cae5 claimed demo-catalog-unit-coverage in the same cron window; this branch claimed category-themes-unit-coverage (Starter category shell tokens). Shipped themes.test.ts locking CATEGORY_THEMES keys/labels/eyebrows/accent+CTA classes, distinct full-bleed gradient shells, and getCategoryTheme identity. Folded sibling demo-catalog feature + ITERATION. Architecture Site generation notes both suites. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/previews/themes.test.ts — CATEGORY_THEMES four keys + sold labels/eyebrows/accent+CTA + distinct gradient shells + getCategoryTheme identity",
+      "Docs: architecture — Site generation notes themes.test.ts + folded demo-catalog.test.ts coverage",
+      "NEXT_STEPS: category-themes-unit-coverage done; folded sibling demo-catalog-unit-coverage (done on cae5)",
+      "AGENT_PROTOCOL — category-themes coverage done; next empty-backlog prefer sold-capability / multi-instance regression (not optional aggregates)",
+      "BUSINESS_DECISIONS — documented why category shell tokens need their own suite beyond category-preview import smoke",
+      "merge: folded origin/cursor/business-process-evolution-cae5 — both ITERATIONS kept",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(228, 229),
   },
 ];

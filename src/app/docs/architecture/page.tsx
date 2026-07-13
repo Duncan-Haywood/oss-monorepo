@@ -68,12 +68,15 @@ export default function ArchitectureDocPage() {
         Category templates (restaurant, salon, trades, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
-        <code>serene-salon</code>, <code>mountain-plumbing</code>. Tier upsell cards link to
-        checkout with <code>slug</code> + recommended <code>tier</code>.{" "}
+        <code>serene-salon</code>, <code>mountain-plumbing</code>.{" "}
         <code>resolvePreviewLead</code> (slug keyword → category + recommended tier) and the
         demo catalog have direct Vitest coverage in{" "}
-        <code>src/lib/leads/demo-catalog.test.ts</code>. Category theme shells live in{" "}
-        <code>src/lib/previews/themes.ts</code>.
+        <code>src/lib/leads/demo-catalog.test.ts</code>. Per-category shell / accent / CTA
+        tokens live in <code>src/lib/previews/themes.ts</code> (
+        <code>CATEGORY_THEMES</code> + <code>getCategoryTheme</code>) with direct Vitest
+        coverage in <code>src/lib/previews/themes.test.ts</code> so a silent label or
+        atmosphere drift cannot ship without failing the suite. Tier upsell cards link to
+        checkout with <code>slug</code> + recommended <code>tier</code>.
       </p>
 
       <h2 id="seo">2b. SEO &amp; discoverability</h2>
