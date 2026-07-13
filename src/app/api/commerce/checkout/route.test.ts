@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 /**
  * Route-level coverage for POST /api/commerce/checkout — Commerce Buy now
@@ -71,6 +72,10 @@ describe("POST /api/commerce/checkout", () => {
     sessionsCreate.mockReset();
     getCommerceCatalog.mockReset();
     recordCheckoutSessionCreated.mockReset();
+    // Each `it` below issues its own POST(s) from the same synthetic (no
+    // x-forwarded-for) client — reset the limiter so route-level tests don't
+    // interfere with each other regardless of run order.
+    resetRateLimiterForTests();
     getCommerceCatalog.mockResolvedValue(syncedCatalog);
     recordCheckoutSessionCreated.mockResolvedValue(undefined);
     sessionsCreate.mockResolvedValue({
@@ -284,5 +289,31 @@ describe("POST /api/commerce/checkout", () => {
       message: "stripe_timeout",
     });
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
+  });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_commerce";
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/commerce/checkout", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-forwarded-for": "203.0.113.10",
+        },
+        body: JSON.stringify({ slug: "demo-cafe", skuId: "sku_latte" }),
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 21; i += 1) {
+      lastResponse = await POST(request());
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const body = await lastResponse!.json();
+    expect(body.error).toBe("Too many requests");
+    // The 21st request never reached Stripe.
+    expect(sessionsCreate).toHaveBeenCalledTimes(20);
   });
 });

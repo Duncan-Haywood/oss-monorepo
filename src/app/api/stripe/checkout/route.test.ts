@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 /**
  * Route-level coverage for the create-side twin of the webhook suite:
@@ -56,6 +57,10 @@ describe("POST /api/stripe/checkout", () => {
   beforeEach(() => {
     sessionsCreate.mockReset();
     recordCheckoutSessionCreated.mockReset().mockResolvedValue(undefined);
+    // Each `it` below issues its own POST(s) from the same synthetic (no
+    // x-forwarded-for) client — reset the limiter so route-level tests don't
+    // interfere with each other regardless of run order.
+    resetRateLimiterForTests();
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.STRIPE_PRICE_ID_STARTER_SETUP;
@@ -334,5 +339,35 @@ describe("POST /api/stripe/checkout", () => {
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: "Checkout tracking unavailable" });
+  });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_rate",
+      url: "https://checkout.stripe.com/rate",
+    });
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-forwarded-for": "203.0.113.9",
+        },
+        body: JSON.stringify({ tier: "starter", slug: "demo-cafe" }),
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 21; i += 1) {
+      lastResponse = await POST(request());
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const body = await lastResponse!.json();
+    expect(body.error).toBe("Too many requests");
+    // The 21st request never reached Stripe.
+    expect(sessionsCreate).toHaveBeenCalledTimes(20);
   });
 });

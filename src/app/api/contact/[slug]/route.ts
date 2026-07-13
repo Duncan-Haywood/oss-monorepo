@@ -7,6 +7,7 @@ import {
   shouldSendContactNotify,
 } from "@/lib/inquiries/contact-persist";
 import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
  * Client site contact form (Phase 5).
@@ -18,6 +19,9 @@ import { escapeHtmlForEmail } from "@/lib/inquiries/reply";
  * When NEXT_PUBLIC_CONVEX_URL is set, insertClientInquiry passes requireConvex
  * so a Convex mutation failure does not SQLite-fallback then claim success —
  * other instances read Convex-first and would never see the inquiry.
+ *
+ * Rate limited per client IP (best-effort, per-instance — see
+ * src/lib/security/rate-limit.ts) to blunt scripted contact-form spam.
  */
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -53,6 +57,15 @@ export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
   if (!slug || !/^[a-z0-9-]+$/i.test(slug)) {
     return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
+  }
+
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`contact-form:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   const lead = await getLeadBySlug(slug);

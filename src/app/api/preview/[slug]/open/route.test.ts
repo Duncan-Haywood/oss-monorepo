@@ -71,4 +71,32 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     expect(json.recorded).toBe(false);
     expect(json.reason).toBe("persist_failed");
   });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-forwarded-for": "203.0.113.12",
+        },
+        body: "{}",
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 21; i += 1) {
+      lastResponse = await POST(request(), {
+        params: Promise.resolve({ slug: "demo-cafe" }),
+      });
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const json = await lastResponse!.json();
+    expect(json.ok).toBe(false);
+    expect(json.reason).toBe("rate_limited");
+    // The 21st request never reached the persistence layer.
+    expect(recordLeadPreviewOpen).toHaveBeenCalledTimes(20);
+  });
 });

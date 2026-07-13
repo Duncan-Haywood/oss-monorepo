@@ -5,10 +5,14 @@ import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-p
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
  * Creates a Stripe Checkout Session for a bundle tier (+ optional Commerce
  * add-on). See /docs/roadmap#phase-3-payments and /docs/product-bundles.
+ *
+ * Rate limited per client IP (best-effort, per-instance — see
+ * src/lib/security/rate-limit.ts) to blunt scripted checkout-session churn.
  */
 
 interface CheckoutRequestBody {
@@ -30,6 +34,15 @@ function notConfigured(message: string) {
 }
 
 export async function POST(request: Request) {
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`stripe-checkout:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     return notConfigured("Set STRIPE_SECRET_KEY, then configure per-tier Stripe Price IDs (see .env.example).");
