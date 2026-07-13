@@ -5017,7 +5017,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: demo-catalog-unit-coverage done; category-themes-unit-coverage queued as todo for sibling",
       "AGENT_PROTOCOL — demo-catalog coverage done; next empty-backlog prefer category-themes if still free",
       "BUSINESS_DECISIONS — documented why preview slug inference needs its own suite beyond quality-score CATEGORY_DEFAULT_TIER",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (608 passed, +12 new) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(227, 228),
   },
