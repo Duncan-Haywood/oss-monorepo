@@ -1391,8 +1391,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "generate-marketing-pack-action-test-coverage",
     summary:
       "Empty-backlog twin after anthropic-env-readiness: generateMarketingPackAction is the operator Generate pack path for sold Growth/Complete fulfillment (requireConvex + Anthropic/stub), but only generators/monthly-pack/route suites exist — no action-level Vitest for auth, eligibility, or persist wiring. Prefer when anthropic banner is done; sibling-friendly vs generate-client-voice-pack-action-test-coverage.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 6 — Marketing automation",
+    owner: "cursor/prompt-process-evolution-e889",
   },
   {
     id: "generate-client-voice-pack-action-test-coverage",
