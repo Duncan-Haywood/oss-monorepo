@@ -129,6 +129,7 @@ export const AGENT_PROTOCOL = [
   "upsertMarketingPack must pass requireConvex (MARKETING_PACK_CONVEX_PRIMARY) from generateMarketingPackAction when Convex is configured — getMarketingPack / listMarketingPacksForMonth / listMarketingPacksDue (pipeline-health + digest Marketing packs due + Email pack precondition) read Convex-first, so a SQLite-only Generate pack leaves Growth/Complete fulfillment looking missing on other instances (Email pack blocked + false packs-due debt). Fail closed and surface a retry to the operator; regenerating the same UTC month is idempotent replace. When marketing-pack is claimed by a sibling, prefer client-voice-pack-convex-primary (upsertClientVoicePack twin) over inventing optional aggregates.",
   "upsertClientVoicePack must pass requireConvex (CLIENT_VOICE_PACK_CONVEX_PRIMARY) from generateClientVoicePackAction when Convex is configured — getClientVoicePackByLeadSlug / listClientVoicePacks / listClientVoicePacksDue (pipeline-health + digest Complete voice packs due + Email voice pack precondition) read Convex-first, so a SQLite-only Generate voice leaves Complete phone-script fulfillment looking missing on other instances (Email voice pack blocked + false voice-packs-due debt). Fail closed and surface a retry to the operator; regenerating replaces the one-row-per-lead pack (idempotent). When marketing + voice pack requireConvex are both done and free NEXT_STEPS are gated, prefer lead-upsert-convex-primary (upsertLead requireConvex on create/import/CSV paths that feed Convex-first getLeads) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "upsertLead must pass requireConvex (LEAD_UPSERT_CONVEX_PRIMARY) from addLeadAction / importLeadsCsvAction when Convex is configured — getLeads / getLeadBySlug (Work next, pipeline-health, digest, outreach eligibility) read Convex-first, so a SQLite-only Add lead / CSV import leaves new inventory invisible on other instances (empty CRM + false funnel + outreach blocked). Fail closed and surface a retry to the operator; scope is create/import only — field-level updates keep their own requireConvex helpers (notes/stage/outreach/snooze/cold). Payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. When lead-upsert is claimed or done and free NEXT_STEPS are gated, prefer lead-stage-convex-primary (updateLeadStageAction requireConvex — dashboard stage dropdown still soft-falls-back while getLeads reads Convex-first, and outreach_sent can desync stage vs outreachStep) over inventing optional aggregates; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "updateLeadStage must pass requireConvex (LEAD_STAGE_CONVEX_PRIMARY) from updateLeadStageAction when Convex is configured — getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first, so a SQLite-only stage dropdown move leaves funnel state (or soft stage vs fail-closed OUTREACH_CADENCE outreach mark on outreach_sent) desynced across instances. Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY through updateLeadStage — do not double-wrap that path. Fail closed and surface a retry to the operator. When lead-stage is done and free NEXT_STEPS are gated, prefer bundle-price-env-readiness (operator-visible signal when required STRIPE_PRICE_ID_* env vars are missing — blocks every sale; pure readiness helper, not a new aggregate) over inventing optional metrics; do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1000,10 +1001,17 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "lead-stage-convex-primary",
     summary:
-      "Empty-backlog follow-up after lead-upsert-convex-primary: updateLeadStageAction still soft-falls-back on Convex failure while getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first — manual stage moves (and the outreach_sent path's mixed soft-stage + fail-closed outreach mark) can leave funnel state or stage/outreachStep desynced across instances. Prefer requireConvex fail-closed on updateLeadStageAction (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY).",
-    status: "in_progress",
+      "Empty-backlog follow-up after lead-upsert-convex-primary: updateLeadStageAction still soft-fell-back on Convex failure while getLeads / getLeadBySlug / pipeline-health / the stage funnel read Convex-first — manual stage moves (and the outreach_sent path's mixed soft-stage + fail-closed outreach mark) could leave funnel state or stage/outreachStep desynced across instances. Shipped: LEAD_STAGE_CONVEX_PRIMARY; updateLeadStageAction passes requireConvex and surfaces ConvexPrimaryWriteError as an operator retry (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY).",
+    status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-d238",
+  },
+  {
+    id: "bundle-price-env-readiness",
+    summary:
+      "Empty-backlog follow-up after lead-stage-convex-primary closed the CRM write requireConvex chain: checkout still fails only at session-create time when required STRIPE_PRICE_ID_* env vars are missing — operators get no earlier dashboard/docs signal that every sale is blocked. Prefer a pure readiness helper (list missing bundle/commerce Price env names from BUNDLES + COMMERCE_ADDON) surfaced on /dashboard + launch-checklist, not a new pipeline aggregate. Does not fake-complete stripe-price-objects (bootstrap + paste secrets stays operator-gated).",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2378,6 +2386,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "upsertLead accepts ConvexPrimaryWriteOptions; addLeadAction and importLeadsCsvAction pass LEAD_UPSERT_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for CRM create/import. Queued lead-stage-convex-primary as the next free regression (dashboard updateLeadStageAction still soft-falls-back).",
     rationale:
       "Sibling prompt-process-evolution-1f28 (PR #100) shipped client-voice-pack-convex-primary and queued lead-upsert-convex-primary. Same-cron window: this branch pivoted off client-voice (earlier remote claim) and claimed lead-upsert. upsertLead still soft-fell-back while getLeads / getLeadBySlug / Work next / pipeline-health / digest read Convex-first — Add lead and CSV import could claim success after a SQLite-only write invisible elsewhere (empty CRM, false funnel, outreach blocked). Create-path-only scope: field updates keep their own requireConvex helpers; payment-stub organic checkout already uses recordLeadPayment / WEBHOOK_CONVEX_PRIMARY. Operator-action fail-closed matches MARKETING_PACK / CLIENT_VOICE_PACK. After create-path is fail-closed, the next free coded regression is updateLeadStageAction (Mark live already passes DEPLOY_HANDOFF_CONVEX_PRIMARY; the stage dropdown does not — and outreach_sent can desync soft stage vs fail-closed outreach mark). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "updateLeadStageAction passes LEAD_STAGE_CONVEX_PRIMARY when Convex is configured — fail closed instead of SQLite-only success for dashboard stage moves. Queued bundle-price-env-readiness as the next free coded unlock (missing STRIPE_PRICE_ID_* still blocks every sale with no early operator signal).",
+    rationale:
+      "PR #101 closed lead-upsert-convex-primary and left lead-stage-convex-primary free. updateLeadStageAction still soft-fell-back while getLeads / pipeline-health / the stage funnel read Convex-first — a stage dropdown move (including outreach_sent before the fail-closed outreach mark) could claim success after a SQLite-only write invisible elsewhere, desyncing funnel state or stage vs outreachStep. Mark live already passed DEPLOY_HANDOFF_CONVEX_PRIMARY through the same helper; the dashboard path did not. Operator-action fail-closed matches LEAD_NOTES / LEAD_UPSERT. CRM create + field-level write requireConvex chain is now complete; next free leverage is operator-visible Price env readiness rather than inventing optional aggregates while stripe-price-objects / Places / Buffer / Connect stay gated.",
   },
 ];
 
@@ -4044,5 +4059,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (367 passed, +2 new) + lint + build all clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(195, 196),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-d238",
+    summary:
+      "Claimed lead-stage-convex-primary after PR #101 closed lead-upsert. updateLeadStageAction still soft-fell-back while getLeads / pipeline-health / the stage funnel read Convex-first — a stage dropdown move (including outreach_sent before the fail-closed outreach mark) could claim success after a SQLite-only write invisible elsewhere. Shipped LEAD_STAGE_CONVEX_PRIMARY + fail-closed updateLeadStageAction. Mark live already used DEPLOY_HANDOFF_CONVEX_PRIMARY through the same helper. Queued bundle-price-env-readiness (missing STRIPE_PRICE_ID_* still blocks every sale with no early operator signal). CRM create + field-level write requireConvex chain is now complete. Stripe Prices / Places / Buffer OAuth / Connect stay gated. Improved AGENT_PROTOCOL to prefer Price env readiness after lead-stage.",
+    shipped: [
+      "src/lib/leads/stage-persist.ts (+ test) — LEAD_STAGE_CONVEX_PRIMARY { requireConvex: true }",
+      "src/lib/db.ts — updateLeadStage JSDoc for LEAD_STAGE_CONVEX_PRIMARY (options already existed from deploy-handoff)",
+      "src/app/dashboard/leads/actions.ts — updateLeadStageAction passes LEAD_STAGE_CONVEX_PRIMARY; surfaces ConvexPrimaryWriteError as an operator retry",
+      "Docs: architecture / roadmap / launch-checklist — stage dropdown requireConvex",
+      "NEXT_STEPS: lead-stage-convex-primary done; queued bundle-price-env-readiness",
+      "AGENT_PROTOCOL — updateLeadStageAction requireConvex; prefer bundle-price-env-readiness when CRM write requireConvex chain is done",
+      "BUSINESS_DECISIONS — documented stage dropdown split-brain risk + next Price env readiness unlock",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(196, 197),
   },
 ];

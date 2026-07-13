@@ -104,7 +104,10 @@ export default function RoadmapDocPage() {
         configured, Save uses <code>requireConvex</code> so notes cannot succeed only in
         instance-local SQLite — <code>lead-notes-convex-primary</code>): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
-        never blocks the mutation): shipped. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
+        never blocks the mutation): shipped. Dashboard stage dropdown uses{" "}
+        <code>requireConvex</code> when Convex is configured (
+        <code>lead-stage-convex-primary</code>) so funnel moves cannot succeed only in
+        instance-local SQLite — Mark live already fail-closed via deploy-handoff writes. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
         presets — parks a lead off the queue without wiping score history): shipped. Snoozed-lead
         pipeline-health aggregate (count + soonest return, plus a Work next footnote — not a second
         priority panel): shipped. Cold-lead
@@ -178,7 +181,9 @@ export default function RoadmapDocPage() {
         <code>upsert-lead-collision-guard</code>). When Convex is configured, Add lead / CSV
         import fail closed on shared-store mutation failure (
         <code>lead-upsert-convex-primary</code>) so new inventory cannot succeed only in
-        instance-local SQLite. Google Places API and other licensed sources still require legal
+        instance-local SQLite. Dashboard stage moves likewise fail closed (
+        <code>lead-stage-convex-primary</code>) so the funnel cannot desync across instances.
+        Google Places API and other licensed sources still require legal
         review — no Maps/Facebook scrapers.
       </p>
 

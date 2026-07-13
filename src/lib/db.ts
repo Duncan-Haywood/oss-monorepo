@@ -518,6 +518,15 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
   return mapSqliteRowToLead(row);
 }
 
+/**
+ * Move a lead's pipeline stage.
+ *
+ * Pass { requireConvex: true } (LEAD_STAGE_CONVEX_PRIMARY) from
+ * updateLeadStageAction so a Convex mutation failure does not silently leave
+ * stage only in instance-local SQLite while Convex-first readers (getLeads /
+ * pipeline-health / stage funnel) never see the move. Mark live already passes
+ * DEPLOY_HANDOFF_CONVEX_PRIMARY through this helper.
+ */
 export async function updateLeadStage(
   slug: string,
   stage: LeadPipelineStage,
