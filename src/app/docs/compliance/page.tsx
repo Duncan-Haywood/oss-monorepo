@@ -51,7 +51,8 @@ export default function ComplianceDocPage() {
         <li>Valid physical postal address in Colorado</li>
         <li>
           Outbound HTML escapes <code>brand.name</code> / legal entity / postal address (and
-          lead fields) via <code>escapeHtmlForEmail</code> — subject/From stay plain text
+          lead fields) via <code>escapeHtmlForEmail</code> — including the email shown on the
+          unsubscribe success page; subject/From stay plain text
         </li>
         <li>
           Working unsubscribe honored within 10 business days —{" "}
