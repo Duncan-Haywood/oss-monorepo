@@ -1195,14 +1195,15 @@ export const NEXT_STEPS: NextStep[] = [
       "Create-side twin of stripe-webhook-route-test-coverage: POST /api/stripe/checkout creates every Starter/Growth/Complete Checkout Session (Price-env gates, organic-* slug mint for homepage CTAs, mode payment vs subscription, CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY fail-closed tracking) but had zero direct tests — only organic-attribution + session-persist helpers were covered in isolation. A regression here silently hands out a Stripe URL after a SQLite-only write (lost abandoned-recovery) or mints empty slug metadata (webhook skips fulfillment). Claimed for route-level Vitest coverage.",
     status: "in_progress",
     phase: "Phase 3 — Payments",
-    owner: "cursor/prompt-process-evolution-7d1d",
+    owner: "cursor/business-process-evolution-f32f",
   },
   {
     id: "commerce-checkout-route-test-coverage",
     summary:
       "Sibling twin of stripe-checkout-route-test-coverage for Commerce Buy now: POST /api/commerce/checkout resolves stripePriceId server-side from the catalog (never trusts client price), records kind=commerce_sku + skuId for abandoned-cart tracking, and fail-closes on CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY. Zero direct tests today — leave free for a sibling when the bundle checkout route is claimed.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-7d1d",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
