@@ -47,7 +47,8 @@ export default function LegalDocPage() {
       <ul>
         <li>
           <strong>Env:</strong> <code>NEXT_PUBLIC_BRAND_NAME</code> (public) ·{" "}
-          <code>NEXT_PUBLIC_LEGAL_ENTITY={brand.legalEntity}</code>
+          <code>NEXT_PUBLIC_LEGAL_ENTITY={brand.legalEntity}</code> — read by{" "}
+          <code>src/lib/brand.ts</code> (Vitest-covered; whitespace-only treated as unset)
         </li>
         <li>
           <strong>DBA filing:</strong> [PLACEHOLDER] — required if brand ≠ legal entity
