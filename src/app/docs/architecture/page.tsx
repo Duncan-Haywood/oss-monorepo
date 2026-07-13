@@ -484,7 +484,10 @@ export default function ArchitectureDocPage() {
         instead of leaving voice-packs-due / Email voice pack blind on other instances.{" "}
         <code>sendClientVoicePackToClientAction</code> emails the pack to <code>lead.email</code>{" "}
         via Resend (<code>src/lib/voice/deliver-pack.ts</code>) so clients can paste into a temp
-        number / Cal.com. Twilio + <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}
+        number / Cal.com — action-level Vitest in{" "}
+        <code>send-client-voice-pack-to-client-action.test.ts</code> locks auth, Complete+email
+        eligibility, existing pack gate, and suppression / send failure on that dashboard path.
+        Twilio + <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}
         <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>

@@ -290,8 +290,9 @@ export default function RoadmapDocPage() {
         instance-local SQLite — <code>client-voice-pack-convex-primary</code>; action-level Vitest
         in <code>generate-client-voice-pack-action.test.ts</code>).{" "}
         <strong>Email voice pack</strong> (<code>sendClientVoicePackToClientAction</code>)
-        delivers the pack to <code>lead.email</code> via Resend. Eligible-but-missing packs count
-        on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.
+        delivers the pack to <code>lead.email</code> via Resend — action-level Vitest in{" "}
+        <code>send-client-voice-pack-to-client-action.test.ts</code>. Eligible-but-missing packs
+        count on pipeline health (<strong>Voice packs due</strong>) and list in the daily digest.
         Twilio + client webhook provisioning remain. See{" "}
         <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
       </p>

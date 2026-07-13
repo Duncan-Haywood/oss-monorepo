@@ -97,7 +97,10 @@ export default function VoiceAgentFlowDocPage() {
         multi-instance deploy cannot claim success after a SQLite-only write. With an email on the
         lead, <strong>Email voice pack</strong> (
         <code>sendClientVoicePackToClientAction</code>) delivers the scripts via Resend so the
-        client can paste into a temporary number or Cal.com. Scripts persist one row per lead (not
+        client can paste into a temporary number or Cal.com — action-level Vitest in{" "}
+        <code>send-client-voice-pack-to-client-action.test.ts</code> locks auth, Complete+email
+        eligibility, existing pack gate, and suppression / send failure on that dashboard path.
+        Scripts persist one row per lead (not
         monthly). Eligible Complete leads still missing a pack surface on pipeline health (
         <strong>Voice packs due</strong>) and in the operator daily digest via{" "}
         <code>listClientVoicePacksDue</code>. Full telephony remains Phase 7.
