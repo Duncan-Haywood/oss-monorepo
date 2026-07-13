@@ -453,9 +453,13 @@ export default function ArchitectureDocPage() {
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
         pack to <code>lead.email</code> via Resend (<code>src/lib/marketing/deliver-pack.ts</code>
-        ) so clients can post themselves. Buffer / GBP / Meta OAuth auto-posting remains
-        optional. See <DocLink href="/docs/marketing-automation">Marketing automation</DocLink>{" "}
-        and <DocLink href="/docs/process">process log</DocLink>.
+        ) so clients can post themselves — action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts</code> locks
+        auth, eligibility, current-month pack gate, suppression / send failure, and preview URL
+        wiring (deliver-pack helpers alone do not cover that glue). Buffer / GBP / Meta OAuth
+        auto-posting remains optional. See{" "}
+        <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
+        <DocLink href="/docs/process">process log</DocLink>.
       </p>
 
       <h2>8. Client AI phone (Complete)</h2>
