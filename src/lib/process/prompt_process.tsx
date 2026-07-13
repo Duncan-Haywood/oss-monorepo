@@ -1010,8 +1010,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "bundle-price-env-readiness",
     summary:
       "Empty-backlog follow-up after lead-stage-convex-primary closed the CRM write requireConvex chain: checkout still fails only at session-create time when required STRIPE_PRICE_ID_* env vars are missing — operators get no earlier dashboard/docs signal that every sale is blocked. Prefer a pure readiness helper (list missing bundle/commerce Price env names from BUNDLES + COMMERCE_ADDON) surfaced on /dashboard + launch-checklist, not a new pipeline aggregate. Does not fake-complete stripe-price-objects (bootstrap + paste secrets stays operator-gated).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-3eea",
+  },
+  {
+    id: "commerce-payouts-unpaid-ledger-completeness",
+    summary:
+      "Empty-backlog audit while sibling owns bundle-price-env-readiness: owed Commerce surfaces (manual payout panel, digest, pipeline-health) and Mark paid out lookup all call listCommerceOrders() which caps at 200/500 newest rows — older unpaid Buy now orders vanish from owed totals and can fail Mark paid out with 'not found'. Prefer listUnpaidCommerceOrders + getCommerceOrderByStripeSessionId (no recent-page truncation) for reconciliation until Connect.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-63a8",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
