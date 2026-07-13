@@ -182,7 +182,11 @@ export default function RoadmapDocPage() {
         writes pass <code>requireConvex</code> (
         <code>stripe-webhook-convex-primary-no-fallback</code>). Optional Vercel domain
         API when tokens are set, operator{" "}
-        <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>.
+        <strong>Mark live</strong> on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>
+        — Mark live, Assign Vercel project, and Assign custom domain all pass{" "}
+        <code>requireConvex</code> (<code>deploy-handoff-operator-writes-convex-primary</code>)
+        when Convex is configured, so a mutation failure surfaces as a retry instead of a
+        SQLite-only success invisible to other instances.
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
         shared project when unset) — full automated project creation remains manual. Preview

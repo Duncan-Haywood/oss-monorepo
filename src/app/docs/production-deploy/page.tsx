@@ -90,8 +90,15 @@ export default function ProductionDeployDocPage() {
         {brand.name} marketing page. Saving also retries the best-effort Vercel Domains API call
         against <code>customDomain</code> (falling back to <code>suggestedHost</code> when unset).
         Only the root path is rewritten; <code>/api/*</code> and <code>/dashboard/*</code> already
-        address a lead by slug and are unaffected by Host. Convex-first lookup with a SQLite
-        fallback, same as every other <code>src/lib/db.ts</code> surface. A later bundle checkout
+        address a lead by slug and are unaffected by Host. The <em>read</em> path (
+        <code>getLeadSlugByCustomDomain</code>, used by <code>src/proxy.ts</code>) is Convex-first
+        with a SQLite fallback, same as every other <code>src/lib/db.ts</code> lookup. The{" "}
+        <strong>write</strong> path is different: when Convex is configured, saving a custom
+        domain, assigning a dedicated Vercel project, or clicking <strong>Mark live</strong> all
+        pass <code>requireConvex</code> (<code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so a
+        Convex mutation failure surfaces as a retry message instead of silently succeeding against
+        instance-local SQLite only — otherwise the routing/project/live-status change could be
+        invisible to every other instance, which reads Convex-first. A later bundle checkout
         (Starter→Growth upsell or re-purchase) rebuilds the handoff for the new Stripe session —
         <code>preserveDeployHandoffOperatorFields</code> keeps the saved domain (and any dedicated{" "}
         <code>vercelProjectId</code>), plus <code>live</code>/<code>provisioned</code> status
