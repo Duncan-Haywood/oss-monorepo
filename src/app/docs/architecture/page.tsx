@@ -126,7 +126,14 @@ export default function ArchitectureDocPage() {
         secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
         <code>assessAnthropicEnvReadiness</code> (
         <code>src/lib/ai/anthropic-env-readiness.ts</code>) — matching the Stub* factory gate in
-        marketing/voice generators (plus documented <code>sk-ant-...</code> placeholders).
+        marketing/voice generators (plus documented <code>sk-ant-...</code> placeholders). Until{" "}
+        <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox, the same dashboards show an
+        emerald daily-digest-blocked banner via{" "}
+        <code>assessOperatorDigestEmailEnvReadiness</code> (
+        <code>src/lib/digest/operator-digest-email-env-readiness.ts</code>) — matching{" "}
+        <code>sendDailyDigestAction</code>&apos;s trim gate (plus documented{" "}
+        <code>you@example.com</code> placeholders) so operators see that pipeline-health digest
+        delivery is unconfigured before clicking <strong>Send daily digest</strong>.
       </p>
       <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
