@@ -523,6 +523,11 @@ export async function updateLeadStage(
   stage: LeadPipelineStage,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
+  // Pass { requireConvex: true } (LEAD_STAGE_CONVEX_PRIMARY) from
+  // updateLeadStageAction so a Convex mutation failure does not silently leave
+  // stage only in instance-local SQLite while Convex-first readers (getLeads /
+  // pipeline-health / stage funnel) never see it. Mark live already passes
+  // DEPLOY_HANDOFF_CONVEX_PRIMARY through this same helper.
   if (convexClient) {
     try {
       await convexClient.mutation(api.leads.updateStage, { slug, stage });

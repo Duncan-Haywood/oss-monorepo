@@ -85,7 +85,10 @@ export default function LaunchChecklistDocPage() {
           and unsubscribe path (<code>GET /api/unsubscribe?email=…</code>). With Convex configured,
           Add lead / CSV import must fail closed on Convex mutation failure (
           <code>requireConvex</code> / <code>LEAD_UPSERT_CONVEX_PRIMARY</code>) — never claim
-          success after a SQLite-only write other instances cannot see. A Convex unsubscribe
+          success after a SQLite-only write other instances cannot see. Manual stage moves on the
+          dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
+          cannot succeed only in instance-local SQLite while Convex-first readers miss the move
+          (Mark live already fail-closes via handoff writes). A Convex unsubscribe
           write failure must return 500 (not a success page after a SQLite-only suppress).
           Re-importing the same CSV (or re-adding the same slug) should skip/reject the collision
           rather than resetting stage or outreach.
