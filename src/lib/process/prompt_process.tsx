@@ -1457,15 +1457,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "sync-commerce-catalog-to-stripe-action-test-coverage",
     summary:
       "Empty-backlog twin after Email pack/voice action Vitest: syncCommerceCatalogToStripeAction is the operator Sync to Stripe path that unlocks Commerce Buy now (COMMERCE_CATALOG_CONVEX_PRIMARY + Stripe Product/Price create), but only stripe-sync helper suites exist — no action-level Vitest. Sibling-friendly with save-commerce-catalog-action-test-coverage; prefer when Email voice pack coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-5c2b",
   },
   {
     id: "save-commerce-catalog-action-test-coverage",
     summary:
       "Empty-backlog twin after Sync to Stripe action Vitest: saveCommerceCatalogAction is the operator Save catalog path (COMMERCE_CATALOG_CONVEX_PRIMARY + preserveCommerceStripeIds so edits cannot wipe Buy now). Prefer when Sync to Stripe action coverage is done or claimed; do not invent optional aggregates.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-3329",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
