@@ -179,7 +179,9 @@ export default function LaunchChecklistDocPage() {
           After a test payment, a deploy handoff appears on the leads dashboard (Convex when
           configured — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>).
           Re-deliver the same signed <code>checkout.session.completed</code> and confirm the
-          handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
+          handoff row still exists (idempotent enqueue). Receipt/DNS emails re-send only when
+          the handoff notes lack a per-session sent-marker (recovery after a partial first
+          delivery); once markers are present they are not resent.
           If you save a custom domain (or dedicated Vercel project) then complete a second
           checkout for the same slug (upsell), confirm those operator fields survive the handoff
           rebuild — and if you already <strong>Mark live</strong>&apos;d, confirm status stays{" "}
