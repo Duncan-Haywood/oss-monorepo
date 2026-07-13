@@ -34,6 +34,7 @@ import {
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
+import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { LEAD_SNOOZE_CONVEX_PRIMARY } from "@/lib/leads/snooze-persist";
 import { OUTREACH_CADENCE_CONVEX_PRIMARY } from "@/lib/leads/outreach-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
@@ -234,7 +235,23 @@ export async function updateInquiryStatusAction(
     if (status !== "new" && status !== "read" && status !== "replied" && status !== "archived") {
       return { success: false as const, error: "Invalid status" };
     }
-    const inquiry = await updateClientInquiryStatus(inquiryId, status);
+    let inquiry;
+    try {
+      inquiry = await updateClientInquiryStatus(
+        inquiryId,
+        status,
+        INQUIRY_REPLY_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not update inquiry status in the shared store — retry in a moment.",
+        };
+      }
+      throw error;
+    }
     if (!inquiry) {
       return { success: false as const, error: "Inquiry not found" };
     }
@@ -251,7 +268,9 @@ export async function updateInquiryStatusAction(
 
 /**
  * Reply to a website contact-form inquiry from the dashboard (Resend + suppression).
- * On success, persists operatorReply / repliedAt and marks status=replied.
+ * Durably marks status=replied BEFORE sending (persist-then-notify) so a Convex
+ * mutation failure never lets a real send land unrecorded while unreplied
+ * metrics stay high on other instances.
  */
 export async function replyToInquiryAction(inquiryId: string, replyBody: string) {
   try {
@@ -286,6 +305,30 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       return { success: false as const, error: "Inquiry has no email address to reply to" };
     }
 
+    // Durably mark replied BEFORE Resend (persist-then-notify) so a Convex
+    // mutation failure never lets a real visitor reply land unrecorded —
+    // see INQUIRY_REPLY_CONVEX_PRIMARY.
+    let updated;
+    try {
+      updated = await recordClientInquiryReply(
+        inquiryId,
+        normalized.body,
+        INQUIRY_REPLY_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record the reply in the shared store — email was not sent. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
+    if (!updated) {
+      return { success: false as const, error: "Inquiry not found" };
+    }
+
     const sent = await sendInquiryReply({
       to,
       businessName: inquiry.businessName,
@@ -300,18 +343,11 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
         success: false as const,
         error:
           "reason" in sent && sent.reason === "suppressed"
-            ? "Email is on the suppression list"
+            ? "Email is on the suppression list — inquiry is marked replied; leave a lead note if needed"
             : "error" in sent && typeof sent.error === "string"
-              ? sent.error
-              : "Failed to send reply email",
-      };
-    }
-
-    const updated = await recordClientInquiryReply(inquiryId, normalized.body);
-    if (!updated) {
-      return {
-        success: false as const,
-        error: "Reply emailed but failed to persist inquiry status — refresh and check",
+              ? `${sent.error} — inquiry is marked replied; retry send or leave a lead note`
+              : "Failed to send reply email — inquiry is marked replied; retry send or leave a lead note",
+        inquiry: updated,
       };
     }
 
