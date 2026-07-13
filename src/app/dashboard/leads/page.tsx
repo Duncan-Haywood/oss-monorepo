@@ -16,9 +16,11 @@ import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { PlaceholderBanner } from "@/components/placeholder-banner";
 import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-panel";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
+import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
+import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -105,6 +107,7 @@ export default async function LeadsPage() {
   } = await loadLeadsPipelineHealth();
   const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
+  const coreEnv = assessStripeCoreEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -122,6 +125,7 @@ export default async function LeadsPage() {
       />
 
       <div className="mt-6">
+        <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
           bootstrapAllowed={bootstrapAllowed}
