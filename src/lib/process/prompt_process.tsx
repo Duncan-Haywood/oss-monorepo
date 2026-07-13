@@ -142,6 +142,7 @@ export const AGENT_PROTOCOL = [
   "Sibling business-process-evolution-f726 claimed list-all-pages-unit-coverage (direct Vitest for src/lib/stripe/list-all-pages.ts). Parallel empty-backlog on this branch: (1) commerce-unpaid-ledger-truncation-regression-tests — PR #106 fixed listUnpaidCommerceOrders at call sites, but pipeline-health + daily-digest lacked the newest-N truncation guard unreplied/fulfillment-debt already have (a future capped re-wire silently undercounts owed → double-pay risk); (2) unsubscribe-escape-html-consolidation — GET /api/unsubscribe still uses a private escapeHtml (&#039;) instead of shared escapeHtmlForEmail (&#39;), the same second-escaper class PR #105 closed for digest. Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   "commerce-unpaid-ledger-truncation-regression-tests done: pipeline-health.test.ts + daily-digest.test.ts now assert that a newest-N commerce-orders page undercounts older unpaid liability while the unpaid-only set does not — callers must keep feeding listUnpaidCommerceOrders(). unsubscribe-escape-html-consolidation done: GET /api/unsubscribe imports escapeHtmlForEmail (no private escaper). list-all-pages-unit-coverage also done on f726 (folded here). When free NEXT_STEPS are gated again, prefer generator/pack branch coverage or another sold-capability / multi-instance regression over inventing optional aggregates.",
   "list-all-pages-unit-coverage done: src/lib/stripe/list-all-pages.ts has direct Vitest coverage (multi-page walk, until early-stop, empty/has_more=false, starting_after chaining) — do not rely only on stripe-sync / bootstrap-stripe-prices caller suites. Any new Stripe list() idempotency lookup must import listAllPages (never copy a limit:100 loop) and extend list-all-pages.test.ts when changing helper semantics. When free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer generator/pack branch coverage (marketing/voice generators exercised only indirectly today) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When marketing-anthropic-generator-unit-coverage and voice-anthropic-generator-unit-coverage are both free in the same cron window, claim different ones (Growth/Complete marketing LLM path vs Complete phone-script LLM path) — they touch different modules and both lock sold-fulfillment fallback branches. Stub smoke in monthly-pack / faq-pack is not enough; Anthropic* generators need direct mocked-fetch coverage (empty key, HTTP error, malformed/wrong-count JSON, successful parse).",
 ] as const;
 
 /**
@@ -1113,6 +1114,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach",
     owner: "cursor/prompt-process-evolution-dd75",
+  },
+  {
+    id: "marketing-anthropic-generator-unit-coverage",
+    summary:
+      "Empty-backlog after PR #117 (list-all-pages + unpaid-ledger truncation + unsubscribe escaper): AGENT_PROTOCOL named generator/pack branch coverage next. StubMarketingGenerator is only lightly exercised via monthly-pack.test.ts; AnthropicMarketingGenerator (empty-key fallback, HTTP/parse/length mismatch → stub, packageTiers for generate_schedule_optimize, hashtag/body sanitization) has zero direct tests. Claim: add generators.test.ts locking those sold Growth/Complete fulfillment branches so a future LLM-path regression cannot silently ship broken packs. Sibling can take voice-anthropic-generator-unit-coverage (different module).",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-process-evolution-7337",
+  },
+  {
+    id: "voice-anthropic-generator-unit-coverage",
+    summary:
+      "Twin of marketing-anthropic-generator-unit-coverage for Complete phone scripts: StubClientVoiceGenerator is only lightly exercised via faq-pack.test.ts; AnthropicClientVoiceGenerator (empty-key fallback, HTTP/parse/length mismatch → stub, successful JSON parse, title fallback, every scriptType stub path) has zero direct tests. Claim: src/lib/voice/generators.test.ts with mocked fetch — locks sold Complete voice-pack fulfillment branches without calling live Anthropic.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-8d92",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
