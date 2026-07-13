@@ -285,7 +285,9 @@ export default function LaunchChecklistDocPage() {
           click <strong>Mark paid out</strong> on that order line and confirm it disappears
           from the panel&apos;s owed total, from pipeline-health{" "}
           <strong>Commerce sales (pass-through)</strong>, and from the next digest&apos;s Commerce payouts
-          owed section — this is what prevents double-paying the same order.
+          owed section — this is what prevents double-paying the same order. When Convex is
+          configured, a Convex write failure must surface an error (not silent success) so
+          unpaid owed totals cannot stay split-brain across instances.
         </li>
         <li>
           For a paid/live Complete lead, click <strong>Generate voice</strong> — confirm six

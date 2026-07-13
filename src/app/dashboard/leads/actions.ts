@@ -32,6 +32,7 @@ import {
   listClientVoicePacks,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
+import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import {
   existingLeadSlugConflictMessage,
@@ -779,7 +780,22 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     }
 
     const paidOutAt = new Date().toISOString();
-    await markCommerceOrderPaidOut(stripeSessionId, paidOutAt);
+    try {
+      await markCommerceOrderPaidOut(
+        stripeSessionId,
+        paidOutAt,
+        COMMERCE_PAID_OUT_CONVEX_PRIMARY,
+      );
+    } catch (error) {
+      if (error instanceof ConvexPrimaryWriteError) {
+        return {
+          success: false as const,
+          error:
+            "Could not record payout in the shared store — order still shows as owed. Retry in a moment.",
+        };
+      }
+      throw error;
+    }
     revalidatePath("/dashboard/leads");
     return { success: true as const, paidOutAt };
   } catch (error) {

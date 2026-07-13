@@ -268,7 +268,8 @@ export default function RoadmapDocPage() {
         order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the
         operator daily digest (<strong>Commerce payouts owed</strong>). Each order line has a{" "}
-        <strong>Mark paid out</strong> action (<code>paidOutAt</code>) so settled orders drop out
+        <strong>Mark paid out</strong> action (<code>paidOutAt</code>,{" "}
+        <code>requireConvex</code> when Convex is configured) so settled orders drop out
         of the health card, panel, and digest owed totals, guarding against double-paying a client. Abandoned Buy now carts are tracked
         on the same <code>checkout_sessions</code> table with <code>kind=commerce_sku</code>{" "}
         (never mixed into bundle recovery / Work next); open carts past 2h surface on an
