@@ -143,6 +143,7 @@ export const AGENT_PROTOCOL = [
   "commerce-unpaid-ledger-truncation-regression-tests done: pipeline-health.test.ts + daily-digest.test.ts now assert that a newest-N commerce-orders page undercounts older unpaid liability while the unpaid-only set does not — callers must keep feeding listUnpaidCommerceOrders(). unsubscribe-escape-html-consolidation done: GET /api/unsubscribe imports escapeHtmlForEmail (no private escaper). list-all-pages-unit-coverage also done on f726 (folded here). When free NEXT_STEPS are gated again, prefer generator/pack branch coverage or another sold-capability / multi-instance regression over inventing optional aggregates.",
   "list-all-pages-unit-coverage done: src/lib/stripe/list-all-pages.ts has direct Vitest coverage (multi-page walk, until early-stop, empty/has_more=false, starting_after chaining) — do not rely only on stripe-sync / bootstrap-stripe-prices caller suites. Any new Stripe list() idempotency lookup must import listAllPages (never copy a limit:100 loop) and extend list-all-pages.test.ts when changing helper semantics. When free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer generator/pack branch coverage (marketing/voice generators exercised only indirectly today) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When marketing-anthropic-generator-unit-coverage and voice-anthropic-generator-unit-coverage are both free in the same cron window, claim different ones (Growth/Complete marketing LLM path vs Complete phone-script LLM path) — they touch different modules and both lock sold-fulfillment fallback branches. Stub smoke in monthly-pack / faq-pack is not enough; Anthropic* generators need direct mocked-fetch coverage (empty key, HTTP error, malformed/wrong-count JSON, successful parse).",
+  "marketing-anthropic-generator-unit-coverage done: src/lib/marketing/generators.ts has direct Vitest coverage for StubMarketingGenerator edge branches + AnthropicMarketingGenerator (blank-key fallback, HTTP/parse/length-mismatch → stub, packageTier for generate_schedule_optimize vs social_email, prose-wrapped JSON extract, hashtag sanitize/cap, contentType override). monthly-pack.test.ts stub smoke is not enough for the LLM path that ships Growth/Complete packs. When free NEXT_STEPS are gated again, prefer voice-anthropic-generator-unit-coverage (src/lib/voice/generators.ts twin — different module; sibling-friendly) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "voice-anthropic-generator-unit-coverage done: src/lib/voice/generators.test.ts locks StubClientVoiceGenerator edge branches + AnthropicClientVoiceGenerator blank-key / HTTP / parse / length-mismatch fallbacks, prose-wrapped JSON extract, title fallback, and factory memoization — do not rely only on faq-pack.test.ts stub smoke. Twin of marketing-anthropic-generator-unit-coverage. When both generator suites are done and free NEXT_STEPS are again only gated secrets/OAuth/counsel, prefer another sold-capability / multi-instance regression (Convex API map re-audit, webhook idempotency, build-request edge cases) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
@@ -1119,8 +1120,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-anthropic-generator-unit-coverage",
     summary:
-      "Empty-backlog after PR #117 (list-all-pages + unpaid-ledger truncation + unsubscribe escaper): AGENT_PROTOCOL named generator/pack branch coverage next. StubMarketingGenerator is only lightly exercised via monthly-pack.test.ts; AnthropicMarketingGenerator (empty-key fallback, HTTP/parse/length mismatch → stub, packageTiers for generate_schedule_optimize, hashtag/body sanitization) has zero direct tests. Claim: add generators.test.ts locking those sold Growth/Complete fulfillment branches so a future LLM-path regression cannot silently ship broken packs. Sibling can take voice-anthropic-generator-unit-coverage (different module).",
-    status: "in_progress",
+      "Empty-backlog after PR #117 (list-all-pages + unpaid-ledger truncation + unsubscribe escaper): AGENT_PROTOCOL named generator/pack branch coverage next. StubMarketingGenerator was only lightly exercised via monthly-pack.test.ts; AnthropicMarketingGenerator (empty-key fallback, HTTP/parse/length mismatch → stub, packageTier for generate_schedule_optimize, hashtag/body sanitization) had zero direct tests. Shipped: generators.test.ts (14 tests) locking those sold Growth/Complete fulfillment branches. Sibling can take voice-anthropic-generator-unit-coverage (different module).",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/business-process-evolution-7337",
   },
@@ -2617,6 +2618,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "GET /api/unsubscribe success HTML must use shared escapeHtmlForEmail — never a private escapeHtml helper (&#039; vs &#39; drift).",
     rationale:
       "PR #105 closed the digest second-escaper; PR #115 closed brand.* in resend.ts. Unsubscribe was the remaining HTML surface with its own escaper. One canonical escaper keeps CAN-SPAM success pages consistent with every outbound email body. Do not invent optional aggregates while gated NEXT_STEPS remain.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/lib/marketing/generators.ts (StubMarketingGenerator + AnthropicMarketingGenerator) gets its own Vitest suite — monthly-pack.test.ts stub smoke is not enough for the LLM fallback/parse/packageTier contract that ships Growth/Complete monthly packs.",
+    rationale:
+      "AGENT_PROTOCOL after PR #117 named generator/pack branch coverage as the next free empty-backlog target. AnthropicMarketingGenerator silently falls back to stub on blank key, HTTP errors, missing text, wrong variant count, or unparsable JSON — without direct tests those sold-capability branches can regress while eligibility/persist suites still pass. Direct coverage locks the contract; voice generators remain a sibling-friendly next surface (different module). Do not invent optional aggregates; do not fake-complete gated secrets/OAuth/counsel.",
   },
   {
     date: "2026-07-13",
@@ -4542,17 +4550,34 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-13",
+    branch: "cursor/business-process-evolution-7337",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #117 — only gated secrets/OAuth/counsel remained. AGENT_PROTOCOL named generator/pack branch coverage next; claimed marketing-anthropic-generator-unit-coverage (left voice twin for sibling prompt-process-evolution-8d92). StubMarketingGenerator was only lightly covered via monthly-pack.test.ts; AnthropicMarketingGenerator (blank-key / HTTP / parse / length-mismatch fallbacks, packageTier, hashtag sanitize) had zero direct tests. Shipped generators.test.ts locking the LLM path that ships Growth/Complete packs. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/marketing/generators.test.ts — 14 tests (stub edge branches + Anthropic blank-key/HTTP/parse/count fallbacks, packageTier optimize vs social_email, prose-wrapped JSON extract, hashtag sanitize/cap, factory/memoization)",
+      "NEXT_STEPS: marketing-anthropic-generator-unit-coverage done",
+      "AGENT_PROTOCOL — marketing generator direct coverage required; next empty-backlog prefer voice-anthropic-generator-unit-coverage",
+      "BUSINESS_DECISIONS — documented why monthly-pack stub smoke is insufficient for the LLM fulfillment contract",
+      "Docs: architecture + marketing-automation — note direct Vitest coverage for AnthropicMarketingGenerator",
+      "merge: folded origin/cursor/prompt-process-evolution-8d92 voice-anthropic-generator-unit-coverage claim — both NEXT_STEPS kept",
+      "Verified: npm test (446 passed, +14 new) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(211, 212),
+  },
+  {
+    date: "2026-07-13",
     branch: "cursor/prompt-process-evolution-8d92",
     summary:
       "Free NEXT_STEPS backlog empty after PR #117 — only gated secrets/OAuth/counsel remained. Sibling business-process-evolution-7337 claimed marketing-anthropic-generator-unit-coverage; this branch claimed the voice twin. StubClientVoiceGenerator was only lightly covered via faq-pack.test.ts; AnthropicClientVoiceGenerator (blank-key / HTTP / parse / length-mismatch fallbacks, title fallback, every scriptType stub path) had zero direct tests. Shipped generators.test.ts locking the LLM path that ships Complete phone-script packs. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/lib/voice/generators.test.ts — 13 tests (stub edge branches + all scriptTypes + Anthropic blank-key/HTTP/parse/count fallbacks, prose-wrapped JSON extract, title fallback, factory/memoization)",
-      "NEXT_STEPS: voice-anthropic-generator-unit-coverage done; folded sibling marketing-anthropic claim",
+      "NEXT_STEPS: voice-anthropic-generator-unit-coverage done; folded sibling marketing-anthropic coverage",
       "AGENT_PROTOCOL — claim marketing vs voice Anthropic coverage separately; voice generator direct coverage required",
       "BUSINESS_DECISIONS — documented why faq-pack stub smoke is insufficient for the LLM fulfillment contract",
       "Docs: architecture + voice-agent-flow — note direct Vitest coverage for AnthropicClientVoiceGenerator",
-      "Verified: npm test + lint + build",
+      "merge: folded origin/cursor/business-process-evolution-7337 — both ITERATIONS kept",
+      "Verified: npm test (459 passed, +13 voice +14 sibling marketing) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(211, 212),
+    decisions: BUSINESS_DECISIONS.slice(212, 213),
   },
 ];
