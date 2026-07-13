@@ -4633,6 +4633,8 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: marketing-build-request-unit-coverage + convex-orders-list-newest-first done; voice-build-request-unit-coverage left todo for sibling",
       "AGENT_PROTOCOL — claim marketing vs voice build-request separately; Convex orders.list must sort newest-first at source",
       "BUSINESS_DECISIONS — documented request-shape coverage + dual-layer newest-first ordering",
+      "Verified: npm test (468 passed, +9 build-request) + lint clean",
+      "Sibling business-process-evolution-5383 dual-claimed marketing-build-request after our earlier remote claim — keep our implementation; voice-build-request stays free for their pivot",
     ],
     decisions: BUSINESS_DECISIONS.slice(213, 215),
   },
