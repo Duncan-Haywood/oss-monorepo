@@ -138,6 +138,7 @@ export const AGENT_PROTOCOL = [
   "billing-portal-testable-refactor closed the last untested Stripe orchestration module (src/lib/billing/create-portal-session.ts) — it now matches the stripe-sync.ts / bootstrap-stripe-prices.ts pattern (client passed in behind a minimal structural interface; only the two call sites construct `new Stripe(secretKey)` and gate on STRIPE_SECRET_KEY). Every payment-critical lib module (checkout, webhook, deploy handoff, commerce sync, bootstrap-prices, billing portal) now has direct unit coverage — if a future empty-backlog audit is hunting for the next untested-orchestrator gap via the `find src/lib -name \"*.ts\" -not -name \"*.test.ts\" -not -name \"index.ts\"` minus `.test.ts` diff, the remaining untested files are pure type/data modules (types.ts, bundles.ts, demo-catalog.ts, seo.ts) or generator/pack modules already exercised indirectly through monthly-pack.test.ts / faq-pack.test.ts — re-scan for genuinely uncovered branches in those generators before assuming the diff itself proves a gap.",
   "Unreplied-inquiry list completeness (unreplied-inquiry-list-completeness) done: listUnrepliedInquiries (src/lib/db.ts) returns every status new+read row uncapped — convex/inquiries.listUnreplied merges two by_status index .collect() scans (new, read) and sorts newest-first; SQLite fallback is WHERE status IN ('new','read') ORDER BY createdAt DESC with no LIMIT. computePipelineHealth's `inquiries` field and buildDailyDigest's `inquiries` field are both fully covered by status new+read (newInquiryCount / unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest unrepliedInquiries) — feed them listUnrepliedInquiries(), never a capped listClientInquiries(N) page. Where a page also needs inbox display (e.g. /dashboard/leads' LeadsClient initialInquiries), fetch both: the capped page for display, the uncapped unreplied set for health/digest — do not reuse one fetch for both purposes. Empty-backlog Convex API map audit re-run — no missing registrations (api.leads.seed is registered-but-unused by db.ts, which is fine; it is called from the seed script, not a db.ts wrapper). Remaining NEXT_STEPS are all operator/legal-gated (stripe-price-objects, lead-ingestion, marketing-content-scheduling, commerce-payouts-stripe-connect) — do not fake-complete; queue a fresh empty-backlog sold-capability or multi-instance regression audit next.",
   "Commerce Buy now webhook session dedup (planCommerceWebhookSideEffects) must feed from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — never listClientInquiriesBySlug's newest 50/200 page. Once contact / Request-order / Buy now volume exceeds that window, an older commerce_checkout inquiry embedding stripeSessionId falls off the page and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email). Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health. Remaining NEXT_STEPS stay operator/legal-gated; prefer empty-backlog sold-capability / multi-instance regression audits next — do not invent optional aggregates.",
+  "resend-brand-name-html-escape done: every brand.name / brand.legalEntity / brand.postalAddress interpolation in outbound HTML (src/lib/email/resend.ts signatures + shared CAN-SPAM sendEmail footer, plus marketing/voice/commerce pack templates that already escaped brand.name) must go through escapeHtmlForEmail — env-sourced operator strings are not exempt. Subject lines and From display names stay plain text. Prior escapeHtml audits that only checked businessName missed this asymmetry; when free NEXT_STEPS are gated again, prefer list-all-pages unit coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1081,8 +1082,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "resend-brand-name-html-escape",
     summary:
-      "Empty-backlog audit after unreplied-inquiry-list-completeness (PR #113): src/lib/email/resend.ts still interpolates brand.name (and CAN-SPAM footer brand.legalEntity / brand.postalAddress) raw into outbound HTML — outreach Email 1/2/3, abandoned checkout, inquiry reply, Starter upsell, receipt, and the shared sendEmail footer — while marketing/voice pack delivery, commerce client receipt, commerce abandoned recovery, and the Stripe webhook DNS handoff already use escapeHtmlForEmail(brand.name). NEXT_PUBLIC_BRAND_NAME / legal entity / postal address are env-sourced operator strings; an apostrophe or angle bracket breaks HTML and is the same asymmetry class as the PR #76 businessName escape. Prefer this over inventing optional aggregates while stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect stay gated.",
-    status: "in_progress",
+      "Empty-backlog audit after unreplied-inquiry-list-completeness (PR #113) + sibling commerce-webhook-inquiry-idempotency-list-completeness (PR #114): src/lib/email/resend.ts still interpolated brand.name (and CAN-SPAM footer brand.legalEntity / brand.postalAddress) raw into outbound HTML — outreach Email 1/2/3, abandoned checkout, inquiry reply, Starter upsell, receipt, and the shared sendEmail footer — while marketing/voice pack delivery, commerce client receipt, commerce abandoned recovery, and the Stripe webhook DNS handoff already used escapeHtmlForEmail(brand.name). Shipped: escapeHtmlForEmail on all resend.ts HTML brand.* sites + footer; Vitest coverage for footer + signatures (outreach, upsell, receipt, inquiry reply). Subject/From stay plain text.",
+    status: "done",
     phase: "Phase 2 — Outreach",
     owner: "cursor/business-process-evolution-872f",
   },
@@ -2543,6 +2544,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Commerce Buy now webhook session dedup feeds planCommerceWebhookSideEffects from listCommerceCheckoutInquiriesBySlug (uncapped source=commerce_checkout only) — not listClientInquiriesBySlug's newest 50/200 page.",
     rationale:
       "Same newest-page truncation class as unpaid ledger / fulfillment-debt / unreplied health: once a lead accrues more than 50 contact/Request-order/Buy now inquiries, an older commerce_checkout inquiry embedding stripeSessionId falls off listClientInquiriesBySlug and Stripe redelivery falsely recovers (duplicate operator inbox + duplicate client order-notification email — sold Commerce promise). Dedicated commerce_checkout-only collect keeps the idempotency key visible without inventing aggregates. Sibling business-process-evolution-872f claimed resend-brand-name-html-escape in the same window — different surface. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Outbound HTML emails must escapeHtmlForEmail brand.name, brand.legalEntity, and brand.postalAddress — not only lead/customer-sourced fields like businessName. Subject lines and From display names remain plain text.",
+    rationale:
+      "NEXT_PUBLIC_BRAND_NAME / legal entity / postal address are env-sourced operator strings that routinely include apostrophes and ampersands. marketing/voice pack delivery and commerce client receipt already escaped brand.name; resend.ts signatures + the shared CAN-SPAM footer did not — the same asymmetry class as the PR #76 businessName escape, just on brand fields prior audits skipped. Escaping keeps outreach/receipt/upsell HTML well-formed when the operator sets a real brand name, without inventing optional aggregates while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 ];
 
@@ -4409,5 +4417,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "fold: kept sibling 872f claim resend-brand-name-html-escape (in_progress) so both NEXT_STEPS survive merge",
     ],
     decisions: BUSINESS_DECISIONS.slice(206, 207),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-872f",
+    summary:
+      "Free NEXT_STEPS backlog empty after PR #113/#114 — only gated secrets/OAuth/counsel remained. Sibling prompt-process-evolution-0ed2 claimed and shipped commerce-webhook-inquiry-idempotency-list-completeness (PR #114) in the same window; this branch kept resend-brand-name-html-escape. Empty-backlog audit found src/lib/email/resend.ts still injected brand.name / legalEntity / postalAddress raw into HTML (signatures + CAN-SPAM footer) while marketing/voice/commerce pack templates already escaped brand.name — same asymmetry class as PR #76's businessName fix, missed by prior escapeHtml audits that only scanned lead fields. Shipped escapeHtmlForEmail on all resend.ts HTML brand.* sites + Vitest coverage. Folded origin/main (PR #114) and kept both ITERATIONS. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/email/resend.ts — escapeHtmlForEmail(brand.name) on outreach 1/2/3, abandoned checkout, inquiry reply, Starter upsell, receipt signatures; escape brand.name / legalEntity / postalAddress in shared sendEmail CAN-SPAM footer",
+      "src/lib/email/resend.test.ts — brand.* HTML escaping suite (footer + outreach / upsell / receipt / inquiry-reply signatures)",
+      "Docs: architecture + compliance — brand fields in outbound HTML must be escaped",
+      "NEXT_STEPS: resend-brand-name-html-escape done",
+      "AGENT_PROTOCOL — brand.* env strings are not exempt from escapeHtmlForEmail in HTML bodies",
+      "BUSINESS_DECISIONS — documented brand-field HTML escape parity with pack/commerce templates",
+      "merge: folded origin/main PR #114 (commerce-webhook-inquiry-idempotency-list-completeness) — both ITERATIONS kept",
+      "Verified: npm test (422 passed, +5 brand.* HTML escape) + lint + build all clean",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(207, 208),
   },
 ];

@@ -40,7 +40,12 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const unsubscribeUrl = `${baseUrl}/api/unsubscribe?email=${encodeURIComponent(normalizedTo)}`;
 
-  // Wrap HTML content with standard CAN-SPAM footer
+  // Wrap HTML content with standard CAN-SPAM footer.
+  // brand.* are env-sourced operator strings — same escapeHtmlForEmail rule as
+  // businessName (marketing/voice/commerce templates already escape brand.name).
+  const safeBrand = escapeHtmlForEmail(brand.name);
+  const safeLegalEntity = escapeHtmlForEmail(brand.legalEntity);
+  const safePostalAddress = escapeHtmlForEmail(brand.postalAddress);
   const fullHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="margin-bottom: 30px;">
@@ -48,8 +53,8 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
       </div>
       <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 30px 0;" />
       <footer style="font-size: 12px; color: #71717a; text-align: center; line-height: 1.5;">
-        <p>This email was sent by ${brand.name} to business contacts of interest.</p>
-        <p>${brand.legalEntity} · ${brand.postalAddress}</p>
+        <p>This email was sent by ${safeBrand} to business contacts of interest.</p>
+        <p>${safeLegalEntity} · ${safePostalAddress}</p>
         <p>
           <a href="${unsubscribeUrl}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a> | 
           <a href="${baseUrl}/privacy" style="color: #2563eb; text-decoration: underline;">Privacy Policy</a>
@@ -118,7 +123,7 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
     </div>
     <p style="margin-bottom: 16px;">If you'd like to launch this site under your own custom domain, set up contact forms, or enable online booking/payments, you can <a href="${checkoutUrl}" style="color: #2563eb;">claim it on checkout</a> from the preview page.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
@@ -148,7 +153,7 @@ export async function sendOutreachFollowUp2(
       Or go straight to <a href="${checkoutUrl}" style="color: #2563eb;">checkout</a>.
     </p>
     <p style="margin-bottom: 8px;">Best regards,</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
@@ -178,7 +183,7 @@ export async function sendOutreachFollowUp3(
       Ready to launch? <a href="${checkoutUrl}" style="color: #2563eb;">Choose a plan</a>.
     </p>
     <p style="margin-bottom: 8px;">Thank you,</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
@@ -208,7 +213,7 @@ export async function sendCheckoutAbandonedRecovery(
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions first? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
@@ -267,7 +272,7 @@ export async function sendInquiryReply(params: {
   const html = `
     <p style="margin-bottom: 16px;">${greeting}</p>
     ${plainTextToEmailHtml(replyBody)}
-    <p style="margin: 24px 0 8px 0; font-weight: 500;">The ${brand.name} Team</p>
+    <p style="margin: 24px 0 8px 0; font-weight: 500;">The ${escapeHtmlForEmail(brand.name)} Team</p>
     <p style="margin-bottom: 8px; font-size: 12px; color: #71717a;">
       On behalf of <strong>${escapeHtmlForEmail(businessName)}</strong>
     </p>
@@ -354,7 +359,7 @@ export async function sendStarterUpsellEmail(params: {
   const subject = `${businessName} — add ${tierLabel} marketing ($${monthlyPriceUsd}/mo)`;
   const html = `
     <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Ready for more customers?</h2>
-    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> site is already live on ${brand.name} Starter. The next step is <strong>${tierLabel}</strong> at <strong>$${monthlyPriceUsd}/mo</strong> — ${marketingLine}</p>
+    <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> site is already live on ${escapeHtmlForEmail(brand.name)} Starter. The next step is <strong>${tierLabel}</strong> at <strong>$${monthlyPriceUsd}/mo</strong> — ${marketingLine}</p>
     <p style="margin-bottom: 16px;">Setup is already covered by what you paid. Upgrade when you want the monthly engine turned on:</p>
     <div style="margin-bottom: 16px; text-align: center;">
       <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to ${tierLabel}</a>
@@ -363,7 +368,7 @@ export async function sendStarterUpsellEmail(params: {
       Or revisit your <a href="${previewUrl}" style="color: #2563eb;">site preview</a> first.
     </p>
     <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through Growth vs Complete.</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html, leadSlug: slug });
@@ -467,7 +472,7 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
     <p style="margin-bottom: 16px;">Total paid: <strong>$${amount.toFixed(2)}</strong></p>
     <p style="margin-bottom: 24px;">Our team is already beginning to configure your final custom domain and publish your site. We will reach out within 24 hours with your dashboard access credentials.</p>
     <p style="margin-bottom: 8px;">Warmly,</p>
-    <p style="font-weight: 500; margin-top: 0;">The ${brand.name} Team</p>
+    <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
   return sendEmail({ to, subject, html });

@@ -50,6 +50,10 @@ export default function ComplianceDocPage() {
         <li>Identify sender: {brand.legalEntity} in footer; public brand in From name</li>
         <li>Valid physical postal address in Colorado</li>
         <li>
+          Outbound HTML escapes <code>brand.name</code> / legal entity / postal address (and
+          lead fields) via <code>escapeHtmlForEmail</code> — subject/From stay plain text
+        </li>
+        <li>
           Working unsubscribe honored within 10 business days —{" "}
           <code>GET /api/unsubscribe</code> must record suppression in the shared store when
           Convex is configured (<code>requireConvex</code>); a transient Convex failure returns

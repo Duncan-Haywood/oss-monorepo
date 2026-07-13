@@ -102,7 +102,11 @@ export default function ArchitectureDocPage() {
         unsubscribe route passes <code>requireConvex</code> (
         <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>) when Convex is configured so a mutation failure
         returns <code>500</code> instead of claiming success after a SQLite-only write that other
-        instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see.
+        instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see. Every
+        dynamic value in outbound HTML — including env-sourced{" "}
+        <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
+        <code>brand.postalAddress</code> in signatures and the shared footer — goes through{" "}
+        <code>escapeHtmlForEmail</code>; subject lines and From display names stay plain text.
       </p>
 
       <h2>5. Platform voice agent</h2>
