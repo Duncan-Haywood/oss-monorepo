@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
  * Creates a Stripe Checkout Session for a single synced Commerce SKU. Only
@@ -14,6 +15,9 @@ import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
  *
  * Records kind=commerce_sku on checkout_sessions so abandoned Buy now carts
  * never enter the bundle recovery queue (wrong Finish-checkout email).
+ *
+ * Rate limited per client IP (best-effort, per-instance — see
+ * src/lib/security/rate-limit.ts) to blunt scripted checkout-session churn.
  */
 
 interface CommerceCheckoutRequestBody {
@@ -30,6 +34,15 @@ function notConfigured(message: string) {
 }
 
 export async function POST(request: Request) {
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`commerce-checkout:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     return notConfigured("Set STRIPE_SECRET_KEY to enable Commerce checkout.");
