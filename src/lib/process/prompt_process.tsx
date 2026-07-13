@@ -5456,7 +5456,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: anthropic-env-readiness done; queued generate-marketing-pack-action-test-coverage + generate-client-voice-pack-action-test-coverage",
       "AGENT_PROTOCOL — anthropic-env-readiness done; claim Generate pack vs Generate voice action Vitest separately next",
       "BUSINESS_DECISIONS — documented why Stripe/Resend readiness left Growth/Complete AI fulfillment blind",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (714 passed — +10 anthropic readiness) + lint clean + build clean",
     ],
     decisions: BUSINESS_DECISIONS.slice(240, 241),
   },
