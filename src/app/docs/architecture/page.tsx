@@ -514,7 +514,12 @@ export default function ArchitectureDocPage() {
         <code>COMMERCE_CATALOG_CONVEX_PRIMARY</code>) so a mutation failure surfaces instead of
         SQLite-only success while Buy now / unsynced readers stay Convex-first. Catalog
         saves re-attach those ids from the existing DB row via{" "}
-        <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now.
+        <code>preserveCommerceStripeIds</code> so an ordinary edit does not wipe Buy now —
+        action-level Vitest in{" "}
+        <code>src/app/dashboard/leads/save-commerce-catalog-action.test.ts</code> locks auth,
+        commerceAddon eligibility, normalize validation, preserve against the DB row (never
+        client-submitted Stripe ids), requireConvex persist, and{" "}
+        <code>ConvexPrimaryWriteError</code> fail-closed.
         Sync never archives Products for removed SKUs — operators click{" "}
         <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProductsAction</code>) to set those Products{" "}

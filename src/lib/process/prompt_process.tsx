@@ -193,6 +193,8 @@ export const AGENT_PROTOCOL = [
   "send-marketing-pack-to-client-action-test-coverage done: src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts locks requireOperatorAuth, empty/missing slug, Starter-only + missing-email eligibility, current-month pack gate (missing/empty variants), NEXT_PUBLIC_APP_URL preview URL, suppression / Resend failure (no revalidate), mock send flag, and leadSlug order filtering — deliver-pack helpers alone are not enough for the dashboard Email pack glue. When free NEXT_STEPS stay gated, prefer send-client-voice-pack-to-client-action-test-coverage (Complete Email voice twin; sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "send-client-voice-pack-to-client-action-test-coverage done: src/app/dashboard/leads/send-client-voice-pack-to-client-action.test.ts locks requireOperatorAuth, empty/missing slug, Growth-only + missing-email eligibility, existing pack gate (missing/empty variants), NEXT_PUBLIC_APP_URL preview URL, suppression / Resend failure (no revalidate), mock send flag, and leadSlug order filtering — deliver-pack helpers alone are not enough for the dashboard Email voice pack glue. Twin of send-marketing-pack-to-client-action-test-coverage (85ad / PR #150). When free NEXT_STEPS stay gated, prefer sync-commerce-catalog-to-stripe-action-test-coverage / save-commerce-catalog-action-test-coverage (sibling-friendly Commerce Sync to Stripe / Save catalog action Vitest twins) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When send-client-voice-pack-to-client-action-test-coverage is done and free NEXT_STEPS stay gated, prefer sync-commerce-catalog-to-stripe-action-test-coverage (Commerce Sync to Stripe — COMMERCE_CATALOG_CONVEX_PRIMARY + Stripe Product/Price create that unlocks Buy now) or save-commerce-catalog-action-test-coverage (Save catalog requireConvex + preserveCommerceStripeIds) — claim different ones when both are free. Prefer either over inventing optional aggregates while Connect / Places / Buffer OAuth stay gated.",
+  "save-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/save-commerce-catalog-action.test.ts locks requireOperatorAuth, empty/missing slug, commerceAddon + paid/live eligibility, normalize validation, preserveCommerceStripeIds against the DB row (never client-submitted Stripe ids; Product kept / Price cleared on reprice), COMMERCE_CATALOG_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering — catalog helper suites alone are not enough for the dashboard Save catalog glue. Twin of sync-commerce-catalog-to-stripe-action-test-coverage (5c2b claimed Sync). When free NEXT_STEPS stay gated, prefer archive-orphan-commerce-stripe-products-action-test-coverage / open-billing-portal-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When sync-commerce-catalog-to-stripe-action-test-coverage and save-commerce-catalog-action-test-coverage are both free in the same cron window, claim different ones (Sync to Stripe Buy now unlock vs Save catalog preserve Stripe ids) — they touch different action surfaces and both lock Commerce sold-fulfillment operator paths that stripe-sync / catalog helper suites do not cover.",
 ] as const;
 
 /**
@@ -1464,10 +1466,24 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "save-commerce-catalog-action-test-coverage",
     summary:
-      "Empty-backlog twin after Sync to Stripe action Vitest: saveCommerceCatalogAction is the operator Save catalog path (COMMERCE_CATALOG_CONVEX_PRIMARY + preserveCommerceStripeIds so edits cannot wipe Buy now). Prefer when Sync to Stripe action coverage is done or claimed; do not invent optional aggregates.",
-    status: "in_progress",
+      "Empty-backlog twin after Email voice pack action Vitest: saveCommerceCatalogAction is the operator Save catalog path (COMMERCE_CATALOG_CONVEX_PRIMARY + preserveCommerceStripeIds so edits cannot wipe Buy now). Shipped: save-commerce-catalog-action.test.ts (12 tests). Sibling 5c2b owns Sync to Stripe action Vitest.",
+    status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-3329",
+  },
+  {
+    id: "archive-orphan-commerce-stripe-products-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Save catalog / Sync to Stripe action Vitest: archiveOrphanCommerceStripeProductsAction is the operator Archive orphans path (STRIPE_SECRET_KEY + active=false, never auto-delete) that cleans Products for removed SKUs — helper suites alone are not enough for action glue. Sibling-friendly with open-billing-portal-action-test-coverage; prefer when Commerce save/sync action coverage is done.",
+    status: "todo",
+    phase: "Phase 8 — Commerce",
+  },
+  {
+    id: "open-billing-portal-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Commerce catalog action Vitest: openBillingPortalAction is the operator Manage billing path (STRIPE_SECRET_KEY + createBillingPortalForLead) — create-portal-session helper + billing-portal route suites alone are not enough for dashboard action glue. Prefer when Archive orphans action coverage is done or claimed; do not invent optional aggregates.",
+    status: "todo",
+    phase: "Phase 5 — Payments & billing",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3206,6 +3222,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for sendClientVoicePackToClientAction (Complete Email voice pack) when send-marketing-pack-to-client-action-test-coverage is claimed/done by a sibling — deliver-pack helpers alone do not lock auth, paid/live Complete+email eligibility, existing pack gate, suppression / Resend failure paths, or NEXT_PUBLIC_APP_URL preview URL wiring. Queue sync-commerce-catalog-to-stripe-action-test-coverage + save-commerce-catalog-action-test-coverage as sibling-friendly Commerce twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Email voice pack is the sold Complete phone-script handoff operators click after Generate voice — without Twilio. A future Growth-tier false-positive, missing pack gate, skipped auth check, or silent suppression swallow would not fail Vitest without action glue coverage — the same class of gap Email pack (PR #150) already closed for Growth/Complete content delivery. Prefer locking that Complete fulfillment path, then Commerce Sync to Stripe / Save catalog action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Ship action-level Vitest for saveCommerceCatalogAction (Commerce Save catalog) when sync-commerce-catalog-to-stripe-action-test-coverage is claimed by a sibling — catalog helper suites alone do not lock auth, commerceAddon eligibility, normalize validation, preserveCommerceStripeIds against the DB row (never client Stripe ids), COMMERCE_CATALOG_CONVEX_PRIMARY persist, or ConvexPrimaryWriteError fail-closed. Queue archive-orphan-commerce-stripe-products-action-test-coverage + open-billing-portal-action-test-coverage as sibling-friendly twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Save catalog is the operator path that keeps Buy now alive after Sync to Stripe — without preserve + requireConvex, an edit can wipe stripePriceId or leave other instances unsynced. A future soft-fallback / client-trusted Stripe ids / skipped eligibility regression would not fail Vitest without action glue coverage — the same class of gap Email pack/voice and Mark paid out action suites already closed. Prefer locking that Commerce catalog write path, then Archive orphans / Manage billing action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5688,5 +5711,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (790 passed — Email voice pack action 13 from 777) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(247, 248),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-3329",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #151 (Email voice pack action Vitest). Sibling prompt-process-evolution-5c2b claimed sync-commerce-catalog-to-stripe-action-test-coverage first — pivoted per AGENT_PROTOCOL to save-commerce-catalog-action-test-coverage. saveCommerceCatalogAction had zero action-level Vitest despite being the Commerce Save catalog path that must preserve Stripe ids and fail closed on Convex. Queued archive-orphan + open-billing-portal action Vitest twins for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/save-commerce-catalog-action.test.ts — 12 tests locking auth fail, empty/missing slug, commerceAddon + paid/live eligibility, normalize validation, preserveCommerceStripeIds against the DB row (never client-submitted Stripe ids; Product kept / Price cleared on reprice), COMMERCE_CATALOG_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering",
+      "Docs: architecture + roadmap + launch-checklist + product-bundles note action-level Vitest beside catalog helpers",
+      "NEXT_STEPS: save-commerce-catalog-action-test-coverage done; sync-commerce-catalog-to-stripe-action-test-coverage left in_progress (5c2b); queued archive-orphan-commerce-stripe-products-action-test-coverage + open-billing-portal-action-test-coverage",
+      "AGENT_PROTOCOL — Save catalog action coverage required beyond catalog helpers; claim Sync vs Save separately; prefer Archive orphans / Manage billing action Vitest twins next",
+      "BUSINESS_DECISIONS — documented dual-claim pivot and why helper suites were insufficient for Save catalog action glue",
+      "Verified: npm test (802 passed — Save catalog action 12 from 790) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(248, 249),
   },
 ];

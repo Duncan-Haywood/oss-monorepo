@@ -82,7 +82,9 @@ export default function ProductBundlesDocPage() {
         (reuses STRIPE_SECRET_KEY, idempotent on re-run); synced items show a Buy now button
         that opens Stripe Checkout directly. When Convex is configured, Save catalog / Sync to
         Stripe fail closed (<code>requireConvex</code>) so a multi-instance deploy cannot claim
-        success after a SQLite-only write that leaves Buy now blocked elsewhere. Unsynced items still fall back to Request order →
+        success after a SQLite-only write that leaves Buy now blocked elsewhere — action-level
+        Vitest in <code>save-commerce-catalog-action.test.ts</code> locks Save catalog auth,
+        eligibility, preserve Stripe ids, and fail-closed persist. Unsynced items still fall back to Request order →
         inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
         Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync). A
         completed Buy now also emails the local business (<code>lead.email</code>
