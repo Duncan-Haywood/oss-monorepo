@@ -118,7 +118,14 @@ export default function ArchitectureDocPage() {
         keyed on <code>RESEND_API_KEY</code>) bound to that recipient&apos;s address — the route
         rejects a missing or mismatched token with <code>400</code> before calling{" "}
         <code>suppressEmail</code>, so an attacker who merely knows an address (scraped from the
-        same public listings CSV import targets) cannot silently suppress it. The suppression
+        same public listings CSV import targets) cannot silently suppress it. The same route also
+        rate-limits by client IP via <code>checkRateLimit</code> (
+        <code>src/lib/security/rate-limit.ts</code>, key <code>unsubscribe:&lt;clientIp&gt;</code>,
+        same per-instance fixed-window helper as contact / checkout / preview-open){" "}
+        <em>before</em> token verify, returning <code>429</code> + <code>Retry-After</code> on
+        exceed so a harvested footer link or a script hammering HMAC +{" "}
+        <code>suppressEmail</code> cannot unboundedly mutate the global suppression list. The
+        suppression
         list (SQLite + Convex <code>suppressions</code>) follows the same Convex-first,
         SQLite-fallback pattern as every other table for operator reads — but the public
         unsubscribe route passes <code>requireConvex</code> (
@@ -178,8 +185,9 @@ export default function ArchitectureDocPage() {
         after a durable inquiry row, validation) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
-        (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, and the
-        <code>ConvexPrimaryWriteError</code>-vs-generic-error <code>500</code> branches) — same
+        (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, the
+        <code>ConvexPrimaryWriteError</code>-vs-generic-error <code>500</code> branches, and
+        the client-IP rate-limit <code>429</code>) — same
         pattern as preview-open and the Stripe route suites. Matches the same idempotency
         guarantee already required for{" "}
         <code>checkout_sessions</code> and <code>commerce_orders</code>. Operator bootstrap: set{" "}
