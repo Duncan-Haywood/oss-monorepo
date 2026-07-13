@@ -87,7 +87,10 @@ export default function RoadmapDocPage() {
         Resend outreach + receipt emails, CAN-SPAM templates, and Convex-first suppression list
         (SQLite fallback for operator reads; public <code>GET /api/unsubscribe</code> uses{" "}
         <code>requireConvex</code> so a multi-instance deploy cannot claim unsubscribe success
-        after a SQLite-only write): shipped.
+        after a SQLite-only write): shipped. Until <code>RESEND_API_KEY</code> is a
+        non-placeholder secret, <code>assessResendEmailEnvReadiness</code> shows a sky
+        outreach-blocked banner on the operator dashboard (mirrors Stripe core readiness —
+        silent mock sends otherwise look like success).
         Email 2/3 follow-ups (operator-triggered, <code>outreachStep</code> /{" "}
         <code>lastOutreachAt</code>, due queue on the leads dashboard): shipped — every Email
         1/2/3 send durably marks the step before calling Resend, and with Convex configured
@@ -220,7 +223,8 @@ export default function RoadmapDocPage() {
         subdomain → custom domain handoff: shipped end-to-end — operator saves a client&apos;s
         own domain on the handoff card, retries Vercel domain provisioning, and{" "}
         <code>src/proxy.ts</code> host-based routing serves that lead&apos;s preview at the
-        client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>).
+        client&apos;s domain root once DNS resolves (<code>proxy-custom-domain-parity</code>;
+        orchestration Vitest in <code>src/proxy.test.ts</code>).
         Upsell / re-purchase handoff rebuilds preserve operator-set{" "}
         <code>customDomain</code> / <code>vercelProjectId</code> (
         <code>deploy-handoff-preserve-custom-domain</code>) and progressed{" "}

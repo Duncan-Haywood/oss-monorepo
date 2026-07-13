@@ -17,8 +17,10 @@ import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
+import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
+import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -89,6 +91,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const health = await loadDashboardHealth();
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
+  const resendEnv = assessResendEmailEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -107,6 +110,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           readiness={priceEnv}
           bootstrapAllowed={bootstrapAllowed}
         />
+        <ResendEnvBanner readiness={resendEnv} />
       </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>

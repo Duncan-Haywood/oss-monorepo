@@ -172,8 +172,11 @@ export const AGENT_PROTOCOL = [
   "unsubscribe-token-signing done: GET /api/unsubscribe had zero authorization — anyone who knew an address could suppress it via a plain GET, and isEmailSuppressed gates every automated send in the app. Now rejects a missing or mismatched token (400, before calling suppressEmail) via signUnsubscribeToken/verifyUnsubscribeToken (src/lib/email/unsubscribe-token.ts). Every automated send funnels through sendEmail (src/lib/email/resend.ts), which is the one and only place that builds the unsubscribe link — it now appends &token=signUnsubscribeToken(normalizedTo), so no template needs to change individually. Prior audits (including the unsubscribe-route-orchestration-test-coverage suite above) treated 'unsubscribe honored' as done once requireConvex + escapeHtmlForEmail + persistence-error-path coverage landed on this route; none addressed that the route had no authorization at all. When adding any new public link that triggers a state-changing GET/POST keyed only by an email or slug in the URL (no session), check whether it needs the same signed-token treatment before assuming a persistence/escaping/error-path audit already covered it. Signing key is RESEND_API_KEY (already required for a real send to leave the building) with a fixed dev-only fallback — do not introduce a new required secret for this class of problem when an existing one already gates whether the link is ever delivered to a real recipient. When free NEXT_STEPS are gated again, prefer rate limiting on public write endpoints (contact form, checkout create, preview-open beacon — and the unsubscribe GET itself) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "public-write-rate-limiting done: four POST write routes (contact, stripe/checkout, commerce/checkout, preview-open) share checkRateLimit from src/lib/security/rate-limit.ts. When that ships, prefer unsubscribe-get-rate-limiting (GET /api/unsubscribe was deliberately left out of the four-route sweep — it is still a public state-changing write that mutates the suppression list gating every send) or stripe-core-env-readiness (operator-visible banner for STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET — distinct from Price-ID readiness) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When unsubscribe-get-rate-limiting and stripe-core-env-readiness are both free in the same cron window, claim different ones (CAN-SPAM suppress throttle vs core Stripe secret readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
-  "unsubscribe-get-rate-limiting done: GET /api/unsubscribe now checks checkRateLimit(`unsubscribe:${clientIp}`) BEFORE token verify and returns 429 + Retry-After on exceed — completes the public-write throttle set (four POSTs from PR #138 + this CAN-SPAM GET). Token signing still blocks forged suppressions; the rate limit blunts harvested-footer-link hammering and unbounded HMAC/suppressEmail work. Folded with stripe-core-env-readiness (e756). When free NEXT_STEPS are gated again, prefer proxy-routing-test-coverage or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "stripe-core-env-readiness done: assessStripeCoreEnvReadiness (src/lib/pricing/stripe-core-env-readiness.ts) + StripeCoreEnvBanner on /dashboard + /dashboard/leads. Surfaces missing STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET (whitespace-only = missing). Distinct from assessBundlePriceEnvReadiness (Price IDs) — show both when both gap. Missing webhook secret is the worst case (checkout can succeed while CRM/handoff never records). Env presence only — does not validate key format, does not call Stripe, does not fake-complete stripe-price-objects. When free NEXT_STEPS stay gated, prefer proxy-routing-test-coverage or another sold-capability / multi-instance regression over inventing optional aggregates.",
+  "unsubscribe-get-rate-limiting done: GET /api/unsubscribe now checks checkRateLimit(`unsubscribe:${clientIp}`) BEFORE token verify and returns 429 + Retry-After on exceed — completes the public-write throttle set (four POSTs from PR #138 + this CAN-SPAM GET). Token signing still blocks forged suppressions; the rate limit blunts harvested-footer-link hammering and unbounded HMAC/suppressEmail work. Folded with stripe-core-env-readiness (e756). When free NEXT_STEPS are gated again, prefer proxy-routing-test-coverage or resend-email-env-readiness (operator-visible banner when RESEND_API_KEY is missing/placeholder — silent mock sends block outreach conversion) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "stripe-core-env-readiness done: assessStripeCoreEnvReadiness (src/lib/pricing/stripe-core-env-readiness.ts) + StripeCoreEnvBanner on /dashboard + /dashboard/leads. Surfaces missing STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET (whitespace-only = missing). Distinct from assessBundlePriceEnvReadiness (Price IDs) — show both when both gap. Missing webhook secret is the worst case (checkout can succeed while CRM/handoff never records). Env presence only — does not validate key format, does not call Stripe, does not fake-complete stripe-price-objects. When free NEXT_STEPS stay gated, prefer proxy-routing-test-coverage or resend-email-env-readiness over inventing optional aggregates.",
+  "When proxy-routing-test-coverage and resend-email-env-readiness are both free in the same cron window, claim different ones (proxy Host rewrite orchestration vs Resend key readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "proxy-routing-test-coverage done: src/proxy.test.ts locks dashboard auth gate (open when password unset; redirect when set + missing cookie; allow with valid session; /dashboard/login never gated), preview-subdomain rewrite only when getLeadBySlug resolves (unrecognized label → next(), no demo-catalog fallthrough), custom-domain rewrite only on non-platform Host + exact `/`, and never Host-diverts /api/* or /dashboard/*. Helper suites (custom-domain-routing.test.ts, operator.test.ts) are not enough for orchestrator ordering. Folded with resend-email-env-readiness (efe4).",
+  "resend-email-env-readiness done: assessResendEmailEnvReadiness (src/lib/email/resend-env-readiness.ts) + ResendEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / re_placeholder* / re_... RESEND_API_KEY (matches sendEmail mock gate). Distinct from Stripe core / Price-ID banners. Env presence only — does not call Resend. Folded with proxy-routing-test-coverage (cbbe). When free NEXT_STEPS stay gated, prefer stripe-bootstrap-dashboard-action-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1337,6 +1340,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/business-process-evolution-e756",
+  },
+  {
+    id: "proxy-routing-test-coverage",
+    summary:
+      "Empty-backlog after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only gated secrets/OAuth/counsel remain. src/proxy.ts orchestrates dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite, but helper suites (custom-domain-routing.test.ts, operator.test.ts) do not lock the ordering or fail-closed paths (preview subdomain before isPlatformHost; unrecognized subdomain must not rewrite; /api and /dashboard must never Host-divert; auth redirect when password set). Shipped: src/proxy.test.ts (10 tests) locking auth gate, preview-subdomain rewrite + unrecognized-label next(), custom-domain rewrite, platform-host skip of DB lookup, and never Host-divert /api/* or /dashboard/*. Sibling efe4 owns resend-email-env-readiness.",
+    status: "done",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "cursor/business-process-evolution-cbbe",
+  },
+  {
+    id: "resend-email-env-readiness",
+    summary:
+      "Empty-backlog after PR #140 (unsubscribe-get-rate-limiting + stripe-core-env-readiness). Stripe banners cover payment secrets, but operators still get no early dashboard signal when RESEND_API_KEY is missing or a placeholder — every outreach / receipt / recovery / pack / digest path silently mock-sends. Shipped: assessResendEmailEnvReadiness + ResendEnvBanner on /dashboard + /dashboard/leads + launch-checklist/architecture/roadmap notes. Sibling cbbe owns proxy-routing-test-coverage.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-efe4",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -2991,6 +3010,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Dashboard shows an amber StripeCoreEnvBanner (assessStripeCoreEnvReadiness) when STRIPE_SECRET_KEY / NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET are missing or whitespace-only — distinct from the rose BundlePriceEnvBanner for STRIPE_PRICE_ID_*.",
     rationale:
       "Empty-backlog after PR #138: Price-ID readiness already shipped, but operators still had no early signal for the secrets that actually gate checkout create (STRIPE_SECRET_KEY → 501) and fulfillment (STRIPE_WEBHOOK_SECRET → webhook 501 while Stripe can still charge — silent CRM/handoff failure). Sibling prompt-process-evolution-6d42 claimed unsubscribe-get-rate-limiting in the same window; this branch took the complementary operator-visible revenue unlock. Env presence only — does not validate key format, does not call Stripe, and does not fake-complete stripe-price-objects. Launch-checklist / architecture / roadmap document both banners.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "src/proxy.ts gets its own Vitest orchestration suite (src/proxy.test.ts) locking dashboard auth gate + Starter preview-subdomain rewrite + custom-domain rewrite ordering — helper suites alone are not enough for the sold Host→preview contracts.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #140 (stripe-core-env + unsubscribe-get). custom-domain-routing.test.ts and operator.test.ts cover pure helpers, but not the proxy orchestrator: preview subdomain must run before isPlatformHost, unrecognized subdomain labels must next() (never demo-catalog fallthrough), custom-domain DB lookup must skip platform hosts, and /api/* + /dashboard/* must never Host-divert. A silent reorder or fallthrough would break Starter 'Preview subdomain → custom domain handoff' or divert authenticated/API traffic. Prefer this sold-capability regression lock over inventing optional aggregates while Prices / Places / Buffer OAuth / Connect stay gated. Same-window sibling efe4 shipped resend-email-env-readiness.",
+  },
+  {
+    date: "2026-07-13",
+    decision:
+      "Dashboard shows a sky ResendEnvBanner (assessResendEmailEnvReadiness) when RESEND_API_KEY is missing, whitespace-only, or a documented placeholder (re_placeholder* / re_...) — matching sendEmail's silent mock gate.",
+    rationale:
+      "Empty-backlog after PR #140: Stripe core + Price-ID banners already cover payment secrets, but operators still discovered a missing Resend key only after clicking send (mock log looks like success). Every conversion email (outreach 1–3, receipts, abandoned-cart recovery, pack delivery, Starter upsell, digest) funnels through sendEmail — silent mock mode blocks top-of-funnel growth while looking healthy. Sibling business-process-evolution-cbbe claimed proxy-routing-test-coverage; this branch took the complementary operator-visible outreach unlock. Env presence / placeholder detection only — does not call Resend. Do not fake-complete gated NEXT_STEPS.",
   },
 ];
 
@@ -5280,5 +5313,38 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(235, 236),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/business-process-evolution-cbbe",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #140 (stripe-core-env-readiness + unsubscribe-get-rate-limiting) — only stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect remained. Claimed proxy-routing-test-coverage: src/proxy.ts is the Starter Host→preview orchestrator (dashboard auth + preview subdomain + custom domain) but had no direct Vitest — helper suites alone cannot catch reorder/fallthrough regressions. Same-window sibling prompt-process-evolution-efe4 claimed resend-email-env-readiness.",
+    shipped: [
+      "src/proxy.test.ts — 10 orchestration tests (dashboard auth open/redirect/allow/login-bypass; preview-subdomain rewrite + unrecognized next(); custom-domain rewrite; platform-host skips DB lookup; never Host-divert /api/* or /dashboard/*; non-root paths untouched)",
+      "Docs: architecture + production-deploy + roadmap note proxy Vitest coverage",
+      "NEXT_STEPS: proxy-routing-test-coverage done",
+      "AGENT_PROTOCOL — claim proxy-routing vs resend-email-env separately; both done",
+      "BUSINESS_DECISIONS — documented why helper suites were insufficient for Host→preview contracts",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(236, 237),
+  },
+  {
+    date: "2026-07-13",
+    branch: "cursor/prompt-process-evolution-efe4",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #140 (unsubscribe-get-rate-limiting + stripe-core-env-readiness). Sibling business-process-evolution-cbbe claimed proxy-routing-test-coverage (src/proxy.ts Host→preview Vitest). This branch claimed resend-email-env-readiness: Stripe banners cover payment secrets, but operators still had no early signal when RESEND_API_KEY was missing or a placeholder — every automated send silently mock-logs success.",
+    shipped: [
+      "src/lib/email/resend-env-readiness.ts + resend-env-readiness.test.ts — assessResendEmailEnvReadiness (whitespace-only / re_placeholder* / re_... = not ready; matches sendEmail mock gate)",
+      "src/components/dashboard/resend-env-banner.tsx — sky outreach-blocked banner",
+      "src/app/dashboard/page.tsx + leads/page.tsx — ResendEnvBanner below Stripe banners",
+      "Docs: launch-checklist + architecture + roadmap note the Resend readiness banner",
+      "NEXT_STEPS: resend-email-env-readiness done; folded proxy-routing-test-coverage (cbbe)",
+      "AGENT_PROTOCOL — claim proxy-routing vs resend-email-env separately; prefer bootstrap-dashboard-action tests next if free",
+      "BUSINESS_DECISIONS — documented why Stripe readiness alone left outreach conversion blind",
+      "merge: folded origin/cursor/business-process-evolution-cbbe — both ITERATIONS kept",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(237, 238),
   },
 ];

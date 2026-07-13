@@ -53,11 +53,17 @@ export default function ArchitectureDocPage() {
         outreach mark already fails closed. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
         require a signed session cookie. <code>src/proxy.ts</code> also rewrites the root path to a
-        lead&apos;s <code>/preview/[slug]</code> when the request Host matches a client&apos;s own
-        domain saved via <strong>Save domain</strong> on <code>/dashboard/leads</code> (Starter
-        &ldquo;Preview subdomain → custom domain handoff&rdquo; promise) — see{" "}
-        <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Google Places API and
-        other licensed sources remain future work after legal review. No UI scraping.
+        lead&apos;s <code>/preview/[slug]</code> when the request Host is a platform preview
+        subdomain (<code>{"{slug}.{productionRootDomain}"}</code>) that resolves to a real lead, or
+        a client&apos;s own domain saved via <strong>Save domain</strong> on{" "}
+        <code>/dashboard/leads</code> (Starter &ldquo;Preview subdomain → custom domain
+        handoff&rdquo; promise) — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
+        Orchestration Vitest in <code>src/proxy.test.ts</code> locks auth redirect/allow,
+        preview-subdomain-before-platform-host ordering, unrecognized-subdomain{" "}
+        <code>next()</code> (no demo-catalog fallthrough), and never Host-diverting{" "}
+        <code>/api/*</code> or <code>/dashboard/*</code> — helper suites alone are not enough.
+        Google Places API and other licensed sources remain future work after legal review. No UI
+        scraping.
       </p>
       <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
@@ -108,6 +114,16 @@ export default function ArchitectureDocPage() {
 
       <h2>4. Outreach (automated)</h2>
       <p>Email primary; optional outbound voice; inbound callback routes to platform voice agent.</p>
+      <p>
+        Until <code>RESEND_API_KEY</code> is a non-placeholder secret,{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a sky outreach-blocked
+        banner via <code>assessResendEmailEnvReadiness</code> (
+        <code>src/lib/email/resend-env-readiness.ts</code>) — missing / whitespace-only /{" "}
+        <code>re_placeholder…</code> / <code>re_...</code> match <code>sendEmail</code>&apos;s
+        mock gate so operators cannot mistake silent mock success for real delivery. Distinct from
+        Stripe core / Price-ID banners.
+      </p>
       <p>
         Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
         Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
