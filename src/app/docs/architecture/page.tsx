@@ -267,7 +267,16 @@ export default function ArchitectureDocPage() {
         &quot;Also send Email 1&quot; checkbox is checked, moves straight to{" "}
         <code>outreach_sent</code> and sends Email 1 in the same action;{" "}
         <strong>Close</strong> sets the terminal <code>closed</code> stage (keeps outreach
-        history, drops off Work next and cold counts).
+        history, drops off Work next and cold counts). Every Email 1/2/3 send is{" "}
+        <em>persist-then-notify</em>: <code>recordLeadOutreach</code> durably marks{" "}
+        <code>outreachStep</code>/<code>lastOutreachAt</code> before the Resend call, and when
+        Convex is configured it passes <code>requireConvex</code> (
+        <code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>) so a mutation failure skips the send and
+        surfaces a retry instead of letting a real send land unrecorded — <code>isFollowUpDue</code>{" "}
+        / pipeline-health / the digest all read Convex-first, so a SQLite-only mark after a
+        successful send would otherwise leave the lead looking due for the same step on another
+        instance and risk a duplicate Email 2/3. A Resend failure right after a successful mark
+        leaves that one step off the due queue until the operator retries from the dashboard.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

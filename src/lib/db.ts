@@ -631,6 +631,7 @@ export async function recordLeadOutreach(
   slug: string,
   outreachStep: OutreachStep,
   lastOutreachAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (outreachStep < 1 || outreachStep > 3) {
     throw new Error("outreachStep must be 1, 2, or 3");
@@ -645,6 +646,9 @@ export async function recordLeadOutreach(
       });
       return;
     } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordLeadOutreach", e);
+      }
       console.warn(
         `Failed to record outreach for ${slug} on Convex, falling back to SQLite database`,
         e,
