@@ -164,7 +164,8 @@ export default function LaunchChecklistDocPage() {
           handoff row still exists (idempotent enqueue) while receipt/DNS emails are not resent.
           If you save a custom domain (or dedicated Vercel project) then complete a second
           checkout for the same slug (upsell), confirm those operator fields survive the handoff
-          rebuild. If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
+          rebuild — and if you already <strong>Mark live</strong>&apos;d, confirm status stays{" "}
+          <code>live</code> (not reset to <code>awaiting_dns</code>). If a fulfillment write fails, the webhook must return <code>500</code> (not{" "}
           <code>200</code>) so Stripe retries. With Convex configured, webhook fulfillment writes
           must fail closed on Convex errors (<code>requireConvex</code>) — never ACK after a
           SQLite-only write that other instances cannot see. The same fail-closed policy applies
