@@ -30,7 +30,8 @@ export interface StripeProductsAndPrices {
     list(params: {
       limit: number;
       active: boolean;
-    }): Promise<{ data: MinimalStripeProduct[] }>;
+      starting_after?: string;
+    }): Promise<{ data: MinimalStripeProduct[]; has_more: boolean }>;
     create(params: {
       name: string;
       metadata: Record<string, string>;
@@ -45,7 +46,8 @@ export interface StripeProductsAndPrices {
       product: string;
       active: boolean;
       limit: number;
-    }): Promise<{ data: MinimalStripePrice[] }>;
+      starting_after?: string;
+    }): Promise<{ data: MinimalStripePrice[]; has_more: boolean }>;
     create(params: {
       product: string;
       currency: string;
@@ -55,12 +57,39 @@ export interface StripeProductsAndPrices {
   };
 }
 
+/**
+ * Stripe list endpoints cap a single page at 100 items. Every idempotent
+ * lookup here keys off a stable metadata value, so a match past page 1 must
+ * still be found — walk has_more/starting_after until either a match turns
+ * up (stop early via `until`) or the list is exhausted.
+ */
+async function listAllPages<T extends { id: string }>(
+  fetchPage: (startingAfter?: string) => Promise<{ data: T[]; has_more: boolean }>,
+  until?: (item: T) => boolean,
+): Promise<T[]> {
+  const all: T[] = [];
+  let startingAfter: string | undefined;
+  for (;;) {
+    const page = await fetchPage(startingAfter);
+    all.push(...page.data);
+    if (until && page.data.some(until)) break;
+    if (!page.has_more || page.data.length === 0) break;
+    startingAfter = page.data[page.data.length - 1]?.id;
+  }
+  return all;
+}
+
 async function findProductByKey(
   stripe: StripeProductsAndPrices,
   key: string,
 ): Promise<MinimalStripeProduct | null> {
-  const listed = await stripe.products.list({ limit: 100, active: true });
-  return listed.data.find((product) => product.metadata?.local_site_studio_key === key) ?? null;
+  const matchesKey = (product: MinimalStripeProduct) =>
+    product.metadata?.local_site_studio_key === key;
+  const listed = await listAllPages(
+    (starting_after) => stripe.products.list({ limit: 100, active: true, starting_after }),
+    matchesKey,
+  );
+  return listed.find(matchesKey) ?? null;
 }
 
 async function findMatchingPrice(
@@ -68,8 +97,13 @@ async function findMatchingPrice(
   productId: string,
   unitAmount: number,
 ): Promise<MinimalStripePrice | null> {
-  const listed = await stripe.prices.list({ product: productId, active: true, limit: 100 });
-  return listed.data.find((price) => price.unit_amount === unitAmount) ?? null;
+  const matchesAmount = (price: MinimalStripePrice) => price.unit_amount === unitAmount;
+  const listed = await listAllPages(
+    (starting_after) =>
+      stripe.prices.list({ product: productId, active: true, limit: 100, starting_after }),
+    matchesAmount,
+  );
+  return listed.find(matchesAmount) ?? null;
 }
 
 export type SyncedCommerceSku = CommerceSku & {
@@ -135,10 +169,12 @@ export async function listOrphanCommerceStripeProducts(
   currentItems: CommerceSku[],
 ): Promise<OrphanCommerceStripeProduct[]> {
   const keepSkuIds = new Set(currentItems.map((item) => item.id));
-  const listed = await stripe.products.list({ limit: 100, active: true });
+  const listed = await listAllPages((starting_after) =>
+    stripe.products.list({ limit: 100, active: true, starting_after }),
+  );
   const orphans: OrphanCommerceStripeProduct[] = [];
 
-  for (const product of listed.data) {
+  for (const product of listed) {
     const key = product.metadata?.local_site_studio_key;
     const metaLeadSlug = product.metadata?.leadSlug;
     const skuId = product.metadata?.skuId;
