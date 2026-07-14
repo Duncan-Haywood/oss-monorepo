@@ -119,6 +119,15 @@ export default function BusinessModelDocPage() {
         stage-persist helpers.
       </p>
 
+      <h2>Discovery-call / Email 3 notes</h2>
+      <p>
+        Saving free-text call outcomes on <code>/dashboard/leads</code> uses{" "}
+        <code>LEAD_NOTES_CONVEX_PRIMARY</code> so notes cannot succeed only in instance-local
+        SQLite — getLeads / Work next search-over-notes read Convex-first. Action-level Vitest
+        in <code>update-lead-notes-action.test.ts</code> locks that dashboard glue beside
+        notes-persist helpers (auth, soft cap, clear/trim, requireConvex fail-closed).
+      </p>
+
       <h2>Work next snooze / Unsnooze</h2>
       <p>
         Parking a hot lead off Work next (1d / 3d / 7d) or clearing an early return uses{" "}

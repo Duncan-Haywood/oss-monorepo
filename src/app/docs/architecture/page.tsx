@@ -420,7 +420,10 @@ export default function ArchitectureDocPage() {
         soft prompt (Skip dismisses without undoing the stage/email change). When Convex is
         configured, the notes write passes <code>requireConvex</code> (
         <code>LEAD_NOTES_CONVEX_PRIMARY</code>) so Save cannot claim success after a SQLite-only
-        write that other instances never see. Optional{" "}
+        write that other instances never see. Action-level Vitest in{" "}
+        <code>update-lead-notes-action.test.ts</code> locks auth, soft-cap / clear / trim,
+        requireConvex fail-closed, and success revalidate beside notes-persist helpers.
+        Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
         the quality score visible — Unsnooze clears it; when Convex is configured the write
         passes <code>requireConvex</code> (<code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) so park /
