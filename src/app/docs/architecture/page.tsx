@@ -736,7 +736,16 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>src/lib/stripe/list-all-pages.ts</code> with direct unit coverage) — action-level
         Vitest in <code>sync-commerce-catalog-to-stripe-action.test.ts</code> locks auth, secret
         gate, empty catalog, requireConvex persist, and fail-closed Convex errors — then persists
-        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. When Convex
+        <code>stripeProductId</code>/<code>stripePriceId</code> back onto each item. The Stripe
+        sync loop is sequential per SKU (product/price lookups + creates), a real network-bound
+        window in which a concurrent <strong>Save catalog</strong> (a second tab, or a follow-up
+        edit) could otherwise be silently overwritten by a stale wholesale write once the sync
+        finishes — the action re-reads the catalog immediately before that final write and layers
+        only the freshly-created Stripe ids onto the current items via{" "}
+        <code>preserveCommerceStripeIds</code> (dropping a SKU&apos;s just-synced{" "}
+        <code>stripePriceId</code> if its price changed mid-sync, since that price no longer
+        matches what was created), rather than writing the pre-sync snapshot verbatim; locked by a
+        dedicated concurrent-edit regression in the same test file. When Convex
         is configured, Save catalog and Sync to Stripe pass <code>requireConvex</code> (
         <code>COMMERCE_CATALOG_CONVEX_PRIMARY</code>) so a mutation failure surfaces instead of
         SQLite-only success while Buy now / unsynced readers stay Convex-first. Catalog
