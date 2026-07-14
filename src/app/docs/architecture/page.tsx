@@ -121,7 +121,13 @@ export default function ArchitectureDocPage() {
         <code>/robots.txt</code> allows crawling except <code>/dashboard</code> and{" "}
         <code>/api</code>. Canonical origin comes from <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
         <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap
-        don&apos;t point at localhost. <code>siteUrl()</code>&apos;s precedence (
+        don&apos;t point at localhost. Until it is a non-localhost public origin,{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an orange canonical-URL
+        banner via <code>assessAppUrlEnvReadiness</code> (
+        <code>src/lib/seo/app-url-env-readiness.ts</code>) — missing / whitespace / localhost /{" "}
+        <code>example.com</code> placeholders are flagged (env presence only; distinct from Stripe
+        / Resend / auth banners). <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}

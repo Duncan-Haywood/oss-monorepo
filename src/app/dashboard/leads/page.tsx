@@ -21,6 +21,7 @@ import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
+import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
@@ -29,6 +30,7 @@ import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness"
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
+import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -120,6 +122,7 @@ export default async function LeadsPage() {
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
+  const appUrlEnv = assessAppUrlEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -138,6 +141,7 @@ export default async function LeadsPage() {
 
       <div className="mt-6">
         <OperatorAuthEnvBanner readiness={operatorAuthEnv} />
+        <AppUrlEnvBanner readiness={appUrlEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
