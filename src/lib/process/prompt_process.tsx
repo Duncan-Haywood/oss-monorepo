@@ -3561,6 +3561,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "The env-readiness banner chain and per-action test-coverage backlog are both fully exhausted (all remaining NEXT_STEPS are operator/legal-gated). A multi-instance/sold-capability regression audit found a real revenue-integrity bug instead: because the sent-marker was written unconditionally, a suppressed or transiently-failed buyer receipt / DNS handoff email got marked 'sent' forever, and planBundleWebhookSideEffects — the exact mechanism built to let Stripe redelivery recover a missed send — would see that note and skip retrying permanently. A paying customer whose address is on the suppression list (plausible: a cold-outreach lead who unsubscribed, then converted later with the same email) or who hits a Resend outage at checkout time would never receive their receipt or go-live instructions, with no operator visibility since the webhook still returns 200. Fixing a silent, permanent loss of paid-customer fulfillment email beats inventing another optional aggregate while the free backlog stays gated.",
   },
+  {
+    date: "2026-07-14",
+    decision:
+      "Add checkRateLimit to POST /api/stripe/billing-portal (key `billing-portal:<clientIp>`, same DEFAULT_RATE_LIMIT/429+Retry-After shape as every other public route) — the only public, state-changing, externally-billed route left without it.",
+    rationale:
+      "Two consecutive empty-backlog audits (claude/relaxed-galileo-j64ij9, claude/agent-protocol-consolidation) found no new gap, so this run re-swept the already-shipped security invariants instead of hunting for a tenth env-readiness banner. billing-portal is public, keyed only by a client-supplied sessionId (leakable via browser history / Referer off /checkout/success?session_id=), and fires two live Stripe API calls per request once STRIPE_SECRET_KEY is set — structurally identical to contact / checkout / commerce-checkout / preview-open / unsubscribe, all five of which the rate-limit module's own docstring already named as its guard set, yet billing-portal was missing from both the code and that docstring. Unthrottled it lets a scripted client burn Stripe API quota/cost indefinitely or brute-force-probe sessionId values with no backoff — a real, if modest, cost/abuse exposure on a route that already ships real code, not a manufactured metric. Fixing an overlooked instance of an existing, already-proven pattern beats inventing a new optional aggregate just to have something to ship this run.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -6578,5 +6585,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1122 passed, incl. 2 new webhook regression tests) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(280, 281),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/quirky-davinci-6tghy1",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #183 (stripe-core-publishable-key-false-requirement, merged). Two prior consecutive empty-backlog audits (relaxed-galileo-j64ij9, agent-protocol-consolidation) already re-verified Convex API map completeness, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency, uncapped-list sweep, and dashboard action test coverage with nothing new — rather than repeat that pass or invent a tenth env-readiness banner, delegated a fresh sold-capability audit that swept a different axis (rate-limit guard-set completeness) and found POST /api/stripe/billing-portal was the one public Stripe-facing route missing checkRateLimit, unlike its four siblings (contact, checkout, commerce/checkout, preview-open) and unsubscribe. Fixed. Rebased onto sibling claude/upbeat-dijkstra-shyape's webhook receipt-marker fix (PR #184) landing mid-window — folded as append-only, no feature overlap; retightened this entry's decision slice to 281–282.",
+    shipped: [
+      "src/app/api/stripe/billing-portal/route.ts — checkRateLimit(`billing-portal:${clientIp}`) as the first check in POST, mirroring commerce/checkout's pattern (429 + Retry-After before any Stripe call)",
+      "src/app/api/stripe/billing-portal/route.test.ts — resetRateLimiterForTests() in beforeEach + a 429/Retry-After regression test (21st request never reaches sessionsRetrieve)",
+      "src/lib/security/rate-limit.ts — module docstring now lists billing-portal in its guarded-route set",
+      "Docs: architecture.tsx notes the billing-portal rate-limit alongside its route-test description; compliance.tsx's unsubscribe rate-limit note now lists commerce checkout + billing portal among the sibling routes sharing checkRateLimit",
+      "BUSINESS_DECISIONS + ITERATIONS — documented why closing an overlooked instance of an already-proven security pattern beat hunting for a new banner this run",
+      "merge: rebased onto origin/main (PR #184 webhook receipt-marker fix) — both ITERATIONS entries kept; decision slices 280–282",
+      "Verified: npm test (1121 passed, full suite) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(281, 282),
   },
 ];

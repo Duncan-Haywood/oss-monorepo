@@ -1,7 +1,7 @@
 /**
  * Minimal in-memory rate limiter for public write endpoints (contact form,
- * checkout create, commerce checkout create, preview-open beacon, and
- * CAN-SPAM unsubscribe GET).
+ * checkout create, commerce checkout create, billing portal create,
+ * preview-open beacon, and CAN-SPAM unsubscribe GET).
  *
  * IMPORTANT — this is per-instance, best-effort protection, not a hard
  * security boundary:
