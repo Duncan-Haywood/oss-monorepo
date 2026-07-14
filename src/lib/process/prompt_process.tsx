@@ -1571,8 +1571,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "add-lead-action-test-coverage",
     summary:
       "Empty-backlog twin after stage / snooze action Vitest: addLeadAction is the operator manual create path (LEAD_UPSERT_CONVEX_PRIMARY + optional Email 1 on outreach_sent) — upsert / outreach helper suites alone are not enough for action glue. Sibling-friendly with update-lead-notes-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/business-process-evolution-a322",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
