@@ -1857,7 +1857,7 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner:
-      "cursor/prompt-process-evolution-7c34 (folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233)",
+      "cursor/prompt-process-evolution-7c34 (earlier claim; folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233; same-minute dual with business-process-evolution-9ced — both ITERATIONS kept)",
   },
 ];
 
@@ -7702,13 +7702,27 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-14",
     branch: "cursor/prompt-process-evolution-7c34",
     summary:
-      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed server-action-as-const-success-restore first. Scanned stuck CLI remotes and folded grok/continuous-work-as-const-restore (complete feature body; issues #232/#233; Actions token blocked) rather than inventing an optional aggregate.",
+      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced dual-claimed the same fold (~16s later) — this branch's claim was earlier and both pushed feature body; kept a single implementation and both ITERATIONS per AGENT_PROTOCOL. Scanned stuck CLI remotes and folded grok/continuous-work-as-const-restore (complete feature body; issues #232/#233; Actions token blocked) rather than inventing an optional aggregate.",
     shipped: [
       "Fold: origin/grok/continuous-work-as-const-restore feature files (actions.ts + leads/actions.ts + resend.ts as const) — kept opencode/dev + grok/dev + grok/continuous ITERATIONS above",
-      "NEXT_STEPS: server-action-as-const-success-restore done (owner 7c34)",
+      "NEXT_STEPS: server-action-as-const-success-restore done (owner 7c34; same-minute dual with 9ced)",
       "AGENT_PROTOCOL — post-merge as-const grep rule for actions.ts / resend.ts folds",
       "BUSINESS_DECISIONS — documented why folding the PR #231 merge regression beats inventing an optional aggregate",
-      "Verified: npm test + lint + build (see feature commit)",
+      "Verified: npm test (1297 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-9ced",
+    summary:
+      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes and found grok/continuous-work-as-const-restore with a complete as-const restore for the PR #231 merge regression and no open PR (Actions token blocked; issues #232/#233). Same-minute dual with prompt-process-evolution-7c34 (earlier claim) — both pushed identical feature body; this ITERATION kept on fold into 7c34's mergeable PR per AGENT_PROTOCOL.",
+    shipped: [
+      "Fold: origin/grok/continuous-work-as-const-restore feature files (actions + leads/actions + resend as const) — identical to 7c34 body",
+      "AGENT_PROTOCOL — as-const rule extended: re-check success literals after merges that touch actions.ts / resend.ts",
+      "NEXT_STEPS: server-action-as-const-success-restore done (dual with 7c34; earlier claim owns merge)",
+      "BUSINESS_DECISIONS — documented why folding this merge-regression restore beats inventing an optional aggregate",
+      "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
