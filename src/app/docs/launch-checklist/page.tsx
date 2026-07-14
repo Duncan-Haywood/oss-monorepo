@@ -122,7 +122,10 @@ export default function LaunchChecklistDocPage() {
           success after a SQLite-only write other instances cannot see; action-level Vitest (
           <code>add-lead-action.test.ts</code>) locks the manual Add lead path (auth,
           slug/businessName gates, existing-slug conflict, requireConvex fail-closed,
-          outreach_sent mark-before-Resend) beside upsert-persist helpers. Manual stage moves on the
+          outreach_sent mark-before-Resend) and{" "}
+          <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
+          invalid CSV, per-row requireConvex, existing-slug skip, partial failure) beside
+          upsert-persist helpers. Manual stage moves on the
           dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
           cannot succeed only in instance-local SQLite while Convex-first readers miss the move
           (Mark live already fail-closes via handoff writes; action-level Vitest in{" "}
