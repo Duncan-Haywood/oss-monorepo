@@ -7642,7 +7642,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL + architecture.tsx encode-at-use rule retained from fold",
       "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(313, 314) after PR #230 took 312",
       "merge: origin/main (PR #230 CSV hours fold) — both ITERATIONS kept",
-      "Verified: npm test (1285+ passed with CSV suite from main) + lint + build",
+      "Verified: npm test (1297 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
