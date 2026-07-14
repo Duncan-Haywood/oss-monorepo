@@ -105,10 +105,12 @@ export default function ProductionDeployDocPage() {
         instance-local SQLite only — otherwise the routing/project/live-status change could be
         invisible to every other instance, which reads Convex-first. Action-level Vitest in{" "}
         <code>mark-handoff-live-action.test.ts</code> locks the Mark live glue (auth, empty
-        slug, no-handoff, requireConvex fail-closed, success revalidate) and{" "}
+        slug, no-handoff, requireConvex fail-closed, success revalidate),{" "}
         <code>assign-custom-domain-action.test.ts</code> locks the Save domain glue (auth, empty
-        slug, trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate)
-        beside handoff-persist / custom-domain-routing helpers. A later bundle checkout
+        slug, trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate),
+        and <code>assign-vercel-project-action.test.ts</code> locks the Assign Vercel project
+        glue (auth, trim / clear project id, no-handoff, requireConvex fail-closed, success
+        revalidate) beside handoff-persist / custom-domain-routing helpers. A later bundle checkout
         (Starter→Growth upsell or re-purchase) rebuilds the handoff for the new Stripe session —
         <code>preserveDeployHandoffOperatorFields</code> keeps the saved domain (and any dedicated{" "}
         <code>vercelProjectId</code>), plus <code>live</code>/<code>provisioned</code> status

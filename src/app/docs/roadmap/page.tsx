@@ -266,8 +266,9 @@ export default function RoadmapDocPage() {
         when Convex is configured, so a mutation failure surfaces as a retry instead of a
         SQLite-only success invisible to other instances. Action-level Vitest in{" "}
         <code>mark-handoff-live-action.test.ts</code> locks Mark live glue;{" "}
-        <code>assign-custom-domain-action.test.ts</code> locks Save domain glue (auth,
-        trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate).
+        <code>assign-custom-domain-action.test.ts</code> locks Save domain glue;{" "}
+        <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project glue
+        (auth, trim/clear, no-handoff, requireConvex fail-closed, success revalidate).
         See <DocLink href="/docs/production-deploy">Production deploy</DocLink>. Per-client Vercel
         project isolation: shipped as an operator-assignable field per handoff (falls back to the
         shared project when unset) — full automated project creation remains manual. Preview
