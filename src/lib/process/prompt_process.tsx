@@ -1544,8 +1544,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "update-lead-stage-action-test-coverage",
     summary:
       "Empty-backlog twin after inquiry status / cold disposition action Vitest: updateLeadStageAction is the operator dashboard stage dropdown path (LEAD_STAGE_CONVEX_PRIMARY fail-closed) — lead-stage helper suites alone are not enough for action glue. Sibling-friendly with snooze-lead-action-test-coverage; prefer when update-inquiry-status / dispose-cold-lead action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/business-process-evolution-a622",
   },
   {
     id: "snooze-lead-action-test-coverage",
