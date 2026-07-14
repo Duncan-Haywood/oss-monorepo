@@ -116,7 +116,11 @@ export default function RoadmapDocPage() {
         after a SQLite-only write): shipped. Until <code>RESEND_API_KEY</code> is a
         non-placeholder secret, <code>assessResendEmailEnvReadiness</code> shows a sky
         outreach-blocked banner on the operator dashboard (mirrors Stripe core readiness —
-        silent mock sends otherwise look like success). Until{" "}
+        silent mock sends otherwise look like success). Until <code>EMAIL_FROM</code> is a
+        non-placeholder Resend-verified address, <code>assessEmailFromEnvReadiness</code> shows
+        a lime From-address banner (<code>sendEmail</code> / <code>sendOperatorDailyDigest</code>{" "}
+        use <code>brand.emailFrom</code> for the Resend <code>from</code> header — never a
+        hardcoded platform domain). Until{" "}
         <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,{" "}
         <code>assessAnthropicEnvReadiness</code> shows a teal AI-packs-on-stub banner
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*

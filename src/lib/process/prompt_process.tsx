@@ -236,9 +236,12 @@ export const AGENT_PROTOCOL = [
   "vercel-token-env-readiness done: assessVercelTokenEnvReadiness (src/lib/deploy/vercel-token-env-readiness.ts) + VercelTokenEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|token|vercel|xxx|your_token-style VERCEL_TOKEN — matching tryProvisionVercelDomain trim gate so paid handoffs cannot silently skip Domains API automation while PRODUCTION_DOMAIN/APP_URL look ready. Distinct blue banner. Does not require VERCEL_PROJECT_ID (Assign project covers per-handoff). Env presence only — does not call Vercel. When free NEXT_STEPS stay gated, prefer company-address-env-readiness (CAN-SPAM postal) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When vercel-token-env-readiness is done and free NEXT_STEPS stay gated, prefer company-address-env-readiness (NEXT_PUBLIC_COMPANY_ADDRESS missing/whitespace/bracket-placeholder → brand.postalAddress ships the CAN-SPAM bracket stub) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID missing → Domains API still skips unless every handoff gets Assign project) — claim different surfaces; do not invent optional aggregates.",
   "company-address-env-readiness done: assessCompanyAddressEnvReadiness (src/lib/brand/company-address-env-readiness.ts) + CompanyAddressEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / bracket-stub|Registered business address|your address-style NEXT_PUBLIC_COMPANY_ADDRESS — matching brand.postalAddress fallback so outreach CAN-SPAM footers cannot silently ship '[Registered business address — Colorado, USA]' while Resend/brand look ready. Distinct yellow banner. Env presence only — does not geocode. When free NEXT_STEPS stay gated, prefer vercel-project-id-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",,
+  "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "convex-url-env-readiness done: assessConvexUrlEnvReadiness (src/lib/convex/convex-url-env-readiness.ts) + ConvexUrlEnvBanner (pink) on /dashboard + /dashboard/leads. resolveConvexDeploymentUrl trims and rejects placeholders before ConvexHttpClient construction in db.ts — whitespace-only must not count as configured. Local SQLite remains fine for solo demos; multi-instance / Vercel paid traffic requires a real NEXT_PUBLIC_CONVEX_URL. Same-window sibling business-process-evolution-b901 owns email-from-env-readiness (Resend From wiring). When free NEXT_STEPS stay gated, prefer folding that twin or another empty-backlog sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When convex-url-env-readiness and email-from-env-readiness are both free in the same cron window, claim different ones (multi-instance Convex persistence vs Resend From address) — they touch different surfaces and both close empty-backlog launch gaps without inventing aggregates.",
+"vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "email-from-env-readiness done: assessEmailFromEnvReadiness (src/lib/email/email-from-env-readiness.ts) + EmailFromEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / @example.com|changeme|your@-style EMAIL_FROM — launch checklist required the var, but sendEmail / sendOperatorDailyDigest previously hardcoded outreach@updates.localsitestudio.com. Now formatResendFromHeader(brand.name, brand.emailFrom) drives Resend from. Distinct lime banner (sibling of sky Resend API-key). Env presence only — does not call Resend. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits (Convex URL readiness, webhook idempotency re-audit, static API map) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "Resend `from` must use EMAIL_FROM via brand.emailFrom / formatResendFromHeader — never hardcode a platform domain (outreach@updates… was a silent launch bug: operators set EMAIL_FROM + SPF/DKIM and still sent from the wrong address).",
 ] as const;
 
 /**
@@ -1722,6 +1725,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-382f",
+  },
+  {
+    id: "email-from-env-readiness",
+    summary:
+      "Empty-backlog after vercel-project-id-env-readiness (7511 / PR #179): launch checklist requires EMAIL_FROM and brand.emailFrom exists, but Resend sendEmail / sendOperatorDailyDigest hardcoded from: outreach@updates.localsitestudio.com — operators could set EMAIL_FROM + SPF/DKIM and still send from the wrong domain. Shipped: wire formatResendFromHeader(brand.name, brand.emailFrom) into both Resend from headers + assessEmailFromEnvReadiness + EmailFromEnvBanner (lime) on /dashboard + /dashboard/leads + docs.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-b901",
   },
 ];
 
@@ -3664,6 +3675,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessConvexUrlEnvReadiness + ConvexUrlEnvBanner when vercel-project-id-env-readiness is done — operators still get no early dashboard signal when NEXT_PUBLIC_CONVEX_URL is missing, whitespace-only, or an example.convex.cloud/changeme-style placeholder (multi-instance / serverless stays SQLite-only while Stripe/Resend/Vercel look ready). Also gate db.ts ConvexHttpClient construction through resolveConvexDeploymentUrl so whitespace-only no longer counts as configured. Env presence only; distinct pink banner; local solo SQLite demos stay fine. Same-window sibling b901 owns email-from-env-readiness. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "SQLite-only on Vercel is a silent multi-instance revenue killer — payments and CRM can ACK on one instance and never appear elsewhere. Prefer that early Convex URL signal (and the trim gate bugfix), then fold email-from or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship email-from-env-readiness (wire brand.emailFrom into Resend from + assessEmailFromEnvReadiness banner) when vercel-project-id-env-readiness is done — Vercel/Stripe/Resend-key banners already cover Domains API + transport, but sendEmail / sendOperatorDailyDigest still hardcoded outreach@updates.localsitestudio.com while launch checklist required EMAIL_FROM and brand.emailFrom already existed. Operators could configure SPF/DKIM on their domain and still send from the wrong From address (silent deliverability + brand leak). Env presence only; distinct lime banner; formatResendFromHeader(brand.name, brand.emailFrom). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "A documented but unused EMAIL_FROM is worse than a missing banner — Resend API-key readiness can look green while every automated send ignores the operator's verified domain. Prefer wiring the From header + early lime readiness signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6614,11 +6632,29 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/db.ts — ConvexHttpClient init uses resolveConvexDeploymentUrl (whitespace/placeholder → SQLite-only)",
       "Leads pipeline title uses isConvexUrlConfigured (matches real client gate)",
       "Docs: architecture + roadmap + launch-checklist + .env.example note the banner beside Convex-first persistence",
-      "NEXT_STEPS: convex-url-env-readiness done; email-from-env-readiness left for sibling b901",
-      "AGENT_PROTOCOL — prefer folding email-from twin or empty-backlog sold-capability / multi-instance regression audits next; convex↔email-from twin claim rule + pink banner color reserved",
+      "NEXT_STEPS: convex-url-env-readiness done; email-from-env-readiness done (b901 / PR #180 folded)",
+      "AGENT_PROTOCOL — prefer empty-backlog sold-capability / multi-instance regression audits next; convex↔email-from twin claim rule + pink banner color reserved",
       "BUSINESS_DECISIONS — documented why Convex URL readiness beats inventing optional aggregates after Vercel project-id banner",
+      "merge: folded origin/main (PR #180 email-from) — both ITERATIONS kept; absolute decision slices 276–278",
       "Verified: npm test (convex-url-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(276, 277),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-b901",
+    summary:
+      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness on 7511) stayed fully gated. Empty-backlog audit found EMAIL_FROM was documented + brand.emailFrom existed, but Resend sendEmail / sendOperatorDailyDigest hardcoded from: outreach@updates.localsitestudio.com — operators could set EMAIL_FROM + SPF/DKIM and still send from the wrong domain. Claimed and shipped email-from-env-readiness (wire From header + lime readiness banner).",
+    shipped: [
+      "src/lib/email/resend.ts — formatResendFromHeader(brand.name, brand.emailFrom) for sendEmail + sendOperatorDailyDigest From headers (removed hardcoded outreach@updates.localsitestudio.com)",
+      "src/lib/email/email-from-env-readiness.ts + .test.ts — assessEmailFromEnvReadiness / formatResendFromHeader (missing / whitespace / @example.com placeholders)",
+      "src/components/dashboard/email-from-env-banner.tsx — lime EmailFromEnvBanner",
+      "/dashboard + /dashboard/leads — surface EmailFromEnvBanner beside Resend API-key banner",
+      "resend.test.ts — From-header regression (EMAIL_FROM override; never outreach@updates)",
+      "Docs: launch-checklist / architecture / compliance / roadmap + .env.example",
+      "AGENT_PROTOCOL + NEXT_STEPS + BUSINESS_DECISIONS + ITERATIONS — documented why EMAIL_FROM wiring beats inventing optional aggregates after Vercel-project-id banner",
+      "Verified: npm test (email-from-env-readiness + resend From) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(277, 278),
   },
 ];

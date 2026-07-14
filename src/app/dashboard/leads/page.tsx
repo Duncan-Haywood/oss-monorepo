@@ -18,6 +18,7 @@ import { PipelineHealthPanel } from "@/components/dashboard/pipeline-health-pane
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
+import { EmailFromEnvBanner } from "@/components/dashboard/email-from-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
@@ -33,6 +34,7 @@ import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
+import { assessEmailFromEnvReadiness } from "@/lib/email/email-from-env-readiness";
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
@@ -134,6 +136,7 @@ export default async function LeadsPage() {
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
   const resendEnv = assessResendEmailEnvReadiness();
+  const emailFromEnv = assessEmailFromEnvReadiness();
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
@@ -173,6 +176,7 @@ export default async function LeadsPage() {
           bootstrapAllowed={bootstrapAllowed}
         />
         <ResendEnvBanner readiness={resendEnv} />
+        <EmailFromEnvBanner readiness={emailFromEnv} />
         <BrandNameEnvBanner readiness={brandNameEnv} />
         <CompanyAddressEnvBanner readiness={companyAddressEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />

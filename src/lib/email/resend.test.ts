@@ -172,3 +172,65 @@ describe("resend.ts — brand.* HTML escaping", () => {
     expect(sentHtml).not.toContain(`The ${UNSAFE_BRAND} Team`);
   });
 });
+
+describe("resend.ts — EMAIL_FROM From header", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  const originalBrand = process.env.NEXT_PUBLIC_BRAND_NAME;
+  const originalFrom = process.env.EMAIL_FROM;
+  let sentFrom: string;
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_BRAND_NAME = "Local Site Studio";
+    process.env.EMAIL_FROM = "noreply@marisstellalabs.com";
+    sentFrom = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentFrom = body.from;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    if (originalBrand === undefined) delete process.env.NEXT_PUBLIC_BRAND_NAME;
+    else process.env.NEXT_PUBLIC_BRAND_NAME = originalBrand;
+    if (originalFrom === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = originalFrom;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("uses brand.emailFrom in sendOutreachEmail From header", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(sentFrom).toBe(
+      "Local Site Studio <noreply@marisstellalabs.com>",
+    );
+    expect(sentFrom).not.toContain("outreach@updates.localsitestudio.com");
+  });
+
+  it("uses brand.emailFrom in sendOperatorDailyDigest From header", async () => {
+    const { sendOperatorDailyDigest } = await import("./resend");
+    await sendOperatorDailyDigest("ops@example.com", "<p>digest</p>");
+    expect(sentFrom).toBe(
+      "Local Site Studio <noreply@marisstellalabs.com>",
+    );
+    expect(sentFrom).not.toContain("outreach@updates.localsitestudio.com");
+  });
+
+  it("picks up a trimmed EMAIL_FROM override", async () => {
+    process.env.EMAIL_FROM = "  hello@acme.cafe  ";
+    vi.resetModules();
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(sentFrom).toBe("Local Site Studio <hello@acme.cafe>");
+  });
+});
