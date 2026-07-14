@@ -9,13 +9,7 @@ import {
   sessionMaxAgeSeconds,
   tryCreateSessionFromPassword,
 } from "@/lib/auth/operator";
-
-function safeNextPath(raw: string | undefined | null): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
-    return "/dashboard";
-  }
-  return raw;
-}
+import { safeNextPath } from "@/lib/auth/safe-next-path";
 
 export async function loginOperatorAction(formData: FormData): Promise<void> {
   if (!isOperatorAuthConfigured()) {

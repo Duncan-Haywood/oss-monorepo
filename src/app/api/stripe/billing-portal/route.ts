@@ -28,7 +28,7 @@ interface BillingPortalBody {
  * history) could get Stripe to mint a real billing.stripe.com portal URL
  * whose "Return to [merchant]" link points anywhere they choose, using the
  * merchant's trusted Stripe relationship as an open-redirect gateway.
- * Mirrors safeNextPath in src/app/dashboard/login/actions.ts.
+ * Mirrors safeNextPath in src/lib/auth/safe-next-path.ts (login page + action).
  */
 function isSameOriginReturnUrl(candidate: string, appUrl: string): boolean {
   try {

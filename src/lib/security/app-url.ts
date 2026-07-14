@@ -1,7 +1,7 @@
 /**
  * Derive a trusted app base URL for links/redirects that must never trust a
  * raw, attacker-influenceable value verbatim — mirrors safeNextPath
- * (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl
+ * (src/lib/auth/safe-next-path.ts) / isSameOriginReturnUrl
  * (src/app/api/stripe/billing-portal/route.ts).
  *
  * Two resolvers, two threat models:
