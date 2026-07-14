@@ -268,9 +268,15 @@ export default function ArchitectureDocPage() {
         <code>planCommerceWebhookSideEffects</code>) — but{" "}
         <code>enqueueProductionHandoff</code> still runs on every delivery (idempotent on slug +
         stripeSessionId) so a first-delivery crash after the order insert cannot permanently skip
-        Phase 5 fulfillment. After each successful buyer email, the webhook appends a durable
-        handoff note embedding the session id; marker-write failures return <code>500</code> so
-        Stripe retries. If required fulfillment writes fail (
+        Phase 5 fulfillment. The receipt/DNS sent-marker is written only after the send resolves{" "}
+        <code>{"{ success: true }"}</code> — <code>sendReceiptEmail</code>/<code>sendEmail</code> never
+        throw (a suppression-list hit or Resend failure resolves{" "}
+        <code>{"{ success: false }"}</code> instead), so a marker write gated only on the{" "}
+        <code>await</code> not rejecting would mark a suppressed or failed send &ldquo;sent&rdquo;
+        forever and permanently defeat the redelivery-recovery path above. After each successful
+        buyer email, the webhook appends a durable handoff note embedding the session id;
+        marker-write failures return <code>500</code> so Stripe retries. If required fulfillment
+        writes fail (
         <code>recordLeadPayment</code> / handoff enqueue, or commerce{" "}
         <code>insertCommerceOrder</code>), the webhook returns <code>500</code> so Stripe retries —
         never ACK <code>200</code> after swallowing those errors. When{" "}

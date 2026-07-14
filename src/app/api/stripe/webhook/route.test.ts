@@ -131,8 +131,8 @@ describe("POST /api/stripe/webhook", () => {
     updateDeployHandoffStatus.mockReset();
     updateDeployHandoffVercelProject.mockReset();
     updateLeadStage.mockReset();
-    sendEmail.mockReset().mockResolvedValue(undefined);
-    sendReceiptEmail.mockReset().mockResolvedValue(undefined);
+    sendEmail.mockReset().mockResolvedValue({ success: true });
+    sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
     sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue(undefined);
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
@@ -350,6 +350,66 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(sendEmail).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not mark the receipt sent when sendReceiptEmail resolves success:false (suppressed), so redelivery retries it", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      sendReceiptEmail.mockResolvedValue({ success: false, reason: "suppressed" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendReceiptEmail).toHaveBeenCalledTimes(1);
+      // Only the DNS handoff marker is written — the suppressed receipt never gets one.
+      expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
+      expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.anything(),
+        [expect.stringContaining("DNS handoff email sent")],
+        { requireConvex: true },
+      );
+    });
+
+    it("does not mark the DNS handoff email sent when sendEmail resolves success:false, so redelivery retries it", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      sendEmail.mockResolvedValue({ success: false, error: "Resend API error" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+      // Only the receipt marker is written — the failed DNS email never gets one.
+      expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(1);
+      expect(updateDeployHandoffStatus).toHaveBeenCalledWith(
+        "demo-cafe",
+        expect.anything(),
+        [expect.stringContaining("Buyer receipt email sent")],
+        { requireConvex: true },
+      );
     });
   });
 
