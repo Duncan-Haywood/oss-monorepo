@@ -5900,12 +5900,12 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-14",
     branch: "cursor/business-process-evolution-fff2",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #157 (Email 2/3 follow-up action Vitest). Claimed reply-to-inquiry-action-test-coverage — replyToInquiryAction had zero action-level Vitest despite being the operator Starter inquiry Reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify). Left dispose-cold-lead-action-test-coverage free for sibling prompt-process automation; queued update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #157 (Email 2/3 follow-up action Vitest). Claimed reply-to-inquiry-action-test-coverage — replyToInquiryAction had zero action-level Vitest despite being the operator Starter inquiry Reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify). Same-minute dual claim with prompt-process-evolution-f9b1 (earlier claim-only remote; this branch already pushed feature body — keep shipping per AGENT_PROTOCOL; sibling should pivot to dispose-cold-lead). Left dispose-cold-lead-action-test-coverage free; queued update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/dashboard/leads/reply-to-inquiry-action.test.ts — 14 tests locking auth fail, empty inquiry id, empty/whitespace + over-long reply body, missing / archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend (trimmed body), ConvexPrimaryWriteError skip-send, null-mark not-found, email trim, suppression / Resend failure after durable mark (returns inquiry; no revalidate), and mock send flag",
       "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside reply-persist / reply.ts helpers",
       "NEXT_STEPS: reply-to-inquiry-action-test-coverage done; dispose-cold-lead-action-test-coverage left free; queued update-inquiry-status-action-test-coverage",
-      "AGENT_PROTOCOL — claim Reply vs cold Re-engage/Close action Vitest separately; prefer cold-disposition / inquiry-status action Vitest twins next",
+      "AGENT_PROTOCOL — claim Reply vs cold Re-engage/Close action Vitest separately; prefer cold-disposition / inquiry-status action Vitest twins next; keep feature body when sibling only has claim",
       "BUSINESS_DECISIONS — documented why Starter inquiry Reply action glue Vitest beats inventing optional aggregates after Email 2/3 follow-up coverage",
       "Verified: npm test (872 passed — Reply action 14 from 858) + lint + build",
     ],
