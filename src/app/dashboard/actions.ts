@@ -24,19 +24,19 @@ export async function bootstrapStripePricesAction(): Promise<BootstrapStripePric
   try {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
-      return { success: false, error: auth.error };
+      return { success: false as const, error: auth.error };
     }
 
     const gate = assessStripeBootstrapGate();
     if (!gate.ok) {
-      return { success: false, error: gate.message };
+      return { success: false as const, error: gate.message };
     }
 
     const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
     if (!secretKey) {
       // assessStripeBootstrapGate already checked; belt-and-suspenders for tsc
       return {
-        success: false,
+        success: false as const,
         error: "Set STRIPE_SECRET_KEY before bootstrapping prices.",
       };
     }
@@ -44,7 +44,7 @@ export async function bootstrapStripePricesAction(): Promise<BootstrapStripePric
     const stripe = new Stripe(secretKey);
     const { results, envSnippet } = await bootstrapStripePrices(stripe);
     return {
-      success: true,
+      success: true as const,
       results,
       envSnippet,
       next: "Paste envSnippet into .env.local / hosting secrets, set STRIPE_WEBHOOK_SECRET, then unset ALLOW_STRIPE_BOOTSTRAP.",
@@ -52,7 +52,7 @@ export async function bootstrapStripePricesAction(): Promise<BootstrapStripePric
   } catch (error) {
     console.error("Error in bootstrapStripePricesAction:", error);
     return {
-      success: false,
+      success: false as const,
       error: error instanceof Error ? error.message : "Unknown Stripe error",
     };
   }

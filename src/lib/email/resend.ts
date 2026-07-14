@@ -36,7 +36,7 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
   const suppressed = await isEmailSuppressed(normalizedTo);
   if (suppressed) {
     console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
-    return { success: false, reason: "suppressed" };
+    return { success: false as const, reason: "suppressed" };
   }
 
   // Determine base URL for unsubscribe link
@@ -76,7 +76,7 @@ Lead: ${leadSlug || "None"}
 Content Preview: ${html.substring(0, 150)}...
 CAN-SPAM Footer: Applied (${brand.postalAddress})
 Unsubscribe URL: ${unsubscribeUrl}`);
-    return { success: true, mock: true };
+    return { success: true as const, mock: true };
   }
 
   // 3. Make HTTP request to Resend
@@ -103,10 +103,10 @@ Unsubscribe URL: ${unsubscribeUrl}`);
 
     const data = await response.json();
     console.log(`[Email Sent via Resend] ID: ${data.id} to ${to}`);
-    return { success: true, emailId: data.id };
+    return { success: true as const, emailId: data.id };
   } catch (error) {
     console.error(`Failed to send email to ${to} via Resend:`, error);
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 
@@ -307,7 +307,7 @@ export async function sendOperatorDailyDigest(to: string, html: string) {
 To: ${to}
 Subject: ${subject}
 Content Preview: ${html.substring(0, 150)}...`);
-    return { success: true, mock: true };
+    return { success: true as const, mock: true };
   }
 
   try {
@@ -333,10 +333,10 @@ Content Preview: ${html.substring(0, 150)}...`);
 
     const data = await response.json();
     console.log(`[Email Sent via Resend] ID: ${data.id} to ${to}`);
-    return { success: true, emailId: data.id };
+    return { success: true as const, emailId: data.id };
   } catch (error) {
     console.error(`Failed to send daily digest to ${to} via Resend:`, error);
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 

@@ -384,7 +384,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
   try {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
-      return { success: false, error: auth.error };
+      return { success: false as const, error: auth.error };
     }
 
     // Every sibling write action in this file (notes, snooze, cold
@@ -395,7 +395,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     // returned { success: true } with nothing actually written.
     const lead = await getLeadBySlug(slug);
     if (!lead) {
-      return { success: false, error: "Lead not found" };
+      return { success: false as const, error: "Lead not found" };
     }
 
     try {
@@ -403,7 +403,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
-          success: false,
+          success: false as const,
           error:
             "Could not save the stage in the shared store — other instances may not see this move. Retry in a moment.",
         };
@@ -421,7 +421,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
         } catch (error) {
           if (error instanceof ConvexPrimaryWriteError) {
             return {
-              success: false,
+              success: false as const,
               error:
                 "Stage saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry in a moment.",
             };
@@ -438,7 +438,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
         );
         if (!sent.success) {
           return {
-            success: false,
+            success: false as const,
             error:
               "reason" in sent && sent.reason === "suppressed"
                 ? "Stage saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
@@ -452,10 +452,10 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
 
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${slug}`);
-    return { success: true };
+    return { success: true as const };
   } catch (error) {
     console.error("Error in updateLeadStageAction:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    return { success: false as const, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 
@@ -1133,11 +1133,11 @@ export async function importLeadsCsvAction(input: {
   try {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
-      return { success: false, error: auth.error };
+      return { success: false as const, error: auth.error };
     }
 
     if (!input.csvText || input.csvText.trim().length === 0) {
-      return { success: false, error: "CSV text is empty" };
+      return { success: false as const, error: "CSV text is empty" };
     }
 
     const parsed = parseLeadsCsv(input.csvText, {
@@ -1147,7 +1147,7 @@ export async function importLeadsCsvAction(input: {
 
     if (parsed.leads.length === 0) {
       return {
-        success: false,
+        success: false as const,
         error: parsed.errors[0]?.message ?? "No valid leads found in CSV",
         imported: 0,
         errors: parsed.errors,
@@ -1195,7 +1195,7 @@ export async function importLeadsCsvAction(input: {
 
     if (importedSlugs.length === 0) {
       return {
-        success: false,
+        success: false as const,
         error: upsertErrors[0]?.message ?? "No leads imported",
         imported: 0,
         errors: upsertErrors,
@@ -1204,7 +1204,7 @@ export async function importLeadsCsvAction(input: {
     }
 
     return {
-      success: true,
+      success: true as const,
       imported: importedSlugs.length,
       slugs: importedSlugs,
       errors: upsertErrors,
@@ -1213,7 +1213,7 @@ export async function importLeadsCsvAction(input: {
   } catch (error) {
     console.error("Error in importLeadsCsvAction:", error);
     return {
-      success: false,
+      success: false as const,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
