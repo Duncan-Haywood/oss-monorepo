@@ -234,3 +234,94 @@ describe("resend.ts — EMAIL_FROM From header", () => {
     expect(sentFrom).toBe("Local Site Studio <hello@acme.cafe>");
   });
 });
+
+describe("resend.ts — href URL HTML escaping", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  let sentHtml: string;
+
+  // Quote + ampersand break out of href="..." or inject extra attributes unless
+  // escapeHtmlForEmail runs before interpolation (sibling: client-receipt /
+  // deliver-pack / dns-email / daily-digest already escape URLs).
+  const UNSAFE_APP_URL = `https://evil.example/"onclick="alert(1)&x=1`;
+  const ESCAPED_QUOTE_FRAGMENT = "&quot;onclick=&quot;";
+  const ESCAPED_AMP_FRAGMENT = "&amp;x=1";
+
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    process.env.NEXT_PUBLIC_APP_URL = UNSAFE_APP_URL;
+    sentHtml = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        sentHtml = body.html;
+        return {
+          ok: true,
+          json: async () => ({ id: "email_test" }),
+        } as Response;
+      }),
+    );
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env.RESEND_API_KEY = originalKey;
+    if (originalAppUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  function expectHrefSafe() {
+    // Raw quote-breakout must not survive into the HTML body.
+    expect(sentHtml).not.toContain('"onclick="');
+    expect(sentHtml).toContain(ESCAPED_QUOTE_FRAGMENT);
+    // Query-string & in APP_URL / checkout URLs becomes &amp; inside attributes.
+    expect(sentHtml).toContain(ESCAPED_AMP_FRAGMENT);
+    // CAN-SPAM privacy + unsubscribe hrefs also escape the base URL.
+    expect(sentHtml).toMatch(/href="[^"]*\/privacy"/);
+    expect(sentHtml).toMatch(/href="[^"]*\/api\/unsubscribe[^"]*"/);
+  }
+
+  it("escapes baseUrl-derived hrefs in sendOutreachEmail + CAN-SPAM footer", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
+    expectHrefSafe();
+    expect(sentHtml).toContain("href=");
+  });
+
+  it("escapes checkout href in sendCheckoutAbandonedRecovery", async () => {
+    const { sendCheckoutAbandonedRecovery } = await import("./resend");
+    await sendCheckoutAbandonedRecovery(
+      "owner@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "starter",
+    );
+    expectHrefSafe();
+  });
+
+  it("escapes catalog href in sendCommerceAbandonedRecovery", async () => {
+    const { sendCommerceAbandonedRecovery } = await import("./resend");
+    await sendCommerceAbandonedRecovery(
+      "shopper@example.com",
+      "Demo Cafe",
+      "demo-cafe",
+      "Latte",
+    );
+    expectHrefSafe();
+  });
+
+  it("escapes checkout + preview hrefs in sendStarterUpsellEmail", async () => {
+    const { sendStarterUpsellEmail } = await import("./resend");
+    await sendStarterUpsellEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      targetTier: "growth",
+      monthlyPriceUsd: 99,
+    });
+    expectHrefSafe();
+  });
+});

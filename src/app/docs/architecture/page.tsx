@@ -291,9 +291,13 @@ export default function ArchitectureDocPage() {
         instances&apos; <code>isEmailSuppressed</code> (Convex-first) would never see. Every
         dynamic value in outbound HTML — including env-sourced{" "}
         <code>brand.name</code> / <code>brand.legalEntity</code> /{" "}
-        <code>brand.postalAddress</code> in signatures and the shared footer, and the email
-        echoed on the <code>GET /api/unsubscribe</code> success page — goes through{" "}
-        <code>escapeHtmlForEmail</code>; subject lines and From display names stay plain text.
+        <code>brand.postalAddress</code> in signatures and the shared footer, the email
+        echoed on the <code>GET /api/unsubscribe</code> success page, and every{" "}
+        <code>href</code> built from <code>NEXT_PUBLIC_APP_URL</code> / preview / checkout /
+        unsubscribe URLs in <code>src/lib/email/resend.ts</code> (same contract as
+        client-receipt, marketing/voice deliver-pack, DNS handoff, and daily-digest) — goes
+        through <code>escapeHtmlForEmail</code>; subject lines and From display names stay plain
+        text.
         Two-layer brand env reads live in <code>src/lib/brand.ts</code> (getters; whitespace-only
         counts as unset; <code>NEXT_PUBLIC_BRAND_NAME</code> &gt; legacy{" "}
         <code>NEXT_PUBLIC_APP_NAME</code>) with direct Vitest coverage in{" "}
