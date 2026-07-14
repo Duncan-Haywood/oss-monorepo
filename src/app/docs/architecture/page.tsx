@@ -383,7 +383,20 @@ export default function ArchitectureDocPage() {
         <code>organic-*</code> attribution slug at session create (
         <code>resolveBundleCheckoutLeadSlug</code>) so webhook fulfillment, payment stubs, and
         deploy handoffs still run after Stripe collects money — empty{" "}
-        <code>metadata.slug</code> previously skipped the entire paid path. Rows carry a{" "}
+        <code>metadata.slug</code> previously skipped the entire paid path.{" "}
+        <code>resolveBundleCheckoutLeadSlug</code> also sanitizes an explicit client-supplied
+        slug to <code>[a-z0-9-]+</code> (mirroring{" "}
+        <code>slugifyBusinessName</code> / <code>addLeadAction</code>&apos;s explicit-slug
+        sanitize — the one other lead-slug-creation path this had drifted from) before it can be
+        persisted by the webhook as a brand-new paid lead — an unsanitized slug containing a{" "}
+        <code>..</code> segment would otherwise flow into{" "}
+        <code>suggestedHost</code> / <code>previewUrl</code> (
+        <code>src/lib/deploy/handoff.ts</code>) and <code>proxy.ts</code>&apos;s
+        preview-subdomain rewrite, where URL path normalization collapses a traversal segment
+        out of the intended single-path-segment slug — the same bug class{" "}
+        <code>safeNextPath</code> now rejects on the login-redirect surface, just reachable via
+        an unauthenticated paid Checkout Session instead of the login page&apos;s{" "}
+        <code>next</code> query param. Rows carry a{" "}
         <code>kind</code> discriminator:{" "}
         <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer
         Buy now). Sessions still <code>open</code> 2+ hours after creation surface on separate
