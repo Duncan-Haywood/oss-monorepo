@@ -201,6 +201,8 @@ export const AGENT_PROTOCOL = [
   "open-billing-portal-action-test-coverage done: src/app/dashboard/leads/open-billing-portal-action.test.ts locks requireOperatorAuth, empty/whitespace slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host+proto > localhost) ending in /dashboard/leads, createBillingPortalForLead success url + error passthrough, and Error / non-Error throws — create-portal-session helper + billing-portal route suites alone are not enough for the dashboard Manage billing glue. Twin of archive-orphan-commerce-stripe-products-action-test-coverage (dc97 / PR #154). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly MRR upsell vs Email 2/3 outreach action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When send-starter-upsell-action-test-coverage and send-follow-up-action-test-coverage are both free in the same cron window, claim different ones (Starter → MRR Upsell vs Email 2/3 outreach) — they touch different action surfaces and both lock revenue-critical operator paths that starter-upsell / outreach helper suites do not cover.",
   "send-starter-upsell-action-test-coverage done: src/app/dashboard/leads/send-starter-upsell-action.test.ts locks requireOperatorAuth, empty/whitespace slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce and missing email), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), mock send flag, leadSlug order filtering, and email trim — starter-upsell helper suites alone are not enough for the dashboard Upsell glue. Twin of send-follow-up-action-test-coverage (left free for siblings). When free NEXT_STEPS stay gated, prefer send-follow-up-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "send-follow-up-action-test-coverage done: src/app/dashboard/leads/send-follow-up-action.test.ts locks requireOperatorAuth, empty slug, missing lead/email, paid/live/closed stage gates, Email 1 prerequisite / sequence-complete, OUTREACH_CADENCE_CONVEX_PRIMARY mark-before-Resend, ConvexPrimaryWriteError skip-send, Email 2 vs Email 3 dispatch, suppression / Resend failure after durable mark (returns outreachStep; no revalidate), and mock send flag — outreach-followups helper suites alone are not enough for the dashboard Follow-up glue. Twin of send-starter-upsell-action-test-coverage (cd3b / PR #156). When free NEXT_STEPS stay gated, prefer reply-to-inquiry-action-test-coverage / dispose-cold-lead-action-test-coverage (sibling-friendly CRM reply vs cold Re-engage/Close action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When reply-to-inquiry-action-test-coverage and dispose-cold-lead-action-test-coverage are both free in the same cron window, claim different ones (Starter inquiry reply persist-then-notify vs cold Re-engage/Close + optional Email 1) — they touch different action surfaces and both lock conversion-critical CRM paths that inquiry/cold helper suites do not cover.",
 ] as const;
 
 /**
@@ -1504,10 +1506,24 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "send-follow-up-action-test-coverage",
     summary:
-      "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendFollowUpAction is the operator Email 2/3 outreach path (OUTREACH_CADENCE_CONVEX_PRIMARY persist-then-notify) — outreach helper suites alone are not enough for action glue. Sibling-friendly with send-starter-upsell-action-test-coverage; prefer when open-billing-portal action coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendFollowUpAction is the operator Email 2/3 outreach path (OUTREACH_CADENCE_CONVEX_PRIMARY persist-then-notify) — outreach helper suites alone are not enough for action glue. Shipped: send-follow-up-action.test.ts (14 tests). Twin of send-starter-upsell-action-test-coverage (cd3b / PR #156).",
+    status: "done",
     phase: "Phase 4 — Outreach",
     owner: "cursor/prompt-process-evolution-6b73",
+  },
+  {
+    id: "reply-to-inquiry-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: replyToInquiryAction is the operator Starter inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify) — inquiry helper suites alone are not enough for action glue. Sibling-friendly with dispose-cold-lead-action-test-coverage; prefer when send-follow-up action coverage is done.",
+    status: "todo",
+    phase: "Phase 3 — CRM & inbox",
+  },
+  {
+    id: "dispose-cold-lead-action-test-coverage",
+    summary:
+      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage; prefer when send-follow-up action coverage is done.",
+    status: "todo",
+    phase: "Phase 4 — Outreach",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3281,6 +3297,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for sendStarterUpsellAction (Starter → MRR Upsell) when open-billing-portal-action-test-coverage is done — starter-upsell helper suites alone do not lock auth, empty slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), or leadSlug order filtering. Leave send-follow-up-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Upsell is the operator path that converts one-time $500 Starter customers into Growth/Complete MRR from /dashboard/leads. A future eligibility soft-pass (Billing + Upsell both firing), wrong target tier, suppressed-email revalidate, or unfiltered cross-lead orders regression would not fail Vitest without action glue coverage — the same class of gap Manage billing / Archive orphans / Email pack action suites already closed — and would either spam ineligible leads or miss the highest-leverage MRR unlock. Prefer locking that upsell path, then Email 2/3 follow-up action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for sendFollowUpAction (Email 2/3 outreach) when send-starter-upsell-action-test-coverage is claimed/done by a sibling — outreach-followups helper suites alone do not lock auth, empty slug, missing lead/email, paid/live/closed stage gates, Email 1 prerequisite / sequence-complete, OUTREACH_CADENCE_CONVEX_PRIMARY mark-before-Resend, ConvexPrimaryWriteError skip-send, Email 2 vs Email 3 dispatch, or suppression / Resend failure after durable mark (returns outreachStep; no revalidate). Queue reply-to-inquiry-action-test-coverage + dispose-cold-lead-action-test-coverage as sibling-friendly CRM twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Follow-up is the operator path that advances Email 2/3 from /dashboard/leads — the top-of-funnel conversion step after Email 1. A future soft-fallback that sends before marking, skipped requireConvex, wrong Email 2/3 dispatch, or revalidate-on-suppression regression would not fail Vitest without action glue coverage — the same class of gap Starter upsell / checkout-recovery / Email pack action suites already closed — and would risk duplicate outreach (CAN-SPAM) or silent stage desync across Convex-first instances. Prefer locking that outreach path, then inquiry-reply / cold-disposition action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5840,5 +5863,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (844 passed — Starter upsell action 13 from 831) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(252, 253),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-6b73",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #156 (Starter upsell action Vitest). Sibling business-process-evolution-cd3b claimed send-starter-upsell-action-test-coverage first — pivoted per AGENT_PROTOCOL to send-follow-up-action-test-coverage. sendFollowUpAction had zero action-level Vitest despite being the operator Email 2/3 outreach path (OUTREACH_CADENCE_CONVEX_PRIMARY persist-then-notify). Queued reply-to-inquiry + dispose-cold-lead action Vitest twins for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/send-follow-up-action.test.ts — 14 tests locking auth fail, empty slug, missing lead/email, paid/live/closed stage gates, Email 1 prerequisite / sequence-complete, OUTREACH_CADENCE_CONVEX_PRIMARY mark-before-Resend, ConvexPrimaryWriteError skip-send, Email 2 vs Email 3 dispatch, suppression / Resend failure after durable mark (returns outreachStep; no revalidate), and mock send flag",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside outreach-followups helpers",
+      "NEXT_STEPS: send-follow-up-action-test-coverage done; send-starter-upsell-action-test-coverage done (cd3b / PR #156); queued reply-to-inquiry-action-test-coverage + dispose-cold-lead-action-test-coverage",
+      "AGENT_PROTOCOL — claim Starter upsell vs Email 2/3 follow-up action Vitest separately; prefer inquiry-reply / cold-disposition action Vitest twins next",
+      "BUSINESS_DECISIONS — documented why Email 2/3 follow-up action glue Vitest beats inventing optional aggregates after Starter upsell coverage",
+      "Verified: npm test (PLACEHOLDER) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(253, 254),
   },
 ];

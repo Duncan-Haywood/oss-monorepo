@@ -104,7 +104,11 @@ export default function RoadmapDocPage() {
         1/2/3 send durably marks the step before calling Resend, and with Convex configured
         that mark uses <code>requireConvex</code> (
         <code>outreach-cadence-persist-then-send</code>) so a mutation failure skips the send
-        rather than risking a duplicate on another instance. Lead quality
+        rather than risking a duplicate on another instance. Operator{" "}
+        <strong>Follow-up</strong> action glue is covered by{" "}
+        <code>send-follow-up-action.test.ts</code> (auth, stage/email gates, mark-before-Resend,
+        Email 2 vs 3 dispatch, ConvexPrimaryWriteError skip-send) beside the
+        outreach-followups helper suite. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links;

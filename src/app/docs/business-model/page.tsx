@@ -83,8 +83,10 @@ export default function BusinessModelDocPage() {
       <p>
         Operator-triggered from <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>{" "}
         (not an auto-cron). Persists <code>outreachStep</code> + <code>lastOutreachAt</code> on
-        the lead. Cadence defaults: Email 2 after 3 days, Email 3 after 4 more days. Suppression
-        list still blocks sends.
+        the lead before Resend (persist-then-notify). Cadence defaults: Email 2 after 3 days,
+        Email 3 after 4 more days. Suppression list still blocks sends. Action-level Vitest in{" "}
+        <code>send-follow-up-action.test.ts</code> locks the dashboard Follow-up glue beside
+        the outreach-followups helpers.
       </p>
       <ul>
         <li>

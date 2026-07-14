@@ -435,6 +435,12 @@ export default function ArchitectureDocPage() {
         successful send would otherwise leave the lead looking due for the same step on another
         instance and risk a duplicate Email 2/3. A Resend failure right after a successful mark
         leaves that one step off the due queue until the operator retries from the dashboard.
+        The operator <code>sendFollowUpAction</code> path has its own action-level Vitest in{" "}
+        <code>send-follow-up-action.test.ts</code> — auth, stage/email gates, Email 1
+        prerequisite / sequence-complete, mark-before-Resend, ConvexPrimaryWriteError
+        skip-send, Email 2 vs Email 3 dispatch, and suppression / Resend failure after a
+        durable mark — so dashboard glue is not left to the outreach-followups helper suite
+        alone.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>
