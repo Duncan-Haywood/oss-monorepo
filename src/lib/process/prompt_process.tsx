@@ -219,6 +219,8 @@ export const AGENT_PROTOCOL = [
   "import-leads-csv-action-test-coverage done: src/app/dashboard/leads/import-leads-csv-action.test.ts locks requireOperatorAuth, empty CSV, no-valid-leads parse failure, success upsert with LEAD_UPSERT_CONVEX_PRIMARY + revalidate, existing-slug skip (no upsert), in-batch duplicate slug auto-suffix at parse, ConvexPrimaryWriteError per-row retry (siblings still import), all-fail / all-collision → success:false, and Error / non-Error throws — csv-import / upsert-persist helper suites alone are not enough for the dashboard Import CSV glue. Twin of mark-handoff-live-action-test-coverage (1ca9; folded here). When free NEXT_STEPS stay gated, prefer assign-vercel-project-action-test-coverage / assign-custom-domain-action-test-coverage (sibling-friendly dedicated-project vs Host→preview routing) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "mark-handoff-live-action-test-coverage done: src/app/dashboard/leads/mark-handoff-live-action.test.ts locks requireOperatorAuth, empty slug, no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via markHandoffLive (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads + /preview), and Error / non-Error throws — handoff-persist / handoff helper suites alone are not enough for the dashboard Mark live glue. Twin of import-leads-csv-action-test-coverage (3be7; folded here). When free NEXT_STEPS stay gated, prefer assign-vercel-project-action-test-coverage / assign-custom-domain-action-test-coverage (sibling-friendly dedicated-project vs Host→preview routing) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When assign-vercel-project-action-test-coverage and assign-custom-domain-action-test-coverage are both free in the same cron window, claim different ones (Assign Vercel project isolation vs Save domain Host→preview routing) — they touch different action surfaces and both lock DEPLOY_HANDOFF_CONVEX_PRIMARY operator paths that handoff helper suites do not cover.",
+  "assign-custom-domain-action-test-coverage done: src/app/dashboard/leads/assign-custom-domain-action.test.ts locks requireOperatorAuth, empty slug, trim-to-null clear (whitespace domain → null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignCustomDomainAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), trimmed domain pass-through, and Error / non-Error throws — handoff / custom-domain-routing helper suites alone are not enough for the dashboard Save domain glue. Twin of assign-vercel-project-action-test-coverage (699c; folded via this PR). When free NEXT_STEPS stay gated after both Assign twins land, prefer get-commerce-catalog-action-test-coverage (thin read-path twin seeding Save/Sync) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "assign-vercel-project-action-test-coverage done: src/app/dashboard/leads/assign-vercel-project-action.test.ts locks requireOperatorAuth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignVercelProjectAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), and Error / non-Error throws — handoff helper suites alone are not enough for the dashboard Assign Vercel project glue. Twin of assign-custom-domain-action-test-coverage (d08a; folded here). When free NEXT_STEPS stay gated, prefer get-commerce-catalog-action-test-coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1602,18 +1604,25 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "assign-vercel-project-action-test-coverage",
     summary:
-      "Empty-backlog twin after CSV import / Mark live action Vitest: assignVercelProjectAction is the operator Assign Vercel project path (DEPLOY_HANDOFF_CONVEX_PRIMARY + Domains API provision) — handoff helper suites alone are not enough for action glue. Sibling-friendly with assign-custom-domain-action-test-coverage; prefer when mark-handoff-live-action-test-coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after CSV import / Mark live action Vitest: assignVercelProjectAction is the operator Assign Vercel project path (DEPLOY_HANDOFF_CONVEX_PRIMARY + Domains API provision) — handoff helper suites alone are not enough for action glue. Shipped: assign-vercel-project-action.test.ts (9 tests). Twin of assign-custom-domain-action-test-coverage (d08a; folded here).",
+    status: "done",
     phase: "Phase 5 — Fulfill & deploy",
     owner: "cursor/business-process-evolution-699c",
   },
   {
     id: "assign-custom-domain-action-test-coverage",
     summary:
-      "Empty-backlog twin after CSV import / Mark live action Vitest: assignCustomDomainAction is the operator Save domain Host→preview path (DEPLOY_HANDOFF_CONVEX_PRIMARY + custom-domain routing) — handoff helper suites alone are not enough for action glue. Sibling-friendly with assign-vercel-project-action-test-coverage; prefer when import-leads-csv-action-test-coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after CSV import / Mark live action Vitest: assignCustomDomainAction is the operator Save domain Host→preview path (DEPLOY_HANDOFF_CONVEX_PRIMARY + custom-domain routing) — handoff helper suites alone are not enough for action glue. Shipped: assign-custom-domain-action.test.ts (8 tests). Sibling-friendly with assign-vercel-project-action-test-coverage; prefer when import-leads-csv-action-test-coverage is done.",
+    status: "done",
     phase: "Phase 5 — Fulfill & deploy",
     owner: "cursor/prompt-process-evolution-d08a",
+  },
+  {
+    id: "get-commerce-catalog-action-test-coverage",
+    summary:
+      "Empty-backlog after Assign Vercel / Save domain action Vitest: getCommerceCatalogAction is the operator Commerce catalog read path that seeds the Save/Sync panel — save/sync action suites alone are not enough for the thin read glue (auth + slug + getCommerceCatalog). Prefer when both Assign twins are done; sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
+    status: "todo",
+    phase: "Phase 2 — Lead volume",
   },
 ];
 
@@ -3465,6 +3474,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for markHandoffLiveAction (sold Starter/Growth/Complete fulfill) when import-leads-csv-action-test-coverage is claimed by a sibling — handoff-persist / handoff helper suites alone do not lock auth, empty slug, no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed (ConvexPrimaryWriteError; no revalidate), success revalidate, or Error / non-Error throws. Queue assign-vercel-project-action-test-coverage + assign-custom-domain-action-test-coverage as sibling-friendly fulfill twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Mark live is the operator path that closes paid-not-live debt on /dashboard/leads — listDeployHandoffs / pipeline-health / getLeads stage funnel read Convex-first. A future soft-fallback that claims Mark live after a SQLite-only write, revalidates after ConvexPrimaryWriteError, or treats a missing handoff as success would not fail Vitest without action glue coverage — the same class of gap CSV import / Add lead action suites already closed — and would leave paid clients looking pre-live elsewhere (open handoff debt + false funnel). Prefer locking that fulfill glue, then Assign Vercel project / Assign custom domain action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for assignCustomDomainAction (Save domain Host→preview) when import-leads-csv / mark-handoff-live action coverage is done — handoff / custom-domain-routing helper suites alone do not lock auth, empty slug, trim-to-null clear, no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), trimmed domain pass-through, or Error / non-Error throws. Leave assign-vercel-project-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Save domain is the operator path that closes the Starter preview-subdomain → custom-domain handoff promise on /dashboard/leads — src/proxy.ts Host→preview and other instances read Convex-first. A future soft-fallback that claims Save after a SQLite-only write, revalidates after ConvexPrimaryWriteError, or treats whitespace as a literal domain would not fail Vitest without action glue coverage — the same class of gap Mark live / CSV import action suites already closed — and would leave client domains routing to the wrong preview (or nowhere) on other instances. Prefer locking that Host→preview glue, then Assign Vercel project action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for assignVercelProjectAction (Assign Vercel project isolation) when assign-custom-domain-action-test-coverage is claimed by a sibling — handoff helper suites alone do not lock auth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), or Error / non-Error throws. Queue get-commerce-catalog-action-test-coverage as the next thin free todo after both Assign twins land. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Assign Vercel project is the operator path that isolates a paid client's Domains API target on /dashboard/leads — tryProvisionVercelDomain and other instances read Convex-first. A future soft-fallback that claims Assign after a SQLite-only write, revalidates after ConvexPrimaryWriteError, or treats whitespace as a literal project id would not fail Vitest without action glue coverage — the same class of gap Save domain / Mark live action suites already closed — and would leave dedicated-project isolation missing elsewhere (shared-project Domains API targeting + false provision state). Prefer locking that isolation glue, then getCommerceCatalogAction read-path Vitest or empty-backlog audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6209,5 +6232,36 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (969 passed — mark-handoff-live 7 + import-leads-csv 12) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(263, 264),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-d08a",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #166/#167 (CSV import + Mark live action Vitest). Same-cron window as business-process-evolution-699c: claimed assign-custom-domain-action-test-coverage (natural twin after our prior CSV work); left assign-vercel-project free for sibling. assignCustomDomainAction had zero action-level Vitest despite being the operator Save domain Host→preview path (DEPLOY_HANDOFF_CONVEX_PRIMARY + trim-to-null clear). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/assign-custom-domain-action.test.ts — 8 tests locking auth fail, empty slug, trim-to-null clear (whitespace → null), no-handoff null, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate (/dashboard/leads only), trimmed domain pass-through, and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model + production-deploy note action-level Vitest beside Save domain / DEPLOY_HANDOFF_CONVEX_PRIMARY",
+      "NEXT_STEPS: assign-custom-domain-action-test-coverage done; assign-vercel-project-action-test-coverage left todo for sibling",
+      "AGENT_PROTOCOL — documented Save domain action Vitest done; prefer Assign Vercel twin next",
+      "BUSINESS_DECISIONS — documented why Save domain Host→preview action glue Vitest beats inventing optional aggregates after Mark live / CSV coverage",
+      "Verified: npm test (assign-custom-domain 8) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(264, 265),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-699c",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #166/#167 (CSV import + Mark live action Vitest). Sibling prompt-process-evolution-d08a claimed assign-custom-domain-action-test-coverage first — pivoted per AGENT_PROTOCOL to assign-vercel-project-action-test-coverage. assignVercelProjectAction had zero action-level Vitest despite being the operator Assign Vercel project path (DEPLOY_HANDOFF_CONVEX_PRIMARY + Domains API provision). Folded d08a Save domain action Vitest here (both ITERATIONS kept). Queued get-commerce-catalog-action-test-coverage next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/assign-vercel-project-action.test.ts — 9 tests locking auth fail, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate (/dashboard/leads only), and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model + production-deploy note action-level Vitest beside Assign Vercel project / DEPLOY_HANDOFF_CONVEX_PRIMARY",
+      "NEXT_STEPS: assign-vercel-project-action-test-coverage done; assign-custom-domain-action-test-coverage done (d08a folded); queued get-commerce-catalog-action-test-coverage",
+      "AGENT_PROTOCOL — Assign Vercel + Save domain action Vitest both done; prefer getCommerceCatalogAction read-path Vitest or empty-backlog audits next",
+      "BUSINESS_DECISIONS — documented why Assign Vercel project isolation action glue Vitest beats inventing optional aggregates after Save domain coverage",
+      "merge: folded origin/cursor/prompt-process-evolution-d08a (assign-custom-domain action Vitest) — both ITERATIONS kept",
+      "Verified: npm test after fold (assign-vercel-project 9 + assign-custom-domain 8) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(265, 266),
   },
 ];

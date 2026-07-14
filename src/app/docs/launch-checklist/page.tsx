@@ -129,7 +129,9 @@ export default function LaunchChecklistDocPage() {
           dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
           cannot succeed only in instance-local SQLite while Convex-first readers miss the move
           (Mark live already fail-closes via handoff writes; action-level Vitest in{" "}
-          <code>mark-handoff-live-action.test.ts</code> locks that path). A Convex unsubscribe
+          <code>mark-handoff-live-action.test.ts</code> locks that path; Save domain Host→preview
+          likewise fail-closes — <code>assign-custom-domain-action.test.ts</code> locks auth /
+          trim-to-null clear / no-handoff / requireConvex). A Convex unsubscribe
           write failure must return 500 (not a success page after a SQLite-only suppress).
           Re-importing the same CSV (or re-adding the same slug) should skip/reject the collision
           rather than resetting stage or outreach.
@@ -429,7 +431,9 @@ export default function LaunchChecklistDocPage() {
           errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
           that other instances cannot see; a failure shows a retry message instead. Action-level
           Vitest (<code>mark-handoff-live-action.test.ts</code>) locks the Mark live path (auth,
-          empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+          empty slug, no-handoff, requireConvex fail-closed, success revalidate);{" "}
+          <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project;{" "}
+          <code>assign-custom-domain-action.test.ts</code> locks Save domain — all beside handoff
           helpers.
         </li>
         <li>
