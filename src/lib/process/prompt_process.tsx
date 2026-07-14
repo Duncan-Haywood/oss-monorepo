@@ -1625,6 +1625,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Lead volume",
     owner: "claude/quirky-davinci-p8s7o7",
   },
+  {
+    id: "contact-form-notify-send-success-check",
+    summary:
+      "Empty-backlog after PR #190 (sqlite-row-mapping): re-checked the durable-marker-after-unchecked-await class on public routes. POST /api/contact/[slug] awaits sendEmail for the Starter sold business/operator notify but never inspects `{ success }` — sendEmail resolves `{ success: false }` on suppression/Resend failure without throwing, so the route's try/catch only covers the throw path and tests mocked an undefined resolve + rejection. Inquiry CRM trail stays correct (persist-required); the lead/support notify can fail silently with no inquiry-correlated log and no notifySent signal. Shipped: check sent.success, log inquiryId + reason/error on failure, return notifySent on the ok:true response (visitor still succeeds after durable persist).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-c966",
+  },
+  {
+    id: "bootstrap-prices-operator-auth-rate-limit",
+    summary:
+      "Queued from the same empty-backlog audit: POST /api/stripe/bootstrap-prices is gated only by ALLOW_STRIPE_BOOTSTRAP=1 (no requireOperatorAuth, no checkRateLimit) while the dashboard twin bootstrapStripePricesAction is auth-gated. When the flag is briefly set for launch, the public route can mint Stripe Products/Prices without operator session or IP throttling. Prefer adding requireOperatorAuth + checkRateLimit (or documenting why the flag-alone gate is intentional) — left free for a sibling.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
