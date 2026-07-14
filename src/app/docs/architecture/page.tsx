@@ -496,13 +496,18 @@ export default function ArchitectureDocPage() {
         <code>update-inquiry-status-action.test.ts</code> (auth, invalid status,
         requireConvex fail-closed, null not-found, success revalidate) so status-only
         glue is not left to the Reply action suite alone. The dashboard stage dropdown
-        (<code>updateLeadStageAction</code>) passes{" "}
+        (<code>updateLeadStageAction</code>) looks up the lead by slug first — an unknown
+        slug returns <code>Lead not found</code> before any write, matching every sibling
+        action in this file, instead of the SQLite fallback&apos;s{" "}
+        <code>UPDATE ... WHERE slug = ?</code> silently matching zero rows and returning{" "}
+        <code>success: true</code> for a no-op — then passes{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
         Email 1 before Resend and surfaces <code>!sent.success</code> (suppression / Resend
         resolve, not only throws) — locked by{" "}
-        <code>update-lead-stage-action.test.ts</code> (auth, requireConvex fail-closed,
-        non-outreach revalidate, mark-before-Resend, missing-email skip, outreach-mark
-        Convex skip-send, suppression/Resend <code>success:false</code>) so stage glue is not left to stage-persist helpers alone.
+        <code>update-lead-stage-action.test.ts</code> (auth, unknown-slug not-found before
+        any write, requireConvex fail-closed, non-outreach revalidate, mark-before-Resend,
+        missing-email skip, outreach-mark Convex skip-send, suppression/Resend{" "}
+        <code>success:false</code>) so stage glue is not left to stage-persist helpers alone.
         Work next snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
         <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> — locked by{" "}
         <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid /

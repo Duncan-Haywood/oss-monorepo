@@ -381,6 +381,17 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
       return { success: false, error: auth.error };
     }
 
+    // Every sibling write action in this file (notes, snooze, cold
+    // disposition, catalogs, marketing/voice packs, payouts) checks the
+    // record exists before writing. This one didn't: the SQLite fallback's
+    // `UPDATE leads SET status = ? WHERE slug = ?` matches zero rows and
+    // never throws on an unknown slug, so a mistyped/stale slug silently
+    // returned { success: true } with nothing actually written.
+    const lead = await getLeadBySlug(slug);
+    if (!lead) {
+      return { success: false, error: "Lead not found" };
+    }
+
     try {
       await updateLeadStage(slug, stage, LEAD_STAGE_CONVEX_PRIMARY);
     } catch (error) {
@@ -398,8 +409,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     // sending (persist-then-notify) so a Convex mutation failure never lets a
     // real send land unrecorded — see OUTREACH_CADENCE_CONVEX_PRIMARY.
     if (stage === "outreach_sent") {
-      const lead = await getLeadBySlug(slug);
-      if (lead?.email) {
+      if (lead.email) {
         try {
           await recordLeadOutreach(slug, 1, undefined, OUTREACH_CADENCE_CONVEX_PRIMARY);
         } catch (error) {
