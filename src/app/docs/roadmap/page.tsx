@@ -136,8 +136,11 @@ export default function RoadmapDocPage() {
         action-level Vitest in <code>update-lead-stage-action.test.ts</code> (auth,
         requireConvex fail-closed, outreach_sent mark-before-Resend, missing-email skip)
         locks the dropdown glue beside stage-persist helpers. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
-        presets — parks a lead off the queue without wiping score history; action-level Vitest in{" "}
-        <code>snooze-lead-action.test.ts</code>): shipped. Snoozed-lead
+        presets — parks a lead off the queue without wiping score history; with Convex
+        configured, Snooze / Unsnooze uses <code>requireConvex</code> —
+        <code>lead-snooze</code>; action-level Vitest in{" "}
+        <code>snooze-lead-action.test.ts</code> locks auth, preset/clear gates, and
+        ConvexPrimaryWriteError fail-closed): shipped. Snoozed-lead
         pipeline-health aggregate (count + soonest return, plus a Work next footnote — not a second
         priority panel): shipped. Cold-lead
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +

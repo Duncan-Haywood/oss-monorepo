@@ -119,12 +119,13 @@ export default function BusinessModelDocPage() {
         stage-persist helpers.
       </p>
 
-      <h2>Work next snooze</h2>
+      <h2>Work next snooze / Unsnooze</h2>
       <p>
-        Operators park a lead off Work next for 1d / 3d / 7d (or Unsnooze) without wiping
-        score history. Writes use <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>. Action-level
-        Vitest in <code>snooze-lead-action.test.ts</code> locks that dashboard glue beside
-        snooze-persist helpers.
+        Parking a hot lead off Work next (1d / 3d / 7d) or clearing an early return uses{" "}
+        <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> so park / Unsnooze cannot succeed only in
+        instance-local SQLite — follow-ups-due and digest footnotes read Convex-first.
+        Action-level Vitest in <code>snooze-lead-action.test.ts</code> locks that dashboard
+        glue beside snooze-persist helpers.
       </p>
       <ul>
         <li>

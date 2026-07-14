@@ -154,8 +154,8 @@ export default function LaunchChecklistDocPage() {
           <code>update-lead-stage-action.test.ts</code>) locks that path beside stage-persist
           helpers. Work next Snooze / Unsnooze fails closed on{" "}
           <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
-          <code>snooze-lead-action.test.ts</code>) locks that park path beside snooze-persist
-          helpers.
+          <code>snooze-lead-action.test.ts</code>) locks that path beside snooze-persist
+          helpers (auth, preset/clear gates, requireConvex fail-closed).
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
@@ -274,7 +274,9 @@ export default function LaunchChecklistDocPage() {
           From <strong>Work next</strong> or a lead row, snooze 1d / 3d / 7d parks the lead off
           the queue (score preserved); <strong>Unsnooze</strong> brings it back early. Confirm
           the pipeline-health <strong>Snoozed</strong> count matches parked rows (and soonest
-          return time).
+          return time). With Convex configured, Snooze / Unsnooze must fail closed on Convex
+          errors (<code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) — never claim success after a
+          SQLite-only write that leaves the lead looking due (or still parked) elsewhere.
         </li>
         <li>
           After Email 3 + quiet days, a lead shows as <strong>Cold</strong> — use{" "}

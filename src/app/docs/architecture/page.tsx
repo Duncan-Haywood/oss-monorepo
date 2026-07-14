@@ -377,12 +377,12 @@ export default function ArchitectureDocPage() {
         Email 1 before Resend — locked by{" "}
         <code>update-lead-stage-action.test.ts</code> (auth, requireConvex fail-closed,
         non-outreach revalidate, mark-before-Resend, missing-email skip, outreach-mark
-        Convex skip-send) so stage glue is not left to stage-persist helpers alone. Work next
-        Snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
+        Convex skip-send) so stage glue is not left to stage-persist helpers alone.
+        Work next snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
         <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> — locked by{" "}
-        <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid
-        preset, 1d/3d/7d + clear, requireConvex fail-closed) so park glue is not left to
-        snooze-persist helpers alone.
+        <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid /
+        missing preset, 1d/3d/7d + clear with requireConvex, ConvexPrimaryWriteError
+        fail-closed) so park glue is not left to snooze-persist helpers alone.
         Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
@@ -422,7 +422,11 @@ export default function ArchitectureDocPage() {
         <code>LEAD_NOTES_CONVEX_PRIMARY</code>) so Save cannot claim success after a SQLite-only
         write that other instances never see. Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
-        the quality score visible — Unsnooze clears it; parked count also appears on pipeline
+        the quality score visible — Unsnooze clears it; when Convex is configured the write
+        passes <code>requireConvex</code> (<code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) so park /
+        clear cannot succeed only in instance-local SQLite. Action-level Vitest in{" "}
+        <code>snooze-lead-action.test.ts</code> locks that glue beside snooze-persist helpers.
+        Parked count also appears on pipeline
         health and as a footnote on the operator daily digest (count + soonest return) so
         forgotten snoozes do not hide when the operator never opens the dashboard. The same
         digest also lists marketing packs due this UTC month, Starter → MRR upsell candidates,
