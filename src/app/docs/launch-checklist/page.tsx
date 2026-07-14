@@ -149,8 +149,13 @@ export default function LaunchChecklistDocPage() {
           outreach-blocked banner via <code>assessResendEmailEnvReadiness</code> — missing or{" "}
           <code>re_placeholder…</code> keys leave every automated send in silent mock mode
           (operators see success while no inbox is reached). Distinct from the Stripe core /
-          Price-ID banners. Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,
-          the same dashboards show a teal AI-packs-on-stub banner via{" "}
+          Price-ID banners. Until <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder
+          postal address, the same dashboards show a yellow CAN-SPAM-address banner via{" "}
+          <code>assessCompanyAddressEnvReadiness</code> — missing / whitespace / bracket-stub
+          values leave every outreach footer on{" "}
+          <code>[Registered business address — Colorado, USA]</code> via{" "}
+          <code>brand.postalAddress</code>. Until <code>ANTHROPIC_API_KEY</code> is a
+          non-placeholder secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
           <code>assessAnthropicEnvReadiness</code> — Growth/Complete{" "}
           <strong>Generate pack</strong> / Complete <strong>Generate voice</strong> still
           produce packs, but via Stub* template copy (sold AI quality gap).
@@ -267,7 +272,11 @@ export default function LaunchChecklistDocPage() {
           banner via <code>assessBrandNameEnvReadiness</code> — outreach From names, marketing
           footers, voice intros, and CAN-SPAM sender lines otherwise fall back to{" "}
           <code>Your Brand</code> (legacy <code>NEXT_PUBLIC_APP_NAME</code> does not count).
-          Distinct from Stripe / Resend / APP_URL / auth banners.
+          Distinct from Stripe / Resend / APP_URL / auth banners. Until{" "}
+          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a real Colorado postal address, the same
+          dashboards show a yellow CAN-SPAM-address banner via{" "}
+          <code>assessCompanyAddressEnvReadiness</code> — outreach footers otherwise ship the
+          bracket stub via <code>brand.postalAddress</code>.
         </li>
         <li>
           Privacy and Terms are live at <DocLink href="/privacy">/privacy</DocLink> and{" "}

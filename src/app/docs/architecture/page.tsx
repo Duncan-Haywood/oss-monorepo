@@ -225,7 +225,13 @@ export default function ArchitectureDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a rose brand-copy
         banner via <code>assessBrandNameEnvReadiness</code> — matching{" "}
         <code>brand.isConfigured</code> (legacy APP_NAME does not clear it) so Email 1 cannot
-        silently ship as <code>Your Brand</code> while Resend/Stripe/APP_URL look ready.
+        silently ship as <code>Your Brand</code> while Resend/Stripe/APP_URL look ready. Until{" "}
+        <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder postal address, the same
+        dashboards show a yellow CAN-SPAM-address banner via{" "}
+        <code>assessCompanyAddressEnvReadiness</code> (
+        <code>src/lib/brand/company-address-env-readiness.ts</code>) — missing / whitespace /
+        bracket-stub values leave every outreach footer on the documented{" "}
+        <code>brand.postalAddress</code> fallback.
       </p>
 
       <h2>5. Platform voice agent</h2>
