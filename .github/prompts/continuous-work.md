@@ -13,7 +13,7 @@ Keep the business process moving: claim the next free backlog item from `NEXT_ST
 3. Sibling remote branches before claiming:
    - `origin/cursor/business-process-evolution-*`
    - `origin/cursor/prompt-process-evolution-*`
-   - `origin/codex/*`, `origin/gemini/*`, `origin/opencode/*`, `origin/grok/*`
+   - `origin/codex/*`, `origin/gemini/*`, `origin/opencode/*`, `origin/grok/*`, `origin/cursor/*`
    - open PRs
 
 ## Continuous loop
@@ -21,7 +21,7 @@ Keep the business process moving: claim the next free backlog item from `NEXT_ST
 1. Fetch latest `origin/main` and sibling agent branches.
 2. Find the highest-leverage **unclaimed** `NEXT_STEPS` item (`status=todo`, no live owner).
 3. If a sibling already claimed it remotely, pivot to the next free item immediately.
-4. Create a branch named like `codex/continuous-work-<short-id>` (or gemini/opencode/grok).
+4. Create a branch named like `codex/continuous-work-<short-id>` (or gemini/opencode/grok/cursor).
 5. Push a claim commit that sets `status=in_progress` + `owner=<branch>` **before** feature work.
 6. Implement the smallest coherent slice that leaves the repo buildable.
 7. Append an `ITERATIONS` entry; mark the step `done` when shipped.

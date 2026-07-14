@@ -61,7 +61,7 @@ const docs = [
     title: "CLI scheduled agents",
     href: "/docs/cli-agents",
     description:
-      "Codex, Gemini, OpenCode, and Grok Build GitHub Actions — OAuth secrets and prompts.",
+      "Codex, Gemini, OpenCode, Grok Build, and Cursor Agent GitHub Actions — OAuth secrets and prompts.",
   },
 ];
 

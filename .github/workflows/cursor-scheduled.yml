@@ -1,0 +1,132 @@
+name: Cursor Agent scheduled agents
+
+# Cursor Agent CLI. Prefer OAuth cli-config from `agent login`
+# (CURSOR_CLI_CONFIG → ~/.cursor/cli-config.json). Fall back to CURSOR_API_KEY.
+# Runs both repo prompts every 30 minutes.
+
+on:
+  schedule:
+    - cron: "20,50 * * * *"
+  workflow_dispatch:
+    inputs:
+      prompt_kind:
+        description: Which prompt to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - dev-work
+          - continuous-work
+      model:
+        description: Optional Cursor model id (empty = CLI default)
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  resolve-prompts:
+    runs-on: ubuntu-latest
+    outputs:
+      prompts: ${{ steps.set.outputs.prompts }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
+          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
+            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  cursor:
+    needs: resolve-prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt_kind: ${{ fromJSON(needs.resolve-prompts.outputs.prompts) }}
+    concurrency:
+      group: cursor-scheduled-${{ matrix.prompt_kind }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Cursor Agent CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Restore Cursor OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cursor/cli-config.json
+            ~/.cursor/auth.json
+          key: cursor-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
+          restore-keys: |
+            cursor-oauth-auth-
+
+      - name: Seed Cursor auth (OAuth config and/or API key)
+        env:
+          CURSOR_CLI_CONFIG: ${{ secrets.CURSOR_CLI_CONFIG }}
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.cursor"
+          if [ -n "${CURSOR_CLI_CONFIG:-}" ]; then
+            .github/scripts/restore-oauth-auth.sh "$HOME/.cursor/cli-config.json" CURSOR_CLI_CONFIG
+          elif [ -n "${CURSOR_API_KEY:-}" ]; then
+            echo "Using CURSOR_API_KEY (no CURSOR_CLI_CONFIG OAuth seed)."
+          else
+            echo "::error::Set CURSOR_CLI_CONFIG (from ~/.cursor/cli-config.json after agent login) or CURSOR_API_KEY."
+            exit 1
+          fi
+
+      - name: Prepare prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh
+          .github/scripts/prepare-agent-prompt.sh \
+            ".github/prompts/${{ matrix.prompt_kind }}.md" \
+            "cursor-agent" \
+            "${{ matrix.prompt_kind }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "cursor-scheduled[bot]"
+          git config user.email "cursor-scheduled[bot]@users.noreply.github.com"
+
+      - name: Run Cursor Agent (headless)
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL_INPUT: ${{ github.event.inputs.model || '' }}
+        run: |
+          set -euo pipefail
+          command -v agent || command -v cursor-agent
+          AGENT_BIN="$(command -v agent || command -v cursor-agent)"
+          PROMPT="$(cat "$PROMPT_FILE")"
+          ARGS=(-p --force)
+          if [ -n "${MODEL_INPUT:-}" ]; then
+            ARGS+=(--model "$MODEL_INPUT")
+          fi
+          "$AGENT_BIN" "${ARGS[@]}" "$PROMPT"
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cursor/cli-config.json
+            ~/.cursor/auth.json
+          key: cursor-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}

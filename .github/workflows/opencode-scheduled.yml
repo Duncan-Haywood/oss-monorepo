@@ -103,7 +103,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
         with:
-          model: ${{ github.event.inputs.model || 'openai/gpt-5.6-luna' }}
+          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
           prompt: ${{ steps.prompt.outputs.body }}
           use_github_token: true
 
