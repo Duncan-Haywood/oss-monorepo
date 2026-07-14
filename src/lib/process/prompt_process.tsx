@@ -1532,8 +1532,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "update-inquiry-status-action-test-coverage",
     summary:
       "Empty-backlog twin after inquiry Reply action Vitest: updateInquiryStatusAction is the operator mark-read (composer open) / Archive path (INQUIRY_REPLY_CONVEX_PRIMARY fail-closed) — reply helper + replyToInquiryAction suites alone do not lock status-only glue. Sibling-friendly with dispose-cold-lead-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/business-process-evolution-5178",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
