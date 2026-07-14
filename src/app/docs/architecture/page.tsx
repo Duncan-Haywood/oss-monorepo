@@ -68,13 +68,12 @@ export default function ArchitectureDocPage() {
         already-authenticated redirect and <code>loginOperatorAction</code> — rejects
         protocol-relative double-slash hosts, backslash host tricks, non-dashboard paths, and
         login self-targets; never trust <code>startsWith(&quot;/&quot;)</code> alone) — also
-        rejects literal and percent-encoded <code>..</code> path segments (fully
-        percent-decoded before the segment check, failing closed on malformed escapes) since a
-        browser normalizes both <code>/dashboard/../checkout</code> and{" "}
-        <code>/dashboard/%2e%2e/checkout</code> down to <code>/checkout</code> before the
-        redirect is ever sent, which previously escaped the <code>/dashboard/*</code>{" "}
-        restriction despite the raw string still starting with{" "}
-        <code>/dashboard/</code> +{" "}
+        rejects literal and percent-encoded <code>..</code> path segments and login
+        self-loop variants after decode + single-dot collapse (hash{" "}
+        <code>/dashboard/login#…</code>, <code>/dashboard/./login</code>, percent-encoded{" "}
+        <code>%6cogin</code>), failing closed on malformed escapes, since a browser
+        normalizes those to <code>/dashboard/login</code> or out of{" "}
+        <code>/dashboard/*</code> before the redirect is ever sent +{" "}
         <code>operator.test.ts</code> token crypto +{" "}
         <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
         (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
@@ -474,17 +473,19 @@ export default function ArchitectureDocPage() {
         (<code>sendDailyDigestAction</code>) still derives its operator-facing base URL via{" "}
         <code>resolveTrustedAppUrl</code> (<code>src/lib/security/app-url.ts</code>): when{" "}
         <code>NEXT_PUBLIC_APP_URL</code> is unset, the <code>x-forwarded-host</code>/
-        <code>host</code> request headers are not URL-syntax-constrained the way a browser&apos;s
-        address bar is, so the derived candidate is validated as a well-formed absolute URL
-        before use — a malformed or injection-attempt header value falls back to the documented{" "}
-        <code>http://localhost:3000</code> default rather than being trusted verbatim into an
+        <code>host</code> + <code>x-forwarded-proto</code> request headers are validated as a
+        host-only <code>http</code>/<code>https</code> origin via{" "}
+        <code>tryHeaderDerivedAppOrigin</code> — not merely as something <code>new URL()</code>{" "}
+        accepts. Non-http(s) schemes (<code>javascript:</code>, <code>data:</code>), host values
+        that smuggle path/userinfo/query/hash, and malformed/injection hosts all fall back to
+        the documented <code>http://localhost:3000</code> default rather than landing in an
         outbound email href. Money redirects deliberately do <em>not</em> use that header path.
         The daily digest additionally escapes that base URL via <code>escapeHtmlForEmail</code>{" "}
         before interpolating it into the <strong>Open the dashboard</strong> link, closing the
         last unescaped dynamic value in the digest&apos;s outbound HTML. Direct Vitest in{" "}
         <code>src/lib/security/app-url.test.ts</code> locks both resolvers (env precedence,
         forwarded-host derivation for digest, Stripe-redirect env-only contract, localhost
-        fallback, and rejection of malformed/injection host values);{" "}
+        fallback, and rejection of malformed/injection/non-http(s)/path-smuggling host values);{" "}
         <code>send-daily-digest-action.test.ts</code> and{" "}
         <code>open-billing-portal-action.test.ts</code> each lock the rejection at the
         action-glue level.
