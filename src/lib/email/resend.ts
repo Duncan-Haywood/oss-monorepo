@@ -50,6 +50,10 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
   const safeBrand = escapeHtmlForEmail(brand.name);
   const safeLegalEntity = escapeHtmlForEmail(brand.legalEntity);
   const safePostalAddress = escapeHtmlForEmail(brand.postalAddress);
+  // href attributes need the same escape as body text — mirror client-receipt /
+  // deliver-pack / dns-email / daily-digest (escapeHtmlForEmail on every URL).
+  const safeUnsubscribeUrl = escapeHtmlForEmail(unsubscribeUrl);
+  const safePrivacyUrl = escapeHtmlForEmail(`${baseUrl}/privacy`);
   const fullHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #18181b; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="margin-bottom: 30px;">
@@ -60,8 +64,8 @@ export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams
         <p>This email was sent by ${safeBrand} to business contacts of interest.</p>
         <p>${safeLegalEntity} · ${safePostalAddress}</p>
         <p>
-          <a href="${unsubscribeUrl}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a> | 
-          <a href="${baseUrl}/privacy" style="color: #2563eb; text-decoration: underline;">Privacy Policy</a>
+          <a href="${safeUnsubscribeUrl}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a> | 
+          <a href="${safePrivacyUrl}" style="color: #2563eb; text-decoration: underline;">Privacy Policy</a>
         </p>
       </footer>
     </div>
@@ -117,6 +121,8 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const safePreviewUrl = escapeHtmlForEmail(previewUrl);
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
   const subject = `${businessName} — we built your website (free preview)`;
   const html = `
@@ -124,9 +130,9 @@ export async function sendOutreachEmail(to: string, businessName: string, slug: 
     <p style="margin-bottom: 16px;">We've built a custom preview website for your business. It is fully mobile-responsive and tailored to your services.</p>
     <p style="margin-bottom: 24px;">You can view the site and test it live at the link below:</p>
     <div style="margin-bottom: 24px; text-align: center;">
-      <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View Your Preview Site</a>
+      <a href="${safePreviewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View Your Preview Site</a>
     </div>
-    <p style="margin-bottom: 16px;">If you'd like to launch this site under your own custom domain, set up contact forms, or enable online booking/payments, you can <a href="${checkoutUrl}" style="color: #2563eb;">claim it on checkout</a> from the preview page.</p>
+    <p style="margin-bottom: 16px;">If you'd like to launch this site under your own custom domain, set up contact forms, or enable online booking/payments, you can <a href="${safeCheckoutUrl}" style="color: #2563eb;">claim it on checkout</a> from the preview page.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
@@ -145,6 +151,8 @@ export async function sendOutreachFollowUp2(
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const safePreviewUrl = escapeHtmlForEmail(previewUrl);
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
   const subject = `Quick nudge: your ${businessName} preview is ready`;
   const html = `
@@ -152,10 +160,10 @@ export async function sendOutreachFollowUp2(
     <p style="margin-bottom: 16px;">Your preview for <strong>${escapeHtmlForEmail(businessName)}</strong> is still live — contact form, map, and mobile layout included.</p>
     <p style="margin-bottom: 24px;">Most owners pick a plan in a few minutes from the preview page:</p>
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Open preview</a>
+      <a href="${safePreviewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Open preview</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
-      Or go straight to <a href="${checkoutUrl}" style="color: #2563eb;">checkout</a>.
+      Or go straight to <a href="${safeCheckoutUrl}" style="color: #2563eb;">checkout</a>.
     </p>
     <p style="margin-bottom: 8px;">Best regards,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
@@ -175,6 +183,8 @@ export async function sendOutreachFollowUp3(
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
+  const safePreviewUrl = escapeHtmlForEmail(previewUrl);
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
   const subject = `Last note about the ${businessName} site preview`;
   const html = `
@@ -182,10 +192,10 @@ export async function sendOutreachFollowUp3(
     <p style="margin-bottom: 16px;">This is our last automated note about the preview we built for <strong>${escapeHtmlForEmail(businessName)}</strong>.</p>
     <p style="margin-bottom: 16px;">If now isn't the right time, no worries — you can still open the preview later, or reply to this email if you have questions.</p>
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${previewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View preview one more time</a>
+      <a href="${safePreviewUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">View preview one more time</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
-      Ready to launch? <a href="${checkoutUrl}" style="color: #2563eb;">Choose a plan</a>.
+      Ready to launch? <a href="${safeCheckoutUrl}" style="color: #2563eb;">Choose a plan</a>.
     </p>
     <p style="margin-bottom: 8px;">Thank you,</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
@@ -207,6 +217,7 @@ export async function sendCheckoutAbandonedRecovery(
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(tier)}`;
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
 
   const subject = `Still want to launch ${businessName}?`;
   const html = `
@@ -214,7 +225,7 @@ export async function sendCheckoutAbandonedRecovery(
     <p style="margin-bottom: 16px;">Looks like you started setting up a plan for <strong>${escapeHtmlForEmail(businessName)}</strong> but didn't finish. Nothing was charged.</p>
     <p style="margin-bottom: 24px;">Pick up right where you left off — your plan and details are still saved:</p>
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Finish checkout</a>
+      <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Finish checkout</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions first? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
@@ -238,6 +249,7 @@ export async function sendCommerceAbandonedRecovery(
   const catalogUrl = `${leadPreviewAbsoluteUrl(baseUrl, slug)}#catalog`;
   const safeSku = escapeHtmlForEmail(skuLabel);
   const safeBiz = escapeHtmlForEmail(businessName);
+  const safeCatalogUrl = escapeHtmlForEmail(catalogUrl);
 
   const subject = `Still interested in ${skuLabel} from ${businessName}?`;
   const html = `
@@ -245,7 +257,7 @@ export async function sendCommerceAbandonedRecovery(
     <p style="margin-bottom: 16px;">Looks like you started checking out <strong>${safeSku}</strong> from <strong>${safeBiz}</strong> but didn't finish. Nothing was charged.</p>
     <p style="margin-bottom: 24px;">Jump back to the menu to complete your purchase:</p>
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${catalogUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Return to menu</a>
+      <a href="${safeCatalogUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Return to menu</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">Questions? Just reply to this email.</p>
     <p style="margin-bottom: 8px;">Best regards,</p>
@@ -356,6 +368,8 @@ export async function sendStarterUpsellEmail(params: {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(targetTier)}`;
   const previewUrl = leadPreviewAbsoluteUrl(baseUrl, slug);
+  const safeCheckoutUrl = escapeHtmlForEmail(checkoutUrl);
+  const safePreviewUrl = escapeHtmlForEmail(previewUrl);
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
   const marketingLine =
     targetTier === "complete"
@@ -368,10 +382,10 @@ export async function sendStarterUpsellEmail(params: {
     <p style="margin-bottom: 16px;">Your <strong>${escapeHtmlForEmail(businessName)}</strong> site is already live on ${escapeHtmlForEmail(brand.name)} Starter. The next step is <strong>${tierLabel}</strong> at <strong>$${monthlyPriceUsd}/mo</strong> — ${marketingLine}</p>
     <p style="margin-bottom: 16px;">Setup is already covered by what you paid. Upgrade when you want the monthly engine turned on:</p>
     <div style="margin-bottom: 16px; text-align: center;">
-      <a href="${checkoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to ${tierLabel}</a>
+      <a href="${safeCheckoutUrl}" style="background-color: #18181b; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">Upgrade to ${tierLabel}</a>
     </div>
     <p style="margin-bottom: 16px; text-align: center; font-size: 14px;">
-      Or revisit your <a href="${previewUrl}" style="color: #2563eb;">site preview</a> first.
+      Or revisit your <a href="${safePreviewUrl}" style="color: #2563eb;">site preview</a> first.
     </p>
     <p style="margin-bottom: 8px;">Questions? Just reply — happy to walk through Growth vs Complete.</p>
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>

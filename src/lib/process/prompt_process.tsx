@@ -69,7 +69,7 @@ export const AGENT_PROTOCOL = [
   "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a suppression-list hit or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
 
   // --- Security / injection ---
-  "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
+  "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. That includes href attribute values (previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl + /privacy in resend.ts): sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs; a quote or ampersand in NEXT_PUBLIC_APP_URL must not break out of href=\"...\". Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
   "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin (or same-app relative path) before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/lib/auth/safe-next-path.ts — used by both the login page already-authenticated redirect AND loginOperatorAction; never a weaker startsWith('/') twin that accepts //evil) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value. Dashboard-only relative next paths also reject backslash host tricks, control chars, scheme-smuggled paths, `..` segments, and /dashboard/login self-loops — including browser-normalized equivalents (hash, `./`, percent-encoded path segments). Apply prefix/login checks to the normalized pathname, not only the raw string.",
@@ -1859,6 +1859,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner:
       "cursor/prompt-process-evolution-7c34 (earlier claim; folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233; same-minute dual with business-process-evolution-9ced — both ITERATIONS kept; 9ced follow-up: architecture as-const prose)",
+  },
+  {
+    id: "email-href-url-html-escape",
+    summary:
+      "src/lib/email/resend.ts injects previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl into HTML href attributes without escapeHtmlForEmail, while sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs. Env-sourced NEXT_PUBLIC_APP_URL (or a future header-derived base) with a quote/ampersand can break out of the attribute. Ship escapeHtmlForEmail on every dynamic href in resend.ts + Vitest regressions.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner:
+      "cursor/business-process-evolution-266d (folded from grok/continuous-work-email-href-escape; issue #236)",
   },
   {
     id: "mark-handoff-live-null-status-guard",
@@ -4076,6 +4085,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Restore as const on updateLeadStageAction, importLeadsCsvAction, bootstrapStripePricesAction, and sendEmail/sendOperatorDailyDigest success literals after PR #231 silently re-widened them by merging a pre-fix actions.ts — keep discriminated-union narrowing accurate for every multi-return server action / send helper. Fold stuck grok/continuous-work-as-const-restore (issues #232/#233).",
     rationale:
       "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed this fold first per AGENT_PROTOCOL. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-9k2m4x + opencode/continuous-work-062115 (folded onto grok/dev-work-as-const-restore + grok/continuous-work-as-const-restore) with a complete as-const restore and no open PR (Actions token blocked). Without as const, TypeScript widens success to boolean so if (res.success) does not narrow — callers lose compile-time enforcement of success-only fields (envSnippet/imported/slugs) even when runtime is correct. Folding that body beats a clean re-audit of already-clean axes or inventing an optional aggregate. Corrected the stuck remote's duplicate success key on bootstrapStripePricesAction while folding. Next empty-backlog agents: skip already-folded as-const remotes; prefer a fresh sold-capability / security axis or operator launch checklist work over dead Convex API map entries. Sibling 9ced follow-up documents architecture as-const merge-fold hygiene after PR #234 absorbed the feature.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Escape every dynamic href URL in src/lib/email/resend.ts via escapeHtmlForEmail (preview / checkout / catalog / unsubscribe / privacy), matching client-receipt, deliver-pack, dns-email, and daily-digest — do not leave env-sourced APP_URL unescaped inside attributes. Fold stuck grok/continuous-work-email-href-escape (issue #236).",
+    rationale:
+      "Empty-backlog after PR #235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated; stuck as-const/slug-path remotes already on main; recent audits re-confirmed send-success + Convex API map clean. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-email-href-escape with a complete href-escape fix and no open PR (Actions token blocked; issue #236). Rotated to the escapeHtmlForEmail axis with a finer lens than body-text fields: resend.ts still interpolated raw URLs into href attributes while every sibling email template already escaped them. A NEXT_PUBLIC_APP_URL value containing a quote or ampersand (mis-paste, env-injection, or future header-derived base) breaks out of href=\"...\". Closing this asymmetry beats inventing an optional aggregate or re-auditing exhausted marker axes. Next empty-backlog fold target: grok/dev-work-mark-live-null-guard (markHandoffLive advances lead stage even when updateDeployHandoffStatus returns null; issue #237) — skip already-folded email-href / as-const / encode / CSV remotes.",
   },
   {
     date: "2026-07-14",
@@ -7754,7 +7770,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes null-status guard + encode-at-use revalidatePath",
       "PR handoff: Actions token blocked from gh pr create — issue #237 points at grok/dev-work-mark-live-null-guard",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
   },
   {
     date: "2026-07-14",
@@ -7767,6 +7783,36 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — markHandoffLive null-status rule; encode-at-use extends to revalidatePath",
       "BUSINESS_DECISIONS — documented why folding this fulfillment race beats inventing an optional aggregate",
       "Verified: npm test (1298 passed, +1 null-status regression) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/continuous-work-email-href-escape",
+    summary:
+      "Empty-backlog continuous-work after PR #235. Free NEXT_STEPS stayed operator/legal-gated; sibling remotes for as-const/slug-path already folded; latest opencode audits re-confirmed send-success + Convex API map clean. Rotated to escapeHtmlForEmail URL/href asymmetry: resend.ts left preview/checkout/catalog/unsubscribe/privacy hrefs unescaped while sibling templates already escaped. Claimed and shipped email-href-url-html-escape.",
+    shipped: [
+      "src/lib/email/resend.ts — escapeHtmlForEmail on every dynamic href (CAN-SPAM unsubscribe + privacy footer; outreach 1/2/3 preview+checkout; abandoned checkout; commerce abandoned catalog; starter upsell checkout+preview)",
+      "src/lib/email/resend.test.ts — +4 regressions with quote/ampersand-tainted NEXT_PUBLIC_APP_URL asserting escaped hrefs and no raw attribute breakout",
+      "Docs: architecture.tsx notes resend.ts href URLs share escapeHtmlForEmail with sibling email templates",
+      "AGENT_PROTOCOL — escapeHtmlForEmail rule names href attribute values explicitly",
+      "NEXT_STEPS: email-href-url-html-escape done",
+      "BUSINESS_DECISIONS — documented why href escape beats inventing an optional aggregate",
+      "PR handoff: Actions token blocked from gh pr create — issue #236 points at grok/continuous-work-email-href-escape",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-266d",
+    summary:
+      "Empty-backlog after PR #235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-email-href-escape with a complete email-href-url-html-escape feature body and no open PR (Actions token blocked; issue #236). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate.",
+    shipped: [
+      "Fold: origin/grok/continuous-work-email-href-escape feature files (resend.ts + resend.test.ts + architecture.tsx) — kept grok ITERATION above",
+      "NEXT_STEPS: email-href-url-html-escape done (owner 266d, folded from continuous-work; issue #236)",
+      "AGENT_PROTOCOL — href attribute escape rule retained from fold",
+      "BUSINESS_DECISIONS — documented why folding this stuck CLI href-escape fix beats inventing an optional aggregate; queued mark-handoff-live-null-status-guard (grok/dev-work-mark-live-null-guard; issue #237) as next fold",
+      "Verified: npm test (1301 passed, +4 href-escape regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
