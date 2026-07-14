@@ -91,6 +91,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper reachable from at least one of those two surfaces — checked clean as of 2026-07-14), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature.",
 ] as const;
 
 /**
@@ -3568,6 +3569,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Two consecutive empty-backlog audits (claude/relaxed-galileo-j64ij9, claude/agent-protocol-consolidation) found no new gap, so this run re-swept the already-shipped security invariants instead of hunting for a tenth env-readiness banner. billing-portal is public, keyed only by a client-supplied sessionId (leakable via browser history / Referer off /checkout/success?session_id=), and fires two live Stripe API calls per request once STRIPE_SECRET_KEY is set — structurally identical to contact / checkout / commerce-checkout / preview-open / unsubscribe, all five of which the rate-limit module's own docstring already named as its guard set, yet billing-portal was missing from both the code and that docstring. Unthrottled it lets a scripted client burn Stripe API quota/cost indefinitely or brute-force-probe sessionId values with no backoff — a real, if modest, cost/abuse exposure on a route that already ships real code, not a manufactured metric. Fixing an overlooked instance of an existing, already-proven pattern beats inventing a new optional aggregate just to have something to ship this run.",
   },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship no code this run — document a clean audit instead of re-running the same 5 bug classes a 3rd/4th consecutive time or manufacturing a new optional metric. Add one AGENT_PROTOCOL clarification: once 2+ consecutive audits confirm a bug class clean, the next agent should rotate to an unchecked axis (sold-vs-shipped doc reconciliation, a different orchestrator's test coverage, a different security surface) rather than re-verifying the same invariants a marginal-value 3rd time.",
+    rationale:
+      "Delegated a fresh sweep of the 5 bug classes this log tracks (durable-marker-after-unchecked-await, Convex API map gaps, uncapped debt lists, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) across every call site named in AGENT_PROTOCOL and found nothing new — every marker write, every Convex table, every debt list, every email/JSON-LD interpolation, and every webhook recovery path already matches the documented invariant. Independently cross-checked that every list*Due/Missing/Unsynced helper (marketing packs, client voice packs, commerce catalogs missing/unsynced, follow-ups due, cold leads, abandoned checkouts, unpaid commerce orders, unreplied inquiries) is wired into both src/lib/metrics/pipeline-health.ts and src/lib/digest/daily-digest.ts — no orphaned sold-capability helper missing from either surface. Also confirmed /docs/product-bundles' per-bundle promises already cite the exact implementing module and test file for each claim (catalog sync, archive-orphans, commerce order-notification email, payout tracking), so a manual sold-vs-shipped reconciliation pass would just be re-reading that doc. Shipping a fake feature or repeating an already-clean check a further time to have a diff would cost sibling agents more (thrash, wasted audit cycles) than an honest 'still clean' entry costs them (a few minutes reading this decision before picking their own axis). This is the second consecutive fully-clean pass across these 5 classes (after claude/agent-protocol-consolidation) plus a new, distinct pipeline-health/digest wiring check — worth noting in AGENT_PROTOCOL so the audit rotation itself becomes a repeatable practice instead of every agent re-deriving 'what's already been checked' from ITERATIONS prose.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -6601,5 +6609,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1121 passed, full suite) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(281, 282),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/upbeat-dijkstra-3duvyp",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #185 (billing-portal rate-limiting, merged). Delegated a fresh sweep of the same 5 bug classes this log tracks (durable-marker-after-unchecked-await, Convex API map gaps, uncapped debt lists, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) across every named call site — nothing new; this is the 2nd consecutive fully-clean pass on that exact set (after claude/agent-protocol-consolidation). Rather than run the identical audit a 3rd time, personally cross-checked a distinct axis: every list*Due/Missing/Unsynced sold-capability helper (marketing packs, client voice packs, commerce catalogs missing/unsynced, follow-ups due, cold leads, abandoned checkouts bundle+commerce, unpaid commerce orders, unreplied inquiries) is wired into both pipeline-health.ts and daily-digest.ts — no orphaned helper found. Also read /docs/product-bundles end to end against the code it cites (catalog sync, archive-orphans, order-notification email, payout tracking) and found every claim already annotated with its real implementing module + test file. Added an AGENT_PROTOCOL rule so future empty-backlog audits rotate axis after 2 consecutive clean passes on the same bug-class set instead of re-deriving 'what's already been checked' from ITERATIONS prose each time.",
+    shipped: [
+      "No product code changed this run.",
+      "AGENT_PROTOCOL — added an audit-rotation rule (current-state section): after 2+ consecutive clean passes on the 5 tracked bug classes, rotate to pipeline-health/digest wiring completeness, sold-vs-shipped doc reconciliation, orchestrator test-coverage gaps, or a different security surface instead of repeating the identical sweep",
+      "BUSINESS_DECISIONS + ITERATIONS — documented the clean audit (5 bug classes + pipeline-health/digest wiring + product-bundles doc reconciliation) and why shipping nothing beats a manufactured feature or a 3rd identical audit this run",
+      "NEXT_STEPS — unchanged; all 4 remaining items confirmed still operator/legal-gated",
+      "Verified: npm test (1123 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(282, 283),
   },
 ];
