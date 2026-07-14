@@ -140,9 +140,13 @@ export default function LaunchChecklistDocPage() {
           marks <code>replied</code> before Resend (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>);
           action-level Vitest (<code>reply-to-inquiry-action.test.ts</code>) locks that path
           (auth, body/inquiry gates, mark-before-Resend, Convex skip-send) beside reply-persist
-          / reply.ts helpers. Cold-lead Re-engage / Close likewise fails closed on
-          disposition (<code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before
-          Resend when the optional checkbox is set; action-level Vitest (
+          / reply.ts helpers. Mark-read on composer open and Archive share the same{" "}
+          <code>INQUIRY_REPLY_CONVEX_PRIMARY</code> fail-closed surface; action-level Vitest (
+          <code>update-inquiry-status-action.test.ts</code>) locks status-only glue (auth,
+          invalid status, requireConvex fail-closed, null not-found) beside the Reply suite.
+          Cold-lead Re-engage / Close likewise fails closed on disposition (
+          <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before Resend when
+          the optional checkbox is set; action-level Vitest (
           <code>dispose-cold-lead-action.test.ts</code>) locks that path beside cold-archive
           helpers.
         </li>
@@ -417,7 +421,9 @@ export default function LaunchChecklistDocPage() {
           before the durable mark. Action-level Vitest (
           <code>reply-to-inquiry-action.test.ts</code>) locks the dashboard Reply path (auth,
           body / archived / no-email gates, mark-before-Resend, Convex skip-send) beside the
-          reply helper suite. Email notify to the business fires only after a successful
+          reply helper suite; <code>update-inquiry-status-action.test.ts</code> locks Mark read
+          / Archive status-only glue (auth, invalid status, requireConvex fail-closed, null
+          not-found). Email notify to the business fires only after a successful
           insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
           count as unreplied; replied/archived do not).
         </li>

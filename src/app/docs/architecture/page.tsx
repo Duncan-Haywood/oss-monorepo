@@ -366,6 +366,12 @@ export default function ArchitectureDocPage() {
         archived / no-email gates, mark-before-Resend, email trim, ConvexPrimaryWriteError
         skip-send, null-mark not-found, and suppression / Resend failure after a durable mark —
         so dashboard glue is not left to the reply-persist / reply.ts helper suites alone.
+        Mark-read (composer open) and Archive use the same{" "}
+        <code>INQUIRY_REPLY_CONVEX_PRIMARY</code> surface via{" "}
+        <code>updateInquiryStatusAction</code>, locked by{" "}
+        <code>update-inquiry-status-action.test.ts</code> (auth, invalid status,
+        requireConvex fail-closed, null not-found, success revalidate) so status-only
+        glue is not left to the Reply action suite alone.
         Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
