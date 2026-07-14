@@ -124,6 +124,22 @@ export default function ArchitectureDocPage() {
         <code>src/lib/orders/sqlite-row-mapping.ts</code>.
       </p>
       <p>
+        Dual-backend list queries must return the <em>same row order</em> regardless of which
+        backend is configured, or the same data renders differently on SQLite vs. Convex.
+        The Convex list handlers therefore mirror their SQLite <code>ORDER BY</code> twins:{" "}
+        <code>leads.list</code> sorts <code>_creationTime</code> descending to match{" "}
+        <code>getLeads</code> (<code>ORDER BY createdAt DESC</code>; the <code>leads</code> table
+        has no explicit <code>createdAt</code> field, so <code>_creationTime</code> is the closest
+        proxy — a bare <code>.collect()</code> returns <em>ascending</em> creation order and
+        reversed the <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> table between
+        backends). <code>checkoutSessions.listOpen</code> sorts the app{" "}
+        <code>createdAt</code> ascending (abandoned-recovery works oldest carts first) and{" "}
+        <code>inquiries.listBySlug</code> sorts the app <code>createdAt</code> descending before
+        slicing to <code>limit</code> — both because their <code>by_status</code>/
+        <code>by_leadSlug</code> indexes have no <code>createdAt</code> sort field, so a raw{" "}
+        <code>.order()</code> would sort by <code>_creationTime</code> instead of the app column.
+      </p>
+      <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
       </p>
 

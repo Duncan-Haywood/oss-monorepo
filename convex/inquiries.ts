@@ -162,10 +162,14 @@ export const listBySlug = query({
     const rows = await ctx.db
       .query("clientInquiries")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
-      .order("desc")
-      .take(limit);
-
-    return rows.map(mapInquiry);
+      .collect();
+    // Match the SQLite fallback (ORDER BY createdAt DESC LIMIT ?). The
+    // by_leadSlug index has no createdAt sort field, so .order("desc") would
+    // sort by _creationTime instead of the app createdAt — collect, sort on the
+    // numeric app createdAt descending, then take the newest `limit`. See
+    // convex-query-ordering-parity in /docs/process.
+    rows.sort((a, b) => b.createdAt - a.createdAt);
+    return rows.slice(0, limit).map(mapInquiry);
   },
 });
 

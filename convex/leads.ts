@@ -54,7 +54,12 @@ export const list = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
-    return await ctx.db.query("leads").collect();
+    // Match the SQLite fallback (getLeads: ORDER BY createdAt DESC — newest
+    // first). The leads table has no explicit createdAt field, so _creationTime
+    // descending is the closest available proxy; a bare .collect() returns
+    // _creationTime ASCENDING, which reversed the /dashboard/leads table order
+    // between backends. See convex-query-ordering-parity in /docs/process.
+    return await ctx.db.query("leads").order("desc").collect();
   },
 });
 

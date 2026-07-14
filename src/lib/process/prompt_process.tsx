@@ -52,6 +52,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Dual-backend (Convex primary / SQLite fallback) invariants ---
   "Every persistence surface in src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error. A new Convex table needs an explicit app-owned id column (e.g. orderId/packId/handoffId/inquiryId) registered on the static Convex API map in db.ts in the same commit as the table — a missing map registration throws at call time, gets silently caught by the fallback, and produces a split-brain where writes land on SQLite while list* reads Convex-first.",
+  "Dual-backend list queries must return the same row order on Convex and SQLite — a bare Convex .collect() is _creationTime ASC (oldest first) while most SQLite twins use ORDER BY createdAt DESC, and .order(\"desc\") on an index that lacks createdAt sorts _creationTime, not the app column. Mirror each SQLite ORDER BY in the Convex handler (leads.list → .order(\"desc\"); checkoutSessions.listOpen → sort app createdAt ASC; inquiries.listBySlug → collect + sort app createdAt DESC + slice). Document the contract in /docs/architecture when adding a new list* twin.",
   "Every record type with a required `id: string` field must store that id as its own explicit Convex column and return it as `id` from every mutation/query — a type-cast on the Convex query result hides a missing field from tsc. (convex/orders.ts's `list`/`getByStripeSessionId` queries return the Convex-internal `_id` instead of an app-owned column, unlike every other ledger; its `createOrder` mutation is dead code superseded by leads.markLeadPaid. Both have been reviewed and deliberately left alone by multiple prior iterations since neither has a live consumer of the value — re-verify there's still no live `.id` consumer before touching either.)",
   "Write paths whose result is read Convex-first elsewhere (outreach cadence, lead notes/stage/snooze/upsert, cold disposition, marketing/voice packs, commerce catalogs, inquiry reply/status, checkout session create/recovery, commerce paid-out) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex failure throws instead of silently soft-falling-back to SQLite while other instances keep reading Convex-first. Copy the nearest existing `*_CONVEX_PRIMARY` constant + call site for any new write path in this class.",
   "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark). Dashboard actions that trigger that send must still inspect the resolved `{ success }` shape and return `success: false` with an operator-visible error when the send fails — silent `success: true` after `{ success: false }` is the same bug class as writing a webhook recovery marker without checking send success (see email-1-outreach-send-success-check).",
@@ -1793,6 +1794,15 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/prompt-process-evolution-f936 (folded from grok/dev-work-redirect-url-hardening)",
+  },
+  {
+    id: "convex-query-ordering-parity",
+    summary:
+      "Empty-backlog after PR #218 (redirect-url-validator-hardening). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes first and found multiple complete feature bodies for Convex↔SQLite list-order parity (grok/dev-work-convex-order-parity, grok/continuous-work-convex-order, claude/dev-work-convex-order-parity, opencode/dev-work-7qz1k9, opencode/dev-work-convex-order-parity, claude/continuous-work-convex-parity) with no open PR (Actions token blocked). On main: leads.list bare .collect() (oldest-first) vs getLeads ORDER BY createdAt DESC; checkoutSessions.listOpen unsorted vs SQLite ASC; inquiries.listBySlug .order(\"desc\") sorts _creationTime not app createdAt. Folded that body: leads.list .order(\"desc\"); checkoutSessions.listOpen sort createdAt ISO asc; inquiries.listBySlug collect + sort createdAt numeric desc + slice(limit); architecture + AGENT_PROTOCOL dual-backend ordering contract.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/prompt-process-evolution-7291 (folded from grok/dev-work-convex-order-parity + claude/dev-work-convex-order-parity + opencode/dev-work-7qz1k9)",
   },
 ];
 
@@ -3952,6 +3962,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Harden the two newest redirect/URL validators together: (1) isSafeNextPath normalizes pathname (strip query/hash, percent-decode, collapse `.`, reject `..`) before both the /dashboard prefix and login self-loop checks; (2) resolveTrustedAppUrl uses tryHeaderDerivedAppOrigin to accept only host-only http(s) origins from headers — rejecting non-http(s) schemes and path/userinfo smuggling that bare new URL() still accepts. Folded from stuck grok/dev-work-redirect-url-hardening rather than rebuilding.",
     rationale:
       "Empty-backlog after PR #216/#217. Sibling business-process-evolution-7bfa claimed and merged preview-indexing-consent-guard (PR #217) first, and explicitly noted grok/dev-work-redirect-url-hardening as the remaining fold target. This run folded that stuck CLI body: verified empirically on main that isSafeNextPath('/dashboard/login#x'), '/dashboard/./login', and '/dashboard/%6cogin' all returned true (authenticated-operator redirect loop); new URL('javascript://evil.example') and new URL('https://evil.com/phish') both succeed, so a spoofed x-forwarded-proto/host pair could still produce a digest base URL that escapeHtmlForEmail does not neutralize as a javascript: href. Folding beats inventing an optional aggregate, re-auditing 2x-clean axes, or leaving a live validator gap while a complete fix sits unmerged.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make three Convex list queries return the same row order as their SQLite twins (leads.list newest-first via _creationTime desc; checkoutSessions.listOpen oldest-first via app createdAt ASC; inquiries.listBySlug newest-first via app createdAt DESC before limit) — rather than leave bare .collect() / index-_creationTime .order() drift that reverses /dashboard/leads and mis-prioritizes abandoned-cart recovery between backends. Folded from stuck grok/claude/opencode convex-order-parity remotes.",
+    rationale:
+      "Empty-backlog after PR #218. Free NEXT_STEPS stayed operator/legal-gated. Prior sibling (business-process-evolution-7bfa) explicitly queued opencode/dev-work-7qz1k9 as the next fold target; scanning stuck CLI remotes found six remotes with the same complete feature body and no open PR (Actions token blocked). On main the bug was still live: Convex leads.list returned oldest-first while SQLite getLeads is newest-first — operators see a reversed CRM table depending on whether NEXT_PUBLIC_CONVEX_URL is set. Abandoned-recovery (listOpenCheckoutSessions) and per-lead inquiry inbox order also drifted. Folding the stuck body onto the automation branch that can open/merge unblocks dual-backend UX parity without inventing an optional aggregate or re-running a 2x-confirmed clean axis. Added an AGENT_PROTOCOL dual-backend ordering rule so future list* twins mirror SQLite ORDER BY in the same commit.",
   },
 ];
 
@@ -7414,5 +7431,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(307, 308),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-7291",
+    summary:
+      "Empty-backlog after PR #218 (redirect-url-validator-hardening): free NEXT_STEPS stayed operator/legal-gated. Prior sibling explicitly queued opencode/dev-work-7qz1k9 Convex↔SQLite ordering parity as the next fold target. Scanned stuck CLI remotes and found six remotes (grok/claude/opencode convex-order-parity variants) with a complete feature body and no open PR (Actions token blocked). Re-verified the order drift on main, then folded that body as convex-query-ordering-parity.",
+    shipped: [
+      "convex/leads.ts — leads.list .order(\"desc\") so _creationTime newest-first matches getLeads ORDER BY createdAt DESC (leads has no explicit createdAt)",
+      "convex/checkoutSessions.ts — listOpen sorts app createdAt ISO ascending to match SQLite abandoned-recovery oldest-first",
+      "convex/inquiries.ts — listBySlug collect + sort app createdAt numeric desc + slice(limit) (by_leadSlug has no createdAt sort field)",
+      "Docs: architecture.tsx documents the dual-backend list-order contract beside the existing Convex/SQLite mapping notes",
+      "AGENT_PROTOCOL — dual-backend list-order rule so new list* twins mirror SQLite ORDER BY in the same commit",
+      "NEXT_STEPS: convex-query-ordering-parity done (folded from grok/dev-work-convex-order-parity + claude/dev-work-convex-order-parity + opencode/dev-work-7qz1k9)",
+      "BUSINESS_DECISIONS — documented why folding the stuck CLI ordering parity beat a clean re-audit",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(308, 309),
   },
 ];

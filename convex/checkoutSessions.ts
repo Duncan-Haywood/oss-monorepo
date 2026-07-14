@@ -58,9 +58,15 @@ export const listOpen = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
-    return await ctx.db
+    const rows = await ctx.db
       .query("checkoutSessions")
       .withIndex("by_status", (q) => q.eq("status", "open"))
       .collect();
+    // Match the SQLite fallback (ORDER BY createdAt ASC). The by_status index
+    // has no createdAt sort field, so sort on the app createdAt (ISO string)
+    // here — abandoned-recovery processes the oldest open carts first so the
+    // longest-unrecovered (most urgent) sessions are prioritized. See
+    // convex-query-ordering-parity in /docs/process.
+    return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   },
 });
