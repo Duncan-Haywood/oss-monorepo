@@ -5875,7 +5875,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: send-follow-up-action-test-coverage done; send-starter-upsell-action-test-coverage done (cd3b / PR #156); queued reply-to-inquiry-action-test-coverage + dispose-cold-lead-action-test-coverage",
       "AGENT_PROTOCOL — claim Starter upsell vs Email 2/3 follow-up action Vitest separately; prefer inquiry-reply / cold-disposition action Vitest twins next",
       "BUSINESS_DECISIONS — documented why Email 2/3 follow-up action glue Vitest beats inventing optional aggregates after Starter upsell coverage",
-      "Verified: npm test (PLACEHOLDER) + lint + build",
+      "Verified: npm test (858 passed — Email 2/3 follow-up action 14 from 844) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(253, 254),
   },
