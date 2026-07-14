@@ -1476,8 +1476,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "archive-orphan-commerce-stripe-products-action-test-coverage",
     summary:
       "Empty-backlog twin after Save catalog / Sync to Stripe action Vitest: archiveOrphanCommerceStripeProductsAction is the operator Archive orphans path (STRIPE_SECRET_KEY + active=false, never auto-delete) that cleans Products for removed SKUs — helper suites alone are not enough for action glue. Sibling-friendly with open-billing-portal-action-test-coverage; prefer when Commerce save/sync action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-dc97",
   },
   {
     id: "open-billing-portal-action-test-coverage",
