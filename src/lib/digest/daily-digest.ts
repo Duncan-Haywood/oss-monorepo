@@ -7,7 +7,8 @@
  * + commerce-catalogs-unsynced-visibility
  * + client-voice-packs-missing-visibility
  * + commerce-abandoned-checkout-tracking
- * + commerce-payouts-owed-in-digest).
+ * + commerce-payouts-owed-in-digest
+ * + open-handoffs-in-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -15,6 +16,7 @@
 
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
+import type { DeployHandoff, DeployHandoffStatus } from "../deploy/types";
 import type { Lead } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
@@ -51,6 +53,7 @@ const COMMERCE_CATALOGS_LIMIT = 5;
 const COMMERCE_UNSYNCED_LIMIT = 5;
 const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
+const OPEN_HANDOFFS_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -124,6 +127,16 @@ export interface DigestCommercePayoutOwed {
   totalUsd: number;
 }
 
+/** Paid production handoff not yet Mark live (same predicate as openHandoffCount). */
+export interface DigestOpenHandoff {
+  slug: string;
+  businessName: string;
+  status: DeployHandoffStatus;
+  /** customDomain when set, otherwise suggestedHost. */
+  host: string;
+  tier: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -140,6 +153,11 @@ export interface DailyDigest {
   commercePayoutsOwed: DigestCommercePayoutOwed[];
   /** Sum of commercePayoutsOwed totals (USD dollars). */
   commercePayoutsOwedTotalUsd: number;
+  /**
+   * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
+   * pipeline-health openHandoffCount (action section).
+   */
+  openHandoffs: DigestOpenHandoff[];
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -171,6 +189,11 @@ export interface BuildDailyDigestInput {
   clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
   /** Pass-through Buy now ledger rows — reuse summarizeCommerceOrdersByLead. */
   commerceOrders?: ReadonlyArray<CommerceOrderRecord>;
+  /**
+   * Production deploy handoffs — pass listDeployHandoffs() (uncapped). Live rows
+   * are filtered out; open rows drive the Production handoffs open section.
+   */
+  handoffs?: ReadonlyArray<DeployHandoff>;
   nowMs: number;
 }
 
@@ -192,6 +215,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogs = [],
     clientVoicePacks = [],
     commerceOrders = [],
+    handoffs = [],
     nowMs,
   } = input;
   const leadsBySlug = new Map(leads.map((lead) => [lead.slug, lead]));
@@ -323,6 +347,22 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       totalUsd: summary.unpaidTotalUsd,
     }));
 
+  // Same status !== "live" predicate as pipeline-health openHandoffCount.
+  const openHandoffs: DigestOpenHandoff[] = handoffs
+    .filter((handoff) => handoff.status !== "live")
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+    .slice(0, OPEN_HANDOFFS_LIMIT)
+    .map((handoff) => ({
+      slug: handoff.leadSlug,
+      businessName:
+        leadsBySlug.get(handoff.leadSlug)?.businessName ||
+        handoff.businessName ||
+        handoff.leadSlug,
+      status: handoff.status,
+      host: handoff.customDomain?.trim() || handoff.suggestedHost,
+      tier: handoff.tier,
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -353,7 +393,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogsMissing.length === 0 &&
     commerceCatalogsUnsynced.length === 0 &&
     clientVoicePacksDue.length === 0 &&
-    commercePayoutsOwed.length === 0;
+    commercePayoutsOwed.length === 0 &&
+    openHandoffs.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -369,6 +410,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     clientVoicePacksDue,
     commercePayoutsOwed,
     commercePayoutsOwedTotalUsd,
+    openHandoffs,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -418,7 +460,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   if (digest.isEmpty) {
     return `
       <h2 style="margin:0 0 16px 0;color:#09090b;">Nothing urgent today</h2>
-      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, and Commerce payouts owed are all clear.</p>
+      <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, Commerce payouts owed, and production handoffs are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
     `;
@@ -484,6 +526,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwed.length} client${digest.commercePayoutsOwed.length === 1 ? "" : "s"})`
       : "Commerce payouts owed (0)";
 
+  const handoffRows = digest.openHandoffs.map(
+    (handoff) =>
+      `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -500,6 +547,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsynced.length})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
     ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
+    ${section(`Production handoffs open (${digest.openHandoffs.length})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

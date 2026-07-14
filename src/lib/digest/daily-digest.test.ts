@@ -76,6 +76,8 @@ describe("buildDailyDigest", () => {
     expect(digest.commerceCatalogsMissing).toHaveLength(0);
     expect(digest.commerceCatalogsUnsynced).toHaveLength(0);
     expect(digest.clientVoicePacksDue).toHaveLength(0);
+    expect(digest.commercePayoutsOwed).toHaveLength(0);
+    expect(digest.openHandoffs).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
@@ -487,6 +489,92 @@ describe("buildDailyDigest", () => {
     expect(digest.commercePayoutsOwedTotalUsd).toBe(0);
   });
 
+  it("lists open production handoffs (status !== live) oldest-first and skips live", () => {
+    const cafe = baseLead({
+      slug: "awaiting-cafe",
+      businessName: "Awaiting Cafe",
+      stage: "paid",
+    });
+    const salon = baseLead({
+      slug: "live-salon",
+      businessName: "Live Salon",
+      stage: "live",
+    });
+    const trades = baseLead({
+      slug: "provisioned-trades",
+      businessName: "Provisioned Trades",
+      stage: "paid",
+    });
+    const digest = buildDailyDigest({
+      leads: [cafe, salon, trades],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [
+        {
+          id: "dh_live",
+          leadSlug: "live-salon",
+          businessName: "Live Salon",
+          tier: "growth",
+          commerceAddon: false,
+          stripeSessionId: "cs_live",
+          customerEmail: "salon@example.com",
+          previewUrl: "https://example.com/preview/live-salon",
+          suggestedHost: "live-salon.example.com",
+          contactFormUrl: "https://example.com/api/contact/live-salon",
+          dnsInstructions: [],
+          status: "live",
+          notes: [],
+          createdAt: "2026-07-01T00:00:00.000Z",
+          updatedAt: "2026-07-10T00:00:00.000Z",
+        },
+        {
+          id: "dh_new",
+          leadSlug: "provisioned-trades",
+          businessName: "Provisioned Trades",
+          tier: "complete",
+          commerceAddon: false,
+          stripeSessionId: "cs_new",
+          customerEmail: "trades@example.com",
+          previewUrl: "https://example.com/preview/provisioned-trades",
+          suggestedHost: "provisioned-trades.example.com",
+          customDomain: "trades.example.com",
+          contactFormUrl: "https://example.com/api/contact/provisioned-trades",
+          dnsInstructions: [],
+          status: "provisioned",
+          notes: [],
+          createdAt: "2026-07-11T12:00:00.000Z",
+          updatedAt: "2026-07-11T12:00:00.000Z",
+        },
+        {
+          id: "dh_old",
+          leadSlug: "awaiting-cafe",
+          businessName: "Awaiting Cafe",
+          tier: "starter",
+          commerceAddon: false,
+          stripeSessionId: "cs_old",
+          customerEmail: "cafe@example.com",
+          previewUrl: "https://example.com/preview/awaiting-cafe",
+          suggestedHost: "awaiting-cafe.example.com",
+          contactFormUrl: "https://example.com/api/contact/awaiting-cafe",
+          dnsInstructions: [],
+          status: "awaiting_dns",
+          notes: [],
+          createdAt: "2026-07-08T08:00:00.000Z",
+          updatedAt: "2026-07-08T08:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(digest.openHandoffs).toHaveLength(2);
+    expect(digest.openHandoffs[0]?.businessName).toBe("Awaiting Cafe");
+    expect(digest.openHandoffs[0]?.status).toBe("awaiting_dns");
+    expect(digest.openHandoffs[0]?.host).toBe("awaiting-cafe.example.com");
+    expect(digest.openHandoffs[1]?.businessName).toBe("Provisioned Trades");
+    expect(digest.openHandoffs[1]?.status).toBe("provisioned");
+    expect(digest.openHandoffs[1]?.host).toBe("trades.example.com");
+    expect(digest.isEmpty).toBe(false);
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Callers must feed buildDailyDigest from listUnpaidCommerceOrders()
     // (uncapped unpaid), not a capped newest-N page of every commerce order —
@@ -688,5 +776,45 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("$25.00 owed");
     expect(html).toContain("Owed &lt;Shop&gt;");
     expect(html).not.toContain("Owed <Shop>");
+  });
+
+  it("renders production handoffs open with escaped host and status", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "dns-cafe",
+          businessName: "DNS <Cafe>",
+          stage: "paid",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [
+        {
+          id: "dh_1",
+          leadSlug: "dns-cafe",
+          businessName: "DNS <Cafe>",
+          tier: "starter",
+          commerceAddon: false,
+          stripeSessionId: "cs_dns",
+          customerEmail: "cafe@example.com",
+          previewUrl: "https://example.com/preview/dns-cafe",
+          suggestedHost: "dns-cafe.example.com",
+          contactFormUrl: "https://example.com/api/contact/dns-cafe",
+          dnsInstructions: [],
+          status: "awaiting_dns",
+          notes: [],
+          createdAt: "2026-07-10T00:00:00.000Z",
+          updatedAt: "2026-07-10T00:00:00.000Z",
+        },
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Production handoffs open");
+    expect(html).toContain("awaiting_dns");
+    expect(html).toContain("dns-cafe.example.com");
+    expect(html).toContain("DNS &lt;Cafe&gt;");
+    expect(html).not.toContain("DNS <Cafe>");
   });
 });

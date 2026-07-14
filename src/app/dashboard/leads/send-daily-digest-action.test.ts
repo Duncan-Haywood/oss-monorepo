@@ -3,13 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * Action-level orchestration for sendDailyDigestAction — the operator
  * Send daily digest path that surfaces Work next / follow-ups / abandoned
- * carts / unreplied inquiries / packs due / Commerce payouts owed.
+ * carts / unreplied inquiries / packs due / Commerce payouts owed /
+ * production handoffs open.
  *
  * daily-digest.test.ts covers the pure builder. This suite locks the
  * dashboard action glue: requireOperatorAuth, OPERATOR_DIGEST_EMAIL trim
  * gate, uncapped list* wiring (listUnrepliedInquiries /
- * listUnpaidCommerceOrders / listMarketingPacksForMonth), and
- * sendOperatorDailyDigest success / failure / mock labeling.
+ * listUnpaidCommerceOrders / listMarketingPacksForMonth /
+ * listDeployHandoffs), and sendOperatorDailyDigest success / failure /
+ * mock labeling.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -36,6 +38,7 @@ const listClientVoicePacks = vi.fn();
 const listUnpaidCommerceOrders = vi.fn();
 const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
+const listDeployHandoffs = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) =>
@@ -71,6 +74,7 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: (...args: unknown[]) =>
     listUnpaidCommerceOrders(...args),
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
+  listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
 }));
 
 const sendOperatorDailyDigest = vi.fn();
@@ -114,6 +118,7 @@ describe("sendDailyDigestAction", () => {
     listCommerceCatalogs.mockReset().mockResolvedValue([]);
     listClientVoicePacks.mockReset().mockResolvedValue([]);
     listUnpaidCommerceOrders.mockReset().mockResolvedValue([]);
+    listDeployHandoffs.mockReset().mockResolvedValue([]);
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();
     sendOperatorDailyDigest.mockReset().mockResolvedValue({
@@ -185,6 +190,7 @@ describe("sendDailyDigestAction", () => {
     expect(listCommerceCatalogs).toHaveBeenCalledOnce();
     expect(listClientVoicePacks).toHaveBeenCalledOnce();
     expect(listUnpaidCommerceOrders).toHaveBeenCalledOnce();
+    expect(listDeployHandoffs).toHaveBeenCalledOnce();
     expect(listCommerceOrders).not.toHaveBeenCalled();
 
     expect(sendOperatorDailyDigest).toHaveBeenCalledOnce();

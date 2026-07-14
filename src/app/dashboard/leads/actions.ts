@@ -31,6 +31,7 @@ import {
   getClientVoicePackByLeadSlug,
   listClientVoicePacks,
   listUnpaidCommerceOrders,
+  listDeployHandoffs,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -1323,10 +1324,11 @@ export async function openBillingPortalAction(slug: string) {
  * Operator-triggered daily digest email: Work next top leads, follow-ups due,
  * abandoned-checkout recoveries due, unreplied inquiries, marketing packs due,
  * Starter → MRR upsell candidates, Commerce catalogs missing / unsynced,
- * Complete voice packs due, and Commerce payouts owed (pass-through Buy now)
- * in one send, plus cold/snoozed footnotes, so a single-operator business does
- * not have to open this dashboard to know what is urgent today. Requires
- * OPERATOR_DIGEST_EMAIL — see /docs/process.
+ * Complete voice packs due, Commerce payouts owed (pass-through Buy now), and
+ * production handoffs still open (DNS / Mark live) in one send, plus
+ * cold/snoozed footnotes, so a single-operator business does not have to open
+ * this dashboard to know what is urgent today. Requires OPERATOR_DIGEST_EMAIL
+ * — see /docs/process.
  */
 export async function sendDailyDigestAction() {
   try {
@@ -1354,6 +1356,7 @@ export async function sendDailyDigestAction() {
       commerceCatalogs,
       clientVoicePacks,
       commerceOrders,
+      handoffs,
     ] = await Promise.all([
       getLeads(),
       listUnrepliedInquiries(),
@@ -1363,6 +1366,7 @@ export async function sendDailyDigestAction() {
       listCommerceCatalogs(),
       listClientVoicePacks(),
       listUnpaidCommerceOrders(),
+      listDeployHandoffs(),
     ]);
 
     const headerStore = await headers();
@@ -1380,6 +1384,7 @@ export async function sendDailyDigestAction() {
       commerceCatalogs,
       clientVoicePacks,
       commerceOrders,
+      handoffs,
       nowMs,
     });
     const html = renderDailyDigestHtml(digest, appUrl);
