@@ -42,6 +42,17 @@ describe("serializeLeadHours / parseLeadHours round-trip", () => {
     });
   });
 
+  it("preserves additional · characters in the weekend value (CSV import default bug regression)", () => {
+    const stored = serializeLeadHours({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat 10am–2pm · Closed Sun",
+    });
+    expect(parseLeadHours(stored)).toEqual({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat 10am–2pm · Closed Sun",
+    });
+  });
+
   it("falls back to the documented default hours when the column is null/undefined/empty", () => {
     const fallback = { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
     expect(parseLeadHours(null)).toEqual(fallback);

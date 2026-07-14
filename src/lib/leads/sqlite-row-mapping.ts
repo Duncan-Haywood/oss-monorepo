@@ -45,8 +45,10 @@ export function parseLeadHours(raw: string | null | undefined): LeadHours {
     return { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
   }
   if (raw.includes("·")) {
-    const parts = raw.split("·").map((p) => p.trim());
-    return { weekday: parts[0], weekend: parts[1] || "" };
+    const idx = raw.indexOf("·");
+    const weekday = raw.slice(0, idx).trim();
+    const weekend = raw.slice(idx + 1).trim();
+    return { weekday, weekend };
   }
   return { weekday: raw, weekend: "" };
 }

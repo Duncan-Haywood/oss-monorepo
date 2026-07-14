@@ -103,6 +103,7 @@ export const AGENT_PROTOCOL = [
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
   "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
+  "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
 ] as const;
 
 /**
@@ -1829,6 +1830,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner:
       "cursor/prompt-process-evolution-6033 (folded from grok/continuous-work-voice-test-env)",
+  },
+  {
+    id: "csv-import-hours-multiline-limits",
+    summary:
+      "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation). Sibling business-process-evolution-2d7a already claimed legacy-slug-encode-at-use-path-safety — pivoted. Next stuck CLI remote with feature body and no open PR: opencode/dev-work-f3k8p1. CSV import still hardcodes default hours (no hours column), splits on every newline (breaks RFC 4180 quoted multiline descriptions), and has no field-length caps; parseLeadHours splits on every '·' so a weekend value that itself contains the delimiter loses the tail. Folded: hours column + first-separator parseLeadHours + splitCsvIntoLines + businessName/description/services limits.",
+    status: "done",
+    phase: "Phase 4 — Data ingestion",
+    owner:
+      "cursor/prompt-process-evolution-78e4 (folded from opencode/dev-work-f3k8p1)",
   },
 ];
 
@@ -4016,6 +4026,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Isolate Vitest client-voice factory generate() from process.env.ANTHROPIC_API_KEY (clear/restore around the call; assert StubClientVoiceGenerator) — rather than leave faq-pack.test.ts env-dependent while generators.test.ts already clears the key. Fold stuck grok/continuous-work-voice-test-env.",
     rationale:
       "Empty-backlog after PR #226 (sibling owned handoff-email-marker-status-no-downgrade). Same-minute dual claim: this branch first claimed the handoff-marker fold, sibling claimed+merged it first — pivoted per AGENT_PROTOCOL. Next stuck CLI remote with feature body and no open PR was grok/continuous-work-voice-test-env. On main, faq-pack's default-factory test called getClientVoiceGenerator().generate() without clearing ANTHROPIC_API_KEY; scheduled agents/CI that inject the secret can hit the live Anthropic Messages API (or a flaky network fallback) mid-suite and assert a fragile variants.length===6. Closing that CI/agent flakiness keeps Growth sold voice-pack generation trustworthy under automation; beats inventing an optional aggregate or re-auditing 2x-clean sold-vs-shipped / orchestration axes. Residual next: encode-at-use slug path-safety for legacy payment_stub rows (PR #216 closed create-path).",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship CSV import hours column + RFC 4180 multiline line-splitting + field-length caps, and make parseLeadHours split on the first '·' only — rather than leave operator-owned lead ingest on hardcoded hours / naive newline splits while Places API stays counsel-gated. Fold stuck opencode/dev-work-f3k8p1.",
+    rationale:
+      "Empty-backlog after PR #227. Sibling business-process-evolution-2d7a already claimed legacy-slug-encode-at-use-path-safety (claim pushed) — pivoted per AGENT_PROTOCOL. Next stuck CLI remote with a complete feature body and no open PR was opencode/dev-work-f3k8p1. On main, parseLeadsCsv ignored real business hours (hardcoded default whose weekend itself contained '·'), splitCsv was a raw .split('\\n') that broke quoted multiline descriptions, and parseLeadHours used .split('·') so any weekend middot truncated the stored value on SQLite round-trip. Closing that path improves preview fidelity and CSV throughput for the only live lead-volume channel until Places clears counsel — higher leverage than inventing an optional aggregate or dual-building the sibling's encode-at-use fold.",
   },
 ];
 
@@ -7544,5 +7561,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1276 passed; faq-pack + generators also under ANTHROPIC_API_KEY=sk-fake) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(311, 312),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-78e4",
+    summary:
+      "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation). Sibling business-process-evolution-2d7a already claimed legacy-slug-encode-at-use-path-safety — pivoted. Scanned stuck CLI remotes and folded opencode/dev-work-f3k8p1 (complete CSV hours / RFC 4180 / field-limits body; Actions token blocked from gh pr create) as csv-import-hours-multiline-limits — the live lead-volume unlock while Places stays counsel-gated.",
+    shipped: [
+      "src/lib/leads/csv-import.ts — hours column + CSV_LEAD_TEMPLATE; splitCsvIntoLines (RFC 4180 quoted multiline); MAX_BUSINESS_NAME_LENGTH/MAX_DESCRIPTION_LENGTH/MAX_SERVICES; parseLeadHours for optional hours cells",
+      "src/lib/leads/sqlite-row-mapping.ts — parseLeadHours splits on the first '·' only so weekend values that contain middots survive SQLite round-trip",
+      "src/lib/leads/csv-import.test.ts (+11) + sqlite-row-mapping.test.ts (+1) — hours parse, multiline quoted fields, length caps, middot-in-weekend regression",
+      "Docs: architecture.tsx documents hours column + RFC 4180 line split + first-separator hours parse",
+      "AGENT_PROTOCOL — CSV quality preferred empty-backlog unlock while Places stays gated; parseLeadHours first-separator rule",
+      "NEXT_STEPS: csv-import-hours-multiline-limits done (folded from opencode/dev-work-f3k8p1)",
+      "BUSINESS_DECISIONS — documented why folding this stuck CSV quality fix beats dual-building sibling encode-at-use or inventing an optional aggregate",
+      "Verified: npm test (1288 passed, +12 CSV hours/RFC4180/limits + middot-in-weekend regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
 ];
