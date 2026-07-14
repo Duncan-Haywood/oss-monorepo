@@ -143,9 +143,27 @@ describe("StubClientVoiceGenerator", () => {
   });
 
   it("default factory returns a generator", async () => {
+    // Isolate from process.env: getClientVoiceGenerator prefers Anthropic when
+    // ANTHROPIC_API_KEY is set (scheduled-agent / CI secrets). Sibling
+    // generators.test.ts clears the key in afterEach; this file must too
+    // before calling .generate(), or the test hits the live Messages API
+    // (or a flaky network fallback) instead of StubClientVoiceGenerator.
+    // See client-voice-factory-test-env-isolation in /docs/process.
     resetClientVoiceGeneratorForTests();
-    const generator = getClientVoiceGenerator();
-    const result = await generator.generate(clientVoicePackRequestForLead(baseLead()));
-    expect(result.variants.length).toBe(6);
+    const prevKey = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    try {
+      const generator = getClientVoiceGenerator();
+      expect(generator).toBeInstanceOf(StubClientVoiceGenerator);
+      const result = await generator.generate(clientVoicePackRequestForLead(baseLead()));
+      expect(result.variants).toHaveLength(CLIENT_VOICE_FAQ_SCRIPT_TYPES.length);
+    } finally {
+      if (prevKey !== undefined) {
+        process.env.ANTHROPIC_API_KEY = prevKey;
+      } else {
+        delete process.env.ANTHROPIC_API_KEY;
+      }
+      resetClientVoiceGeneratorForTests();
+    }
   });
 });

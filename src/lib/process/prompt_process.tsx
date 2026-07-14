@@ -77,7 +77,7 @@ export const AGENT_PROTOCOL = [
   "Unauthenticated Stripe money redirects (Checkout success_url / cancel_url, Billing Portal return_url — including openBillingPortalAction) must use resolveStripeRedirectAppUrl, NOT resolveTrustedAppUrl and NOT `new URL(request.url).origin`. Precedence is NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost; never request Host/origin. A Host-spoofed comparison origin bypasses isSameOriginReturnUrl and turns post-payment redirects into phishing — see stripe-redirect-app-url-no-host-trust.",
   "When a route.ts and a dashboard server action are documented as 'twins' sharing one gate (e.g. bootstrapStripePricesAction / POST /api/stripe/bootstrap-prices), verify both actually call requireOperatorAuth — proxy.ts only gates /dashboard/*, never /api/*, so an API route is never auth-protected by the dashboard's route gate alone. An env-flag gate (ALLOW_STRIPE_BOOTSTRAP and similar) is not a substitute for requireOperatorAuth: it's deployment-wide and often set temporarily on an already-authenticated deployment, not a per-caller check. Mirror the requireOperatorAuth-in-a-route-handler precedent at src/app/api/marketing/generate/route.ts.",
   // --- Testing & verification ---
-  "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test.",
+  "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test. Vitest cases that call getClientVoiceGenerator / getMarketingGenerator (or any factory that prefers a live LLM when ANTHROPIC_API_KEY is set) must clear/restore that key around the call — generators.test.ts already does this in afterEach; faq-pack.test.ts must match (see client-voice-factory-test-env-isolation). Scheduled agents and CI often inject the real secret, and an unisolated .generate() hits the live Messages API mid-suite.",
   "A `\"server-only\"` lib file cannot be Vitest-tested directly, and its exports must not be re-exported through a barrel that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern in src/lib/commerce/stripe-sync.ts: take the third-party client (Stripe, etc.) as a parameter behind a minimal structural interface, so the logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep the real client construction + env-var gating only in the server action/route that calls it.",
   "`\"use server\"` files may export ONLY async functions — a `export type` re-export (even one that looks inert) throws `ReferenceError` at module evaluation under Turbopack's server-action transform and 500s every action in that file. Import types from their source module on the client instead.",
   "A server action with multiple `return { success: true/false, ... }` statements and no explicit return-type annotation only gets real discriminated-union narrowing on `if (res.success)` when every `success` literal is written `as const` (see markCommerceOrderPaidOutAction) — otherwise TS widens each to `boolean`, `if (res.success)` narrows nothing, and a field only present on the success branch (e.g. a returned id/slug) type-checks as possibly-undefined even though it's always present at runtime, silently defeating the type system's ability to catch a caller that forgets to use it. React client components have no test harness in this repo (no @testing-library/react) — extract event-handler logic that touches local list/array state into a pure function beside the component's existing pure-helper module (e.g. src/lib/leads/notes.ts) rather than leaving it untested inline; this is how leads-client-optimistic-state-desync got direct Vitest coverage without adding a new test stack.",
@@ -1820,6 +1820,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Fulfillment",
     owner:
       "cursor/business-process-evolution-8524 (folded from grok/dev-work-handoff-marker-status)",
+  },
+  {
+    id: "client-voice-factory-test-env-isolation",
+    summary:
+      "Empty-backlog after PR #226 (handoff-email-marker-status-no-downgrade, sibling-owned). Free NEXT_STEPS stayed gated. Scanned stuck CLI remotes: grok/continuous-work-voice-test-env had a complete fix — faq-pack.test.ts default factory .generate() lacked ANTHROPIC_API_KEY isolation (generators.test.ts already clears it), so CI/agent secrets can force a live Anthropic call mid-suite. Folded: clear/restore key around getClientVoiceGenerator().generate(); assert StubClientVoiceGenerator + CLIENT_VOICE_FAQ_SCRIPT_TYPES.length.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner:
+      "cursor/prompt-process-evolution-6033 (folded from grok/continuous-work-voice-test-env)",
   },
 ];
 
@@ -4000,6 +4009,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "updateDeployHandoffStatus never downgrades status (preferAdvancedHandoffStatus: live > provisioned > awaiting_dns > pending/failed) when appending notes — rather than trust the caller's status snapshot after a long Resend await. Fold stuck grok/dev-work-handoff-marker-status (complete feature body, Actions token blocked from gh pr create) onto an automation branch that can open/merge rather than leave a live Mark-live regression unmerged.",
     rationale:
       "Empty-backlog after PR #223 (handoff-provision-lost-update-guard). Free NEXT_STEPS stayed operator/legal-gated. Bundle webhook receipt/DNS sent-markers must append a durable note after send success, but they pass the pre-Resend handoff.status into updateDeployHandoffStatus — a concurrent Mark live during Resend was overwritten back to awaiting_dns, undoing operator fulfillment and desyncing handoff status from lead stage=live. Re-read-at-call-site is still racy; the rank merge inside the Convex mutation / SQLite write is atomic with the existing-row read. Mark live still upgrades (live is max rank). Prefer folding a stuck CLI remote with a complete security/fulfillment fix over inventing an optional aggregate or re-auditing already-clean axes.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Isolate Vitest client-voice factory generate() from process.env.ANTHROPIC_API_KEY (clear/restore around the call; assert StubClientVoiceGenerator) — rather than leave faq-pack.test.ts env-dependent while generators.test.ts already clears the key. Fold stuck grok/continuous-work-voice-test-env.",
+    rationale:
+      "Empty-backlog after PR #226 (sibling owned handoff-email-marker-status-no-downgrade). Same-minute dual claim: this branch first claimed the handoff-marker fold, sibling claimed+merged it first — pivoted per AGENT_PROTOCOL. Next stuck CLI remote with feature body and no open PR was grok/continuous-work-voice-test-env. On main, faq-pack's default-factory test called getClientVoiceGenerator().generate() without clearing ANTHROPIC_API_KEY; scheduled agents/CI that inject the secret can hit the live Anthropic Messages API (or a flaky network fallback) mid-suite and assert a fragile variants.length===6. Closing that CI/agent flakiness keeps Growth sold voice-pack generation trustworthy under automation; beats inventing an optional aggregate or re-auditing 2x-clean sold-vs-shipped / orchestration axes. Residual next: encode-at-use slug path-safety for legacy payment_stub rows (PR #216 closed create-path).",
   },
 ];
 
@@ -7514,5 +7530,19 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1276 passed, +3 preferAdvancedHandoffStatus regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(310, 311),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-6033",
+    summary:
+      "Empty-backlog after PR #226 (handoff-email-marker-status-no-downgrade). Same-minute dual window: this branch claimed the handoff-marker fold first, sibling business-process-evolution-8524 claimed+merged it (PR #226) — pivoted per AGENT_PROTOCOL. Scanned stuck CLI remotes next and found grok/continuous-work-voice-test-env with a complete faq-pack ANTHROPIC_API_KEY isolation fix and no open PR (Actions token blocked). Folded that body as client-voice-factory-test-env-isolation.",
+    shipped: [
+      "src/lib/voice/faq-pack.test.ts — clear/restore ANTHROPIC_API_KEY around getClientVoiceGenerator().generate(); assert StubClientVoiceGenerator + CLIENT_VOICE_FAQ_SCRIPT_TYPES.length (matches generators.test.ts isolation)",
+      "AGENT_PROTOCOL — Vitest LLM-factory tests must isolate ANTHROPIC_API_KEY (client-voice-factory-test-env-isolation)",
+      "NEXT_STEPS: client-voice-factory-test-env-isolation done (folded from grok/continuous-work-voice-test-env)",
+      "BUSINESS_DECISIONS — documented why folding this stuck CLI CI hygiene fix beats inventing an optional aggregate after sibling owned the handoff-marker fold; queued residual legacy-slug encode-at-use path-safety",
+      "Verified: npm test (1276 passed; faq-pack + generators also under ANTHROPIC_API_KEY=sk-fake) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(311, 312),
   },
 ];
