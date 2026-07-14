@@ -1777,6 +1777,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "redirect-url-validator-hardening",
+    summary:
+      "Empty-backlog after PR #216 (checkout-slug-sanitize-traversal). Same-minute sibling business-process-evolution-7bfa claimed preview-indexing-consent-guard (folding claude/dev-work-preview-index-consent). Complementary: grok/dev-work-redirect-url-hardening has a complete feature body hardening residual gaps on the two newest security validators, but no mergeable PR (Actions token blocked; handoff via issue #215). Verified empirically on main: isSafeNextPath still accepts /dashboard/login#x, /dashboard/./login, and /dashboard/%6cogin (authenticated-operator login redirect loop); resolveTrustedAppUrl still accepts javascript: proto and host path-smuggling because bare new URL() succeeds. Fold that body onto this automation branch per AGENT_PROTOCOL.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-f936",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
