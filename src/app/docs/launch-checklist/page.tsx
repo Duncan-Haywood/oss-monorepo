@@ -148,6 +148,10 @@ export default function LaunchChecklistDocPage() {
           <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before Resend when
           the optional checkbox is set; action-level Vitest (
           <code>dispose-cold-lead-action.test.ts</code>) locks that path beside cold-archive
+          helpers. The stage dropdown fails closed on{" "}
+          <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
+          Email 1 before Resend; action-level Vitest (
+          <code>update-lead-stage-action.test.ts</code>) locks that path beside stage-persist
           helpers.
         </li>
         <li>
@@ -423,7 +427,10 @@ export default function LaunchChecklistDocPage() {
           body / archived / no-email gates, mark-before-Resend, Convex skip-send) beside the
           reply helper suite; <code>update-inquiry-status-action.test.ts</code> locks Mark read
           / Archive status-only glue (auth, invalid status, requireConvex fail-closed, null
-          not-found). Email notify to the business fires only after a successful
+          not-found). Stage dropdown moves fail closed (
+          <code>LEAD_STAGE_CONVEX_PRIMARY</code>); <code>update-lead-stage-action.test.ts</code>{" "}
+          locks that glue (including Email 1 mark-before-Resend on{" "}
+          <code>outreach_sent</code>). Email notify to the business fires only after a successful
           insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
           count as unreplied; replied/archived do not).
         </li>
