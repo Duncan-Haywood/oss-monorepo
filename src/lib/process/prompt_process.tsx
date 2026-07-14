@@ -1694,6 +1694,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Client handoff",
     owner: "cursor/prompt-process-evolution-9930",
   },
+  {
+    id: "vercel-project-id-env-readiness",
+    summary:
+      "Empty-backlog after vercel-token-env-readiness (9930 / PR #177): operators get no early dashboard signal when shared VERCEL_PROJECT_ID is missing/whitespace/placeholder while VERCEL_TOKEN (and PRODUCTION_DOMAIN) look ready — tryProvisionVercelDomain still skips Domains API unless every handoff gets Assign project. Claimed: assessVercelProjectIdEnvReadiness + banner on /dashboard + /dashboard/leads.",
+    status: "in_progress",
+    phase: "Phase 5 — Client handoff",
+    owner: "cursor/prompt-process-evolution-7511",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
