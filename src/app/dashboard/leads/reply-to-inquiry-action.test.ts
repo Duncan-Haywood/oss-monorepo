@@ -4,11 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * Action-level orchestration for replyToInquiryAction — the operator Starter
  * inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify).
  *
- * reply.test.ts covers pure normalize / canReceive helpers. This suite locks
- * the dashboard action glue: requireOperatorAuth, empty inquiry id, empty /
- * over-long body, missing inquiry, archived / no-email gates, mark-before-Resend,
- * ConvexPrimaryWriteError skip-send, suppression / Resend failure after durable
- * mark (returns inquiry; no revalidate), mock send flag, and success revalidate.
+ * reply.test.ts + reply-persist.ts cover pure normalize / canReceive helpers
+ * and the requireConvex constant. This suite locks the dashboard action glue:
+ * requireOperatorAuth, empty inquiry id, empty / over-long body, missing
+ * inquiry, archived / no-email gates, mark-before-Resend, email trim,
+ * ConvexPrimaryWriteError skip-send, null-mark not-found, suppression /
+ * Resend failure after durable mark (returns inquiry; no revalidate), mock
+ * send flag, and success revalidate.
+ *
+ * Folded complementary coverage from cursor/business-process-evolution-fff2
+ * (email trim + null-mark not-found) into the earlier f9b1 claim body.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -239,6 +244,18 @@ describe("replyToInquiryAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
+  it("trims the inquiry email before sending", async () => {
+    getClientInquiryById.mockResolvedValue({
+      ...openInquiry,
+      email: "  alex@visitor.example  ",
+    });
+    const { replyToInquiryAction } = await import("./actions");
+    await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(sendInquiryReply).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "alex@visitor.example" }),
+    );
+  });
+
   it("skips Resend when the replied mark fails closed on Convex", async () => {
     recordClientInquiryReply.mockRejectedValue(new MockConvexPrimaryWriteError());
     const { replyToInquiryAction } = await import("./actions");
@@ -247,6 +264,18 @@ describe("replyToInquiryAction", () => {
       success: false,
       error:
         "Could not record the reply in the shared store — email was not sent. Retry in a moment.",
+    });
+    expect(sendInquiryReply).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces not-found when the mark returns null", async () => {
+    recordClientInquiryReply.mockResolvedValue(null);
+    const { replyToInquiryAction } = await import("./actions");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
+    expect(res).toEqual({
+      success: false,
+      error: "Inquiry not found",
     });
     expect(sendInquiryReply).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();

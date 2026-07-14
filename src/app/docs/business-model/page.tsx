@@ -88,6 +88,15 @@ export default function BusinessModelDocPage() {
         <code>send-follow-up-action.test.ts</code> locks the dashboard Follow-up glue beside
         the outreach-followups helpers.
       </p>
+
+      <h2>Starter CRM — inquiry Reply</h2>
+      <p>
+        Operator reply from the leads inbox marks the inquiry <code>replied</code> before
+        Resend (persist-then-notify / <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) so unreplied
+        metrics stay accurate across Convex-first instances. Action-level Vitest in{" "}
+        <code>reply-to-inquiry-action.test.ts</code> locks the dashboard Reply glue beside
+        reply-persist / reply.ts helpers.
+      </p>
       <ul>
         <li>
           <strong>Email 2</strong> — short nudge with preview + checkout links
