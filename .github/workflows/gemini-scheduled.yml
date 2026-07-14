@@ -2,11 +2,11 @@ name: Gemini scheduled agents
 
 # Google OAuth / Gemini Code Assist (not GEMINI_API_KEY).
 # Seed GEMINI_OAUTH_CREDS from ~/.gemini/oauth_creds.json after `gemini` login.
-# Model: gemini-3.5-flash. Runs both repo prompts every 30 minutes.
+# Model: gemini-3.5-flash. Runs both repo prompts hourly (stagger :10).
 
 on:
   schedule:
-    - cron: "5,35 * * * *"
+    - cron: "10 * * * *"
   workflow_dispatch:
     inputs:
       prompt_kind:

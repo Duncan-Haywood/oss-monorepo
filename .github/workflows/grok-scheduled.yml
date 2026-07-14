@@ -2,11 +2,11 @@ name: Grok Build scheduled agents
 
 # Grok Build SuperGrok / X Premium+ OAuth (not XAI_API_KEY).
 # Seed GROK_AUTH_JSON from ~/.grok/auth.json after `grok login`.
-# Runs both repo prompts every 30 minutes.
+# Runs both repo prompts hourly (stagger :30).
 
 on:
   schedule:
-    - cron: "15,45 * * * *"
+    - cron: "30 * * * *"
   workflow_dispatch:
     inputs:
       prompt_kind:

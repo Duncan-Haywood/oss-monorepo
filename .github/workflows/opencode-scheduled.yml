@@ -2,11 +2,11 @@ name: OpenCode scheduled agents
 
 # OpenCode OAuth via ~/.local/share/opencode/auth.json.
 # Seed OPENCODE_AUTH from a local `opencode auth login` session.
-# Runs both repo prompts every 30 minutes.
+# Runs both repo prompts hourly (stagger :20).
 
 on:
   schedule:
-    - cron: "10,40 * * * *"
+    - cron: "20 * * * *"
   workflow_dispatch:
     inputs:
       prompt_kind:

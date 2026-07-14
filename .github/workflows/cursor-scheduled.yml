@@ -2,11 +2,11 @@ name: Cursor Agent scheduled agents
 
 # Cursor Agent CLI. Prefer OAuth cli-config from `agent login`
 # (CURSOR_CLI_CONFIG → ~/.cursor/cli-config.json). Fall back to CURSOR_API_KEY.
-# Runs both repo prompts every 30 minutes.
+# Runs both repo prompts hourly (stagger :40).
 
 on:
   schedule:
-    - cron: "20,50 * * * *"
+    - cron: "40 * * * *"
   workflow_dispatch:
     inputs:
       prompt_kind:

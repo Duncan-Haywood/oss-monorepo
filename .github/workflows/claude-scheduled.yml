@@ -1,0 +1,136 @@
+name: Claude Code scheduled agents
+
+# Claude Code subscription OAuth (not ANTHROPIC_API_KEY).
+# Preferred CI secret: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
+#   gh secret set CLAUDE_CODE_OAUTH_TOKEN
+# Optional file seed (Linux layout): CLAUDE_CREDENTIALS_JSON → ~/.claude/.credentials.json
+#   On macOS, interactive login stores tokens in Keychain, so use setup-token for CI.
+# Do not pass --bare (it skips OAuth / CLAUDE_CODE_OAUTH_TOKEN).
+# Runs both repo prompts hourly (stagger :50).
+
+on:
+  schedule:
+    - cron: "50 * * * *"
+  workflow_dispatch:
+    inputs:
+      prompt_kind:
+        description: Which prompt to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - dev-work
+          - continuous-work
+      model:
+        description: Optional Claude model id (empty = CLI default)
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  resolve-prompts:
+    runs-on: ubuntu-latest
+    outputs:
+      prompts: ${{ steps.set.outputs.prompts }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
+          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
+            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  claude:
+    needs: resolve-prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt_kind: ${{ fromJSON(needs.resolve-prompts.outputs.prompts) }}
+    concurrency:
+      group: claude-scheduled-${{ matrix.prompt_kind }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Restore Claude OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.claude/.credentials.json
+          key: claude-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
+          restore-keys: |
+            claude-oauth-auth-
+
+      - name: Seed Claude OAuth credentials
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          CLAUDE_CREDENTIALS_JSON: ${{ secrets.CLAUDE_CREDENTIALS_JSON }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.claude"
+          if [ -n "${CLAUDE_CREDENTIALS_JSON:-}" ]; then
+            .github/scripts/restore-oauth-auth.sh "$HOME/.claude/.credentials.json" CLAUDE_CREDENTIALS_JSON
+          fi
+          if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ ! -s "$HOME/.claude/.credentials.json" ]; then
+            echo "::error::Set CLAUDE_CODE_OAUTH_TOKEN (from \`claude setup-token\`) or CLAUDE_CREDENTIALS_JSON (Linux ~/.claude/.credentials.json)."
+            exit 1
+          fi
+          if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+            echo "CLAUDE_CODE_OAUTH_TOKEN is set for this job."
+          fi
+
+      - name: Prepare prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh
+          .github/scripts/prepare-agent-prompt.sh \
+            ".github/prompts/${{ matrix.prompt_kind }}.md" \
+            "claude-code" \
+            "${{ matrix.prompt_kind }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "claude-scheduled[bot]"
+          git config user.email "claude-scheduled[bot]@users.noreply.github.com"
+
+      - name: Run Claude Code (headless, OAuth)
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL_INPUT: ${{ github.event.inputs.model || '' }}
+        run: |
+          set -euo pipefail
+          # Prefer subscription OAuth over any stray API key in the environment.
+          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN || true
+          PROMPT="$(cat "$PROMPT_FILE")"
+          ARGS=(-p --dangerously-skip-permissions --permission-mode bypassPermissions)
+          if [ -n "${MODEL_INPUT:-}" ]; then
+            ARGS+=(--model "$MODEL_INPUT")
+          fi
+          claude "${ARGS[@]}" "$PROMPT"
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.claude/.credentials.json
+          key: claude-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}

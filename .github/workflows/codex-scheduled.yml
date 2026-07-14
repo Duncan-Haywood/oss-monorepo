@@ -2,11 +2,11 @@ name: Codex scheduled agents
 
 # ChatGPT OAuth (not API key). Seed CODEX_AUTH_JSON from ~/.codex/auth.json
 # after `codex login` with cli_auth_credentials_store = "file".
-# Model: gpt-5.6-luna. Runs both repo prompts every 30 minutes.
+# Model: gpt-5.6-luna. Runs both repo prompts hourly (stagger :00).
 
 on:
   schedule:
-    - cron: "0,30 * * * *"
+    - cron: "0 * * * *"
   workflow_dispatch:
     inputs:
       prompt_kind:
