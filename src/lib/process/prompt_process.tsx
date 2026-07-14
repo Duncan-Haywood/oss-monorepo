@@ -216,6 +216,9 @@ export const AGENT_PROTOCOL = [
   "add-lead-action-test-coverage done: src/app/dashboard/leads/add-lead-action.test.ts locks requireOperatorAuth, missing slug/businessName, slug sanitize, default stage/dataSource + explicit overrides, existing-slug conflict (no upsert), LEAD_UPSERT_CONVEX_PRIMARY on upsertLead, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate (/dashboard/leads + /preview), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved; Email 1 not sent; returns slug), and Error / non-Error throws — upsert-persist / outreach-persist / csv-import helper suites alone are not enough for the dashboard Add lead glue. Twin of update-lead-notes-action-test-coverage (3eb3; folded here). When free NEXT_STEPS stay gated, prefer import-leads-csv-action-test-coverage / mark-handoff-live-action-test-coverage (sibling-friendly CSV import vs Mark live fulfill) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When import-leads-csv-action-test-coverage and mark-handoff-live-action-test-coverage are both free in the same cron window, claim different ones (CSV bulk inventory create vs Mark live fulfill) — they touch different action surfaces and both lock sold-capability paths that upsert / deploy-handoff helper suites do not cover.",
   "Before claiming in a same-minute dual-automation window, fetch the sibling automation's newest remote branch tip (business-process-evolution-* ↔ prompt-process-evolution-*) and read NEXT_STEPS ownership there — pivoting after a remote claim is cheaper than dual-building the same suite.",
+  "import-leads-csv-action-test-coverage done: src/app/dashboard/leads/import-leads-csv-action.test.ts locks requireOperatorAuth, empty CSV, no-valid-leads parse failure, success upsert with LEAD_UPSERT_CONVEX_PRIMARY + revalidate, existing-slug skip (no upsert), in-batch duplicate slug auto-suffix at parse, ConvexPrimaryWriteError per-row retry (siblings still import), all-fail / all-collision → success:false, and Error / non-Error throws — csv-import / upsert-persist helper suites alone are not enough for the dashboard Import CSV glue. Twin of mark-handoff-live-action-test-coverage (1ca9; folded here). When free NEXT_STEPS stay gated, prefer assign-vercel-project-action-test-coverage / assign-custom-domain-action-test-coverage (sibling-friendly dedicated-project vs Host→preview routing) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "mark-handoff-live-action-test-coverage done: src/app/dashboard/leads/mark-handoff-live-action.test.ts locks requireOperatorAuth, empty slug, no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via markHandoffLive (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads + /preview), and Error / non-Error throws — handoff-persist / handoff helper suites alone are not enough for the dashboard Mark live glue. Twin of import-leads-csv-action-test-coverage (3be7; folded here). When free NEXT_STEPS stay gated, prefer assign-vercel-project-action-test-coverage / assign-custom-domain-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When assign-vercel-project-action-test-coverage and assign-custom-domain-action-test-coverage are both free in the same cron window, claim different ones (dedicated Vercel project vs custom domain Host→preview) — they touch different action surfaces and both lock DEPLOY_HANDOFF_CONVEX_PRIMARY fulfill paths that handoff helper suites do not cover.",
 ] as const;
 
 /**
@@ -1583,14 +1586,30 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "import-leads-csv-action-test-coverage",
     summary:
-      "Empty-backlog twin after notes / Add lead action Vitest: importLeadsCsvAction is the operator bulk inventory path (LEAD_UPSERT_CONVEX_PRIMARY per row + parse/validate) — CSV parse helper + upsert-persist suites alone are not enough for action glue. Sibling-friendly with mark-handoff-live-action-test-coverage; prefer when add-lead-action-test-coverage is done or claimed.",
-    status: "todo",
+      "Empty-backlog twin after notes / Add lead action Vitest: importLeadsCsvAction is the operator bulk inventory path (LEAD_UPSERT_CONVEX_PRIMARY per row + parse/validate) — CSV parse helper + upsert-persist suites alone are not enough for action glue. Shipped: import-leads-csv-action.test.ts (12 tests). Sibling-friendly with mark-handoff-live-action-test-coverage (1ca9).",
+    status: "done",
     phase: "Phase 2 — Lead volume",
+    owner: "cursor/prompt-process-evolution-3be7",
   },
   {
     id: "mark-handoff-live-action-test-coverage",
     summary:
-      "Empty-backlog twin after notes / Add lead action Vitest: markHandoffLiveAction is the operator Mark live fulfill path (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live) — deploy-handoff helper suites alone are not enough for action glue. Sibling-friendly with import-leads-csv-action-test-coverage; prefer when update-lead-notes-action-test-coverage is done.",
+      "Empty-backlog twin after notes / Add lead action Vitest: markHandoffLiveAction is the operator Mark live fulfill path (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live) — deploy-handoff helper suites alone are not enough for action glue. Shipped: mark-handoff-live-action.test.ts (7 tests). Twin of import-leads-csv-action-test-coverage (3be7; folded here).",
+    status: "done",
+    phase: "Phase 5 — Fulfill & deploy",
+    owner: "cursor/business-process-evolution-1ca9",
+  },
+  {
+    id: "assign-vercel-project-action-test-coverage",
+    summary:
+      "Empty-backlog twin after CSV import / Mark live action Vitest: assignVercelProjectAction is the operator dedicated-project path (DEPLOY_HANDOFF_CONVEX_PRIMARY + optional Domains API provision) — handoff helper suites alone are not enough for action glue. Sibling-friendly with assign-custom-domain-action-test-coverage; prefer when mark-handoff-live-action-test-coverage is done or claimed.",
+    status: "todo",
+    phase: "Phase 5 — Fulfill & deploy",
+  },
+  {
+    id: "assign-custom-domain-action-test-coverage",
+    summary:
+      "Empty-backlog twin after CSV import / Mark live action Vitest: assignCustomDomainAction is the operator Host→preview routing path (DEPLOY_HANDOFF_CONVEX_PRIMARY + optional Domains API) — handoff helper suites alone are not enough for action glue. Sibling-friendly with assign-vercel-project-action-test-coverage; prefer when import-leads-csv-action-test-coverage is done.",
     status: "todo",
     phase: "Phase 5 — Fulfill & deploy",
   },
@@ -3429,6 +3448,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "After notes + Add lead action Vitest land (PR #165), prefer import-leads-csv-action-test-coverage ↔ mark-handoff-live-action-test-coverage as the next empty-backlog twin pair — and claim them separately in the same cron window. CSV import locks bulk inventory create (LEAD_UPSERT_CONVEX_PRIMARY per row); Mark live locks sold Starter/Growth/Complete fulfill (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live). Do not invent optional aggregates while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Both twins close multi-instance regression gaps on paths operators click every day (bulk lead load vs Mark live after DNS). A dual-claim rule matching prior notes/add and stage/snooze twins prevents same-minute thrash; each suite touches different action surfaces so folding stays cheap. Prefer that inventory/fulfill glue over inventing optional metrics.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for importLeadsCsvAction (bulk inventory create) when add-lead-action-test-coverage is done — csv-import / upsert-persist helper suites alone do not lock auth, empty CSV, no-valid-leads parse failure, LEAD_UPSERT_CONVEX_PRIMARY per row, existing-slug skip, in-batch duplicate slug auto-suffix, ConvexPrimaryWriteError per-row retry with partial success, all-fail / all-collision → success:false, or Error / non-Error throws. Leave mark-handoff-live-action-test-coverage free for siblings; queue assign-vercel-project-action-test-coverage + assign-custom-domain-action-test-coverage as sibling-friendly fulfill twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Import CSV is the operator path that seeds CRM inventory at volume on /dashboard/leads — getLeads / Work next / pipeline-health / digest / outreach eligibility all read Convex-first. A future soft-fallback that claims import after a SQLite-only write, upserts over an existing slug, or treats a per-row ConvexPrimaryWriteError as a silent skip without a retry message would not fail Vitest without action glue coverage — the same class of gap Add lead / notes Save action suites already closed — and would leave bulk inventory invisible elsewhere (empty CRM + false funnel) or clobber pipeline state. Prefer locking that bulk-create glue, then Mark live / Assign Vercel project / Assign custom domain action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for markHandoffLiveAction (sold Starter/Growth/Complete fulfill) when import-leads-csv-action-test-coverage is claimed by a sibling — handoff-persist / handoff helper suites alone do not lock auth, empty slug, no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed (ConvexPrimaryWriteError; no revalidate), success revalidate, or Error / non-Error throws. Queue assign-vercel-project-action-test-coverage + assign-custom-domain-action-test-coverage as sibling-friendly fulfill twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Mark live is the operator path that closes paid-not-live debt on /dashboard/leads — listDeployHandoffs / pipeline-health / getLeads stage funnel read Convex-first. A future soft-fallback that claims Mark live after a SQLite-only write, revalidates after ConvexPrimaryWriteError, or treats a missing handoff as success would not fail Vitest without action glue coverage — the same class of gap CSV import / Add lead action suites already closed — and would leave paid clients looking pre-live elsewhere (open handoff debt + false funnel). Prefer locking that fulfill glue, then Assign Vercel project / Assign custom domain action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6141,5 +6174,35 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test + lint (process-only)",
     ],
     decisions: BUSINESS_DECISIONS.slice(261, 262),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-3be7",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #165 (notes + Add lead action Vitest). Same-cron window as business-process-evolution-1ca9: claimed import-leads-csv-action-test-coverage; sibling claimed mark-handoff-live-action-test-coverage. importLeadsCsvAction had zero action-level Vitest despite being the operator bulk inventory path (LEAD_UPSERT_CONVEX_PRIMARY per row + collision skip). Folded 1ca9 Mark live action Vitest here (both ITERATIONS kept). Queued assign-vercel-project + assign-custom-domain action Vitest twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/import-leads-csv-action.test.ts — 12 tests locking auth fail, empty CSV, no-valid-leads parse failure, success upsert with LEAD_UPSERT_CONVEX_PRIMARY + revalidate (/dashboard/leads + /preview per slug), existing-slug skip (no upsert; row warning), in-batch duplicate slug auto-suffix at parse, ConvexPrimaryWriteError per-row retry (siblings still import), all-fail / all-collision → success:false, and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside upsert-persist / CSV import",
+      "NEXT_STEPS: import-leads-csv-action-test-coverage done; mark-handoff-live-action-test-coverage done (1ca9 folded); queued assign-vercel-project-action-test-coverage + assign-custom-domain-action-test-coverage",
+      "AGENT_PROTOCOL — claim Assign Vercel project vs Assign custom domain action Vitest separately; prefer those fulfill twins next",
+      "BUSINESS_DECISIONS — documented why CSV bulk-create action glue Vitest beats inventing optional aggregates after Add lead coverage",
+      "merge: folded origin/cursor/business-process-evolution-1ca9 (mark-handoff-live action Vitest) — both ITERATIONS kept",
+      "Verified: npm test after fold (import-leads-csv 12 + mark-handoff-live 7) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(262, 263),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-1ca9",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #165 (notes + Add lead action Vitest). Sibling prompt-process-evolution-3be7 claimed import-leads-csv-action-test-coverage first — pivoted per AGENT_PROTOCOL to mark-handoff-live-action-test-coverage. markHandoffLiveAction had zero action-level Vitest despite being the operator Mark live fulfill path (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live). Folded here via 3be7. assign-vercel-project + assign-custom-domain action Vitest twins stay queued. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/mark-handoff-live-action.test.ts — 7 tests locking auth fail, empty slug, no-handoff null, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate (/dashboard/leads + /preview), and Error / non-Error throws",
+      "NEXT_STEPS: mark-handoff-live-action-test-coverage done; import-leads-csv-action-test-coverage done (3be7 folded); assign-vercel-project + assign-custom-domain left free",
+      "AGENT_PROTOCOL — claim CSV import vs Mark live action Vitest separately; prefer Assign Vercel / custom-domain action Vitest twins next",
+      "BUSINESS_DECISIONS — documented why Mark live fulfill action glue Vitest beats inventing optional aggregates after CSV coverage",
+      "Verified: npm test (mark-handoff-live 7) + lint + build (on 1ca9; re-verified after 3be7 fold)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(263, 264),
   },
 ];

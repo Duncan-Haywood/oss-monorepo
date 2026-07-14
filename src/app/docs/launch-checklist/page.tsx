@@ -122,7 +122,10 @@ export default function LaunchChecklistDocPage() {
           success after a SQLite-only write other instances cannot see; action-level Vitest (
           <code>add-lead-action.test.ts</code>) locks the manual Add lead path (auth,
           slug/businessName gates, existing-slug conflict, requireConvex fail-closed,
-          outreach_sent mark-before-Resend) beside upsert-persist helpers. Manual stage moves on the
+          outreach_sent mark-before-Resend) and{" "}
+          <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
+          invalid CSV, per-row requireConvex, existing-slug skip, partial failure) beside
+          upsert-persist helpers. Manual stage moves on the
           dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
           cannot succeed only in instance-local SQLite while Convex-first readers miss the move
           (Mark live already fail-closes via handoff writes). A Convex unsubscribe
@@ -423,7 +426,10 @@ export default function LaunchChecklistDocPage() {
           paid-not-live and open-handoff counts drop on pipeline health. With Convex configured,
           Mark live / Assign Vercel project / Assign custom domain all fail closed on Convex
           errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
-          that other instances cannot see; a failure shows a retry message instead.
+          that other instances cannot see; a failure shows a retry message instead. Action-level
+          Vitest (<code>mark-handoff-live-action.test.ts</code>) locks the Mark live path (auth,
+          empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+          helpers.
         </li>
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions must land in

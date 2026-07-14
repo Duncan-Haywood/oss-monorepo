@@ -48,7 +48,10 @@ export default function ArchitectureDocPage() {
         surfaces a retry instead of claiming success after a SQLite-only write other instances
         cannot see. Action-level Vitest in <code>add-lead-action.test.ts</code> locks that Add
         lead glue (auth, slug/businessName gates, sanitize, existing-slug conflict, requireConvex
-        fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
+        fail-closed, outreach_sent mark-before-Resend) and{" "}
+        <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
+        invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure) beside
+        upsert-persist helpers. Dashboard
         stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so funnel state cannot desync from
@@ -342,7 +345,10 @@ export default function ArchitectureDocPage() {
         <strong>Assign custom domain</strong> — pass <code>requireConvex</code> (
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) when Convex is configured, so a
         mutation failure surfaces as an operator retry message instead of a SQLite-only success
-        that other instances (reading Convex-first) would never see. Suggested host{" "}
+        that other instances (reading Convex-first) would never see. Action-level Vitest in{" "}
+        <code>mark-handoff-live-action.test.ts</code> locks the Mark live dashboard glue (auth,
+        empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+        helpers. Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;

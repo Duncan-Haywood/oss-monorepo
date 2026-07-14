@@ -140,6 +140,26 @@ export default function BusinessModelDocPage() {
         helpers.
       </p>
 
+      <h2>Import CSV (bulk create)</h2>
+      <p>
+        Bulk inventory create on <code>/dashboard/leads</code> uses the same{" "}
+        <code>LEAD_UPSERT_CONVEX_PRIMARY</code> per row. Existing-slug collisions skip with a
+        row warning (no overwrite of stage/outreach/notes/snooze). Per-row Convex failures
+        surface a retry message while siblings in the same batch can still import.
+        Action-level Vitest in <code>import-leads-csv-action.test.ts</code> locks that
+        dashboard glue beside csv-import / upsert-persist helpers.
+      </p>
+
+      <h2>Mark live (fulfill)</h2>
+      <p>
+        Closing a paid deploy handoff on <code>/dashboard/leads</code> uses{" "}
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code> so Mark live cannot succeed only in
+        instance-local SQLite — paidNotLive / open handoffs / the stage funnel read Convex-first.
+        Missing handoffs return not-found (no false live). Action-level Vitest in{" "}
+        <code>mark-handoff-live-action.test.ts</code> locks that dashboard glue beside
+        handoff-persist helpers.
+      </p>
+
       <h2>Work next snooze / Unsnooze</h2>
       <p>
         Parking a hot lead off Work next (1d / 3d / 7d) or clearing an early return uses{" "}
