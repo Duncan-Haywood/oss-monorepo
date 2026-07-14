@@ -133,10 +133,14 @@ export default function LaunchChecklistDocPage() {
           suppression still blocks sends. Every Email 1/2/3 send durably marks{" "}
           <code>outreachStep</code> before calling Resend; with Convex configured that mark
           fails closed (<code>requireConvex</code>) — a mutation failure skips the send and
-          shows a retry message instead of a false success. Action-level Vitest (
+          shows a retry message instead of a false success.           Action-level Vitest (
           <code>send-follow-up-action.test.ts</code>) locks the dashboard Follow-up path
           (auth, stage/email gates, mark-before-Resend, Email 2 vs 3, Convex skip-send)
-          beside the outreach-followups helper suite.
+          beside the outreach-followups helper suite. Reply from the inquiry inbox likewise
+          marks <code>replied</code> before Resend (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>);
+          action-level Vitest (<code>reply-to-inquiry-action.test.ts</code>) locks that path
+          (auth, body/inquiry gates, mark-before-Resend, Convex skip-send) beside reply-persist
+          / reply.ts helpers.
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
