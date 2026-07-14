@@ -112,7 +112,10 @@ export default function RoadmapDocPage() {
         <strong>Reply</strong> action glue is covered by{" "}
         <code>reply-to-inquiry-action.test.ts</code> (auth, body/inquiry gates,
         mark-before-Resend, ConvexPrimaryWriteError skip-send) beside reply-persist /
-        reply.ts helpers. Lead quality
+        reply.ts helpers. Cold-lead <strong>Re-engage / Close</strong> action glue is covered
+        by <code>dispose-cold-lead-action.test.ts</code> (auth, disposition / cold gates,
+        requireConvex Close + Re-engage, optional Email 1 mark-before-Resend,
+        ConvexPrimaryWriteError skip-send) beside cold-archive helpers. Lead quality
         scoring (0–100 pure TypeScript scorer + Work next queue on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>): shipped. Preview open
         tracking (<code>lastPreviewOpenAt</code>, <code>?src=outreach</code> email links;

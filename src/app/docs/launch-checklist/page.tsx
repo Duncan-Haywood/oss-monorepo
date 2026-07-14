@@ -140,7 +140,11 @@ export default function LaunchChecklistDocPage() {
           marks <code>replied</code> before Resend (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>);
           action-level Vitest (<code>reply-to-inquiry-action.test.ts</code>) locks that path
           (auth, body/inquiry gates, mark-before-Resend, Convex skip-send) beside reply-persist
-          / reply.ts helpers.
+          / reply.ts helpers. Cold-lead Re-engage / Close likewise fails closed on
+          disposition (<code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before
+          Resend when the optional checkbox is set; action-level Vitest (
+          <code>dispose-cold-lead-action.test.ts</code>) locks that path beside cold-archive
+          helpers.
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}

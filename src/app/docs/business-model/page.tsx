@@ -97,6 +97,15 @@ export default function BusinessModelDocPage() {
         <code>reply-to-inquiry-action.test.ts</code> locks the dashboard Reply glue beside
         reply-persist / reply.ts helpers.
       </p>
+
+      <h2>Cold-lead Re-engage / Close</h2>
+      <p>
+        After Email 1–3 silence, operators Re-engage (reset cadence, optional Email 1) or Close
+        from the Cold panel. Disposition writes use{" "}
+        <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>; optional Email 1 marks outreach before
+        Resend. Action-level Vitest in <code>dispose-cold-lead-action.test.ts</code> locks that
+        dashboard glue beside cold-archive helpers.
+      </p>
       <ul>
         <li>
           <strong>Email 2</strong> — short nudge with preview + checkout links
