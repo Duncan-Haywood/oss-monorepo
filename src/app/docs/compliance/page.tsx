@@ -48,7 +48,14 @@ export default function ComplianceDocPage() {
       <h2>Email — CAN-SPAM</h2>
       <ul>
         <li>Identify sender: {brand.legalEntity} in footer; public brand in From name</li>
-        <li>Valid physical postal address in Colorado</li>
+        <li>
+          Valid physical postal address in Colorado — until{" "}
+          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder address,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> shows a yellow readiness banner via{" "}
+          <code>assessCompanyAddressEnvReadiness</code> (
+          <code>src/lib/brand/company-address-env-readiness.ts</code>) so outreach cannot
+          silently ship the bracket stub
+        </li>
         <li>
           Outbound HTML escapes <code>brand.name</code> / legal entity / postal address (and
           lead fields) via <code>escapeHtmlForEmail</code> — including the email shown on the
