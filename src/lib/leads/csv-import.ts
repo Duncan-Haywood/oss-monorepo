@@ -4,6 +4,7 @@
  */
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
+import { parseLeadHours } from "./sqlite-row-mapping";
 
 export const CSV_LEAD_HEADERS = [
   "businessName",
@@ -13,6 +14,7 @@ export const CSV_LEAD_HEADERS = [
   "address",
   "phone",
   "email",
+  "hours",
   "services",
   "tagline",
   "description",
@@ -36,6 +38,9 @@ export interface CsvImportResult {
 const CATEGORIES = new Set<BusinessCategory>(["restaurant", "salon", "trades", "generic"]);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
+const MAX_BUSINESS_NAME_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 2000;
+const MAX_SERVICES = 100;
 
 export const CSV_LEAD_TEMPLATE = [
   CSV_LEAD_HEADERS.join(","),
@@ -47,6 +52,7 @@ export const CSV_LEAD_TEMPLATE = [
     "1200 Blake St",
     "(303) 555-0100",
     "hello@blueriversalon.example",
+    "Mon–Fri 9am–5pm · Sat 10am–2pm",
     "Haircuts; Color; Blowouts",
     '"Color cuts and calm appointments"',
     '"Appointment-only salon in RiNo"',
@@ -54,6 +60,34 @@ export const CSV_LEAD_TEMPLATE = [
     "blue-river-salon",
   ].join(","),
 ].join("\n");
+
+/**
+ * Split raw CSV text into lines, handling double-quoted fields that may contain
+ * embedded newlines (RFC 4180 §2, item 6). Normalises CRLF / bare CR to LF.
+ */
+export function splitCsvIntoLines(csvText: string): string[] {
+  const normalized = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const lines: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < normalized.length; i++) {
+    const ch = normalized[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+      current += ch;
+    } else if (ch === "\n" && !inQuotes) {
+      const trimmed = current.trimEnd();
+      if (trimmed.length > 0) lines.push(trimmed);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  const remaining = current.trimEnd();
+  if (remaining.length > 0) lines.push(remaining);
+  return lines;
+}
 
 /** Split a single CSV line into fields, honoring double-quoted values. */
 export function parseCsvLine(line: string): string[] {
@@ -157,12 +191,7 @@ export function parseLeadsCsv(
   const leads: Lead[] = [];
   const seenSlugs = new Set<string>();
 
-  const lines = csvText
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => line.trim().length > 0);
+  const lines = splitCsvIntoLines(csvText);
 
   if (lines.length === 0) {
     return { leads: [], errors: [{ row: 0, message: "CSV is empty" }], skipped: 0 };
@@ -215,6 +244,14 @@ export function parseLeadsCsv(
       skipped += 1;
       return;
     }
+    if (businessName.length > MAX_BUSINESS_NAME_LENGTH) {
+      errors.push({
+        row: rowNumber,
+        message: `businessName too long (${businessName.length} chars, max ${MAX_BUSINESS_NAME_LENGTH})`,
+      });
+      skipped += 1;
+      return;
+    }
 
     const category = parseCategory(get("category"));
     if (!category) {
@@ -241,7 +278,11 @@ export function parseLeadsCsv(
           .split(";")
           .map((s) => s.trim())
           .filter(Boolean)
+          .slice(0, MAX_SERVICES)
       : ["Custom digital setup"];
+
+    const hoursRaw = get("hours");
+    const hours = hoursRaw ? parseLeadHours(hoursRaw) : { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
 
     const city = get("city") || "Denver";
     const state = get("state") || "CO";
@@ -249,9 +290,10 @@ export function parseLeadsCsv(
     const phone = get("phone") || "(555) 000-0000";
     const email = get("email") || undefined;
     const tagline = get("tagline") || defaultTagline(category);
-    const description =
-      get("description") ||
-      `Preview site generated for ${businessName}. Claim it to connect your domain and go live.`;
+    const descriptionRaw = get("description");
+    const description = descriptionRaw
+      ? descriptionRaw.slice(0, MAX_DESCRIPTION_LENGTH)
+      : `Preview site generated for ${businessName}. Claim it to connect your domain and go live.`;
     const recommendedTier = parseTier(get("recommendedTier"), category);
 
     leads.push({
@@ -266,10 +308,7 @@ export function parseLeadsCsv(
       phone,
       email,
       services,
-      hours: {
-        weekday: "Mon–Fri 9am–5pm",
-        weekend: "Sat 10am–2pm · Closed Sun",
-      },
+      hours,
       stage: defaultStage,
       recommendedTier,
       dataSource,

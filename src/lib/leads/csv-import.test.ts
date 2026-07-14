@@ -6,7 +6,31 @@ import {
   parseLeadsCsv,
   partitionLeadsByExistingSlugs,
   slugifyBusinessName,
+  splitCsvIntoLines,
 } from "./csv-import";
+
+describe("splitCsvIntoLines", () => {
+  it("splits ordinary lines on newlines", () => {
+    expect(splitCsvIntoLines("a,b\nc,d\ne,f")).toEqual(["a,b", "c,d", "e,f"]);
+  });
+
+  it("handles CRLF line endings", () => {
+    expect(splitCsvIntoLines("a,b\r\nc,d")).toEqual(["a,b", "c,d"]);
+  });
+
+  it("does not split within a double-quoted field containing an embedded newline", () => {
+    const csv = '"multi\nline",value\nnormal,row';
+    expect(splitCsvIntoLines(csv)).toEqual(['"multi\nline",value', "normal,row"]);
+  });
+
+  it("handles trailing newline without emitting an empty trailing line", () => {
+    expect(splitCsvIntoLines("a\nb\n")).toEqual(["a", "b"]);
+  });
+
+  it("returns empty array for empty text", () => {
+    expect(splitCsvIntoLines("")).toEqual([]);
+  });
+});
 
 describe("parseCsvLine", () => {
   it("splits plain comma-separated fields", () => {
@@ -44,6 +68,7 @@ describe("parseLeadsCsv", () => {
       category: "salon",
       recommendedTier: "complete",
       dataSource: "csv_import",
+      hours: { weekday: "Mon–Fri 9am–5pm", weekend: "Sat 10am–2pm" },
     });
   });
 
@@ -112,6 +137,59 @@ describe("parseLeadsCsv", () => {
     const result = parseLeadsCsv(`businessName\n${rows}`);
     expect(result.leads).toEqual([]);
     expect(result.errors[0]?.message).toMatch(/Too many rows/);
+  });
+
+  it("parses an optional hours column into a LeadHours object", () => {
+    const csv = "businessName,hours\nAcme,Mon–Fri 9am–5pm · Sat–Sun Closed";
+    const result = parseLeadsCsv(csv);
+    expect(result.leads[0]?.hours).toEqual({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat–Sun Closed",
+    });
+  });
+
+  it("uses default hours when the hours column is absent", () => {
+    const result = parseLeadsCsv("businessName\nAcme");
+    expect(result.leads[0]?.hours).toEqual({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat–Sun Closed",
+    });
+  });
+
+  it("handles multi-line quoted fields (RFC 4180 embedded newlines)", () => {
+    const csv = [
+      "businessName,description",
+      '"Acme Cafe","Multi-line',
+      'description here"',
+      "Other Shop,Single line",
+    ].join("\n");
+    const result = parseLeadsCsv(csv);
+    expect(result.errors).toEqual([]);
+    expect(result.leads).toHaveLength(2);
+    expect(result.leads[0]?.businessName).toBe("Acme Cafe");
+    expect(result.leads[0]?.description).toBe("Multi-line\ndescription here");
+    expect(result.leads[1]?.businessName).toBe("Other Shop");
+  });
+
+  it("rejects an over-long businessName", () => {
+    const csv = `businessName\n${"A".repeat(201)}`;
+    const result = parseLeadsCsv(csv);
+    expect(result.errors[0]?.message).toMatch(/businessName too long/);
+    expect(result.leads).toEqual([]);
+  });
+
+  it("caps services array at MAX_SERVICES entries", () => {
+    const manyServices = Array.from({ length: 150 }, (_, i) => `Service ${i}`).join(";");
+    const csv = `businessName,services\nAcme,${manyServices}`;
+    const result = parseLeadsCsv(csv);
+    expect(result.leads[0]?.services).toHaveLength(100);
+  });
+
+  it("truncates an over-long description", () => {
+    const longDesc = "X".repeat(2500);
+    const csv = `businessName,description\nAcme,${longDesc}`;
+    const result = parseLeadsCsv(csv);
+    expect(result.leads[0]?.description).toHaveLength(2000);
   });
 });
 
