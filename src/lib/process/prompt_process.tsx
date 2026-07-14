@@ -208,7 +208,8 @@ export const AGENT_PROTOCOL = [
   "dispose-cold-lead-action-test-coverage done: src/app/dashboard/leads/dispose-cold-lead-action.test.ts locks requireOperatorAuth, empty slug, invalid disposition, missing lead, not-cold / paid / closed gates, COLD_DISPOSITION_CONVEX_PRIMARY Close + Re-engage patches, Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), ConvexPrimaryWriteError skip-send on disposition and outreach mark, email trim, suppression / Resend failure after durable marks (returns stage/outreachStep; no revalidate), and mock send flag — cold-archive helper suites alone are not enough for the dashboard Re-engage/Close glue. Twin of update-inquiry-status-action-test-coverage (5178). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "update-inquiry-status-action-test-coverage done: src/app/dashboard/leads/update-inquiry-status-action.test.ts locks requireOperatorAuth, empty inquiry id, invalid status, INQUIRY_REPLY_CONVEX_PRIMARY on updateClientInquiryStatus, ConvexPrimaryWriteError fail-closed (no revalidate), null update not-found, success revalidate for read/archived/replied/new, and Error / non-Error throws — reply helper + replyToInquiryAction suites alone are not enough for the mark-read/Archive glue. Twin of dispose-cold-lead-action-test-coverage (3672). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When update-lead-stage-action-test-coverage and snooze-lead-action-test-coverage are both free in the same cron window, claim different ones (dashboard stage dropdown requireConvex vs Work next snooze park) — they touch different action surfaces and both lock CRM paths that lead-stage / lead-snooze helper suites do not cover.",
-  "update-lead-stage-action-test-coverage done: src/app/dashboard/leads/update-lead-stage-action.test.ts locks requireOperatorAuth, LEAD_STAGE_CONVEX_PRIMARY on updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks — stage-persist / outreach-persist helper suites alone are not enough for the dashboard stage dropdown glue. Twin of snooze-lead-action-test-coverage (left free for sibling). When free NEXT_STEPS stay gated, prefer snooze-lead-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "update-lead-stage-action-test-coverage done: src/app/dashboard/leads/update-lead-stage-action.test.ts locks requireOperatorAuth, LEAD_STAGE_CONVEX_PRIMARY on updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks — stage-persist / outreach-persist helper suites alone are not enough for the dashboard stage dropdown glue. Twin of snooze-lead-action-test-coverage (b8a0). When free NEXT_STEPS stay gated, prefer snooze-lead-action-test-coverage (if still free) or another sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "snooze-lead-action-test-coverage done: src/app/dashboard/leads/snooze-lead-action.test.ts locks requireOperatorAuth, empty slug, missing lead, invalid / missing preset, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze for 1d/3d/7d + Unsnooze clear, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, and Error / non-Error throws — snooze helper + snooze-persist suites alone are not enough for the dashboard Work next park glue. Twin of update-lead-stage-action-test-coverage (a622). When free NEXT_STEPS stay gated, prefer another sold-capability / multi-instance regression (or the next free operator-action Vitest twin) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1544,7 +1545,7 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "update-lead-stage-action-test-coverage",
     summary:
-      "Empty-backlog twin after inquiry status / cold disposition action Vitest: updateLeadStageAction is the operator dashboard stage dropdown path (LEAD_STAGE_CONVEX_PRIMARY fail-closed + optional Email 1 persist-then-notify) — lead-stage helper suites alone are not enough for action glue. Shipped: update-lead-stage-action.test.ts (16 tests). Twin of snooze-lead-action-test-coverage (left free for sibling b8a0).",
+      "Empty-backlog twin after inquiry status / cold disposition action Vitest: updateLeadStageAction is the operator dashboard stage dropdown path (LEAD_STAGE_CONVEX_PRIMARY fail-closed + optional Email 1 persist-then-notify) — lead-stage helper suites alone are not enough for action glue. Shipped: update-lead-stage-action.test.ts (16 tests). Twin of snooze-lead-action-test-coverage (b8a0; folded here).",
     status: "done",
     phase: "Phase 3 — CRM & inbox",
     owner: "cursor/business-process-evolution-a622",
@@ -1552,8 +1553,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "snooze-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after inquiry status / cold disposition action Vitest: snoozeLeadAction is the operator Work next park path (snoozedUntil + LEAD_SNOOZE requireConvex when configured) — lead-snooze helper suites alone are not enough for action glue. Sibling-friendly with update-lead-stage-action-test-coverage; prefer when update-inquiry-status / dispose-cold-lead action coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after inquiry status / cold disposition action Vitest: snoozeLeadAction is the operator Work next park path (snoozedUntil + LEAD_SNOOZE requireConvex when configured) — lead-snooze helper suites alone are not enough for action glue. Shipped: snooze-lead-action.test.ts (12 tests). Twin of update-lead-stage-action-test-coverage (a622).",
+    status: "done",
     phase: "Phase 3 — CRM & inbox",
     owner: "cursor/prompt-process-evolution-b8a0",
   },
@@ -3364,6 +3365,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for updateLeadStageAction (dashboard stage dropdown + optional Email 1 on outreach_sent) when update-inquiry-status-action-test-coverage is done — stage-persist / outreach-persist helper suites alone do not lock auth, LEAD_STAGE_CONVEX_PRIMARY fail-closed, non-outreach success revalidate, outreach_sent mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email skip send, or outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent). Leave snooze-lead-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "The stage dropdown is the operator path that moves funnel state on /dashboard/leads — getLeads / pipeline-health / the stage funnel read Convex-first, and outreach_sent is the same persist-then-notify CAN-SPAM surface as Follow-up / cold Re-engage Email 1. A future soft-fallback that claims a stage move after a SQLite-only write, sends Email 1 before the outreach mark, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap inquiry status / cold disposition / Email 2/3 action suites already closed — and would leave funnel state invisible elsewhere or risk a duplicate Email 1. Prefer locking that stage dropdown glue, then Work next snooze park action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for snoozeLeadAction (Work next 1d/3d/7d park + Unsnooze) when update-lead-stage-action-test-coverage is claimed by a sibling — snooze helper + snooze-persist suites alone do not lock auth, empty slug, missing lead, invalid / missing preset, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze, ConvexPrimaryWriteError fail-closed (no revalidate), or success revalidate. Folded into a622 with both ITERATIONS. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Snooze is the operator path that parks urgency off Work next / Follow-ups due / digest without wiping score history — getLeads / isFollowUpDue / pipeline-health snoozed counts all read Convex-first. A future soft-fallback that claims Snooze after a SQLite-only write, accepts an invalid preset, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap stage dropdown / inquiry status action suites already closed — and would leave Follow-ups due or Work next looking live (or still parked) on other instances (CAN-SPAM both directions). Prefer locking that park glue over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6004,15 +6012,30 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-14",
     branch: "cursor/business-process-evolution-a622",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #161 (inquiry status + cold disposition action Vitest). Claimed update-lead-stage-action-test-coverage — updateLeadStageAction had zero action-level Vitest despite being the operator dashboard stage dropdown path (LEAD_STAGE_CONVEX_PRIMARY fail-closed + optional Email 1 persist-then-notify on outreach_sent). Left snooze-lead-action-test-coverage free for sibling prompt-process-evolution-b8a0 (same cron window). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #161 (inquiry status + cold disposition action Vitest). Claimed update-lead-stage-action-test-coverage — updateLeadStageAction had zero action-level Vitest despite being the operator dashboard stage dropdown path (LEAD_STAGE_CONVEX_PRIMARY fail-closed + optional Email 1 persist-then-notify on outreach_sent). Left snooze-lead-action-test-coverage free for sibling prompt-process-evolution-b8a0 (same cron window); folded their snooze action Vitest here (both ITERATIONS kept). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/dashboard/leads/update-lead-stage-action.test.ts — 16 tests locking auth fail, LEAD_STAGE_CONVEX_PRIMARY updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks",
       "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside lead-stage-convex-primary / stage dropdown",
-      "NEXT_STEPS: update-lead-stage-action-test-coverage done; snooze-lead-action-test-coverage left free",
-      "AGENT_PROTOCOL — claim stage dropdown vs Work next snooze park action Vitest separately; prefer snooze-lead action Vitest next",
+      "NEXT_STEPS: update-lead-stage-action-test-coverage done; snooze-lead-action-test-coverage done (b8a0 folded)",
+      "AGENT_PROTOCOL — claim stage dropdown vs Work next snooze park action Vitest separately",
       "BUSINESS_DECISIONS — documented why stage dropdown action glue Vitest beats inventing optional aggregates after inquiry status coverage",
-      "Verified: npm test (update-lead-stage-action 16) + lint + build",
+      "merge: folded origin/cursor/prompt-process-evolution-b8a0 (snooze-lead action Vitest) — both ITERATIONS kept",
+      "Verified: npm test after fold (update-lead-stage 16 + snooze-lead 12) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(257, 258),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-b8a0",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #161. Sibling business-process-evolution-a622 claimed update-lead-stage-action-test-coverage — pivoted per AGENT_PROTOCOL to snooze-lead-action-test-coverage. snoozeLeadAction had zero action-level Vitest despite being the operator Work next park path (LEAD_SNOOZE_CONVEX_PRIMARY fail-closed). Feature body folded into a622 PR; process log completed on fold. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/snooze-lead-action.test.ts — 12 tests locking auth fail, empty slug, missing lead, invalid / missing preset, LEAD_SNOOZE_CONVEX_PRIMARY updateLeadSnooze for 1d/3d/7d + Unsnooze, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, and Error / non-Error throws",
+      "NEXT_STEPS: snooze-lead-action-test-coverage done (folded into a622)",
+      "AGENT_PROTOCOL — claim Work next snooze vs stage dropdown action Vitest separately",
+      "BUSINESS_DECISIONS — documented why snooze park action glue Vitest beats inventing optional aggregates after stage dropdown coverage",
+      "Verified: npm test (snooze-lead-action 12) on b8a0; full suite after a622 fold",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(258, 259),
   },
 ];

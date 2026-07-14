@@ -118,6 +118,14 @@ export default function BusinessModelDocPage() {
         <code>update-lead-stage-action.test.ts</code> locks that dashboard glue beside
         stage-persist helpers.
       </p>
+
+      <h2>Work next snooze</h2>
+      <p>
+        Operators park a lead off Work next for 1d / 3d / 7d (or Unsnooze) without wiping
+        score history. Writes use <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>. Action-level
+        Vitest in <code>snooze-lead-action.test.ts</code> locks that dashboard glue beside
+        snooze-persist helpers.
+      </p>
       <ul>
         <li>
           <strong>Email 2</strong> — short nudge with preview + checkout links

@@ -377,7 +377,12 @@ export default function ArchitectureDocPage() {
         Email 1 before Resend — locked by{" "}
         <code>update-lead-stage-action.test.ts</code> (auth, requireConvex fail-closed,
         non-outreach revalidate, mark-before-Resend, missing-email skip, outreach-mark
-        Convex skip-send) so stage glue is not left to stage-persist helpers alone.
+        Convex skip-send) so stage glue is not left to stage-persist helpers alone. Work next
+        Snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
+        <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> — locked by{" "}
+        <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid
+        preset, 1d/3d/7d + clear, requireConvex fail-closed) so park glue is not left to
+        snooze-persist helpers alone.
         Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so

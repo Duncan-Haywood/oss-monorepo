@@ -152,6 +152,9 @@ export default function LaunchChecklistDocPage() {
           <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
           Email 1 before Resend; action-level Vitest (
           <code>update-lead-stage-action.test.ts</code>) locks that path beside stage-persist
+          helpers. Work next Snooze / Unsnooze fails closed on{" "}
+          <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
+          <code>snooze-lead-action.test.ts</code>) locks that park path beside snooze-persist
           helpers.
         </li>
         <li>
