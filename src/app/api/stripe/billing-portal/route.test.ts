@@ -9,7 +9,8 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  * already has direct unit coverage for its branching logic — this suite
  * exercises the route itself: body parsing, STRIPE_SECRET_KEY gating,
  * returnUrl derivation (explicit body value vs NEXT_PUBLIC_APP_URL vs
- * request origin), and status/error passthrough from the helper's result.
+ * request origin, rejecting a cross-origin/malformed value as an
+ * open-redirect guard), and status/error passthrough from the helper's result.
  * Only the Stripe SDK is mocked.
  */
 
@@ -160,6 +161,42 @@ describe("POST /api/stripe/billing-portal", () => {
     expect(billingPortalCreate).toHaveBeenCalledWith({
       customer: "cus_1",
       return_url: "https://app.example.com/dashboard/leads",
+    });
+  });
+
+  it("ignores a cross-origin body returnUrl and falls back to the derived default (open-redirect guard)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1", returnUrl: "https://attacker.example.net/phish" }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://app.example.com/checkout/success?session_id=cs_test_1",
+    });
+  });
+
+  it("ignores a malformed body returnUrl and falls back to the derived default", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1", returnUrl: "not a url" }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://app.example.com/checkout/success?session_id=cs_test_1",
     });
   });
 
