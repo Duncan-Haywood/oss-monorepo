@@ -6,26 +6,16 @@ import { DEMO_LEADS } from "./leads/demo-catalog";
 import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
 import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import { normalizeOutreachStep } from "./email/outreach-followups";
-import type { DeployHandoff, DeployHandoffStatus, DnsInstruction } from "./deploy/types";
-import type {
-  ClientInquiry,
-  ClientInquiryStatus,
-  CreateClientInquiryInput,
-} from "./inquiries/types";
+import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
+import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
 import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
-import type { MarketingContentVariant } from "./marketing/types";
-import type {
-  CommerceCatalog,
-  CommerceSku,
-  UpsertCommerceCatalogInput,
-} from "./commerce/types";
+import type { CommerceCatalog, UpsertCommerceCatalogInput } from "./commerce/types";
 import { newCommerceOrderId } from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
-import type { ClientVoiceScriptVariant } from "./voice/types";
 import {
   ConvexPrimaryWriteError,
   shouldFallbackToSqliteOnConvexFailure,
@@ -38,6 +28,18 @@ import {
   serializeLeadServices,
   type SqliteLeadRow,
 } from "./leads/sqlite-row-mapping";
+import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
+import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
+import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
+import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
+import { mapMarketingPackRow, type SqliteMarketingPackRow } from "./marketing/sqlite-row-mapping";
+import {
+  mapCommerceCatalogRow,
+  mapCommerceOrderRow,
+  type SqliteCommerceCatalogRow,
+  type SqliteCommerceOrderRow,
+} from "./commerce/sqlite-row-mapping";
+import { mapClientVoicePackRow, type SqliteClientVoicePackRow } from "./voice/sqlite-row-mapping";
 
 export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
@@ -906,32 +908,6 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
   return counts;
 }
 
-interface SqliteOrderJoinRow {
-  id: string;
-  leadSlug: string;
-  stripeSessionId: string | null;
-  stripeCustomerId: string | null;
-  tier: string;
-  commerceAddon: number;
-  amountPaid: number;
-  status: string;
-  createdAt: string;
-}
-
-function mapSqliteOrderRow(row: SqliteOrderJoinRow): OrderRecord {
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    stripeSessionId: row.stripeSessionId || "",
-    stripeCustomerId: row.stripeCustomerId || undefined,
-    tier: row.tier,
-    commerceAddon: row.commerceAddon === 1,
-    amountPaid: row.amountPaid,
-    status: row.status,
-    createdAt: row.createdAt,
-  };
-}
-
 /**
  * List paid orders for operator pipeline health (revenue totals).
  * Convex when configured; SQLite join otherwise.
@@ -1049,63 +1025,6 @@ export async function getSuppressedEmails(): Promise<string[]> {
 }
 
 // --- Production deploy handoffs (Phase 5) ---
-
-interface SqliteDeployHandoffRow {
-  id: string;
-  leadSlug: string;
-  businessName: string;
-  tier: string;
-  commerceAddon: number;
-  stripeSessionId: string;
-  customerEmail: string;
-  previewUrl: string;
-  suggestedHost: string;
-  customDomain: string | null;
-  contactFormUrl: string;
-  dnsInstructions: string;
-  status: string;
-  vercelDomainStatus: string | null;
-  vercelProjectId: string | null;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-function mapDeployHandoffRow(row: SqliteDeployHandoffRow): DeployHandoff {
-  let dnsInstructions: DnsInstruction[] = [];
-  let notes: string[] = [];
-  try {
-    dnsInstructions = JSON.parse(row.dnsInstructions) as DnsInstruction[];
-  } catch {
-    dnsInstructions = [];
-  }
-  try {
-    notes = JSON.parse(row.notes) as string[];
-  } catch {
-    notes = [];
-  }
-
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    businessName: row.businessName,
-    tier: row.tier,
-    commerceAddon: row.commerceAddon === 1,
-    stripeSessionId: row.stripeSessionId,
-    customerEmail: row.customerEmail,
-    previewUrl: row.previewUrl,
-    suggestedHost: row.suggestedHost,
-    customDomain: row.customDomain || undefined,
-    contactFormUrl: row.contactFormUrl,
-    dnsInstructions,
-    status: row.status as DeployHandoffStatus,
-    vercelDomainStatus: row.vercelDomainStatus || undefined,
-    vercelProjectId: row.vercelProjectId || undefined,
-    notes,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
 
 export async function insertDeployHandoff(
   handoff: DeployHandoff,
@@ -1406,40 +1325,6 @@ export async function getLeadSlugByCustomDomain(customDomain: string): Promise<s
 }
 
 // --- Client inquiries (contact form CRM) ---
-
-interface SqliteClientInquiryRow {
-  id: string;
-  leadSlug: string;
-  businessName: string;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  message: string;
-  status: string;
-  source: string | null;
-  operatorReply: string | null;
-  repliedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-function mapClientInquiryRow(row: SqliteClientInquiryRow): ClientInquiry {
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    businessName: row.businessName,
-    name: row.name || undefined,
-    email: row.email || undefined,
-    phone: row.phone || undefined,
-    message: row.message,
-    status: row.status as ClientInquiryStatus,
-    source: row.source || undefined,
-    operatorReply: row.operatorReply || undefined,
-    repliedAt: row.repliedAt || undefined,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
 
 export async function insertClientInquiry(
   input: CreateClientInquiryInput,
@@ -1748,37 +1633,6 @@ export async function recordClientInquiryReply(
 
 // --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---
 
-interface SqliteCheckoutSessionRow {
-  id: string;
-  leadSlug: string;
-  stripeSessionId: string;
-  tier: string;
-  commerceAddon: number;
-  customerEmail: string | null;
-  status: string;
-  createdAt: string;
-  recoverySentAt: string | null;
-  kind: string | null;
-  skuId: string | null;
-}
-
-function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSessionRecord {
-  const kind =
-    row.kind === "commerce_sku" ? ("commerce_sku" as const) : ("bundle" as const);
-  return {
-    stripeSessionId: row.stripeSessionId,
-    leadSlug: row.leadSlug,
-    tier: row.tier,
-    commerceAddon: row.commerceAddon === 1,
-    customerEmail: row.customerEmail || undefined,
-    status: row.status === "complete" ? "complete" : "open",
-    createdAt: row.createdAt,
-    recoverySentAt: row.recoverySentAt || undefined,
-    kind,
-    skuId: row.skuId || undefined,
-  };
-}
-
 /**
  * Records a newly-created Stripe Checkout Session for abandoned-checkout
  * tracking. Pass { requireConvex: true } from checkout API routes so a
@@ -1925,48 +1779,6 @@ export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[
 
 // --- Marketing packs (Growth/Complete monthly content) ---
 
-interface SqliteMarketingPackRow {
-  id: string;
-  leadSlug: string;
-  yearMonth: string;
-  variantsJson: string;
-  generatedAt: string;
-  generator: string;
-  packageTier: string | null;
-}
-
-function parsePackVariants(json: string): MarketingContentVariant[] {
-  try {
-    const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is MarketingContentVariant => {
-      if (!item || typeof item !== "object") return false;
-      const row = item as Record<string, unknown>;
-      return typeof row.contentType === "string" && typeof row.body === "string";
-    });
-  } catch {
-    return [];
-  }
-}
-
-function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {
-  const tier =
-    row.packageTier === "copy_pack" ||
-    row.packageTier === "social_email" ||
-    row.packageTier === "full_marketing"
-      ? row.packageTier
-      : undefined;
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    yearMonth: row.yearMonth,
-    variants: parsePackVariants(row.variantsJson),
-    generatedAt: row.generatedAt,
-    generator: row.generator === "anthropic" ? "anthropic" : "stub",
-    packageTier: tier,
-  };
-}
-
 export async function upsertMarketingPack(
   input: UpsertMarketingPackInput,
   options?: ConvexPrimaryWriteOptions,
@@ -2089,38 +1901,6 @@ export async function listMarketingPacksForMonth(
 
 // --- Commerce catalogs (≤50 SKUs for commerceAddon leads) ---
 
-interface SqliteCommerceCatalogRow {
-  leadSlug: string;
-  itemsJson: string;
-  updatedAt: string;
-}
-
-function parseCommerceItems(json: string): CommerceSku[] {
-  try {
-    const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is CommerceSku => {
-      if (!item || typeof item !== "object") return false;
-      const row = item as Record<string, unknown>;
-      return (
-        typeof row.id === "string" &&
-        typeof row.name === "string" &&
-        typeof row.priceCents === "number"
-      );
-    });
-  } catch {
-    return [];
-  }
-}
-
-function mapCommerceCatalogRow(row: SqliteCommerceCatalogRow): CommerceCatalog {
-  return {
-    leadSlug: row.leadSlug,
-    items: parseCommerceItems(row.itemsJson),
-    updatedAt: row.updatedAt,
-  };
-}
-
 /**
  * Persist (or replace) a Commerce catalog row.
  *
@@ -2227,32 +2007,6 @@ export async function listCommerceCatalogs(
 }
 
 // --- Commerce orders (end-customer Buy now purchases — see commerce/orders.ts) ---
-
-interface SqliteCommerceOrderRow {
-  id: string;
-  leadSlug: string;
-  skuId: string;
-  skuName: string;
-  amountPaidUsd: number;
-  stripeSessionId: string;
-  createdAt: string;
-  paidOutAt: string | null;
-  clientReceiptEmailSentAt: string | null;
-}
-
-function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    skuId: row.skuId,
-    skuName: row.skuName,
-    amountPaidUsd: row.amountPaidUsd,
-    stripeSessionId: row.stripeSessionId,
-    createdAt: row.createdAt,
-    paidOutAt: row.paidOutAt ?? undefined,
-    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt ?? undefined,
-  };
-}
 
 /**
  * Idempotent on stripeSessionId — the Stripe webhook may see the same
@@ -2478,44 +2232,6 @@ export async function markCommerceOrderClientReceiptSent(
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---
-
-interface SqliteClientVoicePackRow {
-  id: string;
-  leadSlug: string;
-  variantsJson: string;
-  generatedAt: string;
-  generator: string;
-}
-
-function parseClientVoiceVariants(json: string): ClientVoiceScriptVariant[] {
-  try {
-    const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is ClientVoiceScriptVariant => {
-      if (!item || typeof item !== "object") return false;
-      const row = item as Record<string, unknown>;
-      return (
-        typeof row.scriptType === "string" &&
-        typeof row.title === "string" &&
-        typeof row.body === "string"
-      );
-    });
-  } catch {
-    return [];
-  }
-}
-
-function mapClientVoicePackRow(row: SqliteClientVoicePackRow): ClientVoicePack {
-  const generator =
-    row.generator === "anthropic" || row.generator === "stub" ? row.generator : "stub";
-  return {
-    id: row.id,
-    leadSlug: row.leadSlug,
-    variants: parseClientVoiceVariants(row.variantsJson),
-    generatedAt: row.generatedAt,
-    generator,
-  };
-}
 
 export async function upsertClientVoicePack(
   input: UpsertClientVoicePackInput,

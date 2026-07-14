@@ -1650,6 +1650,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "sqlite-row-mapping-coverage-remaining-modules",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #194 (bootstrap-prices auth+rate-limit); sibling claude/upbeat-dijkstra-yrtt98 claimed leads-client-optimistic-state-desync (in progress at run start) on a UI-file-coverage axis. Rotated to complete sqlite-row-mapping-test-coverage's own axis: db.ts still had 7 more private SQLite row-mapping/JSON-parsing helpers (deploy handoff, marketing pack, commerce catalog, commerce order, client voice pack, client inquiry, checkout session) with zero direct test coverage — same server-only-import blocker sqlite-row-mapping-test-coverage documented for Lead. Auditing them against their JSON-parsing siblings found a real gap: mapDeployHandoffRow's dnsInstructions/notes JSON.parse had no Array.isArray guard, unlike parsePackVariants/parseCommerceItems/parseClientVoiceVariants in the same file — a corrupted/malformed column value would silently produce a non-array or wrong-shaped value instead of degrading to [] like every sibling parser. Claimed and shipped: extracted all 7 remaining mapping functions into sqlite-row-mapping.ts modules under their owning domain (src/lib/deploy, marketing, commerce, voice, inquiries, checkout, orders), fixed the missing guard, and added direct Vitest coverage for each (round-trip + malformed-JSON + non-array-JSON cases).",
+    status: "done",
+    phase: "Phase 2 — Lead volume",
+    owner: "claude/quirky-davinci-emqanw",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3682,6 +3690,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Add requireOperatorAuth as the first check in POST /api/stripe/bootstrap-prices, plus checkRateLimit per client IP for defense-in-depth, exactly mirroring bootstrapStripePricesAction and the existing src/app/api/marketing/generate/route.ts / billing-portal precedents, rather than relying solely on the ALLOW_STRIPE_BOOTSTRAP env gate for that route.",
     rationale:
       "Delegated a fresh empty-backlog audit that swept pipeline-health/digest wiring (clean — every list*Due/Missing/Unsynced helper and inline aggregate is wired into both surfaces) and Convex/SQLite parity (clean — full 1:1 match between convex/*.ts exports and the static API map in db.ts, every requireConvex-eligible write path already covered) before finding a real authorization-parity gap: the API route and its dashboard-action twin were documented as sharing 'the same gate,' but only the action ever checked requireOperatorAuth. Since proxy.ts scopes its auth gate to /dashboard/* only, the API route's actual protection during an operator's bootstrap window (ALLOW_STRIPE_BOOTSTRAP=1 set on a live, password-protected deployment, per /docs/launch-checklist) was a single shared env flag with no per-caller check — anyone who requested the publicly-documented path during that window could trigger live Stripe Product/Price creation and read back the envSnippet, with no session cookie required. Rebasing onto sibling business-process-evolution-c966's merge found they had already diagnosed this exact gap during their own audit and queued it (bootstrap-prices-operator-auth-rate-limit, explicitly asking for both requireOperatorAuth and checkRateLimit) rather than build it themselves — folded that queued item into this fix by shipping both halves, matching the rate-limit pattern billing-portal already established, instead of shipping auth alone and leaving rate-limiting queued a second time.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Extract all 7 remaining private SQLite row-mapping/JSON-parsing helpers left in src/lib/db.ts (deploy handoff, marketing pack, commerce catalog, commerce order, client voice pack, client inquiry, checkout session) into per-domain sqlite-row-mapping.ts modules with direct Vitest coverage, and fix a missing Array.isArray guard on deploy handoff's dnsInstructions/notes JSON.parse found while doing so — rather than leave the gap sqlite-row-mapping-test-coverage's scope note implicitly left open, or invent an unrelated feature.",
+    rationale:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #194; the one fresh finding from this run's audit (leads-client.tsx optimistic-state desync) was already claimed in-progress by sibling claude/upbeat-dijkstra-yrtt98 before this run started. Rather than duplicate that work or run yet another identical pass of the already-clean bug-class sweep (durable-marker-after-unchecked-await, Convex API map, uncapped lists, escaping, webhook idempotency), completing the SQLite row-mapping extraction db.ts's earlier pass (sqlite-row-mapping-test-coverage, PR #189) started for Lead but left undone for every other table closes a well-scoped, low-risk gap: these helpers round-trip exactly the kind of stored JSON (dnsInstructions, notes, marketing/voice pack variants, commerce catalog items) that a future migration or hand-edited row could corrupt, and none of them had ever executed under test — every existing test mocks @/lib/db wholesale, same server-only blocker sqlite-row-mapping-test-coverage documented. Finding and fixing the missing Array.isArray guard on deploy handoff's two parsers (which the other three JSON-parsing siblings in the same file already had) is exactly the kind of latent defensive-correctness gap this extraction work is designed to surface — a concrete instance of 'this exact bug class is NOT fully exhausted yet,' just found on data-shape guards rather than the send-success-check class that phrase originally flagged.",
   },
 ];
 
@@ -6848,5 +6863,26 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (full suite incl. new 401 + 429 regressions) + lint + build + manual curl against `npm run dev` with OPERATOR_DASHBOARD_PASSWORD set confirming 401 without a session cookie",
     ],
     decisions: BUSINESS_DECISIONS.slice(289, 290),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/quirky-davinci-emqanw",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #194 (bootstrap-prices auth+rate-limit). Sibling claude/upbeat-dijkstra-yrtt98 had already claimed leads-client-optimistic-state-desync (claim commit only, in progress) on a UI-file-coverage axis before this run started, so this run did not duplicate it. Rotated to complete the sqlite-row-mapping-test-coverage axis (PR #189/#190) that only extracted Lead's SQLite mapping: db.ts still had 7 more private row-mapping/JSON-parsing helpers with zero direct test coverage. Auditing them against their own JSON-parsing siblings found a real gap — mapDeployHandoffRow's dnsInstructions/notes JSON.parse had no Array.isArray guard, unlike parsePackVariants/parseCommerceItems/parseClientVoiceVariants in the same file. Claimed and shipped sqlite-row-mapping-coverage-remaining-modules.",
+    shipped: [
+      "src/lib/deploy/sqlite-row-mapping.ts (+test) — mapDeployHandoffRow, parseDeployHandoffDnsInstructions/parseDeployHandoffNotes; fixed the missing Array.isArray guard (+ per-element shape filter, matching CommerceSku/MarketingContentVariant/ClientVoiceScriptVariant filtering) so a corrupted column degrades to [] instead of a wrong-shaped value",
+      "src/lib/marketing/sqlite-row-mapping.ts (+test) — mapMarketingPackRow, parsePackVariants (moved verbatim)",
+      "src/lib/commerce/sqlite-row-mapping.ts (+test) — mapCommerceCatalogRow, parseCommerceItems, mapCommerceOrderRow (moved verbatim)",
+      "src/lib/voice/sqlite-row-mapping.ts (+test) — mapClientVoicePackRow, parseClientVoiceVariants (moved verbatim)",
+      "src/lib/inquiries/sqlite-row-mapping.ts (+test) — mapClientInquiryRow (moved verbatim)",
+      "src/lib/checkout/sqlite-row-mapping.ts (+test) — mapCheckoutSessionRow (moved verbatim)",
+      "src/lib/orders/sqlite-row-mapping.ts (+test) — mapSqliteOrderRow (moved verbatim)",
+      "src/lib/db.ts — imports all 7 modules instead of defining the mapping inline (2626 → 2342 lines); no behavior change other than the dnsInstructions/notes guard fix",
+      "src/app/docs/architecture/page.tsx — server-only testability section now lists every sqlite-row-mapping.ts module and notes the guard fix",
+      "NEXT_STEPS: sqlite-row-mapping-coverage-remaining-modules done",
+      "BUSINESS_DECISIONS — documented why closing this coverage/guard gap beat duplicating the in-progress sibling claim or re-running an already-clean audit sweep",
+      "Verified: npm test (1198 passed, full suite incl. 42 new tests across 7 files) + lint + build + npm run dev (/dashboard/leads and /preview/joes-diner both 200 against the SQLite fallback path)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(290, 291),
   },
 ];
