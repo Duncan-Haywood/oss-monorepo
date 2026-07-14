@@ -122,7 +122,7 @@ describe("updateLeadStageAction", () => {
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
-      ok: true,
+      success: true,
       id: "email_1",
       mock: false,
     });
@@ -296,6 +296,40 @@ describe("updateLeadStageAction", () => {
       error: "resend down",
     });
     expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces suppression after durable outreach mark without revalidate", async () => {
+    sendOutreachEmail.mockResolvedValue({
+      success: false,
+      reason: "suppressed",
+    });
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list",
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces Resend failure after durable outreach mark without revalidate", async () => {
+    sendOutreachEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved and marked Outreach Sent, but Email 1 failed to send — Resend 429",
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).toHaveBeenCalledOnce();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

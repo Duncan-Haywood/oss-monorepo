@@ -122,7 +122,7 @@ describe("addLeadAction", () => {
     upsertLead.mockReset().mockResolvedValue(undefined);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
-      ok: true,
+      success: true,
       id: "email_1",
       mock: false,
     });
@@ -365,6 +365,50 @@ describe("addLeadAction", () => {
       error: "resend down",
     });
     expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces suppression after durable outreach mark without revalidate", async () => {
+    sendOutreachEmail.mockResolvedValue({
+      success: false,
+      reason: "suppressed",
+    });
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "suppressed-cafe",
+      stage: "outreach_sent",
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list",
+      slug: "suppressed-cafe",
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).toHaveBeenCalledOnce();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("surfaces Resend failure after durable outreach mark without revalidate", async () => {
+    sendOutreachEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "resend-fail-cafe",
+      stage: "outreach_sent",
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead saved and marked Outreach Sent, but Email 1 failed to send — Resend 429",
+      slug: "resend-fail-cafe",
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).toHaveBeenCalledOnce();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 });
