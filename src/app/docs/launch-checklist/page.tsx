@@ -42,9 +42,14 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>), click{" "}
           <strong>Run bootstrap</strong> on the checkout-blocked banner, copy the returned{" "}
           <code>envSnippet</code> into secrets, then <strong>unset</strong> the bootstrap flag.
-          (API twin: <code>POST /api/stripe/bootstrap-prices</code> — same gate via{" "}
-          <code>assessStripeBootstrapGate</code>. Action-level Vitest in{" "}
-          <code>src/app/dashboard/actions.test.ts</code> locks the banner path operators click.)
+          (API twin: <code>POST /api/stripe/bootstrap-prices</code> — same{" "}
+          <code>requireOperatorAuth</code> session check plus{" "}
+          <code>assessStripeBootstrapGate</code>, so an unauthenticated caller can&rsquo;t trigger
+          it during your bootstrap window. Action-level Vitest in{" "}
+          <code>src/app/dashboard/actions.test.ts</code> locks the banner path operators click;
+          route-level Vitest in{" "}
+          <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> locks the API twin,
+          including the 401 auth rejection.)
           Until every{" "}
           <code>STRIPE_PRICE_ID_*</code> from <code>BUNDLES</code> +{" "}
           <code>COMMERCE_ADDON</code> is set, those pages show a checkout-blocked banner (via{" "}

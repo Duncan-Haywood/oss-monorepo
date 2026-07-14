@@ -1,16 +1,35 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { requireOperatorAuth } from "@/lib/auth/operator";
 import { assessStripeBootstrapGate } from "@/lib/pricing/bootstrap-gate";
 import { bootstrapStripePrices } from "@/lib/pricing/bootstrap-stripe-prices";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
  * Operator-only bootstrap for Stripe Price objects.
- * Requires ALLOW_STRIPE_BOOTSTRAP=1 and STRIPE_SECRET_KEY.
+ * Requires an authenticated operator session (when OPERATOR_DASHBOARD_PASSWORD
+ * is set) plus ALLOW_STRIPE_BOOTSTRAP=1 and STRIPE_SECRET_KEY, and is rate
+ * limited per client IP for defense-in-depth alongside every other public
+ * Stripe-facing route.
  * See /docs/roadmap#phase-3-payments and the stripe-price-objects backlog item.
  * Dashboard twin: bootstrapStripePricesAction on the checkout-blocked banner.
  */
 
-export async function POST() {
+export async function POST(request: Request) {
+  const auth = await requireOperatorAuth();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`bootstrap-prices:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const gate = assessStripeBootstrapGate();
   if (!gate.ok) {
     return NextResponse.json(
