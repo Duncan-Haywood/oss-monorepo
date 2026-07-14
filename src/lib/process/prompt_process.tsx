@@ -7766,7 +7766,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: mark-handoff-live-null-status-guard done (owner 7e66; folded from grok/dev-work-mark-live-null-guard)",
       "AGENT_PROTOCOL — markHandoffLive null-status rule; encode-at-use extends to revalidatePath",
       "BUSINESS_DECISIONS — documented why folding this fulfillment race beats inventing an optional aggregate",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1298 passed, +1 null-status regression) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
