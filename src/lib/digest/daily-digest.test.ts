@@ -639,12 +639,51 @@ describe("buildDailyDigest", () => {
       nowMs: NOW,
     });
     expect(digest.leadsMissingEmail).toHaveLength(2);
+    expect(digest.leadsMissingEmailCount).toBe(2);
     expect(digest.leadsMissingEmail.map((l) => l.slug)).toEqual([
       "no-email-salon",
       "blank-email-trades",
     ]);
     expect(digest.leadsMissingEmail[0]?.stage).toBe("outreach_sent");
     expect(digest.isEmpty).toBe(false);
+  });
+
+  it("reports the true paidNotLive/openHandoffs count even past their 5-row display cap", () => {
+    // Each section's *Count field must reflect the full filtered set, not
+    // just the capped display array — otherwise the digest silently
+    // undercounts once a queue exceeds its LIMIT, the same bug class
+    // AGENT_PROTOCOL already flags for uncapped debt lists.
+    const paidLeads = Array.from({ length: 7 }, (_, i) =>
+      baseLead({ slug: `paid-${i}`, businessName: `Paid ${i}`, stage: "paid" }),
+    );
+    const handoffs = Array.from({ length: 6 }, (_, i) => ({
+      id: `dh_${i}`,
+      leadSlug: `handoff-${i}`,
+      businessName: `Handoff ${i}`,
+      tier: "starter" as const,
+      commerceAddon: false,
+      stripeSessionId: `cs_${i}`,
+      customerEmail: `handoff-${i}@example.com`,
+      previewUrl: `https://example.com/preview/handoff-${i}`,
+      suggestedHost: `handoff-${i}.example.com`,
+      contactFormUrl: `https://example.com/api/contact/handoff-${i}`,
+      dnsInstructions: [],
+      status: "awaiting_dns" as const,
+      notes: [],
+      createdAt: "2026-07-11T00:00:00.000Z",
+      updatedAt: "2026-07-11T00:00:00.000Z",
+    }));
+    const digest = buildDailyDigest({
+      leads: paidLeads,
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs,
+      nowMs: NOW,
+    });
+    expect(digest.paidNotLiveCount).toBe(7);
+    expect(digest.paidNotLive).toHaveLength(5);
+    expect(digest.openHandoffsCount).toBe(6);
+    expect(digest.openHandoffs).toHaveLength(5);
   });
 
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
@@ -929,5 +968,23 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("No Email &lt;Script&gt; Salon");
     expect(html).toContain("discovery_call");
     expect(html).not.toContain("No Email <Script> Salon");
+  });
+
+  it("shows the true section count in the header even when the list itself is capped at 5 rows", () => {
+    const paidLeads = Array.from({ length: 9 }, (_, i) =>
+      baseLead({ slug: `paid-${i}`, businessName: `Paid ${i}`, stage: "paid" }),
+    );
+    const digest = buildDailyDigest({
+      leads: paidLeads,
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Paid, not yet live (9)");
+    expect(html).not.toContain("Paid, not yet live (5)");
+    const rowMatches = html.match(/stage is Paid/g) ?? [];
+    expect(rowMatches).toHaveLength(5);
   });
 });

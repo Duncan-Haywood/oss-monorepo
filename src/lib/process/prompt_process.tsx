@@ -93,8 +93,9 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+"Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
+  "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
 ] as const;
 
 /**
@@ -1668,9 +1669,17 @@ export const NEXT_STEPS: NextStep[] = [
     owner: "claude/relaxed-galileo-t69qzz",
   },
   {
+    id: "digest-section-counts-uncapped",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest). Fresh audit re-checked the disjoint-aggregate trap across every pipeline-health/daily-digest field pair (clean — the remaining pairs all share the exact same underlying list*/is* helper, so they can't drift) and found a different, real bug in the digest's rendering layer instead: every action-section title in renderDailyDigestHtml used the capped display array's `.length` (e.g. `Follow-ups due (${digest.followUpsDue.length})`), not the true pre-slice count — every section (10 of 12; Work next is an inherently-ranked top-5, not a debt total) silently freezes its header at '(5)' forever once the underlying queue naturally exceeds its hardcoded LIMIT, even though pipeline-health already computes several of the same true counts correctly. A single-operator business relying on the digest email to gauge urgency without opening the dashboard would see '(5)' for a queue of 12 and have no way to know 7 more exist. Claimed and shipped: added an uncapped *Count field per section (reusing the exact pre-slice array already computed, mirroring the commercePayoutsOwedTotalUsd pattern) and repointed every section title to it.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "claude/relaxed-galileo-t69qzz",
+  },
+  {
     id: "leads-missing-email-in-digest",
     summary:
-      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) was still dashboard-only. Send daily digest never surfaced those rows, so a single-operator business could miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Shipped: export leadIsMissingCriticalEmail + EMAIL_CRITICAL_STAGES from pipeline-health; leadsMissingEmail action section in buildDailyDigest/renderDailyDigestHtml (same predicate, no new data load).",
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) was still dashboard-only. Send daily digest never surfaced those rows, so a single-operator business could miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Shipped: export leadIsMissingCriticalEmail + EMAIL_CRITICAL_STAGES from pipeline-health; leadsMissingEmail action section in buildDailyDigest/renderDailyDigestHtml with uncapped leadsMissingEmailCount header (same *Count pattern as digest-section-counts-uncapped).",
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2101",
@@ -1678,17 +1687,18 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-generate-rate-limit",
     summary:
-      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate has requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Claimed by same-minute sibling: add checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices.",
-    status: "in_progress",
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate had requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Shipped by sibling business-profitability-process-8f90: checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices.",
+    status: "done",
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/business-profitability-process-8f90",
   },
   {
     id: "list-unpaid-empty-string-parity",
     summary:
-      "Queued twin from sibling business-profitability-process-8f90's empty-backlog audit: Convex commerceOrders.listUnpaid filters paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). An empty-string paidOutAt would look paid on Convex listUnpaid but unpaid on SQLite/TS — multi-instance owed-total split-brain. Prefer treating falsy/blank paidOutAt as unpaid on both backends (and normalize on map).",
-    status: "todo",
+      "Same empty-backlog audit twin from sibling business-profitability-process-8f90: Convex commerceOrders.listUnpaid filtered paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). Shipped: listUnpaid treats falsy paidOutAt as unpaid; mapOrderRow / mapCommerceOrderRow normalize empty string to undefined.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-profitability-process-8f90",
   },
 ];
 
@@ -3740,7 +3750,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-14",
     decision:
-      "Wire pipeline-health leadsMissingEmailCount into the operator daily digest as a Leads missing email action section (same leadIsMissingCriticalEmail predicate — email-critical stages with empty/whitespace email), exporting the shared helper from pipeline-health rather than forking a parallel stage list in the digest. Same-minute sibling business-profitability-process-8f90 owns marketing-generate-rate-limit (+ queued list-unpaid-empty-string-parity).",
+      "Add an uncapped *Count field to DailyDigest for every capped action section (Follow-ups due, Abandoned checkouts, Abandoned Buy now, Unreplied inquiries, Marketing packs due, Starter upsell, Commerce catalogs missing/unsynced, Complete voice packs due, Commerce payouts owed, Production handoffs open, Paid not yet live) and repoint every section header in renderDailyDigestHtml to it, rather than leave section titles reading the capped display array's .length.",
+    rationale:
+      "Delegated a fresh empty-backlog audit after PR #196 (paid-not-live-in-digest). Re-checked the disjoint-aggregate trap across every remaining pipeline-health/daily-digest field pair (clean — the rest all share one underlying list*/is* helper each, so they can't diverge) before finding a different bug in the digest's rendering layer: every action-section title used its capped display array's .length as the header count, so once a queue naturally exceeds its hardcoded 5-row LIMIT, the header silently freezes at '(5)' forever regardless of true volume — e.g. 12 leads actually due for a follow-up email would show 'Follow-ups due (5)' with 7 completely invisible. This is the exact 'silently undercounts once volume exceeds the page window' failure mode AGENT_PROTOCOL already flags for uncapped data-layer debt lists, just recurring one layer up in the digest's own display logic rather than a raw Convex/SQLite query. commercePayoutsOwedTotalUsd already avoided this by computing its dollar sum before the slice; the fix generalizes that same pattern (capture the filtered array once, take .length before .slice(0, LIMIT)) to every other section rather than leaving it as a one-off. A single-operator business trusting the digest email to gauge urgency without opening the dashboard is exactly the audience this bug silently fails.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Wire pipeline-health leadsMissingEmailCount into the operator daily digest as a Leads missing email action section (same leadIsMissingCriticalEmail predicate — email-critical stages with empty/whitespace email), exporting the shared helper from pipeline-health rather than forking a parallel stage list in the digest, and following the digest-section-counts-uncapped *Count header pattern. Same-minute sibling business-profitability-process-8f90 owns marketing-generate-rate-limit + list-unpaid-empty-string-parity.",
     rationale:
       "Free NEXT_STEPS stayed fully gated after PR #196 (paid-not-live-in-digest). Continuing the pipeline-health/digest wiring axis found a third distinct inline aggregate still dashboard-only: leadsMissingEmailCount. Unlike openHandoffs (deploy_handoffs table) and paidNotLive (stage=paid fulfillment debt), this is top-of-funnel contact debt — without a usable email, Email 1 / follow-ups / abandoned-checkout recovery / receipts cannot leave Resend at all, so revenue motion stops before payment. A single-operator business that relies on Send daily digest would never see those rows. Exporting leadIsMissingCriticalEmail keeps the digest and dashboard on one predicate (no silent drift if EMAIL_CRITICAL_STAGES changes). Closing that sold-capability visibility gap beats inventing an optional metric or re-running an already-clean auth/marker audit while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
@@ -6950,19 +6967,36 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
-    branch: "cursor/prompt-process-evolution-2101",
+    branch: "claude/relaxed-galileo-t69qzz",
     summary:
-      "Empty-backlog after PR #196 (paid-not-live-in-digest): free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-profitability-process-8f90 claimed marketing-generate-rate-limit (and queued list-unpaid-empty-string-parity). Continued the pipeline-health/digest wiring axis and found leadsMissingEmailCount was still dashboard-only — Send daily digest never surfaced email-critical leads with no usable address, so top-of-funnel contact debt that blocks Email 1 was invisible to digest-only operators. Claimed and shipped leads-missing-email-in-digest.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #196 (paid-not-live-in-digest). Delegated a fresh empty-backlog audit rotated to re-check the disjoint-aggregate trap across every remaining pipeline-health/daily-digest field pair — clean, since the rest all share one underlying list*/is* helper each and can't diverge. While doing that comparison found a different, real bug in the digest's rendering layer: every action-section title in renderDailyDigestHtml read its capped display array's .length instead of a true pre-slice count, so any queue exceeding its hardcoded 5-row LIMIT would show a header frozen at '(5)' forever, hiding the true backlog size from an operator who relies on the digest email precisely so they don't have to open the dashboard. Claimed and shipped digest-section-counts-uncapped.",
     shipped: [
-      "src/lib/metrics/pipeline-health.ts — export EMAIL_CRITICAL_STAGES + leadIsMissingCriticalEmail; computePipelineHealth reuses the helper for count + sample list",
-      "src/lib/digest/daily-digest.ts — leadsMissingEmail action section (same predicate, capped at LEADS_MISSING_EMAIL_LIMIT=5); wired into isEmpty + renderDailyDigestHtml",
-      "src/lib/digest/daily-digest.test.ts — builder + render Vitest (critical stages only, whitespace email, HTML escape of business name + stage)",
-      "Docs: architecture / production-deploy / launch-checklist note Leads missing email in Send daily digest",
-      "NEXT_STEPS: leads-missing-email-in-digest done",
-      "AGENT_PROTOCOL — inline-aggregate digest-wiring note now lists leadsMissingEmailCount beside openHandoffCount/paidNotLiveCount; disjoint-sets rule notes contact gaps vs fulfillment debt",
-      "BUSINESS_DECISIONS — documented why wiring missing-email into digest beats another clean auth/marker audit while sibling owns marketing-generate rate-limit",
-      "Verified: npm test + lint + build (counts recorded in feature commit)",
+      "src/lib/digest/daily-digest.ts — added followUpsDueCount, checkoutRecoveriesDueCount, commerceCheckoutRecoveriesDueCount, unrepliedInquiriesCount, marketingPacksDueCount, starterUpsellCandidatesCount, commerceCatalogsMissingCount, commerceCatalogsUnsyncedCount, clientVoicePacksDueCount, commercePayoutsOwedCount, openHandoffsCount, paidNotLiveCount to DailyDigest (each computed pre-slice, mirroring the existing commercePayoutsOwedTotalUsd pattern); repointed every section title in renderDailyDigestHtml from digest.<section>.length to the matching *Count field",
+      "src/lib/digest/daily-digest.test.ts — builder test with 7 paidNotLive / 6 openHandoffs leads asserting the *Count fields report the true total while the display arrays stay capped at 5; render test asserting the section header shows '(9)' — never '(5)' — while only 5 rows actually render",
+      "src/app/docs/architecture/page.tsx — notes every digest action-section header now reads a true pre-slice count",
+      "NEXT_STEPS: digest-section-counts-uncapped done",
+      "AGENT_PROTOCOL — added a rule generalizing the uncapped-list invariant to the digest's own display layer: a capped section's header count must come from a pre-slice *Count field, never the capped array's .length",
+      "BUSINESS_DECISIONS — documented why closing this digest-undercounting gap beat another identical disjoint-aggregate re-check or a manufactured feature",
+      "Verified: npm test (1202 passed, full suite incl. 4 new digest tests) + lint + build + npm run dev (/dashboard/leads, /docs/architecture both 200)",
     ],
     decisions: BUSINESS_DECISIONS.slice(291, 292),
   },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-2101",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-profitability-process-8f90 claimed marketing-generate-rate-limit (and queued list-unpaid-empty-string-parity). Continued the pipeline-health/digest wiring axis and found leadsMissingEmailCount was still dashboard-only — Send daily digest never surfaced email-critical leads with no usable address, so top-of-funnel contact debt that blocks Email 1 was invisible to digest-only operators. Claimed and shipped leads-missing-email-in-digest. Folded PR #197 digest-section-counts-uncapped (header *Count pattern) into the new section.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — export EMAIL_CRITICAL_STAGES + leadIsMissingCriticalEmail; computePipelineHealth reuses the helper for count + sample list",
+      "src/lib/digest/daily-digest.ts — leadsMissingEmail action section + uncapped leadsMissingEmailCount header (same predicate, LEADS_MISSING_EMAIL_LIMIT=5 display cap); wired into isEmpty + renderDailyDigestHtml",
+      "src/lib/digest/daily-digest.test.ts — builder + render Vitest (critical stages only, whitespace email, HTML escape of business name + stage, *Count assertion)",
+      "Docs: architecture / production-deploy / launch-checklist note Leads missing email in Send daily digest",
+      "NEXT_STEPS: leads-missing-email-in-digest done; folded sibling marketing-generate-rate-limit + list-unpaid-empty-string-parity as done (8f90)",
+      "AGENT_PROTOCOL — inline-aggregate digest-wiring note now lists leadsMissingEmailCount beside openHandoffCount/paidNotLiveCount; disjoint-sets rule notes contact gaps vs fulfillment debt",
+      "BUSINESS_DECISIONS — documented why wiring missing-email into digest beats another clean auth/marker audit while sibling owns marketing-generate rate-limit",
+      "merge: origin/main (PR #197 digest-section-counts-uncapped) — both ITERATIONS kept; leadsMissingEmail follows the new *Count header pattern",
+      "Verified: npm test + lint + build (counts recorded after merge verification)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(292, 293),
+  }
 ];

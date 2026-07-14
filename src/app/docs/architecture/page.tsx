@@ -533,12 +533,19 @@ export default function ArchitectureDocPage() {
         so <code>paidNotLiveCount</code> was dashboard-only until the digest gained its own{" "}
         <strong>Paid, not yet live</strong> section (same <code>lead.stage === &quot;paid&quot;</code>{" "}
         predicate, direct from the <code>leads</code> the digest already loads — no new data
-        source). The same digest also lists email-critical leads with no usable address under{" "}
+source). The same digest also lists email-critical leads with no usable address under{" "}
         <strong>Leads missing email</strong> (same <code>leadIsMissingCriticalEmail</code>{" "}
         predicate as <code>leadsMissingEmailCount</code> — <code>site_built</code> /{" "}
         <code>outreach_sent</code> / <code>discovery_call</code> / <code>paid</code> with empty
         or whitespace-only email) so top-of-funnel contact gaps that block Email 1 are visible
-        without opening the dashboard. Lead quality scoring (
+        without opening the dashboard. Every action-section header in the digest (Follow-ups due,
+        Abandoned checkouts, Abandoned Buy now, Unreplied inquiries, Marketing packs due, Starter
+        → MRR upsell, Commerce catalogs missing/unsynced, Complete voice packs due, Commerce
+        payouts owed, Production handoffs open, Paid not yet live, Leads missing email) shows a
+        true pre-slice <code>*Count</code> field on <code>DailyDigest</code>, not the capped
+        display array&apos;s <code>.length</code> — each section still renders at most 5 rows, but
+        the header no longer silently freezes at &quot;(5)&quot; once a queue naturally grows past
+        that limit. Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
