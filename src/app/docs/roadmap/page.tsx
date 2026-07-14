@@ -90,7 +90,11 @@ export default function RoadmapDocPage() {
         otherwise stay <code>awaiting_dns</code> with manual notes). Until shared{" "}
         <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, the same dashboards show an indigo
         shared-project banner via <code>assessVercelProjectIdEnvReadiness</code> (Domains API still
-        skips unless every handoff gets Assign project). Preview contact
+        skips unless every handoff gets Assign project). Until{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
+        dashboards show a pink multi-instance persistence banner via{" "}
+        <code>assessConvexUrlEnvReadiness</code> (serverless / multi-instance otherwise stay
+        SQLite-only; <code>resolveConvexDeploymentUrl</code> also gates db.ts client init). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
