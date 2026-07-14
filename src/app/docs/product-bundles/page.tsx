@@ -86,7 +86,9 @@ export default function ProductBundlesDocPage() {
         Vitest in <code>save-commerce-catalog-action.test.ts</code> locks Save catalog auth,
         eligibility, preserve Stripe ids, and fail-closed persist. Unsynced items still fall back to Request order →
         inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
-        Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync). A
+        Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync;
+        action-level Vitest in{" "}
+        <code>archive-orphan-commerce-stripe-products-action.test.ts</code>). A
         completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
         from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the

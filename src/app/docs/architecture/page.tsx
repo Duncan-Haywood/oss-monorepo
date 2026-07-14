@@ -525,7 +525,10 @@ export default function ArchitectureDocPage() {
         Sync never archives Products for removed SKUs — operators click{" "}
         <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProductsAction</code>) to set those Products{" "}
-        <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata).{" "}
+        <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata) —
+        action-level Vitest in{" "}
+        <code>archive-orphan-commerce-stripe-products-action.test.ts</code> locks auth, secret
+        gate, lead lookup, catalog items pass-through, and Stripe error surfaces.{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Route-level Vitest
