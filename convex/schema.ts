@@ -157,6 +157,11 @@ export default defineSchema({
     createdAt: v.string(),
     /** Set once an operator has manually paid this order's amount out to the client. */
     paidOutAt: v.optional(v.string()),
+    /**
+     * Set once the Commerce client order-notification email succeeded — Stripe
+     * redelivery recovers sendCommerceBuyNowClientReceipt while unset.
+     */
+    clientReceiptEmailSentAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),

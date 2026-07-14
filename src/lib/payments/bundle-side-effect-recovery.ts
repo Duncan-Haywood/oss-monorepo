@@ -73,8 +73,8 @@ export function hasBundleDnsHandoffEmailNote(
 /**
  * Decide whether to fire buyer receipt and/or DNS handoff emails.
  * On redelivery (alreadyRecorded), still recover whichever email lacks a
- * durable handoff-note marker. Emails stay independently recoverable (unlike
- * commerce, where inquiry presence gates both inquiry + client receipt).
+ * durable handoff-note marker. Emails stay independently recoverable (same
+ * pattern as commerce inquiry vs clientReceiptEmailSentAt).
  */
 export function planBundleWebhookSideEffects(input: {
   alreadyRecorded: boolean;

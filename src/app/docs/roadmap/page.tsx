@@ -407,13 +407,14 @@ export default function RoadmapDocPage() {
         pipeline-health metric (unpaid/owed only — settled <code>paidOutAt</code> rows drop out) —
         deliberately kept out of <code>revenueTotalUsd</code>, since
         that money is owed to the client, not the platform. Stripe redeliveries of the same
-        Buy now session recover missing operator inquiry + client receipt when the ledger
-        exists but no <code>commerce_checkout</code> inquiry embeds the session id (
-        <code>planCommerceWebhookSideEffects</code> via uncapped{" "}
-        <code>listCommerceCheckoutInquiriesBySlug</code>); duplicates skip only when that inquiry
-        already exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
-        actually redelivers into that recovery path (client receipt stays best-effort after
-        inquiry succeeds). Per-lead owed totals from{" "}
+        Buy now session recover missing operator inquiry and client receipt independently when
+        the ledger exists: inquiry when no <code>commerce_checkout</code> inquiry embeds the
+        session id; client receipt when <code>commerceOrders.clientReceiptEmailSentAt</code> is
+        unset (<code>planCommerceWebhookSideEffects</code> via uncapped{" "}
+        <code>listCommerceCheckoutInquiriesBySlug</code>). Inquiry presence alone must not skip a
+        failed/suppressed client order-notification (bundle receipt/DNS twin — marker written only
+        after <code>&#123; success: true &#125;</code>). Inquiry write failures after the ledger
+        return HTTP 500 so Stripe actually redelivers into that recovery path. Per-lead owed totals from{" "}
         <code>listUnpaidCommerceOrders</code> (every unpaid row — not a newest-page slice) and
         recent unpaid order lines surface on the <strong>Commerce payouts (manual)</strong> panel for
         reconciliation until Connect ships, and the same per-lead owed totals appear in the

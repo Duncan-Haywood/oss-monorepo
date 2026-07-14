@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   hasCommerceCheckoutInquiryForSession,
+  hasCommerceClientReceiptSentMarker,
   inquiryMentionsStripeSession,
   planCommerceWebhookSideEffects,
 } from "./side-effect-recovery";
@@ -55,10 +56,32 @@ describe("hasCommerceCheckoutInquiryForSession", () => {
   });
 });
 
+describe("hasCommerceClientReceiptSentMarker", () => {
+  it("is false for missing/empty markers", () => {
+    expect(hasCommerceClientReceiptSentMarker(null)).toBe(false);
+    expect(hasCommerceClientReceiptSentMarker(undefined)).toBe(false);
+    expect(hasCommerceClientReceiptSentMarker({})).toBe(false);
+    expect(hasCommerceClientReceiptSentMarker({ clientReceiptEmailSentAt: "" })).toBe(
+      false,
+    );
+    expect(
+      hasCommerceClientReceiptSentMarker({ clientReceiptEmailSentAt: "   " }),
+    ).toBe(false);
+  });
+
+  it("is true when clientReceiptEmailSentAt is set", () => {
+    expect(
+      hasCommerceClientReceiptSentMarker({
+        clientReceiptEmailSentAt: "2026-07-14T12:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+});
+
 describe("planCommerceWebhookSideEffects", () => {
   const sessionId = "cs_test_recover";
 
-  it("runs inquiry + receipt on first delivery when no prior inquiry", () => {
+  it("runs inquiry + receipt on first delivery when no prior inquiry and no receipt marker", () => {
     expect(
       planCommerceWebhookSideEffects({
         alreadyRecorded: false,
@@ -72,7 +95,7 @@ describe("planCommerceWebhookSideEffects", () => {
     });
   });
 
-  it("recovers inquiry + receipt on redelivery when inquiry is missing", () => {
+  it("recovers inquiry + receipt on redelivery when inquiry is missing and receipt unmarked", () => {
     expect(
       planCommerceWebhookSideEffects({
         alreadyRecorded: true,
@@ -88,7 +111,7 @@ describe("planCommerceWebhookSideEffects", () => {
     });
   });
 
-  it("skips both when a commerce_checkout inquiry already mentions the session", () => {
+  it("recovers only the client receipt when inquiry exists but receipt marker is missing", () => {
     expect(
       planCommerceWebhookSideEffects({
         alreadyRecorded: true,
@@ -99,6 +122,42 @@ describe("planCommerceWebhookSideEffects", () => {
           },
         ],
         stripeSessionId: sessionId,
+        clientReceiptAlreadySent: false,
+      }),
+    ).toEqual({
+      runInquiry: false,
+      runClientReceipt: true,
+      reason: "redelivery_recovery",
+    });
+  });
+
+  it("recovers only the inquiry when receipt marker exists but inquiry is missing", () => {
+    expect(
+      planCommerceWebhookSideEffects({
+        alreadyRecorded: true,
+        inquiriesForLead: [],
+        stripeSessionId: sessionId,
+        clientReceiptAlreadySent: true,
+      }),
+    ).toEqual({
+      runInquiry: true,
+      runClientReceipt: false,
+      reason: "redelivery_recovery",
+    });
+  });
+
+  it("skips both when inquiry exists and receipt marker is set", () => {
+    expect(
+      planCommerceWebhookSideEffects({
+        alreadyRecorded: true,
+        inquiriesForLead: [
+          {
+            source: "commerce_checkout",
+            message: `Paid order via Buy now: Latte ($5.00) — Stripe session ${sessionId}, SKU sku_1.`,
+          },
+        ],
+        stripeSessionId: sessionId,
+        clientReceiptAlreadySent: true,
       }),
     ).toEqual({
       runInquiry: false,
@@ -107,22 +166,18 @@ describe("planCommerceWebhookSideEffects", () => {
     });
   });
 
-  it("skips on first delivery if an inquiry somehow already exists", () => {
+  it("skips receipt (but not inquiry) on first delivery if receipt somehow already marked", () => {
     expect(
       planCommerceWebhookSideEffects({
         alreadyRecorded: false,
-        inquiriesForLead: [
-          {
-            source: "commerce_checkout",
-            message: `Stripe session ${sessionId}`,
-          },
-        ],
+        inquiriesForLead: [],
         stripeSessionId: sessionId,
+        clientReceiptAlreadySent: true,
       }),
     ).toEqual({
-      runInquiry: false,
+      runInquiry: true,
       runClientReceipt: false,
-      reason: "already_notified",
+      reason: "first_delivery",
     });
   });
 
@@ -130,8 +185,8 @@ describe("planCommerceWebhookSideEffects", () => {
     // Simulate listClientInquiriesBySlug(50)'s newest-first page: 50 fresh
     // contact_form rows hide the older commerce_checkout that embeds the
     // session id. Feeding that page into planCommerceWebhookSideEffects
-    // falsely recovers (duplicate inbox + client receipt). The uncapped
-    // commerce_checkout-only list still sees the notify.
+    // falsely recovers the inquiry. The uncapped commerce_checkout-only list
+    // still sees the notify; receipt recovery stays independent via the marker.
     const olderSessionId = "cs_test_older_buy_now";
     const olderCommerceCheckout = {
       source: "commerce_checkout" as const,
@@ -151,8 +206,13 @@ describe("planCommerceWebhookSideEffects", () => {
         alreadyRecorded: true,
         inquiriesForLead: newestFiftyPage,
         stripeSessionId: olderSessionId,
-      }).reason,
-    ).toBe("redelivery_recovery");
+        clientReceiptAlreadySent: true,
+      }),
+    ).toEqual({
+      runInquiry: true,
+      runClientReceipt: false,
+      reason: "redelivery_recovery",
+    });
 
     expect(
       hasCommerceCheckoutInquiryForSession(commerceCheckoutOnly, olderSessionId),
@@ -162,6 +222,7 @@ describe("planCommerceWebhookSideEffects", () => {
         alreadyRecorded: true,
         inquiriesForLead: commerceCheckoutOnly,
         stripeSessionId: olderSessionId,
+        clientReceiptAlreadySent: true,
       }),
     ).toEqual({
       runInquiry: false,

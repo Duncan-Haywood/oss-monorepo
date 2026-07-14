@@ -42,4 +42,14 @@ describe("webhookFulfillmentFailureResponse", () => {
     expect(result.body.step).toBe("bundle_email_sent_marker");
     expect(result.body.error).toMatch(/retry/i);
   });
+
+  it("returns 500 with received:false for commerce client-receipt sent-marker failures", () => {
+    const result = webhookFulfillmentFailureResponse(
+      "commerce_client_receipt_sent_marker",
+    );
+    expect(result.status).toBe(WEBHOOK_FULFILLMENT_FAILURE_STATUS);
+    expect(result.body.received).toBe(false);
+    expect(result.body.step).toBe("commerce_client_receipt_sent_marker");
+    expect(result.body.error).toMatch(/retry/i);
+  });
 });
