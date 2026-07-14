@@ -1857,7 +1857,7 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner:
-      "cursor/prompt-process-evolution-7c34 (earlier claim; folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233; same-minute dual with business-process-evolution-9ced — both ITERATIONS kept)",
+      "cursor/prompt-process-evolution-7c34 (earlier claim; folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233; same-minute dual with business-process-evolution-9ced — both ITERATIONS kept; 9ced follow-up: architecture as-const prose)",
   },
 ];
 
@@ -4065,7 +4065,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Restore as const on updateLeadStageAction, importLeadsCsvAction, bootstrapStripePricesAction, and sendEmail/sendOperatorDailyDigest success literals after PR #231 silently re-widened them by merging a pre-fix actions.ts — keep discriminated-union narrowing accurate for every multi-return server action / send helper. Fold stuck grok/continuous-work-as-const-restore (issues #232/#233).",
     rationale:
-      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed this fold first per AGENT_PROTOCOL. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-9k2m4x + opencode/continuous-work-062115 (folded onto grok/dev-work-as-const-restore + grok/continuous-work-as-const-restore) with a complete as-const restore and no open PR (Actions token blocked). Without as const, TypeScript widens success to boolean so if (res.success) does not narrow — callers lose compile-time enforcement of success-only fields (envSnippet/imported/slugs) even when runtime is correct. Folding that body beats a clean re-audit of already-clean axes or inventing an optional aggregate. Corrected the stuck remote's duplicate success key on bootstrapStripePricesAction while folding. Next empty-backlog agents: skip already-folded as-const remotes; prefer a fresh sold-capability / security axis or operator launch checklist work over dead Convex API map entries.",
+      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed this fold first per AGENT_PROTOCOL. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-9k2m4x + opencode/continuous-work-062115 (folded onto grok/dev-work-as-const-restore + grok/continuous-work-as-const-restore) with a complete as-const restore and no open PR (Actions token blocked). Without as const, TypeScript widens success to boolean so if (res.success) does not narrow — callers lose compile-time enforcement of success-only fields (envSnippet/imported/slugs) even when runtime is correct. Folding that body beats a clean re-audit of already-clean axes or inventing an optional aggregate. Corrected the stuck remote's duplicate success key on bootstrapStripePricesAction while folding. Next empty-backlog agents: skip already-folded as-const remotes; prefer a fresh sold-capability / security axis or operator launch checklist work over dead Convex API map entries. Sibling 9ced follow-up documents architecture as-const merge-fold hygiene after PR #234 absorbed the feature.",
   },
 ];
 
@@ -7716,13 +7716,12 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-14",
     branch: "cursor/business-process-evolution-9ced",
     summary:
-      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes and found grok/continuous-work-as-const-restore with a complete as-const restore for the PR #231 merge regression and no open PR (Actions token blocked; issues #232/#233). Same-minute dual with prompt-process-evolution-7c34 (earlier claim) — both pushed identical feature body; this ITERATION kept on fold into 7c34's mergeable PR per AGENT_PROTOCOL.",
+      "Same-minute dual with prompt-process-evolution-7c34 on server-action-as-const-success-restore — both pushed the fold; 7c34's earlier claim merged as PR #234. Pivoted per AGENT_PROTOCOL to unique process/docs polish rather than re-shipping the suite: architecture.tsx now documents as-const merge-fold hygiene beside bootstrap action Vitest prose so future agents re-check success literals after large folds.",
     shipped: [
-      "Fold: origin/grok/continuous-work-as-const-restore feature files (actions + leads/actions + resend as const) — identical to 7c34 body",
-      "AGENT_PROTOCOL — as-const rule extended: re-check success literals after merges that touch actions.ts / resend.ts",
-      "NEXT_STEPS: server-action-as-const-success-restore done (dual with 7c34; earlier claim owns merge)",
-      "BUSINESS_DECISIONS — documented why folding this merge-regression restore beats inventing an optional aggregate",
-      "Verified: npm test + lint + build",
+      "Docs: architecture.tsx notes as-const merge-fold hygiene (updateLeadStageAction / importLeadsCsvAction / bootstrapStripePricesAction / sendEmail / sendOperatorDailyDigest) beside bootstrap action Vitest prose",
+      "merge: origin/main (PR #234 as-const restore) — kept both 7c34 + 9ced ITERATIONS; feature body already on main",
+      "NEXT_STEPS owner remains 7c34 (earlier claim); 9ced recorded as dual + architecture follow-up",
+      "Verified: npm test (1297 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(314, 315),
   },

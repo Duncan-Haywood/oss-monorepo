@@ -385,7 +385,13 @@ export default function ArchitectureDocPage() {
         (501), success <code>envSnippet</code> shape, and 502 on Stripe throw;{" "}
         <code>src/app/dashboard/actions.test.ts</code> locks the same contracts on{" "}
         <code>bootstrapStripePricesAction</code> (auth rejection + gate + success + throw) — the
-        lib helper suite alone does not cover that route/action glue. Display USD amounts and Stripe Price env var
+        lib helper suite alone does not cover that route/action glue. Multi-return dashboard
+        actions and send helpers (<code>updateLeadStageAction</code>,{" "}
+        <code>importLeadsCsvAction</code>, <code>bootstrapStripePricesAction</code>,{" "}
+        <code>sendEmail</code>, <code>sendOperatorDailyDigest</code>) keep{" "}
+        <code>success: true/false as const</code> on every return so TypeScript discriminated
+        unions actually narrow at call sites — merge folds that touch those files must re-check
+        the literals (PR #231 silently re-widened three actions by taking a pre-fix side). Display USD amounts and Stripe Price env var
         names live in <code>src/lib/pricing/bundles.ts</code> (direct Vitest in{" "}
         <code>bundles.test.ts</code>) — readiness/bootstrap suites import those constants but do
         not lock sold prices or <code>getBundle</code>. Remaining for first paid order: set core
