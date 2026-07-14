@@ -344,7 +344,9 @@ export default function LaunchChecklistDocPage() {
           <DocLink href="/dashboard/leads">Pipeline health</DocLink> shows recorded revenue,
           stage funnel, open handoffs, abandoned carts / recovery due, and leads missing email
           (no row-scanning required). Open handoffs also appear under{" "}
-          <strong>Production handoffs open</strong> in Send daily digest.
+          <strong>Production handoffs open</strong> in Send daily digest, and leads stuck at{" "}
+          <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
+          appear separately under <strong>Paid, not yet live</strong>.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
