@@ -169,7 +169,13 @@ export default function ArchitectureDocPage() {
         <code>src/lib/email/resend-env-readiness.ts</code>) — missing / whitespace-only /{" "}
         <code>re_placeholder…</code> / <code>re_...</code> match <code>sendEmail</code>&apos;s
         mock gate so operators cannot mistake silent mock success for real delivery. Distinct from
-        Stripe core / Price-ID banners. Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder
+        Stripe core / Price-ID banners. Until <code>EMAIL_FROM</code> is a non-placeholder
+        Resend-verified address, the same dashboards show a lime From-address banner via{" "}
+        <code>assessEmailFromEnvReadiness</code> (
+        <code>src/lib/email/email-from-env-readiness.ts</code>) — <code>sendEmail</code> /{" "}
+        <code>sendOperatorDailyDigest</code> use <code>formatResendFromHeader(brand.name,
+        brand.emailFrom)</code> for the Resend <code>from</code> header (never a hardcoded
+        platform domain). Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder
         secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
         <code>assessAnthropicEnvReadiness</code> (
         <code>src/lib/ai/anthropic-env-readiness.ts</code>) — matching the Stub* factory gate in
