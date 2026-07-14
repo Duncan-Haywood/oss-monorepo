@@ -92,7 +92,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper reachable from at least one of those two surfaces — checked clean as of 2026-07-14), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate such as openHandoffCount / paidNotLiveCount — openHandoffCount was dashboard-only until open-handoffs-in-digest), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
 ] as const;
 
 /**
@@ -1629,7 +1629,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "open-handoffs-in-digest",
     summary:
       "Empty-backlog after PR #190 (sqlite-row-mapping-test-coverage): pipeline-health + /dashboard already expose openHandoffCount (paid sites awaiting DNS / Mark live), but the operator daily digest never loaded listDeployHandoffs — so a single-operator business that relies on Send daily digest could miss production go-live debt entirely. PR #188's wiring audit checked list*Due/Missing/Unsynced helpers and missed this inline handoffs filter. Shipped: openHandoffs action section in buildDailyDigest/renderDailyDigestHtml (status !== live, same predicate as pipeline-health) + listDeployHandoffs in sendDailyDigestAction.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-e73c",
   },
@@ -3644,6 +3644,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Extract the pure SQLite row<->Lead mapping (hours/services serialize+parse, category/tier/default fallbacks) out of src/lib/db.ts into src/lib/leads/sqlite-row-mapping.ts (no `server-only` import) and give it direct Vitest coverage, rather than attempting a full db.ts fallback-path test harness or leaving the gap undocumented.",
     rationale:
       "Delegated a fresh empty-backlog audit rotated to two axes not yet explicitly checked (CSV import/export injection, orchestrator test-coverage completeness) per the audit-rotation rule. CSV came back clean (no export sink exists at all; import already quote/comma-escapes correctly). Test-coverage did not: db.ts is the single module every Convex-primary/SQLite-fallback write funnels through, yet has zero direct test file, and confirmed (by trying to import it in Vitest) that it throws under `server-only` exactly like resend.ts already documents — every existing test instead mocks `@/lib/db` wholesale, so the fallback logic AGENT_PROTOCOL itself names as risky (Convex API map gaps, hours/services round-trip) has never actually executed under test. Rather than reshape db.ts's Convex/SQLite branch structure itself — a much larger, riskier change with no clear stopping point for one iteration — pulled out just the pure, side-effect-free mapping functions the row round-trips through, following the same testability pattern the codebase already established for stripe-sync.ts. This closes a real, narrowly-scoped coverage gap in a payment/lead-critical path (import-leads-csv and addLeadAction both flow through upsertLead's SQLite fallback) with a small, low-risk diff, and incidentally fixed a genuine inconsistency: upsertLead's update/insert path always appended a '· ' hours separator even with no weekend hours, unlike the demo-seed path's conditional format (both round-tripped correctly on read, so not data loss, just needless stored noise and a second source of truth for the same format). Verified via `npm run dev` that /dashboard/leads still renders demo lead hours/services correctly after the refactor.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Wire pipeline-health openHandoffCount into the operator daily digest as a Production handoffs open action section (status !== live, same predicate; listDeployHandoffs in sendDailyDigestAction) rather than inventing a new metric or re-running the list*Due/Missing/Unsynced wiring audit that already declared clean.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #190. Empty-backlog audit rotated to pipeline-health/digest wiring completeness and found that PR #188's clean pass only checked named list*Due/Missing/Unsynced helpers — it missed openHandoffCount, which is computed inline from handoffs on the dashboard but never loaded into buildDailyDigest. Paid sites awaiting DNS / Mark live are the highest-urgency post-payment fulfillment debt; a single-operator business that relies on Send daily digest would never see them. Closing that sold-capability visibility gap beats another identical bug-class re-audit or a manufactured optional aggregate. Sibling business-process-evolution-c966 had not pushed a remote claim when this was claimed.",
   },
 ];
 
@@ -6759,5 +6766,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1151 passed, full suite incl. 14 new) + lint + build + npm run dev (/dashboard/leads renders demo lead hours/services correctly after the refactor)",
     ],
     decisions: BUSINESS_DECISIONS.slice(286, 287),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-e73c",
+    summary:
+      "Empty-backlog after PR #190 (sqlite-row-mapping-test-coverage): free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-c966 had not pushed a remote claim. Rotated to pipeline-health/digest wiring completeness and found openHandoffCount was dashboard-only — daily digest never loaded listDeployHandoffs, so paid DNS/Mark-live debt was invisible to Send daily digest. Claimed and shipped open-handoffs-in-digest.",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — openHandoffs action section (status !== live, oldest-first, customDomain||suggestedHost); isEmpty + empty-state copy updated",
+      "src/app/dashboard/leads/actions.ts — sendDailyDigestAction loads listDeployHandoffs and passes handoffs into buildDailyDigest",
+      "src/lib/digest/daily-digest.test.ts + send-daily-digest-action.test.ts — builder + action Vitest for open handoffs / listDeployHandoffs wiring",
+      "docs: production-deploy / architecture / launch-checklist note digest Production handoffs open",
+      "NEXT_STEPS: open-handoffs-in-digest done",
+      "AGENT_PROTOCOL — pipeline-health/digest wiring audits must also check inline aggregates (openHandoffCount / paidNotLiveCount), not only named list* helpers",
+      "BUSINESS_DECISIONS — documented why wiring open handoffs into digest beats another list*-only clean audit",
+      "Verified: npm test (digest + send-daily-digest suites) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(287, 288),
   },
 ];
