@@ -360,11 +360,14 @@ export default function ArchitectureDocPage() {
         marks pass <code>requireConvex</code> (<code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and
         Reply durably marks <code>replied</code> before Resend (persist-then-notify) so
         unreplied metrics on other instances cannot miss a successful reply or risk a
-        duplicate send. Action-level Vitest (
-        <code>reply-to-inquiry-action.test.ts</code>) locks the dashboard Reply glue (auth,
-        body/inquiry gates, mark-before-Resend, Convex skip-send, suppression after mark)
-        beside <code>reply-persist</code> / <code>reply.ts</code> helpers. Opening the reply
-        composer on a <code>new</code> inquiry auto-marks it <code>read</code> (
+        unreplied metrics on other instances cannot miss a successful reply or risk a
+        duplicate send. The operator <code>replyToInquiryAction</code> path has its own
+        action-level Vitest in <code>reply-to-inquiry-action.test.ts</code> — auth, body /
+        archived / no-email gates, mark-before-Resend, email trim, ConvexPrimaryWriteError
+        skip-send, null-mark not-found, and suppression / Resend failure after a durable mark —
+        so dashboard glue is not left to the reply-persist / reply.ts helper suites alone.
+        Opening the reply composer on a{" "}
+        <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
         unreplied-inquiry metrics distinguish seen-but-undrafted from untouched. Pipeline health panel aggregates order revenue, stage
         funnel counts, open handoffs, abandoned checkout / recovery-due counts, unreplied

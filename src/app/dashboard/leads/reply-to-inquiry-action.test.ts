@@ -4,12 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * Action-level orchestration for replyToInquiryAction — the operator Starter
  * inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify).
  *
- * reply-persist.test.ts + reply.ts helpers cover the requireConvex constant and
- * pure normalize / can-receive predicates. This suite locks the dashboard
- * action glue: requireOperatorAuth, empty inquiry id, reply-body validation,
- * missing / archived / no-email inquiry gates, mark-before-Resend,
- * ConvexPrimaryWriteError skip-send, suppression / send failure after durable
- * mark (returns inquiry; no revalidate), mock send flag, and success revalidate.
+ * reply.test.ts + reply-persist.ts cover pure normalize / canReceive helpers
+ * and the requireConvex constant. This suite locks the dashboard action glue:
+ * requireOperatorAuth, empty inquiry id, empty / over-long body, missing
+ * inquiry, archived / no-email gates, mark-before-Resend, email trim,
+ * ConvexPrimaryWriteError skip-send, null-mark not-found, suppression /
+ * Resend failure after durable mark (returns inquiry; no revalidate), mock
+ * send flag, and success revalidate.
+ *
+ * Folded complementary coverage from cursor/business-process-evolution-fff2
+ * (email trim + null-mark not-found) into the earlier f9b1 claim body.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -94,19 +98,18 @@ const openInquiry = {
   businessName: "Demo Cafe",
   name: "Alex Visitor",
   email: "alex@visitor.example",
-  message: "Do you do catering?",
+  phone: null,
+  message: "Do you take walk-ins?",
+  source: "contact_form" as const,
   status: "new" as const,
-  source: "preview",
-  createdAt: "2026-07-01T12:00:00.000Z",
-  updatedAt: "2026-07-01T12:00:00.000Z",
+  createdAt: "2026-07-10T12:00:00.000Z",
 };
 
 const repliedInquiry = {
   ...openInquiry,
   status: "replied" as const,
-  operatorReply: "Thanks for reaching out — yes, we do catering.",
-  repliedAt: "2026-07-14T02:00:00.000Z",
-  updatedAt: "2026-07-14T02:00:00.000Z",
+  operatorReply: "Thanks — yes, walk-ins welcome after 2pm.",
+  repliedAt: "2026-07-14T02:10:00.000Z",
 };
 
 describe("replyToInquiryAction", () => {
@@ -128,7 +131,7 @@ describe("replyToInquiryAction", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error: "Unauthorized — sign in at /dashboard/login",
@@ -140,14 +143,14 @@ describe("replyToInquiryAction", () => {
 
   it("rejects an empty inquiry id", async () => {
     const { replyToInquiryAction } = await import("./actions");
-    expect(await replyToInquiryAction("", "Thanks!")).toEqual({
+    expect(await replyToInquiryAction("", "Thanks for writing.")).toEqual({
       success: false,
       error: "Inquiry id is required",
     });
     expect(getClientInquiryById).not.toHaveBeenCalled();
   });
 
-  it("rejects an empty / whitespace-only reply body", async () => {
+  it("rejects an empty reply body", async () => {
     const { replyToInquiryAction } = await import("./actions");
     expect(await replyToInquiryAction("inq_demo_1", "   ")).toEqual({
       success: false,
@@ -159,10 +162,14 @@ describe("replyToInquiryAction", () => {
 
   it("rejects an over-long reply body", async () => {
     const { replyToInquiryAction } = await import("./actions");
-    const tooLong = "x".repeat(4001);
-    expect(await replyToInquiryAction("inq_demo_1", tooLong)).toEqual({
+    const { MAX_INQUIRY_REPLY_LENGTH } = await import("@/lib/inquiries/reply");
+    const res = await replyToInquiryAction(
+      "inq_demo_1",
+      "x".repeat(MAX_INQUIRY_REPLY_LENGTH + 1),
+    );
+    expect(res).toEqual({
       success: false,
-      error: "Reply must be 4000 characters or fewer",
+      error: `Reply must be ${MAX_INQUIRY_REPLY_LENGTH} characters or fewer`,
     });
     expect(getClientInquiryById).not.toHaveBeenCalled();
   });
@@ -170,7 +177,7 @@ describe("replyToInquiryAction", () => {
   it("rejects when the inquiry is missing", async () => {
     getClientInquiryById.mockResolvedValue(null);
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("missing", "Thanks!");
+    const res = await replyToInquiryAction("inq_missing", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error: "Inquiry not found",
@@ -184,7 +191,7 @@ describe("replyToInquiryAction", () => {
       status: "archived",
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error:
@@ -193,13 +200,13 @@ describe("replyToInquiryAction", () => {
     expect(recordClientInquiryReply).not.toHaveBeenCalled();
   });
 
-  it("rejects inquiries with no email", async () => {
+  it("rejects inquiries without an email address", async () => {
     getClientInquiryById.mockResolvedValue({
       ...openInquiry,
-      email: undefined,
+      email: null,
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error: "Inquiry has no email address to reply to",
@@ -211,7 +218,7 @@ describe("replyToInquiryAction", () => {
     const { replyToInquiryAction } = await import("./actions");
     const res = await replyToInquiryAction(
       "inq_demo_1",
-      "  Thanks for reaching out — yes, we do catering.  ",
+      "  Thanks — yes, walk-ins welcome after 2pm.  ",
     );
 
     expect(res).toEqual({
@@ -222,7 +229,7 @@ describe("replyToInquiryAction", () => {
     expect(recordClientInquiryReply).toHaveBeenCalledOnce();
     expect(recordClientInquiryReply).toHaveBeenCalledWith(
       "inq_demo_1",
-      "Thanks for reaching out — yes, we do catering.",
+      "Thanks — yes, walk-ins welcome after 2pm.",
       { requireConvex: true },
     );
     expect(sendInquiryReply).toHaveBeenCalledOnce();
@@ -230,8 +237,8 @@ describe("replyToInquiryAction", () => {
       to: "alex@visitor.example",
       businessName: "Demo Cafe",
       leadSlug: "demo-cafe",
-      replyBody: "Thanks for reaching out — yes, we do catering.",
-      originalMessage: "Do you do catering?",
+      replyBody: "Thanks — yes, walk-ins welcome after 2pm.",
+      originalMessage: "Do you take walk-ins?",
       inquirerName: "Alex Visitor",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
@@ -243,7 +250,7 @@ describe("replyToInquiryAction", () => {
       email: "  alex@visitor.example  ",
     });
     const { replyToInquiryAction } = await import("./actions");
-    await replyToInquiryAction("inq_demo_1", "Thanks!");
+    await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(sendInquiryReply).toHaveBeenCalledWith(
       expect.objectContaining({ to: "alex@visitor.example" }),
     );
@@ -252,7 +259,7 @@ describe("replyToInquiryAction", () => {
   it("skips Resend when the replied mark fails closed on Convex", async () => {
     recordClientInquiryReply.mockRejectedValue(new MockConvexPrimaryWriteError());
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error:
@@ -265,7 +272,7 @@ describe("replyToInquiryAction", () => {
   it("surfaces not-found when the mark returns null", async () => {
     recordClientInquiryReply.mockResolvedValue(null);
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error: "Inquiry not found",
@@ -280,7 +287,7 @@ describe("replyToInquiryAction", () => {
       reason: "suppressed",
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error:
@@ -297,7 +304,7 @@ describe("replyToInquiryAction", () => {
       error: "Resend 429",
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: false,
       error:
@@ -314,7 +321,7 @@ describe("replyToInquiryAction", () => {
       mock: true,
     });
     const { replyToInquiryAction } = await import("./actions");
-    const res = await replyToInquiryAction("inq_demo_1", "Thanks!");
+    const res = await replyToInquiryAction("inq_demo_1", "Thanks for writing.");
     expect(res).toEqual({
       success: true,
       inquiry: repliedInquiry,

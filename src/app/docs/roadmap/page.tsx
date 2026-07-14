@@ -260,7 +260,8 @@ export default function RoadmapDocPage() {
         <code>requireConvex</code> so SQLite-only success cannot hide the row from other
         instances — + operator panel + dashboard reply via
         Resend with <code>requireConvex</code> + persist-then-notify on reply/status marks —
-        <code>inquiry-reply-convex-primary</code>): shipped. Unreplied inquiry counts on pipeline
+        <code>inquiry-reply-convex-primary</code>; action-level Vitest in{" "}
+        <code>reply-to-inquiry-action.test.ts</code>): shipped. Unreplied inquiry counts on pipeline
         health: shipped (new + read, with oldest age). Work next snooze: shipped. Inquiry
         mark-read on composer open: shipped. Snoozed-lead pipeline aggregates: shipped.
         Cold-lead archive/re-engage one-click (+ optional Email 1 on re-engage; with Convex

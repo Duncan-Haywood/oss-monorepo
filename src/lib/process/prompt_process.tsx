@@ -203,7 +203,7 @@ export const AGENT_PROTOCOL = [
   "send-starter-upsell-action-test-coverage done: src/app/dashboard/leads/send-starter-upsell-action.test.ts locks requireOperatorAuth, empty/whitespace slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce and missing email), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), mock send flag, leadSlug order filtering, and email trim — starter-upsell helper suites alone are not enough for the dashboard Upsell glue. Twin of send-follow-up-action-test-coverage (left free for siblings). When free NEXT_STEPS stay gated, prefer send-follow-up-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "send-follow-up-action-test-coverage done: src/app/dashboard/leads/send-follow-up-action.test.ts locks requireOperatorAuth, empty slug, missing lead/email, paid/live/closed stage gates, Email 1 prerequisite / sequence-complete, OUTREACH_CADENCE_CONVEX_PRIMARY mark-before-Resend, ConvexPrimaryWriteError skip-send, Email 2 vs Email 3 dispatch, suppression / Resend failure after durable mark (returns outreachStep; no revalidate), and mock send flag — outreach-followups helper suites alone are not enough for the dashboard Follow-up glue. Twin of send-starter-upsell-action-test-coverage (cd3b / PR #156). When free NEXT_STEPS stay gated, prefer reply-to-inquiry-action-test-coverage / dispose-cold-lead-action-test-coverage (sibling-friendly CRM reply vs cold Re-engage/Close action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When reply-to-inquiry-action-test-coverage and dispose-cold-lead-action-test-coverage are both free in the same cron window, claim different ones (Starter inquiry reply persist-then-notify vs cold Re-engage/Close + optional Email 1) — they touch different action surfaces and both lock conversion-critical CRM paths that inquiry/cold helper suites do not cover.",
-  "reply-to-inquiry-action-test-coverage done: src/app/dashboard/leads/reply-to-inquiry-action.test.ts locks requireOperatorAuth, empty inquiry id, empty/whitespace + over-long reply body, missing / archived / no-email inquiry gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend (trimmed body), ConvexPrimaryWriteError skip-send, null-mark not-found, email trim, suppression / Resend failure after durable mark (returns inquiry; no revalidate), and mock send flag — reply-persist + reply.ts helper suites alone are not enough for the dashboard Reply glue. Twin of dispose-cold-lead-action-test-coverage (left free for siblings). When free NEXT_STEPS stay gated, prefer dispose-cold-lead-action-test-coverage / update-inquiry-status-action-test-coverage (sibling-friendly cold Re-engage/Close vs mark-read/Archive status action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "reply-to-inquiry-action-test-coverage done: src/app/dashboard/leads/reply-to-inquiry-action.test.ts locks requireOperatorAuth, empty inquiry id, empty / over-long body, missing inquiry, archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend, email trim, ConvexPrimaryWriteError skip-send, null-mark not-found, suppression / Resend failure after durable mark (returns inquiry; no revalidate), and mock send flag — reply.test.ts / reply-persist helpers alone are not enough for the dashboard Reply glue. Twin of dispose-cold-lead-action-test-coverage (left free for sibling). Folded complementary email-trim + null-mark cases from business-process-evolution-fff2 dual-claim. When free NEXT_STEPS stay gated, prefer dispose-cold-lead-action-test-coverage / update-inquiry-status-action-test-coverage (sibling-friendly cold Re-engage/Close vs mark-read/Archive) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When dispose-cold-lead-action-test-coverage and update-inquiry-status-action-test-coverage are both free in the same cron window, claim different ones (cold Re-engage/Close + optional Email 1 vs inquiry mark-read/Archive requireConvex) — they touch different action surfaces and both lock CRM paths that cold-archive / reply helper suites do not cover.",
 ] as const;
 
@@ -1516,22 +1516,22 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "reply-to-inquiry-action-test-coverage",
     summary:
-      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: replyToInquiryAction is the operator Starter inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify) — inquiry helper suites alone are not enough for action glue. Shipped: reply-to-inquiry-action.test.ts (14 tests). Twin of dispose-cold-lead-action-test-coverage (left free).",
+      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: replyToInquiryAction is the operator Starter inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify) — inquiry helper suites alone are not enough for action glue. Shipped: reply-to-inquiry-action.test.ts (14 tests; f9b1 + fff2 complementary fold). Twin of dispose-cold-lead-action-test-coverage.",
     status: "done",
     phase: "Phase 3 — CRM & inbox",
-    owner: "cursor/business-process-evolution-fff2",
+    owner: "cursor/prompt-process-evolution-f9b1 + cursor/business-process-evolution-fff2",
   },
   {
     id: "dispose-cold-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
+      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage / update-inquiry-status-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
     status: "todo",
     phase: "Phase 4 — Outreach",
   },
   {
     id: "update-inquiry-status-action-test-coverage",
     summary:
-      "Empty-backlog twin after inquiry Reply action Vitest: updateInquiryStatusAction is the operator mark-read (composer open) / Archive path (INQUIRY_REPLY_CONVEX_PRIMARY fail-closed) — reply helper suites alone are not enough for status-action glue. Sibling-friendly with dispose-cold-lead-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
+      "Empty-backlog twin after inquiry Reply action Vitest: updateInquiryStatusAction is the operator mark-read (composer open) / Archive path (INQUIRY_REPLY_CONVEX_PRIMARY fail-closed) — reply helper + replyToInquiryAction suites alone do not lock status-only glue. Sibling-friendly with dispose-cold-lead-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
     status: "todo",
     phase: "Phase 3 — CRM & inbox",
   },
@@ -3318,9 +3318,9 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-14",
     decision:
-      "Ship action-level Vitest for replyToInquiryAction (Starter inquiry Reply) when send-follow-up-action-test-coverage is done — reply-persist + reply.ts helper suites alone do not lock auth, empty inquiry id, empty/whitespace + over-long reply body, missing / archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend, ConvexPrimaryWriteError skip-send, null-mark not-found, email trim, or suppression / Resend failure after durable mark (returns inquiry; no revalidate). Leave dispose-cold-lead-action-test-coverage free for siblings; queue update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Ship action-level Vitest for replyToInquiryAction (Starter inquiry Reply) when send-follow-up-action-test-coverage is done — reply.test.ts / reply-persist helpers alone do not lock auth, empty inquiry id, empty / over-long body, missing inquiry, archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend, email trim, ConvexPrimaryWriteError skip-send, null-mark not-found, or suppression / Resend failure after durable mark (returns inquiry; no revalidate). Leave dispose-cold-lead-action-test-coverage free for siblings; queue update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
-      "Reply is the operator path that closes Starter contact-form inquiries from /dashboard/leads — unrepliedInquiryCount / oldestUnrepliedInquiryAgeHours / digest depend on the durable replied mark landing before Resend. A future soft-fallback that sends before marking, skipped requireConvex, revalidate-on-suppression, or archived/no-email soft-pass would not fail Vitest without action glue coverage — the same class of gap Email 2/3 follow-up / checkout-recovery / Email pack action suites already closed — and would risk duplicate visitor replies or Convex-first unreplied metrics staying high after a real send. Prefer locking that reply path, then cold-disposition / inquiry-status action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+      "Reply is the operator path that closes the Starter contact-form CRM loop from /dashboard/leads — unrepliedInquiryCount / digest / oldestUnrepliedInquiryAgeHours all read Convex-first. A future soft-fallback that sends before marking, skipped requireConvex, archived soft-pass, or revalidate-on-suppression regression would not fail Vitest without action glue coverage — the same class of gap Email 2/3 follow-up / Starter upsell action suites already closed — and would risk duplicate visitor replies or silent unreplied debt across instances. Prefer locking that inbox path, then cold Re-engage/Close / inquiry-status action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5898,16 +5898,31 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-f9b1",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #157 (Email 2/3 follow-up action Vitest). Claimed reply-to-inquiry-action-test-coverage (earlier remote claim than sibling business-process-evolution-fff2 dual-claim ~43s later). Sibling fff2 merged first as PR #158 with the 14-test suite — this PR folds process ITERATION + docs polish (MAX_INQUIRY_REPLY_LENGTH constant usage, dual-claim record) onto main per AGENT_PROTOCOL. Left dispose-cold-lead-action-test-coverage + update-inquiry-status-action-test-coverage free. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "Process: both ITERATIONS kept after PR #158 (fff2) landed the Reply action Vitest feature body",
+      "src/app/dashboard/leads/reply-to-inquiry-action.test.ts — polish to use MAX_INQUIRY_REPLY_LENGTH import + fold commentary",
+      "Docs: architecture + roadmap + launch-checklist wording aligned with f9b1 dual-claim record",
+      "NEXT_STEPS: reply-to-inquiry-action-test-coverage done (fff2 / PR #158); dispose-cold-lead + update-inquiry-status left free",
+      "AGENT_PROTOCOL — earlier claim still records its ITERATION when sibling feature body lands first; prefer dispose-cold / update-inquiry-status action Vitest twins next",
+      "Verified: npm test (872 passed) + lint after sync with main PR #158",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(254, 255),
+  },
+  {
+    date: "2026-07-14",
     branch: "cursor/business-process-evolution-fff2",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #157 (Email 2/3 follow-up action Vitest). Claimed reply-to-inquiry-action-test-coverage — replyToInquiryAction had zero action-level Vitest despite being the operator Starter inquiry Reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify). Same-minute dual claim with prompt-process-evolution-f9b1 (earlier claim-only remote; this branch already pushed feature body — keep shipping per AGENT_PROTOCOL; sibling should pivot to dispose-cold-lead). Left dispose-cold-lead-action-test-coverage free; queued update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #157 (Email 2/3 follow-up action Vitest). Claimed reply-to-inquiry-action-test-coverage — replyToInquiryAction had zero action-level Vitest despite being the operator Starter inquiry Reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify). Same-minute dual claim with prompt-process-evolution-f9b1 (earlier claim; this branch pushed feature body and merged as PR #158). Left dispose-cold-lead-action-test-coverage free; queued update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/dashboard/leads/reply-to-inquiry-action.test.ts — 14 tests locking auth fail, empty inquiry id, empty/whitespace + over-long reply body, missing / archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend (trimmed body), ConvexPrimaryWriteError skip-send, null-mark not-found, email trim, suppression / Resend failure after durable mark (returns inquiry; no revalidate), and mock send flag",
       "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside reply-persist / reply.ts helpers",
       "NEXT_STEPS: reply-to-inquiry-action-test-coverage done; dispose-cold-lead-action-test-coverage left free; queued update-inquiry-status-action-test-coverage",
       "AGENT_PROTOCOL — claim Reply vs cold Re-engage/Close action Vitest separately; prefer cold-disposition / inquiry-status action Vitest twins next; keep feature body when sibling only has claim",
       "BUSINESS_DECISIONS — documented why Starter inquiry Reply action glue Vitest beats inventing optional aggregates after Email 2/3 follow-up coverage",
-      "Verified: npm test (872 passed — Reply action 14 from 858) + lint + build",
+      "Verified: npm test (872 passed — Reply action 14 from 858) + lint + build (merged as PR #158)",
     ],
     decisions: BUSINESS_DECISIONS.slice(254, 255),
   },
