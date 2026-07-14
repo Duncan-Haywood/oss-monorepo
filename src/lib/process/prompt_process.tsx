@@ -7511,7 +7511,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — TOCTOU rule extended for status-regression on marker writes (preferAdvancedHandoffStatus)",
       "NEXT_STEPS: handoff-email-marker-status-no-downgrade done (folded from grok/dev-work-handoff-marker-status)",
       "BUSINESS_DECISIONS — documented why atomic never-downgrade + folding a stuck CLI remote beats inventing an optional aggregate",
-      "Verified: npm test (handoff-preserve preferAdvancedHandoffStatus) + lint + build",
+      "Verified: npm test (1276 passed, +3 preferAdvancedHandoffStatus regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(310, 311),
   },
