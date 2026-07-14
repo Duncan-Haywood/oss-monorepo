@@ -1812,6 +1812,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Fulfillment",
     owner: "cursor/business-process-evolution-eccd",
   },
+  {
+    id: "handoff-email-marker-status-no-downgrade",
+    summary:
+      "Empty-backlog after PR #223 (handoff-provision-lost-update-guard). Bundle webhook durable receipt/DNS sent-markers call updateDeployHandoffStatus with a pre-Resend handoff.status snapshot — concurrent Mark live during Resend can be overwritten back to awaiting_dns/provisioned. Folding complete feature body from grok/dev-work-handoff-marker-status (Actions token blocked from opening a PR): preferAdvancedHandoffStatus never-downgrade inside updateDeployHandoffStatus (Convex + SQLite).",
+    status: "in_progress",
+    phase: "Phase 5 — Fulfillment",
+    owner: "cursor/business-process-evolution-8524 (folding grok/dev-work-handoff-marker-status)",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
