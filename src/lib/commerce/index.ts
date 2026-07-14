@@ -24,6 +24,7 @@ export {
 } from "./catalog";
 
 export {
+  archiveCommerceStripeProducts,
   archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,
   listOrphanCommerceStripeProducts,

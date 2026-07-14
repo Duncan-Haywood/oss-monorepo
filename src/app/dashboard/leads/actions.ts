@@ -107,8 +107,9 @@ import {
   monthlyPackRequestForLead,
 } from "@/lib/marketing";
 import {
-  archiveOrphanCommerceStripeProducts,
+  archiveCommerceStripeProducts,
   leadEligibleForCommerceCatalog,
+  listOrphanCommerceStripeProducts,
   normalizeCommerceItems,
   preserveCommerceStripeIds,
   syncCommerceCatalogToStripe,
@@ -1806,11 +1807,17 @@ export async function archiveOrphanCommerceStripeProductsAction(slug: string) {
     const items = catalog?.items ?? [];
 
     const stripe = new Stripe(secretKey);
-    const { archived } = await archiveOrphanCommerceStripeProducts(
-      stripe,
-      lead.slug,
-      items,
-    );
+    // listOrphanCommerceStripeProducts paginates every active Stripe Product
+    // on the account — a real, materially long window. Re-read the catalog
+    // right before actually archiving anything and drop any candidate whose
+    // skuId reappears, so a concurrent saveCommerceCatalogAction that
+    // re-adds/renames a SKU into the same id during that window doesn't get
+    // its live Stripe Product archived out from under it.
+    const candidates = await listOrphanCommerceStripeProducts(stripe, lead.slug, items);
+    const freshCatalog = await getCommerceCatalog(slug);
+    const freshSkuIds = new Set((freshCatalog?.items ?? []).map((item) => item.id));
+    const toArchive = candidates.filter((orphan) => !freshSkuIds.has(orphan.skuId));
+    const { archived } = await archiveCommerceStripeProducts(stripe, toArchive);
 
     revalidatePath("/dashboard/leads");
     return {
