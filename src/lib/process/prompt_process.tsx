@@ -1626,6 +1626,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Lead volume",
     owner: "cursor/prompt-process-evolution-f4bf",
   },
+  {
+    id: "login-operator-action-test-coverage",
+    summary:
+      "Empty-backlog after get-commerce-catalog action Vitest: loginOperatorAction / logoutOperatorAction are the operator session write/clear path (safeNextPath open-redirect guard + cookie set/clear) — operator.test.ts token crypto + proxy.test.ts gate alone are not enough for login form glue. Prefer when free backlog is otherwise gated; sibling-friendly with requireOperatorAuth cookie-read coverage.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-7f7e",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
