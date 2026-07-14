@@ -7575,7 +7575,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — CSV quality preferred empty-backlog unlock while Places stays gated; parseLeadHours first-separator rule",
       "NEXT_STEPS: csv-import-hours-multiline-limits done (folded from opencode/dev-work-f3k8p1)",
       "BUSINESS_DECISIONS — documented why folding this stuck CSV quality fix beats dual-building sibling encode-at-use or inventing an optional aggregate",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1288 passed, +12 CSV hours/RFC4180/limits + middot-in-weekend regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
