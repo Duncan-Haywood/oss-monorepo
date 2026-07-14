@@ -238,15 +238,26 @@ describe("updateLeadStageAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("on outreach_sent skips Email 1 when the lead is missing after the stage write", async () => {
+  it("returns Lead not found and never writes the stage when the slug does not exist", async () => {
     getLeadBySlug.mockResolvedValue(null);
     const { updateLeadStageAction } = await import("./actions");
-    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    const res = await updateLeadStageAction("missing-slug", "outreach_sent");
 
-    expect(res).toEqual({ success: true });
+    expect(res).toEqual({ success: false, error: "Lead not found" });
+    expect(updateLeadStage).not.toHaveBeenCalled();
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns Lead not found for a non-outreach stage move on an unknown slug, without writing", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("missing-slug", "paid");
+
+    expect(res).toEqual({ success: false, error: "Lead not found" });
+    expect(updateLeadStage).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("fails closed on outreach mark Convex error after stage save (skips Email 1)", async () => {
