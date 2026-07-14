@@ -67,7 +67,8 @@ export function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderR
     amountPaidUsd: row.amountPaidUsd,
     stripeSessionId: row.stripeSessionId,
     createdAt: row.createdAt,
-    paidOutAt: row.paidOutAt ?? undefined,
-    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt ?? undefined,
+    // Empty string must stay unpaid (matches SQLite listUnpaid + isCommerceOrderPaidOut).
+    paidOutAt: row.paidOutAt || undefined,
+    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt || undefined,
   };
 }

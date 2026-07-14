@@ -84,7 +84,8 @@ export default function ComplianceDocPage() {
         <li>
           <code>GET /api/unsubscribe</code> is rate-limited by client IP (
           <code>src/lib/security/rate-limit.ts</code>, same helper as contact / checkout /
-          commerce checkout / billing portal / preview-open) before token verify — returns 429 +
+          commerce checkout / billing portal / preview-open / bootstrap-prices /
+          marketing generate) before token verify — returns 429 +
           Retry-After so a harvested footer link cannot unboundedly mutate the global suppression
           list that gates every automated send
         </li>

@@ -163,13 +163,27 @@ const FUNNEL_ORDER: LeadPipelineStage[] = [
   "live",
 ];
 
-/** Stages where missing email blocks revenue motion. */
-const EMAIL_CRITICAL_STAGES: ReadonlySet<LeadPipelineStage> = new Set([
+/**
+ * Stages where missing email blocks revenue motion (Email 1 / follow-ups /
+ * recovery / receipts). Exported so daily digest uses the same set as
+ * pipeline-health — do not fork a parallel stage list in the digest.
+ */
+export const EMAIL_CRITICAL_STAGES: ReadonlySet<LeadPipelineStage> = new Set([
   "site_built",
   "outreach_sent",
   "discovery_call",
   "paid",
 ]);
+
+/** True when the lead is in an email-critical stage with no usable email. */
+export function leadIsMissingCriticalEmail(
+  lead: Pick<Lead, "stage" | "email">,
+): boolean {
+  return (
+    EMAIL_CRITICAL_STAGES.has(lead.stage) &&
+    !(lead.email && lead.email.trim().length > 0)
+  );
+}
 
 export function emptyStageCounts(): Record<LeadPipelineStage, number> {
   return {
@@ -238,11 +252,7 @@ export function computePipelineHealth(input: {
   }
 
   const leadsMissingEmail: MissingEmailLead[] = input.leads
-    .filter(
-      (lead) =>
-        EMAIL_CRITICAL_STAGES.has(lead.stage) &&
-        !(lead.email && lead.email.trim().length > 0),
-    )
+    .filter(leadIsMissingCriticalEmail)
     .map((lead) => ({
       slug: lead.slug,
       businessName: lead.businessName,
@@ -376,11 +386,7 @@ export function computePipelineHealth(input: {
     stageCounts,
     stageFunnel,
     openHandoffCount,
-    leadsMissingEmailCount: input.leads.filter(
-      (lead) =>
-        EMAIL_CRITICAL_STAGES.has(lead.stage) &&
-        !(lead.email && lead.email.trim().length > 0),
-    ).length,
+    leadsMissingEmailCount: input.leads.filter(leadIsMissingCriticalEmail).length,
     leadsMissingEmail,
     newInquiryCount,
     unrepliedInquiryCount,

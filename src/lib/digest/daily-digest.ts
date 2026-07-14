@@ -10,7 +10,8 @@
  * + commerce-payouts-owed-in-digest
  * + open-handoffs-in-digest
  * + paid-not-live-in-digest
- * + digest-section-counts-uncapped).
+ * + digest-section-counts-uncapped
+ * + leads-missing-email-in-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -19,7 +20,7 @@
 import type { ClientInquiry } from "../inquiries/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import type { DeployHandoff, DeployHandoffStatus } from "../deploy/types";
-import type { Lead } from "../leads/types";
+import type { Lead, LeadPipelineStage } from "../leads/types";
 import { rankLeadsForOutreach, type LeadQualityBand } from "../leads/quality-score";
 import { listFollowUpsDue, listColdLeads } from "../email/outreach-followups";
 import { escapeHtmlForEmail } from "../inquiries/reply";
@@ -28,7 +29,10 @@ import {
   listCommerceAbandonedCheckoutsDue,
 } from "../checkout/abandoned-recovery";
 import { isLeadSnoozed } from "../leads/snooze";
-import { isUnrepliedInquiryStatus } from "../metrics/pipeline-health";
+import {
+  isUnrepliedInquiryStatus,
+  leadIsMissingCriticalEmail,
+} from "../metrics/pipeline-health";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
@@ -57,6 +61,7 @@ const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
 const PAID_NOT_LIVE_LIMIT = 5;
+const LEADS_MISSING_EMAIL_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -151,6 +156,18 @@ export interface DigestPaidNotLive {
   businessName: string;
 }
 
+/**
+ * Lead in an email-critical stage (site_built / outreach_sent / discovery_call /
+ * paid) with no usable email — same predicate as pipeline-health
+ * leadsMissingEmailCount via leadIsMissingCriticalEmail. Top-of-funnel block:
+ * Email 1 / follow-ups / recovery / receipts cannot leave without an address.
+ */
+export interface DigestLeadMissingEmail {
+  slug: string;
+  businessName: string;
+  stage: LeadPipelineStage;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -193,6 +210,15 @@ export interface DailyDigest {
    */
   paidNotLive: DigestPaidNotLive[];
   paidNotLiveCount: number;
+  /**
+   * Email-critical leads with no usable email — same predicate as
+   * pipeline-health leadsMissingEmailCount (action section). Distinct from
+   * paidNotLive / openHandoffs: those are post-payment fulfillment; this is
+   * the pre-send contact gap that blocks outreach revenue motion entirely.
+   */
+  leadsMissingEmail: DigestLeadMissingEmail[];
+  /** True count before the LEADS_MISSING_EMAIL_LIMIT slice — use for the section header. */
+  leadsMissingEmailCount: number;
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -424,6 +450,19 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       businessName: lead.businessName,
     }));
 
+  // Same EMAIL_CRITICAL_STAGES + empty-email predicate as pipeline-health
+  // leadsMissingEmailCount (via leadIsMissingCriticalEmail). Distinct from
+  // paidNotLive / openHandoffs — those are post-payment; this blocks Email 1.
+  const leadsMissingEmailAll = leads.filter(leadIsMissingCriticalEmail);
+  const leadsMissingEmailCount = leadsMissingEmailAll.length;
+  const leadsMissingEmail: DigestLeadMissingEmail[] = leadsMissingEmailAll
+    .slice(0, LEADS_MISSING_EMAIL_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+      stage: lead.stage,
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -456,7 +495,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     clientVoicePacksDue.length === 0 &&
     commercePayoutsOwed.length === 0 &&
     openHandoffs.length === 0 &&
-    paidNotLive.length === 0;
+    paidNotLive.length === 0 &&
+    leadsMissingEmail.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -486,6 +526,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     openHandoffsCount,
     paidNotLive,
     paidNotLiveCount,
+    leadsMissingEmail,
+    leadsMissingEmailCount,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -610,6 +652,11 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — stage is Paid`,
   );
 
+  const missingEmailRows = digest.leadsMissingEmail.map(
+    (lead) =>
+      `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — no email · ${escapeHtmlForEmail(lead.stage)}`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -628,6 +675,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
     ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
+    ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

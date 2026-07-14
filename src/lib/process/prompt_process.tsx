@@ -67,7 +67,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
-  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts).",
+  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value.",
   "When a route.ts and a dashboard server action are documented as 'twins' sharing one gate (e.g. bootstrapStripePricesAction / POST /api/stripe/bootstrap-prices), verify both actually call requireOperatorAuth — proxy.ts only gates /dashboard/*, never /api/*, so an API route is never auth-protected by the dashboard's route gate alone. An env-flag gate (ALLOW_STRIPE_BOOTSTRAP and similar) is not a substitute for requireOperatorAuth: it's deployment-wide and often set temporarily on an already-authenticated deployment, not a per-caller check. Mirror the requireOperatorAuth-in-a-route-handler precedent at src/app/api/marketing/generate/route.ts.",
@@ -93,8 +93,8 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount and paidNotLiveCount were both dashboard-only until open-handoffs-in-digest and paid-not-live-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
-  "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
+"Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+  "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
 ] as const;
 
@@ -1675,6 +1675,30 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "claude/relaxed-galileo-t69qzz",
+  },
+  {
+    id: "leads-missing-email-in-digest",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) was still dashboard-only. Send daily digest never surfaced those rows, so a single-operator business could miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Shipped: export leadIsMissingCriticalEmail + EMAIL_CRITICAL_STAGES from pipeline-health; leadsMissingEmail action section in buildDailyDigest/renderDailyDigestHtml with uncapped leadsMissingEmailCount header (same *Count pattern as digest-section-counts-uncapped).",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-2101",
+  },
+  {
+    id: "marketing-generate-rate-limit",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate had requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Shipped: checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices. Folded PR #197 digest-section-counts-uncapped.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-profitability-process-8f90",
+  },
+  {
+    id: "list-unpaid-empty-string-parity",
+    summary:
+      "Same empty-backlog audit twin: Convex commerceOrders.listUnpaid filtered paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). Shipped: listUnpaid treats falsy paidOutAt as unpaid; mapOrderRow / mapCommerceOrderRow normalize empty string to undefined.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-profitability-process-8f90",
   },
 ];
 
@@ -3729,6 +3753,27 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Add an uncapped *Count field to DailyDigest for every capped action section (Follow-ups due, Abandoned checkouts, Abandoned Buy now, Unreplied inquiries, Marketing packs due, Starter upsell, Commerce catalogs missing/unsynced, Complete voice packs due, Commerce payouts owed, Production handoffs open, Paid not yet live) and repoint every section header in renderDailyDigestHtml to it, rather than leave section titles reading the capped display array's .length.",
     rationale:
       "Delegated a fresh empty-backlog audit after PR #196 (paid-not-live-in-digest). Re-checked the disjoint-aggregate trap across every remaining pipeline-health/daily-digest field pair (clean — the rest all share one underlying list*/is* helper each, so they can't diverge) before finding a different bug in the digest's rendering layer: every action-section title used its capped display array's .length as the header count, so once a queue naturally exceeds its hardcoded 5-row LIMIT, the header silently freezes at '(5)' forever regardless of true volume — e.g. 12 leads actually due for a follow-up email would show 'Follow-ups due (5)' with 7 completely invisible. This is the exact 'silently undercounts once volume exceeds the page window' failure mode AGENT_PROTOCOL already flags for uncapped data-layer debt lists, just recurring one layer up in the digest's own display logic rather than a raw Convex/SQLite query. commercePayoutsOwedTotalUsd already avoided this by computing its dollar sum before the slice; the fix generalizes that same pattern (capture the filtered array once, take .length before .slice(0, LIMIT)) to every other section rather than leaving it as a one-off. A single-operator business trusting the digest email to gauge urgency without opening the dashboard is exactly the audience this bug silently fails.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Wire pipeline-health leadsMissingEmailCount into the operator daily digest as a Leads missing email action section (same leadIsMissingCriticalEmail predicate — email-critical stages with empty/whitespace email), exporting the shared helper from pipeline-health rather than forking a parallel stage list in the digest, and following the digest-section-counts-uncapped *Count header pattern. Same-minute sibling business-profitability-process-8f90 owns marketing-generate-rate-limit + list-unpaid-empty-string-parity.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #196 (paid-not-live-in-digest). Continuing the pipeline-health/digest wiring axis found a third distinct inline aggregate still dashboard-only: leadsMissingEmailCount. Unlike openHandoffs (deploy_handoffs table) and paidNotLive (stage=paid fulfillment debt), this is top-of-funnel contact debt — without a usable email, Email 1 / follow-ups / abandoned-checkout recovery / receipts cannot leave Resend at all, so revenue motion stops before payment. A single-operator business that relies on Send daily digest would never see those rows. Exporting leadIsMissingCriticalEmail keeps the digest and dashboard on one predicate (no silent drift if EMAIL_CRITICAL_STAGES changes). Closing that sold-capability visibility gap beats inventing an optional metric or re-running an already-clean auth/marker audit while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Add checkRateLimit to POST /api/marketing/generate (key `marketing-generate:<clientIp>`, after requireOperatorAuth, same DEFAULT_RATE_LIMIT/429+Retry-After shape as bootstrap-prices) rather than treating auth alone as sufficient throttling.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #196 (paid-not-live-in-digest). Empty-backlog audit rotated off digest wiring (just closed) onto the rate-limit guard-set axis that previously caught billing-portal and bootstrap-prices. marketing/generate already had requireOperatorAuth — and PR #196's auth-parity pass therefore marked it 'clean' — but when OPERATOR_DASHBOARD_PASSWORD is unset (documented open demo), auth returns ok for every caller, so the route could burn Anthropic quota (or hammer the stub path) with no backoff. Auth-gated /api twins still need the same per-IP limiter the public write routes share; shipping that before inventing another optional aggregate protects Growth/Complete AI pack cost while the remaining NEXT_STEPS stay secrets/OAuth/counsel-gated. Sibling prompt-process-evolution-2101 claimed leads-missing-email-in-digest; yrtt98 still only owns leads-client-optimistic-state-desync (claim-only). Folded PR #197 digest-section-counts-uncapped.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make Convex commerceOrders.listUnpaid treat falsy/blank paidOutAt as unpaid (matching SQLite `IS NULL OR = ''` and isCommerceOrderPaidOut's Boolean), and normalize empty strings to undefined in mapOrderRow / mapCommerceOrderRow.",
+    rationale:
+      "Same empty-backlog audit that found the marketing-generate rate-limit gap also found a latent Convex/SQLite owed-total parity bug: listUnpaid filtered `paidOutAt === undefined` only, so an empty-string marker would drop out of Convex owed totals while SQLite and TS still counted it unpaid — multi-instance split-brain on Commerce payout liability (double-pay or missed-pay risk). Closing both findings in one iteration keeps money-ledger and cost-abuse axes moving without inventing a new metric; Connect remains operator/legal-gated.",
   },
 ];
 
@@ -6795,7 +6840,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Email 1 success-check beats inventing optional aggregates while sibling owns commerce receipt recovery",
       "Verified: npm test (update/add lead stage Email 1 success regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(283, 284),
+    decisions: BUSINESS_DECISIONS.slice(282, 283),
   },
   {
     date: "2026-07-14",
@@ -6810,7 +6855,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #186 email-1-outreach-send-success-check) — both ITERATIONS entries kept; decision slices 282–284",
       "Verified: npm test (1123 passed pre-merge) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(284, 285),
+    decisions: BUSINESS_DECISIONS.slice(283, 284),
   },
   {
     date: "2026-07-14",
@@ -6827,7 +6872,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #186 email-1-outreach-send-success-check + PR #187 commerce-client-receipt-redelivery-recovery + PR #188 clean audit) — all three ITERATIONS entries kept",
       "Verified: npm test (1125 passed, full suite incl. 2 new regression tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(285, 286),
+    decisions: BUSINESS_DECISIONS.slice(284, 285),
   },
   {
     date: "2026-07-14",
@@ -6843,7 +6888,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why extracting the pure mapping beat a full db.ts fallback-harness rewrite or leaving the gap merely documented",
       "Verified: npm test (1151 passed, full suite incl. 14 new) + lint + build + npm run dev (/dashboard/leads renders demo lead hours/services correctly after the refactor)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(286, 287),
+    decisions: BUSINESS_DECISIONS.slice(285, 286),
   },
   {
     date: "2026-07-14",
@@ -6860,7 +6905,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why wiring open handoffs into digest beats another list*-only clean audit",
       "Verified: npm test (1153 passed, full suite incl. open-handoffs digest + action tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(287, 288),
+    decisions: BUSINESS_DECISIONS.slice(286, 287),
   },
   {
     date: "2026-07-14",
@@ -6877,7 +6922,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #192 open-handoffs-in-digest) — both ITERATIONS kept; decision slices remapped",
       "Verified: npm test (1154 passed, full suite incl. contact notify success:false regression) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(288, 289),
+    decisions: BUSINESS_DECISIONS.slice(287, 288),
   },
   {
     date: "2026-07-14",
@@ -6894,7 +6939,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: rebased onto origin/main (PR #191 scheduled-agents workflows, PR #193 contact-form-notify-send-success-check) — both ITERATIONS entries kept; decision slices remapped",
       "Verified: npm test (full suite incl. new 401 + 429 regressions) + lint + build + manual curl against `npm run dev` with OPERATOR_DASHBOARD_PASSWORD set confirming 401 without a session cookie",
     ],
-    decisions: BUSINESS_DECISIONS.slice(289, 290),
+    decisions: BUSINESS_DECISIONS.slice(288, 289),
   },
   {
     date: "2026-07-14",
@@ -6915,7 +6960,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why closing this coverage/guard gap beat duplicating the in-progress sibling claim or re-running an already-clean audit sweep",
       "Verified: npm test (1198 passed, full suite incl. 42 new tests across 7 files) + lint + build + npm run dev (/dashboard/leads and /preview/joes-diner both 200 against the SQLite fallback path)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(290, 291),
+    decisions: BUSINESS_DECISIONS.slice(289, 290),
   },
   {
     date: "2026-07-14",
@@ -6932,7 +6977,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: rebased onto origin/main (PR #195 sqlite-row-mapping-coverage-remaining-modules) — both ITERATIONS entries kept; decision slices remapped",
       "Verified: npm test (1158 passed, full suite incl. 2 new digest tests) + lint + build + npm run dev (/dashboard/leads, /docs/architecture, /docs/production-deploy, /docs/launch-checklist all 200)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(291, 292),
+    decisions: BUSINESS_DECISIONS.slice(290, 291),
   },
   {
     date: "2026-07-14",
@@ -6948,6 +6993,45 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why closing this digest-undercounting gap beat another identical disjoint-aggregate re-check or a manufactured feature",
       "Verified: npm test (1202 passed, full suite incl. 4 new digest tests) + lint + build + npm run dev (/dashboard/leads, /docs/architecture both 200)",
     ],
+    decisions: BUSINESS_DECISIONS.slice(291, 292),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-2101",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-profitability-process-8f90 claimed marketing-generate-rate-limit (and queued list-unpaid-empty-string-parity). Continued the pipeline-health/digest wiring axis and found leadsMissingEmailCount was still dashboard-only — Send daily digest never surfaced email-critical leads with no usable address, so top-of-funnel contact debt that blocks Email 1 was invisible to digest-only operators. Claimed and shipped leads-missing-email-in-digest. Folded PR #197 digest-section-counts-uncapped (header *Count pattern) into the new section; folded sibling 8f90 marketing-generate + listUnpaid parity into this PR.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — export EMAIL_CRITICAL_STAGES + leadIsMissingCriticalEmail; computePipelineHealth reuses the helper for count + sample list",
+      "src/lib/digest/daily-digest.ts — leadsMissingEmail action section + uncapped leadsMissingEmailCount header (same predicate, LEADS_MISSING_EMAIL_LIMIT=5 display cap); wired into isEmpty + renderDailyDigestHtml",
+      "src/lib/digest/daily-digest.test.ts — builder + render Vitest (critical stages only, whitespace email, HTML escape of business name + stage, *Count assertion)",
+      "Docs: architecture / production-deploy / launch-checklist note Leads missing email in Send daily digest",
+      "NEXT_STEPS: leads-missing-email-in-digest done",
+      "AGENT_PROTOCOL — inline-aggregate digest-wiring note now lists leadsMissingEmailCount beside openHandoffCount/paidNotLiveCount; disjoint-sets rule notes contact gaps vs fulfillment debt",
+      "BUSINESS_DECISIONS — documented why wiring missing-email into digest beats another clean auth/marker audit while sibling owns marketing-generate rate-limit",
+      "merge: origin/main (PR #197) + sibling business-profitability-process-8f90 — both ITERATIONS kept; leadsMissingEmail follows *Count header pattern",
+      "Verified: npm test (1207 passed, full suite) + lint + build after folding PR #197 + sibling 8f90",
+    ],
     decisions: BUSINESS_DECISIONS.slice(292, 293),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-profitability-process-8f90",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #196/#197 (paid-not-live-in-digest + digest-section-counts-uncapped). Empty-backlog audit rotated to the rate-limit guard-set axis and found POST /api/marketing/generate had requireOperatorAuth but no checkRateLimit — in open demo (password unset) that is unthrottled Anthropic spend. Same audit found Convex listUnpaid's paidOutAt === undefined filter diverged from SQLite empty-string unpaid treatment. Claimed and shipped both; folded PR #197; left leads-missing-email-in-digest to sibling 2101 and leads-client-optimistic-state-desync to yrtt98 (claim-only).",
+    shipped: [
+      "src/app/api/marketing/generate/route.ts — checkRateLimit(`marketing-generate:${clientIp}`) after requireOperatorAuth (429 + Retry-After)",
+      "src/app/api/marketing/generate/route.test.ts — 429/Retry-After regression + resetRateLimiterForTests",
+      "src/lib/security/rate-limit.ts — docstring lists marketing/generate + bootstrap-prices among auth-gated throttled routes",
+      "convex/commerceOrders.ts — listUnpaid treats falsy paidOutAt as unpaid; mapOrderRow normalizes empty string",
+      "src/lib/commerce/sqlite-row-mapping.ts (+test) — empty-string paidOutAt/clientReceiptEmailSentAt → undefined",
+      "src/lib/commerce/orders.test.ts — isCommerceOrderPaidOut empty-string = unpaid",
+      "Docs: architecture / compliance / marketing-automation note the rate-limit + listUnpaid parity",
+      "NEXT_STEPS: marketing-generate-rate-limit + list-unpaid-empty-string-parity done; digest-section-counts-uncapped folded from PR #197",
+      "AGENT_PROTOCOL — auth-gated /api twins still need per-IP rate-limit when password unset",
+      "BUSINESS_DECISIONS — documented why these two empty-backlog fixes beat inventing an optional aggregate",
+      "merge: folded origin/main (PR #197 digest-section-counts-uncapped) — both ITERATIONS kept; decision slices remapped on fold into 2101",
+      "Verified: npm test (1207 passed) + lint + build (folded into prompt-process-evolution-2101)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(293, 295),
   },
 ];

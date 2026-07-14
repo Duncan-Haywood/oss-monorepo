@@ -346,7 +346,11 @@ export default function LaunchChecklistDocPage() {
           (no row-scanning required). Open handoffs also appear under{" "}
           <strong>Production handoffs open</strong> in Send daily digest, and leads stuck at{" "}
           <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
-          appear separately under <strong>Paid, not yet live</strong>.
+          appear separately under <strong>Paid, not yet live</strong>. Email-critical leads
+          with no usable address (site_built / outreach_sent / discovery_call / paid) also list
+          under <strong>Leads missing email</strong> in that digest — the same predicate as the
+          pipeline-health card — so contact gaps that block Email 1 are visible without opening
+          the dashboard.
         </li>
         <li>
           <DocLink href="/dashboard/leads">Work next</DocLink> quality scores prioritize
