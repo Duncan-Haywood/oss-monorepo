@@ -275,4 +275,14 @@ export const decisionsLog: BusinessDecision[] = [
     madeBy: "claude/dazzling-allen-wrkyk8",
     relatedTaskIds: ["p2-capture-time-single-source", "p2-capture-time-promise-drift-fix"],
   },
+  {
+    date: "2026-07-13",
+    title: "Throttle full blocker re-verification passes to once per ~3 hours instead of every session",
+    decision:
+      "process/blockers.ts's HumanBlocker entries gain a lastConfirmedAt timestamp (in addition to the existing date-only lastConfirmed) and an exported recentlyConfirmedWithinHours(hours) helper. prompt_process.tsx's step 0 now tells a session to check that first: if every blocker was confirmed within the last 3 hours, do a cheap check only (empty logs still empty? any new merges? nextActionableTasks() still empty?) and skip creating a branch/commit/PR if nothing changed, rather than repeating a full re-verification pass and pushing another 'still blocked, nothing changed' branch. Also logged a new, different kind of blocker — cron-cadence-too-frequent — flagging for Duncan that the sub-daily cron cadence itself may be worth loosening now that the business has been fully human-blocked for multiple days running.",
+    rationale:
+      "This session found three same-day branches (claude/blocker-recheck-0713a/b/c) that each independently re-verified the identical unchanged set of ~5 human blockers and pushed a throwaway branch to record it — real cost (a branch, a commit, a CI run) for zero new information, driven by at least three separate hourly-or-tighter cron triggers hitting this repo and its sibling local-site-studio concurrently while nextActionableTasks() has been empty for days. Date-only lastConfirmed couldn't distinguish a recheck 5 minutes old from one 20 hours old on the same calendar day, so nothing in the data itself could tell a session it was about to duplicate very recent work. A 3-hour window was chosen as a compromise: short enough that a human resolving a blocker gets picked up within a few cron ticks, long enough to eliminate the same-hour pile-up actually observed today. This is a process/tooling decision, not a product one — no roadmap task depended on it, but prompt_process.tsx explicitly permits spending a session on process improvement when nothing product-facing is agent-actionable, which was the case this session (nextActionableTasks() empty, all logs still empty).",
+    madeBy: "claude/blocker-throttle-0713",
+    relatedTaskIds: ["p2-blocker-recheck-throttle"],
+  },
 ];

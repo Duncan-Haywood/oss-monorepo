@@ -28,7 +28,7 @@
 import { roadmap, nextActionableTasks, isGateSatisfied } from "./roadmap";
 import { decisionsLog } from "./decisions-log";
 import { progressLog } from "./progress-log";
-import { humanBlockers, staleFirst } from "./blockers";
+import { humanBlockers, staleFirst, recentlyConfirmedWithinHours } from "./blockers";
 import { captureChecklist, totalTargetMinutes, preShootPrep, BRACKET_GUIDANCE } from "./capture-checklist";
 import { mlsComplianceRules } from "./mls-compliance";
 import { AUDIT_DIMENSIONS, listingAuditLog, auditSummary } from "./listing-audit-rubric";
@@ -45,16 +45,30 @@ The goal is a profitable, growing business — not a finished app. Every
 agent session should move that forward by a bounded, honest increment.
 
 Each session:
-0. Check blockers.ts first — it's the single source of truth for what's
+0a. Before doing a full from-scratch re-verification pass, call
+   recentlyConfirmedWithinHours(3) from blockers.ts. If it returns true,
+   every blocker was already re-checked within the last 3 hours by some
+   other session — don't repeat that work. Instead do a *cheap* check only
+   (leads-log.ts/listingAuditLog/loggedInterviewResults still empty? any
+   new merged PRs since the last progress-log.ts entry, via git log
+   origin/main? nextActionableTasks() still empty?) and if nothing is
+   different, stop there: no branch, no commit, no PR. The hourly/frequent
+   cron will hit this repo again regardless, and a "still blocked, nothing
+   changed" branch adds a CI run and a stale ref for zero new information
+   (see blockers.ts's 2026-07-13 doc comment — three near-duplicate
+   recheck branches in one day is what this guards against). If the 3-hour
+   window has elapsed, or the cheap check finds something new, proceed to
+   a full pass below.
+0b. Check blockers.ts — it's the single source of truth for what's
    blocked on a human right now (README.md and this file's dashboard both
    read from it, so it should never need updating in more than one place).
    If your session's only finding is "still blocked, nothing changed,"
-   bump the relevant entries' lastConfirmed/confirmedByCount there and
-   do not also write a new progress-log.ts paragraph restating the same
-   blockers a 20th time (that's the one exception to step 5 below). If you
-   resolve a blocker (a human did the thing) or find a genuinely new
-   blocker, edit blockers.ts for real and that DOES warrant a normal
-   progress-log entry.
+   bump the relevant entries' lastConfirmed/lastConfirmedAt/confirmedByCount
+   there and do not also write a new progress-log.ts paragraph restating
+   the same blockers a 20th time (that's the one exception to step 5
+   below). If you resolve a blocker (a human did the thing) or find a
+   genuinely new blocker, edit blockers.ts for real and that DOES warrant
+   a normal progress-log entry.
 1. Read roadmap.ts, decisions-log.ts, progress-log.ts (or the rendered
    /process page on the docs site).
 2. Call nextActionableTasks() mentally: pick ONE not-started task owned by

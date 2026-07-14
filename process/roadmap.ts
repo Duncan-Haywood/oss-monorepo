@@ -331,6 +331,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen:
           "process/capture-checklist.ts exports onSiteTimeRange(additionalBeds?, additionalBaths?), which rounds totalTargetMinutes() outward to the nearest 5 minutes on each end; process/pricing-one-pager.tsx now imports and computes its two on-site-time copy lines from it directly instead of a hardcoded string, so that surface can no longer drift on its own. process/outreach-templates.ts's 3 template bodies are plain string literals (not template functions) and still need a human/agent to eyeball-sync against onSiteTimeRange()'s output — documented in a doc comment there pointing back at the source of truth. See process/capture-checklist.ts, process/pricing-one-pager.tsx, decisions-log.ts.",
       },
+      {
+        id: "p2-blocker-recheck-throttle",
+        title: "Throttle redundant hourly 'still blocked, nothing changed' recheck branches",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "By 2026-07-13 afternoon, three separate hourly-or-tighter cron triggers were hitting this repo's (and the sibling local-site-studio repo's) agent process, and with nextActionableTasks() empty for days, several sessions independently spent a full session re-verifying the same ~5 human blockers and pushing a throwaway branch just to say so (claude/blocker-recheck-0713a/b/c, all same-day, all confirming nothing had changed). Date-only lastConfirmed granularity meant no session could tell 'confirmed 5 minutes ago' from 'confirmed 20 hours ago' on the same calendar day.",
+        doneWhen:
+          "process/blockers.ts gains lastConfirmedAt (real timestamp) on every entry and an exported recentlyConfirmedWithinHours(hours) helper; prompt_process.tsx's AGENT_PROCESS_INSTRUCTIONS step 0 tells a session to call it before doing a full re-verification pass and to skip the branch/commit/PR entirely if nothing changed and the window hasn't elapsed. See process/blockers.ts and decisions-log.ts.",
+      },
     ],
   },
   {
