@@ -431,7 +431,9 @@ export default function LaunchChecklistDocPage() {
           errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
           that other instances cannot see; a failure shows a retry message instead. Action-level
           Vitest (<code>mark-handoff-live-action.test.ts</code>) locks the Mark live path (auth,
-          empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+          empty slug, no-handoff, requireConvex fail-closed, success revalidate);{" "}
+          <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project;{" "}
+          <code>assign-custom-domain-action.test.ts</code> locks Save domain — all beside handoff
           helpers.
         </li>
         <li>

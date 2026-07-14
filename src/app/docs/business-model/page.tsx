@@ -150,14 +150,17 @@ export default function BusinessModelDocPage() {
         dashboard glue beside csv-import / upsert-persist helpers.
       </p>
 
-      <h2>Mark live (fulfill)</h2>
+      <h2>Mark live / Assign Vercel / Save domain (fulfill)</h2>
       <p>
         Closing a paid deploy handoff on <code>/dashboard/leads</code> uses{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code> so Mark live cannot succeed only in
         instance-local SQLite — paidNotLive / open handoffs / the stage funnel read Convex-first.
         Missing handoffs return not-found (no false live). Action-level Vitest in{" "}
         <code>mark-handoff-live-action.test.ts</code> locks that dashboard glue beside
-        handoff-persist helpers.
+        handoff-persist helpers. Assign Vercel project (dedicated Domains API target) and Save
+        domain (Host→preview) share the same fail-closed surface — locked by{" "}
+        <code>assign-vercel-project-action.test.ts</code> and{" "}
+        <code>assign-custom-domain-action.test.ts</code>.
       </p>
 
       <h2>Save domain (Host→preview)</h2>

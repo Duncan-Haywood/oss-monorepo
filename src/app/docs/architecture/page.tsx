@@ -69,7 +69,10 @@ export default function ArchitectureDocPage() {
         handoff&rdquo; promise) — action-level Vitest in{" "}
         <code>assign-custom-domain-action.test.ts</code> locks that Save domain glue (auth, empty
         slug, trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate)
-        beside handoff / custom-domain-routing helpers. See{" "}
+        beside handoff / custom-domain-routing helpers;{" "}
+        <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project isolation
+        (auth, trim/clear project id, no-handoff, requireConvex fail-closed, success revalidate).
+        See{" "}
         <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
         Orchestration Vitest in <code>src/proxy.test.ts</code> locks auth redirect/allow,
         preview-subdomain-before-platform-host ordering, unrecognized-subdomain{" "}
@@ -354,8 +357,11 @@ export default function ArchitectureDocPage() {
         mutation failure surfaces as an operator retry message instead of a SQLite-only success
         that other instances (reading Convex-first) would never see. Action-level Vitest in{" "}
         <code>mark-handoff-live-action.test.ts</code> locks the Mark live dashboard glue (auth,
-        empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
-        helpers. Suggested host{" "}
+        empty slug, no-handoff, requireConvex fail-closed, success revalidate);{" "}
+        <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project (auth,
+        empty slug, trim/clear project id, no-handoff, requireConvex fail-closed, success
+        revalidate); <code>assign-custom-domain-action.test.ts</code> locks Save domain —
+        all beside handoff helpers. Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
