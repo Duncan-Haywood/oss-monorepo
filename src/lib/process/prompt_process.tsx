@@ -93,8 +93,8 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount and paidNotLiveCount were both dashboard-only until open-handoffs-in-digest and paid-not-live-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
-  "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+  "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
 ] as const;
 
 /**
@@ -1670,8 +1670,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "leads-missing-email-in-digest",
     summary:
-      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) is still dashboard-only. Send daily digest never surfaces those rows, so a single-operator business can miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Claimed: wire the same EMAIL_CRITICAL_STAGES + empty-email predicate into buildDailyDigest/renderDailyDigestHtml (leads already loaded — no new data load).",
-    status: "in_progress",
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) was still dashboard-only. Send daily digest never surfaced those rows, so a single-operator business could miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Shipped: export leadIsMissingCriticalEmail + EMAIL_CRITICAL_STAGES from pipeline-health; leadsMissingEmail action section in buildDailyDigest/renderDailyDigestHtml (same predicate, no new data load).",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2101",
   },
@@ -3721,6 +3721,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Add a paidNotLive action section to the operator daily digest (leads with stage=\"paid\", same predicate as pipeline-health's paidNotLiveCount) rather than treating openHandoffs as sufficient coverage for post-payment fulfillment debt.",
     rationale:
       "Delegated a fresh empty-backlog audit after PR #194 (bootstrap-prices-operator-auth-rate-limit). Re-checked route/action auth-parity first (the exact bug class just fixed) and found it clean across all 28 dashboard actions and every public API route. Rotated to pipeline-health/digest wiring and found a real gap PR #192's openHandoffs fix didn't cover: a lead can be moved to stage=paid via the dashboard stage dropdown or CSV import (e.g. an operator migrating pre-existing paying clients into the CRM) with no deploy_handoffs row ever created for it — so it counts toward paidNotLiveCount on the dashboard forever, but can never appear in the digest's openHandoffs section, which filters the handoffs table, not lead stage. Revenue collected with no fulfillment reminder is one of the highest-stakes operator-visibility gaps this app can have (broken delivery promise, refund/chargeback risk) — worse than the handoff-row case because it can persist with zero record in the deploy pipeline. The fix needed no new data load (leads is already a buildDailyDigest input) and follows the exact pattern openHandoffs established, so it carries the same low implementation risk while closing a materially different failure mode.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Wire pipeline-health leadsMissingEmailCount into the operator daily digest as a Leads missing email action section (same leadIsMissingCriticalEmail predicate — email-critical stages with empty/whitespace email), exporting the shared helper from pipeline-health rather than forking a parallel stage list in the digest. Same-minute sibling business-profitability-process-8f90 owns marketing-generate-rate-limit (+ queued list-unpaid-empty-string-parity).",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #196 (paid-not-live-in-digest). Continuing the pipeline-health/digest wiring axis found a third distinct inline aggregate still dashboard-only: leadsMissingEmailCount. Unlike openHandoffs (deploy_handoffs table) and paidNotLive (stage=paid fulfillment debt), this is top-of-funnel contact debt — without a usable email, Email 1 / follow-ups / abandoned-checkout recovery / receipts cannot leave Resend at all, so revenue motion stops before payment. A single-operator business that relies on Send daily digest would never see those rows. Exporting leadIsMissingCriticalEmail keeps the digest and dashboard on one predicate (no silent drift if EMAIL_CRITICAL_STAGES changes). Closing that sold-capability visibility gap beats inventing an optional metric or re-running an already-clean auth/marker audit while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6787,7 +6794,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Email 1 success-check beats inventing optional aggregates while sibling owns commerce receipt recovery",
       "Verified: npm test (update/add lead stage Email 1 success regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(283, 284),
+    decisions: BUSINESS_DECISIONS.slice(282, 283),
   },
   {
     date: "2026-07-14",
@@ -6802,7 +6809,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #186 email-1-outreach-send-success-check) — both ITERATIONS entries kept; decision slices 282–284",
       "Verified: npm test (1123 passed pre-merge) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(284, 285),
+    decisions: BUSINESS_DECISIONS.slice(283, 284),
   },
   {
     date: "2026-07-14",
@@ -6819,7 +6826,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #186 email-1-outreach-send-success-check + PR #187 commerce-client-receipt-redelivery-recovery + PR #188 clean audit) — all three ITERATIONS entries kept",
       "Verified: npm test (1125 passed, full suite incl. 2 new regression tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(285, 286),
+    decisions: BUSINESS_DECISIONS.slice(284, 285),
   },
   {
     date: "2026-07-14",
@@ -6835,7 +6842,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why extracting the pure mapping beat a full db.ts fallback-harness rewrite or leaving the gap merely documented",
       "Verified: npm test (1151 passed, full suite incl. 14 new) + lint + build + npm run dev (/dashboard/leads renders demo lead hours/services correctly after the refactor)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(286, 287),
+    decisions: BUSINESS_DECISIONS.slice(285, 286),
   },
   {
     date: "2026-07-14",
@@ -6852,7 +6859,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why wiring open handoffs into digest beats another list*-only clean audit",
       "Verified: npm test (1153 passed, full suite incl. open-handoffs digest + action tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(287, 288),
+    decisions: BUSINESS_DECISIONS.slice(286, 287),
   },
   {
     date: "2026-07-14",
@@ -6869,7 +6876,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #192 open-handoffs-in-digest) — both ITERATIONS kept; decision slices remapped",
       "Verified: npm test (1154 passed, full suite incl. contact notify success:false regression) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(288, 289),
+    decisions: BUSINESS_DECISIONS.slice(287, 288),
   },
   {
     date: "2026-07-14",
@@ -6886,7 +6893,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: rebased onto origin/main (PR #191 scheduled-agents workflows, PR #193 contact-form-notify-send-success-check) — both ITERATIONS entries kept; decision slices remapped",
       "Verified: npm test (full suite incl. new 401 + 429 regressions) + lint + build + manual curl against `npm run dev` with OPERATOR_DASHBOARD_PASSWORD set confirming 401 without a session cookie",
     ],
-    decisions: BUSINESS_DECISIONS.slice(289, 290),
+    decisions: BUSINESS_DECISIONS.slice(288, 289),
   },
   {
     date: "2026-07-14",
@@ -6907,7 +6914,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why closing this coverage/guard gap beat duplicating the in-progress sibling claim or re-running an already-clean audit sweep",
       "Verified: npm test (1198 passed, full suite incl. 42 new tests across 7 files) + lint + build + npm run dev (/dashboard/leads and /preview/joes-diner both 200 against the SQLite fallback path)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(290, 291),
+    decisions: BUSINESS_DECISIONS.slice(289, 290),
   },
   {
     date: "2026-07-14",
@@ -6923,6 +6930,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why closing this fulfillment-debt visibility gap beat a third identical clean-audit pass or a manufactured feature",
       "merge: rebased onto origin/main (PR #195 sqlite-row-mapping-coverage-remaining-modules) — both ITERATIONS entries kept; decision slices remapped",
       "Verified: npm test (1158 passed, full suite incl. 2 new digest tests) + lint + build + npm run dev (/dashboard/leads, /docs/architecture, /docs/production-deploy, /docs/launch-checklist all 200)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(290, 291),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-2101",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-profitability-process-8f90 claimed marketing-generate-rate-limit (and queued list-unpaid-empty-string-parity). Continued the pipeline-health/digest wiring axis and found leadsMissingEmailCount was still dashboard-only — Send daily digest never surfaced email-critical leads with no usable address, so top-of-funnel contact debt that blocks Email 1 was invisible to digest-only operators. Claimed and shipped leads-missing-email-in-digest.",
+    shipped: [
+      "src/lib/metrics/pipeline-health.ts — export EMAIL_CRITICAL_STAGES + leadIsMissingCriticalEmail; computePipelineHealth reuses the helper for count + sample list",
+      "src/lib/digest/daily-digest.ts — leadsMissingEmail action section (same predicate, capped at LEADS_MISSING_EMAIL_LIMIT=5); wired into isEmpty + renderDailyDigestHtml",
+      "src/lib/digest/daily-digest.test.ts — builder + render Vitest (critical stages only, whitespace email, HTML escape of business name + stage)",
+      "Docs: architecture / production-deploy / launch-checklist note Leads missing email in Send daily digest",
+      "NEXT_STEPS: leads-missing-email-in-digest done",
+      "AGENT_PROTOCOL — inline-aggregate digest-wiring note now lists leadsMissingEmailCount beside openHandoffCount/paidNotLiveCount; disjoint-sets rule notes contact gaps vs fulfillment debt",
+      "BUSINESS_DECISIONS — documented why wiring missing-email into digest beats another clean auth/marker audit while sibling owns marketing-generate rate-limit",
+      "Verified: npm test + lint + build (counts recorded in feature commit)",
     ],
     decisions: BUSINESS_DECISIONS.slice(291, 292),
   },

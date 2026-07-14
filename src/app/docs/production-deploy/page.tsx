@@ -69,6 +69,9 @@ export default function ProductionDeployDocPage() {
           <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
           won&rsquo;t appear there — the digest&rsquo;s separate{" "}
           <strong>Paid, not yet live</strong> section catches that case directly from lead stage.
+          Separately, email-critical leads with no usable address list under{" "}
+          <strong>Leads missing email</strong> in the same digest (Email 1 / follow-ups cannot
+          leave without one).
         </li>
         <li>Add the listed DNS records (or finish Vercel domain verification).</li>
         <li>

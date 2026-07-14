@@ -533,7 +533,12 @@ export default function ArchitectureDocPage() {
         so <code>paidNotLiveCount</code> was dashboard-only until the digest gained its own{" "}
         <strong>Paid, not yet live</strong> section (same <code>lead.stage === &quot;paid&quot;</code>{" "}
         predicate, direct from the <code>leads</code> the digest already loads — no new data
-        source). Lead quality scoring (
+        source). The same digest also lists email-critical leads with no usable address under{" "}
+        <strong>Leads missing email</strong> (same <code>leadIsMissingCriticalEmail</code>{" "}
+        predicate as <code>leadsMissingEmailCount</code> — <code>site_built</code> /{" "}
+        <code>outreach_sent</code> / <code>discovery_call</code> / <code>paid</code> with empty
+        or whitespace-only email) so top-of-funnel contact gaps that block Email 1 are visible
+        without opening the dashboard. Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when

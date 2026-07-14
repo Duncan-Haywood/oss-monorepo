@@ -78,6 +78,8 @@ describe("buildDailyDigest", () => {
     expect(digest.clientVoicePacksDue).toHaveLength(0);
     expect(digest.commercePayoutsOwed).toHaveLength(0);
     expect(digest.openHandoffs).toHaveLength(0);
+    expect(digest.paidNotLive).toHaveLength(0);
+    expect(digest.leadsMissingEmail).toHaveLength(0);
     expect(digest.snoozedLeadCount).toBe(0);
     expect(digest.soonestSnoozeRemainingHours).toBeNull();
   });
@@ -603,6 +605,48 @@ describe("buildDailyDigest", () => {
     expect(digest.isEmpty).toBe(false);
   });
 
+  it("surfaces email-critical leads with no usable email via leadsMissingEmail", () => {
+    // pipeline-health already flags these on the dashboard; digest must too —
+    // discovered (non-critical) and leads that already have email stay out.
+    const missingCritical = baseLead({
+      slug: "no-email-salon",
+      businessName: "No Email Salon",
+      stage: "outreach_sent",
+      email: undefined,
+    });
+    const whitespaceOnly = baseLead({
+      slug: "blank-email-trades",
+      businessName: "Blank Email Trades",
+      stage: "site_built",
+      email: "   ",
+    });
+    const discoveredNoEmail = baseLead({
+      slug: "early-discovery",
+      businessName: "Early Discovery",
+      stage: "discovered",
+      email: undefined,
+    });
+    const hasEmail = baseLead({
+      slug: "ready-cafe",
+      businessName: "Ready Cafe",
+      stage: "outreach_sent",
+      email: "owner@example.com",
+    });
+    const digest = buildDailyDigest({
+      leads: [missingCritical, whitespaceOnly, discoveredNoEmail, hasEmail],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.leadsMissingEmail).toHaveLength(2);
+    expect(digest.leadsMissingEmail.map((l) => l.slug)).toEqual([
+      "no-email-salon",
+      "blank-email-trades",
+    ]);
+    expect(digest.leadsMissingEmail[0]?.stage).toBe("outreach_sent");
+    expect(digest.isEmpty).toBe(false);
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Callers must feed buildDailyDigest from listUnpaidCommerceOrders()
     // (uncapped unpaid), not a capped newest-N page of every commerce order —
@@ -864,5 +908,26 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("Paid, not yet live");
     expect(html).toContain("Legacy &lt;Script&gt; Bakery");
     expect(html).not.toContain("Legacy <Script> Bakery");
+  });
+
+  it("renders leads-missing-email with escaped business name and stage", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "no-email-<script>-salon",
+          businessName: "No Email <Script> Salon",
+          stage: "discovery_call",
+          email: undefined,
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Leads missing email");
+    expect(html).toContain("No Email &lt;Script&gt; Salon");
+    expect(html).toContain("discovery_call");
+    expect(html).not.toContain("No Email <Script> Salon");
   });
 });
