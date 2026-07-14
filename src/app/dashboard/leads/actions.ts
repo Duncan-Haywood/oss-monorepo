@@ -53,7 +53,7 @@ import {
 } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
-import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { leadPreviewAbsoluteUrl, leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   isSnoozePresetId,
   normalizeSnoozedUntil,
@@ -149,7 +149,7 @@ export async function markHandoffLiveAction(slug: string) {
       return { success: false as const, error: "No deploy handoff found for this lead" };
     }
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${slug}`);
+    revalidatePath(leadPreviewPath(slug));
     return { success: true as const, handoff };
   } catch (error) {
     console.error("Error in markHandoffLiveAction:", error);
@@ -451,7 +451,7 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
     }
 
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${slug}`);
+    revalidatePath(leadPreviewPath(slug));
     return { success: true as const };
   } catch (error) {
     console.error("Error in updateLeadStageAction:", error);
@@ -686,7 +686,7 @@ export async function disposeColdLeadAction(
     }
 
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${slug}`);
+    revalidatePath(leadPreviewPath(slug));
     return {
       success: true as const,
       stage: planned.patch.stage,
@@ -1098,7 +1098,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     }
 
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${lead.slug}`);
+    revalidatePath(leadPreviewPath(lead.slug));
     return { success: true as const, slug: lead.slug };
   } catch (error) {
     console.error("Error in addLeadAction:", error);
@@ -1174,7 +1174,7 @@ export async function importLeadsCsvAction(input: {
         importedSlugs.push(lead.slug);
         // Prevent later rows in the same batch from colliding with earlier inserts.
         existingSlugs.add(lead.slug);
-        revalidatePath(`/preview/${lead.slug}`);
+        revalidatePath(leadPreviewPath(lead.slug));
       } catch (error) {
         upsertErrors.push({
           row: index + 1,
@@ -1651,7 +1651,7 @@ export async function saveCommerceCatalogAction(
     }
 
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${lead.slug}`);
+    revalidatePath(leadPreviewPath(lead.slug));
     return { success: true as const, catalog };
   } catch (error) {
     console.error("Error in saveCommerceCatalogAction:", error);
@@ -1765,7 +1765,7 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
     }
 
     revalidatePath("/dashboard/leads");
-    revalidatePath(`/preview/${lead.slug}`);
+    revalidatePath(leadPreviewPath(lead.slug));
     return { success: true as const, catalog: updated };
   } catch (error) {
     console.error("Error in syncCommerceCatalogToStripeAction:", error);

@@ -104,7 +104,8 @@ export const AGENT_PROTOCOL = [
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
   "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
   "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
-  "Lead slug create-paths normalize to [a-z0-9-]+ (sanitizeCheckoutLeadSlug / slugifyBusinessName / addLeadAction / CSV), but path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
+  "Lead slug create-paths normalize to [a-z0-9-]+ (sanitizeCheckoutLeadSlug / slugifyBusinessName / addLeadAction / CSV), but path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
+  "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
 ] as const;
 
 /**
@@ -1867,6 +1868,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner:
       "cursor/business-process-evolution-266d (folded from grok/continuous-work-email-href-escape; issue #236)",
+  },
+  {
+    id: "mark-handoff-live-null-status-guard",
+    summary:
+      "markHandoffLive advanced lead stage to live even when updateDeployHandoffStatus returned null (handoff vanished between the initial get and the status write). Operator then saw \"No deploy handoff found\" while stage=live and paid-not-live / open-handoff metrics diverged. Shipped: return null before updateLeadStage when the status write is null; Vitest regression; dashboard revalidatePath uses leadPreviewPath (encode-at-use).",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner:
+      "cursor/prompt-process-evolution-7e66 (folded from grok/dev-work-mark-live-null-guard; issue #237; sibling 266d owns email-href-url-html-escape)",
   },
 ];
 
@@ -4082,6 +4092,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Escape every dynamic href URL in src/lib/email/resend.ts via escapeHtmlForEmail (preview / checkout / catalog / unsubscribe / privacy), matching client-receipt, deliver-pack, dns-email, and daily-digest — do not leave env-sourced APP_URL unescaped inside attributes. Fold stuck grok/continuous-work-email-href-escape (issue #236).",
     rationale:
       "Empty-backlog after PR #235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated; stuck as-const/slug-path remotes already on main; recent audits re-confirmed send-success + Convex API map clean. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-email-href-escape with a complete href-escape fix and no open PR (Actions token blocked; issue #236). Rotated to the escapeHtmlForEmail axis with a finer lens than body-text fields: resend.ts still interpolated raw URLs into href attributes while every sibling email template already escaped them. A NEXT_PUBLIC_APP_URL value containing a quote or ampersand (mis-paste, env-injection, or future header-derived base) breaks out of href=\"...\". Closing this asymmetry beats inventing an optional aggregate or re-auditing exhausted marker axes. Next empty-backlog fold target: grok/dev-work-mark-live-null-guard (markHandoffLive advances lead stage even when updateDeployHandoffStatus returns null; issue #237) — skip already-folded email-href / as-const / encode / CSV remotes.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Guard markHandoffLive so a null updateDeployHandoffStatus result never advances lead stage to live, and route dashboard preview revalidatePath through leadPreviewPath — rather than leave a race that desyncs stage=live from handoff status / paid-not-live metrics. Fold stuck grok/dev-work-mark-live-null-guard (issue #237).",
+    rationale:
+      "Empty-backlog after PR #234/#235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-266d already claimed email-href-url-html-escape — pivoted per AGENT_PROTOCOL to the next stuck CLI remote with feature body and no open PR. On main, markHandoffLive called updateLeadStage(..., \"live\") even when the status write returned null, so a vanished handoff row left the CRM looking fulfilled while the action returned failure and open-handoff / paid-not-live diverged. Closing that fulfillment race beats inventing an optional aggregate or re-auditing 2x-clean sold-vs-shipped / orchestration axes. Encode-at-use for revalidatePath aligns dashboard cache invalidation with the same path-segment rule browser/proxy URLs already follow.",
   },
 ];
 
@@ -7595,7 +7612,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why atomic never-downgrade + folding a stuck CLI remote beats inventing an optional aggregate",
       "Verified: npm test (1276 passed, +3 preferAdvancedHandoffStatus regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(310, 311),
+    decisions: BUSINESS_DECISIONS.slice(309, 310),
   },
   {
     date: "2026-07-14",
@@ -7609,7 +7626,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding this stuck CLI CI hygiene fix beats inventing an optional aggregate after sibling owned the handoff-marker fold; queued residual legacy-slug encode-at-use path-safety",
       "Verified: npm test (1276 passed; faq-pack + generators also under ANTHROPIC_API_KEY=sk-fake) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(311, 312),
+    decisions: BUSINESS_DECISIONS.slice(310, 311),
   },
   {
     date: "2026-07-14",
@@ -7626,7 +7643,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding this stuck CSV quality fix beats dual-building sibling encode-at-use or inventing an optional aggregate",
       "Verified: npm test (1288 passed, +12 CSV hours/RFC4180/limits + middot-in-weekend regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(312, 313),
+    decisions: BUSINESS_DECISIONS.slice(311, 312),
   },
   {
     date: "2026-07-14",
@@ -7647,7 +7664,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1285 passed) + lint + build",
       "PR handoff: Actions token blocked from gh pr create — issue #228 points at grok/dev-work-slug-path-encode",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
   {
     date: "2026-07-14",
@@ -7661,7 +7678,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified on continuous-work branch: npm test (1285 passed) + lint + build",
       "PR handoff: Actions token blocked from gh pr create on continuous-work too — issue #229 points at grok/continuous-work-slug-path-encode (fold of #228 / grok/dev-work-slug-path-encode)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
   {
     date: "2026-07-14",
@@ -7672,11 +7689,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Fold: origin/grok/continuous-work-slug-path-encode feature files (slug-path helpers + wire-through) — kept both grok ITERATIONS above",
       "NEXT_STEPS: legacy-slug-encode-at-use-path-safety done (owner 2d7a, folded from continuous-work ← dev-work)",
       "AGENT_PROTOCOL + architecture.tsx encode-at-use rule retained from fold",
-      "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(313, 314) after PR #230 took 312",
+      "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(312, 313) after CSV/as-const/mark-live appends",
       "merge: origin/main (PR #230 CSV hours fold) — both ITERATIONS kept",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
   {
     date: "2026-07-14",
@@ -7688,7 +7705,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads/actions.ts — restored as const on updateLeadStageAction + importLeadsCsvAction",
       "PR handoff: Actions token blocked from gh pr create — branch opencode/dev-work-9k2m4x",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7701,7 +7718,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/email/resend.ts — sendEmail + sendOperatorDailyDigest: all success literals use as const",
       "PR handoff: Actions token blocked — issue #232 points at grok/dev-work-as-const-restore",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7712,7 +7729,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Fold of grok/dev-work-as-const-restore feature body (actions + resend as const)",
       "PR handoff: Actions token blocked — issue #233 points at grok/continuous-work-as-const-restore",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7726,7 +7743,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding the PR #231 merge regression beats inventing an optional aggregate",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7739,7 +7756,35 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS owner remains 7c34 (earlier claim); 9ced recorded as dual + architecture follow-up",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/dev-work-mark-live-null-guard",
+    summary:
+      "Empty-backlog after PR #234/#235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated. Found markHandoffLive advancing lead stage even when updateDeployHandoffStatus returns null — a race that desyncs stage=live from handoff status and paid-not-live / open-handoff metrics. Claimed and shipped mark-handoff-live-null-status-guard.",
+    shipped: [
+      "src/lib/deploy/handoff.ts — return null before updateLeadStage when status write is null",
+      "src/lib/deploy/handoff.test.ts — null-status regression (updateLeadStage must not run)",
+      "src/app/dashboard/leads/actions.ts — revalidatePath via leadPreviewPath (encode-at-use)",
+      "Docs: architecture.tsx notes null-status guard + encode-at-use revalidatePath",
+      "PR handoff: Actions token blocked from gh pr create — issue #237 points at grok/dev-work-mark-live-null-guard",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-7e66",
+    summary:
+      "Empty-backlog after PR #234/#235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-266d already claimed email-href-url-html-escape — pivoted. Scanned stuck CLI remotes and folded grok/dev-work-mark-live-null-guard (complete feature body; issue #237; Actions token blocked) as mark-handoff-live-null-status-guard rather than inventing an optional aggregate.",
+    shipped: [
+      "Fold: origin/grok/dev-work-mark-live-null-guard feature files (handoff null guard + test + leadPreviewPath revalidatePath + architecture) — kept grok ITERATION above",
+      "NEXT_STEPS: mark-handoff-live-null-status-guard done (owner 7e66; folded from grok/dev-work-mark-live-null-guard)",
+      "AGENT_PROTOCOL — markHandoffLive null-status rule; encode-at-use extends to revalidatePath",
+      "BUSINESS_DECISIONS — documented why folding this fulfillment race beats inventing an optional aggregate",
+      "Verified: npm test (1298 passed, +1 null-status regression) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
   },
   {
     date: "2026-07-14",
@@ -7755,7 +7800,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why href escape beats inventing an optional aggregate",
       "PR handoff: Actions token blocked from gh pr create — issue #236 points at grok/continuous-work-email-href-escape",
     ],
-    decisions: BUSINESS_DECISIONS.slice(315, 316),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7769,6 +7814,6 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding this stuck CLI href-escape fix beats inventing an optional aggregate; queued mark-handoff-live-null-status-guard (grok/dev-work-mark-live-null-guard; issue #237) as next fold",
       "Verified: npm test (1301 passed, +4 href-escape regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(315, 316),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
 ];

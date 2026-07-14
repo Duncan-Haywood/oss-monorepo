@@ -296,6 +296,13 @@ export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff |
     ["Operator confirmed DNS / publish — lead marked live."],
     DEPLOY_HANDOFF_CONVEX_PRIMARY,
   );
+  // updateDeployHandoffStatus returns null when the handoff row vanished
+  // between the get above and the status write (or never existed on the
+  // backend that served the write). Do not advance lead stage without a
+  // durable handoff status=live — otherwise the operator sees "No deploy
+  // handoff found" while stage=live and paid-not-live / open-handoff
+  // metrics diverge (mark-handoff-live-null-status-guard).
+  if (!updated) return null;
   await updateLeadStage(leadSlug, "live", DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return updated;
 }
