@@ -426,7 +426,10 @@ export default function LaunchChecklistDocPage() {
           paid-not-live and open-handoff counts drop on pipeline health. With Convex configured,
           Mark live / Assign Vercel project / Assign custom domain all fail closed on Convex
           errors (<code>requireConvex</code>) — never claim success after a SQLite-only write
-          that other instances cannot see; a failure shows a retry message instead.
+          that other instances cannot see; a failure shows a retry message instead. Action-level
+          Vitest (<code>mark-handoff-live-action.test.ts</code>) locks the Mark live path (auth,
+          empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+          helpers.
         </li>
         <li>
           Point client site forms at <code>/api/contact/[slug]</code>. Submissions must land in
