@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isProgressedHandoffStatus,
+  mergeProvisionOntoFreshHandoff,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 import type { DeployHandoff } from "./types";
@@ -153,5 +154,101 @@ describe("preserveDeployHandoffOperatorFields", () => {
       customDomain: "kept.example",
       vercelProjectId: "prj_kept",
     });
+  });
+});
+
+describe("mergeProvisionOntoFreshHandoff", () => {
+  it("keeps concurrent Mark live status and notes while applying provision outputs", () => {
+    const fresh = baseHandoff({
+      status: "live",
+      customDomain: "joesplumbing.com",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Operator confirmed DNS / publish — lead marked live.",
+      ],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      customDomain: "joesplumbing.com",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: joesplumbing.com. Await DNS propagation, then mark live.",
+      ],
+      updatedAt: "2026-07-14T12:00:00.000Z",
+    });
+
+    expect(mergeProvisionOntoFreshHandoff(fresh, provisioned)).toEqual({
+      ...provisioned,
+      status: "live",
+      customDomain: "joesplumbing.com",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Operator confirmed DNS / publish — lead marked live.",
+        "Vercel domain registered: joesplumbing.com. Await DNS propagation, then mark live.",
+      ],
+    });
+  });
+
+  it("prefers a concurrent customDomain clear from fresh over the stale provision snapshot", () => {
+    const fresh = baseHandoff({
+      status: "awaiting_dns",
+      customDomain: undefined,
+      notes: ["Payment received — production handoff queued."],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      customDomain: "old.example",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: old.example. Await DNS propagation, then mark live.",
+      ],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.customDomain).toBeUndefined();
+    expect(merged.status).toBe("provisioned");
+    expect(merged.vercelDomainStatus).toBe("created");
+  });
+
+  it("does not keep a stale fresh failed status over a successful provision rebuild", () => {
+    const fresh = baseHandoff({
+      status: "failed",
+      stripeSessionId: "cs_old",
+      notes: ["previous failure"],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      stripeSessionId: "cs_retry",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: joes-plumbing.localsitestudio.com. Await DNS propagation, then mark live.",
+      ],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.status).toBe("provisioned");
+    expect(merged.stripeSessionId).toBe("cs_retry");
+    expect(merged.notes).toEqual([
+      "previous failure",
+      "Payment received — production handoff queued.",
+      "Vercel domain registered: joes-plumbing.localsitestudio.com. Await DNS propagation, then mark live.",
+    ]);
+  });
+
+  it("never downgrades fresh provisioned when provisioned snapshot stayed awaiting_dns", () => {
+    const fresh = baseHandoff({ status: "provisioned", vercelDomainStatus: "created" });
+    const provisioned = baseHandoff({
+      status: "awaiting_dns",
+      vercelDomainStatus: "skipped_unconfigured",
+      notes: [...fresh.notes, "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID, or assign a per-client Vercel project, to enable)."],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.status).toBe("provisioned");
+    expect(merged.vercelDomainStatus).toBe("skipped_unconfigured");
   });
 });

@@ -56,3 +56,47 @@ export function preserveDeployHandoffOperatorFields(
     vercelDomainStatus: next.vercelDomainStatus ?? existing.vercelDomainStatus,
   };
 }
+
+/**
+ * After tryProvisionVercelDomain (a real Vercel Domains API fetch), re-read
+ * the handoff and merge only provision outputs onto the fresh row before the
+ * final full-row upsert. Without this, a concurrent Mark live / Save domain /
+ * Assign Vercel project during the network window is silently discarded —
+ * same TOCTOU class as commerce-catalog-sync-lost-update-guard.
+ *
+ * - Base identity / payment fields come from `provisioned` (upsell rebuilds
+ *   carry a new stripeSessionId; assign paths carry the just-written domain
+ *   or project id through the provision snapshot).
+ * - Operator-owned fields that may have moved during the call (`customDomain`,
+ *   `vercelProjectId`, Mark live status + notes) come from `fresh`.
+ * - `vercelDomainStatus` and provision-only notes come from `provisioned`.
+ */
+export function mergeProvisionOntoFreshHandoff(
+  fresh: DeployHandoff,
+  provisioned: DeployHandoff,
+): DeployHandoff {
+  const freshNoteSet = new Set(fresh.notes);
+  const provisionOnlyNotes = provisioned.notes.filter(
+    (note) => !freshNoteSet.has(note),
+  );
+
+  const status =
+    fresh.status === "live" || provisioned.status === "live"
+      ? "live"
+      : fresh.status === "provisioned" || provisioned.status === "provisioned"
+        ? "provisioned"
+        : // Prefer the post-provision rebuild status (e.g. awaiting_dns) over a
+          // stale fresh `failed` row during enqueueProductionHandoff rebuild.
+          provisioned.status;
+
+  return {
+    ...provisioned,
+    customDomain: fresh.customDomain,
+    vercelProjectId: fresh.vercelProjectId,
+    status,
+    notes: [...fresh.notes, ...provisionOnlyNotes],
+    vercelDomainStatus:
+      provisioned.vercelDomainStatus ?? fresh.vercelDomainStatus,
+    updatedAt: provisioned.updatedAt || fresh.updatedAt,
+  };
+}

@@ -552,7 +552,14 @@ export default function ArchitectureDocPage() {
         Host→preview routing, Mark live progress, and dedicated-project Domains API
         targeting are not wiped on upsell rebuild (same class as{" "}
         <code>preserveCommerceStripeIds</code>). Re-provisioning must not downgrade{" "}
-        <code>live</code> → <code>provisioned</code>.
+        <code>live</code> → <code>provisioned</code>. After{" "}
+        <code>tryProvisionVercelDomain</code> (a real Vercel network call),{" "}
+        <code>assignCustomDomainAndProvision</code> /{" "}
+        <code>assignVercelProjectAndProvision</code> /{" "}
+        <code>enqueueProductionHandoff</code> re-read the handoff and{" "}
+        <code>mergeProvisionOntoFreshHandoff</code> before the final full-row upsert —
+        same TOCTOU class as commerce catalog sync / orphan archive — so a concurrent
+        Mark live during the Vercel window is not silently reverted.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). When Convex is configured, reply + status

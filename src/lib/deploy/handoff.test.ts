@@ -333,6 +333,7 @@ describe("deploy/handoff", () => {
     it("re-provisions against the newly assigned project and persists the result", async () => {
       const updated = baseHandoff({ vercelProjectId: "prj_1" });
       updateDeployHandoffVercelProject.mockResolvedValue(updated);
+      getDeployHandoffBySlug.mockResolvedValue(updated);
       insertDeployHandoff.mockResolvedValue(undefined);
       const { assignVercelProjectAndProvision } = await import("./handoff");
 
@@ -344,6 +345,43 @@ describe("deploy/handoff", () => {
         DEPLOY_HANDOFF_CONVEX_PRIMARY,
       );
       expect(result?.vercelDomainStatus).toBe("skipped_unconfigured");
+      expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+    });
+
+    it("re-reads before the final upsert so a concurrent Mark live survives the Vercel window", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const updated = baseHandoff({
+        status: "awaiting_dns",
+        vercelProjectId: "prj_1",
+        notes: ["Payment received — production handoff queued."],
+      });
+      const markedLiveDuringProvision = baseHandoff({
+        status: "live",
+        vercelProjectId: "prj_1",
+        notes: [
+          "Payment received — production handoff queued.",
+          "Operator confirmed DNS / publish — lead marked live.",
+        ],
+      });
+      updateDeployHandoffVercelProject.mockResolvedValue(updated);
+      getDeployHandoffBySlug.mockResolvedValue(markedLiveDuringProvision);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignVercelProjectAndProvision } = await import("./handoff");
+
+      const result = await assignVercelProjectAndProvision("demo-cafe", "prj_1");
+
+      expect(result?.status).toBe("live");
+      expect(result?.vercelDomainStatus).toBe("created");
+      expect(result?.notes).toContain(
+        "Operator confirmed DNS / publish — lead marked live.",
+      );
+      expect(result?.notes.some((n) => n.includes("Vercel domain registered"))).toBe(
+        true,
+      );
       expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
     });
   });
@@ -362,6 +400,7 @@ describe("deploy/handoff", () => {
     it("re-provisions against the newly assigned custom domain and persists the result", async () => {
       const updated = baseHandoff({ customDomain: "www.demo.com" });
       updateDeployHandoffCustomDomain.mockResolvedValue(updated);
+      getDeployHandoffBySlug.mockResolvedValue(updated);
       insertDeployHandoff.mockResolvedValue(undefined);
       const { assignCustomDomainAndProvision } = await import("./handoff");
 
@@ -373,6 +412,41 @@ describe("deploy/handoff", () => {
         DEPLOY_HANDOFF_CONVEX_PRIMARY,
       );
       expect(result?.customDomain).toBe("www.demo.com");
+      expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+    });
+
+    it("re-reads before the final upsert so a concurrent Mark live survives the Vercel window", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
+      const updated = baseHandoff({
+        status: "awaiting_dns",
+        customDomain: "www.demo.com",
+        notes: ["Payment received — production handoff queued."],
+      });
+      const markedLiveDuringProvision = baseHandoff({
+        status: "live",
+        customDomain: "www.demo.com",
+        notes: [
+          "Payment received — production handoff queued.",
+          "Operator confirmed DNS / publish — lead marked live.",
+        ],
+      });
+      updateDeployHandoffCustomDomain.mockResolvedValue(updated);
+      getDeployHandoffBySlug.mockResolvedValue(markedLiveDuringProvision);
+      insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
+      const { assignCustomDomainAndProvision } = await import("./handoff");
+
+      const result = await assignCustomDomainAndProvision("demo-cafe", "www.demo.com");
+
+      expect(result?.status).toBe("live");
+      expect(result?.customDomain).toBe("www.demo.com");
+      expect(result?.vercelDomainStatus).toBe("created");
+      expect(result?.notes).toContain(
+        "Operator confirmed DNS / publish — lead marked live.",
+      );
       expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
     });
   });
