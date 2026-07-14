@@ -22,6 +22,7 @@ import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
+import { assessCompanyAddressEnvReadiness } from "@/lib/brand/company-address-env-readiness";
 import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
@@ -32,6 +33,7 @@ import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner"
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
+import { CompanyAddressEnvBanner } from "@/components/dashboard/company-address-env-banner";
 import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
@@ -110,6 +112,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
   const brandNameEnv = assessBrandNameEnvReadiness();
+  const companyAddressEnv = assessCompanyAddressEnvReadiness();
   const appUrlEnv = assessAppUrlEnvReadiness();
   const productionDomainEnv = assessProductionDomainEnvReadiness();
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
@@ -137,6 +140,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
         <ResendEnvBanner readiness={resendEnv} />
         <BrandNameEnvBanner readiness={brandNameEnv} />
+        <CompanyAddressEnvBanner readiness={companyAddressEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />
         <OperatorDigestEmailEnvBanner readiness={digestEmailEnv} />
       </div>

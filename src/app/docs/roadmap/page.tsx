@@ -116,7 +116,10 @@ export default function RoadmapDocPage() {
         template copy). Until <code>NEXT_PUBLIC_BRAND_NAME</code> is a non-placeholder public
         brand, <code>assessBrandNameEnvReadiness</code> shows a rose brand-copy banner
         (outreach From / marketing footers / voice intros otherwise fall back to{" "}
-        <code>Your Brand</code>). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
+        <code>Your Brand</code>). Until <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a
+        non-placeholder postal address, <code>assessCompanyAddressEnvReadiness</code> shows a
+        yellow CAN-SPAM-address banner (outreach footers otherwise ship the bracket stub via{" "}
+        <code>brand.postalAddress</code>). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
         <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald daily-digest-blocked
         banner (Send daily digest otherwise only errors on click). Action-level Vitest (
         <code>send-daily-digest-action.test.ts</code>) locks the dashboard Send daily digest
