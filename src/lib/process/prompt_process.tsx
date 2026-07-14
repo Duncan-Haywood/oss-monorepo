@@ -1859,6 +1859,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/prompt-process-evolution-7c34 (earlier claim; folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233; same-minute dual with business-process-evolution-9ced — both ITERATIONS kept; 9ced follow-up: architecture as-const prose)",
   },
+  {
+    id: "mark-handoff-live-null-status-guard",
+    summary:
+      "markHandoffLive advances lead stage to live even when updateDeployHandoffStatus returns null (handoff vanished between the initial get and the status write). Operator then sees \"No deploy handoff found\" while stage=live and paid-not-live / open-handoff metrics diverge. Ship: return null before updateLeadStage when the status write is null; Vitest regression; dashboard revalidatePath uses leadPreviewPath (encode-at-use).",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-7e66",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
