@@ -1625,6 +1625,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Lead volume",
     owner: "claude/quirky-davinci-p8s7o7",
   },
+  {
+    id: "open-handoffs-in-digest",
+    summary:
+      "Empty-backlog after PR #190 (sqlite-row-mapping-test-coverage): pipeline-health + /dashboard already expose openHandoffCount (paid sites awaiting DNS / Mark live), but the operator daily digest never loaded listDeployHandoffs — so a single-operator business that relies on Send daily digest could miss production go-live debt entirely. PR #188's wiring audit checked list*Due/Missing/Unsynced helpers and missed this inline handoffs filter. Shipped: openHandoffs action section in buildDailyDigest/renderDailyDigestHtml (status !== live, same predicate as pipeline-health) + listDeployHandoffs in sendDailyDigestAction.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-e73c",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
