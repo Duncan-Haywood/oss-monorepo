@@ -228,12 +228,15 @@ export default function RoadmapDocPage() {
         CSV bulk import on the leads dashboard: shipped (tagged <code>dataSource</code> per batch).
         Slug collisions on re-import or manual add skip/reject instead of overwriting pipeline
         state (see <DocLink href="/docs/process">process log</DocLink>{" "}
-        <code>upsert-lead-collision-guard</code>). When Convex is configured, Add lead / CSV
+        <code>upsert-lead-collision-guard</code>).         When Convex is configured, Add lead / CSV
         import fail closed on shared-store mutation failure (
         <code>lead-upsert-convex-primary</code>) so new inventory cannot succeed only in
         instance-local SQLite; action-level Vitest in <code>add-lead-action.test.ts</code>{" "}
         locks the manual Add lead glue (auth, slug gates, conflict reject, requireConvex
-        fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
+        fail-closed, outreach_sent mark-before-Resend) and{" "}
+        <code>import-leads-csv-action.test.ts</code> locks the bulk Import CSV glue (auth,
+        empty/invalid CSV, requireConvex per row, existing-slug skip, partial Convex failure)
+        beside upsert-persist helpers. Dashboard
         stage moves fail closed the same way (
         <code>lead-stage-convex-primary</code>) — Mark live already passed{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; the stage dropdown now matches so funnel /

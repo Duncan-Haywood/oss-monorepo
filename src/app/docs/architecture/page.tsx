@@ -48,7 +48,10 @@ export default function ArchitectureDocPage() {
         surfaces a retry instead of claiming success after a SQLite-only write other instances
         cannot see. Action-level Vitest in <code>add-lead-action.test.ts</code> locks that Add
         lead glue (auth, slug/businessName gates, sanitize, existing-slug conflict, requireConvex
-        fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
+        fail-closed, outreach_sent mark-before-Resend) and{" "}
+        <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
+        invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure) beside
+        upsert-persist helpers. Dashboard
         stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so funnel state cannot desync from
