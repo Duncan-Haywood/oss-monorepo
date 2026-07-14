@@ -141,7 +141,15 @@ export default function ProductionDeployDocPage() {
       <h2>Env vars</h2>
       <ul>
         <li>
-          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> — root for suggested hosts (optional).
+          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> — root for suggested hosts. Until it is a
+          bare public production root (not missing / whitespace / localhost /{" "}
+          <code>example.com</code> / <code>preview.*</code>),{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a cyan production-root
+          banner via <code>assessProductionDomainEnvReadiness</code> (
+          <code>src/lib/deploy/production-domain-env-readiness.ts</code>). Env presence only —
+          does not resolve DNS; <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> fallback does not count
+          as ready.
         </li>
         <li>
           <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> — fallback root if production domain unset.

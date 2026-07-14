@@ -23,6 +23,7 @@ import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-dig
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
 import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
+import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
@@ -31,6 +32,7 @@ import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-di
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
 import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
+import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -107,6 +109,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
   const brandNameEnv = assessBrandNameEnvReadiness();
   const appUrlEnv = assessAppUrlEnvReadiness();
+  const productionDomainEnv = assessProductionDomainEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -122,6 +125,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <div className="mt-6">
         <OperatorAuthEnvBanner readiness={operatorAuthEnv} />
         <AppUrlEnvBanner readiness={appUrlEnv} />
+        <ProductionDomainEnvBanner readiness={productionDomainEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

@@ -79,7 +79,12 @@ export default function RoadmapDocPage() {
         Stripe / Resend / Anthropic / digest banners). Until{" "}
         <code>NEXT_PUBLIC_APP_URL</code> is a non-localhost public origin, the same dashboards show
         an orange canonical-URL banner via <code>assessAppUrlEnvReadiness</code> (checkout /
-        digest / unsubscribe / SEO fall back to localhost otherwise). Preview contact
+        digest / unsubscribe / SEO fall back to localhost otherwise). Until{" "}
+        <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> is a bare public production root, the same
+        dashboards show a cyan production-root banner via{" "}
+        <code>assessProductionDomainEnvReadiness</code> (handoff{" "}
+        <code>suggestedHost</code> / DNS counseling otherwise fall back to stripping{" "}
+        <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code>). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
