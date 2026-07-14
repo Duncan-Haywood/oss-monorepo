@@ -105,7 +105,10 @@ export default function RoadmapDocPage() {
         <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,{" "}
         <code>assessAnthropicEnvReadiness</code> shows a teal AI-packs-on-stub banner
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*
-        template copy). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
+        template copy). Until <code>NEXT_PUBLIC_BRAND_NAME</code> is a non-placeholder public
+        brand, <code>assessBrandNameEnvReadiness</code> shows a rose brand-copy banner
+        (outreach From / marketing footers / voice intros otherwise fall back to{" "}
+        <code>Your Brand</code>). Until <code>OPERATOR_DIGEST_EMAIL</code> is a non-placeholder inbox,{" "}
         <code>assessOperatorDigestEmailEnvReadiness</code> shows an emerald daily-digest-blocked
         banner (Send daily digest otherwise only errors on click). Action-level Vitest (
         <code>send-daily-digest-action.test.ts</code>) locks the dashboard Send daily digest

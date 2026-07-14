@@ -225,10 +225,12 @@ export const AGENT_PROTOCOL = [
   "login-operator-action-test-coverage done: src/app/dashboard/login/actions.test.ts locks loginOperatorAction / logoutOperatorAction — unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), safeNextPath open-redirect guard (reject // and non-path next → /dashboard), and logout clear (maxAge 0) + redirect to /dashboard/login. operator.test.ts token crypto + proxy.test.ts Host gate alone are not enough for the login form glue that establishes every dashboard mutation session. When free NEXT_STEPS stay gated, prefer requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When require-operator-auth-cookie-read-coverage is free after login-operator-action-test-coverage, claim it before inventing optional aggregates — login/logout action Vitest locks cookie write/clear; operator.test.ts token crypto alone does not lock requireOperatorAuth / isOperatorAuthenticated reading the signed httpOnly jar (open demo when unset, reject missing/invalid/expired cookie, accept valid session). Sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
   "require-operator-auth-cookie-read-coverage done: src/lib/auth/operator.test.ts now locks requireOperatorAuth / isOperatorAuthenticated cookie-read — open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty (no jar read), reject missing/invalid/expired session cookie with the Unauthorized sign-in error, accept valid signed cookie via OPERATOR_SESSION_COOKIE. Complements login-operator-action-test-coverage (write/clear) + proxy.test.ts Host gate. When free NEXT_STEPS stay gated, prefer operator-dashboard-password-env-readiness (amber open-dashboard banner when password unset/placeholder — production CRM protection) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "operator-dashboard-password-env-readiness done: assessOperatorAuthEnvReadiness (src/lib/auth/operator-auth-env-readiness.ts) + OperatorAuthEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|password|secret-style OPERATOR_DASHBOARD_PASSWORD — matching isOperatorAuthConfigured open-demo gate (plus documented paste placeholders). Distinct from Stripe / Resend / Anthropic / digest banners; show first because an open dashboard with live lead data is the worst CRM risk. Env presence only — does not validate password strength beyond placeholder rejection. When free NEXT_STEPS stay gated, prefer app-url-env-readiness (NEXT_PUBLIC_APP_URL missing/localhost blocks checkout cancel URLs, digest links, SEO canonicals) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "operator-dashboard-password-env-readiness done: assessOperatorAuthEnvReadiness (src/lib/auth/operator-auth-env-readiness.ts) + OperatorAuthEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|password|secret-style OPERATOR_DASHBOARD_PASSWORD — matching isOperatorAuthConfigured open-demo gate (plus documented paste placeholders). Distinct from Stripe / Resend / Anthropic / digest banners; show first because an open dashboard with live lead data is the worst CRM risk. Env presence only — does not validate password strength beyond placeholder rejection. When free NEXT_STEPS stay gated, prefer app-url-env-readiness (NEXT_PUBLIC_APP_URL missing/localhost blocks checkout cancel URLs, digest links, SEO canonicals) or brand-name-env-readiness (NEXT_PUBLIC_BRAND_NAME missing → outreach ships as 'Your Brand') or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When operator-dashboard-password-env-readiness and app-url-env-readiness are both free in the same cron window, claim different ones (open-dashboard CRM lock signal vs canonical APP_URL readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
-  "app-url-env-readiness done: assessAppUrlEnvReadiness (src/lib/seo/app-url-env-readiness.ts) + AppUrlEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / localhost|127.0.0.1 (.env.example default) / example.com-style NEXT_PUBLIC_APP_URL — matching silent fallthrough to request origin or localhost in checkout cancel/success, digest links, unsubscribe/footer canonicals, pack preview links, and SEO siteUrl(). Distinct from Stripe / Resend / Anthropic / digest / auth banners (orange). Env presence only — does not resolve DNS. When free NEXT_STEPS stay gated, prefer production-domain-env-readiness (NEXT_PUBLIC_PRODUCTION_DOMAIN for preview subdomain / suggestedHost) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "When app-url-env-readiness and production-domain-env-readiness are both free in the same cron window, claim different ones (canonical APP_URL vs production root domain for preview hosts) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "app-url-env-readiness done: assessAppUrlEnvReadiness (src/lib/seo/app-url-env-readiness.ts) + AppUrlEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / localhost|127.0.0.1 (.env.example default) / example.com-style NEXT_PUBLIC_APP_URL — matching silent fallthrough to request origin or localhost in checkout cancel/success, digest links, unsubscribe/footer canonicals, pack preview links, and SEO siteUrl(). Distinct from Stripe / Resend / Anthropic / digest / auth banners (orange). Env presence only — does not resolve DNS. When free NEXT_STEPS stay gated, prefer brand-name-env-readiness (NEXT_PUBLIC_BRAND_NAME missing → outreach ships as 'Your Brand') or production-domain-env-readiness (NEXT_PUBLIC_PRODUCTION_DOMAIN for preview subdomain / suggestedHost) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When app-url-env-readiness is claimed by a sibling and free NEXT_STEPS stay gated, prefer brand-name-env-readiness (NEXT_PUBLIC_BRAND_NAME missing/whitespace → brand.name fallback 'Your Brand' on every outreach From / marketing footer / voice intro) or production-domain-env-readiness — claim different surfaces; do not invent optional aggregates.",
+  "When brand-name-env-readiness and production-domain-env-readiness are both free in the same cron window, claim different ones (public brand for outreach copy vs production root domain for preview hosts) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
+  "brand-name-env-readiness done: assessBrandNameEnvReadiness (src/lib/brand/brand-name-env-readiness.ts) + BrandNameEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / Your Brand|Brand Name-style NEXT_PUBLIC_BRAND_NAME — matching brand.isConfigured (legacy NEXT_PUBLIC_APP_NAME does not count) so outreach From / marketing footers / voice intros cannot silently ship as 'Your Brand' while Resend/Stripe/APP_URL look ready. Distinct rose banner. Env presence only. When free NEXT_STEPS stay gated, prefer production-domain-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1660,15 +1662,23 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "app-url-env-readiness",
     summary:
-      "Empty-backlog after operator-dashboard-password-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_APP_URL is missing, whitespace-only, or still localhost while other secrets are live — checkout cancel/success URLs, digest links, unsubscribe/footer canonicals, and SEO siteUrl() drift. Shipped: assessAppUrlEnvReadiness + AppUrlEnvBanner on /dashboard + /dashboard/leads + docs. Sibling-friendly next: production-domain-env-readiness (NEXT_PUBLIC_PRODUCTION_DOMAIN) or empty-backlog sold-capability / multi-instance regression audits.",
+      "Empty-backlog after operator-dashboard-password-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_APP_URL is missing, whitespace-only, or still localhost while other secrets are live — checkout cancel/success URLs, digest links, unsubscribe/footer canonicals, and SEO siteUrl() drift. Shipped: assessAppUrlEnvReadiness + AppUrlEnvBanner on /dashboard + /dashboard/leads + docs. Sibling-friendly next: brand-name-env-readiness (NEXT_PUBLIC_BRAND_NAME) or production-domain-env-readiness (NEXT_PUBLIC_PRODUCTION_DOMAIN) or empty-backlog sold-capability / multi-instance regression audits.",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-618c",
   },
   {
+    id: "brand-name-env-readiness",
+    summary:
+      "Empty-backlog after app-url-env-readiness (sibling 618c / PR #174): operators get no early dashboard signal when NEXT_PUBLIC_BRAND_NAME is missing/whitespace — outreach From name, marketing footers, and voice intros silently ship as brand.name fallback 'Your Brand' while Resend/Stripe/APP_URL secrets look ready. Shipped: assessBrandNameEnvReadiness + BrandNameEnvBanner on /dashboard + /dashboard/leads + docs. Sibling-friendly next: production-domain-env-readiness or empty-backlog sold-capability / multi-instance regression audits.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-edae",
+  },
+  {
     id: "production-domain-env-readiness",
     summary:
-      "Empty-backlog after app-url-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL is live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Prefer assessProductionDomainEnvReadiness + banner (env presence only; distinct from APP_URL/Stripe banners) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+      "Empty-backlog after app-url-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL is live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Prefer assessProductionDomainEnvReadiness + banner (env presence only; distinct from APP_URL/Stripe/brand banners) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
     status: "todo",
     phase: "Phase 5 — Client handoff",
   },
@@ -3571,6 +3581,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessAppUrlEnvReadiness + AppUrlEnvBanner when operator-dashboard-password-env-readiness is done — auth/Stripe/Resend banners already cover lock + payment + outreach transport, but operators still get no early dashboard signal when NEXT_PUBLIC_APP_URL is missing, whitespace-only, still localhost (.env.example default), or an example.com placeholder while other secrets are live (checkout cancel/success, digest links, unsubscribe footers, pack preview links, and SEO siteUrl() silently fall back to request origin or localhost). Env presence only; distinct orange banner. Queue production-domain-env-readiness (NEXT_PUBLIC_PRODUCTION_DOMAIN) as the sibling-friendly twin next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Wrong canonical origin after Stripe/Resend go live is a silent revenue + reputation leak — buyers land on broken cancel URLs, digest/Work-next links point at localhost, and Starter SEO canonicals advertise the wrong host — while every other launch secret already has an operator-visible banner. Prefer that early APP_URL signal, then production-domain readiness or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessBrandNameEnvReadiness + BrandNameEnvBanner when app-url-env-readiness is claimed/done by a sibling — APP_URL readiness locks canonical checkout/digest/SEO origins, but operators still get no early dashboard signal when NEXT_PUBLIC_BRAND_NAME is missing, whitespace-only, or a Your Brand/Brand Name-style placeholder (brand.name fallback 'Your Brand' on every outreach From / marketing footer / voice intro / CAN-SPAM sender line). Env presence only; distinct rose banner; legacy NEXT_PUBLIC_APP_NAME does not count (matches brand.isConfigured). Leave production-domain-env-readiness free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Unbranded outreach after Resend/Stripe/APP_URL go live is a silent conversion leak — Email 1–3 and pack delivery can look 'send-ready' while every customer-facing surface still reads as an unconfigured placeholder. Prefer that early brand signal, then production-domain readiness or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6346,7 +6363,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process polish only after #168 dual-fold (mirrors #167 after #166)",
       "Verified: npm test (986 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(265, 266),
+    decisions: BUSINESS_DECISIONS.slice(264, 265),
   },
   {
     date: "2026-07-14",
@@ -6361,7 +6378,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Commerce catalog read-path action Vitest beats inventing optional aggregates after Assign twins",
       "Verified: npm test (get-commerce-catalog 6) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(266, 267),
+    decisions: BUSINESS_DECISIONS.slice(265, 266),
   },
   {
     date: "2026-07-14",
@@ -6377,7 +6394,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 3be7→699c (+1 drift) and confirmed f4bf/7f7e absolute bounds",
       "Verified: npm test (login actions 7) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(267, 268),
+    decisions: BUSINESS_DECISIONS.slice(266, 267),
   },
   {
     date: "2026-07-14",
@@ -6393,7 +6410,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 3be7→7f7e (+1 drift) and set b2e7 absolute bound to BUSINESS_DECISIONS.length",
       "Verified: npm test (operator.test.ts 20) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(268, 269),
+    decisions: BUSINESS_DECISIONS.slice(267, 268),
   },
   {
     date: "2026-07-14",
@@ -6409,7 +6426,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why open-dashboard password readiness beats inventing optional aggregates after auth Vitest chain",
       "Verified: npm test (operator-auth-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(269, 270),
+    decisions: BUSINESS_DECISIONS.slice(268, 269),
   },
   {
     date: "2026-07-14",
@@ -6424,6 +6441,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — prefer production-domain readiness or empty-backlog sold-capability / multi-instance regression audits next",
       "BUSINESS_DECISIONS — documented why APP_URL readiness beats inventing optional aggregates after auth banner",
       "Verified: npm test (app-url-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(269, 270),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-edae",
+    summary:
+      "Free NEXT_STEPS backlog after PR #174 (app-url-env-readiness on 618c) stayed fully gated except brand-name / production-domain twins. Sibling 618c already owned APP_URL; pivoted to brand-name-env-readiness. Empty-backlog audit found NEXT_PUBLIC_BRAND_NAME had no operator-visible readiness banner despite brand.name falling back to 'Your Brand' on every outreach From / marketing footer / voice intro while Resend/Stripe/APP_URL can look ready. Claimed and shipped brand-name-env-readiness. Folded sibling APP_URL banner into dashboard pages. Left production-domain-env-readiness free. Tightened 02c1/618c ITERATION decision slices (+1 drift). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/brand/brand-name-env-readiness.ts + .test.ts — assessBrandNameEnvReadiness locks missing/whitespace/Your Brand|Brand Name-style placeholder vs ready public brand (legacy APP_NAME does not count)",
+      "src/components/dashboard/brand-name-env-banner.tsx — rose brand-copy banner on /dashboard + /dashboard/leads (after Resend; beside AppUrlEnvBanner)",
+      "Docs: architecture + roadmap + launch-checklist + business-model note the banner beside brand.isConfigured",
+      "NEXT_STEPS: brand-name-env-readiness done; production-domain-env-readiness left todo",
+      "AGENT_PROTOCOL — prefer production-domain readiness or empty-backlog sold-capability / multi-instance regression audits next; brand vs production-domain twin claim rule",
+      "BUSINESS_DECISIONS — documented why brand-name readiness beats inventing optional aggregates after APP_URL banner",
+      "Process: folded PR #174 APP_URL into dashboards; tightened ITERATIONS decision slices 02c1→618c",
+      "Verified: npm test (brand-name-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(270, 271),
   },

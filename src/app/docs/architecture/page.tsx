@@ -205,7 +205,12 @@ export default function ArchitectureDocPage() {
         Two-layer brand env reads live in <code>src/lib/brand.ts</code> (getters; whitespace-only
         counts as unset; <code>NEXT_PUBLIC_BRAND_NAME</code> &gt; legacy{" "}
         <code>NEXT_PUBLIC_APP_NAME</code>) with direct Vitest coverage in{" "}
-        <code>src/lib/brand.test.ts</code>.
+        <code>src/lib/brand.test.ts</code>. Until <code>NEXT_PUBLIC_BRAND_NAME</code> is a
+        non-placeholder public brand, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a rose brand-copy
+        banner via <code>assessBrandNameEnvReadiness</code> — matching{" "}
+        <code>brand.isConfigured</code> (legacy APP_NAME does not clear it) so Email 1 cannot
+        silently ship as <code>Your Brand</code> while Resend/Stripe/APP_URL look ready.
       </p>
 
       <h2>5. Platform voice agent</h2>

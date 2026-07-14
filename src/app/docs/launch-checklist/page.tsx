@@ -238,7 +238,13 @@ export default function LaunchChecklistDocPage() {
       <h2>5. Branding + legal</h2>
       <ol>
         <li>
-          Set <code>NEXT_PUBLIC_BRAND_NAME</code> before customer-facing launches.
+          Set <code>NEXT_PUBLIC_BRAND_NAME</code> before customer-facing launches. Until set to
+          a non-placeholder public brand, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a rose brand-copy
+          banner via <code>assessBrandNameEnvReadiness</code> — outreach From names, marketing
+          footers, voice intros, and CAN-SPAM sender lines otherwise fall back to{" "}
+          <code>Your Brand</code> (legacy <code>NEXT_PUBLIC_APP_NAME</code> does not count).
+          Distinct from Stripe / Resend / APP_URL / auth banners.
         </li>
         <li>
           Privacy and Terms are live at <DocLink href="/privacy">/privacy</DocLink> and{" "}
