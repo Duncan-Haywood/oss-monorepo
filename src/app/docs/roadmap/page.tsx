@@ -236,7 +236,9 @@ export default function RoadmapDocPage() {
         fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
         stage moves fail closed the same way (
         <code>lead-stage-convex-primary</code>) — Mark live already passed{" "}
-        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; the stage dropdown now matches so funnel /
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code> (action-level Vitest in{" "}
+        <code>mark-handoff-live-action.test.ts</code> locks auth / no-handoff / requireConvex
+        fail-closed / success revalidate); the stage dropdown now matches so funnel /
         Work next / digest cannot desync from an <code>outreach_sent</code> mark that already
         fails closed. Google Places API and other licensed sources still require legal
         review — no Maps/Facebook scrapers.

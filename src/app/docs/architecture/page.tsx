@@ -51,7 +51,10 @@ export default function ArchitectureDocPage() {
         fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
         stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
-        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so funnel state cannot desync from
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; action-level Vitest in{" "}
+        <code>mark-handoff-live-action.test.ts</code> locks that Mark live glue — auth, empty
+        slug, no-handoff, requireConvex fail-closed, success revalidate — beside handoff-persist
+        helpers) so funnel state cannot desync from
         Convex-first readers — especially the <code>outreach_sent</code> path, where the
         outreach mark already fails closed. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
