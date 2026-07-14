@@ -1804,6 +1804,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/prompt-process-evolution-7291 (folded from grok/dev-work-convex-order-parity + claude/dev-work-convex-order-parity + opencode/dev-work-7qz1k9)",
   },
+  {
+    id: "handoff-provision-lost-update-guard",
+    summary:
+      "Empty-backlog after PR #222 (convex-query-ordering-parity). Free NEXT_STEPS stayed operator/legal-gated. Rotated to TOCTOU axis (commerce sync + orphan archive already guarded): assignCustomDomainAndProvision / assignVercelProjectAndProvision / enqueueProductionHandoff call tryProvisionVercelDomain (real Vercel fetch) then insertDeployHandoff the pre-call snapshot via full-row upsert — a concurrent Mark live during that window is silently reverted to provisioned/awaiting_dns. Re-read + mergeProvisionOntoFreshHandoff before the final write.",
+    status: "in_progress",
+    phase: "Phase 5 — Fulfillment",
+    owner: "cursor/business-process-evolution-eccd",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
