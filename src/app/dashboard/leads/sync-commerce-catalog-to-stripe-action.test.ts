@@ -308,4 +308,49 @@ describe("syncCommerceCatalogToStripeAction", () => {
     expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
     expect(getCommerceCatalog).toHaveBeenCalledWith("demo-cafe");
   });
+
+  it("re-reads the catalog before the final write so a concurrent saveCommerceCatalogAction survives the sync", async () => {
+    // Simulate: the catalog read at the top of the action (used to build the
+    // Stripe sync request) is stale by the time the sequential per-SKU sync
+    // loop finishes — an operator (or a second tab) saved a newer catalog
+    // (edited price on sku_latte, added sku_muffin) while the sync was in
+    // flight. Writing `synced` (derived from the stale first read) verbatim
+    // would silently discard that concurrent edit.
+    const concurrentlyEditedCatalog = {
+      ...savedCatalog,
+      items: [
+        { id: "sku_latte", name: "Latte", description: "12oz", priceCents: 500 }, // price changed mid-sync
+        { id: "sku_muffin", name: "Muffin", description: "Blueberry", priceCents: 350 }, // added mid-sync
+      ],
+    };
+    getCommerceCatalog
+      .mockReset()
+      .mockResolvedValueOnce(savedCatalog) // initial read, before the Stripe loop
+      .mockResolvedValueOnce(concurrentlyEditedCatalog); // re-read, right before the write
+
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+
+    expect(res.success).toBe(true);
+    const written = upsertCommerceCatalog.mock.calls[0]![0].items;
+    // sku_latte: Stripe product id carries over, but the just-created price
+    // was for the OLD ($4.50) amount — it must NOT be attached to the now
+    // $5.00 item (a stale stripePriceId would charge the wrong amount).
+    expect(written.find((i: { id: string }) => i.id === "sku_latte")).toEqual({
+      id: "sku_latte",
+      name: "Latte",
+      description: "12oz",
+      priceCents: 500,
+      stripeProductId: "prod_latte",
+    });
+    // sku_muffin: added after the sync loop started — not yet synced, so no
+    // Stripe ids, but the concurrent edit itself is preserved (not dropped).
+    expect(written.find((i: { id: string }) => i.id === "sku_muffin")).toEqual({
+      id: "sku_muffin",
+      name: "Muffin",
+      description: "Blueberry",
+      priceCents: 350,
+    });
+    expect(written).toHaveLength(2);
+  });
 });
