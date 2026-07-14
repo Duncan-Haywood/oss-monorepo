@@ -8,7 +8,9 @@
  *
  * - `resolveTrustedAppUrl` — operator-facing links (digest email hrefs) where
  *   NEXT_PUBLIC_APP_URL is preferred, and a well-formed header-derived Host
- *   is acceptable when unset. Rejects malformed / injection Host values.
+ *   is acceptable when unset. Rejects malformed / injection Host values and
+ *   non-http(s) x-forwarded-proto values (a bare `new URL()` success is not
+ *   enough — `javascript:` and host-with-path candidates parse cleanly).
  *
  * - `resolveStripeRedirectAppUrl` — unauthenticated money redirects
  *   (Checkout success_url / cancel_url, Billing Portal return_url). Never
@@ -24,6 +26,47 @@
 const DEFAULT_APP_URL = "http://localhost:3000";
 
 /**
+ * Build an http(s) origin from header-derived proto + host, or null when the
+ * pair is not a plain host-only http(s) URL. Rejects:
+ * - non-http(s) schemes (javascript:, data:, …) even though `new URL` accepts them
+ * - userinfo (`user@host`, `user:pass@host`)
+ * - path / query / hash smuggled into the Host header (`evil.com/phish`)
+ * - whitespace, control chars, backslashes
+ *
+ * Returns `url.origin` (scheme + host + non-default port only) so a sneaky
+ * trailing path can never leak into digest hrefs.
+ */
+export function tryHeaderDerivedAppOrigin(
+  protoRaw: string | null | undefined,
+  hostRaw: string | null | undefined,
+): string | null {
+  if (hostRaw == null) return null;
+  const host = hostRaw.trim();
+  if (!host) return null;
+  // Fast reject for characters that never belong in a Host header value and
+  // that enable path/userinfo/injection smuggling when concatenated.
+  if (/[\u0000-\u001f\u007f\s/@?#\\]/.test(host)) return null;
+
+  const proto = (protoRaw ?? "http").trim().toLowerCase();
+  if (proto !== "http" && proto !== "https") return null;
+
+  let url: URL;
+  try {
+    url = new URL(`${proto}://${host}`);
+  } catch {
+    return null;
+  }
+
+  if (url.protocol !== `${proto}:`) return null;
+  if (url.username || url.password) return null;
+  // Host-only: any path beyond "/" means the "host" carried a path component.
+  if (url.pathname !== "/" && url.pathname !== "") return null;
+  if (url.search !== "" || url.hash !== "") return null;
+
+  return url.origin;
+}
+
+/**
  * Operator-facing base URL. Env wins; otherwise a well-formed
  * x-forwarded-host/host candidate; otherwise localhost.
  */
@@ -35,15 +78,8 @@ export function resolveTrustedAppUrl(
 
   const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
   const proto = headerStore.get("x-forwarded-proto") ?? "http";
-  if (host) {
-    const candidate = `${proto}://${host}`;
-    try {
-      new URL(candidate);
-      return candidate;
-    } catch {
-      // Malformed header value — fall through to the safe default.
-    }
-  }
+  const origin = tryHeaderDerivedAppOrigin(proto, host);
+  if (origin) return origin;
   return DEFAULT_APP_URL;
 }
 

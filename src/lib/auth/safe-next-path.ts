@@ -15,23 +15,38 @@
 export const DEFAULT_SAFE_NEXT_PATH = "/dashboard";
 
 /**
- * True when a decoded path contains a literal `..` segment. The browser
- * normalizes both `/dashboard/../checkout` and its percent-encoded form
- * `/dashboard/%2e%2e/checkout` down to `/checkout` before ever hitting the
- * network, so those must be rejected even though the raw string still
- * starts with `/dashboard/`. `decodeURIComponent` can throw on malformed
- * escapes (e.g. a lone `%`) — fail closed (treat as containing `..`) rather
- * than let an unparsable path slip through.
+ * Decode the pathname (strip query/hash first), collapse no-op `.` segments,
+ * and reject any `..` segment. Returns null when the path is malformed or
+ * escapes via `..` — fail closed so callers treat it as unsafe.
+ *
+ * Used for both the dashboard-prefix check and the login self-loop check so
+ * that `/dashboard/login#x`, `/dashboard/./login`, and `/dashboard/%6cogin`
+ * are rejected the same way a bare `/dashboard/login` is. The prior login
+ * gate only compared the raw string (exact path / `?` query / trailing slash)
+ * and missed those browser-normalized equivalents.
  */
-function containsDotDotSegment(path: string): boolean {
-  const pathname = path.split(/[?#]/, 1)[0];
+function normalizePathnameForSafety(path: string): string | null {
+  const pathname = path.split(/[?#]/, 1)[0] ?? "";
   let decoded: string;
   try {
     decoded = decodeURIComponent(pathname);
   } catch {
-    return true;
+    return null;
   }
-  return decoded.split("/").includes("..");
+  // After decoding, control chars / backslashes that were percent-encoded
+  // in the raw string must still fail closed.
+  if (/[\u0000-\u001f\u007f]/.test(decoded) || decoded.includes("\\")) {
+    return null;
+  }
+  if (!decoded.startsWith("/")) return null;
+
+  const out: string[] = [];
+  for (const segment of decoded.split("/")) {
+    if (segment === "" || segment === ".") continue;
+    if (segment === "..") return null;
+    out.push(segment);
+  }
+  return `/${out.join("/")}`;
 }
 
 /**
@@ -48,19 +63,28 @@ export function isSafeNextPath(path: string): boolean {
   if (/[\u0000-\u001f\u007f]/.test(path)) return false;
   // Absolute URL smuggled as a path (/https://evil, /http:...).
   if (/^\/[a-z][a-z0-9+.-]*:/i.test(path)) return false;
+
+  const normalized = normalizePathnameForSafety(path);
+  if (normalized == null) return false;
+
   // Operator login only ever needs dashboard destinations (proxy sets
   // next=pathname under /dashboard/*). Restricting the prefix closes
-  // accidental redirects to public marketing/preview surfaces.
-  if (path !== "/dashboard" && !path.startsWith("/dashboard/")) return false;
-  // Dot-segment traversal (literal or percent-encoded) — the browser
-  // collapses this to an out-of-dashboard path before it ever redirects.
-  if (containsDotDotSegment(path)) return false;
-  // Already on login with next=/dashboard/login → infinite redirect loop
-  // for authenticated visitors (page redirects to next → login again).
-  if (path === "/dashboard/login" || path.startsWith("/dashboard/login?")) {
+  // accidental redirects to public marketing/preview surfaces. Check the
+  // normalized form so percent-encoded / ./ variants cannot slip past.
+  if (normalized !== "/dashboard" && !normalized.startsWith("/dashboard/")) {
     return false;
   }
-  if (path.startsWith("/dashboard/login/")) return false;
+
+  // Already on login with next=/dashboard/login → infinite redirect loop
+  // for authenticated visitors (page redirects to next → login again).
+  // Covers hash (`#x`), query (`?error=`), single-dot (`./login`), and
+  // percent-encoded (`%6cogin`) forms via the normalizer above.
+  if (
+    normalized === "/dashboard/login" ||
+    normalized.startsWith("/dashboard/login/")
+  ) {
+    return false;
+  }
   return true;
 }
 

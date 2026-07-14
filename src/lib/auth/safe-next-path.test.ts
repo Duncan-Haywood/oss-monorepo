@@ -42,6 +42,18 @@ describe("isSafeNextPath", () => {
     expect(isSafeNextPath("/dashboard/login/")).toBe(false);
   });
 
+  it("rejects login self-loop variants browsers normalize to /dashboard/login", () => {
+    // Hash was only stripped for `..` detection before — the login check
+    // compared the raw string and accepted `/dashboard/login#x`.
+    expect(isSafeNextPath("/dashboard/login#next")).toBe(false);
+    expect(isSafeNextPath("/dashboard/login#")).toBe(false);
+    // Single-dot segment collapses to /dashboard/login.
+    expect(isSafeNextPath("/dashboard/./login")).toBe(false);
+    // Percent-encoded "login" segment decodes to the login path.
+    expect(isSafeNextPath("/dashboard/%6cogin")).toBe(false);
+    expect(isSafeNextPath("/dashboard/%6C%6F%67%69%6E")).toBe(false);
+  });
+
   it("rejects control characters", () => {
     expect(isSafeNextPath("/dashboard/leads\r\nLocation: https://evil")).toBe(
       false,
@@ -68,7 +80,7 @@ describe("isSafeNextPath", () => {
     expect(isSafeNextPath("/dashboard/%")).toBe(false);
   });
 
-  it("still accepts a harmless single-dot segment", () => {
+  it("still accepts a harmless single-dot segment under a non-login path", () => {
     expect(isSafeNextPath("/dashboard/./leads")).toBe(true);
   });
 });

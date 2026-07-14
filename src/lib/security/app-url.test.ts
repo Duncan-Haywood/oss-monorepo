@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveStripeRedirectAppUrl, resolveTrustedAppUrl } from "./app-url";
+import {
+  resolveStripeRedirectAppUrl,
+  resolveTrustedAppUrl,
+  tryHeaderDerivedAppOrigin,
+} from "./app-url";
 
 function headerStore(entries: Record<string, string | null> = {}) {
   return {
@@ -8,6 +12,34 @@ function headerStore(entries: Record<string, string | null> = {}) {
     },
   };
 }
+
+describe("tryHeaderDerivedAppOrigin", () => {
+  it("accepts a plain host with http or https", () => {
+    expect(tryHeaderDerivedAppOrigin("https", "ops.example.com")).toBe(
+      "https://ops.example.com",
+    );
+    expect(tryHeaderDerivedAppOrigin("http", "localhost:3000")).toBe(
+      "http://localhost:3000",
+    );
+  });
+
+  it("rejects non-http(s) schemes that new URL would still accept", () => {
+    // Regression: bare `new URL("javascript://host")` succeeds — must not
+    // become a digest href scheme.
+    expect(tryHeaderDerivedAppOrigin("javascript", "evil.example")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("data", "evil.example")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("ftp", "evil.example")).toBeNull();
+  });
+
+  it("rejects host values that smuggle path, query, hash, or userinfo", () => {
+    expect(tryHeaderDerivedAppOrigin("https", "evil.com/phish")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("https", "evil.com?x=1")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("https", "evil.com#frag")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("https", "user@evil.com")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("https", "user:pass@evil.com")).toBeNull();
+    expect(tryHeaderDerivedAppOrigin("https", "phish@good.com")).toBeNull();
+  });
+});
 
 describe("resolveTrustedAppUrl", () => {
   it("prefers NEXT_PUBLIC_APP_URL when set, ignoring headers entirely", () => {
@@ -47,6 +79,25 @@ describe("resolveTrustedAppUrl", () => {
   it("falls back to the localhost default on a host header containing whitespace", () => {
     const result = resolveTrustedAppUrl(
       headerStore({ "x-forwarded-host": "evil example.com" }),
+      undefined,
+    );
+    expect(result).toBe("http://localhost:3000");
+  });
+
+  it("falls back to the localhost default when x-forwarded-proto is a non-http(s) scheme", () => {
+    const result = resolveTrustedAppUrl(
+      headerStore({
+        "x-forwarded-host": "ops.example.com",
+        "x-forwarded-proto": "javascript",
+      }),
+      undefined,
+    );
+    expect(result).toBe("http://localhost:3000");
+  });
+
+  it("falls back to the localhost default when host smuggles a path component", () => {
+    const result = resolveTrustedAppUrl(
+      headerStore({ "x-forwarded-host": "attacker.example/phish" }),
       undefined,
     );
     expect(result).toBe("http://localhost:3000");
