@@ -660,7 +660,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
-      <a href="${baseUrl}/dashboard/leads" style="color:#2563eb;">Open the dashboard</a> to act on any of these.
+      <a href="${escapeHtmlForEmail(baseUrl)}/dashboard/leads" style="color:#2563eb;">Open the dashboard</a> to act on any of these.
     </p>
     ${section(`Work next (${digest.workNext.length})`, workNextRows, "No actionable leads scored right now.")}
     ${section(`Follow-ups due (${digest.followUpsDueCount})`, followUpRows, "No follow-up emails due.")}

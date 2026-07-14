@@ -88,6 +88,7 @@ import {
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
+import { resolveTrustedAppUrl } from "@/lib/security/app-url";
 import {
   leadEligibleForStarterUpsell,
   resolveUpsellTargetTier,
@@ -1313,10 +1314,7 @@ export async function openBillingPortalAction(slug: string) {
     }
 
     const headerStore = await headers();
-    const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-    const proto = headerStore.get("x-forwarded-proto") ?? "http";
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
+    const appUrl = resolveTrustedAppUrl(headerStore, process.env.NEXT_PUBLIC_APP_URL);
 
     const stripe = new Stripe(secretKey);
     const result = await createBillingPortalForLead(stripe, slug, `${appUrl}/dashboard/leads`);
@@ -1383,10 +1381,7 @@ export async function sendDailyDigestAction() {
     ]);
 
     const headerStore = await headers();
-    const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-    const proto = headerStore.get("x-forwarded-proto") ?? "http";
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? (host ? `${proto}://${host}` : "http://localhost:3000");
+    const appUrl = resolveTrustedAppUrl(headerStore, process.env.NEXT_PUBLIC_APP_URL);
 
     const digest = buildDailyDigest({
       leads,

@@ -796,6 +796,18 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("https://example.com/dashboard/leads");
   });
 
+  it("escapes baseUrl before interpolating it into the dashboard link href", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead()],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, '"><script>alert(1)</script>');
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;/dashboard/leads");
+  });
+
   it("renders marketing pack due, starter upsell, commerce catalog, and Complete voice pack sections", () => {
     const digest = buildDailyDigest({
       leads: [

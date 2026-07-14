@@ -429,7 +429,24 @@ export default function ArchitectureDocPage() {
         <code>open-billing-portal-action.test.ts</code> — auth, secret gate, returnUrl
         (APP_URL / forwarded host / localhost → <code>/dashboard/leads</code>), and helper
         success/error passthrough — so dashboard glue is not left to the route or
-        create-portal-session suites alone.
+        create-portal-session suites alone. Both this action and{" "}
+        <strong>Send daily digest</strong> (<code>sendDailyDigestAction</code>) derive their app
+        base URL via the shared{" "}
+        <code>resolveTrustedAppUrl</code> (<code>src/lib/security/app-url.ts</code>): when{" "}
+        <code>NEXT_PUBLIC_APP_URL</code> is unset, the <code>x-forwarded-host</code>/
+        <code>host</code> request headers are not URL-syntax-constrained the way a browser&apos;s
+        address bar is, so the derived candidate is validated as a well-formed absolute URL
+        before use — a malformed or injection-attempt header value falls back to the documented{" "}
+        <code>http://localhost:3000</code> default rather than being trusted verbatim into an
+        outbound email href or a Stripe <code>return_url</code>. The daily digest additionally
+        escapes that base URL via <code>escapeHtmlForEmail</code> before interpolating it into the{" "}
+        <strong>Open the dashboard</strong> link, closing the last unescaped dynamic value in the
+        digest&apos;s outbound HTML. Direct Vitest in{" "}
+        <code>src/lib/security/app-url.test.ts</code> locks the validation (env precedence,
+        forwarded-host derivation, localhost fallback, and rejection of malformed/injection host
+        values); <code>send-daily-digest-action.test.ts</code> and{" "}
+        <code>open-billing-portal-action.test.ts</code> each lock the same rejection at the
+        action-glue level.
       </p>
       <p>
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
