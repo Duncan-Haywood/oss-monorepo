@@ -1551,8 +1551,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "snooze-lead-action-test-coverage",
     summary:
       "Empty-backlog twin after inquiry status / cold disposition action Vitest: snoozeLeadAction is the operator Work next park path (snoozedUntil + LEAD_SNOOZE requireConvex when configured) — lead-snooze helper suites alone are not enough for action glue. Sibling-friendly with update-lead-stage-action-test-coverage; prefer when update-inquiry-status / dispose-cold-lead action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/prompt-process-evolution-b8a0",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
