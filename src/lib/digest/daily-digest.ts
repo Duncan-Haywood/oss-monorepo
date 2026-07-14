@@ -8,7 +8,8 @@
  * + client-voice-packs-missing-visibility
  * + commerce-abandoned-checkout-tracking
  * + commerce-payouts-owed-in-digest
- * + open-handoffs-in-digest).
+ * + open-handoffs-in-digest
+ * + paid-not-live-in-digest).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -54,6 +55,7 @@ const COMMERCE_UNSYNCED_LIMIT = 5;
 const CLIENT_VOICE_PACKS_LIMIT = 5;
 const COMMERCE_PAYOUTS_LIMIT = 5;
 const OPEN_HANDOFFS_LIMIT = 5;
+const PAID_NOT_LIVE_LIMIT = 5;
 const MESSAGE_PREVIEW_CHARS = 140;
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -137,6 +139,17 @@ export interface DigestOpenHandoff {
   tier: string;
 }
 
+/**
+ * Lead whose stage is "paid" (same predicate as pipeline-health
+ * paidNotLiveCount) — distinct from openHandoffs: a lead can be moved to
+ * stage=paid (dashboard stage dropdown or CSV import) with no deploy_handoffs
+ * row ever created, so it would never appear in openHandoffs.
+ */
+export interface DigestPaidNotLive {
+  slug: string;
+  businessName: string;
+}
+
 export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
@@ -158,6 +171,13 @@ export interface DailyDigest {
    * pipeline-health openHandoffCount (action section).
    */
   openHandoffs: DigestOpenHandoff[];
+  /**
+   * Leads with stage="paid" — same predicate as pipeline-health
+   * paidNotLiveCount (action section). Not the same set as openHandoffs: a
+   * lead can be marked paid via the stage dropdown or CSV import with no
+   * deploy_handoffs row, so it would never surface there.
+   */
+  paidNotLive: DigestPaidNotLive[];
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -363,6 +383,17 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       tier: handoff.tier,
     }));
 
+  // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount.
+  // Distinct set from openHandoffs above — a lead can be marked paid (stage
+  // dropdown or CSV import) with no deploy_handoffs row ever created.
+  const paidNotLive: DigestPaidNotLive[] = leads
+    .filter((lead) => lead.stage === "paid")
+    .slice(0, PAID_NOT_LIVE_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+    }));
+
   const coldLeadCount = listColdLeads(leads, nowMs).length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -394,7 +425,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commerceCatalogsUnsynced.length === 0 &&
     clientVoicePacksDue.length === 0 &&
     commercePayoutsOwed.length === 0 &&
-    openHandoffs.length === 0;
+    openHandoffs.length === 0 &&
+    paidNotLive.length === 0;
 
   return {
     generatedAtMs: nowMs,
@@ -411,6 +443,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     commercePayoutsOwed,
     commercePayoutsOwedTotalUsd,
     openHandoffs,
+    paidNotLive,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -531,6 +564,10 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(handoff.businessName)}</strong> — ${escapeHtmlForEmail(handoff.status)} · ${escapeHtmlForEmail(handoff.host)} (${escapeHtmlForEmail(handoff.tier)})`,
   );
 
+  const paidNotLiveRows = digest.paidNotLive.map(
+    (lead) => `<strong>${escapeHtmlForEmail(lead.businessName)}</strong> — stage is Paid`,
+  );
+
   return `
     <h2 style="margin:0 0 4px 0;color:#09090b;">Today's priorities</h2>
     <p style="margin:0 0 20px 0;color:#71717a;font-size:13px;">
@@ -548,6 +585,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
     ${section(`Production handoffs open (${digest.openHandoffs.length})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
+    ${section(`Paid, not yet live (${digest.paidNotLive.length})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;

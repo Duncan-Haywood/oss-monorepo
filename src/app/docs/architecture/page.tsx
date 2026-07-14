@@ -527,7 +527,13 @@ export default function ArchitectureDocPage() {
         (<code>status !== &quot;live&quot;</code>, same predicate as{" "}
         <code>openHandoffCount</code>) also list in the operator daily digest under{" "}
         <strong>Production handoffs open</strong> via <code>listDeployHandoffs</code> so paid
-        DNS / Mark live debt is visible without opening the dashboard. Lead quality scoring (
+        DNS / Mark live debt is visible without opening the dashboard. A lead can also be moved
+        to <code>stage=&quot;paid&quot;</code> (dashboard stage dropdown or CSV import) with no{" "}
+        <code>deploy_handoffs</code> row ever created — that set is disjoint from open handoffs,
+        so <code>paidNotLiveCount</code> was dashboard-only until the digest gained its own{" "}
+        <strong>Paid, not yet live</strong> section (same <code>lead.stage === &quot;paid&quot;</code>{" "}
+        predicate, direct from the <code>leads</code> the digest already loads — no new data
+        source). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when

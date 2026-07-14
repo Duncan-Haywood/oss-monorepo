@@ -575,6 +575,34 @@ describe("buildDailyDigest", () => {
     expect(digest.isEmpty).toBe(false);
   });
 
+  it("surfaces stage=paid leads with no deploy_handoffs row via paidNotLive (openHandoffs alone misses them)", () => {
+    // A lead can be moved to stage=paid via the dashboard stage dropdown or
+    // CSV import with no deploy_handoffs row ever created — it would never
+    // appear in openHandoffs, but is still fulfillment debt.
+    const csvImportedPaidLead = baseLead({
+      slug: "legacy-bakery",
+      businessName: "Legacy Bakery",
+      stage: "paid",
+    });
+    const notYetPaidLead = baseLead({
+      slug: "outreach-diner",
+      businessName: "Outreach Diner",
+      stage: "outreach_sent",
+    });
+    const digest = buildDailyDigest({
+      leads: [csvImportedPaidLead, notYetPaidLead],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [],
+      nowMs: NOW,
+    });
+    expect(digest.paidNotLive).toHaveLength(1);
+    expect(digest.paidNotLive[0]?.slug).toBe("legacy-bakery");
+    expect(digest.paidNotLive[0]?.businessName).toBe("Legacy Bakery");
+    expect(digest.openHandoffs).toHaveLength(0);
+    expect(digest.isEmpty).toBe(false);
+  });
+
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
     // Callers must feed buildDailyDigest from listUnpaidCommerceOrders()
     // (uncapped unpaid), not a capped newest-N page of every commerce order —
@@ -816,5 +844,25 @@ describe("renderDailyDigestHtml", () => {
     expect(html).toContain("dns-cafe.example.com");
     expect(html).toContain("DNS &lt;Cafe&gt;");
     expect(html).not.toContain("DNS <Cafe>");
+  });
+
+  it("renders paid-not-live leads with an escaped business name, even with no handoff row", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "legacy-<script>-bakery",
+          businessName: "Legacy <Script> Bakery",
+          stage: "paid",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      handoffs: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Paid, not yet live");
+    expect(html).toContain("Legacy &lt;Script&gt; Bakery");
+    expect(html).not.toContain("Legacy <Script> Bakery");
   });
 });

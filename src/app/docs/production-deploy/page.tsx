@@ -65,7 +65,10 @@ export default function ProductionDeployDocPage() {
           Open <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — open handoffs appear
           above the pipeline table. The same non-live handoffs also list under{" "}
           <strong>Production handoffs open</strong> in the operator daily digest (Send daily
-          digest) so go-live debt is visible without opening the dashboard.
+          digest) so go-live debt is visible without opening the dashboard. A lead marked{" "}
+          <code>stage=paid</code> with no handoff row at all (e.g. a CSV-imported legacy client)
+          won&rsquo;t appear there — the digest&rsquo;s separate{" "}
+          <strong>Paid, not yet live</strong> section catches that case directly from lead stage.
         </li>
         <li>Add the listed DNS records (or finish Vercel domain verification).</li>
         <li>
