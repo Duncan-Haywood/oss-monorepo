@@ -1591,8 +1591,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "mark-handoff-live-action-test-coverage",
     summary:
       "Empty-backlog twin after notes / Add lead action Vitest: markHandoffLiveAction is the operator Mark live fulfill path (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live) — deploy-handoff helper suites alone are not enough for action glue. Sibling-friendly with import-leads-csv-action-test-coverage; prefer when update-lead-notes-action-test-coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Fulfill & deploy",
+    owner: "cursor/business-process-evolution-1ca9",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
