@@ -57,6 +57,12 @@ const docs = [
     href: "/docs/process",
     description: "Cross-agent backlog, business decisions, and iteration history.",
   },
+  {
+    title: "CLI scheduled agents",
+    href: "/docs/cli-agents",
+    description:
+      "Codex, Gemini, OpenCode, and Grok Build GitHub Actions — OAuth secrets and prompts.",
+  },
 ];
 
 export default function DocsIndexPage() {
