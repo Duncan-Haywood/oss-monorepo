@@ -1659,8 +1659,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "app-url-env-readiness",
     summary:
       "Empty-backlog after operator-dashboard-password-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_APP_URL is missing, whitespace-only, or still localhost while other secrets are live — checkout cancel/success URLs, digest links, unsubscribe/footer canonicals, and SEO siteUrl() drift. Prefer assessAppUrlEnvReadiness + banner (env presence only; distinct from Stripe/Resend/auth banners) or another sold-capability / multi-instance regression. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-618c",
   },
 ];
 
