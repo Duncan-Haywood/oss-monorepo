@@ -1728,6 +1728,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "stripe-redirect-app-url-no-host-trust",
+    summary:
+      "Empty-backlog after PR #206 (app-url-header-injection-guard). Sibling business-process-evolution-07e5 claimed login-authenticated-open-redirect (folding grok's safeNextPath). Complementary security twin: the three public Stripe routes (POST /api/stripe/checkout, /api/commerce/checkout, /api/stripe/billing-portal) still derive appUrl via `NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin` and interpolate it into Stripe success_url / cancel_url / return_url. When APP_URL is unset, that origin is attacker-influenceable (Host / X-Forwarded-Host / crafted request URL) — an unauthenticated POST can mint a real Checkout Session whose post-payment redirect lands on an attacker origin (post-payment phishing), and billing-portal's isSameOriginReturnUrl guard is bypassed because the comparison origin itself is attacker-controlled. resolveTrustedAppUrl (PR #206) is insufficient here: it still trusts well-formed attacker hosts. Plan: resolveStripeRedirectAppUrl that uses NEXT_PUBLIC_APP_URL when set, else VERCEL_URL (https), else localhost — never request Host/origin — wired into all three public routes + openBillingPortalAction.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-e382",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
