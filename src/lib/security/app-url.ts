@@ -2,7 +2,7 @@
  * Derive a trusted app base URL for links/redirects (outbound email hrefs,
  * Stripe billing-portal return_url) that must never trust a raw,
  * attacker-influenceable value verbatim — mirrors safeNextPath
- * (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl
+ * (src/lib/auth/safe-next-path.ts) / isSameOriginReturnUrl
  * (src/app/api/stripe/billing-portal/route.ts).
  *
  * NEXT_PUBLIC_APP_URL is preferred when set. When unset, the fallback derives

@@ -4,6 +4,7 @@ import {
   isOperatorAuthConfigured,
   isOperatorAuthenticated,
 } from "@/lib/auth/operator";
+import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { brand } from "@/lib/brand";
 import { loginOperatorAction } from "./actions";
 
@@ -13,7 +14,10 @@ type LoginPageProps = {
 
 export default async function DashboardLoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const next = params.next && params.next.startsWith("/") ? params.next : "/dashboard";
+  // Same guard as loginOperatorAction — never trust startsWith("/") alone
+  // (protocol-relative //evil.example is an open redirect for already-
+  // authenticated visitors who hit /dashboard/login?next=...).
+  const next = safeNextPath(params.next);
 
   if (!isOperatorAuthConfigured()) {
     redirect("/dashboard?auth=unconfigured");

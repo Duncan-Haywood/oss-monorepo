@@ -71,7 +71,8 @@ export default function RoadmapDocPage() {
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped — action-level Vitest in{" "}
         <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout session
-        write/clear + <code>safeNextPath</code> open-redirect guard beside token crypto,{" "}
+        write/clear beside <code>src/lib/auth/safe-next-path.ts</code> (page + action twin
+        open-redirect guard), token crypto,{" "}
         <code>requireOperatorAuth</code> cookie-read, and proxy Host gate. Until the password is
         a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
