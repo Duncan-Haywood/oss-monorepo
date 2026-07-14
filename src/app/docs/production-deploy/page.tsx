@@ -104,7 +104,8 @@ export default function ProductionDeployDocPage() {
         Convex mutation failure surfaces as a retry message instead of silently succeeding against
         instance-local SQLite only — otherwise the routing/project/live-status change could be
         invisible to every other instance, which reads Convex-first. Action-level Vitest in{" "}
-        <code>mark-handoff-live-action.test.ts</code> locks that Mark live glue beside handoff
+        <code>mark-handoff-live-action.test.ts</code> locks the Mark live glue (auth, empty
+        slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff-persist
         helpers. A later bundle checkout
         (Starter→Growth upsell or re-purchase) rebuilds the handoff for the new Stripe session —
         <code>preserveDeployHandoffOperatorFields</code> keeps the saved domain (and any dedicated{" "}
