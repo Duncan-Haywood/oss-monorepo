@@ -98,6 +98,10 @@ import {
   type NotesPromptReason,
 } from "@/lib/leads/notes";
 import {
+  revertSingleLeadOptimisticUpdate,
+  upsertSavedLeadBySlug,
+} from "@/lib/leads/optimistic-updates";
+import {
   SNOOZE_PRESET_IDS,
   isLeadSnoozed,
   snoozePresetLabel,
@@ -256,8 +260,12 @@ export function LeadsClient({
     const res = await updateLeadStageAction(slug, newStage);
     if (!res.success) {
       alert(`Error updating stage: ${res.error}`);
-      // Revert if error
-      setLeads(initialLeads);
+      // Revert only this row's optimistic change back to its pre-update
+      // snapshot — resetting to the full initialLeads page-load prop would
+      // silently wipe every other in-session optimistic edit (other stage
+      // changes, added leads, snooze/notes/cold-disposition updates) back
+      // to stale state whenever a single unrelated stage change fails.
+      setLeads((prev) => revertSingleLeadOptimisticUpdate(prev, slug, current));
       return;
     }
 
@@ -451,15 +459,16 @@ export function LeadsClient({
     startTransition(async () => {
       const res = await addLeadAction(newLeadData);
       if (res.success) {
-        setLeads((prev) => {
-          const existsIdx = prev.findIndex((l) => l.slug === newLeadData.slug);
-          if (existsIdx !== -1) {
-            const updated = [...prev];
-            updated[existsIdx] = newLeadData;
-            return updated;
-          }
-          return [...prev, newLeadData];
-        });
+        // addLeadAction normalizes the slug server-side (lowercase,
+        // non-[a-z0-9-] -> '-') before persisting and returns that
+        // normalized value in res.slug. The Slug field is free-text with
+        // no client-side normalization, so if the typed value differs from
+        // the server-normalized one, using the raw formSlug here would add
+        // a row whose slug matches no DB record — every later action
+        // (stage change, snooze, notes, follow-up) on that row would then
+        // silently target a non-existent lead until the page reloads.
+        const savedLead = { ...newLeadData, slug: res.slug };
+        setLeads((prev) => upsertSavedLeadBySlug(prev, savedLead));
         
         // Reset form
         setFormName("");

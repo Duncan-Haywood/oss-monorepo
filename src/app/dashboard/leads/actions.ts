@@ -1006,7 +1006,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
   try {
     const auth = await requireOperatorAuth();
     if (!auth.ok) {
-      return { success: false, error: auth.error };
+      return { success: false as const, error: auth.error };
     }
 
     const stage = leadData.stage ?? "discovered";
@@ -1027,7 +1027,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     // Create-path only: never clobber an advanced lead via upsertLead on a slug typo/collision.
     const existing = await getLeadBySlug(lead.slug);
     if (existing) {
-      return { success: false, error: existingLeadSlugConflictMessage(lead.slug) };
+      return { success: false as const, error: existingLeadSlugConflictMessage(lead.slug) };
     }
 
     try {
@@ -1035,7 +1035,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
-          success: false,
+          success: false as const,
           error:
             "Could not save the lead in the shared store — other instances may not see it. Retry in a moment.",
         };
@@ -1051,7 +1051,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       } catch (error) {
         if (error instanceof ConvexPrimaryWriteError) {
           return {
-            success: false,
+            success: false as const,
             error:
               "Lead saved, but could not record the outreach mark in the shared store — Email 1 was not sent. Retry Email 1 from the dashboard in a moment.",
             slug: lead.slug,
@@ -1069,7 +1069,7 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       );
       if (!sent.success) {
         return {
-          success: false,
+          success: false as const,
           error:
             "reason" in sent && sent.reason === "suppressed"
               ? "Lead saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
@@ -1083,10 +1083,13 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
 
     revalidatePath("/dashboard/leads");
     revalidatePath(`/preview/${lead.slug}`);
-    return { success: true, slug: lead.slug };
+    return { success: true as const, slug: lead.slug };
   } catch (error) {
     console.error("Error in addLeadAction:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    return {
+      success: false as const,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 
