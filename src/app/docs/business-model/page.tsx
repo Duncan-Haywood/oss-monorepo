@@ -160,6 +160,27 @@ export default function BusinessModelDocPage() {
         handoff-persist helpers.
       </p>
 
+      <h2>Save domain (Host→preview)</h2>
+      <p>
+        Saving a client&apos;s own domain on the handoff card uses the same{" "}
+        <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code> surface so Host→preview routing cannot succeed
+        only in instance-local SQLite — <code>src/proxy.ts</code> and other instances read
+        Convex-first. Whitespace-only clears the domain (<code>null</code>). Missing handoffs
+        return not-found. Action-level Vitest in{" "}
+        <code>assign-custom-domain-action.test.ts</code> locks that dashboard glue beside
+        handoff / custom-domain-routing helpers.
+      </p>
+
+      <h2>Assign Vercel project (isolation)</h2>
+      <p>
+        Pointing a handoff at a dedicated Vercel project (or clearing back to the shared
+        default) uses the same <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code> surface so Domains API
+        provisioning cannot target a project id that only exists in instance-local SQLite.
+        Whitespace-only clears the dedicated id (<code>null</code>). Action-level Vitest in{" "}
+        <code>assign-vercel-project-action.test.ts</code> locks that dashboard glue beside
+        handoff helpers.
+      </p>
+
       <h2>Work next snooze / Unsnooze</h2>
       <p>
         Parking a hot lead off Work next (1d / 3d / 7d) or clearing an early return uses{" "}
