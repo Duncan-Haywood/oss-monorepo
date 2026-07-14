@@ -371,7 +371,13 @@ export default function ArchitectureDocPage() {
         <code>updateInquiryStatusAction</code>, locked by{" "}
         <code>update-inquiry-status-action.test.ts</code> (auth, invalid status,
         requireConvex fail-closed, null not-found, success revalidate) so status-only
-        glue is not left to the Reply action suite alone.
+        glue is not left to the Reply action suite alone. The dashboard stage dropdown
+        (<code>updateLeadStageAction</code>) passes{" "}
+        <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
+        Email 1 before Resend — locked by{" "}
+        <code>update-lead-stage-action.test.ts</code> (auth, requireConvex fail-closed,
+        non-outreach revalidate, mark-before-Resend, missing-email skip, outreach-mark
+        Convex skip-send) so stage glue is not left to stage-persist helpers alone.
         Opening the reply composer on a{" "}
         <code>new</code> inquiry auto-marks it <code>read</code> (
         <code>src/lib/inquiries/reply.ts</code> <code>inquiryShouldAutoMarkRead</code>) so
