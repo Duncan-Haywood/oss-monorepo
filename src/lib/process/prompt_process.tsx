@@ -1564,8 +1564,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "update-lead-notes-action-test-coverage",
     summary:
       "Empty-backlog twin after stage / snooze action Vitest: updateLeadNotesAction is the operator discovery-call / Email 3 notes path (LEAD_NOTES_CONVEX_PRIMARY fail-closed) — notes helper suites alone are not enough for action glue. Sibling-friendly with add-lead-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/prompt-process-evolution-3eb3",
   },
   {
     id: "add-lead-action-test-coverage",
