@@ -318,7 +318,9 @@ export default function RoadmapDocPage() {
         Buy now blocked on other instances. Sync does not archive Products for
         removed SKUs — operators use <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProducts</code>, <code>active=false</code>, never
-        auto-delete). Saved-but-unsynced catalogs count on
+        auto-delete; action-level Vitest in{" "}
+        <code>archive-orphan-commerce-stripe-products-action.test.ts</code>). Saved-but-unsynced
+        catalogs count on
         pipeline health and list in the daily digest beside catalogs-missing. Completed Buy now
         orders are recorded in a separate <code>commerceOrders</code> ledger (idempotent on
         Stripe session id) and rolled up as a &quot;Commerce sales (pass-through)&quot;
