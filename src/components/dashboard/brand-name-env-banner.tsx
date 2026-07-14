@@ -18,7 +18,7 @@ export function BrandNameEnvBanner({ readiness }: BrandNameEnvBannerProps) {
 
   return (
     <div
-      className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950"
+      className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-950"
       role="status"
     >
       <p className="font-medium">
@@ -26,7 +26,7 @@ export function BrandNameEnvBanner({ readiness }: BrandNameEnvBannerProps) {
           ? "Brand copy blocked — NEXT_PUBLIC_BRAND_NAME is still a placeholder"
           : "Brand copy blocked — NEXT_PUBLIC_BRAND_NAME missing"}
       </p>
-      <p className="mt-1 text-emerald-900">
+      <p className="mt-1 text-rose-900">
         Without a real <code className="text-xs">NEXT_PUBLIC_BRAND_NAME</code>, every
         customer-facing surface (outreach From name, marketing footers, voice intros,
         CAN-SPAM sender lines) falls back to{" "}
@@ -34,7 +34,7 @@ export function BrandNameEnvBanner({ readiness }: BrandNameEnvBannerProps) {
         the first Email 1 still ships unbranded. Set the public brand before the first
         outreach batch.
       </p>
-      <ul className="mt-2 list-inside list-disc font-mono text-xs text-emerald-900">
+      <ul className="mt-2 list-inside list-disc font-mono text-xs text-rose-900">
         {readiness.missing.map((name) => (
           <li key={name}>{name}</li>
         ))}
@@ -42,14 +42,14 @@ export function BrandNameEnvBanner({ readiness }: BrandNameEnvBannerProps) {
       <p className="mt-3">
         <Link
           href="/docs/launch-checklist"
-          className="text-emerald-900 underline underline-offset-2"
+          className="text-rose-900 underline underline-offset-2"
         >
           Launch checklist
         </Link>
         {" · "}
         <Link
           href="/docs/business-model"
-          className="text-emerald-900 underline underline-offset-2"
+          className="text-rose-900 underline underline-offset-2"
         >
           Business model
         </Link>

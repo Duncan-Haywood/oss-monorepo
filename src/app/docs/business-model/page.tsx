@@ -52,7 +52,10 @@ export default function BusinessModelDocPage() {
       </table>
       <p>
         Invoices and Stripe receipts show <strong>{brand.legalEntity}</strong>. Outreach uses
-        the public brand.
+        the public brand. Until <code>NEXT_PUBLIC_BRAND_NAME</code> is a non-placeholder value,{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> shows a rose brand-copy banner via{" "}
+        <code>assessBrandNameEnvReadiness</code> so Email 1 cannot silently ship as{" "}
+        <code>Your Brand</code>.
       </p>
 
       <h2>Automated funnel</h2>
