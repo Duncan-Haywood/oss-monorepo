@@ -1525,8 +1525,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "dispose-cold-lead-action-test-coverage",
     summary:
       "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage / update-inquiry-status-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 4 — Outreach",
+    owner: "cursor/prompt-process-evolution-3672",
   },
   {
     id: "update-inquiry-status-action-test-coverage",
