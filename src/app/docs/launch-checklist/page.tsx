@@ -131,7 +131,10 @@ export default function LaunchChecklistDocPage() {
           otherwise stay <code>awaiting_dns</code> with manual notes (
           <code>tryProvisionVercelDomain</code> never calls the Domains API). Distinct from the
           cyan production-domain banner; per-handoff <strong>Assign project</strong> or shared{" "}
-          <code>VERCEL_PROJECT_ID</code> still required for the API call itself.
+          <code>VERCEL_PROJECT_ID</code> still required for the API call itself. Until shared{" "}
+          <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, dashboards show an indigo
+          shared-project banner via <code>assessVercelProjectIdEnvReadiness</code> — Domains API
+          still skips unless every handoff gets Assign project.
         </li>
       </ol>
 
@@ -477,9 +480,9 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Optional: set <code>VERCEL_TOKEN</code> (already flagged by the blue readiness banner
-          when unset) + <code>VERCEL_PROJECT_ID</code> (and{" "}
-          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> — already flagged by the cyan readiness
-          banner when unset) so domain registration is attempted automatically.
+          when unset) + <code>VERCEL_PROJECT_ID</code> (already flagged by the indigo readiness
+          banner when unset) and <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> (already flagged by
+          the cyan readiness banner when unset) so domain registration is attempted automatically.
         </li>
         <li>
           Complete DNS from the handoff panel, then <strong>Mark live</strong>. Confirm

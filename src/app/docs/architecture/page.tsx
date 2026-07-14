@@ -138,7 +138,11 @@ export default function ArchitectureDocPage() {
         Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> (
         <code>src/lib/deploy/vercel-token-env-readiness.ts</code>) — missing / whitespace /
         changeme|token|xxx placeholders are flagged so paid handoffs cannot silently skip Domains
-        API automation. <code>siteUrl()</code>&apos;s precedence (
+        API automation. Until shared <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, the
+        same dashboards show an indigo shared-project banner via{" "}
+        <code>assessVercelProjectIdEnvReadiness</code> (
+        <code>src/lib/deploy/vercel-project-id-env-readiness.ts</code>) — Domains API still skips
+        unless every handoff gets Assign project. <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}

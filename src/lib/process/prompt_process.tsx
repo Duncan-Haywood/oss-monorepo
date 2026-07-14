@@ -233,10 +233,10 @@ export const AGENT_PROTOCOL = [
   "brand-name-env-readiness done: assessBrandNameEnvReadiness (src/lib/brand/brand-name-env-readiness.ts) + BrandNameEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / Your Brand|Brand Name-style NEXT_PUBLIC_BRAND_NAME — matching brand.isConfigured (legacy NEXT_PUBLIC_APP_NAME does not count) so outreach From / marketing footers / voice intros cannot silently ship as 'Your Brand' while Resend/Stripe/APP_URL look ready. Distinct rose banner. Env presence only. When free NEXT_STEPS stay gated, prefer production-domain-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "production-domain-env-readiness done: assessProductionDomainEnvReadiness (src/lib/deploy/production-domain-env-readiness.ts) + ProductionDomainEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / localhost|127.0.0.1 / example.com|yourdomain.com / preview.*-style NEXT_PUBLIC_PRODUCTION_DOMAIN — matching productionRootDomain()'s explicit-env preference so handoff suggestedHost + DNS counseling cannot silently fall back to PREVIEW_DOMAIN stripping (or the localsitestudio.com default) while APP_URL/brand look ready. Distinct cyan banner. PREVIEW_DOMAIN alone does not count as ready. Env presence only — does not resolve DNS. When free NEXT_STEPS stay gated, prefer vercel-token-env-readiness (VERCEL_TOKEN for auto Domains API on paid handoff) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When production-domain-env-readiness is claimed/done by a sibling and free NEXT_STEPS stay gated, prefer vercel-token-env-readiness (missing VERCEL_TOKEN leaves paid handoffs awaiting_dns with manual notes — Domains API never runs) — claim different surfaces; do not invent optional aggregates. Same-minute dual claim on production-domain: earlier remote claim owns; later pivots to vercel-token twin.",
-  "vercel-token-env-readiness done: assessVercelTokenEnvReadiness (src/lib/deploy/vercel-token-env-readiness.ts) + VercelTokenEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|token|vercel|xxx|your_token-style VERCEL_TOKEN — matching tryProvisionVercelDomain trim gate so paid handoffs cannot silently skip Domains API automation while PRODUCTION_DOMAIN/APP_URL look ready. Distinct blue banner. Does not require VERCEL_PROJECT_ID (Assign project covers per-handoff). Env presence only — does not call Vercel. When free NEXT_STEPS stay gated, prefer company-address-env-readiness (NEXT_PUBLIC_COMPANY_ADDRESS missing/whitespace/bracket-placeholder → brand.postalAddress ships the CAN-SPAM bracket stub in every outreach footer) or vercel-project-id-env-readiness / empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "When vercel-token-env-readiness is claimed/done by a sibling and free NEXT_STEPS stay gated, prefer company-address-env-readiness (CAN-SPAM requires a real physical postal address — missing/whitespace/bracket-placeholder NEXT_PUBLIC_COMPANY_ADDRESS leaves every Resend footer on the documented stub) — claim different surfaces; do not invent optional aggregates. Same-minute dual claim on vercel-token: earlier remote claim owns; later pivots to company-address twin.",
+  "vercel-token-env-readiness done: assessVercelTokenEnvReadiness (src/lib/deploy/vercel-token-env-readiness.ts) + VercelTokenEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|token|vercel|xxx|your_token-style VERCEL_TOKEN — matching tryProvisionVercelDomain trim gate so paid handoffs cannot silently skip Domains API automation while PRODUCTION_DOMAIN/APP_URL look ready. Distinct blue banner. Does not require VERCEL_PROJECT_ID (Assign project covers per-handoff). Env presence only — does not call Vercel. When free NEXT_STEPS stay gated, prefer company-address-env-readiness (CAN-SPAM postal) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When vercel-token-env-readiness is done and free NEXT_STEPS stay gated, prefer company-address-env-readiness (NEXT_PUBLIC_COMPANY_ADDRESS missing/whitespace/bracket-placeholder → brand.postalAddress ships the CAN-SPAM bracket stub) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID missing → Domains API still skips unless every handoff gets Assign project) — claim different surfaces; do not invent optional aggregates.",
   "company-address-env-readiness done: assessCompanyAddressEnvReadiness (src/lib/brand/company-address-env-readiness.ts) + CompanyAddressEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / bracket-stub|Registered business address|your address-style NEXT_PUBLIC_COMPANY_ADDRESS — matching brand.postalAddress fallback so outreach CAN-SPAM footers cannot silently ship '[Registered business address — Colorado, USA]' while Resend/brand look ready. Distinct yellow banner. Env presence only — does not geocode. When free NEXT_STEPS stay gated, prefer vercel-project-id-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "When company-address-env-readiness is claimed/done by a sibling and free NEXT_STEPS stay gated, prefer vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID missing leaves Domains API on skipped_unconfigured unless per-handoff Assign project) or empty-backlog sold-capability / multi-instance regression audits — claim different surfaces; do not invent optional aggregates.",
+  "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1704,6 +1704,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Outreach",
     owner: "cursor/business-process-evolution-01fb",
+  },
+  {
+    id: "vercel-project-id-env-readiness",
+    summary:
+      "Empty-backlog after vercel-token-env-readiness (9930 / PR #177): operators get no early dashboard signal when shared VERCEL_PROJECT_ID is missing/whitespace/placeholder while VERCEL_TOKEN (and PRODUCTION_DOMAIN) look ready — tryProvisionVercelDomain still skips Domains API unless every handoff gets Assign project. Shipped: assessVercelProjectIdEnvReadiness + VercelProjectIdEnvBanner (indigo) on /dashboard + /dashboard/leads + docs. Folded sibling company-address-env-readiness (01fb / PR #178).",
+    status: "done",
+    phase: "Phase 5 — Client handoff",
+    owner: "cursor/prompt-process-evolution-7511",
   },
 ];
 
@@ -3632,6 +3640,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessCompanyAddressEnvReadiness + CompanyAddressEnvBanner when vercel-token-env-readiness is claimed/done — Vercel Domains API readiness is live, but operators still get no early dashboard signal when NEXT_PUBLIC_COMPANY_ADDRESS is missing, whitespace-only, or the documented bracket stub (brand.postalAddress ships '[Registered business address — Colorado, USA]' on every outreach CAN-SPAM footer). Env presence only; distinct yellow banner; does not geocode. Same-minute dual claim on vercel-token: earlier remote claim owns; later pivots to this twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Non-compliant outreach footers are a silent launch blocker and reputation risk — Resend/brand banners can look green while every Email 1 still discloses a placeholder address. Prefer that early CAN-SPAM postal signal, then vercel-project-id or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessVercelProjectIdEnvReadiness + VercelProjectIdEnvBanner when vercel-token-env-readiness is done — token readiness locks Domains API auth, but operators still get no early dashboard signal when shared VERCEL_PROJECT_ID is missing, whitespace-only, or a changeme/project/prj_xxx-style placeholder (tryProvisionVercelDomain still skips unless every handoff gets Assign project). Env presence only; distinct indigo banner; per-handoff Assign project still wins when set. Same-window sibling 01fb shipped company-address-env-readiness (CAN-SPAM postal). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Token-only Phase 5 after VERCEL_TOKEN goes live is still a silent fulfillment drag — Domains API needs a project target (shared env or Assign project), and every other launch secret already has an operator-visible banner. Prefer that early shared-project signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6536,7 +6551,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Vercel-token readiness beats inventing optional aggregates after production-domain banner",
       "Verified: npm test (vercel-token-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(272, 273),
+    decisions: BUSINESS_DECISIONS.slice(273, 274),
   },
   {
     date: "2026-07-14",
@@ -6552,6 +6567,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why CAN-SPAM postal readiness beats inventing optional aggregates after Vercel-token banner",
       "Verified: npm test (1081 passed — company-address-env-readiness 11) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(273, 274),
+    decisions: BUSINESS_DECISIONS.slice(274, 275),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-7511",
+    summary:
+      "Free NEXT_STEPS backlog after PR #177 (vercel-token-env-readiness on 9930) stayed fully gated. Same-cron window as business-process-evolution-01fb (company-address-env-readiness / PR #178). Empty-backlog audit found shared VERCEL_PROJECT_ID had no operator-visible readiness banner despite tryProvisionVercelDomain still skipping Domains API when unset (unless every handoff gets Assign project) while VERCEL_TOKEN looks ready. Claimed and shipped vercel-project-id-env-readiness. Folded sibling company-address (01fb) on merge to main. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/deploy/vercel-project-id-env-readiness.ts + .test.ts — assessVercelProjectIdEnvReadiness locks missing/whitespace/changeme|project|prj_xxx|your_project placeholder vs ready non-placeholder project id",
+      "src/components/dashboard/vercel-project-id-env-banner.tsx — indigo shared-project banner on /dashboard + /dashboard/leads (after Vercel-token blue)",
+      "Docs: architecture + roadmap + launch-checklist + production-deploy + .env.example note the banner beside tryProvisionVercelDomain shared fallback",
+      "NEXT_STEPS: vercel-project-id-env-readiness done; company-address-env-readiness done (01fb / PR #178 folded)",
+      "AGENT_PROTOCOL — prefer empty-backlog sold-capability / multi-instance regression audits next; vercel-token↔company-address↔vercel-project-id twins + indigo banner color reserved",
+      "BUSINESS_DECISIONS — documented why shared VERCEL_PROJECT_ID readiness beats inventing optional aggregates after Vercel-token banner",
+      "merge: folded origin/main (PR #178 company-address) — both ITERATIONS kept; fixed 9930/01fb/7511 absolute decision slices",
+      "Verified: npm test (vercel-project-id-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(275, 276),
   },
 ];
