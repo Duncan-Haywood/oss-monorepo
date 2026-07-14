@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Lead } from "@/lib/leads/types";
 import {
+  isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
   leadMetaDescription,
   leadMetaTitle,
@@ -167,5 +168,39 @@ describe("safeJsonLdScript", () => {
     const jsonLd = leadLocalBusinessJsonLd(baseLead({ businessName: "Joe's Café & Grill" }));
     const serialized = safeJsonLdScript(jsonLd);
     expect(JSON.parse(serialized).name).toBe("Joe's Café & Grill");
+  });
+});
+
+describe("isLeadPreviewIndexable", () => {
+  it("always indexes curated demo showcases regardless of stage", () => {
+    // A demo showcase deep-linked from marketing carries a prospect-y stage but
+    // is still an intentional public sample.
+    expect(
+      isLeadPreviewIndexable(baseLead({ stage: "site_built" }), {
+        isCuratedDemo: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("indexes real customers who consented by buying or going live", () => {
+    for (const stage of ["paid", "live"] as const) {
+      expect(
+        isLeadPreviewIndexable(baseLead({ stage }), { isCuratedDemo: false }),
+      ).toBe(true);
+    }
+  });
+
+  it("does NOT index cold-prospected / closed real leads (no consent)", () => {
+    for (const stage of [
+      "discovered",
+      "site_built",
+      "outreach_sent",
+      "discovery_call",
+      "closed",
+    ] as const) {
+      expect(
+        isLeadPreviewIndexable(baseLead({ stage }), { isCuratedDemo: false }),
+      ).toBe(false);
+    }
   });
 });

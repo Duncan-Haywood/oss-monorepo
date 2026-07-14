@@ -150,9 +150,18 @@ export default function ArchitectureDocPage() {
         renders per-lead <code>generateMetadata</code> (title, description, canonical URL, Open
         Graph/Twitter tags) plus a schema.org <code>LocalBusiness</code> JSON-LD block (subtype by
         category: Restaurant, HairSalon, HomeAndConstructionBusiness). <code>/sitemap.xml</code>{" "}
-        lists marketing pages and every known lead slug (demo catalog + persisted leads);{" "}
-        <code>/robots.txt</code> allows crawling except <code>/dashboard</code> and{" "}
-        <code>/api</code>. Canonical origin comes from <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
+        lists marketing pages plus only the lead previews we are entitled to publish — curated
+        demo-catalog showcases and real customers who consented by buying / going live (stage{" "}
+        <code>paid</code> or <code>live</code>). Cold-prospected leads (a real business at{" "}
+        <code>discovered</code>/<code>outreach_sent</code>/etc. that never engaged) are excluded
+        from the sitemap AND emit <code>robots: noindex,nofollow</code> from{" "}
+        <code>generateMetadata</code>, so we never invite Google to index a third party&apos;s
+        AI-generated demo under our domain without consent. Both surfaces share one predicate —{" "}
+        <code>isLeadPreviewIndexable</code> (<code>src/lib/seo.ts</code>) keyed on{" "}
+        <code>isCuratedDemoLeadSlug</code> (<code>src/lib/leads/demo-catalog.ts</code>) — so the
+        sitemap and the page-level robots directive cannot drift. <code>/robots.txt</code> allows
+        crawling except <code>/dashboard</code> and <code>/api</code>. Canonical origin comes from{" "}
+        <code>NEXT_PUBLIC_APP_URL</code> (see{" "}
         <code>src/lib/seo.ts</code>) — set it in production so canonical/OG URLs and the sitemap
         don&apos;t point at localhost. Until it is a non-localhost public origin,{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}

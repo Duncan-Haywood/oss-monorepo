@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getLeads } from "@/lib/db";
 import { DEMO_LEADS } from "@/lib/leads/demo-catalog";
-import { siteUrl } from "@/lib/seo";
+import { isLeadPreviewIndexable, siteUrl } from "@/lib/seo";
 
 const STATIC_ROUTES = [
   "",
@@ -23,8 +23,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const dbLeads = await getLeads();
+  // Curated demo showcases are always indexable public samples. Real leads are
+  // published only once they consent by buying / going live — a cold-prospected
+  // business must not be invited into Google's index under our domain. See
+  // isLeadPreviewIndexable + preview-indexing-consent-guard in /docs/process.
   const slugs = new Set<string>(DEMO_LEADS.map((lead) => lead.slug));
-  for (const lead of dbLeads) slugs.add(lead.slug);
+  for (const lead of dbLeads) {
+    if (isLeadPreviewIndexable(lead, { isCuratedDemo: slugs.has(lead.slug) })) {
+      slugs.add(lead.slug);
+    }
+  }
 
   const previewEntries: MetadataRoute.Sitemap = Array.from(slugs).map((slug) => ({
     url: `${base}/preview/${slug}`,

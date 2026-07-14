@@ -65,6 +65,16 @@ export function getLeadBySlug(slug: string): Lead | undefined {
   return DEMO_LEADS.find((lead) => lead.slug === slug);
 }
 
+/**
+ * True only for the curated marketing showcase slugs (DEMO_LEADS) — the
+ * intentional public product samples. Used to decide preview-page/sitemap
+ * indexability (see isLeadPreviewIndexable in @/lib/seo): a slug-inferred
+ * preview or a cold-prospected real lead is NOT a curated demo.
+ */
+export function isCuratedDemoLeadSlug(slug: string): boolean {
+  return DEMO_LEADS.some((lead) => lead.slug === slug);
+}
+
 /** Infer a demo lead from slug keywords when not in the catalog. */
 export function resolvePreviewLead(slug: string): Lead {
   const existing = getLeadBySlug(slug);
