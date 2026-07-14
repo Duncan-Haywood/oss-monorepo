@@ -319,10 +319,16 @@ export default function ArchitectureDocPage() {
         the checkout-blocked banner (
         <code>bootstrapStripePricesAction</code> /{" "}
         <code>assessStripeBootstrapGate</code> in <code>src/lib/pricing/bootstrap-gate.ts</code>)
-        or <code>POST /api/stripe/bootstrap-prices</code> — both create Products/Prices and return
-        an <code>envSnippet</code> to paste. Route-level Vitest in{" "}
+        or <code>POST /api/stripe/bootstrap-prices</code> — both require an authenticated operator
+        session (<code>requireOperatorAuth</code>, when{" "}
+        <code>OPERATOR_DASHBOARD_PASSWORD</code> is set) before the{" "}
+        <code>ALLOW_STRIPE_BOOTSTRAP</code> gate, then create Products/Prices and return an{" "}
+        <code>envSnippet</code> to paste — the API route used to skip that auth check even though
+        its dashboard-action twin always required it, letting anyone who knew the (documented)
+        route path trigger live Stripe object creation during an operator&rsquo;s bootstrap
+        window; fixed so both paths share the same gate. Route-level Vitest in{" "}
         <code>src/app/api/stripe/bootstrap-prices/route.test.ts</code> plus{" "}
-        <code>bootstrap-gate.test.ts</code> lock the opt-in{" "}
+        <code>bootstrap-gate.test.ts</code> lock operator-auth rejection (401), the opt-in{" "}
         <code>ALLOW_STRIPE_BOOTSTRAP</code> gate (403), missing <code>STRIPE_SECRET_KEY</code>{" "}
         (501), success <code>envSnippet</code> shape, and 502 on Stripe throw;{" "}
         <code>src/app/dashboard/actions.test.ts</code> locks the same contracts on{" "}

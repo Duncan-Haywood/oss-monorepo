@@ -70,6 +70,7 @@ export const AGENT_PROTOCOL = [
   "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts).",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value.",
+  "When a route.ts and a dashboard server action are documented as 'twins' sharing one gate (e.g. bootstrapStripePricesAction / POST /api/stripe/bootstrap-prices), verify both actually call requireOperatorAuth — proxy.ts only gates /dashboard/*, never /api/*, so an API route is never auth-protected by the dashboard's route gate alone. An env-flag gate (ALLOW_STRIPE_BOOTSTRAP and similar) is not a substitute for requireOperatorAuth: it's deployment-wide and often set temporarily on an already-authenticated deployment, not a per-caller check. Mirror the requireOperatorAuth-in-a-route-handler precedent at src/app/api/marketing/generate/route.ts.",
 
   // --- Testing & verification ---
   "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test.",
@@ -1644,9 +1645,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "bootstrap-prices-operator-auth-rate-limit",
     summary:
-      "Queued from the same empty-backlog audit: POST /api/stripe/bootstrap-prices is gated only by ALLOW_STRIPE_BOOTSTRAP=1 (no requireOperatorAuth, no checkRateLimit) while the dashboard twin bootstrapStripePricesAction is auth-gated. When the flag is briefly set for launch, the public route can mint Stripe Products/Prices without operator session or IP throttling. Prefer adding requireOperatorAuth + checkRateLimit (or documenting why the flag-alone gate is intentional) — left free for a sibling.",
-    status: "todo",
+      "Queued from sibling business-process-evolution-c966's empty-backlog audit: POST /api/stripe/bootstrap-prices was gated only by ALLOW_STRIPE_BOOTSTRAP=1 (no requireOperatorAuth, no checkRateLimit) while the dashboard twin bootstrapStripePricesAction was auth-gated. When the flag is briefly set for launch, the public route could mint Stripe Products/Prices without operator session or IP throttling. Claimed and shipped both halves in the same run: requireOperatorAuth as the first check (401 on rejection, mirroring bootstrapStripePricesAction and the src/app/api/marketing/generate/route.ts precedent), then checkRateLimit per client IP (429 + Retry-After) matching every other public Stripe-facing route.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-t69qzz",
   },
 ];
 
@@ -3674,7 +3676,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Free NEXT_STEPS stayed gated after PR #190; sibling e73c rotated to digest wiring and shipped open handoffs. A complementary re-check of the durable-marker-after-unchecked-await class on public routes found the Starter sold contact notify still treated a bare await as delivery — sendEmail never throws on suppression/Resend failure, so business owners could miss inquiry alerts with only a CRM row and no operator-visible signal. Closing that silent notify gap (and queuing the bootstrap-prices auth/rate-limit twin) beats inventing an optional aggregate while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
-
+  {
+    date: "2026-07-14",
+    decision:
+      "Add requireOperatorAuth as the first check in POST /api/stripe/bootstrap-prices, plus checkRateLimit per client IP for defense-in-depth, exactly mirroring bootstrapStripePricesAction and the existing src/app/api/marketing/generate/route.ts / billing-portal precedents, rather than relying solely on the ALLOW_STRIPE_BOOTSTRAP env gate for that route.",
+    rationale:
+      "Delegated a fresh empty-backlog audit that swept pipeline-health/digest wiring (clean — every list*Due/Missing/Unsynced helper and inline aggregate is wired into both surfaces) and Convex/SQLite parity (clean — full 1:1 match between convex/*.ts exports and the static API map in db.ts, every requireConvex-eligible write path already covered) before finding a real authorization-parity gap: the API route and its dashboard-action twin were documented as sharing 'the same gate,' but only the action ever checked requireOperatorAuth. Since proxy.ts scopes its auth gate to /dashboard/* only, the API route's actual protection during an operator's bootstrap window (ALLOW_STRIPE_BOOTSTRAP=1 set on a live, password-protected deployment, per /docs/launch-checklist) was a single shared env flag with no per-caller check — anyone who requested the publicly-documented path during that window could trigger live Stripe Product/Price creation and read back the envSnippet, with no session cookie required. Rebasing onto sibling business-process-evolution-c966's merge found they had already diagnosed this exact gap during their own audit and queued it (bootstrap-prices-operator-auth-rate-limit, explicitly asking for both requireOperatorAuth and checkRateLimit) rather than build it themselves — folded that queued item into this fix by shipping both halves, matching the rate-limit pattern billing-portal already established, instead of shipping auth alone and leaving rate-limiting queued a second time.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -6823,5 +6831,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1154 passed, full suite incl. contact notify success:false regression) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(288, 289),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/relaxed-galileo-t69qzz",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #192 (open-handoffs-in-digest) — the 4 remaining items are all operator/legal-gated. Delegated a fresh empty-backlog audit following AGENT_PROTOCOL's priority order: pipeline-health/digest wiring (all list*Due/Missing/Unsynced helpers + inline aggregates confirmed wired into both surfaces — clean) and Convex/SQLite parity (full 1:1 match between convex/*.ts exports and db.ts's static API map, every requireConvex-eligible write path covered — clean) both came back clean, then a security-surface pass found a real authorization-parity gap: POST /api/stripe/bootstrap-prices — documented as sharing 'the same gate' as bootstrapStripePricesAction — never called requireOperatorAuth, unlike the dashboard action. Since proxy.ts only gates /dashboard/*, the route's sole real protection during an operator's bootstrap window was the shared ALLOW_STRIPE_BOOTSTRAP env flag, which any caller who knew the (publicly documented) route path could ride to trigger live Stripe Product/Price creation with no session. Rebasing onto main found sibling cursor/business-process-evolution-c966 had already diagnosed this exact gap in the same audit window and queued it (bootstrap-prices-operator-auth-rate-limit) rather than build it — folded that queued item into this fix by shipping both requireOperatorAuth and checkRateLimit instead of auth alone.",
+    shipped: [
+      "src/app/api/stripe/bootstrap-prices/route.ts — requireOperatorAuth as the first check in POST (401 on rejection), then checkRateLimit per client IP (429 + Retry-After); mirrors bootstrapStripePricesAction / src/app/api/marketing/generate/route.ts (auth) and billing-portal (rate-limit) precedents",
+      "src/app/api/stripe/bootstrap-prices/route.test.ts — mocked @/lib/auth/operator; added 401 (auth rejected) and 429 (rate-limit exceeded, Retry-After header) regression tests alongside the existing 403/501/502 coverage",
+      "src/app/docs/architecture/page.tsx + src/app/docs/launch-checklist/page.tsx — corrected the 'same gate' description to name requireOperatorAuth explicitly and note the route-level 401/429 coverage",
+      "NEXT_STEPS: bootstrap-prices-operator-auth-rate-limit done (folded with sibling c966's queued item, superseding this branch's own bootstrap-prices-route-operator-auth-parity id)",
+      "AGENT_PROTOCOL — added a rule: verify both sides of a documented route/action 'twin' actually call requireOperatorAuth, since proxy.ts never gates /api/* and an env-flag gate is not a per-caller auth check",
+      "BUSINESS_DECISIONS — documented why closing this auth-parity + rate-limit gap beat a third identical clean-audit pass or a manufactured feature, and why it folds sibling c966's queued item rather than leaving rate-limiting queued a second time",
+      "merge: rebased onto origin/main (PR #191 scheduled-agents workflows, PR #193 contact-form-notify-send-success-check) — both ITERATIONS entries kept; decision slices remapped",
+      "Verified: npm test (full suite incl. new 401 + 429 regressions) + lint + build + manual curl against `npm run dev` with OPERATOR_DASHBOARD_PASSWORD set confirming 401 without a session cookie",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(289, 290),
   },
 ];
