@@ -1610,8 +1610,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "assign-custom-domain-action-test-coverage",
     summary:
       "Empty-backlog twin after CSV import / Mark live action Vitest: assignCustomDomainAction is the operator Save domain Host→preview path (DEPLOY_HANDOFF_CONVEX_PRIMARY + custom-domain routing) — handoff helper suites alone are not enough for action glue. Sibling-friendly with assign-vercel-project-action-test-coverage; prefer when import-leads-csv-action-test-coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Fulfill & deploy",
+    owner: "cursor/prompt-process-evolution-d08a",
   },
 ];
 
