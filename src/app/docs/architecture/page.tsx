@@ -95,12 +95,23 @@ export default function ArchitectureDocPage() {
         <code>src/lib/db.ts</code> imports <code>&quot;server-only&quot;</code>, so it cannot be
         imported directly by Vitest (mirrors the <code>stripe-sync.ts</code> testability pattern:
         every existing test mocks <code>@/lib/db</code> wholesale rather than exercising its real
-        Convex/SQLite fallback). The SQLite side of <code>upsertLead</code> and the read-path row
-        mapping — <code>lead.hours</code> string round-trip, <code>lead.services</code> JSON
-        serialize/parse, category/tier defaulting — is pulled out into{" "}
-        <code>src/lib/leads/sqlite-row-mapping.ts</code> (no <code>server-only</code> import) with
-        direct Vitest coverage in <code>sqlite-row-mapping.test.ts</code>, so that logic actually
-        runs under test instead of being permanently hidden behind the module mock.
+        Convex/SQLite fallback). Every SQLite row-mapping/JSON-parsing helper in <code>db.ts</code>{" "}
+        is pulled out into a sibling <code>sqlite-row-mapping.ts</code> (no{" "}
+        <code>server-only</code> import) with direct Vitest coverage, so that logic actually runs
+        under test instead of being permanently hidden behind the module mock:{" "}
+        <code>src/lib/leads/sqlite-row-mapping.ts</code> (<code>lead.hours</code> string
+        round-trip, <code>lead.services</code> JSON serialize/parse, category/tier defaulting),{" "}
+        <code>src/lib/deploy/sqlite-row-mapping.ts</code> (deploy handoff{" "}
+        <code>dnsInstructions</code>/<code>notes</code> JSON parse — also fixed a missing{" "}
+        <code>Array.isArray</code> guard these two had relative to every other JSON-parsing helper
+        in <code>db.ts</code>, so a corrupted column value now degrades to <code>[]</code> instead
+        of returning a wrong-shaped value), plus{" "}
+        <code>src/lib/marketing/sqlite-row-mapping.ts</code>,{" "}
+        <code>src/lib/commerce/sqlite-row-mapping.ts</code> (catalog + Commerce order rows),{" "}
+        <code>src/lib/voice/sqlite-row-mapping.ts</code>,{" "}
+        <code>src/lib/inquiries/sqlite-row-mapping.ts</code>,{" "}
+        <code>src/lib/checkout/sqlite-row-mapping.ts</code>, and{" "}
+        <code>src/lib/orders/sqlite-row-mapping.ts</code>.
       </p>
       <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
