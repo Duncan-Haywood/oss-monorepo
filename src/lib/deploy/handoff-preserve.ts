@@ -13,6 +13,37 @@ export function isProgressedHandoffStatus(
 }
 
 /**
+ * Progress rank for deploy handoff status. Higher = further along fulfillment.
+ * Used so note-only writes (bundle receipt/DNS email sent-markers) cannot
+ * regress a concurrent Mark live / provisioned state — see
+ * handoff-email-marker-status-no-downgrade.
+ *
+ * `pending` and `failed` share rank 0 (neither is progress past the other).
+ */
+export const HANDOFF_STATUS_RANK: Record<DeployHandoffStatus, number> = {
+  pending: 0,
+  failed: 0,
+  awaiting_dns: 1,
+  provisioned: 2,
+  live: 3,
+};
+
+/**
+ * Pick the more advanced of two handoff statuses.
+ * Equal rank prefers `requested` so intentional same-status note appends
+ * (webhook markers) keep the caller's value; a lower-rank request loses to
+ * the existing row so a stale awaiting_dns marker cannot undo live.
+ */
+export function preferAdvancedHandoffStatus(
+  existing: DeployHandoffStatus,
+  requested: DeployHandoffStatus,
+): DeployHandoffStatus {
+  const existingRank = HANDOFF_STATUS_RANK[existing] ?? 0;
+  const requestedRank = HANDOFF_STATUS_RANK[requested] ?? 0;
+  return requestedRank >= existingRank ? requested : existing;
+}
+
+/**
  * Operator-set fields on a deploy handoff (custom domain for Host→preview
  * routing, dedicated Vercel project, Mark live / provisioned progress, and
  * the notes audit trail) must survive a rebuild when a later bundle checkout
