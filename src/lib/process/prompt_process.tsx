@@ -1830,6 +1830,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/prompt-process-evolution-6033 (folded from grok/continuous-work-voice-test-env)",
   },
+  {
+    id: "legacy-slug-encode-at-use-path-safety",
+    summary:
+      "PR #216 closed the create-path (sanitizeCheckoutLeadSlug on POST /api/stripe/checkout) so new payment_stub / paid leads cannot land with path-breaking slugs. Residual: several use-sites still interpolated lead.slug into /preview/{slug}, /api/contact/{slug}, proxy rewrites, deploy handoff preview/contact URLs, and outreach email links without encodeURIComponent — a legacy or pre-sanitize row (and any future create-path miss) remains a single-segment path hazard. Folding stuck grok/continuous-work-slug-path-encode (complete feature body; Actions token blocked from gh pr create; issues #228/#229).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-2d7a",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
