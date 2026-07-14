@@ -14,11 +14,15 @@ import {
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
-import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
+import {
+  mergeProvisionOntoFreshHandoff,
+  preserveDeployHandoffOperatorFields,
+} from "./handoff-preserve";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
 export {
   isProgressedHandoffStatus,
+  mergeProvisionOntoFreshHandoff,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 
@@ -213,8 +217,14 @@ export async function enqueueProductionHandoff(
     existing,
   );
   handoff = await tryProvisionVercelDomain(handoff);
-  await insertDeployHandoff(handoff, options);
-  return handoff;
+  // Re-read after the Vercel network window so a concurrent Mark live /
+  // Save domain / Assign project is not wiped by the full-row upsert.
+  const fresh = await getDeployHandoffBySlug(input.leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, handoff)
+    : handoff;
+  await insertDeployHandoff(toPersist, options);
+  return toPersist;
 }
 
 /**
@@ -234,8 +244,12 @@ export async function assignVercelProjectAndProvision(
   if (!updated) return null;
 
   const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
-  return provisioned;
+  const fresh = await getDeployHandoffBySlug(leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
+    : provisioned;
+  await insertDeployHandoff(toPersist, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+  return toPersist;
 }
 
 /**
@@ -257,8 +271,12 @@ export async function assignCustomDomainAndProvision(
   if (!updated) return null;
 
   const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
-  return provisioned;
+  const fresh = await getDeployHandoffBySlug(leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
+    : provisioned;
+  await insertDeployHandoff(toPersist, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+  return toPersist;
 }
 
 export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff | null> {
