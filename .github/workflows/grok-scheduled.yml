@@ -1,0 +1,111 @@
+name: Grok Build scheduled agents
+
+# Grok Build SuperGrok / X Premium+ OAuth (not XAI_API_KEY).
+# Seed GROK_AUTH_JSON from ~/.grok/auth.json after `grok login`.
+# Runs both repo prompts every 30 minutes.
+
+on:
+  schedule:
+    - cron: "15,45 * * * *"
+  workflow_dispatch:
+    inputs:
+      prompt_kind:
+        description: Which prompt to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - dev-work
+          - continuous-work
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  resolve-prompts:
+    runs-on: ubuntu-latest
+    outputs:
+      prompts: ${{ steps.set.outputs.prompts }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
+          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
+            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  grok:
+    needs: resolve-prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt_kind: ${{ fromJSON(needs.resolve-prompts.outputs.prompts) }}
+    concurrency:
+      group: grok-scheduled-${{ matrix.prompt_kind }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Grok Build CLI
+        run: |
+          curl -fsSL https://x.ai/cli/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          command -v grok || ls -la "$HOME/.local/bin" "$HOME/bin" 2>/dev/null || true
+
+      - name: Restore Grok OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.grok/auth.json
+          key: grok-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
+          restore-keys: |
+            grok-oauth-auth-
+
+      - name: Seed Grok OAuth auth.json
+        env:
+          GROK_AUTH_JSON: ${{ secrets.GROK_AUTH_JSON }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.grok"
+          .github/scripts/restore-oauth-auth.sh "$HOME/.grok/auth.json" GROK_AUTH_JSON
+
+      - name: Prepare prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh
+          .github/scripts/prepare-agent-prompt.sh \
+            ".github/prompts/${{ matrix.prompt_kind }}.md" \
+            "grok-build" \
+            "${{ matrix.prompt_kind }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "grok-scheduled[bot]"
+          git config user.email "grok-scheduled[bot]@users.noreply.github.com"
+
+      - name: Run Grok Build (OAuth headless)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          unset XAI_API_KEY || true
+          grok --no-auto-update \
+            -p "$(cat "$PROMPT_FILE")" \
+            --always-approve
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.grok/auth.json
+          key: grok-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}

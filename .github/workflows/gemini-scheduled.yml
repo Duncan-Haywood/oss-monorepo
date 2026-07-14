@@ -1,0 +1,135 @@
+name: Gemini scheduled agents
+
+# Google OAuth / Gemini Code Assist (not GEMINI_API_KEY).
+# Seed GEMINI_OAUTH_CREDS from ~/.gemini/oauth_creds.json after `gemini` login.
+# Model: gemini-3.5-flash. Runs both repo prompts every 30 minutes.
+
+on:
+  schedule:
+    - cron: "5,35 * * * *"
+  workflow_dispatch:
+    inputs:
+      prompt_kind:
+        description: Which prompt to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - dev-work
+          - continuous-work
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  resolve-prompts:
+    runs-on: ubuntu-latest
+    outputs:
+      prompts: ${{ steps.set.outputs.prompts }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
+          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
+            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  gemini:
+    needs: resolve-prompts
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        prompt_kind: ${{ fromJSON(needs.resolve-prompts.outputs.prompts) }}
+    concurrency:
+      group: gemini-scheduled-${{ matrix.prompt_kind }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+
+      - name: Restore Gemini OAuth cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.gemini/oauth_creds.json
+            ~/.gemini/settings.json
+          key: gemini-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
+          restore-keys: |
+            gemini-oauth-auth-
+
+      - name: Seed Gemini OAuth credentials
+        env:
+          GEMINI_OAUTH_CREDS: ${{ secrets.GEMINI_OAUTH_CREDS }}
+          GEMINI_SETTINGS: ${{ secrets.GEMINI_SETTINGS }}
+        run: |
+          chmod +x .github/scripts/restore-oauth-auth.sh
+          mkdir -p "$HOME/.gemini"
+          .github/scripts/restore-oauth-auth.sh "$HOME/.gemini/oauth_creds.json" GEMINI_OAUTH_CREDS
+          if [ -n "${GEMINI_SETTINGS:-}" ]; then
+            printf '%s' "$GEMINI_SETTINGS" > "$HOME/.gemini/settings.json"
+          else
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path.home() / ".gemini" / "settings.json"
+          path.write_text(json.dumps({
+              "security": {"auth": {"selectedType": "oauth-personal"}},
+              "model": {"name": "gemini-3.5-flash"},
+          }, indent=2) + "\n")
+          PY
+          fi
+          chmod 600 "$HOME/.gemini/settings.json"
+
+      - name: Prepare prompt
+        run: |
+          chmod +x .github/scripts/prepare-agent-prompt.sh
+          .github/scripts/prepare-agent-prompt.sh \
+            ".github/prompts/${{ matrix.prompt_kind }}.md" \
+            "gemini-3.5-flash" \
+            "${{ matrix.prompt_kind }}"
+
+      - name: Configure git
+        run: |
+          git config user.name "gemini-scheduled[bot]"
+          git config user.email "gemini-scheduled[bot]@users.noreply.github.com"
+
+      - name: Run Gemini (gemini-3.5-flash, OAuth)
+        env:
+          GOOGLE_GENAI_USE_GCA: "true"
+          GEMINI_CLI_TRUST_WORKSPACE: "true"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Prefer OAuth/GCA over any stray API key in the environment.
+          unset GEMINI_API_KEY GOOGLE_API_KEY || true
+          gemini \
+            -m gemini-3.5-flash \
+            -p "$(cat "$PROMPT_FILE")" \
+            --yolo
+
+      - name: Persist refreshed OAuth auth
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gemini/oauth_creds.json
+            ~/.gemini/settings.json
+          key: gemini-oauth-auth-${{ github.run_id }}-${{ matrix.prompt_kind }}
