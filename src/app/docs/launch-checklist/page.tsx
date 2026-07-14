@@ -155,7 +155,11 @@ export default function LaunchChecklistDocPage() {
           helpers. Work next Snooze / Unsnooze fails closed on{" "}
           <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
           <code>snooze-lead-action.test.ts</code>) locks that path beside snooze-persist
-          helpers (auth, preset/clear gates, requireConvex fail-closed).
+          helpers (auth, preset/clear gates, requireConvex fail-closed). Discovery-call /
+          Email 3 notes Save fails closed on <code>LEAD_NOTES_CONVEX_PRIMARY</code>;
+          action-level Vitest (<code>update-lead-notes-action.test.ts</code>) locks that
+          path beside notes-persist helpers (auth, soft cap, clear/trim, requireConvex
+          fail-closed).
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}

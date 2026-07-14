@@ -127,7 +127,9 @@ export default function RoadmapDocPage() {
         (free-text call outcomes on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex; with Convex
         configured, Save uses <code>requireConvex</code> so notes cannot succeed only in
-        instance-local SQLite — <code>lead-notes-convex-primary</code>): shipped.
+        instance-local SQLite — <code>lead-notes-convex-primary</code>; action-level Vitest
+        in <code>update-lead-notes-action.test.ts</code> locks auth, soft-cap / clear / trim,
+        and ConvexPrimaryWriteError fail-closed): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Dashboard stage dropdown uses{" "}
         <code>requireConvex</code> when Convex is configured (
