@@ -1617,6 +1617,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-h8lib0",
   },
+  {
+    id: "sqlite-row-mapping-test-coverage",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #189 (billing-portal open-redirect guard). Rotated to an axis not yet audited (orchestrator test-coverage gaps + CSV injection) per the audit-rotation rule; found that src/lib/db.ts — the shared Convex-primary/SQLite-fallback module every payment-critical write funnels through — has zero test file, and every existing test mocks `@/lib/db` wholesale (confirmed the module throws under Vitest via its `import \"server-only\"`, same as resend.test.ts's documented workaround), so the SQLite row-mapping logic the protocol itself flags as a risk (hours string round-trip, JSON stringify/parse of services) had never actually run under test. Extracted the pure mapping (mapSqliteRowToLead, serializeLeadHours/parseLeadHours, serializeLeadServices/parseLeadServices) into src/lib/leads/sqlite-row-mapping.ts (no server-only import, mirrors the stripe-sync.ts testability pattern) and gave it direct Vitest coverage. Along the way, unified hoursStr serialization across the demo-seed insert and upsertLead (which previously always emitted a trailing '· ' when weekend was empty, unlike the demo path's conditional format) — round-trips identically either way, but the shared helper removes the inconsistency and the noisy stored artifact.",
+    status: "done",
+    phase: "Phase 2 — Lead volume",
+    owner: "claude/quirky-davinci-p8s7o7",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3621,6 +3629,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Validate POST /api/stripe/billing-portal's body.returnUrl against the derived appUrl's origin before passing it to stripe.billingPortal.sessions.create — any missing, malformed, or cross-origin value now falls back to the existing derived default instead of being trusted verbatim, mirroring the safeNextPath pattern already used for the operator-login redirect.",
     rationale:
       "Two remote siblings (cursor/business-process-evolution-6445, cursor/prompt-process-evolution-b16c) had already claimed the two known bugs from the prior audit window before this run started, so duplicating either would have wasted a full iteration on work already in flight. A fresh sweep of different angles found that billing-portal — public, keyed only by a client-supplied Checkout Session id that is not truly secret — forwarded an attacker-controlled returnUrl straight into a live Stripe API call with no validation, letting anyone with a valid session id get Stripe to mint a real billing.stripe.com URL that redirects to an attacker's page on exit. That is a genuine open-redirect using the merchant's own trusted Stripe domain as cover for phishing, not a stylistic nitpick — and the fix is cheap (a same-origin check the codebase already had a template for) with zero behavior change for every legitimate caller, since the only real caller (manage-billing-button.tsx) always sends window.location.origin. Shipping a concrete, verifiable security fix beats inventing an optional aggregate or waiting idle while siblings finish their claimed items. This audit run also independently re-checked the open-redirect surface the prior clean-audit pass (decision above) did not cover — that pass rotated to sold-capability wiring, not security surfaces, so this is a genuinely new axis rather than a re-derivation.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Extract the pure SQLite row<->Lead mapping (hours/services serialize+parse, category/tier/default fallbacks) out of src/lib/db.ts into src/lib/leads/sqlite-row-mapping.ts (no `server-only` import) and give it direct Vitest coverage, rather than attempting a full db.ts fallback-path test harness or leaving the gap undocumented.",
+    rationale:
+      "Delegated a fresh empty-backlog audit rotated to two axes not yet explicitly checked (CSV import/export injection, orchestrator test-coverage completeness) per the audit-rotation rule. CSV came back clean (no export sink exists at all; import already quote/comma-escapes correctly). Test-coverage did not: db.ts is the single module every Convex-primary/SQLite-fallback write funnels through, yet has zero direct test file, and confirmed (by trying to import it in Vitest) that it throws under `server-only` exactly like resend.ts already documents — every existing test instead mocks `@/lib/db` wholesale, so the fallback logic AGENT_PROTOCOL itself names as risky (Convex API map gaps, hours/services round-trip) has never actually executed under test. Rather than reshape db.ts's Convex/SQLite branch structure itself — a much larger, riskier change with no clear stopping point for one iteration — pulled out just the pure, side-effect-free mapping functions the row round-trips through, following the same testability pattern the codebase already established for stripe-sync.ts. This closes a real, narrowly-scoped coverage gap in a payment/lead-critical path (import-leads-csv and addLeadAction both flow through upsertLead's SQLite fallback) with a small, low-risk diff, and incidentally fixed a genuine inconsistency: upsertLead's update/insert path always appended a '· ' hours separator even with no weekend hours, unlike the demo-seed path's conditional format (both round-tripped correctly on read, so not data loss, just needless stored noise and a second source of truth for the same format). Verified via `npm run dev` that /dashboard/leads still renders demo lead hours/services correctly after the refactor.",
   },
 ];
 
@@ -6720,5 +6735,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1125 passed, full suite incl. 2 new regression tests) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(285, 286),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/quirky-davinci-p8s7o7",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #189 (billing-portal open-redirect guard). Delegated a fresh audit rotated to two axes not previously explicitly checked (CSV import/export injection; orchestrator test-coverage completeness), per the audit-rotation rule. CSV came back clean — no export sink exists anywhere in the repo, and the existing CSV import already handles quoted/comma/embedded-newline fields correctly. Test-coverage did not: src/lib/db.ts, the shared Convex-primary/SQLite-fallback module every payment-critical write funnels through, has zero direct test file and (confirmed by attempting the import in Vitest) throws under `server-only` exactly like resend.test.ts already documents working around — every test instead mocks `@/lib/db` wholesale, so the SQLite row-mapping logic the protocol itself flags as risky (hours string round-trip, JSON stringify/parse of services) had never executed under test. Claimed and shipped sqlite-row-mapping-test-coverage.",
+    shipped: [
+      "src/lib/leads/sqlite-row-mapping.ts — mapSqliteRowToLead, serializeLeadHours/parseLeadHours, serializeLeadServices/parseLeadServices, and the SqliteLeadRow type, extracted verbatim (no server-only import) from db.ts so they're directly unit-testable, mirroring the stripe-sync.ts client-as-parameter testability pattern",
+      "src/lib/leads/sqlite-row-mapping.test.ts — 14 tests: hours round-trip (weekday-only, weekday+weekend, legacy trailing-delimiter format, null/undefined/empty fallback to documented default), services JSON round-trip (ordinary array, empty array, null/undefined/empty, malformed JSON, non-array JSON), and mapSqliteRowToLead defaulting (category/tier/state/phone/tagline/description on a sparse row, category-specific tier/tagline, out-of-range recommendedTier and outreachStep columns)",
+      "src/lib/db.ts — imports the extracted module instead of defining mapSqliteRowToLead/SqliteLeadRow inline; upsertLead's insert/update and the demo-seed insert now call serializeLeadHours/serializeLeadServices instead of ad-hoc template strings, which incidentally fixes upsertLead always appending a trailing '· ' hours separator even when weekend was empty (unlike the demo-seed path's pre-existing conditional format) — both round-tripped correctly on read either way, so this is a stored-format consistency fix, not a data-loss fix",
+      "NEXT_STEPS: sqlite-row-mapping-test-coverage done",
+      "AGENT_PROTOCOL — no new rule needed; this is the second concrete instance of the existing server-only-testability rule (stripe-sync.ts was the first), reinforcing it as the standard move rather than adding new prose",
+      "BUSINESS_DECISIONS — documented why extracting the pure mapping beat a full db.ts fallback-harness rewrite or leaving the gap merely documented",
+      "Verified: npm test (1151 passed, full suite incl. 14 new) + lint + build + npm run dev (/dashboard/leads renders demo lead hours/services correctly after the refactor)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(286, 287),
   },
 ];

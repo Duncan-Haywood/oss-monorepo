@@ -92,6 +92,17 @@ export default function ArchitectureDocPage() {
         scraping.
       </p>
       <p>
+        <code>src/lib/db.ts</code> imports <code>&quot;server-only&quot;</code>, so it cannot be
+        imported directly by Vitest (mirrors the <code>stripe-sync.ts</code> testability pattern:
+        every existing test mocks <code>@/lib/db</code> wholesale rather than exercising its real
+        Convex/SQLite fallback). The SQLite side of <code>upsertLead</code> and the read-path row
+        mapping — <code>lead.hours</code> string round-trip, <code>lead.services</code> JSON
+        serialize/parse, category/tier defaulting — is pulled out into{" "}
+        <code>src/lib/leads/sqlite-row-mapping.ts</code> (no <code>server-only</code> import) with
+        direct Vitest coverage in <code>sqlite-row-mapping.test.ts</code>, so that logic actually
+        runs under test instead of being permanently hidden behind the module mock.
+      </p>
+      <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.
       </p>
 
