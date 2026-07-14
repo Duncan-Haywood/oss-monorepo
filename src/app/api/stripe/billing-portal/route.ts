@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createBillingPortalForCheckoutSession } from "@/lib/billing/create-portal-session";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
  * Customer self-serve Stripe Billing Portal from a completed Checkout Session.
  * Operator path uses openBillingPortalAction (auth-gated) instead.
  * See /docs/process (stripe-billing-portal).
+ *
+ * Public and keyed only by a client-supplied sessionId, like every other
+ * public route that fires a live Stripe API call — rate limited per client
+ * IP (best-effort, per-instance — see src/lib/security/rate-limit.ts) to
+ * blunt scripted sessionId probing / Stripe quota burn.
  */
 
 interface BillingPortalBody {
@@ -14,6 +20,15 @@ interface BillingPortalBody {
 }
 
 export async function POST(request: Request) {
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`billing-portal:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   let body: BillingPortalBody;
   try {
     body = await request.json();

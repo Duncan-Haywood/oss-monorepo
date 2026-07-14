@@ -379,11 +379,15 @@ export default function ArchitectureDocPage() {
         paid-not-live stay aligned. Activate Customer Portal in the Stripe Dashboard before first
         live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>). Route-level
         Vitest coverage in <code>src/app/api/stripe/billing-portal/route.test.ts</code> locks body
-        parsing, the <code>STRIPE_SECRET_KEY</code> gate, and <code>returnUrl</code> derivation
-        (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin) —
-        the fourth and final Stripe-facing route (alongside checkout, commerce/checkout, and
-        webhook) to get direct orchestration tests rather than relying only on its extracted
-        helper&apos;s suite. The operator <strong>Billing</strong> button path
+        parsing, the <code>STRIPE_SECRET_KEY</code> gate, <code>returnUrl</code> derivation
+        (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin), and
+        the client-IP rate-limit <code>429</code> — the fourth and final Stripe-facing route
+        (alongside checkout, commerce/checkout, and webhook) to get direct orchestration tests
+        rather than relying only on its extracted helper&apos;s suite. Being public and keyed only
+        by a client-supplied <code>sessionId</code>, it is rate-limited by client IP via{" "}
+        <code>checkRateLimit</code> (same helper as contact / checkout / commerce checkout /
+        unsubscribe / preview-open) so scripted <code>sessionId</code> probing cannot burn Stripe
+        API quota unbounded. The operator <strong>Billing</strong> button path
         (<code>openBillingPortalAction</code>) has its own action-level Vitest in{" "}
         <code>open-billing-portal-action.test.ts</code> — auth, secret gate, returnUrl
         (APP_URL / forwarded host / localhost → <code>/dashboard/leads</code>), and helper

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 /**
  * Route-level coverage for the customer self-serve Billing Portal entry
@@ -66,6 +67,10 @@ describe("POST /api/stripe/billing-portal", () => {
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.NEXT_PUBLIC_APP_URL;
+    // Each `it` below issues its own POST(s) from the same synthetic (no
+    // x-forwarded-for) client — reset the limiter so route-level tests don't
+    // interfere with each other regardless of run order.
+    resetRateLimiterForTests();
   });
 
   afterEach(() => {
@@ -217,5 +222,34 @@ describe("POST /api/stripe/billing-portal", () => {
 
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: "no such session" });
+  });
+
+  it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const request = () =>
+      new Request("http://localhost/api/stripe/billing-portal", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-forwarded-for": "203.0.113.20",
+        },
+        body: JSON.stringify({ sessionId: "cs_test_1" }),
+      });
+
+    let lastResponse;
+    for (let i = 0; i < 21; i += 1) {
+      lastResponse = await POST(request());
+    }
+
+    expect(lastResponse!.status).toBe(429);
+    expect(lastResponse!.headers.get("Retry-After")).toBeTruthy();
+    const body = await lastResponse!.json();
+    expect(body.error).toBe("Too many requests");
+    // The 21st request never reached Stripe.
+    expect(sessionsRetrieve).toHaveBeenCalledTimes(20);
   });
 });
