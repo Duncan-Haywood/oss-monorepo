@@ -156,8 +156,9 @@ export default function CliAgentsDocPage() {
         <li>
           <code>CLAUDE_CODE_OAUTH_TOKEN</code> — long-lived OAuth token from{" "}
           <code>claude setup-token</code> (preferred CI path; macOS Keychain login is not
-          portable). Optionally also set <code>CLAUDE_CREDENTIALS_JSON</code> to the
-          contents of Linux <code>~/.claude/.credentials.json</code> for file+cache restore.
+          portable). Fallback: <code>ANTHROPIC_API_KEY</code>. Optionally also set{" "}
+          <code>CLAUDE_CREDENTIALS_JSON</code> to the contents of Linux{" "}
+          <code>~/.claude/.credentials.json</code> for file+cache restore.
         </li>
       </ul>
 
@@ -190,6 +191,8 @@ gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
 claude setup-token
 # copy the printed token, then:
 gh secret set CLAUDE_CODE_OAUTH_TOKEN
+# or API key fallback:
+# gh secret set ANTHROPIC_API_KEY
 # optional Linux file seed:
 # gh secret set CLAUDE_CREDENTIALS_JSON < ~/.claude/.credentials.json`}</code>
       </pre>
