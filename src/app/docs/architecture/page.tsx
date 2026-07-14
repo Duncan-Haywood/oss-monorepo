@@ -67,7 +67,11 @@ export default function ArchitectureDocPage() {
         guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto +{" "}
         <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
         (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
-        <code>proxy.test.ts</code> Host gate. <code>src/proxy.ts</code> also rewrites the root path to a
+        <code>proxy.test.ts</code> Host gate. Until the password is a non-placeholder secret,{" "}
+        <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
+        banner via <code>assessOperatorAuthEnvReadiness</code> — distinct from Stripe / Resend /
+        Anthropic / digest banners. <code>src/proxy.ts</code> also rewrites the root path to a
         lead&apos;s <code>/preview/[slug]</code> when the request Host is a platform preview
         subdomain (<code>{"{slug}.{productionRootDomain}"}</code>) that resolves to a real lead, or
         a client&apos;s own domain saved via <strong>Save domain</strong> on{" "}

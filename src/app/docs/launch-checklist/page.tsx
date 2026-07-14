@@ -86,8 +86,13 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment.
-          Until set, <code>/dashboard</code> stays open for demos — do not import real contacts
-          or flip stages to <code>outreach_sent</code> without it.
+          Until set (or while still a <code>changeme</code>/<code>password</code> placeholder),{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
+          banner via <code>assessOperatorAuthEnvReadiness</code> — <code>proxy.ts</code> +{" "}
+          <code>requireOperatorAuth</code> stay in open demo mode (world-reachable CRM mutations).
+          Do not import real contacts or flip stages to <code>outreach_sent</code> without it.
+          Distinct from Stripe / Resend / Anthropic / digest banners.
         </li>
         <li>
           Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign in, confirm

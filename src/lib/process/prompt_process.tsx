@@ -224,7 +224,9 @@ export const AGENT_PROTOCOL = [
   "get-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/get-commerce-catalog-action.test.ts locks requireOperatorAuth, empty slug, getCommerceCatalog pass-through (catalog row or null), and Error / non-Error throws — save/sync action suites alone are not enough for the dashboard Commerce catalog read glue that seeds Save/Sync. When free NEXT_STEPS stay gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer login-operator-action-test-coverage (login/logout session write/clear + safeNextPath) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete gated secrets/OAuth/counsel todos.",
   "login-operator-action-test-coverage done: src/app/dashboard/login/actions.test.ts locks loginOperatorAction / logoutOperatorAction — unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), safeNextPath open-redirect guard (reject // and non-path next → /dashboard), and logout clear (maxAge 0) + redirect to /dashboard/login. operator.test.ts token crypto + proxy.test.ts Host gate alone are not enough for the login form glue that establishes every dashboard mutation session. When free NEXT_STEPS stay gated, prefer requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When require-operator-auth-cookie-read-coverage is free after login-operator-action-test-coverage, claim it before inventing optional aggregates — login/logout action Vitest locks cookie write/clear; operator.test.ts token crypto alone does not lock requireOperatorAuth / isOperatorAuthenticated reading the signed httpOnly jar (open demo when unset, reject missing/invalid/expired cookie, accept valid session). Sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
-  "require-operator-auth-cookie-read-coverage done: src/lib/auth/operator.test.ts now locks requireOperatorAuth / isOperatorAuthenticated cookie-read — open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty (no jar read), reject missing/invalid/expired session cookie with the Unauthorized sign-in error, accept valid signed cookie via OPERATOR_SESSION_COOKIE. Complements login-operator-action-test-coverage (write/clear) + proxy.test.ts Host gate. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "require-operator-auth-cookie-read-coverage done: src/lib/auth/operator.test.ts now locks requireOperatorAuth / isOperatorAuthenticated cookie-read — open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty (no jar read), reject missing/invalid/expired session cookie with the Unauthorized sign-in error, accept valid signed cookie via OPERATOR_SESSION_COOKIE. Complements login-operator-action-test-coverage (write/clear) + proxy.test.ts Host gate. When free NEXT_STEPS stay gated, prefer operator-dashboard-password-env-readiness (amber open-dashboard banner when password unset/placeholder — production CRM protection) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "operator-dashboard-password-env-readiness done: assessOperatorAuthEnvReadiness (src/lib/auth/operator-auth-env-readiness.ts) + OperatorAuthEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|password|secret-style OPERATOR_DASHBOARD_PASSWORD — matching isOperatorAuthConfigured open-demo gate (plus documented paste placeholders). Distinct from Stripe / Resend / Anthropic / digest banners; show first because an open dashboard with live lead data is the worst CRM risk. Env presence only — does not validate password strength beyond placeholder rejection. When free NEXT_STEPS stay gated, prefer app-url-env-readiness (NEXT_PUBLIC_APP_URL missing/localhost blocks checkout cancel URLs, digest links, SEO canonicals) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When operator-dashboard-password-env-readiness and app-url-env-readiness are both free in the same cron window, claim different ones (open-dashboard CRM lock signal vs canonical APP_URL readiness) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
 ] as const;
 
 /**
@@ -1644,6 +1646,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-b2e7",
+  },
+  {
+    id: "operator-dashboard-password-env-readiness",
+    summary:
+      "Empty-backlog after require-operator-auth-cookie-read-coverage: operators get no early dashboard signal when OPERATOR_DASHBOARD_PASSWORD is unset/whitespace/placeholder — proxy + requireOperatorAuth stay open-demo while CRM/outreach mutations are world-reachable. Shipped: assessOperatorAuthEnvReadiness + OperatorAuthEnvBanner on /dashboard + /dashboard/leads + docs. Sibling-friendly next: app-url-env-readiness (NEXT_PUBLIC_APP_URL) or empty-backlog sold-capability / multi-instance regression audits.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-02c1",
+  },
+  {
+    id: "app-url-env-readiness",
+    summary:
+      "Empty-backlog after operator-dashboard-password-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_APP_URL is missing, whitespace-only, or still localhost while other secrets are live — checkout cancel/success URLs, digest links, unsubscribe/footer canonicals, and SEO siteUrl() drift. Prefer assessAppUrlEnvReadiness + banner (env presence only; distinct from Stripe/Resend/auth banners) or another sold-capability / multi-instance regression. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 
@@ -3527,9 +3544,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-14",
     decision:
-      "Ship cookie-read Vitest for requireOperatorAuth / isOperatorAuthenticated when login-operator-action-test-coverage is done — login/logout action Vitest locks cookie write/clear and safeNextPath; token crypto alone does not lock jar read (open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty with no cookies() call, Unauthorized reject on missing/invalid/expired session, accept valid signed OPERATOR_SESSION_COOKIE). After this, free backlog returns to empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Ship cookie-read Vitest for requireOperatorAuth / isOperatorAuthenticated when login-operator-action-test-coverage is done — login/logout action Vitest locks cookie write/clear and safeNextPath; token crypto alone does not lock jar read (open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty with no cookies() call, Unauthorized reject on missing/invalid/expired session, accept valid signed OPERATOR_SESSION_COOKIE). After this, prefer operator-dashboard-password-env-readiness (amber open-dashboard banner) or empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Every dashboard mutation suite mocks requireOperatorAuth, so a future open-demo regression (password unset still reading/rejecting the jar), skipped Unauthorized message, or accept-invalid-cookie path would not fail those suites — and would leave production lead mutations reachable without a valid session while proxy.ts still expects a signed cookie. Prefer locking that shared cookie-read helper over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessOperatorAuthEnvReadiness + OperatorAuthEnvBanner when require-operator-auth-cookie-read-coverage is done — login/cookie Vitest locks session crypto and jar read, but operators still get no early dashboard signal when OPERATOR_DASHBOARD_PASSWORD is unset, whitespace-only, or a changeme/password/secret-style placeholder (open demo while CRM/outreach mutations are world-reachable). Env presence only; distinct from Stripe / Resend / Anthropic / digest banners; show first among readiness banners. Queue app-url-env-readiness (NEXT_PUBLIC_APP_URL) as the sibling-friendly twin next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "An open dashboard with live lead inventory and outbound sends is the worst CRM risk after auth plumbing ships — launch checklist step 2 already requires the password, but every other launch secret (Stripe core, Price IDs, Resend, Anthropic, digest destination) already has an operator-visible banner while OPERATOR_DASHBOARD_PASSWORD did not. Prefer that early lock signal, then APP_URL readiness or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6347,11 +6371,27 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/auth/operator.test.ts — 10 cookie-read tests locking open demo when password unset/empty (no jar read), Unauthorized reject on missing/invalid/expired session cookie, accept valid signed OPERATOR_SESSION_COOKIE for requireOperatorAuth + isOperatorAuthenticated (20 tests total in file)",
       "Docs: architecture + roadmap + launch-checklist note requireOperatorAuth cookie-read Vitest beside login/logout write path",
       "NEXT_STEPS: require-operator-auth-cookie-read-coverage done",
-      "AGENT_PROTOCOL — documented cookie-read helper coverage done; prefer empty-backlog sold-capability / multi-instance regression audits next",
+      "AGENT_PROTOCOL — documented cookie-read helper coverage done; prefer operator-dashboard-password-env-readiness or empty-backlog audits next",
       "BUSINESS_DECISIONS — documented why requireOperatorAuth jar-read Vitest beats inventing optional aggregates after login write-path coverage",
       "Process: tightened ITERATIONS decision slices 3be7→7f7e (+1 drift) and set b2e7 absolute bound to BUSINESS_DECISIONS.length",
       "Verified: npm test (operator.test.ts 20) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(268, 269),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-02c1",
+    summary:
+      "Free NEXT_STEPS backlog after PR #172 (requireOperatorAuth cookie-read Vitest) stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). Empty-backlog audit found OPERATOR_DASHBOARD_PASSWORD had no operator-visible readiness banner despite every other launch secret (Stripe core, Price IDs, Resend, Anthropic, digest destination) already shipping one — open demo leaves CRM/outreach mutations world-reachable once real leads land. Claimed and shipped operator-dashboard-password-env-readiness. Sibling b2e7 owned cookie-read (already merged). Queued app-url-env-readiness as the sibling-friendly twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/auth/operator-auth-env-readiness.ts + .test.ts — assessOperatorAuthEnvReadiness locks missing/whitespace/placeholder (changeme|password|secret-style) vs ready non-placeholder password",
+      "src/components/dashboard/operator-auth-env-banner.tsx — amber open-dashboard banner on /dashboard + /dashboard/leads (shown first among readiness banners)",
+      "Docs: architecture + roadmap + launch-checklist note the banner beside login/cookie Vitest",
+      "NEXT_STEPS: operator-dashboard-password-env-readiness done; queued app-url-env-readiness",
+      "AGENT_PROTOCOL — prefer APP_URL readiness or empty-backlog sold-capability / multi-instance regression audits next",
+      "BUSINESS_DECISIONS — documented why open-dashboard password readiness beats inventing optional aggregates after auth Vitest chain",
+      "Verified: npm test (operator-auth-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(269, 270),
   },
 ];
