@@ -72,7 +72,11 @@ export default function RoadmapDocPage() {
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped — action-level Vitest in{" "}
         <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout session
         write/clear + <code>safeNextPath</code> open-redirect guard beside token crypto,{" "}
-        <code>requireOperatorAuth</code> cookie-read, and proxy Host gate. Preview contact
+        <code>requireOperatorAuth</code> cookie-read, and proxy Host gate. Until the password is
+        a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
+        banner via <code>assessOperatorAuthEnvReadiness</code> (env presence only — distinct from
+        Stripe / Resend / Anthropic / digest banners). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
