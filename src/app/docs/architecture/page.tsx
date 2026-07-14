@@ -66,7 +66,11 @@ export default function ArchitectureDocPage() {
         subdomain (<code>{"{slug}.{productionRootDomain}"}</code>) that resolves to a real lead, or
         a client&apos;s own domain saved via <strong>Save domain</strong> on{" "}
         <code>/dashboard/leads</code> (Starter &ldquo;Preview subdomain → custom domain
-        handoff&rdquo; promise) — see <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
+        handoff&rdquo; promise) — action-level Vitest in{" "}
+        <code>assign-custom-domain-action.test.ts</code> locks that Save domain glue (auth, empty
+        slug, trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate)
+        beside handoff / custom-domain-routing helpers. See{" "}
+        <DocLink href="/docs/production-deploy">Production deploy</DocLink>.
         Orchestration Vitest in <code>src/proxy.test.ts</code> locks auth redirect/allow,
         preview-subdomain-before-platform-host ordering, unrecognized-subdomain{" "}
         <code>next()</code> (no demo-catalog fallthrough), and never Host-diverting{" "}
