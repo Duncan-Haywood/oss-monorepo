@@ -223,6 +223,8 @@ export const AGENT_PROTOCOL = [
   "assign-vercel-project-action-test-coverage done: src/app/dashboard/leads/assign-vercel-project-action.test.ts locks requireOperatorAuth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignVercelProjectAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), and Error / non-Error throws — handoff helper suites alone are not enough for the dashboard Assign Vercel project glue. Twin of assign-custom-domain-action-test-coverage (d08a; folded via PR #168). When free NEXT_STEPS stay gated, prefer get-commerce-catalog-action-test-coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "get-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/get-commerce-catalog-action.test.ts locks requireOperatorAuth, empty slug, getCommerceCatalog pass-through (catalog row or null), and Error / non-Error throws — save/sync action suites alone are not enough for the dashboard Commerce catalog read glue that seeds Save/Sync. When free NEXT_STEPS stay gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer login-operator-action-test-coverage (login/logout session write/clear + safeNextPath) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete gated secrets/OAuth/counsel todos.",
   "login-operator-action-test-coverage done: src/app/dashboard/login/actions.test.ts locks loginOperatorAction / logoutOperatorAction — unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), safeNextPath open-redirect guard (reject // and non-path next → /dashboard), and logout clear (maxAge 0) + redirect to /dashboard/login. operator.test.ts token crypto + proxy.test.ts Host gate alone are not enough for the login form glue that establishes every dashboard mutation session. When free NEXT_STEPS stay gated, prefer requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When require-operator-auth-cookie-read-coverage is free after login-operator-action-test-coverage, claim it before inventing optional aggregates — login/logout action Vitest locks cookie write/clear; operator.test.ts token crypto alone does not lock requireOperatorAuth / isOperatorAuthenticated reading the signed httpOnly jar (open demo when unset, reject missing/invalid/expired cookie, accept valid session). Sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
+  "require-operator-auth-cookie-read-coverage done: src/lib/auth/operator.test.ts now locks requireOperatorAuth / isOperatorAuthenticated cookie-read — open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty (no jar read), reject missing/invalid/expired session cookie with the Unauthorized sign-in error, accept valid signed cookie via OPERATOR_SESSION_COOKIE. Complements login-operator-action-test-coverage (write/clear) + proxy.test.ts Host gate. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1634,6 +1636,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-7f7e",
+  },
+  {
+    id: "require-operator-auth-cookie-read-coverage",
+    summary:
+      "Empty-backlog after login-operator-action-test-coverage: requireOperatorAuth / isOperatorAuthenticated are the cookie-read path every dashboard mutation + proxy gate share — login action Vitest locks write/clear; token crypto alone does not lock jar read (open demo when unset, reject missing/invalid/expired, accept valid). Shipped: operator.test.ts cookie-read suite (10 tests; 20 total in file). Sibling-friendly next: empty-backlog sold-capability / multi-instance regression audits.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-b2e7",
   },
 ];
 
@@ -3513,6 +3523,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for loginOperatorAction / logoutOperatorAction (operator session write/clear + safeNextPath) when get-commerce-catalog action coverage is done — operator.test.ts token crypto and proxy.test.ts Host gate alone do not lock unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), open-redirect rejection (// and non-path next → /dashboard), or logout clear (maxAge 0) + redirect to /dashboard/login. After this, free backlog returns to requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Login/logout is the last untested dashboard action module after the CRM/fulfill/Commerce action Vitest chain — every mutation suite mocks requireOperatorAuth, but the form path that establishes the signed httpOnly cookie (launch-checklist step 2) had zero action glue coverage. A future open-redirect regression in safeNextPath, skipped cookie set on success, or logout that fails to clear maxAge would not fail Vitest without this suite — and would leave production operator sessions insecure or stuck while proxy.ts still gates /dashboard/*. Prefer locking that session glue over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship cookie-read Vitest for requireOperatorAuth / isOperatorAuthenticated when login-operator-action-test-coverage is done — login/logout action Vitest locks cookie write/clear and safeNextPath; token crypto alone does not lock jar read (open demo when OPERATOR_DASHBOARD_PASSWORD unset/empty with no cookies() call, Unauthorized reject on missing/invalid/expired session, accept valid signed OPERATOR_SESSION_COOKIE). After this, free backlog returns to empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Every dashboard mutation suite mocks requireOperatorAuth, so a future open-demo regression (password unset still reading/rejecting the jar), skipped Unauthorized message, or accept-invalid-cookie path would not fail those suites — and would leave production lead mutations reachable without a valid session while proxy.ts still expects a signed cookie. Prefer locking that shared cookie-read helper over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6240,7 +6257,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/business-process-evolution-1ca9 (mark-handoff-live action Vitest) — both ITERATIONS kept",
       "Verified: npm test after fold (import-leads-csv 12 + mark-handoff-live 7) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(261, 262),
+    decisions: BUSINESS_DECISIONS.slice(262, 263),
   },
   {
     date: "2026-07-14",
@@ -6256,7 +6273,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process polish after PR #166 dual-fold — unique docs + protocol clarity",
       "Verified: npm test (969 passed — mark-handoff-live 7 + import-leads-csv 12) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(262, 263),
+    decisions: BUSINESS_DECISIONS.slice(263, 264),
   },
   {
     date: "2026-07-14",
@@ -6272,7 +6289,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/business-process-evolution-699c (assign-vercel-project action Vitest) — both ITERATIONS kept",
       "Verified: npm test after fold (assign-custom-domain 8 + assign-vercel-project 9) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(263, 264),
+    decisions: BUSINESS_DECISIONS.slice(264, 265),
   },
   {
     date: "2026-07-14",
@@ -6288,7 +6305,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process polish only after #168 dual-fold (mirrors #167 after #166)",
       "Verified: npm test (986 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(264, 265),
+    decisions: BUSINESS_DECISIONS.slice(265, 266),
   },
   {
     date: "2026-07-14",
@@ -6303,7 +6320,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Commerce catalog read-path action Vitest beats inventing optional aggregates after Assign twins",
       "Verified: npm test (get-commerce-catalog 6) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(265, 266),
+    decisions: BUSINESS_DECISIONS.slice(266, 267),
   },
   {
     date: "2026-07-14",
@@ -6319,6 +6336,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 3be7→699c (+1 drift) and confirmed f4bf/7f7e absolute bounds",
       "Verified: npm test (login actions 7) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(266, 267),
+    decisions: BUSINESS_DECISIONS.slice(267, 268),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-b2e7",
+    summary:
+      "Free NEXT_STEPS backlog after PR #171 (login/logout action Vitest) stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). Empty-backlog audit found requireOperatorAuth / isOperatorAuthenticated had zero cookie-read Vitest despite being the shared jar-read path every dashboard mutation + proxy gate use (login actions cover write/clear; operator.test.ts covered token crypto only). Claimed and shipped require-operator-auth-cookie-read-coverage. Sibling prompt-process-evolution-02c1 had not pushed a competing claim. Tightened recent ITERATION decision slices (3be7→7f7e +1 drift) so absolute bounds match BUSINESS_DECISIONS.length. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/auth/operator.test.ts — 10 cookie-read tests locking open demo when password unset/empty (no jar read), Unauthorized reject on missing/invalid/expired session cookie, accept valid signed OPERATOR_SESSION_COOKIE for requireOperatorAuth + isOperatorAuthenticated (20 tests total in file)",
+      "Docs: architecture + roadmap + launch-checklist note requireOperatorAuth cookie-read Vitest beside login/logout write path",
+      "NEXT_STEPS: require-operator-auth-cookie-read-coverage done",
+      "AGENT_PROTOCOL — documented cookie-read helper coverage done; prefer empty-backlog sold-capability / multi-instance regression audits next",
+      "BUSINESS_DECISIONS — documented why requireOperatorAuth jar-read Vitest beats inventing optional aggregates after login write-path coverage",
+      "Process: tightened ITERATIONS decision slices 3be7→7f7e (+1 drift) and set b2e7 absolute bound to BUSINESS_DECISIONS.length",
+      "Verified: npm test (operator.test.ts 20) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(268, 269),
   },
 ];

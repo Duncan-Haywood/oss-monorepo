@@ -1,9 +1,43 @@
-import { describe, expect, it } from "vitest";
-import { createOperatorSessionToken, passwordsMatch, verifyOperatorSessionToken } from "./operator";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+/**
+ * Token crypto + passwordsMatch stay pure. requireOperatorAuth /
+ * isOperatorAuthenticated are the cookie-read path every dashboard mutation
+ * and proxy gate share — login action Vitest locks write/clear; this suite
+ * locks jar read (open demo when unset, reject missing/invalid/expired,
+ * accept valid session).
+ */
+
+const cookieGet = vi.fn();
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(async () => ({
+    get: (...args: unknown[]) => cookieGet(...args),
+  })),
+}));
+
+import {
+  OPERATOR_SESSION_COOKIE,
+  createOperatorSessionToken,
+  isOperatorAuthenticated,
+  passwordsMatch,
+  requireOperatorAuth,
+  verifyOperatorSessionToken,
+} from "./operator";
 
 const PASSWORD = "correct-horse-battery-staple";
 const NOW = Date.parse("2026-07-11T00:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
+
+const originalPassword = process.env.OPERATOR_DASHBOARD_PASSWORD;
+
+function restorePasswordEnv(): void {
+  if (originalPassword === undefined) {
+    delete process.env.OPERATOR_DASHBOARD_PASSWORD;
+  } else {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = originalPassword;
+  }
+}
 
 describe("createOperatorSessionToken / verifyOperatorSessionToken", () => {
   it("round-trips a freshly created token", () => {
@@ -61,5 +95,100 @@ describe("passwordsMatch", () => {
 
   it("returns false without throwing on different-length inputs", () => {
     expect(passwordsMatch("short", "a-much-longer-password")).toBe(false);
+  });
+});
+
+describe("requireOperatorAuth (cookie-read)", () => {
+  beforeEach(() => {
+    cookieGet.mockReset();
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+  });
+
+  afterEach(() => {
+    restorePasswordEnv();
+    vi.clearAllMocks();
+  });
+
+  it("returns ok when OPERATOR_DASHBOARD_PASSWORD is unset (open demo)", async () => {
+    delete process.env.OPERATOR_DASHBOARD_PASSWORD;
+    await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
+    expect(cookieGet).not.toHaveBeenCalled();
+  });
+
+  it("returns ok when password is whitespace-only (treated as unset)", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "";
+    await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
+    expect(cookieGet).not.toHaveBeenCalled();
+  });
+
+  it("rejects when password is set and the session cookie is missing", async () => {
+    cookieGet.mockReturnValue(undefined);
+    await expect(requireOperatorAuth()).resolves.toEqual({
+      ok: false,
+      error: "Unauthorized — sign in at /dashboard/login",
+    });
+    expect(cookieGet).toHaveBeenCalledWith(OPERATOR_SESSION_COOKIE);
+  });
+
+  it("rejects when the session cookie value is invalid", async () => {
+    cookieGet.mockReturnValue({ value: "not.a.valid.token" });
+    await expect(requireOperatorAuth()).resolves.toEqual({
+      ok: false,
+      error: "Unauthorized — sign in at /dashboard/login",
+    });
+  });
+
+  it("rejects when the session cookie has expired", async () => {
+    const expiredToken = createOperatorSessionToken(
+      PASSWORD,
+      Date.now() - 13 * HOUR_MS,
+    );
+    cookieGet.mockReturnValue({ value: expiredToken });
+    await expect(requireOperatorAuth()).resolves.toEqual({
+      ok: false,
+      error: "Unauthorized — sign in at /dashboard/login",
+    });
+  });
+
+  it("accepts a valid signed session cookie", async () => {
+    const token = createOperatorSessionToken(PASSWORD);
+    cookieGet.mockReturnValue({ value: token });
+    await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
+    expect(cookieGet).toHaveBeenCalledWith(OPERATOR_SESSION_COOKIE);
+  });
+});
+
+describe("isOperatorAuthenticated (cookie-read)", () => {
+  beforeEach(() => {
+    cookieGet.mockReset();
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+  });
+
+  afterEach(() => {
+    restorePasswordEnv();
+    vi.clearAllMocks();
+  });
+
+  it("returns true when auth is not configured (open demo)", async () => {
+    delete process.env.OPERATOR_DASHBOARD_PASSWORD;
+    await expect(isOperatorAuthenticated()).resolves.toBe(true);
+    expect(cookieGet).not.toHaveBeenCalled();
+  });
+
+  it("returns false when password is set and cookie is missing", async () => {
+    cookieGet.mockReturnValue(undefined);
+    await expect(isOperatorAuthenticated()).resolves.toBe(false);
+    expect(cookieGet).toHaveBeenCalledWith(OPERATOR_SESSION_COOKIE);
+  });
+
+  it("returns false when the session cookie is invalid", async () => {
+    cookieGet.mockReturnValue({ value: "tampered.token.value" });
+    await expect(isOperatorAuthenticated()).resolves.toBe(false);
+  });
+
+  it("returns true when a valid signed session cookie is present", async () => {
+    const token = createOperatorSessionToken(PASSWORD);
+    cookieGet.mockReturnValue({ value: token });
+    await expect(isOperatorAuthenticated()).resolves.toBe(true);
   });
 });

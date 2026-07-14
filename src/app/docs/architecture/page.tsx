@@ -64,7 +64,9 @@ export default function ArchitectureDocPage() {
         require a signed session cookie — action-level Vitest in{" "}
         <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout glue
         (unconfigured redirect, invalid password, <code>safeNextPath</code> open-redirect
-        guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto and{" "}
+        guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto +{" "}
+        <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
+        (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
         <code>proxy.test.ts</code> Host gate. <code>src/proxy.ts</code> also rewrites the root path to a
         lead&apos;s <code>/preview/[slug]</code> when the request Host is a platform preview
         subdomain (<code>{"{slug}.{productionRootDomain}"}</code>) that resolves to a real lead, or
