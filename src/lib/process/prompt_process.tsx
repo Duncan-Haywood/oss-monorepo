@@ -7477,7 +7477,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — TOCTOU rule extended to deploy handoff provision (handoff-provision-lost-update-guard)",
       "NEXT_STEPS: handoff-provision-lost-update-guard done",
       "BUSINESS_DECISIONS — documented why handoff provision TOCTOU beats inventing an optional aggregate after ordering-parity landed",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1273 passed, +6 handoff TOCTOU regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(309, 310),
   },
