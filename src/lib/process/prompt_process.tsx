@@ -5946,7 +5946,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: dispose-cold-lead-action-test-coverage done; update-inquiry-status-action-test-coverage left free",
       "AGENT_PROTOCOL — claim cold Re-engage/Close vs inquiry mark-read/Archive action Vitest separately; prefer update-inquiry-status action Vitest next",
       "BUSINESS_DECISIONS — documented why cold-disposition action glue Vitest beats inventing optional aggregates after Reply coverage",
-      "Verified: npm test (dispose-cold-lead action 17) + lint + build",
+      "Verified: npm test (889 passed — dispose-cold-lead action 17 from 872) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(255, 256),
   },
