@@ -486,6 +486,22 @@ describe("deploy/handoff", () => {
       );
       expect(result).toBe(updated);
     });
+
+    it("does not advance lead stage when handoff status update returns null", async () => {
+      // Race: handoff existed on the initial get, then vanished before the
+      // status write (or the write backend has no row). Marking the lead live
+      // would leave stage=live with no handoff — operator sees failure UI
+      // while paid-not-live / open-handoff metrics diverge.
+      getDeployHandoffBySlug.mockResolvedValue(baseHandoff({ status: "provisioned" }));
+      updateDeployHandoffStatus.mockResolvedValue(null);
+      const { markHandoffLive } = await import("./handoff");
+
+      const result = await markHandoffLive("demo-cafe");
+
+      expect(result).toBeNull();
+      expect(updateDeployHandoffStatus).toHaveBeenCalledOnce();
+      expect(updateLeadStage).not.toHaveBeenCalled();
+    });
   });
 
   describe("getHandoffsForOperator", () => {

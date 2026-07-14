@@ -585,7 +585,14 @@ export default function ArchitectureDocPage() {
         <code>updateDeployHandoffStatus</code> after Resend; that write uses{" "}
         <code>preferAdvancedHandoffStatus</code> (never-downgrade:{" "}
         <code>live</code> &gt; <code>provisioned</code> &gt; <code>awaiting_dns</code>)
-        so a pre-Resend status snapshot cannot undo a concurrent Mark live.
+        so a pre-Resend status snapshot cannot undo a concurrent Mark live.{" "}
+        <code>markHandoffLive</code> only advances the lead stage when{" "}
+        <code>updateDeployHandoffStatus</code> returns a row — a null write
+        (handoff vanished between the initial get and the status mutation) must
+        not leave stage=<code>live</code> while the operator still sees &quot;No
+        deploy handoff found&quot;. Dashboard preview cache invalidation uses{" "}
+        <code>leadPreviewPath</code> (encode-at-use), not a raw{" "}
+        <code>{`/preview/\${slug}`}</code> string.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). When Convex is configured, reply + status
