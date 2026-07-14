@@ -183,11 +183,14 @@ export default function RoadmapDocPage() {
         <code>POST /api/stripe/billing-portal</code> with <code>sessionId</code>);{" "}
         <code>listOrders</code> is newest-first on Convex too (
         <code>convex/orders.list</code> + <code>sortOrdersNewestFirst</code>) so the portal
-        picks the latest eligible order. Operator <strong>Billing</strong> action glue is
+        picks the latest eligible order.         Operator <strong>Billing</strong> action glue is
         covered by <code>open-billing-portal-action.test.ts</code> (auth,{" "}
         <code>STRIPE_SECRET_KEY</code>, returnUrl, helper passthrough) beside the customer
-        self-serve route suite. Checkout for an unknown slug creates a paid payment stub lead on both
-        backends. Remaining: run
+        self-serve route suite. Operator <strong>Upsell</strong> action glue for paid/live
+        Starter-only leads is covered by <code>send-starter-upsell-action.test.ts</code>{" "}
+        (auth, eligibility inverse of Billing, Growth/Complete target tier, suppression /
+        Resend) beside the starter-upsell helper suite. Checkout for an unknown slug creates a
+        paid payment stub lead on both backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
         Stripe Dashboard. Until core Stripe secrets are set,{" "}
         <code>assessStripeCoreEnvReadiness</code> shows an amber banner (missing webhook secret

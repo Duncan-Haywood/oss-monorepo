@@ -317,10 +317,15 @@ export default function ArchitectureDocPage() {
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an
         operator-triggered <strong>Upsell</strong> email from{" "}
         <code>/dashboard/leads</code> — eligibility is the inverse of billing-portal eligibility
-        (<code>src/lib/billing/starter-upsell.ts</code>). The email previews the marketing add-on
-        and links to <code>/checkout?slug=…&amp;tier=growth|complete</code> (Complete when the
-        lead&apos;s <code>recommendedTier</code> is Complete; otherwise Growth). Billing and
-        Upsell never both appear for the same order set.
+        (<code>src/lib/billing/starter-upsell.ts</code>). The operator{" "}
+        <code>sendStarterUpsellAction</code> path has its own action-level Vitest in{" "}
+        <code>send-starter-upsell-action.test.ts</code> — auth, eligibility (Starter-only +
+        email; rejects Growth/Complete/Commerce), Growth vs Complete target tier, suppression /
+        Resend failure (no revalidate), and leadSlug order filtering — so dashboard glue is not
+        left to the helper suite alone. The email previews the marketing add-on and links to{" "}
+        <code>/checkout?slug=…&amp;tier=growth|complete</code> (Complete when the lead&apos;s{" "}
+        <code>recommendedTier</code> is Complete; otherwise Growth). Billing and Upsell never
+        both appear for the same order set.
       </p>
 
       <h2 id="production-deploy">6b. Production deploy (after paid)</h2>

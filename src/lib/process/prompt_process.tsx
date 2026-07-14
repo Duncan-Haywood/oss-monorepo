@@ -199,6 +199,8 @@ export const AGENT_PROTOCOL = [
   "When archive-orphan-commerce-stripe-products-action-test-coverage and open-billing-portal-action-test-coverage are both free in the same cron window, claim different ones (Commerce Archive orphans cleanup vs Manage billing portal) — they touch different action surfaces and both lock revenue-critical operator paths that stripe-sync / create-portal-session helper suites do not cover.",
   "archive-orphan-commerce-stripe-products-action-test-coverage done: src/app/dashboard/leads/archive-orphan-commerce-stripe-products-action.test.ts locks requireOperatorAuth, empty slug, STRIPE_SECRET_KEY gate, missing lead, catalog?.items ?? [] pass-through (including null catalog → []), archivedCount/archivedSkuIds success + revalidate, and Stripe Error / non-Error surfaces — stripe-sync helper suites alone are not enough for the dashboard Archive orphans glue (active=false, never auto-delete). Twin of open-billing-portal-action-test-coverage (a3b5). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "open-billing-portal-action-test-coverage done: src/app/dashboard/leads/open-billing-portal-action.test.ts locks requireOperatorAuth, empty/whitespace slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host+proto > localhost) ending in /dashboard/leads, createBillingPortalForLead success url + error passthrough, and Error / non-Error throws — create-portal-session helper + billing-portal route suites alone are not enough for the dashboard Manage billing glue. Twin of archive-orphan-commerce-stripe-products-action-test-coverage (dc97 / PR #154). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly MRR upsell vs Email 2/3 outreach action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When send-starter-upsell-action-test-coverage and send-follow-up-action-test-coverage are both free in the same cron window, claim different ones (Starter → MRR Upsell vs Email 2/3 outreach) — they touch different action surfaces and both lock revenue-critical operator paths that starter-upsell / outreach helper suites do not cover.",
+  "send-starter-upsell-action-test-coverage done: src/app/dashboard/leads/send-starter-upsell-action.test.ts locks requireOperatorAuth, empty/whitespace slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce and missing email), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), mock send flag, leadSlug order filtering, and email trim — starter-upsell helper suites alone are not enough for the dashboard Upsell glue. Twin of send-follow-up-action-test-coverage (left free for siblings). When free NEXT_STEPS stay gated, prefer send-follow-up-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1494,8 +1496,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "send-starter-upsell-action-test-coverage",
     summary:
-      "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendStarterUpsellAction is the operator Starter → MRR Upsell path (eligibility inverse of billing portal + Resend) — starter-upsell helper suites alone are not enough for action glue. Sibling-friendly with send-follow-up-action-test-coverage; prefer when open-billing-portal action coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendStarterUpsellAction is the operator Starter → MRR Upsell path (eligibility inverse of billing portal + Resend) — starter-upsell helper suites alone are not enough for action glue. Shipped: send-starter-upsell-action.test.ts (13 tests). Twin of send-follow-up-action-test-coverage (left free).",
+    status: "done",
     phase: "Phase 5 — Payments & billing",
     owner: "cursor/business-process-evolution-cd3b",
   },
@@ -3271,6 +3273,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for openBillingPortalAction (Manage billing) when archive-orphan-commerce-stripe-products-action-test-coverage is claimed by a sibling — create-portal-session helper + billing-portal route suites alone do not lock auth, empty slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host > localhost), or createBillingPortalForLead success/error passthrough. Queue send-starter-upsell-action-test-coverage + send-follow-up-action-test-coverage as sibling-friendly MRR / outreach twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Manage billing is the operator path that opens Stripe Customer Portal for Growth/Complete/Commerce subscribers from /dashboard/leads. A future missing-secret soft-pass, wrong returnUrl, skipped auth, or swallowed helper error would not fail Vitest without action glue coverage — the same class of gap Save catalog / Sync to Stripe / Archive orphans action suites already closed — and would strand paid subscribers without self-serve card/cancel. Prefer locking that billing path, then Starter upsell / Email 2/3 follow-up action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for sendStarterUpsellAction (Starter → MRR Upsell) when open-billing-portal-action-test-coverage is done — starter-upsell helper suites alone do not lock auth, empty slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), or leadSlug order filtering. Leave send-follow-up-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Upsell is the operator path that converts one-time $500 Starter customers into Growth/Complete MRR from /dashboard/leads. A future eligibility soft-pass (Billing + Upsell both firing), wrong target tier, suppressed-email revalidate, or unfiltered cross-lead orders regression would not fail Vitest without action glue coverage — the same class of gap Manage billing / Archive orphans / Email pack action suites already closed — and would either spam ineligible leads or miss the highest-leverage MRR unlock. Prefer locking that upsell path, then Email 2/3 follow-up action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -5815,5 +5824,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (831 passed after fold — Manage billing 9 + Archive orphans 9 from 813) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(251, 252),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-cd3b",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #155 (Manage billing + Archive orphans action Vitest). Claimed send-starter-upsell-action-test-coverage — sendStarterUpsellAction had zero action-level Vitest despite being the operator Starter → MRR Upsell path (eligibility inverse of billing portal + Resend). Left send-follow-up-action-test-coverage free for sibling prompt-process automation. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/send-starter-upsell-action.test.ts — 13 tests locking auth fail, empty/whitespace slug, missing lead, paid/live Starter-only + email eligibility (rejects Growth/Complete/Commerce and missing email), Growth default vs Complete recommendedTier, suppression / Resend failure (no revalidate), mock send flag, leadSlug order filtering, and email trim",
+      "Docs: architecture + roadmap + launch-checklist note action-level Vitest beside starter-upsell helpers",
+      "NEXT_STEPS: send-starter-upsell-action-test-coverage done; send-follow-up-action-test-coverage left free",
+      "AGENT_PROTOCOL — claim Starter upsell vs Email 2/3 follow-up action Vitest separately; prefer follow-up action Vitest next",
+      "BUSINESS_DECISIONS — documented why Starter upsell action glue Vitest beats inventing optional aggregates after Manage billing coverage",
+      "Verified: npm test (pending full suite) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(252, 253),
   },
 ];

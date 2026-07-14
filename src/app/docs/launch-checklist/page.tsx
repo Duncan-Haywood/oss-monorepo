@@ -75,8 +75,10 @@ export default function LaunchChecklistDocPage() {
           <strong>Starter → MRR upsell</strong> panel and row <strong>Upsell</strong> button
           appear on <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>. Send the nudge
           (mock log is fine without Resend) and confirm the checkout link preselects Growth
-          (or Complete when <code>recommendedTier</code> is Complete). Billing and Upsell must
-          not both show for the same lead.
+          (or Complete when <code>recommendedTier</code> is Complete). Action-level Vitest (
+          <code>send-starter-upsell-action.test.ts</code>) locks the dashboard Upsell path
+          (auth, Starter-only eligibility, target tier, suppression / Resend) beside the
+          helper suite. Billing and Upsell must not both show for the same lead.
         </li>
       </ol>
 
