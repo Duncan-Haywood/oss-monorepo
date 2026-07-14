@@ -1728,6 +1728,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "login-authenticated-open-redirect",
+    summary:
+      "Empty-backlog after PR #206 (app-url-header-injection-guard): free NEXT_STEPS stayed operator/legal-gated. Security-surface audit found /dashboard/login's already-authenticated redirect and form next field used a weaker startsWith('/') check than loginOperatorAction's private safeNextPath — protocol-relative //evil.example is an open redirect for any operator with a live session who hits /dashboard/login?next=//evil.example. Action-side safeNextPath blocked // but was private to actions.ts and never used by the page; it also allowed backslash host tricks (/\\evil) and /dashboard/login self-redirect loops. Sibling CLI branches grok/dev-work-login-open-redirect + grok/continuous-work-login-redirect already had the complete fix with no open PR (Actions token blocked) — folding that body onto this automation branch rather than rebuilding. Plan: pure shared safeNextPath (dashboard-only paths; reject //, backslash, control chars, scheme-smuggled paths, login self-target) used by page + action; Vitest unit + action regressions.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-07e5",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
