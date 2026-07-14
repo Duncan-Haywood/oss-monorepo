@@ -91,7 +91,11 @@ export default function LaunchChecklistDocPage() {
         </li>
         <li>
           Open <DocLink href="/dashboard/login">/dashboard/login</DocLink>, sign in, confirm
-          lead mutations still work, then use Sign out.
+          lead mutations still work, then use Sign out. Action-level Vitest (
+          <code>src/app/dashboard/login/actions.test.ts</code>) locks that login/logout glue
+          (unconfigured redirect, invalid password, <code>safeNextPath</code> open-redirect
+          guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto and{" "}
+          <code>proxy.test.ts</code> Host gate.
         </li>
       </ol>
 

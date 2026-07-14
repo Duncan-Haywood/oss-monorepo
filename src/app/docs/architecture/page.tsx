@@ -61,7 +61,11 @@ export default function ArchitectureDocPage() {
         Convex-first readers — especially the <code>outreach_sent</code> path, where the
         outreach mark already fails closed. When <code>OPERATOR_DASHBOARD_PASSWORD</code> is set,{" "}
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
-        require a signed session cookie. <code>src/proxy.ts</code> also rewrites the root path to a
+        require a signed session cookie — action-level Vitest in{" "}
+        <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout glue
+        (unconfigured redirect, invalid password, <code>safeNextPath</code> open-redirect
+        guard, cookie set/clear) beside <code>operator.test.ts</code> token crypto and{" "}
+        <code>proxy.test.ts</code> Host gate. <code>src/proxy.ts</code> also rewrites the root path to a
         lead&apos;s <code>/preview/[slug]</code> when the request Host is a platform preview
         subdomain (<code>{"{slug}.{productionRootDomain}"}</code>) that resolves to a real lead, or
         a client&apos;s own domain saved via <strong>Save domain</strong> on{" "}

@@ -221,7 +221,8 @@ export const AGENT_PROTOCOL = [
   "When assign-vercel-project-action-test-coverage and assign-custom-domain-action-test-coverage are both free in the same cron window, claim different ones (Assign Vercel project isolation vs Save domain Host→preview routing) — they touch different action surfaces and both lock DEPLOY_HANDOFF_CONVEX_PRIMARY operator paths that handoff helper suites do not cover.",
   "assign-custom-domain-action-test-coverage done: src/app/dashboard/leads/assign-custom-domain-action.test.ts locks requireOperatorAuth, empty slug, trim-to-null clear (whitespace domain → null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignCustomDomainAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), trimmed domain pass-through, and Error / non-Error throws — handoff / custom-domain-routing helper suites alone are not enough for the dashboard Save domain glue. Twin of assign-vercel-project-action-test-coverage (699c; folded via PR #168). When free NEXT_STEPS stay gated after both Assign twins land, prefer get-commerce-catalog-action-test-coverage (thin read-path twin seeding Save/Sync) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "assign-vercel-project-action-test-coverage done: src/app/dashboard/leads/assign-vercel-project-action.test.ts locks requireOperatorAuth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignVercelProjectAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), and Error / non-Error throws — handoff helper suites alone are not enough for the dashboard Assign Vercel project glue. Twin of assign-custom-domain-action-test-coverage (d08a; folded via PR #168). When free NEXT_STEPS stay gated, prefer get-commerce-catalog-action-test-coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "get-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/get-commerce-catalog-action.test.ts locks requireOperatorAuth, empty slug, getCommerceCatalog pass-through (catalog row or null), and Error / non-Error throws — save/sync action suites alone are not enough for the dashboard Commerce catalog read glue that seeds Save/Sync. When free NEXT_STEPS stay gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete gated secrets/OAuth/counsel todos.",
+  "get-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/get-commerce-catalog-action.test.ts locks requireOperatorAuth, empty slug, getCommerceCatalog pass-through (catalog row or null), and Error / non-Error throws — save/sync action suites alone are not enough for the dashboard Commerce catalog read glue that seeds Save/Sync. When free NEXT_STEPS stay gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer login-operator-action-test-coverage (login/logout session write/clear + safeNextPath) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete gated secrets/OAuth/counsel todos.",
+  "login-operator-action-test-coverage done: src/app/dashboard/login/actions.test.ts locks loginOperatorAction / logoutOperatorAction — unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), safeNextPath open-redirect guard (reject // and non-path next → /dashboard), and logout clear (maxAge 0) + redirect to /dashboard/login. operator.test.ts token crypto + proxy.test.ts Host gate alone are not enough for the login form glue that establishes every dashboard mutation session. When free NEXT_STEPS stay gated, prefer requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1625,6 +1626,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Lead volume",
     owner: "cursor/prompt-process-evolution-f4bf",
+  },
+  {
+    id: "login-operator-action-test-coverage",
+    summary:
+      "Empty-backlog after get-commerce-catalog action Vitest: loginOperatorAction / logoutOperatorAction are the operator session write/clear path (safeNextPath open-redirect guard + cookie set/clear) — operator.test.ts token crypto + proxy.test.ts gate alone are not enough for login form glue. Shipped: src/app/dashboard/login/actions.test.ts (7 tests). Sibling-friendly next: requireOperatorAuth cookie-read coverage.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-7f7e",
   },
 ];
 
@@ -3494,9 +3503,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-14",
     decision:
-      "Ship action-level Vitest for getCommerceCatalogAction (Commerce catalog read path seeding Save/Sync) when Assign Vercel / Save domain action coverage is done — save/sync action suites alone do not lock auth, empty slug, getCommerceCatalog pass-through (row or null), or Error / non-Error throws. After this, free backlog returns to empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Ship action-level Vitest for getCommerceCatalogAction (Commerce catalog read path seeding Save/Sync) when Assign Vercel / Save domain action coverage is done — save/sync action suites alone do not lock auth, empty slug, getCommerceCatalog pass-through (row or null), or Error / non-Error throws. After this, prefer login-operator-action-test-coverage (session write/clear + safeNextPath) or empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
-      "getCommerceCatalogAction is the thin operator read that seeds the Commerce Save/Sync panel on /dashboard/leads — Buy now / unsynced debt / preserveCommerceStripeIds all depend on the same Convex-first catalog row. A future auth skip, empty-slug fallthrough, or swallowed read error that returns a fake empty catalog would not fail Vitest without action glue coverage — the same class of gap Save catalog / Sync to Stripe action suites already closed for writes — and would leave operators editing against a missing or stale catalog while preview Buy now still reads Convex-first. Prefer locking that read glue, then empty-backlog audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+      "getCommerceCatalogAction is the thin operator read that seeds the Commerce Save/Sync panel on /dashboard/leads — Buy now / unsynced debt / preserveCommerceStripeIds all depend on the same Convex-first catalog row. A future auth skip, empty-slug fallthrough, or swallowed read error that returns a fake empty catalog would not fail Vitest without action glue coverage — the same class of gap Save catalog / Sync to Stripe action suites already closed for writes — and would leave operators editing against a missing or stale catalog while preview Buy now still reads Convex-first. Prefer locking that read glue, then login/logout action Vitest or empty-backlog audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for loginOperatorAction / logoutOperatorAction (operator session write/clear + safeNextPath) when get-commerce-catalog action coverage is done — operator.test.ts token crypto and proxy.test.ts Host gate alone do not lock unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), open-redirect rejection (// and non-path next → /dashboard), or logout clear (maxAge 0) + redirect to /dashboard/login. After this, free backlog returns to requireOperatorAuth cookie-read coverage or empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Login/logout is the last untested dashboard action module after the CRM/fulfill/Commerce action Vitest chain — every mutation suite mocks requireOperatorAuth, but the form path that establishes the signed httpOnly cookie (launch-checklist step 2) had zero action glue coverage. A future open-redirect regression in safeNextPath, skipped cookie set on success, or logout that fails to clear maxAge would not fail Vitest without this suite — and would leave production operator sessions insecure or stuck while proxy.ts still gates /dashboard/*. Prefer locking that session glue over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6224,7 +6240,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/business-process-evolution-1ca9 (mark-handoff-live action Vitest) — both ITERATIONS kept",
       "Verified: npm test after fold (import-leads-csv 12 + mark-handoff-live 7) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(262, 263),
+    decisions: BUSINESS_DECISIONS.slice(261, 262),
   },
   {
     date: "2026-07-14",
@@ -6240,7 +6256,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process polish after PR #166 dual-fold — unique docs + protocol clarity",
       "Verified: npm test (969 passed — mark-handoff-live 7 + import-leads-csv 12) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(263, 264),
+    decisions: BUSINESS_DECISIONS.slice(262, 263),
   },
   {
     date: "2026-07-14",
@@ -6256,7 +6272,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/cursor/business-process-evolution-699c (assign-vercel-project action Vitest) — both ITERATIONS kept",
       "Verified: npm test after fold (assign-custom-domain 8 + assign-vercel-project 9) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(264, 265),
+    decisions: BUSINESS_DECISIONS.slice(263, 264),
   },
   {
     date: "2026-07-14",
@@ -6272,7 +6288,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process polish only after #168 dual-fold (mirrors #167 after #166)",
       "Verified: npm test (986 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(265, 266),
+    decisions: BUSINESS_DECISIONS.slice(264, 265),
   },
   {
     date: "2026-07-14",
@@ -6286,6 +6302,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — documented getCommerceCatalogAction read glue done; prefer empty-backlog audits next",
       "BUSINESS_DECISIONS — documented why Commerce catalog read-path action Vitest beats inventing optional aggregates after Assign twins",
       "Verified: npm test (get-commerce-catalog 6) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(265, 266),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-7f7e",
+    summary:
+      "Free NEXT_STEPS backlog after PR #170 (get-commerce-catalog action Vitest) stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). Empty-backlog audit found loginOperatorAction / logoutOperatorAction had zero action-level Vitest despite being the operator session write/clear path that seeds every dashboard mutation (operator.test.ts covers token crypto; proxy.test.ts covers the Host gate). Claimed and shipped login-operator-action-test-coverage. Sibling f4bf owned get-commerce (already merged). Tightened recent ITERATION decision slices (3be7→699c +1 drift; f4bf absolute bound). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/login/actions.test.ts — 7 tests locking unconfigured redirect, invalid-password redirect (encoded next), success cookie set via operatorSessionCookieOptions(sessionMaxAgeSeconds()), safeNextPath open-redirect guard (// and non-path → /dashboard), and logout clear (maxAge 0) + redirect to /dashboard/login",
+      "Docs: architecture + roadmap + launch-checklist note login/logout action Vitest beside operator auth / proxy gate",
+      "NEXT_STEPS: login-operator-action-test-coverage done",
+      "AGENT_PROTOCOL — documented login/logout session glue done; prefer requireOperatorAuth cookie-read coverage or empty-backlog audits next",
+      "BUSINESS_DECISIONS — documented why login form action Vitest beats inventing optional aggregates after get-commerce",
+      "Process: tightened ITERATIONS decision slices 3be7→699c (+1 drift) and confirmed f4bf/7f7e absolute bounds",
+      "Verified: npm test (login actions 7) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(266, 267),
   },
