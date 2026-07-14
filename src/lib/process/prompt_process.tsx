@@ -208,7 +208,10 @@ export const AGENT_PROTOCOL = [
   "dispose-cold-lead-action-test-coverage done: src/app/dashboard/leads/dispose-cold-lead-action.test.ts locks requireOperatorAuth, empty slug, invalid disposition, missing lead, not-cold / paid / closed gates, COLD_DISPOSITION_CONVEX_PRIMARY Close + Re-engage patches, Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), ConvexPrimaryWriteError skip-send on disposition and outreach mark, email trim, suppression / Resend failure after durable marks (returns stage/outreachStep; no revalidate), and mock send flag — cold-archive helper suites alone are not enough for the dashboard Re-engage/Close glue. Twin of update-inquiry-status-action-test-coverage (5178). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "update-inquiry-status-action-test-coverage done: src/app/dashboard/leads/update-inquiry-status-action.test.ts locks requireOperatorAuth, empty inquiry id, invalid status, INQUIRY_REPLY_CONVEX_PRIMARY on updateClientInquiryStatus, ConvexPrimaryWriteError fail-closed (no revalidate), null update not-found, success revalidate for read/archived/replied/new, and Error / non-Error throws — reply helper + replyToInquiryAction suites alone are not enough for the mark-read/Archive glue. Twin of dispose-cold-lead-action-test-coverage (3672). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When update-lead-stage-action-test-coverage and snooze-lead-action-test-coverage are both free in the same cron window, claim different ones (dashboard stage dropdown requireConvex vs Work next snooze park) — they touch different action surfaces and both lock CRM paths that lead-stage / lead-snooze helper suites do not cover.",
-  "update-lead-stage-action-test-coverage done: src/app/dashboard/leads/update-lead-stage-action.test.ts locks requireOperatorAuth, LEAD_STAGE_CONVEX_PRIMARY on updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks — stage-persist / outreach-persist helper suites alone are not enough for the dashboard stage dropdown glue. Twin of snooze-lead-action-test-coverage (left free for sibling). When free NEXT_STEPS stay gated, prefer snooze-lead-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "update-lead-stage-action-test-coverage done: src/app/dashboard/leads/update-lead-stage-action.test.ts locks requireOperatorAuth, LEAD_STAGE_CONVEX_PRIMARY on updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks — stage-persist / outreach-persist helper suites alone are not enough for the dashboard stage dropdown glue. Twin of snooze-lead-action-test-coverage (b8a0). When free NEXT_STEPS stay gated, prefer update-lead-notes-action-test-coverage / add-lead-action-test-coverage (sibling-friendly discovery-call notes vs CSV/manual create) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "snooze-lead-action-test-coverage done: src/app/dashboard/leads/snooze-lead-action.test.ts locks requireOperatorAuth, empty slug, missing lead, invalid preset, missing preset/clear, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze for 1d/3d/7d + Unsnooze (clear prefers over preset), ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, and Error / non-Error throws — snooze / snooze-persist helper suites alone are not enough for the dashboard Work next park glue. Twin of update-lead-stage-action-test-coverage (a622). When free NEXT_STEPS stay gated, prefer update-lead-notes-action-test-coverage / add-lead-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When update-lead-notes-action-test-coverage and add-lead-action-test-coverage are both free in the same cron window, claim different ones (discovery-call / Email 3 notes requireConvex vs Add lead create + optional Email 1) — they touch different action surfaces and both lock CRM paths that notes-persist / upsert-persist helper suites do not cover.",
+  "Before claiming in a same-minute dual-automation window, fetch the sibling automation's newest remote branch tip (business-process-evolution-* ↔ prompt-process-evolution-*) and read NEXT_STEPS ownership there — pivoting after a remote claim is cheaper than dual-building the same suite.",
 ] as const;
 
 /**
@@ -1552,10 +1555,24 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "snooze-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after inquiry status / cold disposition action Vitest: snoozeLeadAction is the operator Work next park path (snoozedUntil + LEAD_SNOOZE requireConvex when configured) — lead-snooze helper suites alone are not enough for action glue. Sibling-friendly with update-lead-stage-action-test-coverage; prefer when update-inquiry-status / dispose-cold-lead action coverage is done.",
-    status: "in_progress",
+      "Empty-backlog twin after inquiry status / cold disposition action Vitest: snoozeLeadAction is the operator Work next park path (snoozedUntil + LEAD_SNOOZE requireConvex when configured) — lead-snooze helper suites alone are not enough for action glue. Shipped: snooze-lead-action.test.ts (12 tests). Twin of update-lead-stage-action-test-coverage (a622 folded).",
+    status: "done",
     phase: "Phase 3 — CRM & inbox",
     owner: "cursor/prompt-process-evolution-b8a0",
+  },
+  {
+    id: "update-lead-notes-action-test-coverage",
+    summary:
+      "Empty-backlog twin after stage / snooze action Vitest: updateLeadNotesAction is the operator discovery-call / Email 3 notes path (LEAD_NOTES_CONVEX_PRIMARY fail-closed) — notes helper suites alone are not enough for action glue. Sibling-friendly with add-lead-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
+    status: "todo",
+    phase: "Phase 3 — CRM & inbox",
+  },
+  {
+    id: "add-lead-action-test-coverage",
+    summary:
+      "Empty-backlog twin after stage / snooze action Vitest: addLeadAction is the operator manual create path (LEAD_UPSERT_CONVEX_PRIMARY + optional Email 1 on outreach_sent) — upsert / outreach helper suites alone are not enough for action glue. Sibling-friendly with update-lead-notes-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
+    status: "todo",
+    phase: "Phase 3 — CRM & inbox",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3364,6 +3381,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for updateLeadStageAction (dashboard stage dropdown + optional Email 1 on outreach_sent) when update-inquiry-status-action-test-coverage is done — stage-persist / outreach-persist helper suites alone do not lock auth, LEAD_STAGE_CONVEX_PRIMARY fail-closed, non-outreach success revalidate, outreach_sent mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email skip send, or outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent). Leave snooze-lead-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "The stage dropdown is the operator path that moves funnel state on /dashboard/leads — getLeads / pipeline-health / the stage funnel read Convex-first, and outreach_sent is the same persist-then-notify CAN-SPAM surface as Follow-up / cold Re-engage Email 1. A future soft-fallback that claims a stage move after a SQLite-only write, sends Email 1 before the outreach mark, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap inquiry status / cold disposition / Email 2/3 action suites already closed — and would leave funnel state invisible elsewhere or risk a duplicate Email 1. Prefer locking that stage dropdown glue, then Work next snooze park action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for snoozeLeadAction (Work next 1d/3d/7d park + Unsnooze) when update-lead-stage-action-test-coverage is claimed by a sibling — snooze / snooze-persist helper suites alone do not lock auth, empty slug, missing lead, invalid preset, missing preset/clear, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze, clear-over-preset precedence, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, or Error / non-Error throws. Queue update-lead-notes-action-test-coverage + add-lead-action-test-coverage as sibling-friendly CRM twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Snooze / Unsnooze is the operator path that parks a hot lead off Work next without wiping quality-score history — isFollowUpDue (follow-ups-due-exclude-snoozed) / pipeline-health snoozed count / the daily digest footnote all read Convex-first. A future soft-fallback that claims park after a SQLite-only write, accepts an invalid preset, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap stage dropdown / inquiry-status action suites already closed — and would leave a lead looking due (or still parked) on other instances, risking an unwanted Email 2/3 send right after the operator asked to park it (CAN-SPAM). Prefer locking that Work next park glue, then notes / Add lead action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6014,5 +6038,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (update-lead-stage-action 16) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(257, 258),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-b8a0",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #161 (inquiry status + cold disposition action Vitest). Sibling business-process-evolution-a622 claimed update-lead-stage-action-test-coverage first — pivoted per AGENT_PROTOCOL to snooze-lead-action-test-coverage. snoozeLeadAction had zero action-level Vitest despite being the operator Work next park path (LEAD_SNOOZE_CONVEX_PRIMARY fail-closed). Queued update-lead-notes + add-lead action Vitest twins for siblings. Folded a622 stage dropdown (both ITERATIONS kept). Slight process improvement: fetch sibling tip before claiming in same-minute dual windows. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/snooze-lead-action.test.ts — 12 tests locking auth fail, empty slug, missing lead, invalid preset, missing preset/clear, LEAD_SNOOZE_CONVEX_PRIMARY 1d/3d/7d + Unsnooze (clear prefers over preset), ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside snooze-persist / Work next park",
+      "NEXT_STEPS: snooze-lead-action-test-coverage done; update-lead-stage-action-test-coverage done (a622 folded); queued update-lead-notes-action-test-coverage + add-lead-action-test-coverage",
+      "AGENT_PROTOCOL — claim Work next snooze vs stage dropdown separately; prefer notes / Add lead action Vitest twins next; fetch sibling tip before claiming in same-minute dual windows",
+      "BUSINESS_DECISIONS — documented why Work next snooze park action glue Vitest beats inventing optional aggregates after stage dropdown coverage",
+      "merge: folded origin/cursor/business-process-evolution-a622 (update-lead-stage action Vitest) — both ITERATIONS kept",
+      "Verified: npm test (927 passed — snooze 12 + stage 16 from 899) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(258, 259),
   },
 ];
