@@ -95,7 +95,9 @@ export default function BusinessModelDocPage() {
         Resend (persist-then-notify / <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) so unreplied
         metrics stay accurate across Convex-first instances. Action-level Vitest in{" "}
         <code>reply-to-inquiry-action.test.ts</code> locks the dashboard Reply glue beside
-        reply-persist / reply.ts helpers.
+        reply-persist / reply.ts helpers. Mark-read (composer open) and Archive use the same
+        requireConvex surface without Resend;{" "}
+        <code>update-inquiry-status-action.test.ts</code> locks that status-only glue.
       </p>
       <ul>
         <li>
