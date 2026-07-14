@@ -9,7 +9,8 @@
  * + commerce-abandoned-checkout-tracking
  * + commerce-payouts-owed-in-digest
  * + open-handoffs-in-digest
- * + paid-not-live-in-digest).
+ * + paid-not-live-in-digest
+ * + digest-section-counts-uncapped).
  *
  * Pure aggregation over already-loaded data, same shape as pipeline-health.ts
  * and quality-score.ts: pass `nowMs` from the caller, never Date.now() here.
@@ -154,23 +155,36 @@ export interface DailyDigest {
   generatedAtMs: number;
   workNext: DigestWorkNextLead[];
   followUpsDue: DigestFollowUpLead[];
+  /** True count before the FOLLOW_UPS_LIMIT slice — use for the section header, never followUpsDue.length. */
+  followUpsDueCount: number;
   checkoutRecoveriesDue: DigestCheckoutRecovery[];
+  checkoutRecoveriesDueCount: number;
   commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[];
+  commerceCheckoutRecoveriesDueCount: number;
   unrepliedInquiries: DigestUnrepliedInquiry[];
+  unrepliedInquiriesCount: number;
   marketingPacksDue: DigestMarketingPackDue[];
+  marketingPacksDueCount: number;
   starterUpsellCandidates: DigestStarterUpsellLead[];
+  starterUpsellCandidatesCount: number;
   commerceCatalogsMissing: DigestCommerceCatalogMissing[];
+  commerceCatalogsMissingCount: number;
   commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[];
+  commerceCatalogsUnsyncedCount: number;
   clientVoicePacksDue: DigestClientVoicePackDue[];
+  clientVoicePacksDueCount: number;
   /** Per-lead pass-through Buy now totals still owed until Connect (action section). */
   commercePayoutsOwed: DigestCommercePayoutOwed[];
-  /** Sum of commercePayoutsOwed totals (USD dollars). */
+  /** True count before the COMMERCE_PAYOUTS_LIMIT slice — use for the section header. */
+  commercePayoutsOwedCount: number;
+  /** Sum of commercePayoutsOwed totals (USD dollars) — already computed pre-slice, unaffected by the cap. */
   commercePayoutsOwedTotalUsd: number;
   /**
    * Paid sites still awaiting DNS / Mark live — same status !== "live" filter as
    * pipeline-health openHandoffCount (action section).
    */
   openHandoffs: DigestOpenHandoff[];
+  openHandoffsCount: number;
   /**
    * Leads with stage="paid" — same predicate as pipeline-health
    * paidNotLiveCount (action section). Not the same set as openHandoffs: a
@@ -178,6 +192,7 @@ export interface DailyDigest {
    * deploy_handoffs row, so it would never surface there.
    */
   paidNotLive: DigestPaidNotLive[];
+  paidNotLiveCount: number;
   coldLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
@@ -254,7 +269,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     };
   });
 
-  const followUpsDue: DigestFollowUpLead[] = listFollowUpsDue(leads, nowMs)
+  const followUpsDueAll = listFollowUpsDue(leads, nowMs);
+  const followUpsDueCount = followUpsDueAll.length;
+  const followUpsDue: DigestFollowUpLead[] = followUpsDueAll
     .slice(0, FOLLOW_UPS_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
@@ -262,10 +279,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       outreachStep: lead.outreachStep ?? 0,
     }));
 
-  const checkoutRecoveriesDue: DigestCheckoutRecovery[] = listAbandonedCheckoutsDue(
-    openCheckoutSessions,
-    nowMs,
-  )
+  const checkoutRecoveriesDueAll = listAbandonedCheckoutsDue(openCheckoutSessions, nowMs);
+  const checkoutRecoveriesDueCount = checkoutRecoveriesDueAll.length;
+  const checkoutRecoveriesDue: DigestCheckoutRecovery[] = checkoutRecoveriesDueAll
     .slice(0, RECOVERIES_LIMIT)
     .map((session) => ({
       stripeSessionId: session.stripeSessionId,
@@ -274,19 +290,24 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       tier: session.tier,
     }));
 
+  const commerceCheckoutRecoveriesDueAll = listCommerceAbandonedCheckoutsDue(
+    openCheckoutSessions,
+    nowMs,
+  );
+  const commerceCheckoutRecoveriesDueCount = commerceCheckoutRecoveriesDueAll.length;
   const commerceCheckoutRecoveriesDue: DigestCommerceCheckoutRecovery[] =
-    listCommerceAbandonedCheckoutsDue(openCheckoutSessions, nowMs)
-      .slice(0, RECOVERIES_LIMIT)
-      .map((session) => ({
-        stripeSessionId: session.stripeSessionId,
-        slug: session.leadSlug,
-        businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
-        skuId: session.skuId ?? "sku",
-      }));
+    commerceCheckoutRecoveriesDueAll.slice(0, RECOVERIES_LIMIT).map((session) => ({
+      stripeSessionId: session.stripeSessionId,
+      slug: session.leadSlug,
+      businessName: leadsBySlug.get(session.leadSlug)?.businessName ?? session.leadSlug,
+      skuId: session.skuId ?? "sku",
+    }));
 
-  const unrepliedInquiries: DigestUnrepliedInquiry[] = inquiries
+  const unrepliedInquiriesAll = inquiries
     .filter((inquiry) => isUnrepliedInquiryStatus(inquiry.status))
-    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+  const unrepliedInquiriesCount = unrepliedInquiriesAll.length;
+  const unrepliedInquiries: DigestUnrepliedInquiry[] = unrepliedInquiriesAll
     .slice(0, INQUIRIES_LIMIT)
     .map((inquiry) => ({
       id: inquiry.id,
@@ -296,12 +317,14 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     }));
 
   const yearMonth = marketingMonthKey(nowMs);
-  const marketingPacksDue: DigestMarketingPackDue[] = listMarketingPacksDue(
+  const marketingPacksDueAll = listMarketingPacksDue(
     leads,
     orders,
     marketingPacksThisMonth,
     yearMonth,
-  )
+  );
+  const marketingPacksDueCount = marketingPacksDueAll.length;
+  const marketingPacksDue: DigestMarketingPackDue[] = marketingPacksDueAll
     .slice(0, MARKETING_PACKS_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
@@ -309,10 +332,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       yearMonth,
     }));
 
-  const starterUpsellCandidates: DigestStarterUpsellLead[] = listStarterUpsellCandidates(
-    leads,
-    orders,
-  )
+  const starterUpsellCandidatesAll = listStarterUpsellCandidates(leads, orders);
+  const starterUpsellCandidatesCount = starterUpsellCandidatesAll.length;
+  const starterUpsellCandidates: DigestStarterUpsellLead[] = starterUpsellCandidatesAll
     .slice(0, UPSELL_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
@@ -320,31 +342,35 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       targetTier: resolveUpsellTargetTier(lead.recommendedTier),
     }));
 
-  const commerceCatalogsMissing: DigestCommerceCatalogMissing[] =
-    listCommerceCatalogsMissing(leads, orders, commerceCatalogs)
-      .slice(0, COMMERCE_CATALOGS_LIMIT)
-      .map((lead) => ({
-        slug: lead.slug,
-        businessName: lead.businessName,
-      }));
+  const commerceCatalogsMissingAll = listCommerceCatalogsMissing(leads, orders, commerceCatalogs);
+  const commerceCatalogsMissingCount = commerceCatalogsMissingAll.length;
+  const commerceCatalogsMissing: DigestCommerceCatalogMissing[] = commerceCatalogsMissingAll
+    .slice(0, COMMERCE_CATALOGS_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+    }));
 
   const catalogsWithItems = commerceCatalogs.filter(
     (catalog): catalog is { leadSlug: string; items: ReadonlyArray<{ stripePriceId?: string }> } =>
       Array.isArray(catalog.items),
   );
-  const commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[] =
-    listCommerceCatalogsUnsynced(leads, orders, catalogsWithItems)
-      .slice(0, COMMERCE_UNSYNCED_LIMIT)
-      .map((lead) => ({
-        slug: lead.slug,
-        businessName: lead.businessName,
-      }));
-
-  const clientVoicePacksDue: DigestClientVoicePackDue[] = listClientVoicePacksDue(
+  const commerceCatalogsUnsyncedAll = listCommerceCatalogsUnsynced(
     leads,
     orders,
-    clientVoicePacks,
-  )
+    catalogsWithItems,
+  );
+  const commerceCatalogsUnsyncedCount = commerceCatalogsUnsyncedAll.length;
+  const commerceCatalogsUnsynced: DigestCommerceCatalogUnsynced[] = commerceCatalogsUnsyncedAll
+    .slice(0, COMMERCE_UNSYNCED_LIMIT)
+    .map((lead) => ({
+      slug: lead.slug,
+      businessName: lead.businessName,
+    }));
+
+  const clientVoicePacksDueAll = listClientVoicePacksDue(leads, orders, clientVoicePacks);
+  const clientVoicePacksDueCount = clientVoicePacksDueAll.length;
+  const clientVoicePacksDue: DigestClientVoicePackDue[] = clientVoicePacksDueAll
     .slice(0, CLIENT_VOICE_PACKS_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
@@ -354,6 +380,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   const commercePayoutSummaries = summarizeCommerceOrdersByLead(commerceOrders).filter(
     (summary) => summary.unpaidCount > 0,
   );
+  const commercePayoutsOwedCount = commercePayoutSummaries.length;
   const commercePayoutsOwedTotalUsd = commercePayoutSummaries.reduce(
     (sum, row) => sum + row.unpaidTotalUsd,
     0,
@@ -368,9 +395,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     }));
 
   // Same status !== "live" predicate as pipeline-health openHandoffCount.
-  const openHandoffs: DigestOpenHandoff[] = handoffs
+  const openHandoffsAll = handoffs
     .filter((handoff) => handoff.status !== "live")
-    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+  const openHandoffsCount = openHandoffsAll.length;
+  const openHandoffs: DigestOpenHandoff[] = openHandoffsAll
     .slice(0, OPEN_HANDOFFS_LIMIT)
     .map((handoff) => ({
       slug: handoff.leadSlug,
@@ -386,8 +415,9 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
   // Same lead.stage === "paid" predicate as pipeline-health paidNotLiveCount.
   // Distinct set from openHandoffs above — a lead can be marked paid (stage
   // dropdown or CSV import) with no deploy_handoffs row ever created.
-  const paidNotLive: DigestPaidNotLive[] = leads
-    .filter((lead) => lead.stage === "paid")
+  const paidNotLiveAll = leads.filter((lead) => lead.stage === "paid");
+  const paidNotLiveCount = paidNotLiveAll.length;
+  const paidNotLive: DigestPaidNotLive[] = paidNotLiveAll
     .slice(0, PAID_NOT_LIVE_LIMIT)
     .map((lead) => ({
       slug: lead.slug,
@@ -432,18 +462,30 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     generatedAtMs: nowMs,
     workNext,
     followUpsDue,
+    followUpsDueCount,
     checkoutRecoveriesDue,
+    checkoutRecoveriesDueCount,
     commerceCheckoutRecoveriesDue,
+    commerceCheckoutRecoveriesDueCount,
     unrepliedInquiries,
+    unrepliedInquiriesCount,
     marketingPacksDue,
+    marketingPacksDueCount,
     starterUpsellCandidates,
+    starterUpsellCandidatesCount,
     commerceCatalogsMissing,
+    commerceCatalogsMissingCount,
     commerceCatalogsUnsynced,
+    commerceCatalogsUnsyncedCount,
     clientVoicePacksDue,
+    clientVoicePacksDueCount,
     commercePayoutsOwed,
+    commercePayoutsOwedCount,
     commercePayoutsOwedTotalUsd,
     openHandoffs,
+    openHandoffsCount,
     paidNotLive,
+    paidNotLiveCount,
     coldLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
@@ -555,8 +597,8 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       `<strong>${escapeHtmlForEmail(row.businessName)}</strong> — $${row.totalUsd.toFixed(2)} owed (${row.orderCount} order${row.orderCount === 1 ? "" : "s"})`,
   );
   const payoutTitle =
-    digest.commercePayoutsOwed.length > 0
-      ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwed.length} client${digest.commercePayoutsOwed.length === 1 ? "" : "s"})`
+    digest.commercePayoutsOwedCount > 0
+      ? `Commerce payouts owed ($${digest.commercePayoutsOwedTotalUsd.toFixed(2)} · ${digest.commercePayoutsOwedCount} client${digest.commercePayoutsOwedCount === 1 ? "" : "s"})`
       : "Commerce payouts owed (0)";
 
   const handoffRows = digest.openHandoffs.map(
@@ -574,18 +616,18 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       <a href="${baseUrl}/dashboard/leads" style="color:#2563eb;">Open the dashboard</a> to act on any of these.
     </p>
     ${section(`Work next (${digest.workNext.length})`, workNextRows, "No actionable leads scored right now.")}
-    ${section(`Follow-ups due (${digest.followUpsDue.length})`, followUpRows, "No follow-up emails due.")}
-    ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDue.length})`, recoveryRows, "No recovery nudges due.")}
-    ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDue.length})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
-    ${section(`Unreplied inquiries (${digest.unrepliedInquiries.length})`, inquiryRows, "Inbox clear.")}
-    ${section(`Marketing packs due (${digest.marketingPacksDue.length})`, packRows, "All Growth/Complete packs generated this month.")}
-    ${section(`Starter → MRR upsell (${digest.starterUpsellCandidates.length})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
-    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissing.length})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
-    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsynced.length})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
-    ${section(`Complete voice packs due (${digest.clientVoicePacksDue.length})`, voicePackRows, "All Complete voice FAQ packs generated.")}
+    ${section(`Follow-ups due (${digest.followUpsDueCount})`, followUpRows, "No follow-up emails due.")}
+    ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDueCount})`, recoveryRows, "No recovery nudges due.")}
+    ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDueCount})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
+    ${section(`Unreplied inquiries (${digest.unrepliedInquiriesCount})`, inquiryRows, "Inbox clear.")}
+    ${section(`Marketing packs due (${digest.marketingPacksDueCount})`, packRows, "All Growth/Complete packs generated this month.")}
+    ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
+    ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
+    ${section(`Commerce Sync to Stripe due (${digest.commerceCatalogsUnsyncedCount})`, commerceUnsyncedRows, "All saved Commerce catalogs are synced for Buy now.")}
+    ${section(`Complete voice packs due (${digest.clientVoicePacksDueCount})`, voicePackRows, "All Complete voice FAQ packs generated.")}
     ${section(payoutTitle, payoutRows, "No pass-through Buy now money owed to clients.")}
-    ${section(`Production handoffs open (${digest.openHandoffs.length})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
-    ${section(`Paid, not yet live (${digest.paidNotLive.length})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
+    ${section(`Production handoffs open (${digest.openHandoffsCount})`, handoffRows, "No paid sites awaiting DNS / Mark live.")}
+    ${section(`Paid, not yet live (${digest.paidNotLiveCount})`, paidNotLiveRows, "No leads stuck at stage=Paid with nothing else due.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
   `;
