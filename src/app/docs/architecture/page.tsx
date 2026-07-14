@@ -387,7 +387,14 @@ export default function ArchitectureDocPage() {
         by a client-supplied <code>sessionId</code>, it is rate-limited by client IP via{" "}
         <code>checkRateLimit</code> (same helper as contact / checkout / commerce checkout /
         unsubscribe / preview-open) so scripted <code>sessionId</code> probing cannot burn Stripe
-        API quota unbounded. The operator <strong>Billing</strong> button path
+        API quota unbounded. Because a completed <code>sessionId</code> is not truly secret either
+        (it leaks via redirect URLs, the <code>Referer</code> header, and browser history), an
+        explicit body <code>returnUrl</code> is only honored when its origin matches the derived
+        {" "}<code>appUrl</code> (<code>isSameOriginReturnUrl</code>) — otherwise the route falls
+        back to the derived default rather than handing Stripe an attacker-controlled{" "}
+        <code>return_url</code>, which would otherwise let a genuine{" "}
+        <code>billing.stripe.com</code> URL redirect to a phishing page on exit. The operator{" "}
+        <strong>Billing</strong> button path
         (<code>openBillingPortalAction</code>) has its own action-level Vitest in{" "}
         <code>open-billing-portal-action.test.ts</code> — auth, secret gate, returnUrl
         (APP_URL / forwarded host / localhost → <code>/dashboard/leads</code>), and helper

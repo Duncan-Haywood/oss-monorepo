@@ -69,6 +69,7 @@ export const AGENT_PROTOCOL = [
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
   "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts).",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
+  "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value.",
 
   // --- Testing & verification ---
   "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test.",
@@ -1607,6 +1608,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-b16c",
+  },
+  {
+    id: "billing-portal-return-url-open-redirect-guard",
+    summary:
+      "Empty-backlog after PR #185 (billing-portal rate-limit on quirky-davinci-6tghy1); siblings cursor/business-process-evolution-6445 and cursor/prompt-process-evolution-b16c claimed the two remaining known bugs from that audit window (commerce-client-receipt-redelivery-recovery, email-1-outreach-send-success-check) before this run started, so a fresh audit swept a different angle (money/ledger recovery-marker recheck, Convex/SQLite parity, HTML/JSON-LD escaping, orchestrator test-coverage ratio) and found: POST /api/stripe/billing-portal is public, keyed only by a client-supplied Stripe Checkout Session id (not truly secret — appears in redirect URLs, referrer headers, browser history), and passed body.returnUrl straight through to stripe.billingPortal.sessions.create's return_url with zero same-origin validation. An attacker holding any valid completed session id could get Stripe to mint a real billing.stripe.com portal URL whose 'Return to [merchant]' link points anywhere they choose — using the merchant's own trusted Stripe relationship as an open-redirect gateway for phishing. The codebase already has the right pattern for this (safeNextPath in src/app/dashboard/login/actions.ts) but it was never applied here. Shipped: reject any body.returnUrl whose origin does not match the derived appUrl, falling back to the existing default (${appUrl}/checkout/success?session_id=...) instead.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "claude/relaxed-galileo-h8lib0",
   },
 ];
 
@@ -3605,6 +3614,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship no code this run — document a clean audit instead of re-running the same 5 bug classes a 3rd/4th consecutive time or manufacturing a new optional metric. Add one AGENT_PROTOCOL clarification: once 2+ consecutive audits confirm a bug class clean, the next agent should rotate to an unchecked axis (sold-vs-shipped doc reconciliation, a different orchestrator's test coverage, a different security surface) rather than re-verifying the same invariants a marginal-value 3rd time.",
     rationale:
       "Delegated a fresh sweep of the 5 bug classes this log tracks (durable-marker-after-unchecked-await, Convex API map gaps, uncapped debt lists, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) across every call site named in AGENT_PROTOCOL and found nothing new at the time this audit ran — this branch's own audit missed the updateLeadStageAction/addLeadAction Email 1 gap that sibling email-1-outreach-send-success-check (the decision immediately above) found and fixed the same day, so treat this as a clean pass on the webhook/ledger call sites actually inspected, not a guarantee the whole bug class was exhaustive. Independently cross-checked that every list*Due/Missing/Unsynced helper (marketing packs, client voice packs, commerce catalogs missing/unsynced, follow-ups due, cold leads, abandoned checkouts, unpaid commerce orders, unreplied inquiries) is wired into both src/lib/metrics/pipeline-health.ts and src/lib/digest/daily-digest.ts — no orphaned sold-capability helper missing from either surface. Also confirmed /docs/product-bundles' per-bundle promises already cite the exact implementing module and test file for each claim (catalog sync, archive-orphans, commerce order-notification email, payout tracking), so a manual sold-vs-shipped reconciliation pass would just be re-reading that doc. Shipping a fake feature or repeating an already-clean check a further time to have a diff would cost sibling agents more (thrash, wasted audit cycles) than an honest 'still clean' entry costs them (a few minutes reading this decision before picking their own axis). Worth noting in AGENT_PROTOCOL so the audit rotation itself becomes a repeatable practice instead of every agent re-deriving 'what's already been checked' from ITERATIONS prose — with the caveat above, that rotation should still expect near-miss gaps like this one rather than treat 'clean' as absolute.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Validate POST /api/stripe/billing-portal's body.returnUrl against the derived appUrl's origin before passing it to stripe.billingPortal.sessions.create — any missing, malformed, or cross-origin value now falls back to the existing derived default instead of being trusted verbatim, mirroring the safeNextPath pattern already used for the operator-login redirect.",
+    rationale:
+      "Two remote siblings (cursor/business-process-evolution-6445, cursor/prompt-process-evolution-b16c) had already claimed the two known bugs from the prior audit window before this run started, so duplicating either would have wasted a full iteration on work already in flight. A fresh sweep of different angles found that billing-portal — public, keyed only by a client-supplied Checkout Session id that is not truly secret — forwarded an attacker-controlled returnUrl straight into a live Stripe API call with no validation, letting anyone with a valid session id get Stripe to mint a real billing.stripe.com URL that redirects to an attacker's page on exit. That is a genuine open-redirect using the merchant's own trusted Stripe domain as cover for phishing, not a stylistic nitpick — and the fix is cheap (a same-origin check the codebase already had a template for) with zero behavior change for every legitimate caller, since the only real caller (manage-billing-button.tsx) always sends window.location.origin. Shipping a concrete, verifiable security fix beats inventing an optional aggregate or waiting idle while siblings finish their claimed items. This audit run also independently re-checked the open-redirect surface the prior clean-audit pass (decision above) did not cover — that pass rotated to sold-capability wiring, not security surfaces, so this is a genuinely new axis rather than a re-derivation.",
   },
 ];
 
@@ -6671,7 +6687,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Email 1 success-check beats inventing optional aggregates while sibling owns commerce receipt recovery",
       "Verified: npm test (update/add lead stage Email 1 success regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(282, 283),
+    decisions: BUSINESS_DECISIONS.slice(283, 284),
   },
   {
     date: "2026-07-14",
@@ -6686,6 +6702,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #186 email-1-outreach-send-success-check) — both ITERATIONS entries kept; decision slices 282–284",
       "Verified: npm test (1123 passed pre-merge) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(283, 284),
+    decisions: BUSINESS_DECISIONS.slice(284, 285),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/relaxed-galileo-h8lib0",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #185 (billing-portal rate-limit). At this run's start, remote siblings cursor/business-process-evolution-6445 and cursor/prompt-process-evolution-b16c had already claimed (claim-commit only, no feature code yet) the two known bugs from that audit window — commerce-client-receipt-redelivery-recovery and email-1-outreach-send-success-check — so this run did not duplicate either; both stayed on their owning branches, later merged as PR #186/#187. A third sibling (claude/upbeat-dijkstra-3duvyp, PR #188, folded above) ran a clean sold-capability/wiring audit in the same window and found nothing new. Rather than repeat that pass, ran a fresh audit across a different set of angles (recovery-marker recheck, Convex/SQLite parity, HTML/JSON-LD escaping, orchestrator test-coverage ratio) and found a real open-redirect vulnerability: POST /api/stripe/billing-portal is public and keyed only by a client-supplied Stripe Checkout Session id — not truly secret, since it appears in redirect URLs, referrer headers, and browser history — and forwarded body.returnUrl verbatim into stripe.billingPortal.sessions.create's return_url with no same-origin check. An attacker holding any valid completed session id could get Stripe to mint a genuine billing.stripe.com portal URL whose 'Return to [merchant]' link pointed at an attacker-controlled page, borrowing the merchant's trusted Stripe relationship for phishing credibility. The repo already had the right defensive pattern (safeNextPath, src/app/dashboard/login/actions.ts) but it had never been applied to this route. Claimed and shipped billing-portal-return-url-open-redirect-guard in the same commit as the fix. Merged origin/main (PR #186/#187/#188) mid-window — folded all three ITERATIONS entries above, retightened this entry's decision slice to 285–286.",
+    shipped: [
+      "src/app/api/stripe/billing-portal/route.ts — isSameOriginReturnUrl(candidate, appUrl) validates body.returnUrl's origin against the derived appUrl before use; any missing/malformed/cross-origin value now falls back to the existing derived default (${appUrl}/checkout/success?session_id=...) instead of being trusted verbatim",
+      "src/app/api/stripe/billing-portal/route.test.ts — two regression tests: a cross-origin returnUrl and a malformed (non-URL) returnUrl both fall back to the derived default rather than reaching Stripe; updated the suite docstring to mention the open-redirect guard",
+      "src/app/docs/architecture/page.tsx — Billing Portal section notes the same-origin returnUrl guard beside the existing rate-limit note",
+      "NEXT_STEPS: billing-portal-return-url-open-redirect-guard done",
+      "AGENT_PROTOCOL — added a security rule generalizing this bug class (any client-supplied redirect/return URL passed to a third-party API or used for navigation must be validated same-origin, mirroring safeNextPath, not just escaped/rate-limited)",
+      "BUSINESS_DECISIONS — documented why this open-redirect fix beat re-auditing already-clean categories (rate-limit completeness, CSV export injection, orphan-archive wiring) this run",
+      "merge: folded origin/main (PR #186 email-1-outreach-send-success-check + PR #187 commerce-client-receipt-redelivery-recovery + PR #188 clean audit) — all three ITERATIONS entries kept",
+      "Verified: npm test (1125 passed, full suite incl. 2 new regression tests) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(285, 286),
   },
 ];

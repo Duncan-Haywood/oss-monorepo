@@ -19,6 +19,24 @@ interface BillingPortalBody {
   returnUrl?: string;
 }
 
+/**
+ * A client-supplied returnUrl is only honored when it is same-origin with
+ * the app — otherwise it is silently replaced with the derived default.
+ * Without this, an attacker with any valid completed Checkout Session id
+ * (not truly secret — appears in redirect URLs, referrer headers, browser
+ * history) could get Stripe to mint a real billing.stripe.com portal URL
+ * whose "Return to [merchant]" link points anywhere they choose, using the
+ * merchant's trusted Stripe relationship as an open-redirect gateway.
+ * Mirrors safeNextPath in src/app/dashboard/login/actions.ts.
+ */
+function isSameOriginReturnUrl(candidate: string, appUrl: string): boolean {
+  try {
+    return new URL(candidate).origin === new URL(appUrl).origin;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   const clientIp = clientIpFromHeaders(request.headers);
   const rate = checkRateLimit(`billing-portal:${clientIp}`);
@@ -53,7 +71,12 @@ export async function POST(request: Request) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
-  const returnUrl = body.returnUrl?.trim() || `${appUrl}/checkout/success?session_id=${encodeURIComponent(sessionId)}`;
+  const defaultReturnUrl = `${appUrl}/checkout/success?session_id=${encodeURIComponent(sessionId)}`;
+  const trimmedReturnUrl = body.returnUrl?.trim();
+  const returnUrl =
+    trimmedReturnUrl && isSameOriginReturnUrl(trimmedReturnUrl, appUrl)
+      ? trimmedReturnUrl
+      : defaultReturnUrl;
 
   const stripe = new Stripe(secretKey);
   const result = await createBillingPortalForCheckoutSession(stripe, sessionId, returnUrl);
