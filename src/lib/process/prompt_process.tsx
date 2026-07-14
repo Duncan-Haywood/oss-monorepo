@@ -1505,8 +1505,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "send-follow-up-action-test-coverage",
     summary:
       "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendFollowUpAction is the operator Email 2/3 outreach path (OUTREACH_CADENCE_CONVEX_PRIMARY persist-then-notify) — outreach helper suites alone are not enough for action glue. Sibling-friendly with send-starter-upsell-action-test-coverage; prefer when open-billing-portal action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 4 — Outreach",
+    owner: "cursor/prompt-process-evolution-6b73",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
