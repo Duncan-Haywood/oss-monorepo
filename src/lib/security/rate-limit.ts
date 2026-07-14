@@ -1,7 +1,9 @@
 /**
  * Minimal in-memory rate limiter for public write endpoints (contact form,
  * checkout create, commerce checkout create, billing portal create,
- * preview-open beacon, and CAN-SPAM unsubscribe GET).
+ * preview-open beacon, CAN-SPAM unsubscribe GET, Stripe bootstrap-prices,
+ * and operator marketing/generate — the last two are auth-gated but still
+ * need per-IP throttling when OPERATOR_DASHBOARD_PASSWORD is unset).
  *
  * IMPORTANT — this is per-instance, best-effort protection, not a hard
  * security boundary:

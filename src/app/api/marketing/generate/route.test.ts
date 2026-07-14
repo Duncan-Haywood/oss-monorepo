@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
 
 /**
  * Route-level coverage for POST /api/marketing/generate — operator
@@ -6,8 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * persisted Growth/Complete packs).
  *
  * generators.test.ts locks Stub/Anthropic paths; this suite locks the
- * route's auth gate, JSON/contentTypes/automationLevel/business
- * validation, and stub-vs-LLM response messaging.
+ * route's auth gate, client-IP rate-limit 429, JSON/contentTypes/
+ * automationLevel/business validation, and stub-vs-LLM response messaging.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -22,10 +23,13 @@ vi.mock("@/lib/marketing/generators", () => ({
   }),
 }));
 
-function generateRequest(body: unknown) {
+function generateRequest(body: unknown, clientIp = "203.0.113.40") {
   return new Request("http://localhost/api/marketing/generate", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "x-forwarded-for": clientIp,
+    },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
 }
@@ -62,6 +66,8 @@ describe("POST /api/marketing/generate", () => {
         },
       ],
     });
+    resetRateLimiterForTests();
+    vi.resetModules();
   });
 
   afterEach(() => {
@@ -87,6 +93,23 @@ describe("POST /api/marketing/generate", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("returns 429 with Retry-After after the rate limit is exceeded", async () => {
+    const { POST } = await import("./route");
+    for (let i = 0; i < 20; i++) {
+      const ok = await POST(generateRequest(validBody, "203.0.113.41"));
+      expect(ok.status).toBe(200);
+    }
+
+    const limited = await POST(generateRequest(validBody, "203.0.113.41"));
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get("Retry-After")).toBeTruthy();
+    expect(await limited.json()).toEqual({
+      error: "Too many requests",
+      message: "Please try again shortly.",
+    });
+    expect(generate).toHaveBeenCalledTimes(20);
   });
 
   it("returns 400 on invalid JSON", async () => {

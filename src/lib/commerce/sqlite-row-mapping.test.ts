@@ -94,4 +94,15 @@ describe("mapCommerceOrderRow", () => {
     expect(mapped.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
     expect(mapped.clientReceiptEmailSentAt).toBe("2026-01-01T01:00:00.000Z");
   });
+
+  it("normalizes empty-string paidOutAt/clientReceiptEmailSentAt to undefined (unpaid)", () => {
+    const row: SqliteCommerceOrderRow = {
+      ...baseRow,
+      paidOutAt: "",
+      clientReceiptEmailSentAt: "",
+    };
+    const mapped = mapCommerceOrderRow(row);
+    expect(mapped.paidOutAt).toBeUndefined();
+    expect(mapped.clientReceiptEmailSentAt).toBeUndefined();
+  });
 });
