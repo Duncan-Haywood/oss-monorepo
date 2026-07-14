@@ -231,6 +231,7 @@ export const AGENT_PROTOCOL = [
   "When app-url-env-readiness is claimed by a sibling and free NEXT_STEPS stay gated, prefer brand-name-env-readiness (NEXT_PUBLIC_BRAND_NAME missing/whitespace → brand.name fallback 'Your Brand' on every outreach From / marketing footer / voice intro) or production-domain-env-readiness — claim different surfaces; do not invent optional aggregates.",
   "When brand-name-env-readiness and production-domain-env-readiness are both free in the same cron window, claim different ones (public brand for outreach copy vs production root domain for preview hosts) — they touch different surfaces and both close empty-backlog gaps without inventing aggregates.",
   "brand-name-env-readiness done: assessBrandNameEnvReadiness (src/lib/brand/brand-name-env-readiness.ts) + BrandNameEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / Your Brand|Brand Name-style NEXT_PUBLIC_BRAND_NAME — matching brand.isConfigured (legacy NEXT_PUBLIC_APP_NAME does not count) so outreach From / marketing footers / voice intros cannot silently ship as 'Your Brand' while Resend/Stripe/APP_URL look ready. Distinct rose banner. Env presence only. When free NEXT_STEPS stay gated, prefer production-domain-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "production-domain-env-readiness done: assessProductionDomainEnvReadiness (src/lib/deploy/production-domain-env-readiness.ts) + ProductionDomainEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / localhost|127.0.0.1 / example.com|yourdomain.com / preview.*-style NEXT_PUBLIC_PRODUCTION_DOMAIN — matching productionRootDomain()'s explicit-env preference so handoff suggestedHost + DNS counseling cannot silently fall back to PREVIEW_DOMAIN stripping (or the localsitestudio.com default) while APP_URL/brand look ready. Distinct cyan banner. PREVIEW_DOMAIN alone does not count as ready. Env presence only — does not resolve DNS. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1678,9 +1679,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "production-domain-env-readiness",
     summary:
-      "Empty-backlog after app-url-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL is live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Prefer assessProductionDomainEnvReadiness + banner (env presence only; distinct from APP_URL/Stripe/brand banners) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-    status: "todo",
+      "Empty-backlog after brand-name-env-readiness (edae / PR #175): operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL/brand are live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Shipped: assessProductionDomainEnvReadiness + ProductionDomainEnvBanner on /dashboard + /dashboard/leads + docs. Sibling-friendly next: empty-backlog sold-capability / multi-instance regression audits.",
+    status: "done",
     phase: "Phase 5 — Client handoff",
+    owner: "cursor/business-process-evolution-6506",
   },
 ];
 
@@ -3588,6 +3590,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessBrandNameEnvReadiness + BrandNameEnvBanner when app-url-env-readiness is claimed/done by a sibling — APP_URL readiness locks canonical checkout/digest/SEO origins, but operators still get no early dashboard signal when NEXT_PUBLIC_BRAND_NAME is missing, whitespace-only, or a Your Brand/Brand Name-style placeholder (brand.name fallback 'Your Brand' on every outreach From / marketing footer / voice intro / CAN-SPAM sender line). Env presence only; distinct rose banner; legacy NEXT_PUBLIC_APP_NAME does not count (matches brand.isConfigured). Leave production-domain-env-readiness free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Unbranded outreach after Resend/Stripe/APP_URL go live is a silent conversion leak — Email 1–3 and pack delivery can look 'send-ready' while every customer-facing surface still reads as an unconfigured placeholder. Prefer that early brand signal, then production-domain readiness or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessProductionDomainEnvReadiness + ProductionDomainEnvBanner when brand-name-env-readiness is done — APP_URL/brand banners already cover canonical origin + outreach copy, but operators still get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing, whitespace-only, localhost, an example.com/yourdomain.com placeholder, or a preview.* root (productionRootDomain() silently falls back to stripping preview. from NEXT_PUBLIC_PREVIEW_DOMAIN / localsitestudio.com default — handoff suggestedHost + DNS counseling advertise the wrong root). Env presence only; distinct cyan banner; PREVIEW_DOMAIN alone does not count as ready. Queue empty-backlog sold-capability / multi-instance regression audits next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Wrong suggestedHost after APP_URL goes live is a silent Starter fulfillment leak — paid handoffs email clients a platform-default subdomain while wildcard DNS counseling points at the wrong root, and every other launch secret already has an operator-visible banner. Prefer that early production-root signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6378,7 +6387,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Commerce catalog read-path action Vitest beats inventing optional aggregates after Assign twins",
       "Verified: npm test (get-commerce-catalog 6) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(265, 266),
+    decisions: BUSINESS_DECISIONS.slice(266, 267),
   },
   {
     date: "2026-07-14",
@@ -6394,7 +6403,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 3be7→699c (+1 drift) and confirmed f4bf/7f7e absolute bounds",
       "Verified: npm test (login actions 7) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(266, 267),
+    decisions: BUSINESS_DECISIONS.slice(267, 268),
   },
   {
     date: "2026-07-14",
@@ -6410,7 +6419,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 3be7→7f7e (+1 drift) and set b2e7 absolute bound to BUSINESS_DECISIONS.length",
       "Verified: npm test (operator.test.ts 20) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(267, 268),
+    decisions: BUSINESS_DECISIONS.slice(268, 269),
   },
   {
     date: "2026-07-14",
@@ -6426,7 +6435,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why open-dashboard password readiness beats inventing optional aggregates after auth Vitest chain",
       "Verified: npm test (operator-auth-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(268, 269),
+    decisions: BUSINESS_DECISIONS.slice(269, 270),
   },
   {
     date: "2026-07-14",
@@ -6442,7 +6451,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why APP_URL readiness beats inventing optional aggregates after auth banner",
       "Verified: npm test (app-url-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(269, 270),
+    decisions: BUSINESS_DECISIONS.slice(270, 271),
   },
   {
     date: "2026-07-14",
@@ -6459,6 +6468,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: folded PR #174 APP_URL into dashboards; tightened ITERATIONS decision slices 02c1→618c",
       "Verified: npm test (brand-name-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(270, 271),
+    decisions: BUSINESS_DECISIONS.slice(271, 272),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-6506",
+    summary:
+      "Free NEXT_STEPS backlog after PR #175 (brand-name-env-readiness on edae) stayed fully gated except production-domain. Empty-backlog audit found NEXT_PUBLIC_PRODUCTION_DOMAIN had no operator-visible readiness banner despite productionRootDomain() falling back to PREVIEW_DOMAIN stripping / localsitestudio.com default — handoff suggestedHost + DNS counseling silently advertise the wrong root while APP_URL/brand look ready. Claimed and shipped production-domain-env-readiness. Sibling prompt-process-evolution-9930 had not pushed a competing claim. Tightened 02c1→edae ITERATION decision slices (+1 drift) so absolute bounds match BUSINESS_DECISIONS.length. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/deploy/production-domain-env-readiness.ts + .test.ts — assessProductionDomainEnvReadiness locks missing/whitespace/localhost|127.0.0.1/example.com|yourdomain.com/preview.* vs ready bare production root; PREVIEW_DOMAIN alone does not count",
+      "src/components/dashboard/production-domain-env-banner.tsx — cyan production-root banner on /dashboard + /dashboard/leads (after APP_URL banner)",
+      "Docs: architecture + roadmap + launch-checklist + production-deploy note the banner beside suggestedHost / wildcard DNS",
+      "NEXT_STEPS: production-domain-env-readiness done",
+      "AGENT_PROTOCOL — prefer empty-backlog sold-capability / multi-instance regression audits next",
+      "BUSINESS_DECISIONS — documented why production-domain readiness beats inventing optional aggregates after brand banner",
+      "Process: tightened ITERATIONS decision slices 02c1→edae (+1 drift) and set 6506 absolute bound to BUSINESS_DECISIONS.length",
+      "Verified: npm test (production-domain-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(272, 273),
   },
 ];

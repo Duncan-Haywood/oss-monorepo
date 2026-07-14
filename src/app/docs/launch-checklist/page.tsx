@@ -113,6 +113,16 @@ export default function LaunchChecklistDocPage() {
           <code>siteUrl()</code> otherwise fall back to request origin or localhost. Distinct
           from Stripe / Resend / auth banners.
         </li>
+        <li>
+          Set <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> to the bare public production root (e.g.{" "}
+          <code>yoursite.com</code>, not <code>preview.yoursite.com</code> or{" "}
+          <code>example.com</code>). Until set, <DocLink href="/dashboard">/dashboard</DocLink>{" "}
+          and <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a cyan
+          production-root banner via <code>assessProductionDomainEnvReadiness</code> — handoff{" "}
+          <code>suggestedHost</code> and DNS counseling otherwise fall back to stripping{" "}
+          <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> (or the
+          localsitestudio.com default). Distinct from the APP_URL / Stripe / brand banners.
+        </li>
       </ol>
 
       <h2>3. Outreach (blocks top-of-funnel)</h2>
@@ -448,8 +458,8 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Optional: set <code>VERCEL_TOKEN</code> + <code>VERCEL_PROJECT_ID</code> (and{" "}
-          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code>) so domain registration is attempted
-          automatically.
+          <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> — already flagged by the cyan readiness
+          banner when unset) so domain registration is attempted automatically.
         </li>
         <li>
           Complete DNS from the handoff panel, then <strong>Mark live</strong>. Confirm

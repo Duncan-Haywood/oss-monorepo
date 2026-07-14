@@ -23,6 +23,7 @@ import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-di
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
 import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
+import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
@@ -33,6 +34,7 @@ import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-dig
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
 import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
+import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -126,6 +128,7 @@ export default async function LeadsPage() {
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
   const brandNameEnv = assessBrandNameEnvReadiness();
   const appUrlEnv = assessAppUrlEnvReadiness();
+  const productionDomainEnv = assessProductionDomainEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -145,6 +148,7 @@ export default async function LeadsPage() {
       <div className="mt-6">
         <OperatorAuthEnvBanner readiness={operatorAuthEnv} />
         <AppUrlEnvBanner readiness={appUrlEnv} />
+        <ProductionDomainEnvBanner readiness={productionDomainEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

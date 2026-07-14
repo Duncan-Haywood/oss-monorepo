@@ -127,7 +127,13 @@ export default function ArchitectureDocPage() {
         banner via <code>assessAppUrlEnvReadiness</code> (
         <code>src/lib/seo/app-url-env-readiness.ts</code>) — missing / whitespace / localhost /{" "}
         <code>example.com</code> placeholders are flagged (env presence only; distinct from Stripe
-        / Resend / auth banners). <code>siteUrl()</code>&apos;s precedence (
+        / Resend / auth banners). Until <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> is a bare
+        public production root, the same dashboards show a cyan production-root banner via{" "}
+        <code>assessProductionDomainEnvReadiness</code> (
+        <code>src/lib/deploy/production-domain-env-readiness.ts</code>) — missing / whitespace /
+        localhost / <code>example.com</code> / <code>preview.*</code> placeholders are flagged;
+        <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> alone does not count as ready (handoff{" "}
+        <code>suggestedHost</code> otherwise silently falls back). <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}
