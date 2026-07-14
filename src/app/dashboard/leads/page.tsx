@@ -27,6 +27,7 @@ import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
 import { VercelProjectIdEnvBanner } from "@/components/dashboard/vercel-project-id-env-banner";
+import { ConvexUrlEnvBanner } from "@/components/dashboard/convex-url-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
@@ -41,6 +42,10 @@ import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
 import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
+import {
+  assessConvexUrlEnvReadiness,
+  isConvexUrlConfigured,
+} from "@/lib/convex/convex-url-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -125,7 +130,7 @@ export default async function LeadsPage() {
     clientVoicePacks,
     commerceOrders,
   } = await loadLeadsPipelineHealth();
-  const isConvexActive = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
+  const isConvexActive = isConvexUrlConfigured(process.env.NEXT_PUBLIC_CONVEX_URL);
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
   const resendEnv = assessResendEmailEnvReadiness();
@@ -138,6 +143,7 @@ export default async function LeadsPage() {
   const productionDomainEnv = assessProductionDomainEnvReadiness();
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
   const vercelProjectIdEnv = assessVercelProjectIdEnvReadiness();
+  const convexUrlEnv = assessConvexUrlEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -160,6 +166,7 @@ export default async function LeadsPage() {
         <ProductionDomainEnvBanner readiness={productionDomainEnv} />
         <VercelTokenEnvBanner readiness={vercelTokenEnv} />
         <VercelProjectIdEnvBanner readiness={vercelProjectIdEnv} />
+        <ConvexUrlEnvBanner readiness={convexUrlEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

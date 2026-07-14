@@ -31,10 +31,12 @@ import {
   shouldFallbackToSqliteOnConvexFailure,
   type ConvexPrimaryWriteOptions,
 } from "./payments/convex-primary";
+import { resolveConvexDeploymentUrl } from "./convex/convex-url-env-readiness";
 
 export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+/** Trim + placeholder gate — whitespace-only must not construct ConvexHttpClient. */
+const convexUrl = resolveConvexDeploymentUrl(process.env.NEXT_PUBLIC_CONVEX_URL);
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
 
 // Local SQLite Lead Row structure

@@ -236,7 +236,9 @@ export const AGENT_PROTOCOL = [
   "vercel-token-env-readiness done: assessVercelTokenEnvReadiness (src/lib/deploy/vercel-token-env-readiness.ts) + VercelTokenEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|token|vercel|xxx|your_token-style VERCEL_TOKEN — matching tryProvisionVercelDomain trim gate so paid handoffs cannot silently skip Domains API automation while PRODUCTION_DOMAIN/APP_URL look ready. Distinct blue banner. Does not require VERCEL_PROJECT_ID (Assign project covers per-handoff). Env presence only — does not call Vercel. When free NEXT_STEPS stay gated, prefer company-address-env-readiness (CAN-SPAM postal) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When vercel-token-env-readiness is done and free NEXT_STEPS stay gated, prefer company-address-env-readiness (NEXT_PUBLIC_COMPANY_ADDRESS missing/whitespace/bracket-placeholder → brand.postalAddress ships the CAN-SPAM bracket stub) or vercel-project-id-env-readiness (shared VERCEL_PROJECT_ID missing → Domains API still skips unless every handoff gets Assign project) — claim different surfaces; do not invent optional aggregates.",
   "company-address-env-readiness done: assessCompanyAddressEnvReadiness (src/lib/brand/company-address-env-readiness.ts) + CompanyAddressEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / bracket-stub|Registered business address|your address-style NEXT_PUBLIC_COMPANY_ADDRESS — matching brand.postalAddress fallback so outreach CAN-SPAM footers cannot silently ship '[Registered business address — Colorado, USA]' while Resend/brand look ready. Distinct yellow banner. Env presence only — does not geocode. When free NEXT_STEPS stay gated, prefer vercel-project-id-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-  "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",,
+  "convex-url-env-readiness done: assessConvexUrlEnvReadiness (src/lib/convex/convex-url-env-readiness.ts) + ConvexUrlEnvBanner (pink) on /dashboard + /dashboard/leads. resolveConvexDeploymentUrl trims and rejects placeholders before ConvexHttpClient construction in db.ts — whitespace-only must not count as configured. Local SQLite remains fine for solo demos; multi-instance / Vercel paid traffic requires a real NEXT_PUBLIC_CONVEX_URL. Same-window sibling business-process-evolution-b901 owns email-from-env-readiness (Resend From wiring). When free NEXT_STEPS stay gated, prefer folding that twin or another empty-backlog sold-capability / multi-instance regression over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When convex-url-env-readiness and email-from-env-readiness are both free in the same cron window, claim different ones (multi-instance Convex persistence vs Resend From address) — they touch different surfaces and both close empty-backlog launch gaps without inventing aggregates.",
 ] as const;
 
 /**
@@ -1712,6 +1714,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Client handoff",
     owner: "cursor/prompt-process-evolution-7511",
+  },
+  {
+    id: "convex-url-env-readiness",
+    summary:
+      "Empty-backlog after vercel-project-id-env-readiness (7511 / PR #179): operators get no early dashboard signal when NEXT_PUBLIC_CONVEX_URL is missing/whitespace/placeholder while Stripe/Resend/Vercel look ready — multi-instance / serverless deploys keep SQLite-only split-brain (payments, CRM, handoffs invisible across instances) and db.ts treated whitespace-only as truthy for ConvexHttpClient. Shipped: assessConvexUrlEnvReadiness + ConvexUrlEnvBanner (pink) on /dashboard + /dashboard/leads + resolveConvexDeploymentUrl trim/placeholder gate in db.ts + docs. Sibling b901 owns email-from-env-readiness.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-382f",
   },
 ];
 
@@ -3647,6 +3657,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessVercelProjectIdEnvReadiness + VercelProjectIdEnvBanner when vercel-token-env-readiness is done — token readiness locks Domains API auth, but operators still get no early dashboard signal when shared VERCEL_PROJECT_ID is missing, whitespace-only, or a changeme/project/prj_xxx-style placeholder (tryProvisionVercelDomain still skips unless every handoff gets Assign project). Env presence only; distinct indigo banner; per-handoff Assign project still wins when set. Same-window sibling 01fb shipped company-address-env-readiness (CAN-SPAM postal). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Token-only Phase 5 after VERCEL_TOKEN goes live is still a silent fulfillment drag — Domains API needs a project target (shared env or Assign project), and every other launch secret already has an operator-visible banner. Prefer that early shared-project signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },,
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessConvexUrlEnvReadiness + ConvexUrlEnvBanner when vercel-project-id-env-readiness is done — operators still get no early dashboard signal when NEXT_PUBLIC_CONVEX_URL is missing, whitespace-only, or an example.convex.cloud/changeme-style placeholder (multi-instance / serverless stays SQLite-only while Stripe/Resend/Vercel look ready). Also gate db.ts ConvexHttpClient construction through resolveConvexDeploymentUrl so whitespace-only no longer counts as configured. Env presence only; distinct pink banner; local solo SQLite demos stay fine. Same-window sibling b901 owns email-from-env-readiness. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "SQLite-only on Vercel is a silent multi-instance revenue killer — payments and CRM can ACK on one instance and never appear elsewhere. Prefer that early Convex URL signal (and the trim gate bugfix), then fold email-from or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6585,5 +6602,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (vercel-project-id-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(275, 276),
+  },,
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-382f",
+    summary:
+      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness) stayed fully gated. Same-cron window as business-process-evolution-b901 (email-from-env-readiness). Empty-backlog audit found NEXT_PUBLIC_CONVEX_URL had no operator-visible readiness banner despite multi-instance / serverless deploys staying SQLite-only when unset — and db.ts treated whitespace-only as truthy when constructing ConvexHttpClient. Claimed and shipped convex-url-env-readiness. Left email-from free for sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/convex/convex-url-env-readiness.ts + .test.ts — assessConvexUrlEnvReadiness + resolveConvexDeploymentUrl locks missing/whitespace/example.convex.cloud|changeme placeholder vs ready deployment URL",
+      "src/components/dashboard/convex-url-env-banner.tsx — pink multi-instance persistence banner on /dashboard + /dashboard/leads (after Vercel project id indigo)",
+      "src/lib/db.ts — ConvexHttpClient init uses resolveConvexDeploymentUrl (whitespace/placeholder → SQLite-only)",
+      "Leads pipeline title uses isConvexUrlConfigured (matches real client gate)",
+      "Docs: architecture + roadmap + launch-checklist + .env.example note the banner beside Convex-first persistence",
+      "NEXT_STEPS: convex-url-env-readiness done; email-from-env-readiness left for sibling b901",
+      "AGENT_PROTOCOL — prefer folding email-from twin or empty-backlog sold-capability / multi-instance regression audits next; convex↔email-from twin claim rule + pink banner color reserved",
+      "BUSINESS_DECISIONS — documented why Convex URL readiness beats inventing optional aggregates after Vercel project-id banner",
+      "Verified: npm test (convex-url-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(276, 277),
   },
 ];

@@ -256,7 +256,14 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Optional but recommended for multi-instance deploys: provision Convex (
-          <code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config fallback.
+          <code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config fallback for
+          solo demos. Until the Convex URL is a non-placeholder deployment URL,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a pink
+          multi-instance persistence banner via <code>assessConvexUrlEnvReadiness</code> —
+          serverless hosts otherwise keep SQLite-only split-brain (payments/CRM/handoffs
+          invisible across instances). <code>resolveConvexDeploymentUrl</code> trims and
+          rejects placeholders before <code>ConvexHttpClient</code> construction.
         </li>
         <li>
           Confirm lead <code>email</code> persists after save — outreach depends on it.
