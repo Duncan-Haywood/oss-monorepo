@@ -1591,6 +1591,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-shyape",
   },
+  {
+    id: "commerce-client-receipt-redelivery-recovery",
+    summary:
+      "Empty-backlog after PR #184/#185 (bundle receipt-marker success gate + billing-portal rate-limit): Commerce Buy now planCommerceWebhookSideEffects still gates BOTH operator inquiry + client receipt on inquiry presence — once the inquiry row exists, sendCommerceBuyNowClientReceipt is never retried on Stripe redelivery even when the send resolved { success: false } or threw. Bundle already recovers receipt/DNS independently via durable sent-markers; Commerce sold promise (order notification to lead.email) can be permanently lost after a transient Resend/suppression failure while the operator inbox looks complete. Claimed: decouple receipt from inquiry with clientReceiptEmailSentAt on commerceOrders (mirror paidOutAt) + success-gated marker write.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-6445",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
