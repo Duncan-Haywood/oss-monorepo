@@ -1678,9 +1678,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "production-domain-env-readiness",
     summary:
-      "Empty-backlog after app-url-env-readiness: operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL is live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Prefer assessProductionDomainEnvReadiness + banner (env presence only; distinct from APP_URL/Stripe/brand banners) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-    status: "todo",
+      "Empty-backlog after brand-name-env-readiness (edae / PR #175): operators get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing/whitespace while APP_URL/brand are live — preview subdomain suggestedHost + wildcard DNS counseling drift (proxy preview-subdomain routing still works via APP_URL host, but handoff suggested hosts and launch docs assume the production root). Prefer assessProductionDomainEnvReadiness + banner (env presence only; distinct from APP_URL/Stripe/brand banners) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+    status: "in_progress",
     phase: "Phase 5 — Client handoff",
+    owner: "cursor/business-process-evolution-6506",
   },
 ];
 
