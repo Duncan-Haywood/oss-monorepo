@@ -3,7 +3,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { DEMO_LEADS } from "./leads/demo-catalog";
-import type { Lead, LeadHours, LeadPipelineStage, OutreachStep } from "./leads/types";
+import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
 import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus, DnsInstruction } from "./deploy/types";
@@ -32,37 +32,18 @@ import {
   type ConvexPrimaryWriteOptions,
 } from "./payments/convex-primary";
 import { resolveConvexDeploymentUrl } from "./convex/convex-url-env-readiness";
+import {
+  mapSqliteRowToLead,
+  serializeLeadHours,
+  serializeLeadServices,
+  type SqliteLeadRow,
+} from "./leads/sqlite-row-mapping";
 
 export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
 /** Trim + placeholder gate — whitespace-only must not construct ConvexHttpClient. */
 const convexUrl = resolveConvexDeploymentUrl(process.env.NEXT_PUBLIC_CONVEX_URL);
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
-
-// Local SQLite Lead Row structure
-interface SqliteLeadRow {
-  id: string;
-  slug: string;
-  businessName: string;
-  category: string;
-  city: string;
-  state?: string;
-  address?: string | null;
-  phone?: string;
-  email?: string | null;
-  hours?: string;
-  services?: string;
-  status: string;
-  tagline?: string | null;
-  description?: string | null;
-  recommendedTier?: string | null;
-  dataSource?: string | null;
-  outreachStep?: number | null;
-  lastOutreachAt?: string | null;
-  lastPreviewOpenAt?: string | null;
-  notes?: string | null;
-  snoozedUntil?: string | null;
-}
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
 const dbPath = path.join(process.cwd(), "local.db");
@@ -323,9 +304,6 @@ function getSqliteDb(): DatabaseSync {
 
     DEMO_LEADS.forEach((lead, i) => {
       const id = `lead_demo_${i}`;
-      const weekday = lead.hours.weekday;
-      const weekend = lead.hours.weekend;
-      const hoursStr = weekend ? `${weekday} · ${weekend}` : weekday;
       insertStmt.run(
         id,
         lead.slug,
@@ -334,8 +312,8 @@ function getSqliteDb(): DatabaseSync {
         lead.city,
         lead.state,
         lead.phone,
-        hoursStr,
-        JSON.stringify(lead.services),
+        serializeLeadHours(lead.hours),
+        serializeLeadServices(lead.services),
         lead.stage
       );
       sqliteDb!.prepare(`
@@ -431,73 +409,6 @@ const api: any = {
   },
 };
 
-// Map SQLite row to Lead object
-function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
-  let services: string[] = [];
-  try {
-    services = row.services ? JSON.parse(row.services) : [];
-  } catch {}
-
-  let hours: LeadHours = {
-    weekday: "Mon–Fri 9am–5pm",
-    weekend: "Sat–Sun Closed",
-  };
-  if (row.hours) {
-    if (row.hours.includes("·")) {
-      const parts = row.hours.split("·").map((p) => p.trim());
-      hours = { weekday: parts[0], weekend: parts[1] || "" };
-    } else {
-      hours = { weekday: row.hours, weekend: "" };
-    }
-  }
-
-  const category = (row.category === "restaurant" || row.category === "salon" || row.category === "trades" || row.category === "generic")
-    ? row.category
-    : "generic";
-
-  const recommendedTier =
-    row.recommendedTier === "starter" ||
-    row.recommendedTier === "growth" ||
-    row.recommendedTier === "complete"
-      ? row.recommendedTier
-      : category === "trades"
-        ? "starter"
-        : category === "salon"
-          ? "complete"
-          : "growth";
-
-  return {
-    slug: row.slug,
-    businessName: row.businessName,
-    category,
-    city: row.city,
-    state: row.state || "CO",
-    address: row.address || undefined,
-    tagline:
-      row.tagline ||
-      (category === "trades"
-        ? "Professional services you can count on"
-        : category === "salon"
-          ? "Tailored styling and care"
-          : "Local favorites made fresh daily"),
-    description:
-      row.description ||
-      `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
-    phone: row.phone || "(555) 000-0000",
-    email: row.email || undefined,
-    services,
-    hours,
-    stage: row.status as LeadPipelineStage,
-    recommendedTier,
-    dataSource: row.dataSource || undefined,
-    outreachStep: normalizeOutreachStep(row.outreachStep ?? undefined),
-    lastOutreachAt: row.lastOutreachAt || undefined,
-    lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
-    notes: row.notes || undefined,
-    snoozedUntil: row.snoozedUntil || undefined,
-  };
-}
-
 export async function getLeads(): Promise<Lead[]> {
   if (convexClient) {
     try {
@@ -585,8 +496,8 @@ export async function upsertLead(
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const services = JSON.stringify(lead.services);
-  const hoursStr = `${lead.hours.weekday} · ${lead.hours.weekend}`;
+  const services = serializeLeadServices(lead.services);
+  const hoursStr = serializeLeadHours(lead.hours);
   const dataSource = lead.dataSource ?? "manual_entry";
 
   const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
