@@ -414,42 +414,50 @@ export default function ArchitectureDocPage() {
         live use (see <DocLink href="/docs/launch-checklist">Launch checklist</DocLink>). Route-level
         Vitest coverage in <code>src/app/api/stripe/billing-portal/route.test.ts</code> locks body
         parsing, the <code>STRIPE_SECRET_KEY</code> gate, <code>returnUrl</code> derivation
-        (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin), and
-        the client-IP rate-limit <code>429</code> — the fourth and final Stripe-facing route
-        (alongside checkout, commerce/checkout, and webhook) to get direct orchestration tests
-        rather than relying only on its extracted helper&apos;s suite. Being public and keyed only
-        by a client-supplied <code>sessionId</code>, it is rate-limited by client IP via{" "}
-        <code>checkRateLimit</code> (same helper as contact / checkout / commerce checkout /
-        unsubscribe / preview-open) so scripted <code>sessionId</code> probing cannot burn Stripe
-        API quota unbounded. Because a completed <code>sessionId</code> is not truly secret either
-        (it leaks via redirect URLs, the <code>Referer</code> header, and browser history), an
-        explicit body <code>returnUrl</code> is only honored when its origin matches the derived
-        {" "}<code>appUrl</code> (<code>isSameOriginReturnUrl</code>) — otherwise the route falls
-        back to the derived default rather than handing Stripe an attacker-controlled{" "}
+        (explicit body value, then <code>resolveStripeRedirectAppUrl</code>:{" "}
+        <code>NEXT_PUBLIC_APP_URL</code> &gt; <code>VERCEL_URL</code> &gt; localhost — never the
+        request origin), and the client-IP rate-limit <code>429</code> — the fourth and final
+        Stripe-facing route (alongside checkout, commerce/checkout, and webhook) to get direct
+        orchestration tests rather than relying only on its extracted helper&apos;s suite. Being
+        public and keyed only by a client-supplied <code>sessionId</code>, it is rate-limited by
+        client IP via <code>checkRateLimit</code> (same helper as contact / checkout / commerce
+        checkout / unsubscribe / preview-open) so scripted <code>sessionId</code> probing cannot
+        burn Stripe API quota unbounded. Because a completed <code>sessionId</code> is not truly
+        secret either (it leaks via redirect URLs, the <code>Referer</code> header, and browser
+        history), an explicit body <code>returnUrl</code> is only honored when its origin matches
+        the derived <code>appUrl</code> (<code>isSameOriginReturnUrl</code>) — otherwise the route
+        falls back to the derived default rather than handing Stripe an attacker-controlled{" "}
         <code>return_url</code>, which would otherwise let a genuine{" "}
-        <code>billing.stripe.com</code> URL redirect to a phishing page on exit. The operator{" "}
-        <strong>Billing</strong> button path
+        <code>billing.stripe.com</code> URL redirect to a phishing page on exit. That comparison
+        origin itself must never come from <code>request.url</code> / Host: when{" "}
+        <code>NEXT_PUBLIC_APP_URL</code> was unset, the old{" "}
+        <code>new URL(request.url).origin</code> fallback let a Host-spoofed request make{" "}
+        <code>isSameOriginReturnUrl</code> pass an attacker returnUrl (and let Checkout{" "}
+        <code>success_url</code> / <code>cancel_url</code> land post-payment on an attacker
+        origin). All three public Stripe money routes plus{" "}
+        <code>openBillingPortalAction</code> now share <code>resolveStripeRedirectAppUrl</code>{" "}
+        for that reason. The operator <strong>Billing</strong> button path
         (<code>openBillingPortalAction</code>) has its own action-level Vitest in{" "}
         <code>open-billing-portal-action.test.ts</code> — auth, secret gate, returnUrl
-        (APP_URL / forwarded host / localhost → <code>/dashboard/leads</code>), and helper
-        success/error passthrough — so dashboard glue is not left to the route or
-        create-portal-session suites alone. Both this action and{" "}
-        <strong>Send daily digest</strong> (<code>sendDailyDigestAction</code>) derive their app
-        base URL via the shared{" "}
+        (APP_URL / VERCEL_URL / localhost → <code>/dashboard/leads</code>, Host ignored), and
+        helper success/error passthrough — so dashboard glue is not left to the route or
+        create-portal-session suites alone. <strong>Send daily digest</strong>{" "}
+        (<code>sendDailyDigestAction</code>) still derives its operator-facing base URL via{" "}
         <code>resolveTrustedAppUrl</code> (<code>src/lib/security/app-url.ts</code>): when{" "}
         <code>NEXT_PUBLIC_APP_URL</code> is unset, the <code>x-forwarded-host</code>/
         <code>host</code> request headers are not URL-syntax-constrained the way a browser&apos;s
         address bar is, so the derived candidate is validated as a well-formed absolute URL
         before use — a malformed or injection-attempt header value falls back to the documented{" "}
         <code>http://localhost:3000</code> default rather than being trusted verbatim into an
-        outbound email href or a Stripe <code>return_url</code>. The daily digest additionally
-        escapes that base URL via <code>escapeHtmlForEmail</code> before interpolating it into the{" "}
-        <strong>Open the dashboard</strong> link, closing the last unescaped dynamic value in the
-        digest&apos;s outbound HTML. Direct Vitest in{" "}
-        <code>src/lib/security/app-url.test.ts</code> locks the validation (env precedence,
-        forwarded-host derivation, localhost fallback, and rejection of malformed/injection host
-        values); <code>send-daily-digest-action.test.ts</code> and{" "}
-        <code>open-billing-portal-action.test.ts</code> each lock the same rejection at the
+        outbound email href. Money redirects deliberately do <em>not</em> use that header path.
+        The daily digest additionally escapes that base URL via <code>escapeHtmlForEmail</code>{" "}
+        before interpolating it into the <strong>Open the dashboard</strong> link, closing the
+        last unescaped dynamic value in the digest&apos;s outbound HTML. Direct Vitest in{" "}
+        <code>src/lib/security/app-url.test.ts</code> locks both resolvers (env precedence,
+        forwarded-host derivation for digest, Stripe-redirect env-only contract, localhost
+        fallback, and rejection of malformed/injection host values);{" "}
+        <code>send-daily-digest-action.test.ts</code> and{" "}
+        <code>open-billing-portal-action.test.ts</code> each lock the rejection at the
         action-glue level.
       </p>
       <p>

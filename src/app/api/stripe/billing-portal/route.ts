@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createBillingPortalForCheckoutSession } from "@/lib/billing/create-portal-session";
+import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -70,7 +71,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
+  // Never trust request.url / Host for the comparison origin or default
+  // return_url — a Host-spoofed appUrl would let isSameOriginReturnUrl pass
+  // an attacker returnUrl. See resolveStripeRedirectAppUrl.
+  const appUrl = resolveStripeRedirectAppUrl();
   const defaultReturnUrl = `${appUrl}/checkout/success?session_id=${encodeURIComponent(sessionId)}`;
   const trimmedReturnUrl = body.returnUrl?.trim();
   const returnUrl =

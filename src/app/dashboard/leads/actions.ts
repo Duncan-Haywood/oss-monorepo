@@ -88,7 +88,10 @@ import {
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
-import { resolveTrustedAppUrl } from "@/lib/security/app-url";
+import {
+  resolveStripeRedirectAppUrl,
+  resolveTrustedAppUrl,
+} from "@/lib/security/app-url";
 import {
   leadEligibleForStarterUpsell,
   resolveUpsellTargetTier,
@@ -1313,8 +1316,8 @@ export async function openBillingPortalAction(slug: string) {
       };
     }
 
-    const headerStore = await headers();
-    const appUrl = resolveTrustedAppUrl(headerStore, process.env.NEXT_PUBLIC_APP_URL);
+    // Money redirect — never trust request Host (see resolveStripeRedirectAppUrl).
+    const appUrl = resolveStripeRedirectAppUrl();
 
     const stripe = new Stripe(secretKey);
     const result = await createBillingPortalForLead(stripe, slug, `${appUrl}/dashboard/leads`);

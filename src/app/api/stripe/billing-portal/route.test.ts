@@ -68,6 +68,7 @@ describe("POST /api/stripe/billing-portal", () => {
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.VERCEL_URL;
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
@@ -129,20 +130,62 @@ describe("POST /api/stripe/billing-portal", () => {
     });
   });
 
-  it("falls back to the request origin when NEXT_PUBLIC_APP_URL is unset", async () => {
+  it("falls back to localhost when NEXT_PUBLIC_APP_URL is unset (never trusts request origin / Host)", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
     sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
     billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
 
     const { POST } = await import("./route");
     const res = await POST(
-      portalRequest({ sessionId: "cs_test_1" }, "https://origin.example.com/api/stripe/billing-portal"),
+      portalRequest({ sessionId: "cs_test_1" }, "https://attacker.example.com/api/stripe/billing-portal"),
     );
 
     expect(res.status).toBe(200);
     expect(billingPortalCreate).toHaveBeenCalledWith({
       customer: "cus_1",
-      return_url: "https://origin.example.com/checkout/success?session_id=cs_test_1",
+      return_url: "http://localhost:3000/checkout/success?session_id=cs_test_1",
+    });
+  });
+
+  it("uses VERCEL_URL when APP_URL is unset (preview deploys) and still ignores request origin", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.VERCEL_URL = "preview-abc.vercel.app";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1" }, "https://attacker.example.com/api/stripe/billing-portal"),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://preview-abc.vercel.app/checkout/success?session_id=cs_test_1",
+    });
+  });
+
+  it("rejects a body returnUrl that only matches a spoofed request origin when APP_URL is unset", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest(
+        { sessionId: "cs_test_1", returnUrl: "https://attacker.example.com/phish" },
+        "https://attacker.example.com/api/stripe/billing-portal",
+      ),
+    );
+
+    expect(res.status).toBe(200);
+    // Comparison origin is localhost (not the spoofed request origin), so the
+    // attacker returnUrl fails isSameOriginReturnUrl and we keep the default.
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "http://localhost:3000/checkout/success?session_id=cs_test_1",
     });
   });
 

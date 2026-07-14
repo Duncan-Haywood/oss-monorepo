@@ -72,9 +72,9 @@ export const AGENT_PROTOCOL = [
   "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin (or same-app relative path) before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/lib/auth/safe-next-path.ts — used by both the login page already-authenticated redirect AND loginOperatorAction; never a weaker startsWith('/') twin that accepts //evil) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value. Dashboard-only relative next paths also reject backslash host tricks, control chars, scheme-smuggled paths, and /dashboard/login self-loops.",
-  "The appUrl fallback derived from x-forwarded-host/host request headers (when NEXT_PUBLIC_APP_URL is unset) is itself untrusted input, not just the client-body returnUrl fields the rule above covers — a raw HTTP client or misconfigured proxy can put arbitrary text in those headers. Use resolveTrustedAppUrl (src/lib/security/app-url.ts), which validates the derived candidate as a well-formed absolute URL before use and falls back to the localhost default on anything malformed, for any new dashboard action or route that builds a base URL from request headers — never inline the `${proto}://${host}` pattern again. Any dynamic value interpolated into outbound email HTML must still go through escapeHtmlForEmail regardless of provenance (env var, header-derived, or otherwise) — see app-url-header-injection-guard.",
+  "The appUrl fallback derived from x-forwarded-host/host request headers (when NEXT_PUBLIC_APP_URL is unset) is itself untrusted input, not just the client-body returnUrl fields the rule above covers — a raw HTTP client or misconfigured proxy can put arbitrary text in those headers. Use resolveTrustedAppUrl (src/lib/security/app-url.ts), which validates the derived candidate as a well-formed absolute URL before use and falls back to the localhost default on anything malformed, for operator-facing links (digest email hrefs) — never inline the `${proto}://${host}` pattern again. Any dynamic value interpolated into outbound email HTML must still go through escapeHtmlForEmail regardless of provenance (env var, header-derived, or otherwise) — see app-url-header-injection-guard.",
+  "Unauthenticated Stripe money redirects (Checkout success_url / cancel_url, Billing Portal return_url — including openBillingPortalAction) must use resolveStripeRedirectAppUrl, NOT resolveTrustedAppUrl and NOT `new URL(request.url).origin`. Precedence is NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost; never request Host/origin. A Host-spoofed comparison origin bypasses isSameOriginReturnUrl and turns post-payment redirects into phishing — see stripe-redirect-app-url-no-host-trust.",
   "When a route.ts and a dashboard server action are documented as 'twins' sharing one gate (e.g. bootstrapStripePricesAction / POST /api/stripe/bootstrap-prices), verify both actually call requireOperatorAuth — proxy.ts only gates /dashboard/*, never /api/*, so an API route is never auth-protected by the dashboard's route gate alone. An env-flag gate (ALLOW_STRIPE_BOOTSTRAP and similar) is not a substitute for requireOperatorAuth: it's deployment-wide and often set temporarily on an already-authenticated deployment, not a per-caller check. Mirror the requireOperatorAuth-in-a-route-handler precedent at src/app/api/marketing/generate/route.ts.",
-
   // --- Testing & verification ---
   "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test.",
   "A `\"server-only\"` lib file cannot be Vitest-tested directly, and its exports must not be re-exported through a barrel that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern in src/lib/commerce/stripe-sync.ts: take the third-party client (Stripe, etc.) as a parameter behind a minimal structural interface, so the logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep the real client construction + env-var gating only in the server action/route that calls it.",
@@ -1744,6 +1744,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "claude/relaxed-galileo-t69qzz",
+  },
+  {
+    id: "stripe-redirect-app-url-no-host-trust",
+    summary:
+      "Empty-backlog after PR #206 (app-url-header-injection-guard). Sibling business-process-evolution-07e5 claimed login-authenticated-open-redirect (folding grok's safeNextPath). Complementary security twin: the three public Stripe routes (POST /api/stripe/checkout, /api/commerce/checkout, /api/stripe/billing-portal) still derived appUrl via `NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin` and interpolated it into Stripe success_url / cancel_url / return_url. When APP_URL is unset, that origin is attacker-influenceable (Host / X-Forwarded-Host / crafted request URL) — an unauthenticated POST can mint a real Checkout Session whose post-payment redirect lands on an attacker origin (post-payment phishing), and billing-portal's isSameOriginReturnUrl guard is bypassed because the comparison origin itself is attacker-controlled. resolveTrustedAppUrl (PR #206) is insufficient here: it still trusts well-formed attacker hosts. Shipped: resolveStripeRedirectAppUrl (NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost — never request Host/origin) wired into all three public routes + openBillingPortalAction; Vitest regressions for spoofed request origin and same-origin bypass.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-e382",
   },
 ];
 
@@ -3861,6 +3869,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "In syncCommerceCatalogToStripeAction, re-read the Commerce catalog immediately before the final upsertCommerceCatalog write and merge in only the freshly-created Stripe ids via preserveCommerceStripeIds(freshItems, synced), instead of writing the pre-sync-loop items array verbatim.",
     rationale:
       "Seventh consecutive empty-backlog audit today, explicitly instructed to accept a documented clean pass given how exhaustively the day's surface (auth, rate-limiting, digest wiring, db.ts coverage, sold-vs-shipped docs, existence checks, header trust) had already been swept — a real, previously-undetected bug was getting genuinely harder to find, and the protocol prefers an honest clean report over a manufactured one. Checked N+1 query patterns (clean) and re-verified BUSINESS_DECISIONS/ITERATIONS slice bookkeeping against a stale unmerged draft's claimed drift (clean, no actual mismatch). Found one real issue: syncCommerceCatalogToStripeAction reads the catalog once, then runs a sequential per-SKU Stripe API loop (up to 50 SKUs) — a materially long, genuinely concurrency-relevant window, not a theoretical one-tick race — before writing the entire items array back with no version/CAS guard. A concurrent saveCommerceCatalogAction landing in that window (a second tab, or an operator editing again right after clicking Sync) would be silently discarded, losing a price change, added SKU, or removed SKU on the exact data that drives Buy now checkout pricing. The fix reuses preserveCommerceStripeIds — already tested and already the established pattern for merging Stripe ids onto a fresher item set — just with its two argument roles swapped from how saveCommerceCatalogAction calls it, so it required no new merge logic, only recognizing that the existing helper already does exactly what's needed for the other side of the read-then-write window.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Add resolveStripeRedirectAppUrl (NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost, never request Host/origin) and wire it into POST /api/stripe/checkout, /api/commerce/checkout, /api/stripe/billing-portal, and openBillingPortalAction — keep resolveTrustedAppUrl for operator-facing digest links only.",
+    rationale:
+      "Empty-backlog after PR #206. Sibling business-process-evolution-07e5 claimed login-authenticated-open-redirect first, so this run pivoted to the complementary Host-trust gap on public Stripe money routes: they still used `NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin`, which lets an unauthenticated Host-spoof mint Checkout success/cancel URLs (and bypass billing-portal isSameOriginReturnUrl) on an attacker origin when APP_URL is unset. resolveTrustedAppUrl alone is the wrong tool — it still trusts well-formed attacker hosts. VERCEL_URL preserves preview deploys without trusting request Host. Shipping this beats inventing an optional aggregate or re-auditing sold-vs-shipped/orchestration (2x-clean).",
   },
 ];
 
@@ -7198,6 +7213,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — open-redirect rule names the shared module and page/action twin requirement; cooperation rule now says fold CLI remotes that have feature body but no open PR",
       "NEXT_STEPS: login-authenticated-open-redirect done (folded from grok/dev-work-login-open-redirect)",
       "BUSINESS_DECISIONS — documented why closing this open-redirect twin beats inventing an optional aggregate, and why folding the stuck CLI branch is the right cooperation move",
+      "Verified: npm test + lint + build (PR #208)",
     ],
     decisions: BUSINESS_DECISIONS.slice(299, 300),
   },
@@ -7217,5 +7233,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1224 passed, full suite incl. 1 new concurrent-edit regression) + lint + build + npm run dev (/dashboard/leads renders 200)",
     ],
     decisions: BUSINESS_DECISIONS.slice(300, 301),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-e382",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #206 (app-url-header-injection-guard). Sibling cursor/business-process-evolution-07e5 claimed login-authenticated-open-redirect first (folding grok's safeNextPath body) — pivoted per AGENT_PROTOCOL to the complementary Host-trust gap on public Stripe money routes. All three public Stripe routes still derived appUrl from request.url origin when APP_URL unset; that origin is attacker-influenceable and feeds success_url / cancel_url / return_url (and billing-portal's same-origin comparison). Claimed and shipped stripe-redirect-app-url-no-host-trust. Folded sibling PR #208 ITERATIONS on merge.",
+    shipped: [
+      "src/lib/security/app-url.ts (+test) — resolveStripeRedirectAppUrl (NEXT_PUBLIC_APP_URL > VERCEL_URL > localhost; no header/request.url trust); resolveTrustedAppUrl kept for digest operator links",
+      "src/app/api/stripe/checkout/route.ts + commerce/checkout/route.ts + stripe/billing-portal/route.ts — use resolveStripeRedirectAppUrl for Stripe redirect bases",
+      "src/app/dashboard/leads/actions.ts — openBillingPortalAction uses resolveStripeRedirectAppUrl (money path); sendDailyDigestAction stays on resolveTrustedAppUrl",
+      "route + action Vitest — spoofed request origin / forwarded Host never reaches Stripe success_url or return_url; isSameOriginReturnUrl bypass regression; VERCEL_URL preview path preserved",
+      "Docs: architecture.tsx documents the two-resolver trust model",
+      "NEXT_STEPS: stripe-redirect-app-url-no-host-trust done",
+      "AGENT_PROTOCOL — money redirects must use resolveStripeRedirectAppUrl, not Host-derived bases",
+      "BUSINESS_DECISIONS — documented why this complementary twin beat inventing an optional aggregate",
+      "merge: folded origin/main PR #208 (login-authenticated-open-redirect) + PR #210 (commerce-catalog-sync-lost-update-guard) — all ITERATIONS + decisions kept",
+      "Verified: npm test (1233+ passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(301, 302),
   },
 ];

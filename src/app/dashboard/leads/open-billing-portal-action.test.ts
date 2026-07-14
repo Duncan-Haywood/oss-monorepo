@@ -90,6 +90,7 @@ describe("openBillingPortalAction", () => {
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.VERCEL_URL;
   });
 
   afterEach(() => {
@@ -165,11 +166,12 @@ describe("openBillingPortalAction", () => {
     expect(returnUrl).toBe("https://app.example/dashboard/leads");
   });
 
-  it("derives returnUrl from forwarded host when NEXT_PUBLIC_APP_URL is unset", async () => {
+  it("falls back to localhost when NEXT_PUBLIC_APP_URL is unset (never trusts forwarded Host)", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
     headersMock.mockResolvedValue(
       headerStore({
-        "x-forwarded-host": "ops.localsitestudio.test",
+        "x-forwarded-host": "attacker.example",
         "x-forwarded-proto": "https",
       }),
     );
@@ -183,12 +185,35 @@ describe("openBillingPortalAction", () => {
 
     expect(result.success).toBe(true);
     expect(createBillingPortalForLead.mock.calls[0]![2]).toBe(
-      "https://ops.localsitestudio.test/dashboard/leads",
+      "http://localhost:3000/dashboard/leads",
     );
   });
 
-  it("falls back to localhost when no APP_URL and no host headers", async () => {
+  it("uses VERCEL_URL when APP_URL is unset and still ignores forwarded Host", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.VERCEL_URL = "preview-abc.vercel.app";
+    headersMock.mockResolvedValue(
+      headerStore({
+        "x-forwarded-host": "attacker.example",
+        "x-forwarded-proto": "https",
+      }),
+    );
+    createBillingPortalForLead.mockResolvedValue({
+      ok: true,
+      url: "https://billing.stripe.com/session/vercel",
+    });
+
+    const { openBillingPortalAction } = await import("./actions");
+    await openBillingPortalAction("demo-cafe");
+
+    expect(createBillingPortalForLead.mock.calls[0]![2]).toBe(
+      "https://preview-abc.vercel.app/dashboard/leads",
+    );
+  });
+
+  it("falls back to localhost when no APP_URL and no VERCEL_URL", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
     createBillingPortalForLead.mockResolvedValue({
       ok: true,
       url: "https://billing.stripe.com/session/local",
@@ -204,6 +229,7 @@ describe("openBillingPortalAction", () => {
 
   it("falls back to localhost instead of trusting a malformed forwarded-host header verbatim", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
     headersMock.mockResolvedValue(
       headerStore({
         "x-forwarded-host": '"><script>alert(1)</script>',
