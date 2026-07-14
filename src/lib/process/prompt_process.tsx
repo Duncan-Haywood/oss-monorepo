@@ -54,7 +54,7 @@ export const AGENT_PROTOCOL = [
   "Every persistence surface in src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error. A new Convex table needs an explicit app-owned id column (e.g. orderId/packId/handoffId/inquiryId) registered on the static Convex API map in db.ts in the same commit as the table — a missing map registration throws at call time, gets silently caught by the fallback, and produces a split-brain where writes land on SQLite while list* reads Convex-first.",
   "Every record type with a required `id: string` field must store that id as its own explicit Convex column and return it as `id` from every mutation/query — a type-cast on the Convex query result hides a missing field from tsc. (convex/orders.ts's `list`/`getByStripeSessionId` queries return the Convex-internal `_id` instead of an app-owned column, unlike every other ledger; its `createOrder` mutation is dead code superseded by leads.markLeadPaid. Both have been reviewed and deliberately left alone by multiple prior iterations since neither has a live consumer of the value — re-verify there's still no live `.id` consumer before touching either.)",
   "Write paths whose result is read Convex-first elsewhere (outreach cadence, lead notes/stage/snooze/upsert, cold disposition, marketing/voice packs, commerce catalogs, inquiry reply/status, checkout session create/recovery, commerce paid-out) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex failure throws instead of silently soft-falling-back to SQLite while other instances keep reading Convex-first. Copy the nearest existing `*_CONVEX_PRIMARY` constant + call site for any new write path in this class.",
-  "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark).",
+  "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark). Dashboard actions that trigger that send must still inspect the resolved `{ success }` shape and return `success: false` with an operator-visible error when the send fails — silent `success: true` after `{ success: false }` is the same bug class as writing a webhook recovery marker without checking send success (see email-1-outreach-send-success-check).",
   "Lists that back a debt/liability/owed total (unpaid commerce orders, marketing/voice packs due, unsynced catalogs, unreplied inquiries, commerce_checkout webhook dedup) must be uncapped (.collect() / no LIMIT) — a newest-N page silently undercounts older rows as false debt or hides real debt once volume exceeds the page window. listOrders must stay newest-first on both backends (Billing Portal's latestEligibleOrder assumes it).",
 
   // --- Money / ledger integrity ---
@@ -90,7 +90,7 @@ export const AGENT_PROTOCOL = [
   "Ship TS/TSX for product + docs — do not add operator Markdown docs (see AGENTS.md). Use the shared DocPage component for /docs pages. Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating.",
 
   // --- Current state (2026-07-14) ---
-  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
+  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
 ] as const;
 
 /**
@@ -1602,8 +1602,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "email-1-outreach-send-success-check",
     summary:
-      "Empty-backlog after PR #184/#185; sibling 6445 claimed commerce-client-receipt-redelivery-recovery. Complementary audit found updateLeadStageAction + addLeadAction durably mark Email 1 via recordLeadOutreach then await sendOutreachEmail without checking { success } — sendEmail never throws on suppression/Resend failure, so the action still returns success:true while the lead looks outreach_sent and drops out of Email-1 work. Follow-ups / cold re-engage / inquiry reply already surface !sent.success. Claimed: mirror that check (persist-then-notify mark stays; operator gets a false result + retry hint).",
-    status: "in_progress",
+      "Empty-backlog after PR #184/#185; sibling 6445 claimed commerce-client-receipt-redelivery-recovery. Complementary audit found updateLeadStageAction + addLeadAction durably mark Email 1 via recordLeadOutreach then await sendOutreachEmail without checking { success } — sendEmail never throws on suppression/Resend failure, so the action still returns success:true while the lead looks outreach_sent and drops out of Email-1 work. Follow-ups / cold re-engage / inquiry reply already surface !sent.success. Shipped: mirror that check (persist-then-notify mark stays; operator gets success:false + retry/suppression hint); Vitest regressions for both actions; docs note the contract.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-b16c",
   },
@@ -3583,6 +3583,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Add checkRateLimit to POST /api/stripe/billing-portal (key `billing-portal:<clientIp>`, same DEFAULT_RATE_LIMIT/429+Retry-After shape as every other public route) — the only public, state-changing, externally-billed route left without it.",
     rationale:
       "Two consecutive empty-backlog audits (claude/relaxed-galileo-j64ij9, claude/agent-protocol-consolidation) found no new gap, so this run re-swept the already-shipped security invariants instead of hunting for a tenth env-readiness banner. billing-portal is public, keyed only by a client-supplied sessionId (leakable via browser history / Referer off /checkout/success?session_id=), and fires two live Stripe API calls per request once STRIPE_SECRET_KEY is set — structurally identical to contact / checkout / commerce-checkout / preview-open / unsubscribe, all five of which the rate-limit module's own docstring already named as its guard set, yet billing-portal was missing from both the code and that docstring. Unthrottled it lets a scripted client burn Stripe API quota/cost indefinitely or brute-force-probe sessionId values with no backoff — a real, if modest, cost/abuse exposure on a route that already ships real code, not a manufactured metric. Fixing an overlooked instance of an existing, already-proven pattern beats inventing a new optional aggregate just to have something to ship this run.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make updateLeadStageAction + addLeadAction inspect sendOutreachEmail's `{ success }` result after the durable Email 1 mark (persist-then-notify stays; never roll back the mark) and return success:false with an operator-visible suppression/Resend error — same contract as sendFollowUpAction / disposeColdLeadAction / replyToInquiryAction. Sibling business-process-evolution-6445 owns the complementary commerce-client-receipt-redelivery-recovery webhook twin.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #184/#185; sibling 6445 already claimed the Commerce Buy now receipt-redelivery twin of the bundle marker bug. A complementary sold-capability audit found the top-of-funnel twin: stage/add paths treated a resolved `{ success: false }` as a successful send, so operators saw a green UI while Email 1 never left Resend and the lead looked outreach_sent in Work next. That silently stalls the discovery→preview funnel without inventing a new metric — surface the failure, keep the mark, leave commerce receipt recovery to the earlier remote claim.",
   },
 ];
 
@@ -6617,5 +6624,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1121 passed, full suite) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(281, 282),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-b16c",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #184/#185. Sibling business-process-evolution-6445 claimed commerce-client-receipt-redelivery-recovery first (Commerce Buy now receipt recovery twin of the bundle marker bug). Pivoted to complementary email-1-outreach-send-success-check: updateLeadStageAction + addLeadAction returned success:true after sendOutreachEmail resolved { success: false }. Shipped the follow-up/cold-re-engage contract on those two paths. Left commerce receipt recovery to 6445. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — updateLeadStageAction + addLeadAction check sendOutreachEmail `{ success }` after durable Email 1 mark; return success:false with suppression/Resend hint (mark not rolled back)",
+      "update-lead-stage-action.test.ts + add-lead-action.test.ts — default mock uses `{ success: true }`; regressions for suppression + Resend 429 without revalidate",
+      "Docs: architecture + business-model + launch-checklist note the Email 1 success:false surface",
+      "NEXT_STEPS: email-1-outreach-send-success-check done; commerce-client-receipt-redelivery-recovery left in_progress for 6445",
+      "AGENT_PROTOCOL — persist-then-notify actions must still surface !sent.success to operators",
+      "BUSINESS_DECISIONS — documented why Email 1 success-check beats inventing optional aggregates while sibling owns commerce receipt recovery",
+      "Verified: npm test (update/add lead stage Email 1 success regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(282, 283),
   },
 ];

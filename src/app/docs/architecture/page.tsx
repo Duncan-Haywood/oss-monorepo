@@ -461,10 +461,11 @@ export default function ArchitectureDocPage() {
         glue is not left to the Reply action suite alone. The dashboard stage dropdown
         (<code>updateLeadStageAction</code>) passes{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> and, on <code>outreach_sent</code>, marks
-        Email 1 before Resend — locked by{" "}
+        Email 1 before Resend and surfaces <code>!sent.success</code> (suppression / Resend
+        resolve, not only throws) — locked by{" "}
         <code>update-lead-stage-action.test.ts</code> (auth, requireConvex fail-closed,
         non-outreach revalidate, mark-before-Resend, missing-email skip, outreach-mark
-        Convex skip-send) so stage glue is not left to stage-persist helpers alone.
+        Convex skip-send, suppression/Resend <code>success:false</code>) so stage glue is not left to stage-persist helpers alone.
         Work next snooze / Unsnooze (<code>snoozeLeadAction</code>) passes{" "}
         <code>LEAD_SNOOZE_CONVEX_PRIMARY</code> — locked by{" "}
         <code>snooze-lead-action.test.ts</code> (auth, empty slug, missing lead, invalid /

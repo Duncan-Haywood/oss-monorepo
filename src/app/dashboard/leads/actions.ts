@@ -411,7 +411,25 @@ export async function updateLeadStageAction(slug: string, stage: LeadPipelineSta
           }
           throw error;
         }
-        await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+        // sendOutreachEmail → sendEmail resolves { success: false } on
+        // suppression/Resend failure (never throws). Surface that to the
+        // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
+        const sent = await sendOutreachEmail(
+          lead.email,
+          lead.businessName,
+          lead.slug,
+        );
+        if (!sent.success) {
+          return {
+            success: false,
+            error:
+              "reason" in sent && sent.reason === "suppressed"
+                ? "Stage saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
+                : "error" in sent && typeof sent.error === "string"
+                  ? `Stage saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
+                  : "Stage saved and marked Outreach Sent, but Email 1 failed to send — retry from the dashboard",
+          };
+        }
       }
     }
 
@@ -1040,7 +1058,26 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
         }
         throw error;
       }
-      await sendOutreachEmail(lead.email, lead.businessName, lead.slug);
+      // sendOutreachEmail → sendEmail resolves { success: false } on
+      // suppression/Resend failure (never throws). Surface that to the
+      // operator — persist-then-notify keeps the mark; do not pretend Email 1 sent.
+      const sent = await sendOutreachEmail(
+        lead.email,
+        lead.businessName,
+        lead.slug,
+      );
+      if (!sent.success) {
+        return {
+          success: false,
+          error:
+            "reason" in sent && sent.reason === "suppressed"
+              ? "Lead saved and marked Outreach Sent, but Email 1 was not delivered — email is on the suppression list"
+              : "error" in sent && typeof sent.error === "string"
+                ? `Lead saved and marked Outreach Sent, but Email 1 failed to send — ${sent.error}`
+                : "Lead saved and marked Outreach Sent, but Email 1 failed to send — retry Email 1 from the dashboard",
+          slug: lead.slug,
+        };
+      }
     }
 
     revalidatePath("/dashboard/leads");
