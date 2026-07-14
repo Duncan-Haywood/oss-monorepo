@@ -21,7 +21,7 @@ on:
       model:
         description: OpenCode provider/model id
         required: false
-        default: openai/gpt-5.6-luna
+        default: opencode/deepseek-v4-flash
 
 permissions:
   contents: write

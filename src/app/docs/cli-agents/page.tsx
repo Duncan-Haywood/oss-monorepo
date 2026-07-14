@@ -64,7 +64,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>OpenCode CLI</td>
             <td>
-              <code>openai/gpt-5.6-luna</code> (overrideable)
+              <code>opencode/deepseek-v4-flash</code> (overrideable)
             </td>
             <td>OpenCode OAuth</td>
             <td>
