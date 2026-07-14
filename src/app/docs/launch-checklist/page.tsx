@@ -528,7 +528,8 @@ export default function LaunchChecklistDocPage() {
           not-found). Stage dropdown moves fail closed (
           <code>LEAD_STAGE_CONVEX_PRIMARY</code>); <code>update-lead-stage-action.test.ts</code>{" "}
           locks that glue (including Email 1 mark-before-Resend on{" "}
-          <code>outreach_sent</code>). Email notify to the business fires only after a successful
+          <code>outreach_sent</code>, plus <code>!sent.success</code> when Resend/suppression
+          resolves failure without throwing). Email notify to the business fires only after a successful
           insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
           count as unreplied; replied/archived do not).
         </li>

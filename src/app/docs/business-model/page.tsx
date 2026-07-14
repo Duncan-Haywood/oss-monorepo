@@ -117,7 +117,10 @@ export default function BusinessModelDocPage() {
         Manual funnel moves on <code>/dashboard/leads</code> use{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> so stage changes cannot succeed only in
         instance-local SQLite. Moving to <code>outreach_sent</code> marks Email 1 before
-        Resend (<code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>). Action-level Vitest in{" "}
+        Resend (<code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>) and returns{" "}
+        <code>success:false</code> when <code>sendOutreachEmail</code> resolves{" "}
+        <code>{`{ success: false }`}</code> (suppression / Resend) — same contract as
+        follow-ups / cold re-engage. Action-level Vitest in{" "}
         <code>update-lead-stage-action.test.ts</code> locks that dashboard glue beside
         stage-persist helpers.
       </p>
@@ -138,7 +141,8 @@ export default function BusinessModelDocPage() {
         instance-local SQLite — getLeads / Work next / outreach eligibility read Convex-first.
         Existing-slug collisions reject without calling <code>upsertLead</code>. Creating at{" "}
         <code>outreach_sent</code> with an email marks Email 1 before Resend (
-        <code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>). Action-level Vitest in{" "}
+        <code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>) and surfaces{" "}
+        <code>!sent.success</code> the same way as the stage dropdown. Action-level Vitest in{" "}
         <code>add-lead-action.test.ts</code> locks that dashboard glue beside upsert-persist
         helpers.
       </p>
