@@ -1495,8 +1495,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "send-starter-upsell-action-test-coverage",
     summary:
       "Empty-backlog twin after Manage billing / Archive orphans action Vitest: sendStarterUpsellAction is the operator Starter → MRR Upsell path (eligibility inverse of billing portal + Resend) — starter-upsell helper suites alone are not enough for action glue. Sibling-friendly with send-follow-up-action-test-coverage; prefer when open-billing-portal action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Payments & billing",
+    owner: "cursor/business-process-evolution-cd3b",
   },
   {
     id: "send-follow-up-action-test-coverage",
