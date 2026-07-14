@@ -108,6 +108,24 @@ export default function BusinessModelDocPage() {
         Resend. Action-level Vitest in <code>dispose-cold-lead-action.test.ts</code> locks that
         dashboard glue beside cold-archive helpers.
       </p>
+
+      <h2>Stage dropdown + Email 1</h2>
+      <p>
+        Manual funnel moves on <code>/dashboard/leads</code> use{" "}
+        <code>LEAD_STAGE_CONVEX_PRIMARY</code> so stage changes cannot succeed only in
+        instance-local SQLite. Moving to <code>outreach_sent</code> marks Email 1 before
+        Resend (<code>OUTREACH_CADENCE_CONVEX_PRIMARY</code>). Action-level Vitest in{" "}
+        <code>update-lead-stage-action.test.ts</code> locks that dashboard glue beside
+        stage-persist helpers.
+      </p>
+
+      <h2>Work next snooze</h2>
+      <p>
+        Operators park a lead off Work next for 1d / 3d / 7d (or Unsnooze) without wiping
+        score history. Writes use <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>. Action-level
+        Vitest in <code>snooze-lead-action.test.ts</code> locks that dashboard glue beside
+        snooze-persist helpers.
+      </p>
       <ul>
         <li>
           <strong>Email 2</strong> — short nudge with preview + checkout links

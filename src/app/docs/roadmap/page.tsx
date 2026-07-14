@@ -132,8 +132,12 @@ export default function RoadmapDocPage() {
         never blocks the mutation): shipped. Dashboard stage dropdown uses{" "}
         <code>requireConvex</code> when Convex is configured (
         <code>lead-stage-convex-primary</code>) so funnel moves cannot succeed only in
-        instance-local SQLite — Mark live already fail-closed via deploy-handoff writes. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
-        presets — parks a lead off the queue without wiping score history): shipped. Snoozed-lead
+        instance-local SQLite — Mark live already fail-closed via deploy-handoff writes;
+        action-level Vitest in <code>update-lead-stage-action.test.ts</code> (auth,
+        requireConvex fail-closed, outreach_sent mark-before-Resend, missing-email skip)
+        locks the dropdown glue beside stage-persist helpers. Work next snooze (<code>snoozedUntil</code>, 1d/3d/7d
+        presets — parks a lead off the queue without wiping score history; action-level Vitest in{" "}
+        <code>snooze-lead-action.test.ts</code>): shipped. Snoozed-lead
         pipeline-health aggregate (count + soonest return, plus a Work next footnote — not a second
         priority panel): shipped. Cold-lead
         detection (leads that exhaust Email 1-3 with no reply, surfaced as a table badge +
