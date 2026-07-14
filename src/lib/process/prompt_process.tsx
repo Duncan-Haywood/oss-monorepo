@@ -6780,7 +6780,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: open-handoffs-in-digest done",
       "AGENT_PROTOCOL — pipeline-health/digest wiring audits must also check inline aggregates (openHandoffCount / paidNotLiveCount), not only named list* helpers",
       "BUSINESS_DECISIONS — documented why wiring open handoffs into digest beats another list*-only clean audit",
-      "Verified: npm test (digest + send-daily-digest suites) + lint + build",
+      "Verified: npm test (1153 passed, full suite incl. open-handoffs digest + action tests) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(287, 288),
   },
