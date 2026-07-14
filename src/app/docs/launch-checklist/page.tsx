@@ -406,7 +406,10 @@ export default function LaunchChecklistDocPage() {
           configured, Reply / Mark read / Archive also fail closed (
           <code>INQUIRY_REPLY_CONVEX_PRIMARY</code>) and Reply marks <code>replied</code> before
           the email leaves — never claim success after a SQLite-only replied mark, and never send
-          before the durable mark. Email notify to the business fires only after a successful
+          before the durable mark. Action-level Vitest (
+          <code>reply-to-inquiry-action.test.ts</code>) locks the dashboard Reply path (auth,
+          body / archived / no-email gates, mark-before-Resend, Convex skip-send) beside the
+          reply helper suite. Email notify to the business fires only after a successful
           insert. Confirm unreplied-inquiry count on pipeline health drops after reply (new + read
           count as unreplied; replied/archived do not).
         </li>
