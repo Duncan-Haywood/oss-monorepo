@@ -7607,7 +7607,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: legacy-slug-encode-at-use-path-safety done (owner 2d7a, folded from continuous-work ← dev-work)",
       "AGENT_PROTOCOL + architecture.tsx encode-at-use rule retained from fold",
       "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1285 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(312, 313),
   },
