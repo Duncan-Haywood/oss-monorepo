@@ -1713,6 +1713,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Client handoff",
     owner: "cursor/prompt-process-evolution-7511",
   },
+  {
+    id: "email-from-env-readiness",
+    summary:
+      "Empty-backlog after vercel-project-id-env-readiness (7511 / PR #179): launch checklist requires EMAIL_FROM, brand.emailFrom exists, but Resend sendEmail / sendOperatorDailyDigest hardcode from: outreach@updates.localsitestudio.com — operators can set EMAIL_FROM + SPF/DKIM and still send from the wrong domain. Claimed: wire brand.emailFrom into Resend from + assessEmailFromEnvReadiness banner.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-b901",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
