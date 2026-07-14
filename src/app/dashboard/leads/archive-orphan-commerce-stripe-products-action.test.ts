@@ -58,14 +58,17 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
 }));
 
-const archiveOrphanCommerceStripeProducts = vi.fn();
+const listOrphanCommerceStripeProducts = vi.fn();
+const archiveCommerceStripeProducts = vi.fn();
 
 vi.mock("@/lib/commerce", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/commerce")>();
   return {
     ...actual,
-    archiveOrphanCommerceStripeProducts: (...args: unknown[]) =>
-      archiveOrphanCommerceStripeProducts(...args),
+    listOrphanCommerceStripeProducts: (...args: unknown[]) =>
+      listOrphanCommerceStripeProducts(...args),
+    archiveCommerceStripeProducts: (...args: unknown[]) =>
+      archiveCommerceStripeProducts(...args),
   };
 });
 
@@ -113,11 +116,11 @@ const savedCatalog = {
   updatedAt: "2026-07-13T12:00:00.000Z",
 };
 
-const archivedOrphans = [
+const orphanCandidates = [
   {
     productId: "prod_old_muffin",
     skuId: "sku_muffin",
-    name: "Old Muffin",
+    key: "commerce_sku_demo-cafe_sku_muffin",
   },
 ];
 
@@ -133,8 +136,9 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
     stripeCtor.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
     getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
-    archiveOrphanCommerceStripeProducts.mockReset().mockResolvedValue({
-      archived: archivedOrphans,
+    listOrphanCommerceStripeProducts.mockReset().mockResolvedValue(orphanCandidates);
+    archiveCommerceStripeProducts.mockReset().mockResolvedValue({
+      archived: orphanCandidates,
     });
   });
 
@@ -156,7 +160,8 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
-    expect(archiveOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(listOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(archiveCommerceStripeProducts).not.toHaveBeenCalled();
     expect(stripeCtor).not.toHaveBeenCalled();
   });
 
@@ -196,7 +201,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       success: false,
       error: "Lead not found",
     });
-    expect(archiveOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(listOrphanCommerceStripeProducts).not.toHaveBeenCalled();
   });
 
   it("archives orphans for the saved catalog and revalidates", async () => {
@@ -211,18 +216,35 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       archivedSkuIds: ["sku_muffin"],
     });
     expect(stripeCtor).toHaveBeenCalledWith("sk_test_commerce_archive");
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledOnce();
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledWith(
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledOnce();
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledWith(
       expect.anything(),
       "demo-cafe",
       catalogItems,
     );
+    expect(archiveCommerceStripeProducts).toHaveBeenCalledWith(
+      expect.anything(),
+      orphanCandidates,
+    );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("passes an empty items array when no catalog exists", async () => {
-    getCommerceCatalog.mockResolvedValue(null);
-    archiveOrphanCommerceStripeProducts.mockResolvedValue({ archived: [] });
+  it("re-reads the catalog before archiving and drops a candidate whose SKU reappeared (concurrent save)", async () => {
+    // Simulate: sku_muffin looked orphaned when the initial catalog was read
+    // (and when listOrphanCommerceStripeProducts's account-wide pagination
+    // ran), but an operator (or a second tab) re-added it via
+    // saveCommerceCatalogAction before this action actually archives
+    // anything. Archiving it now would break that SKU's live Buy now
+    // checkout with no operator signal.
+    getCommerceCatalog
+      .mockReset()
+      .mockResolvedValueOnce(savedCatalog) // initial read
+      .mockResolvedValueOnce({
+        ...savedCatalog,
+        items: [...catalogItems, { id: "sku_muffin", name: "Muffin", description: "", priceCents: 300 }],
+      }); // re-read right before archiving
+    archiveCommerceStripeProducts.mockResolvedValue({ archived: [] });
+
     const { archiveOrphanCommerceStripeProductsAction } = await import(
       "./actions"
     );
@@ -233,7 +255,24 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       archivedCount: 0,
       archivedSkuIds: [],
     });
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledWith(
+    expect(archiveCommerceStripeProducts).toHaveBeenCalledWith(expect.anything(), []);
+  });
+
+  it("passes an empty items array when no catalog exists", async () => {
+    getCommerceCatalog.mockResolvedValue(null);
+    listOrphanCommerceStripeProducts.mockResolvedValue([]);
+    archiveCommerceStripeProducts.mockResolvedValue({ archived: [] });
+    const { archiveOrphanCommerceStripeProductsAction } = await import(
+      "./actions"
+    );
+    const res = await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+
+    expect(res).toEqual({
+      success: true,
+      archivedCount: 0,
+      archivedSkuIds: [],
+    });
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledWith(
       expect.anything(),
       "demo-cafe",
       [],
@@ -242,7 +281,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
   });
 
   it("surfaces Stripe archive throws", async () => {
-    archiveOrphanCommerceStripeProducts.mockRejectedValue(
+    archiveCommerceStripeProducts.mockRejectedValue(
       new Error("rate limited"),
     );
     const { archiveOrphanCommerceStripeProductsAction } = await import(
@@ -257,7 +296,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
   });
 
   it("surfaces Stripe archive throws as Unknown Stripe error for non-Error", async () => {
-    archiveOrphanCommerceStripeProducts.mockRejectedValue("stripe blew up");
+    archiveCommerceStripeProducts.mockRejectedValue("stripe blew up");
     const { archiveOrphanCommerceStripeProductsAction } = await import(
       "./actions"
     );

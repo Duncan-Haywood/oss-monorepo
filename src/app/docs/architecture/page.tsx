@@ -770,10 +770,18 @@ source). The same digest also lists email-critical leads with no usable address 
         Sync never archives Products for removed SKUs — operators click{" "}
         <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProductsAction</code>) to set those Products{" "}
-        <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata) —
-        action-level Vitest in{" "}
+        <code>active=false</code> (never auto-deletes; scoped to the lead&apos;s metadata).{" "}
+        <code>listOrphanCommerceStripeProducts</code>&apos;s account-wide product pagination plus
+        the sequential archive loop is a real window, so the action re-reads the catalog
+        immediately before archiving anything and drops any candidate whose{" "}
+        <code>skuId</code> reappeared — the split{" "}
+        <code>archiveCommerceStripeProducts</code> helper (no listing) is what it calls after that
+        re-check, so a concurrent <strong>Save catalog</strong> that re-adds or renames into the
+        same SKU id can&apos;t have its live Stripe Product archived out from under it — action-level
+        Vitest in{" "}
         <code>archive-orphan-commerce-stripe-products-action.test.ts</code> locks auth, secret
-        gate, lead lookup, catalog items pass-through, and Stripe error surfaces.{" "}
+        gate, lead lookup, catalog items pass-through, the concurrent-re-add re-check, and Stripe
+        error surfaces.{" "}
         <code>/preview/[slug]</code> shows Buy now for synced SKUs — <code>POST /api/commerce/checkout</code>{" "}
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Route-level Vitest

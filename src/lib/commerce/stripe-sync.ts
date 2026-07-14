@@ -169,16 +169,19 @@ export async function listOrphanCommerceStripeProducts(
 }
 
 /**
- * Operator-triggered archive (active=false) of orphan Stripe Products for a
- * lead. Does not delete; does not touch Products for SKUs still in the catalog.
- * Returns the archived product ids so the caller can report a count.
+ * Archive (active=false) a caller-supplied list of orphan Stripe Products.
+ * Split out from archiveOrphanCommerceStripeProducts so a caller can re-check
+ * the orphan set against a freshly-read catalog after the (materially long,
+ * paginated) listOrphanCommerceStripeProducts scan but before actually
+ * mutating Stripe — see archiveOrphanCommerceStripeProductsAction, which
+ * re-reads the catalog in that window so a concurrent saveCommerceCatalogAction
+ * that re-adds/renames a SKU into the same skuId is not archived out from
+ * under it.
  */
-export async function archiveOrphanCommerceStripeProducts(
+export async function archiveCommerceStripeProducts(
   stripe: StripeProductsAndPrices,
-  leadSlug: string,
-  currentItems: CommerceSku[],
+  orphans: ReadonlyArray<OrphanCommerceStripeProduct>,
 ): Promise<{ archived: OrphanCommerceStripeProduct[] }> {
-  const orphans = await listOrphanCommerceStripeProducts(stripe, leadSlug, currentItems);
   const archived: OrphanCommerceStripeProduct[] = [];
 
   for (const orphan of orphans) {
@@ -187,4 +190,24 @@ export async function archiveOrphanCommerceStripeProducts(
   }
 
   return { archived };
+}
+
+/**
+ * Operator-triggered archive (active=false) of orphan Stripe Products for a
+ * lead. Does not delete; does not touch Products for SKUs still in the catalog.
+ * Returns the archived product ids so the caller can report a count.
+ *
+ * Convenience wrapper for callers with no concurrent-edit window to guard
+ * against (e.g. tests, one-shot scripts). archiveOrphanCommerceStripeProductsAction
+ * does NOT use this — it re-checks currentItems against a fresh catalog read
+ * between the list and archive steps instead, since listOrphanCommerceStripeProducts'
+ * account-wide pagination plus the sequential archive loop is a real window.
+ */
+export async function archiveOrphanCommerceStripeProducts(
+  stripe: StripeProductsAndPrices,
+  leadSlug: string,
+  currentItems: CommerceSku[],
+): Promise<{ archived: OrphanCommerceStripeProduct[] }> {
+  const orphans = await listOrphanCommerceStripeProducts(stripe, leadSlug, currentItems);
+  return archiveCommerceStripeProducts(stripe, orphans);
 }
