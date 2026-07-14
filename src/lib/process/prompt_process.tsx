@@ -233,6 +233,7 @@ export const AGENT_PROTOCOL = [
   "brand-name-env-readiness done: assessBrandNameEnvReadiness (src/lib/brand/brand-name-env-readiness.ts) + BrandNameEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / Your Brand|Brand Name-style NEXT_PUBLIC_BRAND_NAME — matching brand.isConfigured (legacy NEXT_PUBLIC_APP_NAME does not count) so outreach From / marketing footers / voice intros cannot silently ship as 'Your Brand' while Resend/Stripe/APP_URL look ready. Distinct rose banner. Env presence only. When free NEXT_STEPS stay gated, prefer production-domain-env-readiness or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "production-domain-env-readiness done: assessProductionDomainEnvReadiness (src/lib/deploy/production-domain-env-readiness.ts) + ProductionDomainEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / localhost|127.0.0.1 / example.com|yourdomain.com / preview.*-style NEXT_PUBLIC_PRODUCTION_DOMAIN — matching productionRootDomain()'s explicit-env preference so handoff suggestedHost + DNS counseling cannot silently fall back to PREVIEW_DOMAIN stripping (or the localsitestudio.com default) while APP_URL/brand look ready. Distinct cyan banner. PREVIEW_DOMAIN alone does not count as ready. Env presence only — does not resolve DNS. When free NEXT_STEPS stay gated, prefer vercel-token-env-readiness (VERCEL_TOKEN for auto Domains API on paid handoff) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When production-domain-env-readiness is claimed/done by a sibling and free NEXT_STEPS stay gated, prefer vercel-token-env-readiness (missing VERCEL_TOKEN leaves paid handoffs awaiting_dns with manual notes — Domains API never runs) — claim different surfaces; do not invent optional aggregates. Same-minute dual claim on production-domain: earlier remote claim owns; later pivots to vercel-token twin.",
+  "vercel-token-env-readiness done: assessVercelTokenEnvReadiness (src/lib/deploy/vercel-token-env-readiness.ts) + VercelTokenEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|token|vercel|xxx|your_token-style VERCEL_TOKEN — matching tryProvisionVercelDomain trim gate so paid handoffs cannot silently skip Domains API automation while PRODUCTION_DOMAIN/APP_URL look ready. Distinct blue banner. Does not require VERCEL_PROJECT_ID (Assign project covers per-handoff). Env presence only — does not call Vercel. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1688,8 +1689,8 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "vercel-token-env-readiness",
     summary:
-      "Empty-backlog after production-domain-env-readiness (sibling 6506 / PR #176): operators get no early dashboard signal when VERCEL_TOKEN is missing/whitespace/placeholder while PRODUCTION_DOMAIN + APP_URL are live — paid handoffs stay awaiting_dns with manual notes and tryProvisionVercelDomain never calls the Domains API. Prefer assessVercelTokenEnvReadiness + banner (env presence only; distinct from production-domain/APP_URL banners; do not require VERCEL_PROJECT_ID here — per-handoff Assign project covers that) or empty-backlog sold-capability / multi-instance regression audits. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
-    status: "in_progress",
+      "Empty-backlog after production-domain-env-readiness (sibling 6506 / PR #176): operators get no early dashboard signal when VERCEL_TOKEN is missing/whitespace/placeholder while PRODUCTION_DOMAIN + APP_URL are live — paid handoffs stay awaiting_dns with manual notes and tryProvisionVercelDomain never calls the Domains API. Shipped: assessVercelTokenEnvReadiness + VercelTokenEnvBanner (blue) on /dashboard + /dashboard/leads + docs. Sibling-friendly next: empty-backlog sold-capability / multi-instance regression audits (or vercel-project-id-env-readiness for shared VERCEL_PROJECT_ID).",
+    status: "done",
     phase: "Phase 5 — Client handoff",
     owner: "cursor/prompt-process-evolution-9930",
   },
@@ -3606,6 +3607,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessProductionDomainEnvReadiness + ProductionDomainEnvBanner when brand-name-env-readiness is done — APP_URL/brand banners already cover canonical origin + outreach copy, but operators still get no early dashboard signal when NEXT_PUBLIC_PRODUCTION_DOMAIN is missing, whitespace-only, localhost, an example.com/yourdomain.com placeholder, or a preview.* root (productionRootDomain() silently falls back to stripping preview. from NEXT_PUBLIC_PREVIEW_DOMAIN / localsitestudio.com default — handoff suggestedHost + DNS counseling advertise the wrong root). Env presence only; distinct cyan banner; PREVIEW_DOMAIN alone does not count as ready. Queue empty-backlog sold-capability / multi-instance regression audits next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Wrong suggestedHost after APP_URL goes live is a silent Starter fulfillment leak — paid handoffs email clients a platform-default subdomain while wildcard DNS counseling points at the wrong root, and every other launch secret already has an operator-visible banner. Prefer that early production-root signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessVercelTokenEnvReadiness + VercelTokenEnvBanner when production-domain-env-readiness is claimed/done by a sibling — production-domain readiness locks suggestedHost root, but operators still get no early dashboard signal when VERCEL_TOKEN is missing, whitespace-only, or a changeme/token/xxx-style placeholder (tryProvisionVercelDomain skips Domains API; paid handoffs stay awaiting_dns with manual notes). Env presence only; distinct blue banner; do not require VERCEL_PROJECT_ID here (per-handoff Assign project covers that). Same-minute dual claim on production-domain: earlier remote claim owns; later pivots to this twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Manual-only Phase 5 after PRODUCTION_DOMAIN/APP_URL go live is a silent fulfillment drag — every paid checkout queues a handoff that never attempts Domains API registration while other launch secrets already have operator-visible banners. Prefer that early Vercel-token signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6495,5 +6503,21 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (production-domain-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(272, 273),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-9930",
+    summary:
+      "Free NEXT_STEPS backlog after PR #176 (production-domain-env-readiness on 6506) stayed fully gated. Sibling 6506 already owned + merged production-domain (this branch's earlier claim was superseded mid-window); pivoted to vercel-token-env-readiness. Empty-backlog audit found VERCEL_TOKEN had no operator-visible readiness banner despite tryProvisionVercelDomain skipping Domains API when unset — paid handoffs stay awaiting_dns with manual notes while PRODUCTION_DOMAIN/APP_URL look ready. Claimed and shipped vercel-token-env-readiness. Documented production-domain↔vercel-token twin pivot in AGENT_PROTOCOL. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/lib/deploy/vercel-token-env-readiness.ts + .test.ts — assessVercelTokenEnvReadiness locks missing/whitespace/changeme|token|xxx|your_token placeholder vs ready non-placeholder token",
+      "src/components/dashboard/vercel-token-env-banner.tsx — blue Vercel-automation banner on /dashboard + /dashboard/leads (after production-domain cyan)",
+      "Docs: architecture + roadmap + launch-checklist + production-deploy + .env.example note the banner beside tryProvisionVercelDomain",
+      "NEXT_STEPS: vercel-token-env-readiness done",
+      "AGENT_PROTOCOL — prefer empty-backlog sold-capability / multi-instance regression audits next; production-domain↔vercel-token twin pivot + blue banner color reserved",
+      "BUSINESS_DECISIONS — documented why Vercel-token readiness beats inventing optional aggregates after production-domain banner",
+      "Verified: npm test (vercel-token-env-readiness) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(273, 274),
   },
 ];

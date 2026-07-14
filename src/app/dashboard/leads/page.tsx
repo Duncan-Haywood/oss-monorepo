@@ -24,6 +24,7 @@ import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
 import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
+import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
@@ -35,6 +36,7 @@ import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-rea
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
 import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
+import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -129,6 +131,7 @@ export default async function LeadsPage() {
   const brandNameEnv = assessBrandNameEnvReadiness();
   const appUrlEnv = assessAppUrlEnvReadiness();
   const productionDomainEnv = assessProductionDomainEnvReadiness();
+  const vercelTokenEnv = assessVercelTokenEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -149,6 +152,7 @@ export default async function LeadsPage() {
         <OperatorAuthEnvBanner readiness={operatorAuthEnv} />
         <AppUrlEnvBanner readiness={appUrlEnv} />
         <ProductionDomainEnvBanner readiness={productionDomainEnv} />
+        <VercelTokenEnvBanner readiness={vercelTokenEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

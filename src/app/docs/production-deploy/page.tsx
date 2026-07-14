@@ -38,7 +38,10 @@ export default function ProductionDeployDocPage() {
           Best-effort Vercel Domains API call when <code>VERCEL_TOKEN</code> is set and a project
           resolves — either this handoff&apos;s dedicated <code>vercelProjectId</code> (see below)
           or the shared <code>VERCEL_PROJECT_ID</code>; otherwise status stays{" "}
-          <code>awaiting_dns</code> with operator notes.
+          <code>awaiting_dns</code> with operator notes. Until{" "}
+          <code>VERCEL_TOKEN</code> is a non-placeholder secret,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> shows a blue automation banner via{" "}
+          <code>assessVercelTokenEnvReadiness</code>.
         </li>
         <li>
           Email the buyer DNS steps + preview URL (in addition to the receipt).
@@ -155,8 +158,10 @@ export default function ProductionDeployDocPage() {
           <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> — fallback root if production domain unset.
         </li>
         <li>
-          <code>VERCEL_TOKEN</code>, <code>VERCEL_PROJECT_ID</code>, optional{" "}
-          <code>VERCEL_TEAM_ID</code> — enable automated domain registration.
+          <code>VERCEL_TOKEN</code> — required for Domains API automation; until set, dashboards
+          show a blue readiness banner (<code>assessVercelTokenEnvReadiness</code>).{" "}
+          <code>VERCEL_PROJECT_ID</code>, optional <code>VERCEL_TEAM_ID</code> — shared project
+          fallback when a handoff has no per-client Assign project id.
         </li>
       </ul>
 

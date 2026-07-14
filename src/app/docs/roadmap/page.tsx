@@ -84,7 +84,10 @@ export default function RoadmapDocPage() {
         dashboards show a cyan production-root banner via{" "}
         <code>assessProductionDomainEnvReadiness</code> (handoff{" "}
         <code>suggestedHost</code> / DNS counseling otherwise fall back to stripping{" "}
-        <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code>). Preview contact
+        <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code>). Until{" "}
+        <code>VERCEL_TOKEN</code> is a non-placeholder secret, the same dashboards show a blue
+        Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> (paid handoffs
+        otherwise stay <code>awaiting_dns</code> with manual notes). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}

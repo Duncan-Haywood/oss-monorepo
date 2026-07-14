@@ -133,7 +133,12 @@ export default function ArchitectureDocPage() {
         <code>src/lib/deploy/production-domain-env-readiness.ts</code>) — missing / whitespace /
         localhost / <code>example.com</code> / <code>preview.*</code> placeholders are flagged;
         <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> alone does not count as ready (handoff{" "}
-        <code>suggestedHost</code> otherwise silently falls back). <code>siteUrl()</code>&apos;s precedence (
+        <code>suggestedHost</code> otherwise silently falls back). Until{" "}
+        <code>VERCEL_TOKEN</code> is a non-placeholder secret, the same dashboards show a blue
+        Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> (
+        <code>src/lib/deploy/vercel-token-env-readiness.ts</code>) — missing / whitespace /
+        changeme|token|xxx placeholders are flagged so paid handoffs cannot silently skip Domains
+        API automation. <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}

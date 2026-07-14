@@ -123,6 +123,16 @@ export default function LaunchChecklistDocPage() {
           <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code> (or the
           localsitestudio.com default). Distinct from the APP_URL / Stripe / brand banners.
         </li>
+        <li>
+          Optional but recommended for auto domain registration: set <code>VERCEL_TOKEN</code>.
+          Until set to a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink>{" "}
+          and <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a blue
+          Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> — paid handoffs
+          otherwise stay <code>awaiting_dns</code> with manual notes (
+          <code>tryProvisionVercelDomain</code> never calls the Domains API). Distinct from the
+          cyan production-domain banner; per-handoff <strong>Assign project</strong> or shared{" "}
+          <code>VERCEL_PROJECT_ID</code> still required for the API call itself.
+        </li>
       </ol>
 
       <h2>3. Outreach (blocks top-of-funnel)</h2>
@@ -457,7 +467,8 @@ export default function LaunchChecklistDocPage() {
       <h2>7. After the first paid order (Phase 5)</h2>
       <ol>
         <li>
-          Optional: set <code>VERCEL_TOKEN</code> + <code>VERCEL_PROJECT_ID</code> (and{" "}
+          Optional: set <code>VERCEL_TOKEN</code> (already flagged by the blue readiness banner
+          when unset) + <code>VERCEL_PROJECT_ID</code> (and{" "}
           <code>NEXT_PUBLIC_PRODUCTION_DOMAIN</code> — already flagged by the cyan readiness
           banner when unset) so domain registration is attempted automatically.
         </li>
