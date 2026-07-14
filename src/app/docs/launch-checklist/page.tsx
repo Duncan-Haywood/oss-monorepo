@@ -357,8 +357,9 @@ export default function LaunchChecklistDocPage() {
           Products; changing a price should create a new Price on the same Product. After Sync,
           edit a SKU name and Save — confirm the Synced badge remains (Stripe ids are preserved
           server-side; only a price change clears the Price id; action-level Vitest in{" "}
-          <code>save-commerce-catalog-action.test.ts</code>). With Convex configured, Save
-          catalog / Sync to Stripe fail closed on Convex errors (<code>requireConvex</code>) —
+          <code>save-commerce-catalog-action.test.ts</code>; catalog load for the panel is
+          locked by <code>get-commerce-catalog-action.test.ts</code>). With Convex configured,
+          Save catalog / Sync to Stripe fail closed on Convex errors (<code>requireConvex</code>) —
           never claim success after a SQLite-only write that other instances would still treat
           as unsynced (Buy now blocked). Remove a previously synced SKU,
           Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
