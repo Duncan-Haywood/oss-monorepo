@@ -101,6 +101,7 @@ export const AGENT_PROTOCOL = [
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
+  "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
 ] as const;
 
 /**
@@ -1776,6 +1777,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/relaxed-galileo-t69qzz",
+  },
+  {
+    id: "preview-indexing-consent-guard",
+    summary:
+      "Empty-backlog after PR #216 (checkout-slug-sanitize-traversal). Sibling remotes claude/dev-work-preview-index-consent and grok/continuous-work-preview-index had a complete feature body for gating /preview/[slug] sitemap+robots indexability on consent, but neither opened a mergeable PR (Actions token blocked / handoff via issue #214). On main, sitemap.ts listed EVERY persisted lead slug and /preview emitted no robots directive — cold-prospected local businesses got AI demos indexed under the platform domain. Folded that body onto this automation branch per AGENT_PROTOCOL. Shipped: isLeadPreviewIndexable (src/lib/seo.ts) + isCuratedDemoLeadSlug (src/lib/leads/demo-catalog.ts); sitemap filters to indexable slugs; /preview/[slug] generateMetadata emits robots noindex,nofollow otherwise.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-7bfa (folded from claude/dev-work-preview-index-consent + grok/continuous-work-preview-index)",
   },
   {
     id: "redirect-url-validator-hardening",
@@ -3929,6 +3938,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Sanitize a client-supplied checkout slug to [a-z0-9-]+ inside resolveBundleCheckoutLeadSlug (src/lib/checkout/organic-attribution.ts), falling back to minting an organic-* slug when sanitization leaves nothing — rather than continue trimming-only and persisting an unrestricted slug straight from an unauthenticated POST /api/stripe/checkout body.",
     rationale:
       "Tenth consecutive empty-backlog audit today. Dispatched a background review agent specifically to look for a fresh instance of the dot-segment-traversal class just fixed on the login-redirect surface (PR #213), reasoning that any other input surface feeding path/host construction was worth re-checking against that exact class rather than re-running a fully-covered axis. It found that resolveBundleCheckoutLeadSlug — the one lead-slug-creation path this session hadn't yet checked — only trims a client-supplied slug, unlike slugifyBusinessName / addLeadAction / CSV import's slug-column sanitize, which all already normalize to [a-z0-9-]+. Independently re-verified the finding: an unauthenticated, real-payment-gated POST to /api/stripe/checkout with an arbitrary slug value flows through session.metadata.slug into the webhook's recordLeadPayment/markLeadPaid (which persists it verbatim as a brand-new paid lead — no existing-lead gate on this path), then into suggestedHost/previewUrl/contactFormUrl (src/lib/deploy/handoff.ts) and proxy.ts's preview-subdomain rewrite, where a `..`-segment slug collapses the rewrite target via WHATWG URL path normalization while proxy.ts's dashboard auth gate only inspects the ORIGINAL incoming pathname, not the post-rewrite destination — and dashboard/leads/page.tsx has no independent auth check of its own, relying entirely on the proxy gate for rendering (only its server actions separately call requireOperatorAuth). Separately checked the sibling public route POST /api/commerce/checkout, which also accepts a client-supplied slug with no sanitization, and confirmed it is NOT exploitable the same way — it requires getCommerceCatalog(slug) to match an existing catalog before anything is persisted, so a malformed slug there just 404s — left it unchanged per 'don't add validation for scenarios that can't happen.' The exact network-layer reachability of the proxy.ts rewrite-based auth bypass specifically is narrowed by Host headers not syntactically supporting `/` or `..` at the DNS/TLS layer, but the underlying violation — an unauthenticated, payment-gated path able to persist a lead slug that isn't a safe [a-z0-9-]+ token at all, an invariant every other lead-slug-creation path already enforces — is real regardless of that one specific downstream chain's practical reach, and the fix is cheap and consistent with the established pattern.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Gate /preview/[slug] sitemap inclusion and robots indexability on a shared isLeadPreviewIndexable predicate (curated DEMO_LEADS showcases + paid|live customers only) — rather than list every persisted lead slug in sitemap.xml with no page-level robots directive.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #216. Sibling remotes claude/dev-work-preview-index-consent and grok/continuous-work-preview-index already had a complete, tested feature body for this consent/SEO defect but no mergeable PR (Actions token blocked; handoff issue #214). On main the bug was still live: sitemap.ts invited every cold-prospected local business into Google's index under the platform domain, and /preview emitted no noindex — the same consent concern the repo legal-gates on Places ingestion, plus duplicate-thin-content SEO risk that hurts the marketing site's own rankings. Folding the stuck body onto the automation branch that can open/merge unblocks safe SEO growth for demos + paying customers without inventing an optional aggregate or re-running a 2x-confirmed clean axis. Shared predicate keeps sitemap and generateMetadata from drifting.",
   },
 ];
 
@@ -7337,7 +7353,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented the fix and why the conservative (over-rejecting %2f) posture is the right tradeoff for a security gate",
       "Verified: npm test (1253 passed, full suite incl. 4 new dot-segment regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(304, 305),
+    decisions: BUSINESS_DECISIONS.slice(303, 304),
   },
   {
     date: "2026-07-14",
@@ -7351,6 +7367,26 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: checkout-slug-sanitize-traversal done",
       "BUSINESS_DECISIONS — documented the fix, why the commerce-checkout twin was checked and left alone (not exploitable, existing-catalog gate), and why the underlying invariant violation is real regardless of the one specific proxy.ts chain's network-layer reachability",
       "Verified: npm test (1256 passed, full suite incl. 4 new sanitize/traversal regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(304, 305),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-7bfa",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #216 (checkout-slug-sanitize-traversal). Empty-backlog scan of sibling remotes found claude/dev-work-preview-index-consent and grok/continuous-work-preview-index with a complete feature body for preview-indexing-consent-guard and no open PR (Actions token blocked / issue #214) — a real privacy/consent/SEO defect still live on main: sitemap.ts listed every persisted lead slug and /preview/[slug] emitted no robots directive, so cold-prospected local businesses had AI demos indexed under the platform domain. Per AGENT_PROTOCOL cooperation rule (fold CLI remotes with feature body but no open PR), claimed and folded that body onto this automation branch rather than re-audit already-clean axes or leave the bug live. Also noted remaining fold targets for the next run: grok/dev-work-redirect-url-hardening (strict-superset safeNextPath + header-origin hardening) and opencode/dev-work-7qz1k9 (Convex↔SQLite listOpenCheckoutSessions / leads / inquiries ordering parity).",
+    shipped: [
+      "src/lib/seo.ts — isLeadPreviewIndexable(lead, { isCuratedDemo }): curated demos always index; real leads index only at stage paid|live; prospects/closed/slug-inferred previews do not",
+      "src/lib/leads/demo-catalog.ts — isCuratedDemoLeadSlug(slug): true only for the curated DEMO_LEADS showcase slugs",
+      "src/app/sitemap.ts — filters persisted leads through isLeadPreviewIndexable (curated demos always kept) instead of listing every slug",
+      "src/app/preview/[slug]/page.tsx — generateMetadata emits robots { index:false, follow:false } for non-indexable leads, keyed on the shared predicate so it cannot drift from the sitemap",
+      "src/lib/seo.test.ts (+3) + src/lib/leads/demo-catalog.test.ts (+2) — lock the indexable/noindex matrix across all stages and the curated-vs-inferred slug distinction",
+      "Docs: architecture.tsx documents the consent-gated sitemap + robots contract",
+      "NEXT_STEPS: preview-indexing-consent-guard done (folded from claude/dev-work-preview-index-consent + grok/continuous-work-preview-index)",
+      "AGENT_PROTOCOL — added a public marketing OUTPUT-surface consent/indexability rule so empty-backlog agents rotate to sitemap/robots/JSON-LD and prefer folding stuck CLI remotes with that class of body",
+      "BUSINESS_DECISIONS — documented the output-surface consent defect and why folding the stuck sibling beats a documented clean re-audit",
+      "process bookkeeping — remapped safe-next-path / checkout-slug ITERATIONS decision slices from (304,305)/(305,306) to (303,304)/(304,305) so absolute indices match BUSINESS_DECISIONS (decision 303 was previously orphaned)",
+      "Verified: npm test + lint + build (see feature commit)",
     ],
     decisions: BUSINESS_DECISIONS.slice(305, 306),
   },

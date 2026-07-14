@@ -3,8 +3,9 @@ import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
 import { getCommerceCatalog, getLeadBySlug, listOrders } from "@/lib/db";
 import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
-import { resolvePreviewLead } from "@/lib/leads/demo-catalog";
+import { isCuratedDemoLeadSlug, resolvePreviewLead } from "@/lib/leads/demo-catalog";
 import {
+  isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
   leadMetaDescription,
   leadMetaTitle,
@@ -33,6 +34,13 @@ export async function generateMetadata({ params }: PreviewPageProps): Promise<Me
   const title = leadMetaTitle(lead);
   const description = leadMetaDescription(lead);
   const url = previewUrl(slug);
+  // Cold-prospected / not-yet-consenting leads must not be indexed under the
+  // platform domain (consent + duplicate-content hygiene). Only curated demo
+  // showcases and paid/live customers are publicly indexable — kept in sync
+  // with the sitemap via the shared isLeadPreviewIndexable predicate.
+  const indexable = isLeadPreviewIndexable(lead, {
+    isCuratedDemo: isCuratedDemoLeadSlug(slug),
+  });
 
   return {
     title,
@@ -40,6 +48,7 @@ export async function generateMetadata({ params }: PreviewPageProps): Promise<Me
     alternates: { canonical: url },
     openGraph: { title, description, url, type: "website" },
     twitter: { card: "summary", title, description },
+    ...(indexable ? {} : { robots: { index: false, follow: false } }),
   };
 }
 

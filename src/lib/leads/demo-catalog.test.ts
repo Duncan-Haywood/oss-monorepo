@@ -3,6 +3,7 @@ import {
   DEMO_LEADS,
   countLeadsByStage,
   getLeadBySlug,
+  isCuratedDemoLeadSlug,
   resolvePreviewLead,
 } from "./demo-catalog";
 
@@ -48,6 +49,22 @@ describe("getLeadBySlug", () => {
   it("returns undefined for unknown or empty slugs", () => {
     expect(getLeadBySlug("")).toBeUndefined();
     expect(getLeadBySlug("not-a-real-lead")).toBeUndefined();
+  });
+});
+
+describe("isCuratedDemoLeadSlug", () => {
+  it("is true only for the curated showcase slugs", () => {
+    for (const lead of DEMO_LEADS) {
+      expect(isCuratedDemoLeadSlug(lead.slug)).toBe(true);
+    }
+  });
+
+  it("is false for slug-inferred previews and unknown/empty slugs", () => {
+    // A real cold-prospected lead or an inferred preview must not be treated as
+    // a public showcase for sitemap/robots indexability purposes.
+    expect(isCuratedDemoLeadSlug("joes-diner")).toBe(false);
+    expect(isCuratedDemoLeadSlug("blue-ridge-cafe")).toBe(false);
+    expect(isCuratedDemoLeadSlug("")).toBe(false);
   });
 });
 
