@@ -76,7 +76,10 @@ export default function RoadmapDocPage() {
         a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
         banner via <code>assessOperatorAuthEnvReadiness</code> (env presence only — distinct from
-        Stripe / Resend / Anthropic / digest banners). Preview contact
+        Stripe / Resend / Anthropic / digest banners). Until{" "}
+        <code>NEXT_PUBLIC_APP_URL</code> is a non-localhost public origin, the same dashboards show
+        an orange canonical-URL banner via <code>assessAppUrlEnvReadiness</code> (checkout /
+        digest / unsubscribe / SEO fall back to localhost otherwise). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}

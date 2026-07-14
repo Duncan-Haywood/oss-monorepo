@@ -21,12 +21,14 @@ import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness"
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
+import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
+import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -101,6 +103,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
+  const appUrlEnv = assessAppUrlEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -115,6 +118,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="mt-6">
         <OperatorAuthEnvBanner readiness={operatorAuthEnv} />
+        <AppUrlEnvBanner readiness={appUrlEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
