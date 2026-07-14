@@ -10,7 +10,32 @@ const orderReturn = v.object({
   stripeSessionId: v.string(),
   createdAt: v.string(),
   paidOutAt: v.optional(v.string()),
+  clientReceiptEmailSentAt: v.optional(v.string()),
 });
+
+function mapOrderRow(row: {
+  orderId: string;
+  leadSlug: string;
+  skuId: string;
+  skuName: string;
+  amountPaidUsd: number;
+  stripeSessionId: string;
+  createdAt: string;
+  paidOutAt?: string;
+  clientReceiptEmailSentAt?: string;
+}) {
+  return {
+    id: row.orderId,
+    leadSlug: row.leadSlug,
+    skuId: row.skuId,
+    skuName: row.skuName,
+    amountPaidUsd: row.amountPaidUsd,
+    stripeSessionId: row.stripeSessionId,
+    createdAt: row.createdAt,
+    paidOutAt: row.paidOutAt,
+    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt,
+  };
+}
 
 /**
  * Idempotent on stripeSessionId — Stripe may resend checkout.session.completed
@@ -61,16 +86,7 @@ export const list = query({
   handler: async (ctx, args) => {
     const limit = Math.min(Math.max(args.limit ?? 200, 1), 500);
     const rows = await ctx.db.query("commerceOrders").order("desc").take(limit);
-    return rows.map((row) => ({
-      id: row.orderId,
-      leadSlug: row.leadSlug,
-      skuId: row.skuId,
-      skuName: row.skuName,
-      amountPaidUsd: row.amountPaidUsd,
-      stripeSessionId: row.stripeSessionId,
-      createdAt: row.createdAt,
-      paidOutAt: row.paidOutAt,
-    }));
+    return rows.map(mapOrderRow);
   },
 });
 
@@ -89,16 +105,7 @@ export const listUnpaid = query({
     const rows = await ctx.db.query("commerceOrders").order("desc").collect();
     return rows
       .filter((row) => row.paidOutAt === undefined)
-      .map((row) => ({
-        id: row.orderId,
-        leadSlug: row.leadSlug,
-        skuId: row.skuId,
-        skuName: row.skuName,
-        amountPaidUsd: row.amountPaidUsd,
-        stripeSessionId: row.stripeSessionId,
-        createdAt: row.createdAt,
-        paidOutAt: row.paidOutAt,
-      }));
+      .map(mapOrderRow);
   },
 });
 
@@ -114,16 +121,7 @@ export const getByStripeSessionId = query({
       )
       .unique();
     if (!row) return null;
-    return {
-      id: row.orderId,
-      leadSlug: row.leadSlug,
-      skuId: row.skuId,
-      skuName: row.skuName,
-      amountPaidUsd: row.amountPaidUsd,
-      stripeSessionId: row.stripeSessionId,
-      createdAt: row.createdAt,
-      paidOutAt: row.paidOutAt,
-    };
+    return mapOrderRow(row);
   },
 });
 
@@ -144,6 +142,30 @@ export const markPaidOut = mutation({
       .unique();
     if (order) {
       await ctx.db.patch(order._id, { paidOutAt: args.paidOutAt });
+    }
+    return null;
+  },
+});
+
+/**
+ * Durable client-receipt sent-marker after sendCommerceBuyNowClientReceipt
+ * resolves { success: true }. Keyed on stripeSessionId — Stripe redelivery
+ * recovers the client order notification while this field is unset.
+ */
+export const markClientReceiptSent = mutation({
+  args: { stripeSessionId: v.string(), clientReceiptEmailSentAt: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (order) {
+      await ctx.db.patch(order._id, {
+        clientReceiptEmailSentAt: args.clientReceiptEmailSentAt,
+      });
     }
     return null;
   },

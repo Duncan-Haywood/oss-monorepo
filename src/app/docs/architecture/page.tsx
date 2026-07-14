@@ -685,17 +685,20 @@ export default function ArchitectureDocPage() {
         <code>leadEligibleForStarterUpsell</code> read any <code>commerceAddon</code> order row as
         &quot;this lead has a recurring Commerce subscription.&quot;{" "}
         <code>insertCommerceOrder</code> returns <code>&#123; alreadyRecorded &#125;</code>. On
-        Stripe <code>checkout.session.completed</code> redelivery, missing operator inquiry +{" "}
-        <code>sendCommerceBuyNowClientReceipt</code> are recovered when no{" "}
-        <code>commerce_checkout</code> inquiry embeds the session id (
+        Stripe <code>checkout.session.completed</code> redelivery, missing operator inquiry and{" "}
+        <code>sendCommerceBuyNowClientReceipt</code> are recovered independently: inquiry when no{" "}
+        <code>commerce_checkout</code> inquiry embeds the session id; client receipt when{" "}
+        <code>commerceOrders.clientReceiptEmailSentAt</code> is unset (
         <code>planCommerceWebhookSideEffects</code> fed by{" "}
         <code>listCommerceCheckoutInquiriesBySlug</code> — uncapped{" "}
         <code>source=commerce_checkout</code> only; not a newest-N{" "}
-        <code>listClientInquiriesBySlug</code> page); duplicates skip only when that inquiry
-        already exists. Inquiry write failures after a durable ledger write return HTTP 500 (
-        <code>commerce_order_inquiry</code>) so Stripe redelivers into that recovery path —
-        client receipt stays best-effort only after inquiry succeeds. Sessions missing{" "}
-        <code>metadata.skuId</code> skip
+        <code>listClientInquiriesBySlug</code> page). Inquiry presence alone must not permanently
+        skip a failed/suppressed client order-notification email (bundle receipt/DNS twin). The
+        receipt sent-marker is written only after the send resolves{" "}
+        <code>&#123; success: true &#125;</code>; marker-write failures return HTTP 500 (
+        <code>commerce_client_receipt_sent_marker</code>). Inquiry write failures after a durable
+        ledger write return HTTP 500 (<code>commerce_order_inquiry</code>) so Stripe redelivers.
+        Sessions missing <code>metadata.skuId</code> skip
         ledger and side effects entirely (warn + break) — the alreadyRecorded gate cannot run
         without a SKU. Pipeline health surfaces the
         total as <code>commerceOrdersRevenueUsd</code> (&quot;Commerce sales (pass-through)&quot;)

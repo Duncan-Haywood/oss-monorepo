@@ -94,12 +94,13 @@ export default function ProductBundlesDocPage() {
         completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
         from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the
-        same Checkout Session recover a missing inquiry or client email when the{" "}
-        <code>commerceOrders</code> ledger row exists but no prior{" "}
-        <code>commerce_checkout</code> inquiry embeds that session id (lookup uses uncapped{" "}
-        <code>listCommerceCheckoutInquiriesBySlug</code>, not a newest-N inbox page); they do not
-        re-fire once that inquiry exists. Inquiry write failures after the ledger return HTTP 500 so Stripe
-        retries into that recovery path. Retail, restaurant
+        same Checkout Session recover a missing inquiry and a missing client email independently
+        when the <code>commerceOrders</code> ledger row exists: inquiry when no prior{" "}
+        <code>commerce_checkout</code> inquiry embeds that session id (uncapped{" "}
+        <code>listCommerceCheckoutInquiriesBySlug</code>); client receipt when{" "}
+        <code>clientReceiptEmailSentAt</code> is unset. Inquiry presence alone must not permanently
+        skip a failed/suppressed client order-notification. Inquiry write failures after the ledger
+        return HTTP 500 so Stripe retries into that recovery path. Retail, restaurant
         ordering, booking deposits, or gift cards.
       </p>
       <p>

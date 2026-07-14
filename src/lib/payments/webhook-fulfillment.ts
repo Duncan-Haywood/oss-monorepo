@@ -16,7 +16,13 @@ export type WebhookFulfillmentStep =
    * email — required so Stripe retries rather than leaving recovery unable to
    * see that the email already went out (duplicate risk on every redelivery).
    */
-  | "bundle_email_sent_marker";
+  | "bundle_email_sent_marker"
+  /**
+   * Durable commerceOrders.clientReceiptEmailSentAt marker after a successful
+   * sendCommerceBuyNowClientReceipt — required so Stripe retries rather than
+   * leaving recovery unable to see that the client order notification went out.
+   */
+  | "commerce_client_receipt_sent_marker";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

@@ -4,10 +4,12 @@
  * insertCommerceOrder is idempotent on stripeSessionId and returns
  * alreadyRecorded on retry. Inquiry + client receipt are NOT ledger-writes —
  * an early-break on alreadyRecorded permanently skips them if the first
- * delivery crashed after the ledger. Recover when no commerce_checkout
- * inquiry mentions this stripeSessionId; skip when one already exists.
+ * delivery crashed after the ledger. Recover each independently:
+ * - inquiry: when no commerce_checkout inquiry mentions this stripeSessionId
+ * - client receipt: when commerceOrders.clientReceiptEmailSentAt is unset
  *
- * See /docs/process (commerce-webhook-side-effect-recovery-on-redelivery).
+ * Twin of planBundleWebhookSideEffects (per-email durable markers). See
+ * /docs/process (commerce-client-receipt-redelivery-recovery).
  */
 
 export type CommerceSideEffectReason =
@@ -45,33 +47,45 @@ export function hasCommerceCheckoutInquiryForSession(
   );
 }
 
+/** True once the durable client-receipt sent-marker is set on the ledger row. */
+export function hasCommerceClientReceiptSentMarker(
+  order: { clientReceiptEmailSentAt?: string | null } | null | undefined,
+): boolean {
+  return Boolean(order?.clientReceiptEmailSentAt?.trim());
+}
+
 /**
- * Decide whether to fire operator inquiry + client receipt.
- * On redelivery (alreadyRecorded), still recover when the inquiry is missing.
- * The webhook must return 5xx on inquiry write failure so Stripe actually
- * redelivers into this path — ACK 200 after a swallowed inquiry error makes
- * recovery unreachable. When an inquiry already exists, skip both — receipt-only
- * failure after a successful inquiry stays best-effort (operator has the inbox row).
+ * Decide whether to fire operator inquiry and/or client receipt.
+ * On redelivery (alreadyRecorded), still recover whichever side effect lacks
+ * its durable marker. Inquiry and receipt stay independently recoverable
+ * (matching bundle receipt/DNS) — inquiry presence alone must not permanently
+ * skip a failed/suppressed client order-notification email.
  */
 export function planCommerceWebhookSideEffects(input: {
   alreadyRecorded: boolean;
   inquiriesForLead: ReadonlyArray<{ source?: string; message: string }>;
   stripeSessionId: string;
+  /** When true, skip the client receipt (durable marker already written). */
+  clientReceiptAlreadySent?: boolean;
 }): CommerceSideEffectPlan {
   const hasInquiry = hasCommerceCheckoutInquiryForSession(
     input.inquiriesForLead,
     input.stripeSessionId,
   );
-  if (hasInquiry) {
+  const runInquiry = !hasInquiry;
+  const runClientReceipt = !input.clientReceiptAlreadySent;
+
+  if (!runInquiry && !runClientReceipt) {
     return {
       runInquiry: false,
       runClientReceipt: false,
       reason: "already_notified",
     };
   }
+
   return {
-    runInquiry: true,
-    runClientReceipt: true,
+    runInquiry,
+    runClientReceipt,
     reason: input.alreadyRecorded ? "redelivery_recovery" : "first_delivery",
   };
 }
