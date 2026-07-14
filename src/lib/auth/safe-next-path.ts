@@ -15,6 +15,26 @@
 export const DEFAULT_SAFE_NEXT_PATH = "/dashboard";
 
 /**
+ * True when a decoded path contains a literal `..` segment. The browser
+ * normalizes both `/dashboard/../checkout` and its percent-encoded form
+ * `/dashboard/%2e%2e/checkout` down to `/checkout` before ever hitting the
+ * network, so those must be rejected even though the raw string still
+ * starts with `/dashboard/`. `decodeURIComponent` can throw on malformed
+ * escapes (e.g. a lone `%`) — fail closed (treat as containing `..`) rather
+ * than let an unparsable path slip through.
+ */
+function containsDotDotSegment(path: string): boolean {
+  const pathname = path.split(/[?#]/, 1)[0];
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return true;
+  }
+  return decoded.split("/").includes("..");
+}
+
+/**
  * True when `path` is a safe relative destination under `/dashboard`.
  * Exported for tests; prefer `safeNextPath` at call sites.
  */
@@ -32,6 +52,9 @@ export function isSafeNextPath(path: string): boolean {
   // next=pathname under /dashboard/*). Restricting the prefix closes
   // accidental redirects to public marketing/preview surfaces.
   if (path !== "/dashboard" && !path.startsWith("/dashboard/")) return false;
+  // Dot-segment traversal (literal or percent-encoded) — the browser
+  // collapses this to an out-of-dashboard path before it ever redirects.
+  if (containsDotDotSegment(path)) return false;
   // Already on login with next=/dashboard/login → infinite redirect loop
   // for authenticated visitors (page redirects to next → login again).
   if (path === "/dashboard/login" || path.startsWith("/dashboard/login?")) {

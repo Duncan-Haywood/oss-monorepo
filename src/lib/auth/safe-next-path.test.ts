@@ -48,6 +48,29 @@ describe("isSafeNextPath", () => {
     );
     expect(isSafeNextPath("/dashboard/\0leads")).toBe(false);
   });
+
+  it("rejects dot-segment traversal out of /dashboard", () => {
+    // Browsers collapse `/dashboard/../checkout` to `/checkout` before the
+    // request is ever sent, escaping the /dashboard/* restriction even
+    // though the raw string still starts with "/dashboard/".
+    expect(isSafeNextPath("/dashboard/../checkout?ref=x")).toBe(false);
+    expect(isSafeNextPath("/dashboard/../../evil")).toBe(false);
+    expect(isSafeNextPath("/dashboard/leads/../../checkout")).toBe(false);
+  });
+
+  it("rejects percent-encoded dot-segment traversal", () => {
+    expect(isSafeNextPath("/dashboard/%2e%2e/checkout")).toBe(false);
+    expect(isSafeNextPath("/dashboard/%2E%2E/checkout")).toBe(false);
+    expect(isSafeNextPath("/dashboard/..%2f../checkout")).toBe(false);
+  });
+
+  it("fails closed on unparsable percent-encoding", () => {
+    expect(isSafeNextPath("/dashboard/%")).toBe(false);
+  });
+
+  it("still accepts a harmless single-dot segment", () => {
+    expect(isSafeNextPath("/dashboard/./leads")).toBe(true);
+  });
 });
 
 describe("safeNextPath", () => {

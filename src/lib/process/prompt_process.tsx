@@ -1761,6 +1761,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 8 — Commerce",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "safe-next-path-dot-segment-traversal",
+    summary:
+      "Empty-backlog after PR #211 (orphan-archive-lost-update-guard); only one unrelated open PR (#202, draft, agent-run dashboard) — no overlap. Ninth consecutive audit today; reviewed the newest sibling-authored code (safe-next-path.ts, shipped by PR #208) rather than re-running an already-exhaustively-covered axis. isSafeNextPath restricts a next path to /dashboard or /dashboard/*, but never rejected a `..` path segment: /dashboard/../checkout?ref=x literally starts with \"/dashboard/\" and passed every existing check, yet a browser normalizes both that literal form and its percent-encoded twin /dashboard/%2e%2e/checkout down to /checkout before the redirect is ever sent — escaping the documented /dashboard/*-only contract on a same-origin (not cross-domain) basis. Verified by manually tracing the function against the exploit string and empirically confirming the normalization with `new URL()`. Shipped: containsDotDotSegment(path) — strips query/hash, fully percent-decodes the pathname (failing closed, i.e. treating a decode error as unsafe), and rejects any `/`-split segment equal to `..` — checked in isSafeNextPath alongside the existing structural checks. Deliberately conservative: because decodeURIComponent decodes %2f into a literal slash too, the escaped-slash variant /dashboard/..%2fcheckout also gets rejected (it decodes to a `..` segment) even though a real browser treats %2f as an inert literal within one segment rather than a separator — over-rejecting an ambiguous encoding is the safer failure mode for a security gate than under-rejecting it, and no real dashboard next-path legitimately contains %2f.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "claude/relaxed-galileo-t69qzz",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3891,6 +3899,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Split archiveCommerceStripeProducts (archive-only, no listing) out of archiveOrphanCommerceStripeProducts (kept as an unchanged list+archive convenience wrapper for existing callers), and have archiveOrphanCommerceStripeProductsAction re-read the catalog between the list and archive steps, dropping any candidate whose skuId reappeared in the fresh read.",
     rationale:
       "Eighth consecutive empty-backlog audit today. Sibling PR #209 (stripe-redirect-app-url-no-host-trust) merged mid-window on the exact appUrl/Host-trust territory this run was told to leave alone, confirming that steering clear of active sibling work was the right call rather than risking a duplicate or conflicting change. Checked the same TOCTOU pattern (already fixed once today for syncCommerceCatalogToStripeAction) against the LLM-generation actions and found it doesn't apply there — regenerating a marketing/voice pack always writes a fresh, complete object with nothing carried over from a prior read, so two concurrent regenerations just resolve last-write-wins, which is the intended behavior for a 'replace this month's pack' action, not a lost-update. Found the identical bug class in a different action instead: archiveOrphanCommerceStripeProductsAction's orphan set is computed once, before a real, paginated account-wide Stripe products.list scan and a sequential archive loop — a concurrent re-add of a SKU during that window would have its live Stripe Product silently archived, breaking that SKU's Buy now checkout with the action still reporting success. The fix mirrors the exact re-read-before-mutate pattern the sync-to-Stripe fix established earlier today, generalizing it from 'stale snapshot overwrites a DB write' to 'stale snapshot drives an external-API mutation' — the same root cause, a different write target.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Add a containsDotDotSegment(path) check inside isSafeNextPath (src/lib/auth/safe-next-path.ts) that fully percent-decodes the pathname (failing closed on a malformed escape) and rejects any `/`-split segment equal to `..` — covering both a literal /dashboard/../checkout and its percent-encoded twin /dashboard/%2e%2e/checkout — rather than leave the existing startsWith(\"/dashboard/\") prefix check as the only structural gate.",
+    rationale:
+      "Ninth consecutive empty-backlog audit today; only one unrelated open PR (#202, draft) existed, so no sibling-collision risk. Reviewed the newest sibling-authored security code (safe-next-path.ts, PR #208) instead of re-running an already-exhaustively-covered axis, since a freshly-landed file is exactly where a new agent hasn't yet had a chance to double-check every branch. Found that isSafeNextPath's prefix check (`path === \"/dashboard\" || path.startsWith(\"/dashboard/\")`) is satisfied by /dashboard/../checkout?ref=x even though every browser normalizes that to /checkout?ref=x before ever issuing the redirect — a real, verified contract violation (same-origin escape from the documented /dashboard/*-only restriction, not a cross-domain open redirect) with zero existing test coverage for any dot-segment shape. Verified both by manual trace of every existing conditional against the exploit string and by empirically confirming the exact normalization behavior with Node's `new URL()` (literal .. and percent-encoded %2e%2e both collapse; a harmless single dot does not escape the prefix). The fix's percent-decode-then-split approach is deliberately conservative rather than exactly mirroring browser behavior: because decodeURIComponent turns %2f into a literal slash before the segment split, an escaped-slash variant like /dashboard/..%2fcheckout also gets rejected even though real browsers keep %2f as an inert literal within one segment (not a path separator) and never actually escape /dashboard/* through that specific string. Over-rejecting an ambiguous encoding is the standard, safer posture for a security gate — no legitimate dashboard next-path needs a literal %2f — so accepting a handful of harmless false rejections in exchange for closing every real decode-then-traverse variant is the right tradeoff over trying to precisely replicate one browser's undocumented escaping quirks.",
   },
 ];
 
@@ -7285,5 +7300,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1249 passed, full suite incl. 1 new concurrent-re-add regression) + lint + build + npm run dev (/dashboard/leads renders 200)",
     ],
     decisions: BUSINESS_DECISIONS.slice(302, 303),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/relaxed-galileo-t69qzz",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #211 (orphan-archive-lost-update-guard); re-checked origin/main and open PRs first — only #202 open (unrelated draft, agent-run dashboard), no collision risk. Ninth consecutive audit today; reviewed the newest sibling-authored security file (safe-next-path.ts, PR #208) rather than re-running an already-exhaustively-covered axis. Found isSafeNextPath never rejected a `..` path segment — /dashboard/../checkout?ref=x satisfies the /dashboard/* prefix check as a raw string, but a browser normalizes it (and its percent-encoded twin /dashboard/%2e%2e/checkout) down to /checkout before the redirect is ever sent, escaping the documented same-origin restriction. Verified by manual trace against the exploit string and empirically with Node's `new URL()`. Claimed and shipped safe-next-path-dot-segment-traversal.",
+    shipped: [
+      "src/lib/auth/safe-next-path.ts — containsDotDotSegment(path) strips query/hash, fully percent-decodes the pathname (failing closed on a malformed escape), and rejects any `/`-split segment equal to `..`; wired into isSafeNextPath alongside the existing structural checks",
+      "src/lib/auth/safe-next-path.test.ts — regressions for literal .. traversal, percent-encoded %2e%2e traversal, fail-closed on unparsable %, harmless single-dot segment still accepted, and the escaped-slash %2f variant (also correctly rejected, since full decoding turns it into a .. segment too)",
+      "Docs: architecture.tsx documents the dot-segment-traversal fix beside the existing safe-next-path notes",
+      "NEXT_STEPS: safe-next-path-dot-segment-traversal done",
+      "BUSINESS_DECISIONS — documented the fix and why the conservative (over-rejecting %2f) posture is the right tradeoff for a security gate",
+      "Verified: npm test (1253 passed, full suite incl. 4 new dot-segment regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(304, 305),
   },
 ];

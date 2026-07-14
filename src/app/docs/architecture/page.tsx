@@ -67,7 +67,14 @@ export default function ArchitectureDocPage() {
         <code>src/lib/auth/safe-next-path.ts</code> (shared by the login page&apos;s
         already-authenticated redirect and <code>loginOperatorAction</code> — rejects
         protocol-relative double-slash hosts, backslash host tricks, non-dashboard paths, and
-        login self-targets; never trust <code>startsWith(&quot;/&quot;)</code> alone) +{" "}
+        login self-targets; never trust <code>startsWith(&quot;/&quot;)</code> alone) — also
+        rejects literal and percent-encoded <code>..</code> path segments (fully
+        percent-decoded before the segment check, failing closed on malformed escapes) since a
+        browser normalizes both <code>/dashboard/../checkout</code> and{" "}
+        <code>/dashboard/%2e%2e/checkout</code> down to <code>/checkout</code> before the
+        redirect is ever sent, which previously escaped the <code>/dashboard/*</code>{" "}
+        restriction despite the raw string still starting with{" "}
+        <code>/dashboard/</code> +{" "}
         <code>operator.test.ts</code> token crypto +{" "}
         <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
         (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
