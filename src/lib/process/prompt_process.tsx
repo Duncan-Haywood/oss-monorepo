@@ -1850,6 +1850,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/business-process-evolution-2d7a (folded from grok/continuous-work-slug-path-encode ← grok/dev-work-slug-path-encode; issues #228/#229)",
   },
+  {
+    id: "server-action-as-const-success-restore",
+    summary:
+      "PR #231 (slug-path-encode fold) silently reverted as const on updateLeadStageAction / importLeadsCsvAction / bootstrapStripePricesAction success literals by merging a pre-fix actions.ts. Without as const, TS widens success to boolean and defeats discriminated-union narrowing at call sites. Also restore as const on sendEmail / sendOperatorDailyDigest (same class; sibling continuous-work-062115). Folding stuck grok/continuous-work-as-const-restore (issues #232/#233).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-7c34",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
