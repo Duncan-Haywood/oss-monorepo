@@ -46,7 +46,10 @@ export default function ArchitectureDocPage() {
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
         <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
         surfaces a retry instead of claiming success after a SQLite-only write other instances
-        cannot see. Dashboard stage moves likewise pass{" "}
+        cannot see. Action-level Vitest in <code>add-lead-action.test.ts</code> locks that Add
+        lead glue (auth, slug/businessName gates, sanitize, existing-slug conflict, requireConvex
+        fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
+        stage moves likewise pass{" "}
         <code>LEAD_STAGE_CONVEX_PRIMARY</code> (Mark live already fail-closes via{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) so funnel state cannot desync from
         Convex-first readers — especially the <code>outreach_sent</code> path, where the
@@ -420,7 +423,10 @@ export default function ArchitectureDocPage() {
         soft prompt (Skip dismisses without undoing the stage/email change). When Convex is
         configured, the notes write passes <code>requireConvex</code> (
         <code>LEAD_NOTES_CONVEX_PRIMARY</code>) so Save cannot claim success after a SQLite-only
-        write that other instances never see. Optional{" "}
+        write that other instances never see. Action-level Vitest in{" "}
+        <code>update-lead-notes-action.test.ts</code> locks auth, soft-cap / clear / trim,
+        requireConvex fail-closed, and success revalidate beside notes-persist helpers.
+        Optional{" "}
         <code>snoozedUntil</code> parks a lead off Work next (1d/3d/7d presets) while keeping
         the quality score visible — Unsnooze clears it; when Convex is configured the write
         passes <code>requireConvex</code> (<code>LEAD_SNOOZE_CONVEX_PRIMARY</code>) so park /

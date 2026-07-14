@@ -127,7 +127,9 @@ export default function RoadmapDocPage() {
         (free-text call outcomes on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, SQLite + Convex; with Convex
         configured, Save uses <code>requireConvex</code> so notes cannot succeed only in
-        instance-local SQLite — <code>lead-notes-convex-primary</code>): shipped.
+        instance-local SQLite — <code>lead-notes-convex-primary</code>; action-level Vitest
+        in <code>update-lead-notes-action.test.ts</code> locks auth, soft-cap / clear / trim,
+        and ConvexPrimaryWriteError fail-closed): shipped.
         Soft notes prompt when stage → <code>discovery_call</code> or Email 3 sends (skippable,
         never blocks the mutation): shipped. Dashboard stage dropdown uses{" "}
         <code>requireConvex</code> when Convex is configured (
@@ -229,7 +231,10 @@ export default function RoadmapDocPage() {
         <code>upsert-lead-collision-guard</code>). When Convex is configured, Add lead / CSV
         import fail closed on shared-store mutation failure (
         <code>lead-upsert-convex-primary</code>) so new inventory cannot succeed only in
-        instance-local SQLite. Dashboard stage moves fail closed the same way (
+        instance-local SQLite; action-level Vitest in <code>add-lead-action.test.ts</code>{" "}
+        locks the manual Add lead glue (auth, slug gates, conflict reject, requireConvex
+        fail-closed, outreach_sent mark-before-Resend) beside upsert-persist helpers. Dashboard
+        stage moves fail closed the same way (
         <code>lead-stage-convex-primary</code>) — Mark live already passed{" "}
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>; the stage dropdown now matches so funnel /
         Work next / digest cannot desync from an <code>outreach_sent</code> mark that already

@@ -211,6 +211,9 @@ export const AGENT_PROTOCOL = [
   "update-lead-stage-action-test-coverage done: src/app/dashboard/leads/update-lead-stage-action.test.ts locks requireOperatorAuth, LEAD_STAGE_CONVEX_PRIMARY on updateLeadStage, ConvexPrimaryWriteError fail-closed (no revalidate), non-outreach stage success revalidate (discovered/site_built/discovery_call/paid/live/closed), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email / missing-lead skip send, outreach-mark ConvexPrimaryWriteError (stage saved; Email 1 not sent), Error / non-Error stage throws, and Email 1 send throw after durable marks — stage-persist / outreach-persist helper suites alone are not enough for the dashboard stage dropdown glue. Twin of snooze-lead-action-test-coverage (b8a0). When free NEXT_STEPS stay gated, prefer update-lead-notes-action-test-coverage / add-lead-action-test-coverage (sibling-friendly discovery-call notes vs CSV/manual create) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "snooze-lead-action-test-coverage done: src/app/dashboard/leads/snooze-lead-action.test.ts locks requireOperatorAuth, empty slug, missing lead, invalid preset, missing preset/clear, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze for 1d/3d/7d + Unsnooze (clear prefers over preset), ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, and Error / non-Error throws — snooze / snooze-persist helper suites alone are not enough for the dashboard Work next park glue. Twin of update-lead-stage-action-test-coverage (a622). When free NEXT_STEPS stay gated, prefer update-lead-notes-action-test-coverage / add-lead-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When update-lead-notes-action-test-coverage and add-lead-action-test-coverage are both free in the same cron window, claim different ones (discovery-call / Email 3 notes requireConvex vs Add lead create + optional Email 1) — they touch different action surfaces and both lock CRM paths that notes-persist / upsert-persist helper suites do not cover.",
+  "update-lead-notes-action-test-coverage done: src/app/dashboard/leads/update-lead-notes-action.test.ts locks requireOperatorAuth, empty slug, over-long notes (soft cap before lead lookup), missing lead, LEAD_NOTES_CONVEX_PRIMARY on updateLeadNotes for save + clear (whitespace → undefined), trim, exact-cap accept, ConvexPrimaryWriteError fail-closed (no revalidate), and Error / non-Error throws — notes / notes-persist helper suites alone are not enough for the dashboard Save notes glue. Twin of add-lead-action-test-coverage (left free for sibling). When free NEXT_STEPS stay gated, prefer add-lead-action-test-coverage / import-leads-csv-action-test-coverage (sibling-friendly manual create vs CSV import) or mark-handoff-live-action-test-coverage over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "When add-lead-action-test-coverage and import-leads-csv-action-test-coverage are both free in the same cron window, claim different ones (manual Add lead create + optional Email 1 vs CSV bulk import LEAD_UPSERT_CONVEX_PRIMARY) — they touch different action surfaces and both lock inventory create paths that upsert-persist helper suites do not cover.",
+  "add-lead-action-test-coverage done: src/app/dashboard/leads/add-lead-action.test.ts locks requireOperatorAuth, missing slug/businessName, slug sanitize, default stage/dataSource + explicit overrides, existing-slug conflict (no upsert), LEAD_UPSERT_CONVEX_PRIMARY on upsertLead, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate (/dashboard/leads + /preview), outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved; Email 1 not sent; returns slug), and Error / non-Error throws — upsert-persist / outreach-persist / csv-import helper suites alone are not enough for the dashboard Add lead glue. Twin of update-lead-notes-action-test-coverage (3eb3; folded here). When free NEXT_STEPS stay gated, prefer import-leads-csv-action-test-coverage / mark-handoff-live-action-test-coverage (sibling-friendly CSV import vs Mark live fulfill) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "Before claiming in a same-minute dual-automation window, fetch the sibling automation's newest remote branch tip (business-process-evolution-* ↔ prompt-process-evolution-*) and read NEXT_STEPS ownership there — pivoting after a remote claim is cheaper than dual-building the same suite.",
 ] as const;
 
@@ -1563,16 +1566,32 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "update-lead-notes-action-test-coverage",
     summary:
-      "Empty-backlog twin after stage / snooze action Vitest: updateLeadNotesAction is the operator discovery-call / Email 3 notes path (LEAD_NOTES_CONVEX_PRIMARY fail-closed) — notes helper suites alone are not enough for action glue. Sibling-friendly with add-lead-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
-    status: "todo",
+      "Empty-backlog twin after stage / snooze action Vitest: updateLeadNotesAction is the operator discovery-call / Email 3 notes path (LEAD_NOTES_CONVEX_PRIMARY fail-closed) — notes helper suites alone are not enough for action glue. Shipped: update-lead-notes-action.test.ts (10 tests). Twin of add-lead-action-test-coverage (a322; folded here).",
+    status: "done",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/prompt-process-evolution-3eb3",
   },
   {
     id: "add-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after stage / snooze action Vitest: addLeadAction is the operator manual create path (LEAD_UPSERT_CONVEX_PRIMARY + optional Email 1 on outreach_sent) — upsert / outreach helper suites alone are not enough for action glue. Sibling-friendly with update-lead-notes-action-test-coverage; prefer when update-lead-stage / snooze-lead action coverage is done.",
-    status: "todo",
+      "Empty-backlog twin after stage / snooze action Vitest: addLeadAction is the operator manual create path (LEAD_UPSERT_CONVEX_PRIMARY + optional Email 1 on outreach_sent) — upsert / outreach helper suites alone are not enough for action glue. Shipped: add-lead-action.test.ts (13 tests). Twin of update-lead-notes-action-test-coverage (3eb3; folded here).",
+    status: "done",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/business-process-evolution-a322",
+  },
+  {
+    id: "import-leads-csv-action-test-coverage",
+    summary:
+      "Empty-backlog twin after notes / Add lead action Vitest: importLeadsCsvAction is the operator bulk inventory path (LEAD_UPSERT_CONVEX_PRIMARY per row + parse/validate) — CSV parse helper + upsert-persist suites alone are not enough for action glue. Sibling-friendly with mark-handoff-live-action-test-coverage; prefer when add-lead-action-test-coverage is done or claimed.",
+    status: "todo",
+    phase: "Phase 2 — Lead volume",
+  },
+  {
+    id: "mark-handoff-live-action-test-coverage",
+    summary:
+      "Empty-backlog twin after notes / Add lead action Vitest: markHandoffLiveAction is the operator Mark live fulfill path (DEPLOY_HANDOFF_CONVEX_PRIMARY + stage live) — deploy-handoff helper suites alone are not enough for action glue. Sibling-friendly with import-leads-csv-action-test-coverage; prefer when update-lead-notes-action-test-coverage is done.",
+    status: "todo",
+    phase: "Phase 5 — Fulfill & deploy",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
@@ -3388,6 +3407,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for snoozeLeadAction (Work next 1d/3d/7d park + Unsnooze) when update-lead-stage-action-test-coverage is claimed by a sibling — snooze / snooze-persist helper suites alone do not lock auth, empty slug, missing lead, invalid preset, missing preset/clear, LEAD_SNOOZE_CONVEX_PRIMARY on updateLeadSnooze, clear-over-preset precedence, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, or Error / non-Error throws. Queue update-lead-notes-action-test-coverage + add-lead-action-test-coverage as sibling-friendly CRM twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Snooze / Unsnooze is the operator path that parks a hot lead off Work next without wiping quality-score history — isFollowUpDue (follow-ups-due-exclude-snoozed) / pipeline-health snoozed count / the daily digest footnote all read Convex-first. A future soft-fallback that claims park after a SQLite-only write, accepts an invalid preset, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap stage dropdown / inquiry-status action suites already closed — and would leave a lead looking due (or still parked) on other instances, risking an unwanted Email 2/3 send right after the operator asked to park it (CAN-SPAM). Prefer locking that Work next park glue, then notes / Add lead action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for updateLeadNotesAction (discovery-call / Email 3 notes Save) when update-lead-stage / snooze-lead action coverage is done — notes / notes-persist helper suites alone do not lock auth, empty slug, soft-cap reject before lead lookup, missing lead, LEAD_NOTES_CONVEX_PRIMARY on updateLeadNotes (save + clear), trim, ConvexPrimaryWriteError fail-closed (no revalidate), or Error / non-Error throws. Leave add-lead-action-test-coverage free for siblings; queue import-leads-csv-action-test-coverage + mark-handoff-live-action-test-coverage as sibling-friendly inventory / fulfill twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Save notes is the operator path that keeps discovery-call / Email 3 outcomes durable on /dashboard/leads — getLeads / Work next search-over-notes read Convex-first. A future soft-fallback that claims Save after a SQLite-only write, accepts over-long notes, or revalidates after ConvexPrimaryWriteError would not fail Vitest without action glue coverage — the same class of gap stage dropdown / snooze park action suites already closed — and would leave call outcomes invisible on other instances (operator loses the warm handoff into paid). Prefer locking that notes glue, then Add lead / CSV import / Mark live action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for addLeadAction (manual create + optional Email 1) when update-lead-notes-action-test-coverage is claimed by a sibling — upsert-persist / outreach-persist / csv-import helper suites alone do not lock auth, missing slug/businessName, slug sanitize, default stage/dataSource, existing-slug conflict (no upsert), LEAD_UPSERT_CONVEX_PRIMARY on upsertLead, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, outreach_sent mark-before-Resend, missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved; Email 1 not sent), or Error / non-Error throws. Queue import-leads-csv-action-test-coverage + mark-handoff-live-action-test-coverage as sibling-friendly inventory / fulfill twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Add lead is the operator path that seeds CRM inventory on /dashboard/leads — getLeads / Work next / pipeline-health / digest / outreach eligibility all read Convex-first. A future soft-fallback that claims create after a SQLite-only write, clobbers an existing slug via upsertLead, or sends Email 1 before a durable outreach mark would not fail Vitest without action glue coverage — the same class of gap notes Save / stage dropdown action suites already closed — and would leave new inventory invisible elsewhere (empty CRM + false funnel) or risk a duplicate Email 1. Prefer locking that create-path glue, then CSV import / Mark live action Vitest, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6055,5 +6088,36 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (927 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(258, 259),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-3eb3",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #163 (snooze process polish + notes/add queue). Claimed update-lead-notes-action-test-coverage — updateLeadNotesAction had zero action-level Vitest despite being the operator discovery-call / Email 3 notes path (LEAD_NOTES_CONVEX_PRIMARY fail-closed). Left add-lead-action-test-coverage free for sibling business-process-evolution-a322 (same cron window). Queued import-leads-csv + mark-handoff-live action Vitest twins for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/update-lead-notes-action.test.ts — 10 tests locking auth fail, empty slug, over-long soft-cap reject (before lead lookup), missing lead, LEAD_NOTES_CONVEX_PRIMARY save + clear (whitespace → undefined), trim, exact-cap accept, ConvexPrimaryWriteError fail-closed (no revalidate), and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside notes-persist / discovery-call notes",
+      "NEXT_STEPS: update-lead-notes-action-test-coverage done; add-lead-action-test-coverage left free; queued import-leads-csv-action-test-coverage + mark-handoff-live-action-test-coverage",
+      "AGENT_PROTOCOL — claim notes vs Add lead action Vitest separately; prefer Add lead / CSV import / Mark live action Vitest next",
+      "BUSINESS_DECISIONS — documented why discovery-call notes action glue Vitest beats inventing optional aggregates after stage/snooze coverage",
+      "Verified: npm test (937 passed — notes action 10 from 927) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(259, 260),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-a322",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #163 (snooze process polish + notes/add queue). Sibling prompt-process-evolution-3eb3 claimed update-lead-notes-action-test-coverage first — pivoted per AGENT_PROTOCOL to add-lead-action-test-coverage. addLeadAction had zero action-level Vitest despite being the operator manual create path (LEAD_UPSERT_CONVEX_PRIMARY + optional Email 1 persist-then-notify). Folded 3eb3 notes action Vitest here (both ITERATIONS kept). import-leads-csv + mark-handoff-live action Vitest twins stay queued. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/add-lead-action.test.ts — 13 tests locking auth fail, missing slug/businessName, slug sanitize, default stage/dataSource + explicit overrides, existing-slug conflict (no upsert), LEAD_UPSERT_CONVEX_PRIMARY upsert, ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate, outreach_sent Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved; Email 1 not sent; returns slug), and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside upsert-persist / Add lead create",
+      "NEXT_STEPS: add-lead-action-test-coverage done; update-lead-notes-action-test-coverage done (3eb3 folded); import-leads-csv-action-test-coverage + mark-handoff-live-action-test-coverage left free",
+      "AGENT_PROTOCOL — claim notes vs Add lead action Vitest separately; prefer CSV import / Mark live action Vitest twins next",
+      "BUSINESS_DECISIONS — documented why Add lead create-path action glue Vitest beats inventing optional aggregates after notes coverage",
+      "merge: folded origin/cursor/prompt-process-evolution-3eb3 (update-lead-notes action Vitest) — both ITERATIONS kept",
+      "Verified: npm test after fold (add-lead 13 + notes 10) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(260, 261),
   },
 ];

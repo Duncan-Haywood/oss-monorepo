@@ -119,7 +119,10 @@ export default function LaunchChecklistDocPage() {
           and unsubscribe path (<code>GET /api/unsubscribe?email=…</code>). With Convex configured,
           Add lead / CSV import must fail closed on Convex mutation failure (
           <code>requireConvex</code> / <code>LEAD_UPSERT_CONVEX_PRIMARY</code>) — never claim
-          success after a SQLite-only write other instances cannot see. Manual stage moves on the
+          success after a SQLite-only write other instances cannot see; action-level Vitest (
+          <code>add-lead-action.test.ts</code>) locks the manual Add lead path (auth,
+          slug/businessName gates, existing-slug conflict, requireConvex fail-closed,
+          outreach_sent mark-before-Resend) beside upsert-persist helpers. Manual stage moves on the
           dashboard likewise fail closed (<code>LEAD_STAGE_CONVEX_PRIMARY</code>) so funnel state
           cannot succeed only in instance-local SQLite while Convex-first readers miss the move
           (Mark live already fail-closes via handoff writes). A Convex unsubscribe
@@ -155,7 +158,11 @@ export default function LaunchChecklistDocPage() {
           helpers. Work next Snooze / Unsnooze fails closed on{" "}
           <code>LEAD_SNOOZE_CONVEX_PRIMARY</code>; action-level Vitest (
           <code>snooze-lead-action.test.ts</code>) locks that path beside snooze-persist
-          helpers (auth, preset/clear gates, requireConvex fail-closed).
+          helpers (auth, preset/clear gates, requireConvex fail-closed). Discovery-call /
+          Email 3 notes Save fails closed on <code>LEAD_NOTES_CONVEX_PRIMARY</code>;
+          action-level Vitest (<code>update-lead-notes-action.test.ts</code>) locks that
+          path beside notes-persist helpers (auth, soft cap, clear/trim, requireConvex
+          fail-closed).
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
