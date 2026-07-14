@@ -69,7 +69,10 @@ export default function RoadmapDocPage() {
         generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
-        <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped. Preview contact form + Maps embed
+        <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped — action-level Vitest in{" "}
+        <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout session
+        write/clear + <code>safeNextPath</code> open-redirect guard beside token crypto and
+        proxy Host gate. Preview contact form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>: shipped. Preview subdomain
