@@ -80,7 +80,7 @@ export const AGENT_PROTOCOL = [
   "For database-touching changes, `npm run build`/`lint` is not enough — run `npm run dev` and load /dashboard/leads and /preview/[slug] before claiming done. Run `npm test` (Vitest) alongside build/lint too — it has caught real breakage build+lint missed. Every payment-critical orchestration module (checkout/commerce-checkout/webhook/billing-portal/bootstrap-prices routes, every dashboard server action, stripe-sync, deploy handoff) has direct unit or route-level coverage — follow the nearest existing sibling test file as the template for a new one rather than relying on an indirect smoke test. Vitest cases that call getClientVoiceGenerator / getMarketingGenerator (or any factory that prefers a live LLM when ANTHROPIC_API_KEY is set) must clear/restore that key around the call — generators.test.ts already does this in afterEach; faq-pack.test.ts must match (see client-voice-factory-test-env-isolation). Scheduled agents and CI often inject the real secret, and an unisolated .generate() hits the live Messages API mid-suite.",
   "A `\"server-only\"` lib file cannot be Vitest-tested directly, and its exports must not be re-exported through a barrel that a `\"use client\"` file imports — both break at import/test time. Prefer the pattern in src/lib/commerce/stripe-sync.ts: take the third-party client (Stripe, etc.) as a parameter behind a minimal structural interface, so the logic itself needs no `\"server-only\"` guard and stays unit-testable with a fake client; keep the real client construction + env-var gating only in the server action/route that calls it.",
   "`\"use server\"` files may export ONLY async functions — a `export type` re-export (even one that looks inert) throws `ReferenceError` at module evaluation under Turbopack's server-action transform and 500s every action in that file. Import types from their source module on the client instead.",
-  "A server action with multiple `return { success: true/false, ... }` statements and no explicit return-type annotation only gets real discriminated-union narrowing on `if (res.success)` when every `success` literal is written `as const` (see markCommerceOrderPaidOutAction) — otherwise TS widens each to `boolean`, `if (res.success)` narrows nothing, and a field only present on the success branch (e.g. a returned id/slug) type-checks as possibly-undefined even though it's always present at runtime, silently defeating the type system's ability to catch a caller that forgets to use it. React client components have no test harness in this repo (no @testing-library/react) — extract event-handler logic that touches local list/array state into a pure function beside the component's existing pure-helper module (e.g. src/lib/leads/notes.ts) rather than leaving it untested inline; this is how leads-client-optimistic-state-desync got direct Vitest coverage without adding a new test stack.",
+  "A server action with multiple `return { success: true/false, ... }` statements and no explicit return-type annotation only gets real discriminated-union narrowing on `if (res.success)` when every `success` literal is written `as const` (see markCommerceOrderPaidOutAction) — otherwise TS widens each to `boolean`, `if (res.success)` narrows nothing, and a field only present on the success branch (e.g. a returned id/slug) type-checks as possibly-undefined even though it's always present at runtime, silently defeating the type system's ability to catch a caller that forgets to use it. The same rule applies to send helpers that return `{ success }` shapes (sendEmail / sendOperatorDailyDigest). After any merge that touches `src/app/dashboard/**/actions.ts` or `src/lib/email/resend.ts`, grep for bare `success: true` / `success: false` without `as const` before claiming done — a large fold can silently reintroduce pre-fix literals (see server-action-as-const-success-restore after PR #231). React client components have no test harness in this repo (no @testing-library/react) — extract event-handler logic that touches local list/array state into a pure function beside the component's existing pure-helper module (e.g. src/lib/leads/notes.ts) rather than leaving it untested inline; this is how leads-client-optimistic-state-desync got direct Vitest coverage without adding a new test stack.",
 
   "stripe-core-publishable-key-false-requirement done: assessStripeCoreEnvReadiness no longer requires NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY — grepped the repo for loadStripe / @stripe/stripe-js and found zero call sites; both checkout flows redirect to a server-created Stripe Checkout Session URL, so the publishable key is never read. The old requirement made StripeCoreEnvBanner show a false alarm even when the two secrets that actually matter (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET) were both live. Updated launch-checklist/architecture/.env.example to match.",
   "Before adding or trusting an existing 'required env var' readiness banner, grep for actual runtime usage of that var — not just its presence in docs/.env.example/another readiness helper. A var can be a dead requirement (no code path reads it) even after prior audits treated it as load-bearing; that false-'required'-signal bug is distinct from (and just as much launch friction as) the more common missing-readiness-signal case this log otherwise tracks.",
@@ -1853,10 +1853,11 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "server-action-as-const-success-restore",
     summary:
-      "PR #231 (slug-path-encode fold) silently reverted as const on updateLeadStageAction / importLeadsCsvAction / bootstrapStripePricesAction success literals by merging a pre-fix actions.ts. Without as const, TS widens success to boolean and defeats discriminated-union narrowing at call sites. Also restore as const on sendEmail / sendOperatorDailyDigest (same class; sibling continuous-work-062115). Folding stuck grok/continuous-work-as-const-restore (issues #232/#233).",
-    status: "in_progress",
+      "PR #231 (slug-path-encode fold) silently reverted as const on updateLeadStageAction / importLeadsCsvAction / bootstrapStripePricesAction success literals by merging a pre-fix actions.ts. Without as const, TS widens success to boolean and defeats discriminated-union narrowing at call sites. Also restore as const on sendEmail / sendOperatorDailyDigest (same class; sibling continuous-work-062115). Shipped: restored as const on all three action return paths + sendEmail/sendOperatorDailyDigest (no duplicate keys).",
+    status: "done",
     phase: "Phase 1 — Website foundation",
-    owner: "cursor/prompt-process-evolution-7c34",
+    owner:
+      "cursor/prompt-process-evolution-7c34 (folded from grok/continuous-work-as-const-restore ← grok/dev-work-as-const-restore ← opencode/dev-work-9k2m4x + opencode/continuous-work-062115; issues #232/#233)",
   },
 ];
 
@@ -4058,6 +4059,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Encode lead slugs at every path-construction use-site via src/lib/leads/slug-path.ts (encodeURIComponent for path segments; leadSlugAsDnsLabel for suggestedHost) — rather than rely only on create-path sanitizeCheckoutLeadSlug (PR #216) which cannot rewrite legacy payment_stub / pre-sanitize rows already in the CRM. Fold stuck grok/continuous-work-slug-path-encode (complete feature body; Actions token blocked from gh pr create; issues #228/#229).",
     rationale:
       "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation) and PR #230 (csv-import-hours-multiline-limits, sibling-owned after this branch claimed encode-at-use). Free NEXT_STEPS stayed operator/legal-gated. Prior iteration explicitly queued encode-at-use path-safety as the residual after checkout create-path sanitize. On main, outreach Email 1–3, deploy handoff previewUrl/contactFormUrl, proxy rewrites, sitemap, and commerce cancel_url still interpolated raw lead.slug into /preview/{slug} — a free-form slug with `/` becomes multi-segment and can collapse via WHATWG path normalization, the same traversal class create-path sanitize closed for new paid leads. Defense-in-depth keeps stored identity intact for DB lookup (Next decodes route params) while forcing a single path segment at every sink. Prefer folding this queued residual over inventing an optional aggregate, re-running 2x-clean audit axes, or registering dead Convex API map entries (opencode/dev-work-convex-api-map) with no live consumer.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Restore as const on updateLeadStageAction, importLeadsCsvAction, bootstrapStripePricesAction, and sendEmail/sendOperatorDailyDigest success literals after PR #231 silently re-widened them by merging a pre-fix actions.ts — keep discriminated-union narrowing accurate for every multi-return server action / send helper. Fold stuck grok/continuous-work-as-const-restore (issues #232/#233).",
+    rationale:
+      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed this fold first per AGENT_PROTOCOL. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-9k2m4x + opencode/continuous-work-062115 (folded onto grok/dev-work-as-const-restore + grok/continuous-work-as-const-restore) with a complete as-const restore and no open PR (Actions token blocked). Without as const, TypeScript widens success to boolean so if (res.success) does not narrow — callers lose compile-time enforcement of success-only fields (envSnippet/imported/slugs) even when runtime is correct. Folding that body beats a clean re-audit of already-clean axes or inventing an optional aggregate. Corrected the stuck remote's duplicate success key on bootstrapStripePricesAction while folding. Next empty-backlog agents: skip already-folded as-const remotes; prefer a fresh sold-capability / security axis or operator launch checklist work over dead Convex API map entries.",
   },
 ];
 
@@ -7653,5 +7661,55 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1297 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(313, 314),
+  },
+  {
+    date: "2026-07-14",
+    branch: "opencode/dev-work-9k2m4x",
+    summary:
+      "Empty-backlog regression audit after PR #231 (slug-path-encode fold). Found the as const annotations on updateLeadStageAction, importLeadsCsvAction, and bootstrapStripePricesAction had been silently overwritten by the grok/dev-work-slug-path-encode branch's pre-fix version of actions.ts — restoring them closes a silent discriminated-union narrowing regression.",
+    shipped: [
+      "src/app/dashboard/actions.ts — restored as const on bootstrapStripePricesAction success literals",
+      "src/app/dashboard/leads/actions.ts — restored as const on updateLeadStageAction + importLeadsCsvAction",
+      "PR handoff: Actions token blocked from gh pr create — branch opencode/dev-work-9k2m4x",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/dev-work-as-const-restore",
+    summary:
+      "Empty-backlog after PR #231. Scanned stuck CLI remotes and found opencode/continuous-work-062115 + opencode/dev-work-9k2m4x with a complete server-action/resend as-const fix and no open PR. Folded that body (corrected 9k2m4x duplicate success key) as server-action-as-const-success-literals / restore.",
+    shipped: [
+      "src/app/dashboard/actions.ts — bootstrapStripePricesAction: all success literals use as const",
+      "src/app/dashboard/leads/actions.ts — updateLeadStageAction + importLeadsCsvAction: all success literals use as const",
+      "src/lib/email/resend.ts — sendEmail + sendOperatorDailyDigest: all success literals use as const",
+      "PR handoff: Actions token blocked — issue #232 points at grok/dev-work-as-const-restore",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/continuous-work-as-const-restore",
+    summary:
+      "Empty-backlog continuous-work run: folded opencode/dev-work-9k2m4x + resend from continuous-work-062115 onto this branch for a mergeable PR (Actions token blocked; issue #233).",
+    shipped: [
+      "Fold of grok/dev-work-as-const-restore feature body (actions + resend as const)",
+      "PR handoff: Actions token blocked — issue #233 points at grok/continuous-work-as-const-restore",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-7c34",
+    summary:
+      "Empty-backlog after PR #231 (legacy-slug-encode-at-use-path-safety). Free NEXT_STEPS stayed operator/legal-gated. Same-minute sibling business-process-evolution-9ced was starting — claimed server-action-as-const-success-restore first. Scanned stuck CLI remotes and folded grok/continuous-work-as-const-restore (complete feature body; issues #232/#233; Actions token blocked) rather than inventing an optional aggregate.",
+    shipped: [
+      "Fold: origin/grok/continuous-work-as-const-restore feature files (actions.ts + leads/actions.ts + resend.ts as const) — kept opencode/dev + grok/dev + grok/continuous ITERATIONS above",
+      "NEXT_STEPS: server-action-as-const-success-restore done (owner 7c34)",
+      "AGENT_PROTOCOL — post-merge as-const grep rule for actions.ts / resend.ts folds",
+      "BUSINESS_DECISIONS — documented why folding the PR #231 merge regression beats inventing an optional aggregate",
+      "Verified: npm test + lint + build (see feature commit)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
 ];
