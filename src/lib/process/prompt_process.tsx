@@ -221,6 +221,7 @@ export const AGENT_PROTOCOL = [
   "When assign-vercel-project-action-test-coverage and assign-custom-domain-action-test-coverage are both free in the same cron window, claim different ones (Assign Vercel project isolation vs Save domain Host→preview routing) — they touch different action surfaces and both lock DEPLOY_HANDOFF_CONVEX_PRIMARY operator paths that handoff helper suites do not cover.",
   "assign-custom-domain-action-test-coverage done: src/app/dashboard/leads/assign-custom-domain-action.test.ts locks requireOperatorAuth, empty slug, trim-to-null clear (whitespace domain → null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignCustomDomainAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), trimmed domain pass-through, and Error / non-Error throws — handoff / custom-domain-routing helper suites alone are not enough for the dashboard Save domain glue. Twin of assign-vercel-project-action-test-coverage (699c; folded via PR #168). When free NEXT_STEPS stay gated after both Assign twins land, prefer get-commerce-catalog-action-test-coverage (thin read-path twin seeding Save/Sync) or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "assign-vercel-project-action-test-coverage done: src/app/dashboard/leads/assign-vercel-project-action.test.ts locks requireOperatorAuth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed via assignVercelProjectAndProvision (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), and Error / non-Error throws — handoff helper suites alone are not enough for the dashboard Assign Vercel project glue. Twin of assign-custom-domain-action-test-coverage (d08a; folded via PR #168). When free NEXT_STEPS stay gated, prefer get-commerce-catalog-action-test-coverage or empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "get-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/get-commerce-catalog-action.test.ts locks requireOperatorAuth, empty slug, getCommerceCatalog pass-through (catalog row or null), and Error / non-Error throws — save/sync action suites alone are not enough for the dashboard Commerce catalog read glue that seeds Save/Sync. When free NEXT_STEPS stay gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect), prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete gated secrets/OAuth/counsel todos.",
 ] as const;
 
 /**
@@ -1621,7 +1622,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "get-commerce-catalog-action-test-coverage",
     summary:
       "Empty-backlog after Assign Vercel / Save domain action Vitest: getCommerceCatalogAction is the operator Commerce catalog read path that seeds the Save/Sync panel — save/sync action suites alone are not enough for the thin read glue (auth + slug + getCommerceCatalog). Prefer when both Assign twins are done; sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 2 — Lead volume",
     owner: "cursor/prompt-process-evolution-f4bf",
   },
@@ -3489,6 +3490,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for assignVercelProjectAction (Assign Vercel project isolation) when assign-custom-domain-action-test-coverage is claimed by a sibling — handoff helper suites alone do not lock auth, empty slug, trim project id, whitespace-only clear (→ null), no-handoff null, DEPLOY_HANDOFF_CONVEX_PRIMARY fail-closed (ConvexPrimaryWriteError; no revalidate), success revalidate (/dashboard/leads only), or Error / non-Error throws. Queue get-commerce-catalog-action-test-coverage as the next thin free todo after both Assign twins land. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Assign Vercel project is the operator path that isolates a paid client's Domains API target on /dashboard/leads — tryProvisionVercelDomain and other instances read Convex-first. A future soft-fallback that claims Assign after a SQLite-only write, revalidates after ConvexPrimaryWriteError, or treats whitespace as a literal project id would not fail Vitest without action glue coverage — the same class of gap Save domain / Mark live action suites already closed — and would leave dedicated-project isolation missing elsewhere (shared-project Domains API targeting + false provision state). Prefer locking that isolation glue, then getCommerceCatalogAction read-path Vitest or empty-backlog audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for getCommerceCatalogAction (Commerce catalog read path seeding Save/Sync) when Assign Vercel / Save domain action coverage is done — save/sync action suites alone do not lock auth, empty slug, getCommerceCatalog pass-through (row or null), or Error / non-Error throws. After this, free backlog returns to empty-backlog sold-capability / multi-instance regression audits while Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "getCommerceCatalogAction is the thin operator read that seeds the Commerce Save/Sync panel on /dashboard/leads — Buy now / unsynced debt / preserveCommerceStripeIds all depend on the same Convex-first catalog row. A future auth skip, empty-slug fallthrough, or swallowed read error that returns a fake empty catalog would not fail Vitest without action glue coverage — the same class of gap Save catalog / Sync to Stripe action suites already closed for writes — and would leave operators editing against a missing or stale catalog while preview Buy now still reads Convex-first. Prefer locking that read glue, then empty-backlog audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
 ];
 
@@ -6265,5 +6273,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (986 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(265, 266),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-f4bf",
+    summary:
+      "Free NEXT_STEPS backlog after PR #168/#169 (Assign twins + get-commerce queue) stayed gated except get-commerce-catalog-action-test-coverage. Claimed and shipped action-level Vitest for getCommerceCatalogAction — the thin Commerce catalog read that seeds Save/Sync. No sibling dual-claim this window. Stripe Prices / Places / Buffer OAuth / Connect stay gated; free backlog returns to empty-backlog audits.",
+    shipped: [
+      "src/app/dashboard/leads/get-commerce-catalog-action.test.ts — 6 tests locking auth fail, empty slug, null catalog, catalog row pass-through, and Error / non-Error throws",
+      "Docs: architecture + roadmap + launch-checklist + product-bundles note getCommerceCatalogAction read-path Vitest beside Save/Sync",
+      "NEXT_STEPS: get-commerce-catalog-action-test-coverage done",
+      "AGENT_PROTOCOL — documented getCommerceCatalogAction read glue done; prefer empty-backlog audits next",
+      "BUSINESS_DECISIONS — documented why Commerce catalog read-path action Vitest beats inventing optional aggregates after Assign twins",
+      "Verified: npm test (get-commerce-catalog 6) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(266, 267),
   },
 ];

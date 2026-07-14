@@ -356,9 +356,10 @@ export default function RoadmapDocPage() {
         server-resolved price) for synced items and falls back to Request order → inquiry inbox
         for unsynced ones. Catalog edits preserve Stripe Product/Price ids server-side (price
         edits clear the Price id until the next Sync) — action-level Vitest in{" "}
-        <code>save-commerce-catalog-action.test.ts</code>. Save catalog / Sync to Stripe persist with{" "}
-        <code>requireConvex</code> when Convex is configured so SQLite-only success cannot leave
-        Buy now blocked on other instances. Sync does not archive Products for
+        <code>save-commerce-catalog-action.test.ts</code>; the read that seeds Save/Sync is
+        locked by <code>get-commerce-catalog-action.test.ts</code>. Save catalog / Sync to
+        Stripe persist with <code>requireConvex</code> when Convex is configured so SQLite-only
+        success cannot leave Buy now blocked on other instances. Sync does not archive Products for
         removed SKUs — operators use <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProducts</code>, <code>active=false</code>, never
         auto-delete; action-level Vitest in{" "}

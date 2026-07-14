@@ -594,7 +594,10 @@ export default function ArchitectureDocPage() {
         <code>src/app/dashboard/leads/save-commerce-catalog-action.test.ts</code> locks auth,
         commerceAddon eligibility, normalize validation, preserve against the DB row (never
         client-submitted Stripe ids), requireConvex persist, and{" "}
-        <code>ConvexPrimaryWriteError</code> fail-closed.
+        <code>ConvexPrimaryWriteError</code> fail-closed. The thin read path that seeds the
+        Save/Sync panel is locked by{" "}
+        <code>get-commerce-catalog-action.test.ts</code> (auth, empty slug, catalog row or
+        null pass-through).
         Sync never archives Products for removed SKUs — operators click{" "}
         <strong>Archive orphans</strong> (
         <code>archiveOrphanCommerceStripeProductsAction</code>) to set those Products{" "}

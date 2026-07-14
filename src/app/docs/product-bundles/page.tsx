@@ -84,7 +84,9 @@ export default function ProductBundlesDocPage() {
         Stripe fail closed (<code>requireConvex</code>) so a multi-instance deploy cannot claim
         success after a SQLite-only write that leaves Buy now blocked elsewhere — action-level
         Vitest in <code>save-commerce-catalog-action.test.ts</code> locks Save catalog auth,
-        eligibility, preserve Stripe ids, and fail-closed persist. Unsynced items still fall back to Request order →
+        eligibility, preserve Stripe ids, and fail-closed persist;{" "}
+        <code>get-commerce-catalog-action.test.ts</code> locks the read that seeds Save/Sync
+        (auth, empty slug, row or null). Unsynced items still fall back to Request order →
         inquiry inbox. After removing SKUs from a catalog, Archive orphans deactivates leftover
         Stripe Products for that lead (operator-triggered; never auto-deletes on save/sync;
         action-level Vitest in{" "}
