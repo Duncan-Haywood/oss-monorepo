@@ -242,6 +242,8 @@ export const AGENT_PROTOCOL = [
 "vercel-project-id-env-readiness done: assessVercelProjectIdEnvReadiness (src/lib/deploy/vercel-project-id-env-readiness.ts) + VercelProjectIdEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / changeme|project|prj_xxx|your_project-style VERCEL_PROJECT_ID — matching tryProvisionVercelDomain shared-project fallback so Domains API cannot silently skip while VERCEL_TOKEN looks ready. Distinct indigo banner. Per-handoff Assign project still wins when set. Env presence only — does not call Vercel. Folded sibling company-address-env-readiness (01fb / PR #178). When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "email-from-env-readiness done: assessEmailFromEnvReadiness (src/lib/email/email-from-env-readiness.ts) + EmailFromEnvBanner on /dashboard + /dashboard/leads. Surfaces missing / whitespace-only / @example.com|changeme|your@-style EMAIL_FROM — launch checklist required the var, but sendEmail / sendOperatorDailyDigest previously hardcoded outreach@updates.localsitestudio.com. Now formatResendFromHeader(brand.name, brand.emailFrom) drives Resend from. Distinct lime banner (sibling of sky Resend API-key). Env presence only — does not call Resend. When free NEXT_STEPS stay gated, prefer empty-backlog sold-capability / multi-instance regression audits (Convex URL readiness, webhook idempotency re-audit, static API map) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "Resend `from` must use EMAIL_FROM via brand.emailFrom / formatResendFromHeader — never hardcode a platform domain (outreach@updates… was a silent launch bug: operators set EMAIL_FROM + SPF/DKIM and still sent from the wrong address).",
+  "stripe-core-publishable-key-false-requirement done: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY removed from STRIPE_CORE_ENV_NAMES / assessStripeCoreEnvReadiness. Grepped the whole repo for loadStripe / @stripe/stripe-js — zero call sites; every checkout (bundle POST /api/stripe/checkout, Commerce Buy now POST /api/commerce/checkout) redirects to a Stripe-hosted Checkout Session `session.url` server-side, so no client code ever reads a publishable key. The old 3-secret requirement made StripeCoreEnvBanner show a false 'Stripe core secrets incomplete' amber alarm (and launch-checklist told operators to set it) even when STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET were both live and checkout/fulfillment fully worked — pure launch friction with no functional payoff, caught by an empty-backlog audit after 9 straight readiness-banner iterations. Fixed the readiness helper + test + launch-checklist/architecture docs + .env.example (moved to a commented-optional line). Verified via `npm run dev`: banner disappears with only the two real secrets set. When free NEXT_STEPS stay gated, prefer another empty-backlog sold-capability / multi-instance regression audit (re-verify claims like this one before assuming a repeatedly-audited surface has no bugs left) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "Before adding (or trusting an existing) 'required env var' readiness banner, grep for actual runtime usage of that var, not just its presence in docs/.env.example/another readiness helper — a var can be genuinely unused (dead requirement) even after multiple prior audits treated it as load-bearing. This class of bug (false 'required' signal) is distinct from the more common one this log tracks (missing readiness signal for a var that IS used).",
 ] as const;
 
 /**
@@ -3683,6 +3685,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "A documented but unused EMAIL_FROM is worse than a missing banner — Resend API-key readiness can look green while every automated send ignores the operator's verified domain. Prefer wiring the From header + early lime readiness signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
+  {
+    date: "2026-07-14",
+    decision:
+      "Drop NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY from the required-secret set in assessStripeCoreEnvReadiness / STRIPE_CORE_ENV_NAMES. Verified by grepping the whole repo for loadStripe / @stripe/stripe-js: zero call sites. Both checkout flows (bundle and Commerce Buy now) create a server-side Stripe Checkout Session and redirect the browser to session.url — no client bundle ever constructs a Stripe.js instance, so the publishable key does nothing today. Moved it to a commented-optional .env.example line and updated launch-checklist / architecture docs to stop telling operators it's required.",
+    rationale:
+      "After 9 consecutive env-readiness-banner iterations (operator-password → app-url → brand-name → production-domain → vercel-token → company-address → vercel-project-id → email-from → convex-url), an empty-backlog audit should also re-examine the banners already shipped, not only look for new missing ones — the class of bug 'we require a var nothing reads' is just as much launch friction as 'we don't warn about a var everything needs,' and is easier to miss because the banner it powers looks like it is doing something useful (StripeCoreEnvBanner still correctly gates on STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET, which ARE load-bearing). Removing a false requirement is a direct reduction in the number of secrets an operator must chase down before the first paid order — the same 'unblock revenue' priority as the readiness banners themselves, achieved by deleting a check instead of adding one.",
+  },
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -6656,5 +6665,20 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (email-from-env-readiness + resend From) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(277, 278),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/relaxed-galileo-j64ij9",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #181 (convex-url-env-readiness, folded with email-from). Rather than ship a 10th env-readiness banner, re-audited the 9 already-shipped ones for correctness. Found assessStripeCoreEnvReadiness required NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, but grepping the repo turned up zero loadStripe / @stripe/stripe-js call sites — both checkout flows redirect to a server-created Stripe Checkout Session URL, so the publishable key is never read anywhere. The banner and launch-checklist were telling operators to configure a secret that does nothing, adding pure setup friction before the first paid order. Removed it from the required set; StripeCoreEnvBanner now only gates on the two secrets that actually matter (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET).",
+    shipped: [
+      "src/lib/pricing/stripe-core-env-readiness.ts — dropped NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY from STRIPE_CORE_ENV_NAMES + removed the unused publishableKeyReady field",
+      "src/lib/pricing/stripe-core-env-readiness.test.ts — rewritten for the 2-secret contract; added an explicit regression test that the publishable key is never required",
+      "src/app/docs/launch-checklist/page.tsx + src/app/docs/architecture/page.tsx — stopped telling operators to set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY; noted why (hosted Checkout redirect, no Stripe.js)",
+      ".env.example — moved NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to a commented-optional line with an explanation",
+      "AGENT_PROTOCOL + BUSINESS_DECISIONS + ITERATIONS — documented the false-requirement bug class (distinct from the missing-readiness-signal class this log otherwise tracks) so future empty-backlog audits re-examine shipped banners, not only hunt for new ones",
+      "Verified: npm test (1120 passed, full suite) + lint + build + npm run dev (StripeCoreEnvBanner confirmed gone with only STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET set; /docs/launch-checklist + /docs/architecture render 200)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(278, 279),
   },
 ];
