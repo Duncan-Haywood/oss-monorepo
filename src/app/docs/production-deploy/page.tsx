@@ -135,8 +135,11 @@ export default function ProductionDeployDocPage() {
         <code>CONTACT_FORM_CONVEX_PRIMARY</code>) so a Convex mutation failure does not
         silently fall back to instance-local SQLite — dashboard/other instances read
         Convex-first and would never see the inquiry. Email notify runs only after a
-        successful insert (best-effort; notify failure does not undo the row; dynamic fields
-        in the notify HTML are escaped). Operators see new messages on the leads dashboard,
+        successful insert (best-effort; notify failure does not undo the row; the route
+        inspects <code>sendEmail</code>&apos;s <code>{"{ success }"}</code> shape and returns{" "}
+        <code>notifySent</code> so a suppression/Resend failure is logged against the inquiry
+        id rather than treated as a silent no-op; dynamic fields in the notify HTML are
+        escaped). Operators see new messages on the leads dashboard,
         can <strong>Reply</strong> via Resend (honors suppression, stores{" "}
         <code>operatorReply</code> / <code>repliedAt</code>, status <code>replied</code>),
         mark read/archive. Preview pages already include the contact form UI (

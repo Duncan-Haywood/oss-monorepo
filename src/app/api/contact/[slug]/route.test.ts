@@ -13,8 +13,12 @@ vi.mock("@/lib/db", () => ({
   insertClientInquiry: (...args: unknown[]) => insertClientInquiry(...args),
 }));
 
-const sentEmail = vi.fn(async () => undefined) as unknown as {
-  (params: SendEmailParams): Promise<undefined>;
+type SendEmailResult = { success: true; mock?: boolean } | { success: false; reason?: string; error?: string };
+
+const sentEmail = vi.fn(async (): Promise<SendEmailResult> => ({ success: true })) as unknown as {
+  (params: SendEmailParams): Promise<SendEmailResult>;
+  mockResolvedValueOnce: (value: SendEmailResult) => unknown;
+  mockRejectedValueOnce: (error: Error) => unknown;
   mock: { calls: [SendEmailParams][] };
   mockClear: () => void;
 };
@@ -56,6 +60,7 @@ describe("POST /api/contact/[slug]", () => {
     const json = await response.json();
 
     expect(json.ok).toBe(true);
+    expect(json.notifySent).toBe(true);
     expect(sentEmail).toHaveBeenCalledTimes(1);
     const sentHtml = sentEmail.mock.calls[0]?.[0]?.html ?? "";
     expect(sentHtml).not.toContain("<img src=x onerror=alert(1)>");
@@ -88,6 +93,7 @@ describe("POST /api/contact/[slug]", () => {
     expect(response.status).toBe(200);
     expect(json.ok).toBe(true);
     expect(json.inquiryId).toBe("inq_test_1");
+    expect(json.notifySent).toBe(true);
     expect(insertClientInquiry).toHaveBeenCalledWith(
       expect.objectContaining({
         leadSlug: "demo-cafe",
@@ -189,7 +195,7 @@ describe("POST /api/contact/[slug]", () => {
     expect(sentEmail).not.toHaveBeenCalled();
   });
 
-  it("still returns ok when notify email fails after a durable persist", async () => {
+  it("still returns ok when notify email throws after a durable persist", async () => {
     sentEmail.mockRejectedValueOnce(new Error("resend down"));
     const { POST } = await import("./route");
     const response = await POST(
@@ -208,7 +214,36 @@ describe("POST /api/contact/[slug]", () => {
     expect(response.status).toBe(200);
     expect(json.ok).toBe(true);
     expect(json.inquiryId).toBe("inq_test_1");
+    expect(json.notifySent).toBe(false);
     expect(sentEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("still returns ok with notifySent:false when sendEmail resolves success:false (suppressed)", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    sentEmail.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Need a quote",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.inquiryId).toBe("inq_test_1");
+    expect(json.notifySent).toBe(false);
+    expect(sentEmail).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("inquiry inq_test_1"),
+    );
+    errorSpy.mockRestore();
   });
 
   it("accepts form-urlencoded bodies and emails the lead when present", async () => {
@@ -230,6 +265,7 @@ describe("POST /api/contact/[slug]", () => {
 
     expect(response.status).toBe(200);
     expect(json.ok).toBe(true);
+    expect(json.notifySent).toBe(true);
     expect(sentEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "owner@demo.example",

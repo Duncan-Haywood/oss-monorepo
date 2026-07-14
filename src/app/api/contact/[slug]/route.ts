@@ -16,6 +16,13 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * notify. Returns 503 when the inbox row cannot be written — never { ok: true }
  * without a durable CRM trail (Starter sold promise).
  *
+ * Notify is best-effort AFTER durable persist: sendEmail never throws on
+ * suppression/Resend failure (resolves `{ success: false }`), so the route
+ * must inspect that shape, log inquiryId + reason/error, and surface
+ * `notifySent` on the ok:true response — never treat a bare await as delivery.
+ * Visitor success stays tied to the CRM trail, not the notify (operator can
+ * still reply from the inbox).
+ *
  * When NEXT_PUBLIC_CONVEX_URL is set, insertClientInquiry passes requireConvex
  * so a Convex mutation failure does not SQLite-fallback then claim success —
  * other instances read Convex-first and would never see the inquiry.
@@ -119,6 +126,7 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
+  let notifySent: boolean | undefined;
   if (shouldSendContactNotify(inquiryId)) {
     try {
       const { sendEmail } = await import("@/lib/email/resend");
@@ -129,7 +137,7 @@ export async function POST(request: Request, context: RouteContext) {
       const safeMessage = escapeHtmlForEmail(message || "—");
       const safeSlug = escapeHtmlForEmail(slug);
       const safeInquiryId = escapeHtmlForEmail(outcome.inquiryId);
-      await sendEmail({
+      const sent = await sendEmail({
         to: notifyTo,
         subject: `New website inquiry for ${businessName}`,
         leadSlug: slug,
@@ -144,14 +152,28 @@ export async function POST(request: Request, context: RouteContext) {
         <p style="margin-top: 12px; font-size: 12px; color: #666;">Inbox id: <code>${safeInquiryId}</code></p>
       `,
       });
+      notifySent = sent.success;
+      if (!sent.success) {
+        // Same bug class as webhook/Email 1: sendEmail resolves failure without
+        // throwing — log with inquiryId so operators can correlate CRM trail vs
+        // missing business notify (suppression or Resend outage).
+        console.error(
+          `contact form notify not sent for ${slug} (inquiry ${outcome.inquiryId}): ${sent.reason ?? sent.error ?? "unknown"}`,
+        );
+      }
     } catch (error) {
       // Notify is best-effort after durable persist — visitor already succeeded.
-      console.error(`contact form email failed for ${slug}:`, error);
+      notifySent = false;
+      console.error(
+        `contact form email failed for ${slug} (inquiry ${outcome.inquiryId}):`,
+        error,
+      );
     }
   }
 
   console.log(`[contact/${slug}]`, {
     inquiryId: outcome.inquiryId,
+    notifySent,
     name,
     email,
     phone,
@@ -164,6 +186,7 @@ export async function POST(request: Request, context: RouteContext) {
     businessName,
     inquiryId: outcome.inquiryId,
     message: outcome.message,
+    ...(notifySent !== undefined ? { notifySent } : {}),
   });
 }
 
