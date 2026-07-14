@@ -341,6 +341,34 @@ describe("POST /api/stripe/checkout", () => {
     expect(await res.json()).toMatchObject({ error: "Checkout tracking unavailable" });
   });
 
+  it("never trusts a spoofed request origin for success_url / cancel_url when APP_URL is unset", async () => {
+    setBundlePriceEnv();
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.VERCEL_URL;
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_host_spoof",
+      url: "https://checkout.stripe.com/spoof",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("https://attacker.example.com/api/stripe/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ tier: "starter", slug: "demo-cafe" }),
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      success_url: string;
+      cancel_url: string;
+    };
+    expect(createArgs.success_url).toBe(
+      "http://localhost:3000/checkout/success?session_id={CHECKOUT_SESSION_ID}",
+    );
+    expect(createArgs.cancel_url).toContain("http://localhost:3000/checkout?");
+    expect(createArgs.success_url).not.toContain("attacker.example.com");
+  });
+
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({

@@ -5,6 +5,7 @@ import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-p
 import { BUNDLES, COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 import { recordCheckoutSessionCreated } from "@/lib/db";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -98,7 +99,9 @@ export async function POST(request: Request) {
     hasRecurring = true;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
+  // Never trust request.url / Host for Stripe redirect bases — see
+  // resolveStripeRedirectAppUrl (Host spoof → post-payment phishing).
+  const appUrl = resolveStripeRedirectAppUrl();
   const stripe = new Stripe(secretKey);
 
   // Homepage CTAs omit slug — mint organic-* so webhook fulfillment + payment
