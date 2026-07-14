@@ -628,8 +628,9 @@ export default function ArchitectureDocPage() {
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> for paid/live leads with a
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
         <code>marketingPacks</code>). Ad-hoc operator generation remains available at{" "}
-        <code>POST /api/marketing/generate</code> (auth + validation + stub-vs-LLM messaging
-        covered by <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
+        <code>POST /api/marketing/generate</code> (auth + client-IP rate-limit + validation +
+        stub-vs-LLM messaging covered by{" "}
+        <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
         dashboard pack action for persisted fulfillment. Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
@@ -758,7 +759,10 @@ export default function ArchitectureDocPage() {
         <code>listUnpaidCommerceOrders</code> by lead via{" "}
         <code>summarizeCommerceOrdersByLead</code>{" "}
         (not <code>listCommerceOrders</code>&apos; newest 200/500 page — that undercounts
-        older unpaid liability). Each row is keyed by <code>CommerceOrderRecord.id</code> —{" "}
+        older unpaid liability). Convex <code>listUnpaid</code> treats falsy/blank{" "}
+        <code>paidOutAt</code> as unpaid (same as SQLite{" "}
+        <code>IS NULL OR = &apos;&apos;</code> and <code>isCommerceOrderPaidOut</code>) so
+        an empty-string marker cannot split owed totals across backends. Each row is keyed by <code>CommerceOrderRecord.id</code> —{" "}
         <code>newCommerceOrderId()</code> generates it once in{" "}
         <code>insertCommerceOrder</code> and passes it to both backends as the Convex
         table&apos;s <code>orderId</code> column, matching the app-owned-id pattern every

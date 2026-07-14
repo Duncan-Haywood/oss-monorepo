@@ -168,6 +168,10 @@ describe("isCommerceOrderPaidOut", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: undefined })).toBe(false);
   });
 
+  it("is false when paidOutAt is an empty string (SQLite/Convex parity)", () => {
+    expect(isCommerceOrderPaidOut({ paidOutAt: "" })).toBe(false);
+  });
+
   it("is true once paidOutAt is set", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: "2026-07-12T10:00:00.000Z" })).toBe(true);
   });

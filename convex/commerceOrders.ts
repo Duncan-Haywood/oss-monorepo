@@ -32,8 +32,9 @@ function mapOrderRow(row: {
     amountPaidUsd: row.amountPaidUsd,
     stripeSessionId: row.stripeSessionId,
     createdAt: row.createdAt,
-    paidOutAt: row.paidOutAt,
-    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt,
+    // Empty string must stay unpaid (matches SQLite listUnpaid + isCommerceOrderPaidOut).
+    paidOutAt: row.paidOutAt || undefined,
+    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt || undefined,
   };
 }
 
@@ -103,8 +104,10 @@ export const listUnpaid = query({
   returns: v.array(orderReturn),
   handler: async (ctx) => {
     const rows = await ctx.db.query("commerceOrders").order("desc").collect();
+    // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '')` and
+    // isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
     return rows
-      .filter((row) => row.paidOutAt === undefined)
+      .filter((row) => !row.paidOutAt)
       .map(mapOrderRow);
   },
 });

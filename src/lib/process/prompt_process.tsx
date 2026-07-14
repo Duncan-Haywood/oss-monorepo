@@ -67,7 +67,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
-  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts).",
+  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/app/dashboard/login/actions.ts) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value.",
   "When a route.ts and a dashboard server action are documented as 'twins' sharing one gate (e.g. bootstrapStripePricesAction / POST /api/stripe/bootstrap-prices), verify both actually call requireOperatorAuth — proxy.ts only gates /dashboard/*, never /api/*, so an API route is never auth-protected by the dashboard's route gate alone. An env-flag gate (ALLOW_STRIPE_BOOTSTRAP and similar) is not a substitute for requireOperatorAuth: it's deployment-wide and often set temporarily on an already-authenticated deployment, not a per-caller check. Mirror the requireOperatorAuth-in-a-route-handler precedent at src/app/api/marketing/generate/route.ts.",
@@ -1670,17 +1670,18 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-generate-rate-limit",
     summary:
-      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate has requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Claimed: add checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices.",
-    status: "in_progress",
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate had requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Shipped: checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices.",
+    status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-profitability-process-8f90",
   },
   {
     id: "list-unpaid-empty-string-parity",
     summary:
-      "Queued twin from the same empty-backlog audit: Convex commerceOrders.listUnpaid filters paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). An empty-string paidOutAt would look paid on Convex listUnpaid but unpaid on SQLite/TS — multi-instance owed-total split-brain. Prefer treating falsy/blank paidOutAt as unpaid on both backends (and normalize on map).",
-    status: "todo",
+      "Same empty-backlog audit twin: Convex commerceOrders.listUnpaid filtered paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). Shipped: listUnpaid treats falsy paidOutAt as unpaid; mapOrderRow / mapCommerceOrderRow normalize empty string to undefined.",
+    status: "done",
     phase: "Phase 3 — Payments",
+    owner: "cursor/business-profitability-process-8f90",
   },
 ];
 
@@ -3728,6 +3729,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Add a paidNotLive action section to the operator daily digest (leads with stage=\"paid\", same predicate as pipeline-health's paidNotLiveCount) rather than treating openHandoffs as sufficient coverage for post-payment fulfillment debt.",
     rationale:
       "Delegated a fresh empty-backlog audit after PR #194 (bootstrap-prices-operator-auth-rate-limit). Re-checked route/action auth-parity first (the exact bug class just fixed) and found it clean across all 28 dashboard actions and every public API route. Rotated to pipeline-health/digest wiring and found a real gap PR #192's openHandoffs fix didn't cover: a lead can be moved to stage=paid via the dashboard stage dropdown or CSV import (e.g. an operator migrating pre-existing paying clients into the CRM) with no deploy_handoffs row ever created for it — so it counts toward paidNotLiveCount on the dashboard forever, but can never appear in the digest's openHandoffs section, which filters the handoffs table, not lead stage. Revenue collected with no fulfillment reminder is one of the highest-stakes operator-visibility gaps this app can have (broken delivery promise, refund/chargeback risk) — worse than the handoff-row case because it can persist with zero record in the deploy pipeline. The fix needed no new data load (leads is already a buildDailyDigest input) and follows the exact pattern openHandoffs established, so it carries the same low implementation risk while closing a materially different failure mode.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Add checkRateLimit to POST /api/marketing/generate (key `marketing-generate:<clientIp>`, after requireOperatorAuth, same DEFAULT_RATE_LIMIT/429+Retry-After shape as bootstrap-prices) rather than treating auth alone as sufficient throttling.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #196 (paid-not-live-in-digest). Empty-backlog audit rotated off digest wiring (just closed) onto the rate-limit guard-set axis that previously caught billing-portal and bootstrap-prices. marketing/generate already had requireOperatorAuth — and PR #196's auth-parity pass therefore marked it 'clean' — but when OPERATOR_DASHBOARD_PASSWORD is unset (documented open demo), auth returns ok for every caller, so the route could burn Anthropic quota (or hammer the stub path) with no backoff. Auth-gated /api twins still need the same per-IP limiter the public write routes share; shipping that before inventing another optional aggregate protects Growth/Complete AI pack cost while the remaining NEXT_STEPS stay secrets/OAuth/counsel-gated. Sibling prompt-process-evolution-2101 had not pushed a remote claim when this was claimed; yrtt98 still only owns leads-client-optimistic-state-desync (claim-only).",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make Convex commerceOrders.listUnpaid treat falsy/blank paidOutAt as unpaid (matching SQLite `IS NULL OR = ''` and isCommerceOrderPaidOut's Boolean), and normalize empty strings to undefined in mapOrderRow / mapCommerceOrderRow.",
+    rationale:
+      "Same empty-backlog audit that found the marketing-generate rate-limit gap also found a latent Convex/SQLite owed-total parity bug: listUnpaid filtered `paidOutAt === undefined` only, so an empty-string marker would drop out of Convex owed totals while SQLite and TS still counted it unpaid — multi-instance split-brain on Commerce payout liability (double-pay or missed-pay risk). Closing both findings in one iteration keeps money-ledger and cost-abuse axes moving without inventing a new metric; Connect remains operator/legal-gated.",
   },
 ];
 
@@ -6932,5 +6947,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1158 passed, full suite incl. 2 new digest tests) + lint + build + npm run dev (/dashboard/leads, /docs/architecture, /docs/production-deploy, /docs/launch-checklist all 200)",
     ],
     decisions: BUSINESS_DECISIONS.slice(291, 292),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-profitability-process-8f90",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #196 (paid-not-live-in-digest). Empty-backlog audit rotated to the rate-limit guard-set axis (after digest wiring just closed) and found POST /api/marketing/generate had requireOperatorAuth but no checkRateLimit — in open demo (password unset) that is unthrottled Anthropic spend. Same audit found Convex listUnpaid's paidOutAt === undefined filter diverged from SQLite empty-string unpaid treatment. Claimed and shipped both; left leads-client-optimistic-state-desync to sibling yrtt98 (claim-only).",
+    shipped: [
+      "src/app/api/marketing/generate/route.ts — checkRateLimit(`marketing-generate:${clientIp}`) after requireOperatorAuth (429 + Retry-After)",
+      "src/app/api/marketing/generate/route.test.ts — 429/Retry-After regression + resetRateLimiterForTests",
+      "src/lib/security/rate-limit.ts — docstring lists marketing/generate + bootstrap-prices among auth-gated throttled routes",
+      "convex/commerceOrders.ts — listUnpaid treats falsy paidOutAt as unpaid; mapOrderRow normalizes empty string",
+      "src/lib/commerce/sqlite-row-mapping.ts (+test) — empty-string paidOutAt/clientReceiptEmailSentAt → undefined",
+      "src/lib/commerce/orders.test.ts — isCommerceOrderPaidOut empty-string = unpaid",
+      "Docs: architecture / compliance / marketing-automation note the rate-limit + listUnpaid parity",
+      "NEXT_STEPS: marketing-generate-rate-limit + list-unpaid-empty-string-parity done",
+      "AGENT_PROTOCOL — auth-gated /api twins still need per-IP rate-limit when password unset",
+      "BUSINESS_DECISIONS — documented why these two empty-backlog fixes beat inventing an optional aggregate",
+      "Verified: npm test + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(292, 294),
   },
 ];

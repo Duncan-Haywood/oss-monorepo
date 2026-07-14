@@ -7,6 +7,7 @@ import type {
   GenerateMarketingRequest,
   MarketingContentType,
 } from "@/lib/marketing/types";
+import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 const VALID_CONTENT_TYPES: MarketingContentType[] = [
   "gbp_post",
@@ -41,11 +42,25 @@ function isBusinessContext(value: unknown): value is BusinessContext {
  * POST /api/marketing/generate
  * Operator-authenticated ad-hoc generation. Prefer generateMarketingPackAction
  * on /dashboard/leads for the persisted monthly Growth/Complete pack.
+ *
+ * Auth + per-IP rate limit (defense-in-depth): when OPERATOR_DASHBOARD_PASSWORD
+ * is unset, requireOperatorAuth returns ok for every caller — without a limiter
+ * that open-demo window can burn Anthropic quota unbounded. Mirrors
+ * bootstrap-prices (auth then checkRateLimit).
  */
 export async function POST(request: Request) {
   const auth = await requireOperatorAuth();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`marketing-generate:${clientIp}`);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests", message: "Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   let body: unknown;
