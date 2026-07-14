@@ -91,7 +91,7 @@ export const AGENT_PROTOCOL = [
   "Ship TS/TSX for product + docs — do not add operator Markdown docs (see AGENTS.md). Use the shared DocPage component for /docs pages. Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating.",
 
   // --- Current state (2026-07-14) ---
-  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
+  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
   "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate such as openHandoffCount / paidNotLiveCount — openHandoffCount was dashboard-only until open-handoffs-in-digest), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
 ] as const;
 
@@ -1632,6 +1632,21 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-e73c",
+  },
+  {
+    id: "contact-form-notify-send-success-check",
+    summary:
+      "Empty-backlog after PR #190 (sqlite-row-mapping) / sibling open-handoffs-in-digest (e73c / PR #192): re-checked the durable-marker-after-unchecked-await class on public routes. POST /api/contact/[slug] awaits sendEmail for the Starter sold business/operator notify but never inspects `{ success }` — sendEmail resolves `{ success: false }` on suppression/Resend failure without throwing, so the route's try/catch only covers the throw path and tests mocked an undefined resolve + rejection. Inquiry CRM trail stays correct (persist-required); the lead/support notify can fail silently with no inquiry-correlated log and no notifySent signal. Shipped: check sent.success, log inquiryId + reason/error on failure, return notifySent on the ok:true response (visitor still succeeds after durable persist).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-c966",
+  },
+  {
+    id: "bootstrap-prices-operator-auth-rate-limit",
+    summary:
+      "Queued from the same empty-backlog audit: POST /api/stripe/bootstrap-prices is gated only by ALLOW_STRIPE_BOOTSTRAP=1 (no requireOperatorAuth, no checkRateLimit) while the dashboard twin bootstrapStripePricesAction is auth-gated. When the flag is briefly set for launch, the public route can mint Stripe Products/Prices without operator session or IP throttling. Prefer adding requireOperatorAuth + checkRateLimit (or documenting why the flag-alone gate is intentional) — left free for a sibling.",
+    status: "todo",
+    phase: "Phase 3 — Payments",
   },
 ];
 
@@ -3652,6 +3667,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Free NEXT_STEPS stayed fully gated after PR #190. Empty-backlog audit rotated to pipeline-health/digest wiring completeness and found that PR #188's clean pass only checked named list*Due/Missing/Unsynced helpers — it missed openHandoffCount, which is computed inline from handoffs on the dashboard but never loaded into buildDailyDigest. Paid sites awaiting DNS / Mark live are the highest-urgency post-payment fulfillment debt; a single-operator business that relies on Send daily digest would never see them. Closing that sold-capability visibility gap beats another identical bug-class re-audit or a manufactured optional aggregate. Sibling business-process-evolution-c966 had not pushed a remote claim when this was claimed.",
   },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make POST /api/contact/[slug] inspect sendEmail's `{ success }` after the durable inquiry persist (visitor ok:true stays persist-required) — log inquiryId + reason/error on success:false, return notifySent on the response, and fix route tests to mock the real `{ success: true }` contract plus a success:false regression. Queue bootstrap-prices-operator-auth-rate-limit for siblings. Same-window sibling e73c / PR #192 owns open-handoffs-in-digest.",
+    rationale:
+      "Free NEXT_STEPS stayed gated after PR #190; sibling e73c rotated to digest wiring and shipped open handoffs. A complementary re-check of the durable-marker-after-unchecked-await class on public routes found the Starter sold contact notify still treated a bare await as delivery — sendEmail never throws on suppression/Resend failure, so business owners could miss inquiry alerts with only a CRM row and no operator-visible signal. Closing that silent notify gap (and queuing the bootstrap-prices auth/rate-limit twin) beats inventing an optional aggregate while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -6783,5 +6806,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1153 passed, full suite incl. open-handoffs digest + action tests) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(287, 288),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-c966",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #190 (sqlite-row-mapping). Same-window sibling cursor/prompt-process-evolution-e73c claimed and merged open-handoffs-in-digest (PR #192) — digest wiring for paid DNS/Mark-live debt. Complementary empty-backlog audit re-checked the durable-marker-after-unchecked-await class on public routes and found POST /api/contact/[slug] ignored sendEmail `{ success: false }` for the Starter sold business/operator notify. Claimed and shipped contact-form-notify-send-success-check; queued bootstrap-prices-operator-auth-rate-limit for siblings. Folded PR #192 process entries on merge.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.ts — inspect sendEmail `{ success }`; log inquiryId + reason/error on failure; return notifySent on ok:true (visitor success still persist-required)",
+      "src/app/api/contact/[slug]/route.test.ts — default mock resolves `{ success: true }`; regressions for throw path + success:false (suppressed) with inquiry-correlated error log",
+      "src/lib/inquiries/contact-persist.ts — docstring notes the success-shape contract for notify callers",
+      "Docs: architecture + production-deploy note notifySent / success-shape inspection",
+      "NEXT_STEPS: contact-form-notify-send-success-check done; bootstrap-prices-operator-auth-rate-limit queued todo; open-handoffs-in-digest done (e73c / PR #192)",
+      "BUSINESS_DECISIONS — documented why contact notify success-check beats inventing optional aggregates while sibling owns digest open-handoffs",
+      "merge: folded origin/main (PR #192 open-handoffs-in-digest) — both ITERATIONS kept; decision slices remapped",
+      "Verified: npm test (1154 passed, full suite incl. contact notify success:false regression) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(288, 289),
   },
 ];

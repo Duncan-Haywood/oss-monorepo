@@ -3,7 +3,10 @@ import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
 /**
  * Contact-form success policy for Starter sites.
  * Persist (clientInquiries ledger) is required before claiming success —
- * email notify is a best-effort side effect after a durable inbox row exists.
+ * Notify is a best-effort side effect after a durable inbox row exists —
+ * sendEmail resolves `{ success: false }` without throwing, so callers must
+ * inspect that shape (and typically surface notifySent) rather than assuming
+ * a bare await means delivery.
  *
  * When Convex is configured, the contact route must pass
  * CONTACT_FORM_CONVEX_PRIMARY so a Convex mutation failure returns 503

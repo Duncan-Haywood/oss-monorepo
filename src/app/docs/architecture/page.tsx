@@ -304,7 +304,9 @@ export default function ArchitectureDocPage() {
         other instances cannot see. Route-level Vitest in{" "}
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
-        after a durable inquiry row, validation) beyond{" "}
+        after a durable inquiry row, <code>notifySent</code> from inspecting{" "}
+        <code>sendEmail</code>&apos;s <code>{"{ success }"}</code> shape — not just the throw path —
+        validation) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
         (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, the
