@@ -1584,8 +1584,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "import-leads-csv-action-test-coverage",
     summary:
       "Empty-backlog twin after notes / Add lead action Vitest: importLeadsCsvAction is the operator bulk inventory path (LEAD_UPSERT_CONVEX_PRIMARY per row + parse/validate) — CSV parse helper + upsert-persist suites alone are not enough for action glue. Sibling-friendly with mark-handoff-live-action-test-coverage; prefer when add-lead-action-test-coverage is done or claimed.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Lead volume",
+    owner: "cursor/prompt-process-evolution-3be7",
   },
   {
     id: "mark-handoff-live-action-test-coverage",
