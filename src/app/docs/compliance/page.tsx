@@ -49,6 +49,14 @@ export default function ComplianceDocPage() {
       <ul>
         <li>Identify sender: {brand.legalEntity} in footer; public brand in From name</li>
         <li>
+          Resend <code>from</code> uses <code>EMAIL_FROM</code> via{" "}
+          <code>brand.emailFrom</code> / <code>formatResendFromHeader</code> — until set to a
+          non-placeholder Resend-verified address,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> shows a lime readiness banner via{" "}
+          <code>assessEmailFromEnvReadiness</code> (
+          <code>src/lib/email/email-from-env-readiness.ts</code>)
+        </li>
+        <li>
           Valid physical postal address in Colorado — until{" "}
           <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder address,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> shows a yellow readiness banner via{" "}
