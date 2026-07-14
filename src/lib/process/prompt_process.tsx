@@ -54,7 +54,7 @@ export const AGENT_PROTOCOL = [
   "Every persistence surface in src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error. A new Convex table needs an explicit app-owned id column (e.g. orderId/packId/handoffId/inquiryId) registered on the static Convex API map in db.ts in the same commit as the table — a missing map registration throws at call time, gets silently caught by the fallback, and produces a split-brain where writes land on SQLite while list* reads Convex-first.",
   "Every record type with a required `id: string` field must store that id as its own explicit Convex column and return it as `id` from every mutation/query — a type-cast on the Convex query result hides a missing field from tsc. (convex/orders.ts's `list`/`getByStripeSessionId` queries return the Convex-internal `_id` instead of an app-owned column, unlike every other ledger; its `createOrder` mutation is dead code superseded by leads.markLeadPaid. Both have been reviewed and deliberately left alone by multiple prior iterations since neither has a live consumer of the value — re-verify there's still no live `.id` consumer before touching either.)",
   "Write paths whose result is read Convex-first elsewhere (outreach cadence, lead notes/stage/snooze/upsert, cold disposition, marketing/voice packs, commerce catalogs, inquiry reply/status, checkout session create/recovery, commerce paid-out) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex failure throws instead of silently soft-falling-back to SQLite while other instances keep reading Convex-first. Copy the nearest existing `*_CONVEX_PRIMARY` constant + call site for any new write path in this class.",
-  "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark).",
+  "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark). Dashboard actions that trigger that send must still inspect the resolved `{ success }` shape and return `success: false` with an operator-visible error when the send fails — silent `success: true` after `{ success: false }` is the same bug class as writing a webhook recovery marker without checking send success (see email-1-outreach-send-success-check).",
   "Lists that back a debt/liability/owed total (unpaid commerce orders, marketing/voice packs due, unsynced catalogs, unreplied inquiries, commerce_checkout webhook dedup) must be uncapped (.collect() / no LIMIT) — a newest-N page silently undercounts older rows as false debt or hides real debt once volume exceeds the page window. listOrders must stay newest-first on both backends (Billing Portal's latestEligibleOrder assumes it).",
 
   // --- Money / ledger integrity ---
@@ -63,7 +63,7 @@ export const AGENT_PROTOCOL = [
   "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification.",
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state. Any Stripe `list()` lookup used for idempotency-by-metadata-key must paginate via has_more/starting_after (use listAllPages, src/lib/stripe/list-all-pages.ts) — a single 100-item page silently misses matches past page 1 once an account holds more objects than that. A collection/catalog sync should create/update current items only, never auto-archive/delete a third-party object for removed items (orphan archive is operator-triggered only, and sets active=false — never delete).",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
-  "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail (src/lib/email/resend.ts) never throw: a suppression-list hit or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects) — see bundle-webhook-receipt-marker-requires-send-success.",
+  "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a suppression-list hit or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
@@ -91,7 +91,8 @@ export const AGENT_PROTOCOL = [
   "Ship TS/TSX for product + docs — do not add operator Markdown docs (see AGENTS.md). Use the shared DocPage component for /docs pages. Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating.",
 
   // --- Current state (2026-07-14) ---
-  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
+  "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action surface.",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper reachable from at least one of those two surfaces — checked clean as of 2026-07-14), a sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims, an orchestration module's test-coverage gaps, or a different security surface. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
 ] as const;
 
 /**
@@ -1591,6 +1592,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "claude/upbeat-dijkstra-shyape",
+  },
+  {
+    id: "commerce-client-receipt-redelivery-recovery",
+    summary:
+      "Empty-backlog after PR #184/#185 (bundle receipt-marker success gate + billing-portal rate-limit): Commerce Buy now planCommerceWebhookSideEffects still gated BOTH operator inquiry + client receipt on inquiry presence — once the inquiry row exists, sendCommerceBuyNowClientReceipt was never retried on Stripe redelivery even when the send resolved { success: false } or threw. Bundle already recovers receipt/DNS independently via durable sent-markers; Commerce sold promise (order notification to lead.email) could be permanently lost after a transient Resend/suppression failure while the operator inbox looked complete. Shipped: decouple receipt from inquiry with clientReceiptEmailSentAt on commerceOrders (mirror paidOutAt) + success-gated marker write + commerce_client_receipt_sent_marker 5xx on marker failure.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-6445",
+  },
+  {
+    id: "email-1-outreach-send-success-check",
+    summary:
+      "Empty-backlog after PR #184/#185; sibling 6445 claimed commerce-client-receipt-redelivery-recovery. Complementary audit found updateLeadStageAction + addLeadAction durably mark Email 1 via recordLeadOutreach then await sendOutreachEmail without checking { success } — sendEmail never throws on suppression/Resend failure, so the action still returns success:true while the lead looks outreach_sent and drops out of Email-1 work. Follow-ups / cold re-engage / inquiry reply already surface !sent.success. Shipped: mirror that check (persist-then-notify mark stays; operator gets success:false + retry/suppression hint); Vitest regressions for both actions; docs note the contract.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-b16c",
   },
   {
     id: "billing-portal-return-url-open-redirect-guard",
@@ -3580,9 +3597,30 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-14",
     decision:
+      "Decouple Commerce Buy now client-receipt redelivery from operator-inquiry presence: add commerceOrders.clientReceiptEmailSentAt (SQLite migration + Convex, mirror paidOutAt) and teach planCommerceWebhookSideEffects to recover inquiry and receipt independently. Write the marker only when sendCommerceBuyNowClientReceipt resolves { success: true }; marker-write failures return 5xx (commerce_client_receipt_sent_marker).",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #184/#185. Empty-backlog audit of webhook recovery found the inverse of the bundle false-success-marker bug: commerce never wrote a receipt sent-marker at all, and once a commerce_checkout inquiry existed, planCommerceWebhookSideEffects skipped BOTH inquiry and receipt forever — so a first delivery that wrote the inbox then hit Resend suppression/outage permanently lost the sold order-notification email to lead.email, with Stripe redelivery unable to recover it. Bundle already solved the independent-marker pattern for receipt/DNS; Commerce is the sold twin of that promise. Fixing permanent loss of a paid Commerce client's order notification beats inventing another optional aggregate while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Make updateLeadStageAction + addLeadAction inspect sendOutreachEmail's `{ success }` result after the durable Email 1 mark (persist-then-notify stays; never roll back the mark) and return success:false with an operator-visible suppression/Resend error — same contract as sendFollowUpAction / disposeColdLeadAction / replyToInquiryAction. Sibling business-process-evolution-6445 owns the complementary commerce-client-receipt-redelivery-recovery webhook twin.",
+    rationale:
+      "Free NEXT_STEPS stayed fully gated after PR #184/#185; sibling 6445 already claimed the Commerce Buy now receipt-redelivery twin of the bundle marker bug. A complementary sold-capability audit found the top-of-funnel twin: stage/add paths treated a resolved `{ success: false }` as a successful send, so operators saw a green UI while Email 1 never left Resend and the lead looked outreach_sent in Work next. That silently stalls the discovery→preview funnel without inventing a new metric — surface the failure, keep the mark, leave commerce receipt recovery to the earlier remote claim.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship no code this run — document a clean audit instead of re-running the same 5 bug classes a 3rd/4th consecutive time or manufacturing a new optional metric. Add one AGENT_PROTOCOL clarification: once 2+ consecutive audits confirm a bug class clean, the next agent should rotate to an unchecked axis (sold-vs-shipped doc reconciliation, a different orchestrator's test coverage, a different security surface) rather than re-verifying the same invariants a marginal-value 3rd time.",
+    rationale:
+      "Delegated a fresh sweep of the 5 bug classes this log tracks (durable-marker-after-unchecked-await, Convex API map gaps, uncapped debt lists, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) across every call site named in AGENT_PROTOCOL and found nothing new at the time this audit ran — this branch's own audit missed the updateLeadStageAction/addLeadAction Email 1 gap that sibling email-1-outreach-send-success-check (the decision immediately above) found and fixed the same day, so treat this as a clean pass on the webhook/ledger call sites actually inspected, not a guarantee the whole bug class was exhaustive. Independently cross-checked that every list*Due/Missing/Unsynced helper (marketing packs, client voice packs, commerce catalogs missing/unsynced, follow-ups due, cold leads, abandoned checkouts, unpaid commerce orders, unreplied inquiries) is wired into both src/lib/metrics/pipeline-health.ts and src/lib/digest/daily-digest.ts — no orphaned sold-capability helper missing from either surface. Also confirmed /docs/product-bundles' per-bundle promises already cite the exact implementing module and test file for each claim (catalog sync, archive-orphans, commerce order-notification email, payout tracking), so a manual sold-vs-shipped reconciliation pass would just be re-reading that doc. Shipping a fake feature or repeating an already-clean check a further time to have a diff would cost sibling agents more (thrash, wasted audit cycles) than an honest 'still clean' entry costs them (a few minutes reading this decision before picking their own axis). Worth noting in AGENT_PROTOCOL so the audit rotation itself becomes a repeatable practice instead of every agent re-deriving 'what's already been checked' from ITERATIONS prose — with the caveat above, that rotation should still expect near-miss gaps like this one rather than treat 'clean' as absolute.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
       "Validate POST /api/stripe/billing-portal's body.returnUrl against the derived appUrl's origin before passing it to stripe.billingPortal.sessions.create — any missing, malformed, or cross-origin value now falls back to the existing derived default instead of being trusted verbatim, mirroring the safeNextPath pattern already used for the operator-login redirect.",
     rationale:
-      "Two remote siblings (cursor/business-process-evolution-6445, cursor/prompt-process-evolution-b16c) had already claimed the two known bugs from the prior audit window before this run started, so duplicating either would have wasted a full iteration on work already in flight. A fresh sweep of different angles found that billing-portal — public, keyed only by a client-supplied Checkout Session id that is not truly secret — forwarded an attacker-controlled returnUrl straight into a live Stripe API call with no validation, letting anyone with a valid session id get Stripe to mint a real billing.stripe.com URL that redirects to an attacker's page on exit. That is a genuine open-redirect using the merchant's own trusted Stripe domain as cover for phishing, not a stylistic nitpick — and the fix is cheap (a same-origin check the codebase already had a template for) with zero behavior change for every legitimate caller, since the only real caller (manage-billing-button.tsx) always sends window.location.origin. Shipping a concrete, verifiable security fix beats inventing an optional aggregate or waiting idle while siblings finish their claimed items.",
+      "Two remote siblings (cursor/business-process-evolution-6445, cursor/prompt-process-evolution-b16c) had already claimed the two known bugs from the prior audit window before this run started, so duplicating either would have wasted a full iteration on work already in flight. A fresh sweep of different angles found that billing-portal — public, keyed only by a client-supplied Checkout Session id that is not truly secret — forwarded an attacker-controlled returnUrl straight into a live Stripe API call with no validation, letting anyone with a valid session id get Stripe to mint a real billing.stripe.com URL that redirects to an attacker's page on exit. That is a genuine open-redirect using the merchant's own trusted Stripe domain as cover for phishing, not a stylistic nitpick — and the fix is cheap (a same-origin check the codebase already had a template for) with zero behavior change for every legitimate caller, since the only real caller (manage-billing-button.tsx) always sends window.location.origin. Shipping a concrete, verifiable security fix beats inventing an optional aggregate or waiting idle while siblings finish their claimed items. This audit run also independently re-checked the open-redirect surface the prior clean-audit pass (decision above) did not cover — that pass rotated to sold-capability wiring, not security surfaces, so this is a genuinely new axis rather than a re-derivation.",
   },
 ];
 
@@ -6471,7 +6509,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: tightened ITERATIONS decision slices 02c1→edae (+1 drift) and set 6506 absolute bound to BUSINESS_DECISIONS.length",
       "Verified: npm test (production-domain-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(272, 273),
+    decisions: BUSINESS_DECISIONS.slice(271, 272),
   },
   {
     date: "2026-07-14",
@@ -6487,7 +6525,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why Vercel-token readiness beats inventing optional aggregates after production-domain banner",
       "Verified: npm test (vercel-token-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(273, 274),
+    decisions: BUSINESS_DECISIONS.slice(272, 273),
   },
   {
     date: "2026-07-14",
@@ -6503,7 +6541,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why CAN-SPAM postal readiness beats inventing optional aggregates after Vercel-token banner",
       "Verified: npm test (1081 passed — company-address-env-readiness 11) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(274, 275),
+    decisions: BUSINESS_DECISIONS.slice(273, 274),
   },
   {
     date: "2026-07-14",
@@ -6520,7 +6558,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #178 company-address) — both ITERATIONS kept; fixed 9930/01fb/7511 absolute decision slices",
       "Verified: npm test (vercel-project-id-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(275, 276),
+    decisions: BUSINESS_DECISIONS.slice(274, 275),
   },
   {
     date: "2026-07-14",
@@ -6539,7 +6577,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #180 email-from) — both ITERATIONS kept; absolute decision slices 276–278",
       "Verified: npm test (convex-url-env-readiness) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(276, 277),
+    decisions: BUSINESS_DECISIONS.slice(275, 276),
   },
   {
     date: "2026-07-14",
@@ -6556,7 +6594,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL + NEXT_STEPS + BUSINESS_DECISIONS + ITERATIONS — documented why EMAIL_FROM wiring beats inventing optional aggregates after Vercel-project-id banner",
       "Verified: npm test (email-from-env-readiness + resend From) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(277, 278),
+    decisions: BUSINESS_DECISIONS.slice(276, 277),
   },
   {
     date: "2026-07-14",
@@ -6571,7 +6609,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL + BUSINESS_DECISIONS + ITERATIONS — documented the false-requirement bug class (distinct from the missing-readiness-signal class this log otherwise tracks) so future empty-backlog audits re-examine shipped banners, not only hunt for new ones",
       "Verified: npm test (1120 passed, full suite) + lint + build + npm run dev (StripeCoreEnvBanner confirmed gone with only STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET set; /docs/launch-checklist + /docs/architecture render 200)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(278, 279),
+    decisions: BUSINESS_DECISIONS.slice(277, 278),
   },
   {
     date: "2026-07-14",
@@ -6585,7 +6623,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: folded origin/main (PR #180 email-from + PR #181 convex-url) — all three ITERATIONS entries kept; absolute decision slices 276–279",
       "Verified: npm test (1091 passed) + lint + build, all clean before and after the edit and after the merge",
     ],
-    decisions: BUSINESS_DECISIONS.slice(279, 280),
+    decisions: BUSINESS_DECISIONS.slice(278, 279),
   },
   {
     date: "2026-07-14",
@@ -6600,7 +6638,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why the fix beats inventing another optional aggregate while the free backlog stays gated",
       "Verified: npm test (1122 passed, incl. 2 new webhook regression tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(280, 281),
+    decisions: BUSINESS_DECISIONS.slice(279, 280),
   },
   {
     date: "2026-07-14",
@@ -6616,21 +6654,71 @@ export const ITERATIONS: ProcessIteration[] = [
       "merge: rebased onto origin/main (PR #184 webhook receipt-marker fix) — both ITERATIONS entries kept; decision slices 280–282",
       "Verified: npm test (1121 passed, full suite) + lint + build",
     ],
+    decisions: BUSINESS_DECISIONS.slice(280, 281),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-6445",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #184/#185 (bundle receipt-marker success gate + billing-portal rate-limit). Empty-backlog sold-capability audit of Stripe webhook recovery found Commerce Buy now still coupled client-receipt retry to inquiry presence: once a commerce_checkout inquiry existed, sendCommerceBuyNowClientReceipt was never retried — even when the send resolved { success: false } or threw — permanently losing the sold order-notification email to lead.email. Bundle already recovers receipt/DNS independently via durable sent-markers; Commerce lacked that twin. Claimed and shipped commerce-client-receipt-redelivery-recovery.",
+    shipped: [
+      "src/lib/commerce/side-effect-recovery.ts (+ test) — planCommerceWebhookSideEffects recovers inquiry vs client receipt independently; hasCommerceClientReceiptSentMarker",
+      "commerceOrders.clientReceiptEmailSentAt — Convex schema + markClientReceiptSent mutation; SQLite ALTER; CommerceOrderRecord; markCommerceOrderClientReceiptSent in db.ts (static API map registration)",
+      "src/app/api/stripe/webhook/route.ts — success-gated marker write; commerce_client_receipt_sent_marker 5xx; receipt-only redelivery path",
+      "src/app/api/stripe/webhook/route.test.ts — receipt-only recovery, success:false leaves marker unwritten, marker-write 5xx; default sendCommerceBuyNowClientReceipt mock resolves { success: true }",
+      "webhook-fulfillment.ts (+ test) — commerce_client_receipt_sent_marker step",
+      "Docs: architecture / roadmap / product-bundles — independent commerce receipt recovery; AGENT_PROTOCOL recovery-marker rule updated",
+      "NEXT_STEPS: commerce-client-receipt-redelivery-recovery done; Stripe Prices / Places / Buffer OAuth / Connect stay gated",
+      "Verified: npm test (side-effect-recovery + webhook route + webhook-fulfillment) + lint + build",
+    ],
     decisions: BUSINESS_DECISIONS.slice(281, 282),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-b16c",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #184/#185. Sibling business-process-evolution-6445 claimed commerce-client-receipt-redelivery-recovery first (Commerce Buy now receipt recovery twin of the bundle marker bug). Pivoted to complementary email-1-outreach-send-success-check: updateLeadStageAction + addLeadAction returned success:true after sendOutreachEmail resolved { success: false }. Shipped the follow-up/cold-re-engage contract on those two paths. Left commerce receipt recovery to 6445. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — updateLeadStageAction + addLeadAction check sendOutreachEmail `{ success }` after durable Email 1 mark; return success:false with suppression/Resend hint (mark not rolled back)",
+      "update-lead-stage-action.test.ts + add-lead-action.test.ts — default mock uses `{ success: true }`; regressions for suppression + Resend 429 without revalidate",
+      "Docs: architecture + business-model + launch-checklist note the Email 1 success:false surface",
+      "NEXT_STEPS: email-1-outreach-send-success-check done; commerce-client-receipt-redelivery-recovery done (6445 / this merge)",
+      "AGENT_PROTOCOL — persist-then-notify actions must still surface !sent.success to operators",
+      "BUSINESS_DECISIONS — documented why Email 1 success-check beats inventing optional aggregates while sibling owns commerce receipt recovery",
+      "Verified: npm test (update/add lead stage Email 1 success regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(283, 284),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/upbeat-dijkstra-3duvyp",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #185 (billing-portal rate-limiting, merged). Delegated a fresh sweep of the same 5 bug classes this log tracks (durable-marker-after-unchecked-await, Convex API map gaps, uncapped debt lists, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) across every named call site the audit checked — nothing new there, though sibling cursor/prompt-process-evolution-b16c (merged mid-window, folded above) independently found a real miss in the same bug class on a call site this run's audit didn't cover (updateLeadStageAction/addLeadAction Email 1 send-check), so treat this as a clean pass on the sites actually inspected, not an exhaustive guarantee. Rather than run the identical audit a 3rd time, personally cross-checked a distinct axis instead: every list*Due/Missing/Unsynced sold-capability helper (marketing packs, client voice packs, commerce catalogs missing/unsynced, follow-ups due, cold leads, abandoned checkouts bundle+commerce, unpaid commerce orders, unreplied inquiries) is wired into both pipeline-health.ts and daily-digest.ts — no orphaned helper found. Also read /docs/product-bundles end to end against the code it cites (catalog sync, archive-orphans, order-notification email, payout tracking) and found every claim already annotated with its real implementing module + test file. Added an AGENT_PROTOCOL rule so future empty-backlog audits rotate axis after 2 consecutive clean passes on the same bug-class set instead of re-deriving 'what's already been checked' from ITERATIONS prose each time. Merged sibling b16c's email-1-outreach-send-success-check (PR #186) mid-window — folded as append-only, no feature overlap.",
+    shipped: [
+      "No product code changed this run.",
+      "AGENT_PROTOCOL — added an audit-rotation rule (current-state section): after 2+ consecutive clean passes on the 5 tracked bug classes, rotate to pipeline-health/digest wiring completeness, sold-vs-shipped doc reconciliation, orchestrator test-coverage gaps, or a different security surface instead of repeating the identical sweep",
+      "BUSINESS_DECISIONS + ITERATIONS — documented the clean audit (5 bug classes on the sites checked + pipeline-health/digest wiring + product-bundles doc reconciliation) and why shipping nothing beats a manufactured feature or a 3rd identical audit this run",
+      "NEXT_STEPS — unchanged; all 4 remaining items confirmed still operator/legal-gated",
+      "merge: folded origin/main (PR #186 email-1-outreach-send-success-check) — both ITERATIONS entries kept; decision slices 282–284",
+      "Verified: npm test (1123 passed pre-merge) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(284, 285),
   },
   {
     date: "2026-07-14",
     branch: "claude/relaxed-galileo-h8lib0",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #185 (billing-portal rate-limit). At this run's start, remote siblings cursor/business-process-evolution-6445 and cursor/prompt-process-evolution-b16c had already claimed (claim-commit only, no feature code yet) the two known bugs from that audit window — commerce-client-receipt-redelivery-recovery and email-1-outreach-send-success-check — so this run did not duplicate either; both stayed on their owning branches. Instead ran a fresh sold-capability audit across a different set of angles (recovery-marker recheck, Convex/SQLite parity, HTML/JSON-LD escaping, orchestrator test-coverage ratio) and found a real open-redirect vulnerability: POST /api/stripe/billing-portal is public and keyed only by a client-supplied Stripe Checkout Session id — not truly secret, since it appears in redirect URLs, referrer headers, and browser history — and forwarded body.returnUrl verbatim into stripe.billingPortal.sessions.create's return_url with no same-origin check. An attacker holding any valid completed session id could get Stripe to mint a genuine billing.stripe.com portal URL whose 'Return to [merchant]' link pointed at an attacker-controlled page, borrowing the merchant's trusted Stripe relationship for phishing credibility. The repo already had the right defensive pattern (safeNextPath, src/app/dashboard/login/actions.ts) but it had never been applied to this route. Claimed and shipped billing-portal-return-url-open-redirect-guard in the same commit as the fix.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #185 (billing-portal rate-limit). At this run's start, remote siblings cursor/business-process-evolution-6445 and cursor/prompt-process-evolution-b16c had already claimed (claim-commit only, no feature code yet) the two known bugs from that audit window — commerce-client-receipt-redelivery-recovery and email-1-outreach-send-success-check — so this run did not duplicate either; both stayed on their owning branches, later merged as PR #186/#187. A third sibling (claude/upbeat-dijkstra-3duvyp, PR #188, folded above) ran a clean sold-capability/wiring audit in the same window and found nothing new. Rather than repeat that pass, ran a fresh audit across a different set of angles (recovery-marker recheck, Convex/SQLite parity, HTML/JSON-LD escaping, orchestrator test-coverage ratio) and found a real open-redirect vulnerability: POST /api/stripe/billing-portal is public and keyed only by a client-supplied Stripe Checkout Session id — not truly secret, since it appears in redirect URLs, referrer headers, and browser history — and forwarded body.returnUrl verbatim into stripe.billingPortal.sessions.create's return_url with no same-origin check. An attacker holding any valid completed session id could get Stripe to mint a genuine billing.stripe.com portal URL whose 'Return to [merchant]' link pointed at an attacker-controlled page, borrowing the merchant's trusted Stripe relationship for phishing credibility. The repo already had the right defensive pattern (safeNextPath, src/app/dashboard/login/actions.ts) but it had never been applied to this route. Claimed and shipped billing-portal-return-url-open-redirect-guard in the same commit as the fix. Merged origin/main (PR #186/#187/#188) mid-window — folded all three ITERATIONS entries above, retightened this entry's decision slice to 285–286.",
     shipped: [
       "src/app/api/stripe/billing-portal/route.ts — isSameOriginReturnUrl(candidate, appUrl) validates body.returnUrl's origin against the derived appUrl before use; any missing/malformed/cross-origin value now falls back to the existing derived default (${appUrl}/checkout/success?session_id=...) instead of being trusted verbatim",
       "src/app/api/stripe/billing-portal/route.test.ts — two regression tests: a cross-origin returnUrl and a malformed (non-URL) returnUrl both fall back to the derived default rather than reaching Stripe; updated the suite docstring to mention the open-redirect guard",
+      "src/app/docs/architecture/page.tsx — Billing Portal section notes the same-origin returnUrl guard beside the existing rate-limit note",
       "NEXT_STEPS: billing-portal-return-url-open-redirect-guard done",
       "AGENT_PROTOCOL — added a security rule generalizing this bug class (any client-supplied redirect/return URL passed to a third-party API or used for navigation must be validated same-origin, mirroring safeNextPath, not just escaped/rate-limited)",
       "BUSINESS_DECISIONS — documented why this open-redirect fix beat re-auditing already-clean categories (rate-limit completeness, CSV export injection, orphan-archive wiring) this run",
+      "merge: folded origin/main (PR #186 email-1-outreach-send-success-check + PR #187 commerce-client-receipt-redelivery-recovery + PR #188 clean audit) — all three ITERATIONS entries kept",
       "Verified: npm test (1125 passed, full suite incl. 2 new regression tests) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(282, 283),
+    decisions: BUSINESS_DECISIONS.slice(285, 286),
   },
 ];

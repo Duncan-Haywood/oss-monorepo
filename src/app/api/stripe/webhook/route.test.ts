@@ -28,6 +28,8 @@ const getCommerceCatalog = vi.fn();
 const insertClientInquiry = vi.fn();
 const insertCommerceOrder = vi.fn();
 const listCommerceCheckoutInquiriesBySlug = vi.fn();
+const getCommerceOrderByStripeSessionId = vi.fn();
+const markCommerceOrderClientReceiptSent = vi.fn();
 const getDeployHandoffBySlug = vi.fn();
 const insertDeployHandoff = vi.fn();
 const listDeployHandoffs = vi.fn();
@@ -45,6 +47,10 @@ vi.mock("@/lib/db", () => ({
   insertCommerceOrder: (...args: unknown[]) => insertCommerceOrder(...args),
   listCommerceCheckoutInquiriesBySlug: (...args: unknown[]) =>
     listCommerceCheckoutInquiriesBySlug(...args),
+  getCommerceOrderByStripeSessionId: (...args: unknown[]) =>
+    getCommerceOrderByStripeSessionId(...args),
+  markCommerceOrderClientReceiptSent: (...args: unknown[]) =>
+    markCommerceOrderClientReceiptSent(...args),
   getDeployHandoffBySlug: (...args: unknown[]) => getDeployHandoffBySlug(...args),
   insertDeployHandoff: (...args: unknown[]) => insertDeployHandoff(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
@@ -124,6 +130,8 @@ describe("POST /api/stripe/webhook", () => {
     insertClientInquiry.mockReset().mockResolvedValue({ id: "inq_1" });
     insertCommerceOrder.mockReset();
     listCommerceCheckoutInquiriesBySlug.mockReset().mockResolvedValue([]);
+    getCommerceOrderByStripeSessionId.mockReset().mockResolvedValue(null);
+    markCommerceOrderClientReceiptSent.mockReset().mockResolvedValue(undefined);
     getDeployHandoffBySlug.mockReset().mockResolvedValue(null);
     insertDeployHandoff.mockReset().mockResolvedValue(undefined);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
@@ -133,7 +141,7 @@ describe("POST /api/stripe/webhook", () => {
     updateLeadStage.mockReset();
     sendEmail.mockReset().mockResolvedValue({ success: true });
     sendReceiptEmail.mockReset().mockResolvedValue({ success: true });
-    sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue(undefined);
+    sendCommerceBuyNowClientReceipt.mockReset().mockResolvedValue({ success: true });
 
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_123";
@@ -427,6 +435,10 @@ describe("POST /api/stripe/webhook", () => {
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
@@ -446,9 +458,14 @@ describe("POST /api/stripe/webhook", () => {
       expect(inquiryArg.source).toBe("commerce_checkout");
       expect(inquiryArg.message).toContain("cs_test_1");
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledWith(
+        "cs_test_1",
+        expect.any(String),
+        { requireConvex: true },
+      );
     });
 
-    it("redelivery already notified: skips inquiry and client receipt", async () => {
+    it("redelivery already notified: skips inquiry and client receipt when both durable markers exist", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
@@ -456,12 +473,18 @@ describe("POST /api/stripe/webhook", () => {
       listCommerceCheckoutInquiriesBySlug.mockResolvedValue([
         { source: "commerce_checkout", message: "Paid order — Stripe session cs_test_1" },
       ]);
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+        clientReceiptEmailSentAt: "2026-07-14T12:00:00.000Z",
+      });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(insertClientInquiry).not.toHaveBeenCalled();
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
     });
 
     it("redelivery recovery: ledger already recorded but inquiry missing — recovers the notify", async () => {
@@ -470,12 +493,38 @@ describe("POST /api/stripe/webhook", () => {
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: true });
       listCommerceCheckoutInquiriesBySlug.mockResolvedValue([]);
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
+    });
+
+    it("redelivery recovery: inquiry exists but receipt marker missing — recovers only the client receipt", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: true });
+      listCommerceCheckoutInquiriesBySlug.mockResolvedValue([
+        { source: "commerce_checkout", message: "Paid order — Stripe session cs_test_1" },
+      ]);
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
     });
 
     it("skips the notify entirely when skuId is missing from metadata, without writing the ledger", async () => {
@@ -508,12 +557,17 @@ describe("POST /api/stripe/webhook", () => {
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "" });
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
     });
 
     it("returns 500 (commerce_order_ledger) so Stripe retries when the ledger write fails", async () => {
@@ -535,6 +589,10 @@ describe("POST /api/stripe/webhook", () => {
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       insertClientInquiry.mockRejectedValue(new Error("db down"));
       const { POST } = await import("./route");
 
@@ -545,17 +603,64 @@ describe("POST /api/stripe/webhook", () => {
       expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
     });
 
-    it("stays best-effort (200) when the client receipt email itself fails after a successful inquiry write", async () => {
+    it("stays best-effort (200) and leaves the receipt marker unwritten when sendCommerceBuyNowClientReceipt throws", async () => {
       constructEvent.mockReturnValue(completedEvent(commerceSession()));
       getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
       getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
       insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
       sendCommerceBuyNowClientReceipt.mockRejectedValue(new Error("resend down"));
       const { POST } = await import("./route");
 
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    });
+
+    it("does not mark the client receipt sent when send resolves success:false, so redelivery retries it", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      sendCommerceBuyNowClientReceipt.mockResolvedValue({
+        success: false,
+        reason: "suppressed",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(insertClientInquiry).toHaveBeenCalledTimes(1);
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 (commerce_client_receipt_sent_marker) when the durable receipt marker write fails after a successful send", async () => {
+      constructEvent.mockReturnValue(completedEvent(commerceSession()));
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({ items: [{ id: "sku_1", name: "Coffee Beans" }] });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      markCommerceOrderClientReceiptSent.mockRejectedValue(new Error("db down"));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("commerce_client_receipt_sent_marker");
+      expect(sendCommerceBuyNowClientReceipt).toHaveBeenCalledTimes(1);
+      expect(markCommerceOrderClientReceiptSent).toHaveBeenCalledTimes(1);
     });
   });
 });

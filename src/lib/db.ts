@@ -306,6 +306,11 @@ function getSqliteDb(): DatabaseSync {
   if (!commerceOrderCols.includes("paidOutAt")) {
     sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN paidOutAt TEXT");
   }
+  if (!commerceOrderCols.includes("clientReceiptEmailSentAt")) {
+    sqliteDb.exec(
+      "ALTER TABLE commerce_orders ADD COLUMN clientReceiptEmailSentAt TEXT",
+    );
+  }
 
   // Seed SQLite database if empty
   const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
@@ -408,6 +413,7 @@ const api: any = {
     listUnpaid: "commerceOrders:listUnpaid",
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
+    markClientReceiptSent: "commerceOrders:markClientReceiptSent",
   },
   suppressions: {
     isSuppressed: "suppressions:isSuppressed",
@@ -2320,6 +2326,7 @@ interface SqliteCommerceOrderRow {
   stripeSessionId: string;
   createdAt: string;
   paidOutAt: string | null;
+  clientReceiptEmailSentAt: string | null;
 }
 
 function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
@@ -2332,6 +2339,7 @@ function mapCommerceOrderRow(row: SqliteCommerceOrderRow): CommerceOrderRecord {
     stripeSessionId: row.stripeSessionId,
     createdAt: row.createdAt,
     paidOutAt: row.paidOutAt ?? undefined,
+    clientReceiptEmailSentAt: row.clientReceiptEmailSentAt ?? undefined,
   };
 }
 
@@ -2518,6 +2526,44 @@ export async function markCommerceOrderPaidOut(
     paidOutAt,
     stripeSessionId,
   );
+}
+
+/**
+ * Durable client-receipt sent-marker after sendCommerceBuyNowClientReceipt
+ * resolves { success: true }. Keyed on stripeSessionId — Stripe redelivery
+ * recovers the client order notification while this field is unset.
+ *
+ * Pass { requireConvex: true } from the Stripe webhook so a Convex mutation
+ * failure surfaces (5xx → Stripe retry) instead of SQLite-only success while
+ * Convex-first getCommerceOrderByStripeSessionId still looks unmarked.
+ */
+export async function markCommerceOrderClientReceiptSent(
+  stripeSessionId: string,
+  clientReceiptEmailSentAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
+        stripeSessionId,
+        clientReceiptEmailSentAt,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderClientReceiptSent", e);
+      }
+      console.warn(
+        `Failed to mark commerce client receipt sent for ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ?",
+  ).run(clientReceiptEmailSentAt, stripeSessionId);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---
