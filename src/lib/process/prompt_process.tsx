@@ -1675,6 +1675,21 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2101",
   },
+  {
+    id: "marketing-generate-rate-limit",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): POST /api/marketing/generate has requireOperatorAuth but no checkRateLimit, unlike bootstrap-prices (auth+rate-limit twin) and every other public write route. When OPERATOR_DASHBOARD_PASSWORD is unset (open demo), auth returns ok for every caller — unthrottled Anthropic spend / stub hammering. Claimed by same-minute sibling: add checkRateLimit per client IP (429 + Retry-After) after auth, matching bootstrap-prices.",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/business-profitability-process-8f90",
+  },
+  {
+    id: "list-unpaid-empty-string-parity",
+    summary:
+      "Queued twin from sibling business-profitability-process-8f90's empty-backlog audit: Convex commerceOrders.listUnpaid filters paidOutAt === undefined only, while SQLite uses (paidOutAt IS NULL OR paidOutAt = '') and isCommerceOrderPaidOut uses Boolean(paidOutAt) (empty string = unpaid). An empty-string paidOutAt would look paid on Convex listUnpaid but unpaid on SQLite/TS — multi-instance owed-total split-brain. Prefer treating falsy/blank paidOutAt as unpaid on both backends (and normalize on map).",
+    status: "todo",
+    phase: "Phase 3 — Payments",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
