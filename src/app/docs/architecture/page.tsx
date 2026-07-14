@@ -452,7 +452,12 @@ export default function ArchitectureDocPage() {
         prerequisite / sequence-complete, mark-before-Resend, ConvexPrimaryWriteError
         skip-send, Email 2 vs Email 3 dispatch, and suppression / Resend failure after a
         durable mark — so dashboard glue is not left to the outreach-followups helper suite
-        alone.
+        alone. The operator <code>disposeColdLeadAction</code> path has its own action-level
+        Vitest in <code>dispose-cold-lead-action.test.ts</code> — auth, disposition / cold /
+        paid / closed gates, <code>COLD_DISPOSITION_CONVEX_PRIMARY</code> Close + Re-engage
+        patches, optional Email 1 mark-before-Resend, ConvexPrimaryWriteError skip-send on
+        disposition and outreach mark, and suppression / Resend failure after durable marks —
+        so dashboard Re-engage/Close glue is not left to the cold-archive helper suite alone.
       </p>
 
       <h2>7. Marketing engine (Growth + Complete)</h2>

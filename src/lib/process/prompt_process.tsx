@@ -205,6 +205,7 @@ export const AGENT_PROTOCOL = [
   "When reply-to-inquiry-action-test-coverage and dispose-cold-lead-action-test-coverage are both free in the same cron window, claim different ones (Starter inquiry reply persist-then-notify vs cold Re-engage/Close + optional Email 1) — they touch different action surfaces and both lock conversion-critical CRM paths that inquiry/cold helper suites do not cover.",
   "reply-to-inquiry-action-test-coverage done: src/app/dashboard/leads/reply-to-inquiry-action.test.ts locks requireOperatorAuth, empty inquiry id, empty / over-long body, missing inquiry, archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend, email trim, ConvexPrimaryWriteError skip-send, null-mark not-found, suppression / Resend failure after durable mark (returns inquiry; no revalidate), and mock send flag — reply.test.ts / reply-persist helpers alone are not enough for the dashboard Reply glue. Twin of dispose-cold-lead-action-test-coverage (left free for sibling). Folded complementary email-trim + null-mark cases from business-process-evolution-fff2 dual-claim. When free NEXT_STEPS stay gated, prefer dispose-cold-lead-action-test-coverage / update-inquiry-status-action-test-coverage (sibling-friendly cold Re-engage/Close vs mark-read/Archive) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When dispose-cold-lead-action-test-coverage and update-inquiry-status-action-test-coverage are both free in the same cron window, claim different ones (cold Re-engage/Close + optional Email 1 vs inquiry mark-read/Archive requireConvex) — they touch different action surfaces and both lock CRM paths that cold-archive / reply helper suites do not cover.",
+  "dispose-cold-lead-action-test-coverage done: src/app/dashboard/leads/dispose-cold-lead-action.test.ts locks requireOperatorAuth, empty slug, invalid disposition, missing lead, not-cold / paid / closed gates, COLD_DISPOSITION_CONVEX_PRIMARY Close + Re-engage patches, Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), ConvexPrimaryWriteError skip-send on disposition and outreach mark, email trim, suppression / Resend failure after durable marks (returns stage/outreachStep; no revalidate), and mock send flag — cold-archive helper suites alone are not enough for the dashboard Re-engage/Close glue. Twin of update-inquiry-status-action-test-coverage (5178). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "update-inquiry-status-action-test-coverage done: src/app/dashboard/leads/update-inquiry-status-action.test.ts locks requireOperatorAuth, empty inquiry id, invalid status, INQUIRY_REPLY_CONVEX_PRIMARY on updateClientInquiryStatus, ConvexPrimaryWriteError fail-closed (no revalidate), null update not-found, success revalidate for read/archived/replied/new, and Error / non-Error throws — reply helper + replyToInquiryAction suites alone are not enough for the mark-read/Archive glue. Twin of dispose-cold-lead-action-test-coverage (3672). When free NEXT_STEPS stay gated, prefer update-lead-stage-action-test-coverage / snooze-lead-action-test-coverage (sibling-friendly stage dropdown vs Work next park) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When update-lead-stage-action-test-coverage and snooze-lead-action-test-coverage are both free in the same cron window, claim different ones (dashboard stage dropdown requireConvex vs Work next snooze park) — they touch different action surfaces and both lock CRM paths that lead-stage / lead-snooze helper suites do not cover.",
 ] as const;
@@ -1526,9 +1527,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "dispose-cold-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage / update-inquiry-status-action-test-coverage; prefer when reply-to-inquiry action coverage is done.",
-    status: "todo",
+      "Empty-backlog twin after Starter inquiry Reply action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Shipped: dispose-cold-lead-action.test.ts (17 tests). Twin of update-inquiry-status-action-test-coverage (5178).",
+    status: "done",
     phase: "Phase 4 — Outreach",
+    owner: "cursor/prompt-process-evolution-3672",
   },
   {
     id: "update-inquiry-status-action-test-coverage",
@@ -3338,6 +3340,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for replyToInquiryAction (Starter inquiry Reply) when send-follow-up-action-test-coverage is done — reply.test.ts / reply-persist helpers alone do not lock auth, empty inquiry id, empty / over-long body, missing inquiry, archived / no-email gates, INQUIRY_REPLY_CONVEX_PRIMARY mark-before-Resend, email trim, ConvexPrimaryWriteError skip-send, null-mark not-found, or suppression / Resend failure after durable mark (returns inquiry; no revalidate). Leave dispose-cold-lead-action-test-coverage free for siblings; queue update-inquiry-status-action-test-coverage as the mark-read/Archive twin. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Reply is the operator path that closes the Starter contact-form CRM loop from /dashboard/leads — unrepliedInquiryCount / digest / oldestUnrepliedInquiryAgeHours all read Convex-first. A future soft-fallback that sends before marking, skipped requireConvex, archived soft-pass, or revalidate-on-suppression regression would not fail Vitest without action glue coverage — the same class of gap Email 2/3 follow-up / Starter upsell action suites already closed — and would risk duplicate visitor replies or silent unreplied debt across instances. Prefer locking that inbox path, then cold Re-engage/Close / inquiry-status action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for disposeColdLeadAction (cold Re-engage/Close + optional Email 1) when reply-to-inquiry-action-test-coverage is done — cold-archive helper suites alone do not lock auth, empty slug, invalid disposition, missing lead, not-cold / paid / closed gates, COLD_DISPOSITION_CONVEX_PRIMARY Close + Re-engage patches, Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), ConvexPrimaryWriteError skip-send on disposition and outreach mark, email trim, or suppression / Resend failure after durable marks (returns stage/outreachStep; no revalidate). Leave update-inquiry-status-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Re-engage/Close is the operator path that clears cold inventory after Email 1–3 silence — getLeads / cold badges / pipeline-health cold counts / the stage funnel all read Convex-first, and optional Email 1 is the same persist-then-notify CAN-SPAM surface as follow-up. A future soft-fallback that claims Close after a SQLite-only write, sends Email 1 before the outreach mark, or revalidates on suppression would not fail Vitest without action glue coverage — the same class of gap Reply / Email 2/3 follow-up action suites already closed — and would leave cold inventory looking open elsewhere or risk a duplicate Email 1. Prefer locking that cold-disposition path, then inquiry mark-read/Archive action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
   {
     date: "2026-07-14",
@@ -5952,17 +5961,33 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-3672",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #159 (Reply action Vitest + process polish). Claimed dispose-cold-lead-action-test-coverage — disposeColdLeadAction had zero action-level Vitest despite being the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1 persist-then-notify). Left update-inquiry-status-action-test-coverage free for sibling business-process automation (5178 running same window). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/dispose-cold-lead-action.test.ts — 17 tests locking auth fail, empty slug, invalid disposition, missing lead, not-cold / paid / closed gates, COLD_DISPOSITION_CONVEX_PRIMARY Close + Re-engage patches, Email 1 mark-before-Resend (OUTREACH_CADENCE_CONVEX_PRIMARY), ConvexPrimaryWriteError skip-send on disposition and outreach mark, email trim, suppression / Resend failure after durable marks (returns stage/outreachStep; no revalidate), and mock send flag",
+      "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside cold-archive helpers",
+      "NEXT_STEPS: dispose-cold-lead-action-test-coverage done; update-inquiry-status-action-test-coverage left free",
+      "AGENT_PROTOCOL — claim cold Re-engage/Close vs inquiry mark-read/Archive action Vitest separately; prefer update-inquiry-status action Vitest next",
+      "BUSINESS_DECISIONS — documented why cold-disposition action glue Vitest beats inventing optional aggregates after Reply coverage",
+      "Verified: npm test (889 passed — dispose-cold-lead action 17 from 872) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(255, 256),
+  },
+  {
+    date: "2026-07-14",
     branch: "cursor/business-process-evolution-5178",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #159 (Reply action Vitest + process polish). Sibling prompt-process-evolution-3672 claimed dispose-cold-lead-action-test-coverage first — pivoted per AGENT_PROTOCOL to update-inquiry-status-action-test-coverage. updateInquiryStatusAction had zero action-level Vitest despite being the operator mark-read/Archive path (INQUIRY_REPLY_CONVEX_PRIMARY fail-closed). Queued update-lead-stage + snooze-lead action Vitest twins for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #159 (Reply action Vitest + process polish). Sibling prompt-process-evolution-3672 claimed dispose-cold-lead-action-test-coverage first — pivoted per AGENT_PROTOCOL to update-inquiry-status-action-test-coverage. updateInquiryStatusAction had zero action-level Vitest despite being the operator mark-read/Archive path (INQUIRY_REPLY_CONVEX_PRIMARY fail-closed). Queued update-lead-stage + snooze-lead action Vitest twins for siblings. Folded 3672 dispose-cold (both ITERATIONS kept). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/dashboard/leads/update-inquiry-status-action.test.ts — 10 tests locking auth fail, empty inquiry id, invalid status, INQUIRY_REPLY_CONVEX_PRIMARY updateClientInquiryStatus, ConvexPrimaryWriteError fail-closed (no revalidate), null update not-found, success revalidate for read/archived/replied/new, and Error / non-Error throws",
       "Docs: architecture + roadmap + launch-checklist + business-model note action-level Vitest beside reply-persist mark-read/Archive path",
-      "NEXT_STEPS: update-inquiry-status-action-test-coverage done; dispose-cold-lead-action-test-coverage left to 3672; queued update-lead-stage-action-test-coverage + snooze-lead-action-test-coverage",
+      "NEXT_STEPS: update-inquiry-status-action-test-coverage done; dispose-cold-lead-action-test-coverage done (3672 folded); queued update-lead-stage-action-test-coverage + snooze-lead-action-test-coverage",
       "AGENT_PROTOCOL — claim mark-read/Archive vs cold Re-engage/Close action Vitest separately; prefer stage dropdown / snooze park action Vitest twins next",
       "BUSINESS_DECISIONS — documented why inquiry status action glue Vitest beats inventing optional aggregates after Reply coverage",
-      "Verified: npm test (update-inquiry-status action 10) + lint + build",
+      "merge: folded origin/cursor/prompt-process-evolution-3672 (dispose-cold-lead action Vitest) — both ITERATIONS kept",
+      "Verified: npm test after fold (update-inquiry-status 10 + dispose-cold-lead 17) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(255, 256),
+    decisions: BUSINESS_DECISIONS.slice(256, 257),
   },
 ];

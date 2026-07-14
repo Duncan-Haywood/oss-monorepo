@@ -144,6 +144,11 @@ export default function LaunchChecklistDocPage() {
           <code>INQUIRY_REPLY_CONVEX_PRIMARY</code> fail-closed surface; action-level Vitest (
           <code>update-inquiry-status-action.test.ts</code>) locks status-only glue (auth,
           invalid status, requireConvex fail-closed, null not-found) beside the Reply suite.
+          Cold-lead Re-engage / Close likewise fails closed on disposition (
+          <code>COLD_DISPOSITION_CONVEX_PRIMARY</code>) and marks Email 1 before Resend when
+          the optional checkbox is set; action-level Vitest (
+          <code>dispose-cold-lead-action.test.ts</code>) locks that path beside cold-archive
+          helpers.
         </li>
         <li>
           On <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, confirm the{" "}
