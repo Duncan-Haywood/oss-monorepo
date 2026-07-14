@@ -13,7 +13,10 @@ import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfil
  * after durable writes — do not ACK 200 after swallowing ledger failures.
  * Bundle receipt/DNS emails recover on redelivery via handoff-note sent-markers
  * (planBundleWebhookSideEffects); marker writes after a successful send are
- * required (5xx) so retries can skip already-sent mail.
+ * required (5xx) so retries can skip already-sent mail. sendEmail/sendReceiptEmail
+ * never throw on suppression/Resend failure (they resolve { success: false }) —
+ * the sent-marker must only be written when result.success is true, or a
+ * suppressed/failed send is marked "sent" and never recovers on redelivery.
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -343,25 +346,31 @@ export async function POST(request: Request) {
 
           if (sideEffects.runReceiptEmail && customerEmail) {
             try {
-              await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
-              try {
-                const updated = await updateDeployHandoffStatus(
-                  slug,
-                  handoff.status,
-                  [bundleReceiptEmailSentNote(session.id)],
-                  WEBHOOK_CONVEX_PRIMARY,
-                );
-                if (updated) {
-                  handoffNotes = updated.notes;
-                  handoff = updated;
+              const sent = await sendReceiptEmail(customerEmail, businessName, tier, amountTotal);
+              if (sent.success) {
+                try {
+                  const updated = await updateDeployHandoffStatus(
+                    slug,
+                    handoff.status,
+                    [bundleReceiptEmailSentNote(session.id)],
+                    WEBHOOK_CONVEX_PRIMARY,
+                  );
+                  if (updated) {
+                    handoffNotes = updated.notes;
+                    handoff = updated;
+                  }
+                } catch (markerError) {
+                  console.error(
+                    `Failed to record bundle receipt sent-marker for ${slug}`,
+                    markerError,
+                  );
+                  const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
+                  return NextResponse.json(failure.body, { status: failure.status });
                 }
-              } catch (markerError) {
+              } else {
                 console.error(
-                  `Failed to record bundle receipt sent-marker for ${slug}`,
-                  markerError,
+                  `Receipt email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
-                const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
-                return NextResponse.json(failure.body, { status: failure.status });
               }
             } catch (emailError) {
               console.error(`Failed to send receipt email for ${slug}:`, emailError);
@@ -372,7 +381,7 @@ export async function POST(request: Request) {
             try {
               const safeBiz = escapeHtmlForEmail(businessName);
               const safeBrand = escapeHtmlForEmail(brand.name);
-              await sendEmail({
+              const sent = await sendEmail({
                 to: customerEmail,
                 subject: `Next steps: go live with ${businessName} — ${brand.name}`,
                 leadSlug: slug,
@@ -384,20 +393,26 @@ export async function POST(request: Request) {
                 <p style="font-weight: 500; margin-top: 0;">The ${safeBrand} Team</p>
               `,
               });
-              try {
-                await updateDeployHandoffStatus(
-                  slug,
-                  handoff.status,
-                  [bundleDnsHandoffEmailSentNote(session.id)],
-                  WEBHOOK_CONVEX_PRIMARY,
-                );
-              } catch (markerError) {
+              if (sent.success) {
+                try {
+                  await updateDeployHandoffStatus(
+                    slug,
+                    handoff.status,
+                    [bundleDnsHandoffEmailSentNote(session.id)],
+                    WEBHOOK_CONVEX_PRIMARY,
+                  );
+                } catch (markerError) {
+                  console.error(
+                    `Failed to record bundle DNS handoff sent-marker for ${slug}`,
+                    markerError,
+                  );
+                  const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
+                  return NextResponse.json(failure.body, { status: failure.status });
+                }
+              } else {
                 console.error(
-                  `Failed to record bundle DNS handoff sent-marker for ${slug}`,
-                  markerError,
+                  `DNS handoff email not sent for ${slug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                 );
-                const failure = webhookFulfillmentFailureResponse("bundle_email_sent_marker");
-                return NextResponse.json(failure.body, { status: failure.status });
               }
             } catch (emailError) {
               console.error(`Failed to send DNS handoff email for ${slug}:`, emailError);
