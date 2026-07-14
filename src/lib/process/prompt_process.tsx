@@ -1515,13 +1515,14 @@ export const NEXT_STEPS: NextStep[] = [
     id: "reply-to-inquiry-action-test-coverage",
     summary:
       "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: replyToInquiryAction is the operator Starter inquiry reply path (INQUIRY_REPLY_CONVEX_PRIMARY persist-then-notify) — inquiry helper suites alone are not enough for action glue. Sibling-friendly with dispose-cold-lead-action-test-coverage; prefer when send-follow-up action coverage is done.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 3 — CRM & inbox",
+    owner: "cursor/prompt-process-evolution-f9b1",
   },
   {
     id: "dispose-cold-lead-action-test-coverage",
     summary:
-      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage; prefer when send-follow-up action coverage is done.",
+      "Empty-backlog twin after Starter upsell / Email 2/3 follow-up action Vitest: disposeColdLeadAction is the operator cold Re-engage/Close path (COLD_DISPOSITION_CONVEX_PRIMARY + optional Email 1) — cold-archive helper suites alone are not enough for action glue. Sibling-friendly with reply-to-inquiry-action-test-coverage; prefer when send-follow-up action coverage is done. Left free for sibling business-process automation while f9b1 owns reply-to-inquiry.",
     status: "todo",
     phase: "Phase 4 — Outreach",
   },
