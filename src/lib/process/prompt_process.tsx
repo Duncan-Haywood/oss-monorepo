@@ -1483,8 +1483,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "open-billing-portal-action-test-coverage",
     summary:
       "Empty-backlog twin after Commerce catalog action Vitest: openBillingPortalAction is the operator Manage billing path (STRIPE_SECRET_KEY + createBillingPortalForLead) — create-portal-session helper + billing-portal route suites alone are not enough for dashboard action glue. Prefer when Archive orphans action coverage is done or claimed; do not invent optional aggregates.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 5 — Payments & billing",
+    owner: "cursor/business-process-evolution-a3b5",
   },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
