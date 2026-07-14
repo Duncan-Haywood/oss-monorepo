@@ -3657,7 +3657,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessVercelProjectIdEnvReadiness + VercelProjectIdEnvBanner when vercel-token-env-readiness is done — token readiness locks Domains API auth, but operators still get no early dashboard signal when shared VERCEL_PROJECT_ID is missing, whitespace-only, or a changeme/project/prj_xxx-style placeholder (tryProvisionVercelDomain still skips unless every handoff gets Assign project). Env presence only; distinct indigo banner; per-handoff Assign project still wins when set. Same-window sibling 01fb shipped company-address-env-readiness (CAN-SPAM postal). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Token-only Phase 5 after VERCEL_TOKEN goes live is still a silent fulfillment drag — Domains API needs a project target (shared env or Assign project), and every other launch secret already has an operator-visible banner. Prefer that early shared-project signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
-  },,
+  },
   {
     date: "2026-07-14",
     decision:
@@ -6602,7 +6602,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (vercel-project-id-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(275, 276),
-  },,
+  },
   {
     date: "2026-07-14",
     branch: "cursor/prompt-process-evolution-382f",
