@@ -306,7 +306,12 @@ export default function ArchitectureDocPage() {
         (explicit body value, then <code>NEXT_PUBLIC_APP_URL</code>, then the request origin) —
         the fourth and final Stripe-facing route (alongside checkout, commerce/checkout, and
         webhook) to get direct orchestration tests rather than relying only on its extracted
-        helper&apos;s suite.
+        helper&apos;s suite. The operator <strong>Billing</strong> button path
+        (<code>openBillingPortalAction</code>) has its own action-level Vitest in{" "}
+        <code>open-billing-portal-action.test.ts</code> — auth, secret gate, returnUrl
+        (APP_URL / forwarded host / localhost → <code>/dashboard/leads</code>), and helper
+        success/error passthrough — so dashboard glue is not left to the route or
+        create-portal-session suites alone.
       </p>
       <p>
         Paid Starter customers (one-time $500, no Growth/Complete/Commerce order yet) get an

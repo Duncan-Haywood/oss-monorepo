@@ -65,7 +65,10 @@ export default function LaunchChecklistDocPage() {
           Then open <strong>Billing</strong> on a paid lead row, or{" "}
           <strong>Manage subscription</strong> on <code>/checkout/success</code> after a
           subscription checkout. If a lead has multiple eligible orders, Billing must open against
-          the newest one (<code>listOrders</code> newest-first).
+          the newest one (<code>listOrders</code> newest-first). Action-level Vitest (
+          <code>open-billing-portal-action.test.ts</code>) locks the dashboard Billing path
+          (auth, <code>STRIPE_SECRET_KEY</code>, returnUrl, helper passthrough) beside the
+          customer self-serve route suite.
         </li>
         <li>
           After a Starter-only test payment (no Growth/Complete/Commerce), confirm the{" "}
