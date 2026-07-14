@@ -142,7 +142,15 @@ export default function ArchitectureDocPage() {
         same dashboards show an indigo shared-project banner via{" "}
         <code>assessVercelProjectIdEnvReadiness</code> (
         <code>src/lib/deploy/vercel-project-id-env-readiness.ts</code>) — Domains API still skips
-        unless every handoff gets Assign project. <code>siteUrl()</code>&apos;s precedence (
+        unless every handoff gets Assign project. Until{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
+        dashboards show a pink multi-instance persistence banner via{" "}
+        <code>assessConvexUrlEnvReadiness</code> (
+        <code>src/lib/convex/convex-url-env-readiness.ts</code>) — missing / whitespace /
+        example.convex.cloud|changeme placeholders are flagged;{" "}
+        <code>resolveConvexDeploymentUrl</code> also gates <code>src/lib/db.ts</code> client
+        init so whitespace-only cannot construct <code>ConvexHttpClient</code>. Local
+        single-process SQLite remains fine for solo demos. <code>siteUrl()</code>&apos;s precedence (
         <code>NEXT_PUBLIC_APP_URL</code> trimmed + trailing-slash-stripped &gt;{" "}
         <code>VERCEL_URL</code> &gt; localhost default) and the per-category JSON-LD{" "}
         <code>@type</code> mapping have direct Vitest coverage in{" "}
@@ -169,7 +177,13 @@ export default function ArchitectureDocPage() {
         <code>src/lib/email/resend-env-readiness.ts</code>) — missing / whitespace-only /{" "}
         <code>re_placeholder…</code> / <code>re_...</code> match <code>sendEmail</code>&apos;s
         mock gate so operators cannot mistake silent mock success for real delivery. Distinct from
-        Stripe core / Price-ID banners. Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder
+        Stripe core / Price-ID banners. Until <code>EMAIL_FROM</code> is a non-placeholder
+        Resend-verified address, the same dashboards show a lime From-address banner via{" "}
+        <code>assessEmailFromEnvReadiness</code> (
+        <code>src/lib/email/email-from-env-readiness.ts</code>) — <code>sendEmail</code> /{" "}
+        <code>sendOperatorDailyDigest</code> use <code>formatResendFromHeader(brand.name,
+        brand.emailFrom)</code> for the Resend <code>from</code> header (never a hardcoded
+        platform domain). Until <code>ANTHROPIC_API_KEY</code> is a non-placeholder
         secret, the same dashboards show a teal AI-packs-on-stub banner via{" "}
         <code>assessAnthropicEnvReadiness</code> (
         <code>src/lib/ai/anthropic-env-readiness.ts</code>) — matching the Stub* factory gate in

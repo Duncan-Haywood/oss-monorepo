@@ -81,6 +81,7 @@ export const AGENT_PROTOCOL = [
   "Homepage/pricing CTAs may omit a lead slug — POST /api/stripe/checkout must still put a non-empty metadata.slug on the Checkout Session (resolveBundleCheckoutLeadSlug mints organic-* when missing); never store slug:\"\", since the webhook requires slug && tier and an empty slug permanently drops paid organic buyers from CRM/fulfillment.",
   "When extending the daily digest or pipeline-health with a new order-backed section, load the relevant list* helper once in the existing action/health function and pass it through — do not add a second digest builder or a second dashboard panel for a fact that already ranks in Work next. Digest footnotes for parked urgency (snoozed/cold) must reuse the same pure predicates as pipeline-health, never a parallel due-date/snooze check inside the renderer.",
 
+  "Resend `from` must use EMAIL_FROM via brand.emailFrom / formatResendFromHeader — never hardcode a platform domain (a prior bug sent outreach@updates.localsitestudio.com even after an operator set EMAIL_FROM + SPF/DKIM).",
   // --- Docs & stack ---
   "Ship TS/TSX for product + docs — do not add operator Markdown docs (see AGENTS.md). Use the shared DocPage component for /docs pages. Use Next.js 16 `proxy.ts` (not deprecated `middleware.ts`) for request gating.",
 
@@ -1561,6 +1562,22 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Client handoff",
     owner: "cursor/prompt-process-evolution-7511",
+  },
+  {
+    id: "convex-url-env-readiness",
+    summary:
+      "Empty-backlog after vercel-project-id-env-readiness (7511 / PR #179): operators get no early dashboard signal when NEXT_PUBLIC_CONVEX_URL is missing/whitespace/placeholder while Stripe/Resend/Vercel look ready — multi-instance / serverless deploys keep SQLite-only split-brain (payments, CRM, handoffs invisible across instances) and db.ts treated whitespace-only as truthy for ConvexHttpClient. Shipped: assessConvexUrlEnvReadiness + ConvexUrlEnvBanner (pink) on /dashboard + /dashboard/leads + resolveConvexDeploymentUrl trim/placeholder gate in db.ts + docs. Sibling b901 owns email-from-env-readiness.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-382f",
+  },
+  {
+    id: "email-from-env-readiness",
+    summary:
+      "Empty-backlog after vercel-project-id-env-readiness (7511 / PR #179): launch checklist requires EMAIL_FROM and brand.emailFrom exists, but Resend sendEmail / sendOperatorDailyDigest hardcoded from: outreach@updates.localsitestudio.com — operators could set EMAIL_FROM + SPF/DKIM and still send from the wrong domain. Shipped: wire formatResendFromHeader(brand.name, brand.emailFrom) into both Resend from headers + assessEmailFromEnvReadiness + EmailFromEnvBanner (lime) on /dashboard + /dashboard/leads + docs.",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-b901",
   },
 ];
 
@@ -3496,6 +3513,20 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship assessVercelProjectIdEnvReadiness + VercelProjectIdEnvBanner when vercel-token-env-readiness is done — token readiness locks Domains API auth, but operators still get no early dashboard signal when shared VERCEL_PROJECT_ID is missing, whitespace-only, or a changeme/project/prj_xxx-style placeholder (tryProvisionVercelDomain still skips unless every handoff gets Assign project). Env presence only; distinct indigo banner; per-handoff Assign project still wins when set. Same-window sibling 01fb shipped company-address-env-readiness (CAN-SPAM postal). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Token-only Phase 5 after VERCEL_TOKEN goes live is still a silent fulfillment drag — Domains API needs a project target (shared env or Assign project), and every other launch secret already has an operator-visible banner. Prefer that early shared-project signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship assessConvexUrlEnvReadiness + ConvexUrlEnvBanner when vercel-project-id-env-readiness is done — operators still get no early dashboard signal when NEXT_PUBLIC_CONVEX_URL is missing, whitespace-only, or an example.convex.cloud/changeme-style placeholder (multi-instance / serverless stays SQLite-only while Stripe/Resend/Vercel look ready). Also gate db.ts ConvexHttpClient construction through resolveConvexDeploymentUrl so whitespace-only no longer counts as configured. Env presence only; distinct pink banner; local solo SQLite demos stay fine. Same-window sibling b901 owns email-from-env-readiness. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "SQLite-only on Vercel is a silent multi-instance revenue killer — payments and CRM can ACK on one instance and never appear elsewhere. Prefer that early Convex URL signal (and the trim gate bugfix), then fold email-from or empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship email-from-env-readiness (wire brand.emailFrom into Resend from + assessEmailFromEnvReadiness banner) when vercel-project-id-env-readiness is done — Vercel/Stripe/Resend-key banners already cover Domains API + transport, but sendEmail / sendOperatorDailyDigest still hardcoded outreach@updates.localsitestudio.com while launch checklist required EMAIL_FROM and brand.emailFrom already existed. Operators could configure SPF/DKIM on their domain and still send from the wrong From address (silent deliverability + brand leak). Env presence only; distinct lime banner; formatResendFromHeader(brand.name, brand.emailFrom). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "A documented but unused EMAIL_FROM is worse than a missing banner — Resend API-key readiness can look green while every automated send ignores the operator's verified domain. Prefer wiring the From header + early lime readiness signal, then empty-backlog sold-capability / multi-instance regression audits, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
   {
     date: "2026-07-14",
@@ -6444,15 +6475,52 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
-    branch: "claude/agent-protocol-consolidation",
+    branch: "cursor/prompt-process-evolution-382f",
     summary:
-      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness on 7511) stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). Fresh empty-backlog audit: re-verified every db.ts table has Convex parity + an app-owned id column (only orders.ts's dead createOrder/getByStripeSessionId + its list()/getByStripeSessionId `_id`-as-`id` remain the known, already-twice-reviewed exception with no live consumer), every Convex mutation/query is registered on the static API map, every dashboard server action has a matching *-action.test.ts file (26/26), and npm test/lint/build are all green (1091 tests). No new sold-capability gap or regression found. Unique follow-up this run: AGENT_PROTOCOL had grown to ~198 entries, almost entirely historical 'X done: prefer Y next' narration duplicating ITERATIONS, in violation of its own 'keep this short' rule. Consolidated it to ~31 durable rules grouped by concern; ITERATIONS/BUSINESS_DECISIONS/NEXT_STEPS untouched (append-only). No sibling branches or open PRs existed at audit time (git branch -r / gh-equivalent PR list both empty besides main).",
+      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness) stayed fully gated. Same-cron window as business-process-evolution-b901 (email-from-env-readiness). Empty-backlog audit found NEXT_PUBLIC_CONVEX_URL had no operator-visible readiness banner despite multi-instance / serverless deploys staying SQLite-only when unset — and db.ts treated whitespace-only as truthy when constructing ConvexHttpClient. Claimed and shipped convex-url-env-readiness. Left email-from free for sibling. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
-      "src/lib/process/prompt_process.tsx — AGENT_PROTOCOL rewritten from ~198 entries to 31, grouped into cooperation workflow / dual-backend invariants / money-ledger integrity / security-injection / testing-verification / product data-model / docs-stack / current-state sections; every durable rule from the prior version preserved (Convex id-column rule, requireConvex persist-then-notify pattern, uncapped-list rule, money separation + webhook idempotency + alreadyRecorded recovery semantics, escapeHtmlForEmail/safeJsonLdScript, listAllPages pagination, proxy routing order, use-server export rule, server-only testability pattern, monthly-vs-per-lead pack persistence, snooze/isColdLead nuance, orphan-archive never-delete, preserveCommerceStripeIds/preserveDeployHandoffOperatorFields)",
-      "BUSINESS_DECISIONS — documented why the consolidation is safe (full history stays in ITERATIONS + git log) and why it was worth doing now (zero live siblings mid-consolidation; every future agent was paying the read cost of ~198 mostly-stale entries)",
-      "NEXT_STEPS — unchanged; all 4 remaining items confirmed still operator/legal-gated",
-      "Verified: npm test (1091 passed) + lint + build, all clean before and after the edit",
+      "src/lib/convex/convex-url-env-readiness.ts + .test.ts — assessConvexUrlEnvReadiness + resolveConvexDeploymentUrl locks missing/whitespace/example.convex.cloud|changeme placeholder vs ready deployment URL",
+      "src/components/dashboard/convex-url-env-banner.tsx — pink multi-instance persistence banner on /dashboard + /dashboard/leads (after Vercel project id indigo)",
+      "src/lib/db.ts — ConvexHttpClient init uses resolveConvexDeploymentUrl (whitespace/placeholder → SQLite-only)",
+      "Leads pipeline title uses isConvexUrlConfigured (matches real client gate)",
+      "Docs: architecture + roadmap + launch-checklist + .env.example note the banner beside Convex-first persistence",
+      "NEXT_STEPS: convex-url-env-readiness done; email-from-env-readiness done (b901 / PR #180 folded)",
+      "AGENT_PROTOCOL — prefer empty-backlog sold-capability / multi-instance regression audits next; convex↔email-from twin claim rule + pink banner color reserved",
+      "BUSINESS_DECISIONS — documented why Convex URL readiness beats inventing optional aggregates after Vercel project-id banner",
+      "merge: folded origin/main (PR #180 email-from) — both ITERATIONS kept; absolute decision slices 276–278",
+      "Verified: npm test (convex-url-env-readiness) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(276, 277),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-b901",
+    summary:
+      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness on 7511) stayed fully gated. Empty-backlog audit found EMAIL_FROM was documented + brand.emailFrom existed, but Resend sendEmail / sendOperatorDailyDigest hardcoded from: outreach@updates.localsitestudio.com — operators could set EMAIL_FROM + SPF/DKIM and still send from the wrong domain. Claimed and shipped email-from-env-readiness (wire From header + lime readiness banner).",
+    shipped: [
+      "src/lib/email/resend.ts — formatResendFromHeader(brand.name, brand.emailFrom) for sendEmail + sendOperatorDailyDigest From headers (removed hardcoded outreach@updates.localsitestudio.com)",
+      "src/lib/email/email-from-env-readiness.ts + .test.ts — assessEmailFromEnvReadiness / formatResendFromHeader (missing / whitespace / @example.com placeholders)",
+      "src/components/dashboard/email-from-env-banner.tsx — lime EmailFromEnvBanner",
+      "/dashboard + /dashboard/leads — surface EmailFromEnvBanner beside Resend API-key banner",
+      "resend.test.ts — From-header regression (EMAIL_FROM override; never outreach@updates)",
+      "Docs: launch-checklist / architecture / compliance / roadmap + .env.example",
+      "AGENT_PROTOCOL + NEXT_STEPS + BUSINESS_DECISIONS + ITERATIONS — documented why EMAIL_FROM wiring beats inventing optional aggregates after Vercel-project-id banner",
+      "Verified: npm test (email-from-env-readiness + resend From) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(277, 278),
+  },
+  {
+    date: "2026-07-14",
+    branch: "claude/agent-protocol-consolidation",
+    summary:
+      "Free NEXT_STEPS backlog after PR #179 (vercel-project-id-env-readiness on 7511) stayed fully gated (stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect). Fresh empty-backlog audit: re-verified every db.ts table has Convex parity + an app-owned id column (only orders.ts's dead createOrder/getByStripeSessionId + its list()/getByStripeSessionId `_id`-as-`id` remain the known, already-twice-reviewed exception with no live consumer), every Convex mutation/query is registered on the static API map, every dashboard server action has a matching *-action.test.ts file (26/26), and npm test/lint/build are all green (1091 tests). No new sold-capability gap or regression found in this run. Merged sibling PRs #180/#181 (convex-url-env-readiness, email-from-env-readiness) landed on main mid-audit — folded both ITERATIONS entries above. Unique follow-up this run: AGENT_PROTOCOL had grown to ~198 entries, almost entirely historical 'X done: prefer Y next' narration duplicating ITERATIONS, in violation of its own 'keep this short' rule. Consolidated it to ~32 durable rules grouped by concern (added one new rule for the EMAIL_FROM correctness fix from PR #181); ITERATIONS/BUSINESS_DECISIONS/NEXT_STEPS untouched (append-only) besides folding the sibling PRs.",
+    shipped: [
+      "src/lib/process/prompt_process.tsx — AGENT_PROTOCOL rewritten from ~198 entries to ~32, grouped into cooperation workflow / dual-backend invariants / money-ledger integrity / security-injection / testing-verification / product data-model / docs-stack / current-state sections; every durable rule from the prior version preserved (Convex id-column rule, requireConvex persist-then-notify pattern, uncapped-list rule, money separation + webhook idempotency + alreadyRecorded recovery semantics, escapeHtmlForEmail/safeJsonLdScript, listAllPages pagination, proxy routing order, use-server export rule, server-only testability pattern, monthly-vs-per-lead pack persistence, snooze/isColdLead nuance, orphan-archive never-delete, preserveCommerceStripeIds/preserveDeployHandoffOperatorFields, Resend From must use EMAIL_FROM)",
+      "BUSINESS_DECISIONS — documented why the consolidation is safe (full history stays in ITERATIONS + git log) and why it was worth doing now (every future agent was paying the read cost of ~198 mostly-stale entries)",
+      "NEXT_STEPS — unchanged; all 4 remaining items confirmed still operator/legal-gated",
+      "merge: folded origin/main (PR #180 email-from + PR #181 convex-url) — all three ITERATIONS entries kept; absolute decision slices 276–279",
+      "Verified: npm test (1091 passed) + lint + build, all clean before and after the edit and after the merge",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(278, 279),
   },
 ];

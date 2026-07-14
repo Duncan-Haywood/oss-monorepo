@@ -149,8 +149,13 @@ export default function LaunchChecklistDocPage() {
           outreach-blocked banner via <code>assessResendEmailEnvReadiness</code> — missing or{" "}
           <code>re_placeholder…</code> keys leave every automated send in silent mock mode
           (operators see success while no inbox is reached). Distinct from the Stripe core /
-          Price-ID banners. Until <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder
-          postal address, the same dashboards show a yellow CAN-SPAM-address banner via{" "}
+          Price-ID banners. Until <code>EMAIL_FROM</code> is a non-placeholder Resend-verified
+          address, the same dashboards show a lime From-address banner via{" "}
+          <code>assessEmailFromEnvReadiness</code> — <code>sendEmail</code> /{" "}
+          <code>sendOperatorDailyDigest</code> use <code>brand.emailFrom</code> for the Resend{" "}
+          <code>from</code> header (never a hardcoded platform domain). Until{" "}
+          <code>NEXT_PUBLIC_COMPANY_ADDRESS</code> is a non-placeholder postal address, the same
+          dashboards show a yellow CAN-SPAM-address banner via{" "}
           <code>assessCompanyAddressEnvReadiness</code> — missing / whitespace / bracket-stub
           values leave every outreach footer on{" "}
           <code>[Registered business address — Colorado, USA]</code> via{" "}
@@ -256,7 +261,14 @@ export default function LaunchChecklistDocPage() {
       <ol>
         <li>
           Optional but recommended for multi-instance deploys: provision Convex (
-          <code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config fallback.
+          <code>NEXT_PUBLIC_CONVEX_URL</code>). Local SQLite is the zero-config fallback for
+          solo demos. Until the Convex URL is a non-placeholder deployment URL,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show a pink
+          multi-instance persistence banner via <code>assessConvexUrlEnvReadiness</code> —
+          serverless hosts otherwise keep SQLite-only split-brain (payments/CRM/handoffs
+          invisible across instances). <code>resolveConvexDeploymentUrl</code> trims and
+          rejects placeholders before <code>ConvexHttpClient</code> construction.
         </li>
         <li>
           Confirm lead <code>email</code> persists after save — outreach depends on it.

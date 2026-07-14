@@ -90,7 +90,11 @@ export default function RoadmapDocPage() {
         otherwise stay <code>awaiting_dns</code> with manual notes). Until shared{" "}
         <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, the same dashboards show an indigo
         shared-project banner via <code>assessVercelProjectIdEnvReadiness</code> (Domains API still
-        skips unless every handoff gets Assign project). Preview contact
+        skips unless every handoff gets Assign project). Until{" "}
+        <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
+        dashboards show a pink multi-instance persistence banner via{" "}
+        <code>assessConvexUrlEnvReadiness</code> (serverless / multi-instance otherwise stay
+        SQLite-only; <code>resolveConvexDeploymentUrl</code> also gates db.ts client init). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
@@ -112,7 +116,11 @@ export default function RoadmapDocPage() {
         after a SQLite-only write): shipped. Until <code>RESEND_API_KEY</code> is a
         non-placeholder secret, <code>assessResendEmailEnvReadiness</code> shows a sky
         outreach-blocked banner on the operator dashboard (mirrors Stripe core readiness —
-        silent mock sends otherwise look like success). Until{" "}
+        silent mock sends otherwise look like success). Until <code>EMAIL_FROM</code> is a
+        non-placeholder Resend-verified address, <code>assessEmailFromEnvReadiness</code> shows
+        a lime From-address banner (<code>sendEmail</code> / <code>sendOperatorDailyDigest</code>{" "}
+        use <code>brand.emailFrom</code> for the Resend <code>from</code> header — never a
+        hardcoded platform domain). Until{" "}
         <code>ANTHROPIC_API_KEY</code> is a non-placeholder secret,{" "}
         <code>assessAnthropicEnvReadiness</code> shows a teal AI-packs-on-stub banner
         (Growth/Complete Generate pack / Complete Generate voice still run, but via Stub*

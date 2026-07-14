@@ -18,6 +18,7 @@ import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
 import { assessStripeCoreEnvReadiness } from "@/lib/pricing/stripe-core-env-readiness";
 import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness";
+import { assessEmailFromEnvReadiness } from "@/lib/email/email-from-env-readiness";
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
@@ -27,9 +28,11 @@ import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
 import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
+import { assessConvexUrlEnvReadiness } from "@/lib/convex/convex-url-env-readiness";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
+import { EmailFromEnvBanner } from "@/components/dashboard/email-from-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
@@ -39,6 +42,7 @@ import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
 import { VercelProjectIdEnvBanner } from "@/components/dashboard/vercel-project-id-env-banner";
+import { ConvexUrlEnvBanner } from "@/components/dashboard/convex-url-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -110,6 +114,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const priceEnv = assessBundlePriceEnvReadiness();
   const coreEnv = assessStripeCoreEnvReadiness();
   const resendEnv = assessResendEmailEnvReadiness();
+  const emailFromEnv = assessEmailFromEnvReadiness();
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
@@ -119,6 +124,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const productionDomainEnv = assessProductionDomainEnvReadiness();
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
   const vercelProjectIdEnv = assessVercelProjectIdEnvReadiness();
+  const convexUrlEnv = assessConvexUrlEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -137,12 +143,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <ProductionDomainEnvBanner readiness={productionDomainEnv} />
         <VercelTokenEnvBanner readiness={vercelTokenEnv} />
         <VercelProjectIdEnvBanner readiness={vercelProjectIdEnv} />
+        <ConvexUrlEnvBanner readiness={convexUrlEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
           bootstrapAllowed={bootstrapAllowed}
         />
         <ResendEnvBanner readiness={resendEnv} />
+        <EmailFromEnvBanner readiness={emailFromEnv} />
         <BrandNameEnvBanner readiness={brandNameEnv} />
         <CompanyAddressEnvBanner readiness={companyAddressEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />

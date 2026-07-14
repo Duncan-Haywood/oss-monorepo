@@ -1,5 +1,6 @@
 import { isEmailSuppressed } from "../db";
 import { brand } from "../brand";
+import { formatResendFromHeader } from "./email-from-env-readiness";
 import { signUnsubscribeToken } from "./unsubscribe-token";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
@@ -86,7 +87,8 @@ Unsubscribe URL: ${unsubscribeUrl}`);
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${brand.name} <outreach@updates.localsitestudio.com>`,
+        // EMAIL_FROM (brand.emailFrom) — never hardcode a platform domain.
+        from: formatResendFromHeader(brand.name, brand.emailFrom),
         to: [to],
         subject,
         html: fullHtml,
@@ -315,7 +317,8 @@ Content Preview: ${html.substring(0, 150)}...`);
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${brand.name} <outreach@updates.localsitestudio.com>`,
+        // EMAIL_FROM (brand.emailFrom) — never hardcode a platform domain.
+        from: formatResendFromHeader(brand.name, brand.emailFrom),
         to: [to],
         subject,
         html,
