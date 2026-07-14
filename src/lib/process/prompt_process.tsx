@@ -197,7 +197,8 @@ export const AGENT_PROTOCOL = [
   "sync-commerce-catalog-to-stripe-action-test-coverage done: src/app/dashboard/leads/sync-commerce-catalog-to-stripe-action.test.ts locks requireOperatorAuth, empty slug, STRIPE_SECRET_KEY gate, missing lead, empty/missing catalog gate, COMMERCE_CATALOG_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist / Stripe throws, and success revalidate — stripe-sync helper suites alone are not enough for the dashboard Sync to Stripe glue that unlocks Buy now. Twin of save-commerce-catalog-action-test-coverage (3329). When free NEXT_STEPS stay gated, prefer archive-orphan-commerce-stripe-products-action-test-coverage / open-billing-portal-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "save-commerce-catalog-action-test-coverage done: src/app/dashboard/leads/save-commerce-catalog-action.test.ts locks requireOperatorAuth, empty/missing slug, commerceAddon + paid/live eligibility, normalize validation, preserveCommerceStripeIds against the DB row (never client-submitted Stripe ids; Product kept / Price cleared on reprice), COMMERCE_CATALOG_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed (no revalidate), unexpected persist error, and leadSlug order filtering — catalog helper suites alone are not enough for the dashboard Save catalog glue. Twin of sync-commerce-catalog-to-stripe-action-test-coverage (5c2b). When free NEXT_STEPS stay gated, prefer archive-orphan-commerce-stripe-products-action-test-coverage / open-billing-portal-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
   "When archive-orphan-commerce-stripe-products-action-test-coverage and open-billing-portal-action-test-coverage are both free in the same cron window, claim different ones (Commerce Archive orphans cleanup vs Manage billing portal) — they touch different action surfaces and both lock revenue-critical operator paths that stripe-sync / create-portal-session helper suites do not cover.",
-  "open-billing-portal-action-test-coverage done: src/app/dashboard/leads/open-billing-portal-action.test.ts locks requireOperatorAuth, empty/whitespace slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host+proto > localhost) ending in /dashboard/leads, createBillingPortalForLead success url + error passthrough, and Error / non-Error throws — create-portal-session helper + billing-portal route suites alone are not enough for the dashboard Manage billing glue. Twin of archive-orphan-commerce-stripe-products-action-test-coverage (dc97). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly MRR upsell vs Email 2/3 outreach action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "archive-orphan-commerce-stripe-products-action-test-coverage done: src/app/dashboard/leads/archive-orphan-commerce-stripe-products-action.test.ts locks requireOperatorAuth, empty slug, STRIPE_SECRET_KEY gate, missing lead, catalog?.items ?? [] pass-through (including null catalog → []), archivedCount/archivedSkuIds success + revalidate, and Stripe Error / non-Error surfaces — stripe-sync helper suites alone are not enough for the dashboard Archive orphans glue (active=false, never auto-delete). Twin of open-billing-portal-action-test-coverage (a3b5). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
+  "open-billing-portal-action-test-coverage done: src/app/dashboard/leads/open-billing-portal-action.test.ts locks requireOperatorAuth, empty/whitespace slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host+proto > localhost) ending in /dashboard/leads, createBillingPortalForLead success url + error passthrough, and Error / non-Error throws — create-portal-session helper + billing-portal route suites alone are not enough for the dashboard Manage billing glue. Twin of archive-orphan-commerce-stripe-products-action-test-coverage (dc97 / PR #154). When free NEXT_STEPS stay gated, prefer send-starter-upsell-action-test-coverage / send-follow-up-action-test-coverage (sibling-friendly MRR upsell vs Email 2/3 outreach action Vitest) over inventing optional aggregates. Do not fake-complete stripe-price-objects / lead-ingestion / marketing-content-scheduling / commerce-payouts-stripe-connect.",
 ] as const;
 
 /**
@@ -1477,9 +1478,10 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "archive-orphan-commerce-stripe-products-action-test-coverage",
     summary:
-      "Empty-backlog twin after Save catalog / Sync to Stripe action Vitest: archiveOrphanCommerceStripeProductsAction is the operator Archive orphans path (STRIPE_SECRET_KEY + active=false, never auto-delete) that cleans Products for removed SKUs — helper suites alone are not enough for action glue. Sibling-friendly with open-billing-portal-action-test-coverage; prefer when Commerce save/sync action coverage is done.",
-    status: "todo",
+      "Empty-backlog twin after Save catalog / Sync to Stripe action Vitest: archiveOrphanCommerceStripeProductsAction is the operator Archive orphans path (STRIPE_SECRET_KEY + active=false, never auto-delete) that cleans Products for removed SKUs — helper suites alone are not enough for action glue. Shipped: archive-orphan-commerce-stripe-products-action.test.ts (9 tests). Twin of open-billing-portal-action-test-coverage.",
+    status: "done",
     phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-dc97",
   },
   {
     id: "open-billing-portal-action-test-coverage",
@@ -3254,6 +3256,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship action-level Vitest for saveCommerceCatalogAction (Commerce Save catalog) when sync-commerce-catalog-to-stripe-action-test-coverage is claimed by a sibling — catalog helper suites alone do not lock auth, commerceAddon eligibility, normalize validation, preserveCommerceStripeIds against the DB row (never client Stripe ids), COMMERCE_CATALOG_CONVEX_PRIMARY persist, or ConvexPrimaryWriteError fail-closed. Queue archive-orphan-commerce-stripe-products-action-test-coverage + open-billing-portal-action-test-coverage as sibling-friendly twins next. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     rationale:
       "Save catalog is the operator path that keeps Buy now alive after Sync to Stripe — without preserve + requireConvex, an edit can wipe stripePriceId or leave other instances unsynced. A future soft-fallback / client-trusted Stripe ids / skipped eligibility regression would not fail Vitest without action glue coverage — the same class of gap Email pack/voice and Mark paid out action suites already closed. Prefer locking that Commerce catalog write path, then Archive orphans / Manage billing action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Ship action-level Vitest for archiveOrphanCommerceStripeProductsAction (Commerce Archive orphans) when Save catalog / Sync to Stripe action coverage is done — stripe-sync helper suites alone do not lock auth, STRIPE_SECRET_KEY gate, lead lookup, catalog?.items ?? [] pass-through, success archivedCount/skuIds + revalidate, or Stripe throw surfaces. Leave open-billing-portal-action-test-coverage free for siblings. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    rationale:
+      "Archive orphans is the operator path that keeps Stripe Product inventory aligned after SKU churn (active=false, never auto-delete on save/sync). A future missing-secret soft-pass / wrong catalog items / skipped revalidate / swallowed Stripe error regression would not fail Vitest without action glue coverage — the same class of gap Sync to Stripe / Save catalog action suites already closed. Prefer locking that cleanup path, then Manage billing action glue, over inventing optional aggregates while remaining NEXT_STEPS stay secrets/OAuth/counsel-gated.",
   },
   {
     date: "2026-07-14",
@@ -5777,17 +5786,33 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
+    branch: "cursor/prompt-process-evolution-dc97",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #153 (Save catalog + Sync to Stripe action Vitest). Claimed archive-orphan-commerce-stripe-products-action-test-coverage — archiveOrphanCommerceStripeProductsAction had zero action-level Vitest despite being the operator Archive orphans path that deactivates Stripe Products for removed SKUs (STRIPE_SECRET_KEY + active=false, never auto-delete). Left open-billing-portal-action-test-coverage free for sibling business-process automation. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+    shipped: [
+      "src/app/dashboard/leads/archive-orphan-commerce-stripe-products-action.test.ts — 9 tests locking auth fail, empty slug, STRIPE_SECRET_KEY gate, missing lead, catalog items pass-through (null catalog → []), archivedCount/archivedSkuIds success + revalidate, Stripe Error / non-Error surfaces, and leadSlug lookup",
+      "Docs: architecture + roadmap + launch-checklist + product-bundles note action-level Vitest beside stripe-sync Archive orphans helpers",
+      "NEXT_STEPS: archive-orphan-commerce-stripe-products-action-test-coverage done; open-billing-portal-action-test-coverage left free",
+      "AGENT_PROTOCOL — Archive orphans action coverage required beyond stripe-sync helpers; prefer Manage billing action Vitest next",
+      "BUSINESS_DECISIONS — documented why Commerce Archive orphans action glue Vitest beats inventing optional aggregates after Save catalog / Sync to Stripe coverage",
+      "Verified: npm test (822 passed — Archive orphans action 9 from 813) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(250, 251),
+  },
+  {
+    date: "2026-07-14",
     branch: "cursor/business-process-evolution-a3b5",
     summary:
-      "Free NEXT_STEPS backlog stayed fully gated after PR #153 (Save catalog + Sync to Stripe action Vitest). Sibling prompt-process-evolution-dc97 claimed archive-orphan-commerce-stripe-products-action-test-coverage first — pivoted per AGENT_PROTOCOL to open-billing-portal-action-test-coverage. openBillingPortalAction had zero action-level Vitest despite being the operator Manage billing path (STRIPE_SECRET_KEY + returnUrl + createBillingPortalForLead). Queued send-starter-upsell + send-follow-up action Vitest twins for siblings. Fold sibling dc97 Archive orphans when merging. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+      "Free NEXT_STEPS backlog stayed fully gated after PR #153 (Save catalog + Sync to Stripe action Vitest). Sibling prompt-process-evolution-dc97 claimed archive-orphan-commerce-stripe-products-action-test-coverage first (merged as PR #154) — pivoted per AGENT_PROTOCOL to open-billing-portal-action-test-coverage. openBillingPortalAction had zero action-level Vitest despite being the operator Manage billing path (STRIPE_SECRET_KEY + returnUrl + createBillingPortalForLead). Queued send-starter-upsell + send-follow-up action Vitest twins for siblings. Folded dc97 Archive orphans (both ITERATIONS kept). Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
     shipped: [
       "src/app/dashboard/leads/open-billing-portal-action.test.ts — 9 tests locking auth fail, empty/whitespace slug, STRIPE_SECRET_KEY gate, returnUrl derivation (NEXT_PUBLIC_APP_URL > forwarded host+proto > localhost) → /dashboard/leads, createBillingPortalForLead success url + error passthrough, Error / non-Error throws",
       "Docs: architecture + roadmap + launch-checklist note action-level Vitest beside create-portal-session helper + billing-portal route suites",
-      "NEXT_STEPS: open-billing-portal-action-test-coverage done; queued send-starter-upsell-action-test-coverage + send-follow-up-action-test-coverage; archive-orphan twin left for dc97 fold",
+      "NEXT_STEPS: open-billing-portal-action-test-coverage done; archive-orphan-commerce-stripe-products-action-test-coverage done (dc97 / PR #154 folded); queued send-starter-upsell-action-test-coverage + send-follow-up-action-test-coverage",
       "AGENT_PROTOCOL — claim Archive orphans vs Manage billing action Vitest separately; prefer Starter upsell / Email 2/3 follow-up action Vitest twins next",
       "BUSINESS_DECISIONS — documented dual-claim pivot and why helper/route suites were insufficient for Manage billing action glue",
-      "Verified: npm test (open-billing-portal action 9) + lint + build; full suite count after fold",
+      "merge: folded origin/cursor/prompt-process-evolution-dc97 (Archive orphans action Vitest / PR #154) — both ITERATIONS kept",
+      "Verified: npm test (831 passed after fold — Manage billing 9 + Archive orphans 9 from 813) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(250, 251),
+    decisions: BUSINESS_DECISIONS.slice(251, 252),
   },
 ];

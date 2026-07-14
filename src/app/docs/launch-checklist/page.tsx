@@ -323,7 +323,9 @@ export default function LaunchChecklistDocPage() {
           never claim success after a SQLite-only write that other instances would still treat
           as unsynced (Buy now blocked). Remove a previously synced SKU,
           Save, then click <strong>Archive orphans</strong> — confirm the removed SKU&apos;s
-          Stripe Product becomes inactive and current SKUs stay active. Before Sync, confirm
+          Stripe Product becomes inactive and current SKUs stay active (action-level Vitest in{" "}
+          <code>archive-orphan-commerce-stripe-products-action.test.ts</code> locks the
+          dashboard glue). Before Sync, confirm
           pipeline-health <strong>Commerce Sync to Stripe</strong> counts saved catalogs with
           unsynced SKUs (and that the daily digest lists them). Reload{" "}
           <code>/preview/[slug]</code> and confirm synced SKUs now show{" "}
