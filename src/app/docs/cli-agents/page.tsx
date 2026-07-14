@@ -4,7 +4,7 @@ export default function CliAgentsDocPage() {
   return (
     <DocPage
       title="CLI scheduled agents"
-      subtitle="GitHub Actions that run Codex, Gemini, OpenCode, Grok Build, and Cursor Agent every 30 minutes"
+      subtitle="GitHub Actions that run Codex, Gemini, OpenCode, Grok Build, Cursor Agent, and Claude Code once per hour, staggered"
       related={[
         { href: "/docs/process", label: "Process log" },
         { href: "/docs/architecture", label: "Architecture" },
@@ -12,9 +12,10 @@ export default function CliAgentsDocPage() {
       ]}
     >
       <p>
-        Five scheduled workflows under <code>.github/workflows/</code> run autonomous CLI
-        agents against this repo every 30 minutes. Each workflow executes both{" "}
-        <code>.github/prompts/dev-work.md</code> and{" "}
+        Six scheduled workflows under <code>.github/workflows/</code> run autonomous CLI
+        agents against this repo once per hour. Crons are staggered by 10 minutes so the
+        CLIs do not all claim the same <code>NEXT_STEPS</code> item in the same second.
+        Each workflow executes both <code>.github/prompts/dev-work.md</code> and{" "}
         <code>.github/prompts/continuous-work.md</code>, which point agents at{" "}
         <code>src/lib/process/prompt_process.tsx</code> (<code>AGENT_PROTOCOL</code> +{" "}
         <code>NEXT_STEPS</code>).
@@ -42,7 +43,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>ChatGPT OAuth</td>
             <td>
-              <code>0,30 * * * *</code>
+              <code>0 * * * *</code>
             </td>
           </tr>
           <tr>
@@ -55,7 +56,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>Google OAuth / GCA</td>
             <td>
-              <code>5,35 * * * *</code>
+              <code>10 * * * *</code>
             </td>
           </tr>
           <tr>
@@ -68,7 +69,7 @@ export default function CliAgentsDocPage() {
             </td>
             <td>OpenCode OAuth</td>
             <td>
-              <code>10,40 * * * *</code>
+              <code>20 * * * *</code>
             </td>
           </tr>
           <tr>
@@ -79,7 +80,7 @@ export default function CliAgentsDocPage() {
             <td>subscription default</td>
             <td>SuperGrok / X Premium+ OAuth</td>
             <td>
-              <code>15,45 * * * *</code>
+              <code>30 * * * *</code>
             </td>
           </tr>
           <tr>
@@ -90,17 +91,28 @@ export default function CliAgentsDocPage() {
             <td>CLI default (overrideable)</td>
             <td>OAuth cli-config and/or API key</td>
             <td>
-              <code>20,50 * * * *</code>
+              <code>40 * * * *</code>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>claude-scheduled.yml</code>
+            </td>
+            <td>Claude Code CLI</td>
+            <td>CLI default (overrideable)</td>
+            <td>Claude.ai OAuth token</td>
+            <td>
+              <code>50 * * * *</code>
             </td>
           </tr>
         </tbody>
       </table>
 
       <p>
-        Crons are staggered by a few minutes so the CLIs do not all claim the same{" "}
-        <code>NEXT_STEPS</code> item in the same second. Each prompt matrix cell also has a
-        concurrency group so overlapping runs of the same agent+prompt queue instead of
-        canceling mid-flight.
+        Each prompt matrix cell also has a concurrency group so overlapping runs of the
+        same agent+prompt queue instead of canceling mid-flight. A separate manual
+        workflow, <code>cursor-agent-grok.yml</code>, runs Cursor Agent pinned to{" "}
+        <code>cursor-grok-4.5-high</code> via <code>workflow_dispatch</code> only.
       </p>
 
       <h2>Required repository secrets</h2>
@@ -141,6 +153,12 @@ export default function CliAgentsDocPage() {
           OAuth path). Alternatively set <code>CURSOR_API_KEY</code> from Dashboard → API
           Keys (official CI fallback).
         </li>
+        <li>
+          <code>CLAUDE_CODE_OAUTH_TOKEN</code> — long-lived OAuth token from{" "}
+          <code>claude setup-token</code> (preferred CI path; macOS Keychain login is not
+          portable). Optionally also set <code>CLAUDE_CREDENTIALS_JSON</code> to the
+          contents of Linux <code>~/.claude/.credentials.json</code> for file+cache restore.
+        </li>
       </ul>
 
       <h2>Seed commands</h2>
@@ -166,7 +184,14 @@ gh secret set GROK_AUTH_JSON < ~/.grok/auth.json
 # Cursor Agent
 agent login
 gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
-# or: gh secret set CURSOR_API_KEY`}</code>
+# or: gh secret set CURSOR_API_KEY
+
+# Claude Code (subscription OAuth for CI)
+claude setup-token
+# copy the printed token, then:
+gh secret set CLAUDE_CODE_OAUTH_TOKEN
+# optional Linux file seed:
+# gh secret set CLAUDE_CREDENTIALS_JSON < ~/.claude/.credentials.json`}</code>
       </pre>
 
       <h2>Token refresh</h2>
@@ -174,7 +199,9 @@ gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
         GitHub-hosted runners are ephemeral. Each workflow restores the latest OAuth file
         from Actions cache (falling back to the seed secret), runs the CLI so it can refresh
         tokens in place, then saves the refreshed file back to cache. If refresh stops
-        working, re-run the local login and reseed the secret.
+        working, re-run the local login and reseed the secret. Claude primarily uses{" "}
+        <code>CLAUDE_CODE_OAUTH_TOKEN</code>; the credentials-file cache is a secondary
+        refresh path on Linux runners.
       </p>
       <p>
         Do not share one OAuth file across concurrent machines — each CLI family uses its
@@ -185,9 +212,9 @@ gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
 
       <h2>Manual runs</h2>
       <p>
-        Every workflow supports <code>workflow_dispatch</code>. Choose{" "}
-        <code>dev-work</code>, <code>continuous-work</code>, or <code>both</code>. OpenCode
-        and Cursor also accept an optional <code>model</code> input override.
+        Every scheduled workflow supports <code>workflow_dispatch</code>. Choose{" "}
+        <code>dev-work</code>, <code>continuous-work</code>, or <code>both</code>. OpenCode,
+        Cursor, and Claude also accept an optional <code>model</code> input override.
       </p>
 
       <h2>Permissions</h2>
