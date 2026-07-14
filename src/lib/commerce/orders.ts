@@ -26,6 +26,12 @@ export interface CommerceOrderRecord {
   createdAt: string;
   /** Set once an operator has manually paid this order's amount out to the client. */
   paidOutAt?: string;
+  /**
+   * Set once sendCommerceBuyNowClientReceipt resolved { success: true } and the
+   * durable marker write landed — Stripe redelivery recovers the client order
+   * notification only while this is unset (independent of inquiry presence).
+   */
+  clientReceiptEmailSentAt?: string;
 }
 
 export interface InsertCommerceOrderInput {
