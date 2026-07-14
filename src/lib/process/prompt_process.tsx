@@ -1645,6 +1645,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-b2e7",
   },
+  {
+    id: "operator-dashboard-password-env-readiness",
+    summary:
+      "Empty-backlog after require-operator-auth-cookie-read-coverage: operators get no early dashboard signal when OPERATOR_DASHBOARD_PASSWORD is unset/whitespace — proxy + requireOperatorAuth stay open-demo while CRM/outreach mutations are world-reachable. Ship assessOperatorAuthEnvReadiness + banner on /dashboard + /dashboard/leads (env presence only; distinct from login/cookie Vitest). Sibling-friendly next: app-url-env-readiness (NEXT_PUBLIC_APP_URL) or empty-backlog sold-capability / multi-instance regression audits.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-02c1",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
