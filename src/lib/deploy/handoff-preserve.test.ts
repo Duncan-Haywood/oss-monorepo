@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isProgressedHandoffStatus,
   mergeProvisionOntoFreshHandoff,
+  preferAdvancedHandoffStatus,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 import type { DeployHandoff } from "./types";
@@ -34,6 +35,38 @@ describe("isProgressedHandoffStatus", () => {
     expect(isProgressedHandoffStatus("awaiting_dns")).toBe(false);
     expect(isProgressedHandoffStatus("pending")).toBe(false);
     expect(isProgressedHandoffStatus("failed")).toBe(false);
+  });
+});
+
+describe("preferAdvancedHandoffStatus", () => {
+  it("keeps live when a stale awaiting_dns marker write would otherwise downgrade", () => {
+    // Bundle webhook receipt/DNS markers pass handoff.status from before Resend;
+    // concurrent Mark live must win.
+    expect(preferAdvancedHandoffStatus("live", "awaiting_dns")).toBe("live");
+    expect(preferAdvancedHandoffStatus("live", "provisioned")).toBe("live");
+    expect(preferAdvancedHandoffStatus("provisioned", "awaiting_dns")).toBe(
+      "provisioned",
+    );
+  });
+
+  it("allows intentional upgrades (Mark live / provision)", () => {
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "live")).toBe("live");
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "provisioned")).toBe(
+      "provisioned",
+    );
+    expect(preferAdvancedHandoffStatus("failed", "awaiting_dns")).toBe(
+      "awaiting_dns",
+    );
+  });
+
+  it("prefers requested when ranks are equal (same-status note append)", () => {
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "awaiting_dns")).toBe(
+      "awaiting_dns",
+    );
+    expect(preferAdvancedHandoffStatus("live", "live")).toBe("live");
+    // pending and failed share rank 0 — requested wins so callers can move either way.
+    expect(preferAdvancedHandoffStatus("failed", "pending")).toBe("pending");
+    expect(preferAdvancedHandoffStatus("pending", "failed")).toBe("failed");
   });
 });
 

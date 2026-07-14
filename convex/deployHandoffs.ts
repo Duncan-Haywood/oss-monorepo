@@ -187,6 +187,28 @@ export const getByCustomDomain = query({
   },
 });
 
+/**
+ * Progress rank for handoff status — keep in sync with
+ * preferAdvancedHandoffStatus in src/lib/deploy/handoff-preserve.ts.
+ * Note-only marker writes (bundle receipt/DNS) must not regress live.
+ */
+const HANDOFF_STATUS_RANK: Record<string, number> = {
+  pending: 0,
+  failed: 0,
+  awaiting_dns: 1,
+  provisioned: 2,
+  live: 3,
+};
+
+function preferAdvancedHandoffStatus(
+  existing: string,
+  requested: string,
+): string {
+  const existingRank = HANDOFF_STATUS_RANK[existing] ?? 0;
+  const requestedRank = HANDOFF_STATUS_RANK[requested] ?? 0;
+  return requestedRank >= existingRank ? requested : existing;
+}
+
 export const updateStatus = mutation({
   args: {
     leadSlug: v.string(),
@@ -202,16 +224,19 @@ export const updateStatus = mutation({
       .unique();
     if (!existing) return null;
 
+    // Atomic never-downgrade: webhook sent-markers pass a pre-Resend status
+    // snapshot; if Mark live landed during that window, keep live.
+    const status = preferAdvancedHandoffStatus(existing.status, args.status);
     const notes = [...existing.notes, ...args.extraNotes];
     await ctx.db.patch(existing._id, {
-      status: args.status,
+      status,
       notes,
       updatedAt: args.updatedAt,
     });
 
     return toHandoff({
       ...existing,
-      status: args.status,
+      status,
       notes,
       updatedAt: args.updatedAt,
     });

@@ -29,6 +29,7 @@ import {
   type SqliteLeadRow,
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
+import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
@@ -1186,16 +1187,20 @@ export async function updateDeployHandoffStatus(
   if (!row) return null;
 
   const existing = mapDeployHandoffRow(row);
+  // Never downgrade status on note append (bundle receipt/DNS markers pass a
+  // possibly-stale handoff.status from before Resend). Mirror Convex
+  // deployHandoffs.updateStatus — see preferAdvancedHandoffStatus.
+  const nextStatus = preferAdvancedHandoffStatus(existing.status, status);
   const notes = [...existing.notes, ...extraNotes];
   db.prepare(`
     UPDATE deploy_handoffs
     SET status = ?, notes = ?, updatedAt = ?
     WHERE leadSlug = ?
-  `).run(status, JSON.stringify(notes), updatedAt, leadSlug);
+  `).run(nextStatus, JSON.stringify(notes), updatedAt, leadSlug);
 
   return {
     ...existing,
-    status,
+    status: nextStatus,
     notes,
     updatedAt,
   };

@@ -559,7 +559,12 @@ export default function ArchitectureDocPage() {
         <code>enqueueProductionHandoff</code> re-read the handoff and{" "}
         <code>mergeProvisionOntoFreshHandoff</code> before the final full-row upsert —
         same TOCTOU class as commerce catalog sync / orphan archive — so a concurrent
-        Mark live during the Vercel window is not silently reverted.
+        Mark live during the Vercel window is not silently reverted. Bundle webhook
+        receipt/DNS sent-markers append notes via{" "}
+        <code>updateDeployHandoffStatus</code> after Resend; that write uses{" "}
+        <code>preferAdvancedHandoffStatus</code> (never-downgrade:{" "}
+        <code>live</code> &gt; <code>provisioned</code> &gt; <code>awaiting_dns</code>)
+        so a pre-Resend status snapshot cannot undo a concurrent Mark live.
         Operators confirm DNS then mark the lead <code>live</code>. Inquiry inbox on{" "}
         <code>/dashboard/leads</code> supports operator reply (Resend + suppression → status{" "}
         <code>replied</code> with stored body). When Convex is configured, reply + status
