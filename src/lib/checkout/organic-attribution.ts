@@ -27,16 +27,37 @@ export function isOrganicCheckoutLeadSlug(slug: string): boolean {
 }
 
 /**
+ * Same [a-z0-9-]+ normalization every other lead-slug-creation path already
+ * applies (slugifyBusinessName / addLeadAction's explicit-slug sanitize) —
+ * a request-body slug is otherwise unrestricted and gets persisted verbatim
+ * by the webhook's recordLeadPayment/markLeadPaid on first payment, then
+ * interpolated unescaped into suggestedHost / previewUrl / contactFormUrl
+ * (src/lib/deploy/handoff.ts) and proxy.ts's preview-subdomain rewrite —
+ * a `..`-segment slug there collapses the rewrite target via URL path
+ * normalization, the same traversal class safeNextPath now rejects on the
+ * login-redirect surface, just reachable via an unauthenticated paid
+ * checkout instead of the next= query param.
+ */
+function sanitizeCheckoutLeadSlug(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
  * Prefer an explicit lead slug from the request; otherwise mint organic-*.
- * Empty / whitespace-only strings count as missing (homepage CTAs).
+ * Empty / whitespace-only strings (or strings that sanitize to nothing —
+ * e.g. all-symbol input) count as missing (homepage CTAs).
  */
 export function resolveBundleCheckoutLeadSlug(
   rawSlug: string | undefined,
   mint: () => string = mintOrganicCheckoutLeadSlug,
 ): { leadSlug: string; mintedOrganic: boolean } {
-  const trimmed = rawSlug?.trim() ?? "";
-  if (trimmed) {
-    return { leadSlug: trimmed, mintedOrganic: false };
+  const sanitized = sanitizeCheckoutLeadSlug(rawSlug?.trim() ?? "");
+  if (sanitized) {
+    return { leadSlug: sanitized, mintedOrganic: false };
   }
   return { leadSlug: mint(), mintedOrganic: true };
 }

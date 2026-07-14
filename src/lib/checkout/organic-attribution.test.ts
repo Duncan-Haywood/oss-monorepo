@@ -36,6 +36,37 @@ describe("organic checkout attribution", () => {
     expect(blank).toEqual({ leadSlug: "organic-blank", mintedOrganic: true });
   });
 
+  it("sanitizes a client-supplied slug to [a-z0-9-]+, matching every other lead-slug-creation path", () => {
+    expect(resolveBundleCheckoutLeadSlug("Demo Cafe!!")).toEqual({
+      leadSlug: "demo-cafe",
+      mintedOrganic: false,
+    });
+  });
+
+  it("strips dot-segment traversal out of a client-supplied slug instead of persisting it verbatim", () => {
+    // Unsanitized, this would be interpolated into suggestedHost/previewUrl
+    // (src/lib/deploy/handoff.ts) and proxy.ts's preview-subdomain rewrite —
+    // a browser/URL-parser-visible ".." segment there escapes the intended
+    // single-path-segment slug, the same traversal class safeNextPath
+    // guards against on the login-redirect surface.
+    expect(resolveBundleCheckoutLeadSlug("../../dashboard/leads")).toEqual({
+      leadSlug: "dashboard-leads",
+      mintedOrganic: false,
+    });
+    expect(resolveBundleCheckoutLeadSlug("/etc/passwd")).toEqual({
+      leadSlug: "etc-passwd",
+      mintedOrganic: false,
+    });
+  });
+
+  it("mints when a client-supplied slug sanitizes away to nothing", () => {
+    const minted = resolveBundleCheckoutLeadSlug("???", () => "organic-symbols");
+    expect(minted).toEqual({ leadSlug: "organic-symbols", mintedOrganic: true });
+
+    const dotsOnly = resolveBundleCheckoutLeadSlug("..", () => "organic-dots");
+    expect(dotsOnly).toEqual({ leadSlug: "organic-dots", mintedOrganic: true });
+  });
+
   it("detects organic attribution slugs", () => {
     expect(isOrganicCheckoutLeadSlug("organic-abc123")).toBe(true);
     expect(isOrganicCheckoutLeadSlug("ORGANIC-ABC")).toBe(true);
