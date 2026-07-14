@@ -4,7 +4,7 @@ export default function CliAgentsDocPage() {
   return (
     <DocPage
       title="CLI scheduled agents"
-      subtitle="GitHub Actions that run Codex, Gemini, OpenCode, and Grok Build every 30 minutes"
+      subtitle="GitHub Actions that run Codex, Gemini, OpenCode, Grok Build, and Cursor Agent every 30 minutes"
       related={[
         { href: "/docs/process", label: "Process log" },
         { href: "/docs/architecture", label: "Architecture" },
@@ -12,7 +12,7 @@ export default function CliAgentsDocPage() {
       ]}
     >
       <p>
-        Four scheduled workflows under <code>.github/workflows/</code> run autonomous CLI
+        Five scheduled workflows under <code>.github/workflows/</code> run autonomous CLI
         agents against this repo every 30 minutes. Each workflow executes both{" "}
         <code>.github/prompts/dev-work.md</code> and{" "}
         <code>.github/prompts/continuous-work.md</code>, which point agents at{" "}
@@ -82,11 +82,22 @@ export default function CliAgentsDocPage() {
               <code>15,45 * * * *</code>
             </td>
           </tr>
+          <tr>
+            <td>
+              <code>cursor-scheduled.yml</code>
+            </td>
+            <td>Cursor Agent CLI</td>
+            <td>CLI default (overrideable)</td>
+            <td>OAuth cli-config and/or API key</td>
+            <td>
+              <code>20,50 * * * *</code>
+            </td>
+          </tr>
         </tbody>
       </table>
 
       <p>
-        Crons are staggered by a few minutes so the four CLIs do not all claim the same{" "}
+        Crons are staggered by a few minutes so the CLIs do not all claim the same{" "}
         <code>NEXT_STEPS</code> item in the same second. Each prompt matrix cell also has a
         concurrency group so overlapping runs of the same agent+prompt queue instead of
         canceling mid-flight.
@@ -124,6 +135,12 @@ export default function CliAgentsDocPage() {
           <code>GROK_AUTH_JSON</code> — contents of <code>~/.grok/auth.json</code> after{" "}
           <code>grok login</code> (SuperGrok or X Premium+).
         </li>
+        <li>
+          <code>CURSOR_CLI_CONFIG</code> — contents of{" "}
+          <code>~/.cursor/cli-config.json</code> after <code>agent login</code> (preferred
+          OAuth path). Alternatively set <code>CURSOR_API_KEY</code> from Dashboard → API
+          Keys (official CI fallback).
+        </li>
       </ul>
 
       <h2>Seed commands</h2>
@@ -144,7 +161,12 @@ gh secret set OPENCODE_AUTH < ~/.local/share/opencode/auth.json
 
 # Grok Build
 grok login
-gh secret set GROK_AUTH_JSON < ~/.grok/auth.json`}</code>
+gh secret set GROK_AUTH_JSON < ~/.grok/auth.json
+
+# Cursor Agent
+agent login
+gh secret set CURSOR_CLI_CONFIG < ~/.cursor/cli-config.json
+# or: gh secret set CURSOR_API_KEY`}</code>
       </pre>
 
       <h2>Token refresh</h2>
@@ -165,7 +187,7 @@ gh secret set GROK_AUTH_JSON < ~/.grok/auth.json`}</code>
       <p>
         Every workflow supports <code>workflow_dispatch</code>. Choose{" "}
         <code>dev-work</code>, <code>continuous-work</code>, or <code>both</code>. OpenCode
-        also accepts a <code>model</code> input override.
+        and Cursor also accept an optional <code>model</code> input override.
       </p>
 
       <h2>Permissions</h2>
