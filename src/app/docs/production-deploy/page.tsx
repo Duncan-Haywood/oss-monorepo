@@ -63,7 +63,9 @@ export default function ProductionDeployDocPage() {
       <ol>
         <li>
           Open <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — open handoffs appear
-          above the pipeline table.
+          above the pipeline table. The same non-live handoffs also list under{" "}
+          <strong>Production handoffs open</strong> in the operator daily digest (Send daily
+          digest) so go-live debt is visible without opening the dashboard.
         </li>
         <li>Add the listed DNS records (or finish Vercel domain verification).</li>
         <li>

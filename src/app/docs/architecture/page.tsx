@@ -506,7 +506,11 @@ export default function ArchitectureDocPage() {
         <code>clientVoicePacksDueCount</code> via <code>listClientVoicePacksDue</code>), closed
         leads outside the active funnel (
         <code>closedLeadCount</code> = <code>stageCounts.closed</code>, footnote only), and
-        leads missing email (<code>src/lib/metrics/pipeline-health.ts</code>). Lead quality scoring (
+        leads missing email (<code>src/lib/metrics/pipeline-health.ts</code>). Open handoffs
+        (<code>status !== &quot;live&quot;</code>, same predicate as{" "}
+        <code>openHandoffCount</code>) also list in the operator daily digest under{" "}
+        <strong>Production handoffs open</strong> via <code>listDeployHandoffs</code> so paid
+        DNS / Mark live debt is visible without opening the dashboard. Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
