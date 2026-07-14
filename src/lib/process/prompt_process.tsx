@@ -1621,8 +1621,9 @@ export const NEXT_STEPS: NextStep[] = [
     id: "get-commerce-catalog-action-test-coverage",
     summary:
       "Empty-backlog after Assign Vercel / Save domain action Vitest: getCommerceCatalogAction is the operator Commerce catalog read path that seeds the Save/Sync panel — save/sync action suites alone are not enough for the thin read glue (auth + slug + getCommerceCatalog). Prefer when both Assign twins are done; sibling-friendly with empty-backlog sold-capability / multi-instance regression audits.",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 2 — Lead volume",
+    owner: "cursor/prompt-process-evolution-f4bf",
   },
 ];
 
