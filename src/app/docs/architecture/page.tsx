@@ -40,9 +40,15 @@ export default function ArchitectureDocPage() {
       <p>
         Operator CSV bulk import on <code>/dashboard/leads</code> (see{" "}
         <code>src/lib/leads/csv-import.ts</code>) tags each lead with a <code>dataSource</code> for
-        compliance. Re-imports and manual add-lead treat slug collisions as create-path conflicts:
-        existing leads are skipped (CSV) or rejected (add form) so pipeline fields
-        (stage / outreach / notes / snooze) are never silently reset via{" "}
+        compliance. Optional <code>hours</code> cells use the same{" "}
+        <code>weekday · weekend</code> encoding as SQLite persistence (
+        <code>parseLeadHours</code> splits on the <em>first</em> middot only so a weekend value
+        that itself contains <code>·</code> survives round-trip). Line splitting goes through{" "}
+        <code>splitCsvIntoLines</code> (RFC 4180 quoted fields may embed newlines) rather than a
+        raw <code>.split(&quot;\n&quot;)</code>. Field caps: businessName ≤ 200 chars, description ≤
+        2000 chars (truncated), services ≤ 100 entries. Re-imports and manual add-lead treat slug
+        collisions as create-path conflicts: existing leads are skipped (CSV) or rejected (add form)
+        so pipeline fields (stage / outreach / notes / snooze) are never silently reset via{" "}
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
         <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
         surfaces a retry instead of claiming success after a SQLite-only write other instances
