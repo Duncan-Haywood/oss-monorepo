@@ -5,7 +5,13 @@
  * the earlier sale/fulfillment blockers:
  *   - STRIPE_SECRET_KEY → checkout / portal / sync 501 when missing
  *   - STRIPE_WEBHOOK_SECRET → webhook 501 (Stripe can charge; CRM never records)
- *   - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY → launch-checklist required client key
+ *
+ * NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is deliberately NOT required here: every
+ * checkout flow in this codebase (bundle + commerce Buy now) redirects to a
+ * Stripe-hosted Checkout Session URL server-side — there is no @stripe/stripe-js
+ * / loadStripe call site that would ever read a publishable key. Requiring it
+ * only added operator setup friction with no functional payoff; see
+ * BUSINESS_DECISIONS in src/lib/process/prompt_process.tsx.
  *
  * Pure: pass an env map in tests; production call sites use process.env.
  * Does not call Stripe and does not fake-complete stripe-price-objects.
@@ -13,11 +19,7 @@
 
 export type EnvLike = NodeJS.ProcessEnv | Record<string, string | undefined>;
 
-export const STRIPE_CORE_ENV_NAMES = [
-  "STRIPE_SECRET_KEY",
-  "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-  "STRIPE_WEBHOOK_SECRET",
-] as const;
+export const STRIPE_CORE_ENV_NAMES = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"] as const;
 
 export type StripeCoreEnvName = (typeof STRIPE_CORE_ENV_NAMES)[number];
 
@@ -34,8 +36,6 @@ export type StripeCoreEnvReadiness = {
   secretKeyReady: boolean;
   /** True when STRIPE_WEBHOOK_SECRET is set (fulfillment possible). */
   webhookSecretReady: boolean;
-  /** True when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set. */
-  publishableKeyReady: boolean;
 };
 
 function envValuePresent(env: EnvLike, name: string): boolean {
@@ -72,6 +72,5 @@ export function assessStripeCoreEnvReadiness(
     missing,
     secretKeyReady: envValuePresent(env, "STRIPE_SECRET_KEY"),
     webhookSecretReady: envValuePresent(env, "STRIPE_WEBHOOK_SECRET"),
-    publishableKeyReady: envValuePresent(env, "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"),
   };
 }

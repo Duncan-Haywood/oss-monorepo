@@ -24,14 +24,17 @@ export default function LaunchChecklistDocPage() {
           account).
         </li>
         <li>
-          Set <code>STRIPE_SECRET_KEY</code>, <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code>, and{" "}
-          <code>STRIPE_WEBHOOK_SECRET</code> in the deployment environment. Until all three are
-          present, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
+          Set <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> in the
+          deployment environment. Until both are present,{" "}
+          <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber core-secrets
           banner via <code>assessStripeCoreEnvReadiness</code> — missing{" "}
           <code>STRIPE_SECRET_KEY</code> blocks checkout create; missing{" "}
           <code>STRIPE_WEBHOOK_SECRET</code> is worse (Stripe can charge while CRM/handoff never
-          records). Distinct from the rose Price-ID banner below.
+          records). Distinct from the rose Price-ID banner below.{" "}
+          <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> is not required — every checkout
+          (bundle + Commerce Buy now) redirects to a Stripe-hosted Checkout Session URL
+          server-side, so no client-side Stripe.js ever reads a publishable key.
         </li>
         <li>
           Create Prices: set <code>ALLOW_STRIPE_BOOTSTRAP=1</code>, open{" "}
