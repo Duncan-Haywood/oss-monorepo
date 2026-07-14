@@ -170,6 +170,48 @@ describe("loginOperatorAction", () => {
       "/dashboard",
     );
   });
+
+  it("rejects backslash host tricks and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({ password: "correct-horse", next: "/\\evil.example" }),
+        ),
+      "/dashboard",
+    );
+  });
+
+  it("rejects non-dashboard relative paths and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({
+            password: "correct-horse",
+            next: "/preview/demo-cafe",
+          }),
+        ),
+      "/dashboard",
+    );
+  });
+
+  it("rejects /dashboard/login self-target and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({
+            password: "correct-horse",
+            next: "/dashboard/login",
+          }),
+        ),
+      "/dashboard",
+    );
+  });
 });
 
 describe("logoutOperatorAction", () => {
