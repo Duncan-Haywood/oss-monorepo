@@ -1727,12 +1727,26 @@ export async function syncCommerceCatalogToStripeAction(slug: string) {
       catalog.items,
     );
 
+    // syncCommerceCatalogToStripe runs a real, sequential per-SKU Stripe API
+    // loop (up to MAX_COMMERCE_SKUS) — a materially long window in which an
+    // operator's concurrent saveCommerceCatalogAction (a different browser
+    // tab, or a follow-up edit) could persist a newer catalog. Writing
+    // `synced` (derived from the catalog read before the loop) as the whole
+    // row would silently overwrite that edit. Re-read immediately before
+    // this write and layer only the freshly-created Stripe ids onto the
+    // current items (by SKU id, dropping the price-matched id if the price
+    // changed concurrently) — the same merge preserveCommerceStripeIds
+    // already does for saveCommerceCatalogAction, just with the just-synced
+    // items as the "previous" (Stripe-id-bearing) side instead of the base.
+    const freshCatalog = await getCommerceCatalog(slug);
+    const items = preserveCommerceStripeIds(freshCatalog?.items ?? catalog.items, synced);
+
     let updated;
     try {
       updated = await upsertCommerceCatalog(
         {
           leadSlug: lead.slug,
-          items: synced,
+          items,
           updatedAt: new Date().toISOString(),
         },
         COMMERCE_CATALOG_CONVEX_PRIMARY,

@@ -64,6 +64,7 @@ export const AGENT_PROTOCOL = [
   "src/app/api/stripe/webhook/route.ts's checkout.session.completed handler only records a bundle payment when session.metadata has BOTH slug AND tier — any new one-off Checkout Session type (e.g. commerce_sku Buy now) must branch on its own metadata marker (e.g. metadata.kind) BEFORE that slug/tier check and `break`, or it silently falls into the else/console.warn branch with no operator notification.",
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state. Any Stripe `list()` lookup used for idempotency-by-metadata-key must paginate via has_more/starting_after (use listAllPages, src/lib/stripe/list-all-pages.ts) — a single 100-item page silently misses matches past page 1 once an account holds more objects than that. A collection/catalog sync should create/update current items only, never auto-archive/delete a third-party object for removed items (orphan archive is operator-triggered only, and sets active=false — never delete).",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
+  "Any action that reads a whole-row record, then performs a real, materially long async operation (a sequential per-item external API loop, e.g. syncCommerceCatalogToStripe) before writing that record back via an unconditional full-row upsert (no version/CAS check) has a TOCTOU lost-update window — a concurrent write from a second tab or a follow-up edit during that window gets silently discarded. Re-read the record immediately before the final write and merge in only the fields the long operation actually produced (see syncCommerceCatalogToStripeAction's preserveCommerceStripeIds(freshItems, synced) — the same merge helper saveCommerceCatalogAction uses, with previous/base roles swapped) rather than writing the pre-operation snapshot verbatim. This is a distinct bug class from the money-separation/webhook-idempotency rules above — it's about ordinary operator concurrency on non-webhook writes, not Stripe redelivery.",
   "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a suppression-list hit or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
 
   // --- Security / injection ---
@@ -1735,6 +1736,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-07e5",
+  },
+  {
+    id: "commerce-catalog-sync-lost-update-guard",
+    summary:
+      "Empty-backlog after PR #206 (app-url-header-injection-guard) and PR #199 (re-confirmed clean twice). Seventh consecutive audit run today; explicitly calibrated toward accepting a documented clean pass given how exhaustively today's surface (auth, rate-limiting, digest wiring, db.ts coverage, sold-vs-shipped docs, existence checks, header trust) had been swept. Checked for N+1 query patterns (clean — daily-digest.ts and actions.ts already batch/Map-lookup where needed) and re-verified BUSINESS_DECISIONS/ITERATIONS slice bookkeeping against a stale unmerged draft's claimed drift (clean — no mismatch found in the last 10 entries). Found a real TOCTOU lost-update on money-adjacent data: syncCommerceCatalogToStripeAction reads the Commerce catalog once, then runs syncCommerceCatalogToStripe's real, sequential per-SKU Stripe API loop (up to MAX_COMMERCE_SKUS) — a materially long window — then writes the ENTIRE items array back via an unconditional full-row upsertCommerceCatalog with no version/CAS check. A concurrent saveCommerceCatalogAction (a second tab, or a follow-up edit) landing during that window would be silently overwritten by the sync's stale pre-loop snapshot, discarding any price change, added SKU, or removed SKU. Shipped: re-read the catalog immediately before the final write and merge in only the freshly-created Stripe ids via the existing preserveCommerceStripeIds helper (previous ↔ synced roles swapped from its saveCommerceCatalogAction usage), which also correctly drops a SKU's just-synced stripePriceId if its price changed mid-sync.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "claude/relaxed-galileo-t69qzz",
   },
   {
     id: "stripe-redirect-app-url-no-host-trust",
@@ -3853,6 +3862,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Extract shared safeNextPath into src/lib/auth/safe-next-path.ts and use it from both the login page (already-authenticated redirect + hidden next field) and loginOperatorAction — rejecting protocol-relative //, backslash host tricks, control chars, scheme-smuggled paths, non-dashboard paths, and /dashboard/login self-loops — rather than leave the page on a weaker startsWith('/') twin that accepted //evil.example. Fold the complete fix already on grok/dev-work-login-open-redirect (no open PR) onto the automation branch that can merge.",
     rationale:
       "Empty-backlog after PR #206: free NEXT_STEPS stayed operator/legal-gated. Security audit of client-supplied redirect surfaces found a real page/action twin gap: loginOperatorAction already blocked // via a private safeNextPath, but DashboardLoginPage used params.next.startsWith('/') for the already-authenticated redirect and the form hidden field — so any operator with a live session who opened /dashboard/login?next=//evil.example was open-redirected off-origin (and the hidden field would re-submit the same value on re-login). Billing-portal already closed its absolute-URL return_url twin (PR #189); this closes the relative-path next twin the protocol names as the mirror pattern. Sibling CLI branches already had the full fix with no open PR (Actions token blocked) — folding beats leaving a live open-redirect while inventing an optional aggregate or re-running a 2x-confirmed clean axis.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "In syncCommerceCatalogToStripeAction, re-read the Commerce catalog immediately before the final upsertCommerceCatalog write and merge in only the freshly-created Stripe ids via preserveCommerceStripeIds(freshItems, synced), instead of writing the pre-sync-loop items array verbatim.",
+    rationale:
+      "Seventh consecutive empty-backlog audit today, explicitly instructed to accept a documented clean pass given how exhaustively the day's surface (auth, rate-limiting, digest wiring, db.ts coverage, sold-vs-shipped docs, existence checks, header trust) had already been swept — a real, previously-undetected bug was getting genuinely harder to find, and the protocol prefers an honest clean report over a manufactured one. Checked N+1 query patterns (clean) and re-verified BUSINESS_DECISIONS/ITERATIONS slice bookkeeping against a stale unmerged draft's claimed drift (clean, no actual mismatch). Found one real issue: syncCommerceCatalogToStripeAction reads the catalog once, then runs a sequential per-SKU Stripe API loop (up to 50 SKUs) — a materially long, genuinely concurrency-relevant window, not a theoretical one-tick race — before writing the entire items array back with no version/CAS guard. A concurrent saveCommerceCatalogAction landing in that window (a second tab, or an operator editing again right after clicking Sync) would be silently discarded, losing a price change, added SKU, or removed SKU on the exact data that drives Buy now checkout pricing. The fix reuses preserveCommerceStripeIds — already tested and already the established pattern for merging Stripe ids onto a fresher item set — just with its two argument roles swapped from how saveCommerceCatalogAction calls it, so it required no new merge logic, only recognizing that the existing helper already does exactly what's needed for the other side of the read-then-write window.",
   },
   {
     date: "2026-07-14",
@@ -7203,6 +7219,23 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-14",
+    branch: "claude/relaxed-galileo-t69qzz",
+    summary:
+      "Free NEXT_STEPS backlog stayed fully gated after PR #206 (app-url-header-injection-guard) and PR #199 (re-confirmed sold-vs-shipped/orchestration-coverage clean). Seventh consecutive audit today, explicitly instructed to accept a documented clean pass given how exhaustively today's surface had been swept. N+1 query patterns (daily-digest.ts, actions.ts) came back clean, and a spot-check of BUSINESS_DECISIONS/ITERATIONS slice bookkeeping against a stale unmerged draft's claimed index-drift found no actual mismatch. Found one real issue: syncCommerceCatalogToStripeAction reads the Commerce catalog once, then runs a sequential per-SKU Stripe API loop (up to 50 SKUs) — a materially long window — before writing the entire items array back with no version/CAS guard, so a concurrent saveCommerceCatalogAction landing mid-sync would be silently discarded. Claimed and shipped commerce-catalog-sync-lost-update-guard. Rebased onto sibling claude/business-process-evolution-07e5's merge (PR #208, login-authenticated-open-redirect) — folded as append-only, no feature overlap.",
+    shipped: [
+      "src/app/dashboard/leads/actions.ts — syncCommerceCatalogToStripeAction re-reads the catalog immediately before the final upsertCommerceCatalog write and merges in only the freshly-created Stripe ids via preserveCommerceStripeIds(freshItems, synced) — previous/base roles swapped from saveCommerceCatalogAction's usage of the same helper — instead of writing the pre-sync-loop items verbatim",
+      "src/app/dashboard/leads/sync-commerce-catalog-to-stripe-action.test.ts — regression test simulating a concurrent edit (price change + added SKU) landing between the initial read and the re-read: the changed price's stale stripePriceId is correctly dropped (not attached to the new amount), the added SKU survives with no Stripe ids yet, and both items are actually persisted",
+      "Docs: architecture.tsx documents the re-read-and-merge fix beside the existing Sync to Stripe / preserveCommerceStripeIds notes",
+      "NEXT_STEPS: commerce-catalog-sync-lost-update-guard done",
+      "AGENT_PROTOCOL — added a rule generalizing this bug class: any action that does a real, materially long async operation between a whole-row read and an unconditional full-row write has a TOCTOU lost-update window; re-read immediately before the write and merge in only the fields the operation produced",
+      "BUSINESS_DECISIONS — documented why closing this gap beat an eighth consecutive audit pass, and why the fix needed no new merge logic (preserveCommerceStripeIds already did exactly what was needed with its arguments swapped)",
+      "merge: rebased onto origin/main (PR #208 login-authenticated-open-redirect) — both ITERATIONS entries kept; decision slices remapped",
+      "Verified: npm test (1224 passed, full suite incl. 1 new concurrent-edit regression) + lint + build + npm run dev (/dashboard/leads renders 200)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(300, 301),
+  },
+  {
+    date: "2026-07-14",
     branch: "cursor/prompt-process-evolution-e382",
     summary:
       "Free NEXT_STEPS backlog stayed fully gated after PR #206 (app-url-header-injection-guard). Sibling cursor/business-process-evolution-07e5 claimed login-authenticated-open-redirect first (folding grok's safeNextPath body) — pivoted per AGENT_PROTOCOL to the complementary Host-trust gap on public Stripe money routes. All three public Stripe routes still derived appUrl from request.url origin when APP_URL unset; that origin is attacker-influenceable and feeds success_url / cancel_url / return_url (and billing-portal's same-origin comparison). Claimed and shipped stripe-redirect-app-url-no-host-trust. Folded sibling PR #208 ITERATIONS on merge.",
@@ -7215,9 +7248,9 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: stripe-redirect-app-url-no-host-trust done",
       "AGENT_PROTOCOL — money redirects must use resolveStripeRedirectAppUrl, not Host-derived bases",
       "BUSINESS_DECISIONS — documented why this complementary twin beat inventing an optional aggregate",
-      "merge: folded origin/main PR #208 (login-authenticated-open-redirect) — both ITERATIONS + decisions kept",
+      "merge: folded origin/main PR #208 (login-authenticated-open-redirect) + PR #210 (commerce-catalog-sync-lost-update-guard) — all ITERATIONS + decisions kept",
       "Verified: npm test (1233+ passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(300, 301),
+    decisions: BUSINESS_DECISIONS.slice(301, 302),
   },
 ];
