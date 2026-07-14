@@ -246,6 +246,36 @@ describe("sendDailyDigestAction", () => {
     expect(html).not.toContain("http://localhost:3000");
   });
 
+  it("never trusts a malformed/injection x-forwarded-host header verbatim into the digest link", async () => {
+    headers.mockResolvedValue({
+      get: (name: string) => {
+        if (name === "x-forwarded-host") return '"><script>alert(1)</script>';
+        if (name === "x-forwarded-proto") return "https";
+        return null;
+      },
+    });
+    listUnrepliedInquiries.mockResolvedValue([
+      {
+        id: "inq_1",
+        leadSlug: "demo-cafe",
+        businessName: "Demo Cafe",
+        name: "Alex",
+        email: "alex@example.com",
+        message: "Need a site by Friday",
+        status: "new",
+        source: "contact_form",
+        createdAt: "2026-07-13T10:00:00.000Z",
+        updatedAt: "2026-07-13T10:00:00.000Z",
+      },
+    ]);
+    const { sendDailyDigestAction } = await import("./actions");
+    const res = await sendDailyDigestAction();
+    expect(res.success).toBe(true);
+    const html = sendOperatorDailyDigest.mock.calls[0]![1] as string;
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("http://localhost:3000/dashboard/leads");
+  });
+
   it("surfaces sendOperatorDailyDigest failures", async () => {
     sendOperatorDailyDigest.mockResolvedValue({
       success: false,

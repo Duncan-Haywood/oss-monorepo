@@ -202,6 +202,27 @@ describe("openBillingPortalAction", () => {
     );
   });
 
+  it("falls back to localhost instead of trusting a malformed forwarded-host header verbatim", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    headersMock.mockResolvedValue(
+      headerStore({
+        "x-forwarded-host": '"><script>alert(1)</script>',
+        "x-forwarded-proto": "https",
+      }),
+    );
+    createBillingPortalForLead.mockResolvedValue({
+      ok: true,
+      url: "https://billing.stripe.com/session/local",
+    });
+
+    const { openBillingPortalAction } = await import("./actions");
+    await openBillingPortalAction("demo-cafe");
+
+    expect(createBillingPortalForLead.mock.calls[0]![2]).toBe(
+      "http://localhost:3000/dashboard/leads",
+    );
+  });
+
   it("passes helper error through without inventing a new message", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
     process.env.NEXT_PUBLIC_APP_URL = "https://app.example";
