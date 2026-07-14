@@ -25,6 +25,7 @@ import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner
 import { AppUrlEnvBanner } from "@/components/dashboard/app-url-env-banner";
 import { ProductionDomainEnvBanner } from "@/components/dashboard/production-domain-env-banner";
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
+import { VercelProjectIdEnvBanner } from "@/components/dashboard/vercel-project-id-env-banner";
 import { DailyDigestButton } from "@/components/dashboard/daily-digest-button";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
 import { assessBundlePriceEnvReadiness } from "@/lib/pricing/price-env-readiness";
@@ -37,6 +38,7 @@ import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readines
 import { assessAppUrlEnvReadiness } from "@/lib/seo/app-url-env-readiness";
 import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-domain-env-readiness";
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
+import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
 import { DashboardAuthChrome } from "../auth-chrome";
 import { LeadsClient } from "./leads-client";
 
@@ -132,6 +134,7 @@ export default async function LeadsPage() {
   const appUrlEnv = assessAppUrlEnvReadiness();
   const productionDomainEnv = assessProductionDomainEnvReadiness();
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
+  const vercelProjectIdEnv = assessVercelProjectIdEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -153,6 +156,7 @@ export default async function LeadsPage() {
         <AppUrlEnvBanner readiness={appUrlEnv} />
         <ProductionDomainEnvBanner readiness={productionDomainEnv} />
         <VercelTokenEnvBanner readiness={vercelTokenEnv} />
+        <VercelProjectIdEnvBanner readiness={vercelProjectIdEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}

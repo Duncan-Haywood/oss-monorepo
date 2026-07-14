@@ -41,7 +41,9 @@ export default function ProductionDeployDocPage() {
           <code>awaiting_dns</code> with operator notes. Until{" "}
           <code>VERCEL_TOKEN</code> is a non-placeholder secret,{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> shows a blue automation banner via{" "}
-          <code>assessVercelTokenEnvReadiness</code>.
+          <code>assessVercelTokenEnvReadiness</code>. Until shared{" "}
+          <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, dashboards show an indigo
+          shared-project banner via <code>assessVercelProjectIdEnvReadiness</code>.
         </li>
         <li>
           Email the buyer DNS steps + preview URL (in addition to the receipt).
@@ -160,8 +162,9 @@ export default function ProductionDeployDocPage() {
         <li>
           <code>VERCEL_TOKEN</code> — required for Domains API automation; until set, dashboards
           show a blue readiness banner (<code>assessVercelTokenEnvReadiness</code>).{" "}
-          <code>VERCEL_PROJECT_ID</code>, optional <code>VERCEL_TEAM_ID</code> — shared project
-          fallback when a handoff has no per-client Assign project id.
+          <code>VERCEL_PROJECT_ID</code> — shared project fallback when a handoff has no
+          per-client Assign project id; until set, dashboards show an indigo readiness banner (
+          <code>assessVercelProjectIdEnvReadiness</code>). Optional <code>VERCEL_TEAM_ID</code>.
         </li>
       </ul>
 

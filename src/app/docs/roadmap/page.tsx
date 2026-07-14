@@ -87,7 +87,10 @@ export default function RoadmapDocPage() {
         <code>preview.</code> from <code>NEXT_PUBLIC_PREVIEW_DOMAIN</code>). Until{" "}
         <code>VERCEL_TOKEN</code> is a non-placeholder secret, the same dashboards show a blue
         Vercel-automation banner via <code>assessVercelTokenEnvReadiness</code> (paid handoffs
-        otherwise stay <code>awaiting_dns</code> with manual notes). Preview contact
+        otherwise stay <code>awaiting_dns</code> with manual notes). Until shared{" "}
+        <code>VERCEL_PROJECT_ID</code> is a non-placeholder id, the same dashboards show an indigo
+        shared-project banner via <code>assessVercelProjectIdEnvReadiness</code> (Domains API still
+        skips unless every handoff gets Assign project). Preview contact
         form + Maps embed
         (Starter promise): shipped. Pipeline health metrics (revenue, stage funnel, open
         handoffs, abandoned carts / recovery due, missing email) on{" "}
