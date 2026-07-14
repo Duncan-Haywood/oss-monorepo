@@ -53,6 +53,7 @@ import {
 } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import {
   isSnoozePresetId,
   normalizeSnoozedUntil,
@@ -1545,7 +1546,7 @@ export async function sendMarketingPackToClientAction(slug: string) {
 
     const email = lead.email!.trim();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const previewUrl = `${baseUrl}/preview/${encodeURIComponent(lead.slug)}`;
+    const previewUrl = leadPreviewAbsoluteUrl(baseUrl, lead.slug);
     const sent = await sendMarketingPackToClientEmail({
       to: email,
       businessName: lead.businessName,
@@ -1942,7 +1943,7 @@ export async function sendClientVoicePackToClientAction(slug: string) {
 
     const email = lead.email!.trim();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const previewUrl = `${baseUrl}/preview/${encodeURIComponent(lead.slug)}`;
+    const previewUrl = leadPreviewAbsoluteUrl(baseUrl, lead.slug);
     const sent = await sendClientVoicePackToClientEmail({
       to: email,
       businessName: lead.businessName,

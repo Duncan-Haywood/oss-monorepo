@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { encodeLeadSlugPathSegment } from "@/lib/leads/slug-path";
 
 interface PreviewOpenBeaconProps {
   slug: string;
@@ -35,7 +36,7 @@ export function PreviewOpenBeacon({
     if (src) params.set("src", src);
     if (utmSource) params.set("utm_source", utmSource);
     const qs = params.toString();
-    const path = `/api/preview/${encodeURIComponent(slug)}/open${qs ? `?${qs}` : ""}`;
+    const path = `/api/preview/${encodeLeadSlugPathSegment(slug)}/open${qs ? `?${qs}` : ""}`;
 
     void fetch(path, {
       method: "POST",

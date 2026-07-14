@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 
 /**
@@ -233,7 +234,7 @@ export async function POST(request: Request) {
                     amountTotalUsd: amountTotal,
                     stripeSessionId: session.id,
                     customerEmail: customerEmail || undefined,
-                    previewUrl: `${baseUrl}/preview/${encodeURIComponent(orderSlug)}#catalog`,
+                    previewUrl: `${leadPreviewAbsoluteUrl(baseUrl, orderSlug)}#catalog`,
                   });
                   if (sent.success) {
                     try {

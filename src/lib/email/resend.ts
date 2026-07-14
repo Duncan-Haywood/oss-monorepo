@@ -3,6 +3,7 @@ import { brand } from "../brand";
 import { formatResendFromHeader } from "./email-from-env-readiness";
 import { signUnsubscribeToken } from "./unsubscribe-token";
 import { previewUrlWithOutreachTracking } from "../leads/preview-open";
+import { leadPreviewAbsoluteUrl } from "../leads/slug-path";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "../inquiries/reply";
 import {
   formatMarketingPackEmailHtml,
@@ -114,7 +115,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
  */
 export async function sendOutreachEmail(to: string, businessName: string, slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
+  const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `${businessName} — we built your website (free preview)`;
@@ -142,7 +143,7 @@ export async function sendOutreachFollowUp2(
   slug: string,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
+  const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `Quick nudge: your ${businessName} preview is ready`;
@@ -172,7 +173,7 @@ export async function sendOutreachFollowUp3(
   slug: string,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const previewUrl = previewUrlWithOutreachTracking(`${baseUrl}/preview/${slug}`);
+  const previewUrl = previewUrlWithOutreachTracking(leadPreviewAbsoluteUrl(baseUrl, slug));
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}`;
 
   const subject = `Last note about the ${businessName} site preview`;
@@ -234,7 +235,7 @@ export async function sendCommerceAbandonedRecovery(
   skuLabel: string,
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const catalogUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}#catalog`;
+  const catalogUrl = `${leadPreviewAbsoluteUrl(baseUrl, slug)}#catalog`;
   const safeSku = escapeHtmlForEmail(skuLabel);
   const safeBiz = escapeHtmlForEmail(businessName);
 
@@ -354,7 +355,7 @@ export async function sendStarterUpsellEmail(params: {
   const { to, businessName, slug, targetTier, monthlyPriceUsd } = params;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const checkoutUrl = `${baseUrl}/checkout?slug=${encodeURIComponent(slug)}&tier=${encodeURIComponent(targetTier)}`;
-  const previewUrl = `${baseUrl}/preview/${encodeURIComponent(slug)}`;
+  const previewUrl = leadPreviewAbsoluteUrl(baseUrl, slug);
   const tierLabel = targetTier === "complete" ? "Complete" : "Growth";
   const marketingLine =
     targetTier === "complete"

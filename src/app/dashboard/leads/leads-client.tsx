@@ -7,6 +7,7 @@ import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import { CSV_LEAD_TEMPLATE } from "@/lib/leads/csv-import";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   updateLeadStageAction,
   addLeadAction,
@@ -1440,7 +1441,7 @@ export function LeadsClient({
                     </div>
                     <div className="flex flex-col gap-2">
                       <Link
-                        href={`/preview/${lead.slug}`}
+                        href={leadPreviewPath(lead.slug)}
                         className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-center text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
                         target="_blank"
                       >
@@ -1764,7 +1765,7 @@ export function LeadsClient({
                       Archive
                     </button>
                     <Link
-                      href={`/preview/${inq.leadSlug}`}
+                      href={leadPreviewPath(inq.leadSlug)}
                       className="text-center text-[11px] font-medium text-sky-800 underline underline-offset-2"
                       target="_blank"
                     >
@@ -2503,7 +2504,7 @@ export function LeadsClient({
                             </>
                           ) : null}
                           <Link
-                            href={`/preview/${lead.slug}`}
+                            href={leadPreviewPath(lead.slug)}
                             className="inline-flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
                           >
                             Preview Site

@@ -88,6 +88,13 @@ describe("previewUrl", () => {
   it("uses the localhost fallback when no site URL env var is configured", () => {
     expect(previewUrl("pine-cafe")).toBe("http://localhost:3000/preview/pine-cafe");
   });
+
+  it("encodes path-breaking slugs into a single path segment", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    expect(previewUrl("evil/../../dashboard")).toBe(
+      "https://app.example.com/preview/evil%2F..%2F..%2Fdashboard",
+    );
+  });
 });
 
 describe("leadMetaTitle / leadMetaDescription", () => {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
       line_items: [{ price: item.stripePriceId, quantity: 1 }],
       customer_email: body.customerEmail,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/preview/${slug}#catalog`,
+      cancel_url: `${leadPreviewAbsoluteUrl(appUrl, slug)}#catalog`,
       metadata: { slug, skuId, kind: "commerce_sku" },
     });
 

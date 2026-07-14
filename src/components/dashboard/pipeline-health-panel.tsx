@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
 
@@ -337,7 +338,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
                   <code>{lead.stage}</code>
                 </span>
                 <Link
-                  href={`/preview/${lead.slug}`}
+                  href={leadPreviewPath(lead.slug)}
                   className="underline underline-offset-2"
                   target="_blank"
                 >
