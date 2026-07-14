@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 import { BUNDLES, COMMERCE_ADDON, type BundleTier } from "@/lib/pricing/bundles";
 
 export interface CheckoutPrefill {
@@ -73,7 +74,7 @@ export function CheckoutForm({ prefill }: { prefill: CheckoutPrefill }) {
               {" "}
               (
               <Link
-                href={`/preview/${encodeURIComponent(slug)}`}
+                href={leadPreviewPath(slug)}
                 className="underline underline-offset-2"
               >
                 preview

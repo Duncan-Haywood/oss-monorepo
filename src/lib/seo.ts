@@ -4,6 +4,7 @@
  * per-page metadata, canonical URLs, and LocalBusiness structured data.
  */
 import type { BusinessCategory, Lead } from "@/lib/leads/types";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 
 const DEFAULT_SITE_URL = "http://localhost:3000";
 
@@ -16,8 +17,9 @@ export function siteUrl(): string {
   return DEFAULT_SITE_URL;
 }
 
+/** Absolute /preview URL — slug is encodeURIComponent'd (legacy-slug path safety). */
 export function previewUrl(slug: string): string {
-  return `${siteUrl()}/preview/${slug}`;
+  return leadPreviewAbsoluteUrl(siteUrl(), slug);
 }
 
 /**

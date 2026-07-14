@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { leadContactApiPath } from "@/lib/leads/slug-path";
 import {
   COMMERCE_ORDER_EVENT,
   commerceOrderStorageKey,
@@ -65,7 +66,7 @@ export function PreviewContactForm({
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/contact/${encodeURIComponent(slug)}`, {
+      const response = await fetch(leadContactApiPath(slug), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone, message }),

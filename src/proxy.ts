@@ -12,6 +12,7 @@ import {
 } from "@/lib/deploy/custom-domain-routing";
 import { productionRootDomain } from "@/lib/deploy/handoff";
 import { getLeadBySlug, getLeadSlugByCustomDomain } from "@/lib/db";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 
 function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse | null {
   if (pathname === "/dashboard/login" || pathname.startsWith("/dashboard/login/")) {
@@ -67,12 +68,14 @@ export async function proxy(request: NextRequest) {
     if (previewSlug) {
       const lead = await getLeadBySlug(previewSlug);
       if (lead) {
-        return NextResponse.rewrite(new URL(`/preview/${previewSlug}`, request.url));
+        // encode-at-use: keep rewrite target a single path segment even if a
+        // legacy free-form slug somehow resolves (see slug-path.ts).
+        return NextResponse.rewrite(new URL(leadPreviewPath(previewSlug), request.url));
       }
     } else if (!isPlatformHost(host, root)) {
       const slug = await getLeadSlugByCustomDomain(host);
       if (slug) {
-        return NextResponse.rewrite(new URL(`/preview/${slug}`, request.url));
+        return NextResponse.rewrite(new URL(leadPreviewPath(slug), request.url));
       }
     }
   }

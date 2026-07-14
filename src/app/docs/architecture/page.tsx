@@ -426,7 +426,16 @@ export default function ArchitectureDocPage() {
         out of the intended single-path-segment slug — the same bug class{" "}
         <code>safeNextPath</code> now rejects on the login-redirect surface, just reachable via
         an unauthenticated paid Checkout Session instead of the login page&apos;s{" "}
-        <code>next</code> query param. Rows carry a{" "}
+        <code>next</code> query param. Create-path sanitize does not rewrite legacy
+        rows: every path-construction use-site (preview absolute URLs, outreach
+        email links, deploy handoff <code>previewUrl</code>/<code>contactFormUrl</code>,
+        proxy rewrites, sitemap, Stripe cancel URLs, dashboard preview links) goes
+        through <code>src/lib/leads/slug-path.ts</code> (
+        <code>encodeLeadSlugPathSegment</code> / <code>leadPreviewPath</code> /
+        <code>leadPreviewAbsoluteUrl</code>) so a free-form slug stays a single
+        path segment. Hostnames cannot percent-encode, so handoff{" "}
+        <code>suggestedHost</code> uses <code>leadSlugAsDnsLabel</code> instead.
+        Rows carry a{" "}
         <code>kind</code> discriminator:{" "}
         <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer
         Buy now). Sessions still <code>open</code> 2+ hours after creation surface on separate

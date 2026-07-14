@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getLeadBySlug } from "@/lib/db";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { BundleTier } from "@/lib/pricing/bundles";
 import { CheckoutForm, type CheckoutPrefill } from "./checkout-form";
 
@@ -44,9 +45,9 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
               at{" "}
               <a
                 className="underline underline-offset-2"
-                href={`/preview/${encodeURIComponent(prefill.slug)}`}
+                href={leadPreviewPath(prefill.slug)}
               >
-                /preview/{prefill.slug}
+                {leadPreviewPath(prefill.slug)}
               </a>
             </>
           ) : null}

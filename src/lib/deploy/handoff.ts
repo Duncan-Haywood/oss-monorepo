@@ -13,6 +13,11 @@ import {
   updateLeadStage,
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+import {
+  leadContactAbsoluteUrl,
+  leadPreviewAbsoluteUrl,
+  leadSlugAsDnsLabel,
+} from "@/lib/leads/slug-path";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
 import {
   mergeProvisionOntoFreshHandoff,
@@ -69,9 +74,11 @@ function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
 
 function buildHandoffRecord(input: CreateDeployHandoffInput): DeployHandoff {
   const now = new Date().toISOString();
-  const suggestedHost = `${input.leadSlug}.${productionRootDomain()}`;
-  const previewUrl = `${appBaseUrl()}/preview/${input.leadSlug}`;
-  const contactFormUrl = `${appBaseUrl()}/api/contact/${input.leadSlug}`;
+  // DNS label sanitize (hostnames can't percent-encode); path URLs encode-at-use
+  // so legacy free-form slugs stay a single segment (see slug-path.ts).
+  const suggestedHost = `${leadSlugAsDnsLabel(input.leadSlug)}.${productionRootDomain()}`;
+  const previewUrl = leadPreviewAbsoluteUrl(appBaseUrl(), input.leadSlug);
+  const contactFormUrl = leadContactAbsoluteUrl(appBaseUrl(), input.leadSlug);
   const notes: string[] = [
     "Payment received — production handoff queued.",
     "Preview remains live at the preview URL until DNS is confirmed.",

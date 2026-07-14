@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getLeads } from "@/lib/db";
 import { DEMO_LEADS } from "@/lib/leads/demo-catalog";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { isLeadPreviewIndexable, siteUrl } from "@/lib/seo";
 
 const STATIC_ROUTES = [
@@ -35,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const previewEntries: MetadataRoute.Sitemap = Array.from(slugs).map((slug) => ({
-    url: `${base}/preview/${slug}`,
+    url: leadPreviewAbsoluteUrl(base, slug),
     changeFrequency: "weekly",
     priority: 0.8,
   }));

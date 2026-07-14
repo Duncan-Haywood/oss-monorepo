@@ -104,6 +104,7 @@ export const AGENT_PROTOCOL = [
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
   "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
   "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
+  "Lead slug create-paths normalize to [a-z0-9-]+ (sanitizeCheckoutLeadSlug / slugifyBusinessName / addLeadAction / CSV), but path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
 ] as const;
 
 /**
@@ -1839,6 +1840,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 4 — Data ingestion",
     owner:
       "cursor/prompt-process-evolution-78e4 (folded from opencode/dev-work-f3k8p1)",
+  },
+  {
+    id: "legacy-slug-encode-at-use-path-safety",
+    summary:
+      "PR #216 closed the create-path (sanitizeCheckoutLeadSlug on POST /api/stripe/checkout) so new payment_stub / paid leads cannot land with path-breaking slugs. Residual: several use-sites still interpolated lead.slug into /preview/{slug}, /api/contact/{slug}, proxy rewrites, deploy handoff preview/contact URLs, and outreach email links without encodeURIComponent — a legacy or pre-sanitize row (and any future create-path miss) remains a single-segment path hazard. Shipped: src/lib/leads/slug-path.ts (encodeLeadSlugPathSegment / leadPreviewPath / leadPreviewAbsoluteUrl / leadContact* / leadSlugAsDnsLabel) wired through seo.previewUrl, handoff build, resend outreach/upsell/commerce recovery, proxy rewrites, sitemap, commerce cancel_url, webhook receipt, dashboard/checkout hrefs.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-2d7a (folded from grok/continuous-work-slug-path-encode ← grok/dev-work-slug-path-encode; issues #228/#229)",
   },
 ];
 
@@ -4033,6 +4043,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Ship CSV import hours column + RFC 4180 multiline line-splitting + field-length caps, and make parseLeadHours split on the first '·' only — rather than leave operator-owned lead ingest on hardcoded hours / naive newline splits while Places API stays counsel-gated. Fold stuck opencode/dev-work-f3k8p1.",
     rationale:
       "Empty-backlog after PR #227. Sibling business-process-evolution-2d7a already claimed legacy-slug-encode-at-use-path-safety (claim pushed) — pivoted per AGENT_PROTOCOL. Next stuck CLI remote with a complete feature body and no open PR was opencode/dev-work-f3k8p1. On main, parseLeadsCsv ignored real business hours (hardcoded default whose weekend itself contained '·'), splitCsv was a raw .split('\\n') that broke quoted multiline descriptions, and parseLeadHours used .split('·') so any weekend middot truncated the stored value on SQLite round-trip. Closing that path improves preview fidelity and CSV throughput for the only live lead-volume channel until Places clears counsel — higher leverage than inventing an optional aggregate or dual-building the sibling's encode-at-use fold.",
+  },
+  {
+    date: "2026-07-14",
+    decision:
+      "Encode lead slugs at every path-construction use-site via src/lib/leads/slug-path.ts (encodeURIComponent for path segments; leadSlugAsDnsLabel for suggestedHost) — rather than rely only on create-path sanitizeCheckoutLeadSlug (PR #216) which cannot rewrite legacy payment_stub / pre-sanitize rows already in the CRM. Fold stuck grok/continuous-work-slug-path-encode (complete feature body; Actions token blocked from gh pr create; issues #228/#229).",
+    rationale:
+      "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation) and PR #230 (csv-import-hours-multiline-limits, sibling-owned after this branch claimed encode-at-use). Free NEXT_STEPS stayed operator/legal-gated. Prior iteration explicitly queued encode-at-use path-safety as the residual after checkout create-path sanitize. On main, outreach Email 1–3, deploy handoff previewUrl/contactFormUrl, proxy rewrites, sitemap, and commerce cancel_url still interpolated raw lead.slug into /preview/{slug} — a free-form slug with `/` becomes multi-segment and can collapse via WHATWG path normalization, the same traversal class create-path sanitize closed for new paid leads. Defense-in-depth keeps stored identity intact for DB lookup (Next decodes route params) while forcing a single path segment at every sink. Prefer folding this queued residual over inventing an optional aggregate, re-running 2x-clean audit axes, or registering dead Convex API map entries (opencode/dev-work-convex-api-map) with no live consumer.",
   },
 ];
 
@@ -7578,5 +7595,55 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1288 passed, +12 CSV hours/RFC4180/limits + middot-in-weekend regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(312, 313),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/dev-work-slug-path-encode",
+    summary:
+      "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation). Free NEXT_STEPS stayed operator/legal-gated. Prior ITERATIONS queued residual encode-at-use slug path-safety after PR #216 closed checkout create-path sanitize. Claimed and shipped legacy-slug-encode-at-use-path-safety: shared slug-path helpers + wire-through of every /preview and /api/contact construction site so legacy free-form slugs cannot expand into multi-segment paths.",
+    shipped: [
+      "src/lib/leads/slug-path.ts (+tests) — encodeLeadSlugPathSegment, leadPreviewPath, leadContactApiPath, leadPreviewAbsoluteUrl, leadContactAbsoluteUrl, leadSlugAsDnsLabel",
+      "src/lib/seo.ts previewUrl — encode-at-use via leadPreviewAbsoluteUrl; seo.test.ts path-breaking slug regression",
+      "src/lib/deploy/handoff.ts buildHandoffRecord — encoded preview/contact URLs + DNS-safe suggestedHost",
+      "src/lib/email/resend.ts — outreach Email 1–3, commerce abandoned recovery, starter upsell use leadPreviewAbsoluteUrl",
+      "src/proxy.ts — rewrite targets via leadPreviewPath",
+      "src/app/sitemap.ts, commerce checkout cancel_url, stripe webhook commerce receipt, dashboard/checkout hrefs, contact form, preview-open beacon",
+      "Docs: architecture.tsx notes encode-at-use beside create-path sanitize",
+      "AGENT_PROTOCOL — encode-at-use rule for lead slug path construction (legacy-slug-encode-at-use-path-safety)",
+      "NEXT_STEPS: legacy-slug-encode-at-use-path-safety done",
+      "BUSINESS_DECISIONS — documented why encode-at-use beats create-path-only and dead Convex API map busywork",
+      "Verified: npm test (1285 passed) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create — issue #228 points at grok/dev-work-slug-path-encode",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
+  },
+  {
+    date: "2026-07-14",
+    branch: "grok/continuous-work-slug-path-encode",
+    summary:
+      "Empty-backlog continuous-work run: free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit target and found grok/dev-work-slug-path-encode with a complete legacy-slug-encode-at-use-path-safety feature body plus issue #228 (Actions token blocked from gh pr create). Folded that body onto this continuous-work branch to open a mergeable draft PR rather than re-auditing 2x-clean axes or dual-building encode-at-use.",
+    shipped: [
+      "merge: fast-forward fold of origin/grok/dev-work-slug-path-encode (claim + feature + handoff note) — both ITERATIONS kept",
+      "NEXT_STEPS owner updated to grok/continuous-work-slug-path-encode (folded from grok/dev-work-slug-path-encode; issue #228)",
+      "No feature re-implementation — re-verified residual path sinks stay on slug-path helpers; query-string checkout links already encodeURIComponent; revalidatePath left unencoded (Next internal path key, not a browser/proxy URL)",
+      "Verified on continuous-work branch: npm test (1285 passed) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create on continuous-work too — issue #229 points at grok/continuous-work-slug-path-encode (fold of #228 / grok/dev-work-slug-path-encode)",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
+  },
+  {
+    date: "2026-07-14",
+    branch: "cursor/business-process-evolution-2d7a",
+    summary:
+      "Empty-backlog after PR #227 (client-voice-factory-test-env-isolation). Free NEXT_STEPS stayed operator/legal-gated. Prior ITERATIONS explicitly queued residual encode-at-use slug path-safety. Scanned stuck CLI remotes and found grok/continuous-work-slug-path-encode (fold of grok/dev-work-slug-path-encode) with a complete feature body and no open PR (Actions token blocked; issues #228/#229). Folded that body onto this automation branch that can open/merge. Merged origin/main (PR #230 csv-import-hours-multiline-limits) mid-window — kept both ITERATIONS.",
+    shipped: [
+      "Fold: origin/grok/continuous-work-slug-path-encode feature files (slug-path helpers + wire-through) — kept both grok ITERATIONS above",
+      "NEXT_STEPS: legacy-slug-encode-at-use-path-safety done (owner 2d7a, folded from continuous-work ← dev-work)",
+      "AGENT_PROTOCOL + architecture.tsx encode-at-use rule retained from fold",
+      "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(313, 314) after PR #230 took 312",
+      "merge: origin/main (PR #230 CSV hours fold) — both ITERATIONS kept",
+      "Verified: npm test (1297 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
 ];
