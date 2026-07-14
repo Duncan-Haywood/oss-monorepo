@@ -348,7 +348,10 @@ export default function ArchitectureDocPage() {
         <strong>Assign custom domain</strong> — pass <code>requireConvex</code> (
         <code>DEPLOY_HANDOFF_CONVEX_PRIMARY</code>) when Convex is configured, so a
         mutation failure surfaces as an operator retry message instead of a SQLite-only success
-        that other instances (reading Convex-first) would never see. Suggested host{" "}
+        that other instances (reading Convex-first) would never see. Action-level Vitest in{" "}
+        <code>mark-handoff-live-action.test.ts</code> locks the Mark live dashboard glue (auth,
+        empty slug, no-handoff, requireConvex fail-closed, success revalidate) beside handoff
+        helpers. Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
