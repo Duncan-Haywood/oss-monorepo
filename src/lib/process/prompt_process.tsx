@@ -1667,6 +1667,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "claude/relaxed-galileo-t69qzz",
   },
+  {
+    id: "leads-missing-email-in-digest",
+    summary:
+      "Empty-backlog after PR #196 (paid-not-live-in-digest): pipeline-health's leadsMissingEmailCount (email-critical stages site_built/outreach_sent/discovery_call/paid with no usable email) is still dashboard-only. Send daily digest never surfaces those rows, so a single-operator business can miss the top-of-funnel block that prevents Email 1 / follow-ups / recovery / receipts entirely. Claimed: wire the same EMAIL_CRITICAL_STAGES + empty-email predicate into buildDailyDigest/renderDailyDigestHtml (leads already loaded — no new data load).",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-2101",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
