@@ -1924,6 +1924,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/business-process-evolution-fbad (folded from grok/dev-work-slug-edge-dash; issue #245; pivoted after PR #246 absorbed contact-form-notify-skip)",
   },
+  {
+    id: "inquiry-reply-skip-marketing-suppression",
+    summary:
+      "After contact-form-notify-skip-marketing-suppression, the operator Reply half of the same Starter sold contact-form CRM loop still honors marketing suppression via sendInquiryReply. Persist-then-notify marks the inquiry replied even when the visitor never receives the email (global CAN-SPAM list — e.g. a cold-outreach unsub who later writes a paying client's site). Ship skipSuppression: true on sendInquiryReply; keep suppression for outreach, abandoned recovery, upsell, and marketing/voice pack delivery.",
+    status: "in_progress",
+    phase: "Phase 5 — Client sites + handoff",
+    owner: "cursor/prompt-process-evolution-f037",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
