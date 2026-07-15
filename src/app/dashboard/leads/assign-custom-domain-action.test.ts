@@ -7,10 +7,11 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  * assignCustomDomainAndProvision).
  *
  * handoff-persist / custom-domain-routing helper suites cover the
- * requireConvex constant and Host→preview routing. This suite locks the
- * dashboard action glue: requireOperatorAuth, empty slug, trim-to-null
- * clear, no-handoff null, ConvexPrimaryWriteError fail-closed (no
- * revalidate), success revalidate, and Error / non-Error throws.
+ * requireConvex constant and Host→preview routing + host normalize.
+ * This suite locks the dashboard action glue: requireOperatorAuth, empty
+ * slug, trim-to-null clear, URL→bare-host normalize, invalid reject,
+ * no-handoff null, ConvexPrimaryWriteError fail-closed (no revalidate),
+ * success revalidate, and Error / non-Error throws.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -26,6 +27,8 @@ vi.mock("next/cache", () => ({
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
 }));
+
+const getLeadSlugByCustomDomain = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -55,6 +58,8 @@ vi.mock("@/lib/db", () => ({
   getClientVoicePackByLeadSlug: vi.fn(),
   listClientVoicePacks: vi.fn(),
   listUnpaidCommerceOrders: vi.fn(),
+  getLeadSlugByCustomDomain: (...args: unknown[]) =>
+    getLeadSlugByCustomDomain(...args),
 }));
 
 const assignCustomDomainAndProvision = vi.fn();
@@ -64,6 +69,7 @@ vi.mock("@/lib/deploy/handoff", () => ({
   assignVercelProjectAndProvision: vi.fn(),
   assignCustomDomainAndProvision: (...args: unknown[]) =>
     assignCustomDomainAndProvision(...args),
+  productionRootDomain: () => "localsitestudio.com",
 }));
 
 class MockConvexPrimaryWriteError extends Error {
@@ -102,6 +108,7 @@ describe("assignCustomDomainAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     assignCustomDomainAndProvision.mockReset().mockResolvedValue(domainHandoff);
+    getLeadSlugByCustomDomain.mockReset().mockResolvedValue(null);
   });
 
   it("returns auth error without assigning a domain", async () => {
@@ -135,7 +142,56 @@ describe("assignCustomDomainAction", () => {
     const res = await assignCustomDomainAction("demo-cafe", "   ");
     expect(res).toEqual({ success: true, handoff: domainHandoff });
     expect(assignCustomDomainAndProvision).toHaveBeenCalledWith("demo-cafe", null);
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("normalizes scheme/path paste to a bare hostname before assign", async () => {
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction(
+      "demo-cafe",
+      "https://www.democafe.com/path",
+    );
+    expect(res).toEqual({ success: true, handoff: domainHandoff });
+    expect(assignCustomDomainAndProvision).toHaveBeenCalledWith(
+      "demo-cafe",
+      "www.democafe.com",
+    );
+    expect(getLeadSlugByCustomDomain).toHaveBeenCalledWith("www.democafe.com");
+  });
+
+  it("rejects invalid domain input without calling provision", async () => {
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction("demo-cafe", "not a domain");
+    expect(res.success).toBe(false);
+    if (res.success) throw new Error("expected failure");
+    expect(res.error).toMatch(/hostname|Domain/i);
+    expect(assignCustomDomainAndProvision).not.toHaveBeenCalled();
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  it("rejects a domain already owned by another lead", async () => {
+    getLeadSlugByCustomDomain.mockResolvedValue("other-salon");
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction("demo-cafe", "www.democafe.com");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Domain www.democafe.com is already saved on lead other-salon — clear it there first, or pick a different host",
+    });
+    expect(assignCustomDomainAndProvision).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("allows the same lead to re-save its own domain", async () => {
+    getLeadSlugByCustomDomain.mockResolvedValue("demo-cafe");
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction("demo-cafe", "www.democafe.com");
+    expect(res).toEqual({ success: true, handoff: domainHandoff });
+    expect(assignCustomDomainAndProvision).toHaveBeenCalledWith(
+      "demo-cafe",
+      "www.democafe.com",
+    );
   });
 
   it("returns not-found when assignCustomDomainAndProvision yields null", async () => {
@@ -185,6 +241,34 @@ describe("assignCustomDomainAction", () => {
     );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
     expect(revalidatePath).not.toHaveBeenCalledWith("/preview/demo-cafe");
+  });
+
+  it("strips scheme/path/port from a URL paste before assign", async () => {
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction(
+      "demo-cafe",
+      "https://WWW.DemoCafe.com:443/menu?ref=1",
+    );
+    expect(res).toEqual({ success: true, handoff: domainHandoff });
+    expect(assignCustomDomainAndProvision).toHaveBeenCalledWith(
+      "demo-cafe",
+      "www.democafe.com",
+    );
+  });
+
+  it("rejects invalid and platform-owned domains without calling assign", async () => {
+    const { assignCustomDomainAction } = await import("./actions");
+    const invalid = await assignCustomDomainAction("demo-cafe", "not a domain");
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) {
+      expect(invalid.error).toMatch(/domain/i);
+    }
+    const platform = await assignCustomDomainAction(
+      "demo-cafe",
+      "localsitestudio.com",
+    );
+    expect(platform.success).toBe(false);
+    expect(assignCustomDomainAndProvision).not.toHaveBeenCalled();
   });
 
   it("surfaces unexpected Error messages from assignCustomDomainAndProvision", async () => {

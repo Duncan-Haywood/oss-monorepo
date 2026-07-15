@@ -304,7 +304,30 @@ export const updateCustomDomain = mutation({
       .unique();
     if (!existing) return null;
 
-    const customDomain = args.customDomain.trim().toLowerCase() || undefined;
+    // Bare hostname only (mirror src/lib/deploy/custom-domain-routing
+    // normalizeOperatorCustomDomainHost — Convex cannot import src/).
+    // Strip scheme/path/port/trailing FQDN dot so Host→preview matches.
+    let customDomain: string | undefined;
+    const raw = args.customDomain.trim();
+    if (raw) {
+      let host = "";
+      try {
+        const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)
+          ? raw
+          : `https://${raw}`;
+        host = new URL(withScheme).hostname.toLowerCase();
+      } catch {
+        host = raw
+          .toLowerCase()
+          .replace(/^https?:\/\//, "")
+          .split("/")[0]
+          ?.split("?")[0]
+          ?.split("#")[0]
+          ?.split(":")[0] ?? "";
+      }
+      host = host.replace(/\.$/, "").trim();
+      customDomain = host || undefined;
+    }
     // replace so clearing the domain actually drops the optional field.
     await ctx.db.replace(existing._id, {
       handoffId: existing.handoffId,
