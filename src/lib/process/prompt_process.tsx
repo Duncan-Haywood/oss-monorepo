@@ -8063,7 +8063,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — skipSuppression rule names inquiry reply; empty-backlog note to check CRM-loop siblings (notify ↔ reply)",
       "NEXT_STEPS: inquiry-reply-skip-marketing-suppression done",
       "BUSINESS_DECISIONS — documented why CRM-loop reply skip beats inventing an optional aggregate (slice 322)",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1327 passed, +1 inquiry-reply skipSuppression regression) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(322, 323),
   },
