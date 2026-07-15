@@ -381,7 +381,9 @@ export default function ArchitectureDocPage() {
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, <code>notifySent</code> from inspecting{" "}
         <code>sendEmail</code>&apos;s <code>{"{ success }"}</code> shape — not just the throw path —
-        validation) beyond{" "}
+        validation, and soft-capped visitor fields via{" "}
+        <code>normalizeContactFormFields</code> / <code>MAX_CONTACT_*</code> so the sold notify
+        HTML cannot exceed the CRM row bounds) beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
         (missing-email 400, <code>UNSUBSCRIBE_CONVEX_PRIMARY</code> pass-through, the

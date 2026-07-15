@@ -283,6 +283,84 @@ describe("POST /api/contact/[slug]", () => {
     );
   });
 
+  it("soft-caps oversize message for both persist and notify (same string)", async () => {
+    const { MAX_CONTACT_MESSAGE_LENGTH } = await import(
+      "@/lib/inquiries/contact-fields"
+    );
+    const oversize = "x".repeat(MAX_CONTACT_MESSAGE_LENGTH + 1500);
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: "Pat",
+          email: "visitor@example.com",
+          message: oversize,
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.notifySent).toBe(true);
+
+    const persisted = insertClientInquiry.mock.calls[0]?.[0] as {
+      message: string;
+      name: string;
+    };
+    expect(persisted.message).toHaveLength(MAX_CONTACT_MESSAGE_LENGTH);
+    expect(persisted.message).toBe("x".repeat(MAX_CONTACT_MESSAGE_LENGTH));
+    expect(persisted.name).toBe("Pat");
+
+    const sentHtml = sentEmail.mock.calls[0]?.[0]?.html ?? "";
+    // Escaped body must not contain the uncapped tail — notify uses the same cap.
+    expect(sentHtml).not.toContain("x".repeat(MAX_CONTACT_MESSAGE_LENGTH + 1));
+    expect(sentHtml).toContain("x".repeat(Math.min(80, MAX_CONTACT_MESSAGE_LENGTH)));
+  });
+
+  it("soft-caps oversize name/email/phone/source before persist", async () => {
+    const {
+      MAX_CONTACT_NAME_LENGTH,
+      MAX_CONTACT_EMAIL_LENGTH,
+      MAX_CONTACT_PHONE_LENGTH,
+      MAX_CONTACT_SOURCE_LENGTH,
+    } = await import("@/lib/inquiries/contact-fields");
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          referer: "r".repeat(MAX_CONTACT_SOURCE_LENGTH + 50),
+        },
+        body: JSON.stringify({
+          name: "n".repeat(MAX_CONTACT_NAME_LENGTH + 20),
+          email: "e".repeat(MAX_CONTACT_EMAIL_LENGTH + 20),
+          phone: "1".repeat(MAX_CONTACT_PHONE_LENGTH + 20),
+          message: "hi",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+
+    expect(response.status).toBe(200);
+    const persisted = insertClientInquiry.mock.calls[0]?.[0] as {
+      name: string;
+      email: string;
+      phone: string;
+      source: string;
+      message: string;
+    };
+    expect(persisted.name).toHaveLength(MAX_CONTACT_NAME_LENGTH);
+    expect(persisted.email).toHaveLength(MAX_CONTACT_EMAIL_LENGTH);
+    expect(persisted.phone).toHaveLength(MAX_CONTACT_PHONE_LENGTH);
+    expect(persisted.source).toHaveLength(MAX_CONTACT_SOURCE_LENGTH);
+    expect(persisted.message).toBe("hi");
+  });
+
   it("accepts form-urlencoded bodies and emails the lead when present", async () => {
     getLeadBySlug.mockResolvedValue({
       slug: "demo-cafe",

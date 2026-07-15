@@ -68,6 +68,7 @@ export const AGENT_PROTOCOL = [
   "Any action that reads a whole-row record, then performs a real, materially long async operation (a sequential per-item external API loop, e.g. syncCommerceCatalogToStripe) before writing that record back via an unconditional full-row upsert (no version/CAS check) has a TOCTOU lost-update window — a concurrent write from a second tab or a follow-up edit during that window gets silently discarded. Re-read the record immediately before the final write and merge in only the fields the long operation actually produced (see syncCommerceCatalogToStripeAction's preserveCommerceStripeIds(freshItems, synced) — the same merge helper saveCommerceCatalogAction uses, with previous/base roles swapped) rather than writing the pre-operation snapshot verbatim. This is a distinct bug class from the money-separation/webhook-idempotency rules above — it's about ordinary operator concurrency on non-webhook writes, not Stripe redelivery. The same window exists when the 'write' at the end is a third-party API mutation rather than a DB row — archiveOrphanCommerceStripeProductsAction's listOrphanCommerceStripeProducts (paginates every active Stripe Product on the account) computes its orphan set from one stale catalog snapshot, then sequentially archives every match; re-read the catalog between the list and the actual mutation step and drop any candidate that reappeared (see orphan-archive-lost-update-guard, archiveCommerceStripeProducts split out for this). Deploy handoff assign/enqueue paths have the same window: tryProvisionVercelDomain is a real Vercel Domains API fetch, then insertDeployHandoff upserts the whole row — re-read + mergeProvisionOntoFreshHandoff before that final write so a concurrent Mark live / Save domain / Assign project survives (see handoff-provision-lost-update-guard). A related status-regression class: updateDeployHandoffStatus always patches status + notes; the bundle webhook's receipt/DNS sent-marker path passes a pre-Resend handoff.status snapshot, so a concurrent Mark live during Resend can be overwritten back to awaiting_dns — fix inside the write (preferAdvancedHandoffStatus never-downgrade on Convex + SQLite, handoff-email-marker-status-no-downgrade), not only by re-reading at the call site (still racy). Before adding a new 'diff current vs desired external state, then mutate' action, check whether the diff snapshot and the mutation step can drift apart during a real (not one-tick) window.",
   "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a marketing-suppression hit (when skipSuppression is unset) or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
   "Post-payment transactional emails must pass skipSuppression: true into sendEmail (sendReceiptEmail, bundle DNS handoff send in the Stripe webhook, sendCommerceBuyNowClientReceipt) — a cold-outreach CAN-SPAM unsubscribe must not block receipt / DNS go-live / Commerce order-notification after money is taken. Marker-only gating (leave sent-marker unwritten on suppress) is not enough: Stripe redelivers forever against the same suppress. The same rule applies to Starter sold contact-form CRM: POST /api/contact/[slug]'s business/operator inquiry alert AND sendInquiryReply (operator Reply to the visitor) must pass skipSuppression: true — a marketing unsub must not silence website inquiry delivery or leave an inquiry marked replied while the visitor never gets the reply (inquiry-reply-skip-marketing-suppression). Sold Growth/Complete pack delivery on lead.email is the same class: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail must pass skipSuppression: true (marketing-voice-pack-skip-suppression) — a cold-outreach unsub must not permanently block paid monthly marketing content or Complete phone scripts the client is billed for. After shipping a skipSuppression rule for one product surface, the next empty-backlog scan should check the matching CRM-loop sibling (notify ↔ reply) and other sold lead.email notifies before inventing an optional aggregate. Keep suppression for outreach Email 1–3, abandoned recovery, and Starter upsell. sendOperatorDailyDigest already bypasses suppression for the operator inbox.",
+  "Sold contact-form notify and CRM persist must share one soft-capped field set (normalizeContactFormFields / MAX_CONTACT_* in src/lib/inquiries/contact-fields.ts) — never build the skipSuppression notify HTML from uncapped request bodies while insertClientInquiry truncates message (or other fields) for storage. Rate limits blunt request count, not payload size; escapeHtmlForEmail prevents XSS but expands size. Soft-cap once before persist+notify (and again inside insertClientInquiry for webhook writers). After closing a sold-notify skipSuppression hole, the next empty-backlog scan should check notify↔persist field-length parity on that surface before inventing an optional aggregate.",
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. That includes href attribute values (previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl + /privacy in resend.ts): sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs; a quote or ampersand in NEXT_PUBLIC_APP_URL must not break out of href=\"...\". Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
@@ -99,7 +100,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b), (2) a fresh security or injection-surface audit (operator-password trim, auth cookie, public write routes), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b; operator-password-trim claimed by business-process-evolution-f844), (2) a fresh security or injection-surface audit (auth cookie, public write routes — including notify↔persist field-length parity after contact-form-notify-field-length-caps), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -1990,7 +1991,7 @@ export const NEXT_STEPS: NextStep[] = [
     id: "contact-form-notify-field-length-caps",
     summary:
       "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim (whitespace trim on OPERATOR_DASHBOARD_PASSWORD / tryCreateSessionFromPassword) — pivot. Sold-capability audit of Starter contact CRM found insertClientInquiry silently slices message to 5000 chars while POST /api/contact/[slug] builds the skipSuppression notify from the uncapped request body (name/email/phone/message/source). A public rate-limited form can force multi-MB escaped HTML into Resend toward lead.email/support while the inbox row only stores 5k — CRM and sold notify diverge; abuse burns Resend quota on a paid path. Soft-cap once via shared normalizeContactFormFields and reuse the same strings for persist + notify; export MAX_CONTACT_* constants; cap name/email/phone/source too (db previously only sliced message).",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-38a8",
   },
@@ -4299,7 +4300,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Cap create-path lead slugs at MAX_LEAD_SLUG_LENGTH=63 (RFC 1035 DNS label max) inside shared sanitizeLeadSlug — truncate then re-strip trailing dashes — and reuse that sanitizer from leadSlugAsDnsLabel + CSV slugifyBusinessName / collision suffixes, rather than mint over-length CRM slugs that cannot be valid suggestedHost labels.",
     rationale:
-      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window (complementary axis — owns slice 327). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (and digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folding that Starter Host→preview identity fix beats inventing an optional aggregate — edge-dash strip (#247) alone still left >63 labels invalid for DNS. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window (complementary axis — owns slice 326). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (and digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folding that Starter Host→preview identity fix beats inventing an optional aggregate — edge-dash strip (#247) alone still left >63 labels invalid for DNS. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Soft-cap Starter contact-form visitor fields once via shared normalizeContactFormFields (MAX_CONTACT_MESSAGE_LENGTH=5000 + name/email/phone/source caps) and reuse those strings for both insertClientInquiry persist and the skipSuppression notify HTML — rather than silently truncate only at the DB layer while emailing the uncapped request body.",
+    rationale:
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim — pivoted. Sold-capability audit found POST /api/contact/[slug] built the business/operator notify from uncapped request fields while insertClientInquiry sliced message to 5000 for CRM storage. Rate limits (20/min) bound request count, not payload size; escapeHtmlForEmail prevents XSS but can expand size. Divergent CRM vs notify breaks the Starter sold promise and lets a public form burn Resend quota toward lead.email/support. Soft-cap-once keeps visitor UX (no 400 on long messages) and defense-in-depth inside insertClientInquiry for webhook writers. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8408,7 +8416,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold (folded done on 1ce7)",
       "PR handoff: Actions token blocked — folded onto cursor/prompt-process-evolution-1ce7",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
   {
     date: "2026-07-15",
@@ -8422,10 +8430,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes the two remaining age mirrors now digest-mirrored",
       "AGENT_PROTOCOL — pipeline-health/digest wiring axis closed for known aggregates; next empty-backlog rotation prefers stuck CLI folds / security / Convex parity over inventing optional digests",
       "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold done (owner 1ce7)",
-      "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 327)",
+      "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 326)",
       "Verified: npm test (1352 passed, +6 digest age-mirror regressions vs 1346 on main) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(327, 328),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
   {
     date: "2026-07-15",
@@ -8441,7 +8449,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — issue #257; folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(328, 329),
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
   {
     date: "2026-07-15",
@@ -8454,7 +8462,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — issue #255; folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(328, 329),
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
   {
     date: "2026-07-15",
@@ -8467,15 +8475,15 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-9b1b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(328, 329),
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
   {
     date: "2026-07-15",
     branch: "cursor/business-process-evolution-9b1b",
     summary:
-      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis, owns slice 327. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (plus digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest-mirror + DNS-cap ITERATIONS.",
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis, owns slice 326. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (plus digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest-mirror + DNS-cap ITERATIONS.",
     shipped: [
-      "merge: origin/main (PR #278 digest age-mirror) — 1ce7 owns digest NEXT_STEPS / slice 327; both complementary ITERATIONS kept",
+      "merge: origin/main (PR #278 digest age-mirror) — 1ce7 owns digest NEXT_STEPS / slice 326; both complementary ITERATIONS kept",
       "Fold: stuck CLI remotes feature files (slug.ts / slug-path.ts / csv-import.ts + tests + architecture docs) — kept grok continuous/dev + opencode ITERATIONS above",
       "src/lib/leads/slug.ts — MAX_LEAD_SLUG_LENGTH=63; sanitizeLeadSlug truncates then re-strips trailing dashes",
       "src/lib/leads/slug-path.ts — leadSlugAsDnsLabel reuses sanitizeLeadSlug so Host→preview identity matches create-path storage including the 63-cap",
@@ -8484,8 +8492,27 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes 63-cap beside edge-dash strip",
       "AGENT_PROTOCOL — create-path slug rule names MAX_LEAD_SLUG_LENGTH=63 + leadSlugAsDnsLabel reuse; digest age-mirror axis closed on main",
       "NEXT_STEPS: create-path-slug-dns-label-max-length done",
-      "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 328)",
+      "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 327)",
       "Verified after merge: npm test (1357 passed, +5 DNS max-length regressions on top of PR #278's 1352) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-38a8",
+    summary:
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-f844 claimed operator-password-trim (folding opencode password-trim remotes) — pivoted per AGENT_PROTOCOL. Scanned stuck CLI remotes (password-trim owned; other remotes were already-merged as-const/skip/slug/digest bodies behind main). Fresh sold-capability audit of Starter contact CRM found notify↔persist field-length divergence: insertClientInquiry sliced message to 5000 while POST /api/contact/[slug] emailed uncapped request fields under skipSuppression. Soft-capped once via shared normalizeContactFormFields; defense-in-depth inside insertClientInquiry; route + unit tests; tightened prior over-generous slice(328,329) → slice(327,328) so they cannot absorb this decision.",
+    shipped: [
+      "src/lib/inquiries/contact-fields.ts — MAX_CONTACT_* + normalizeContactFormFields",
+      "src/lib/inquiries/contact-fields.test.ts — soft-cap regressions",
+      "src/app/api/contact/[slug]/route.ts — cap once before persist + notify",
+      "src/lib/db.ts — insertClientInquiry uses shared caps for all writers",
+      "src/app/api/contact/[slug]/route.test.ts — oversize message/name/email/phone/source regressions",
+      "Docs: architecture.tsx notes soft-cap notify↔persist parity",
+      "AGENT_PROTOCOL — sold contact-form notify↔persist field-length rule; empty-backlog rotation notes password-trim sibling claim + this axis",
+      "NEXT_STEPS: contact-form-notify-field-length-caps done",
+      "BUSINESS_DECISIONS — soft-cap-once over uncapped notify (slice 328)",
+      "Tightened create-path DNS ITERATIONS decisions slices 328,329 → 327,328 (absolute index of that decision)",
     ],
     decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
