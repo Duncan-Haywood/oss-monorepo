@@ -7974,13 +7974,13 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/prompt-process-evolution-63b3",
     summary:
-      "Empty-backlog after PR #243. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling business-process-evolution-fbad had not claimed on remote.",
+      "Empty-backlog after PR #243. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling business-process-evolution-fbad claimed the same id ~2s earlier (claim-only on remote); we already had feature body — keep both ITERATIONS if sibling also ships; sibling should pivot or close duplicate PR per AGENT_PROTOCOL.",
     shipped: [
       "Fold: origin/grok/continuous-work-contact-notify-skip feature files (contact route + tests + architecture + resend JSDoc) — kept grok ITERATION above",
-      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner 63b3 fold)",
+      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner 63b3 fold; dual-claim with fbad claim-only)",
       "AGENT_PROTOCOL — skipSuppression rule names contact-form notify; empty-backlog note to check sibling lead.email product notifies after one skip surface ships",
       "BUSINESS_DECISIONS — documented why folding this stuck Starter product-notify fix beats inventing an optional aggregate",
-      "Verified: npm test + lint + build (counts recorded after run)",
+      "Verified: npm test (1320 passed, +1 contact skipSuppression regression vs 1319 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(320, 321),
   },
