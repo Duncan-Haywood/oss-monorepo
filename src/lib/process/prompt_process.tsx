@@ -8353,7 +8353,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — public rate-limit rule names loginOperatorAction 5/60s + error=rate_limited redirect",
       "NEXT_STEPS: login-rate-limit done",
       "BUSINESS_DECISIONS — documented why folding this login throttle beats inventing an optional aggregate (slice 326)",
-      "Verified after merge: npm test + lint + build",
+      "Verified after merge: npm test (1346 passed, +1 login rate-limit regression on top of PR #276's 1345) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
