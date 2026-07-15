@@ -8399,6 +8399,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — pipeline-health/digest wiring axis closed for known aggregates; next empty-backlog rotation prefers stuck CLI folds / security / Convex parity over inventing optional digests",
       "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold done (owner 1ce7)",
       "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 327)",
+      "Verified: npm test (1352 passed, +6 digest age-mirror regressions vs 1346 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
