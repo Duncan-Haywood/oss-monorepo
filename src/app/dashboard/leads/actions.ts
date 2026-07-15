@@ -54,6 +54,7 @@ import {
 } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
+import { sanitizeLeadSlug } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl, leadPreviewPath } from "@/lib/leads/slug-path";
 import {
   isSnoozePresetId,
@@ -1063,8 +1064,12 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
       throw new Error("Slug and Business Name are required");
     }
 
-    // Ensure slug is clean
-    lead.slug = lead.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    // Shared create-path sanitize — strip edge dashes so CRM slug matches
+    // leadSlugAsDnsLabel / preview-subdomain Host lookup (see sanitizeLeadSlug).
+    lead.slug = sanitizeLeadSlug(lead.slug);
+    if (!lead.slug) {
+      throw new Error("Slug must contain at least one letter or number");
+    }
 
     // Create-path only: never clobber an advanced lead via upsertLead on a slug typo/collision.
     const existing = await getLeadBySlug(lead.slug);

@@ -155,6 +155,16 @@ describe("addLeadAction", () => {
     expect(upsertLead).not.toHaveBeenCalled();
   });
 
+  it("rejects all-symbol slugs that sanitize to empty", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({ ...baseLeadInput, slug: "!!!" });
+    expect(res).toEqual({
+      success: false,
+      error: "Slug must contain at least one letter or number",
+    });
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
   it("rejects missing businessName without upserting", async () => {
     const { addLeadAction } = await import("./actions");
     const res = await addLeadAction({ ...baseLeadInput, businessName: "" });
@@ -169,12 +179,14 @@ describe("addLeadAction", () => {
     const { addLeadAction } = await import("./actions");
     const res = await addLeadAction(baseLeadInput);
 
-    expect(res).toEqual({ success: true, slug: "demo-cafe-" });
-    expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe-");
+    // Edge dashes stripped so CRM slug matches leadSlugAsDnsLabel / Host lookup
+    // (create-path-slug-edge-dash-normalize — "Demo Cafe!" must not become demo-cafe-).
+    expect(res).toEqual({ success: true, slug: "demo-cafe" });
+    expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
     expect(upsertLead).toHaveBeenCalledOnce();
     expect(upsertLead).toHaveBeenCalledWith(
       expect.objectContaining({
-        slug: "demo-cafe-",
+        slug: "demo-cafe",
         businessName: "Demo Cafe",
         stage: "discovered",
         dataSource: "manual_entry",
@@ -185,7 +197,7 @@ describe("addLeadAction", () => {
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
-    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe-");
+    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
   });
 
   it("preserves an explicit stage and dataSource on create", async () => {

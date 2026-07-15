@@ -5,6 +5,7 @@
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { parseLeadHours } from "./sqlite-row-mapping";
+import { sanitizeLeadSlug } from "./slug";
 
 export const CSV_LEAD_HEADERS = [
   "businessName",
@@ -263,8 +264,17 @@ export function parseLeadsCsv(
       return;
     }
 
-    let slug = get("slug") || slugifyBusinessName(businessName);
-    slug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    // Explicit slug column uses shared sanitizeLeadSlug (edge dashes stripped)
+    // so CSV create-paths match addLead / checkout / DNS labels. Missing or
+    // all-symbol slug columns fall back to slugifyBusinessName (already strips
+    // edges and returns "lead" when empty). See create-path-slug-edge-dash-normalize.
+    const explicitSlug = get("slug");
+    let slug = explicitSlug
+      ? sanitizeLeadSlug(explicitSlug)
+      : slugifyBusinessName(businessName);
+    if (!slug) {
+      slug = slugifyBusinessName(businessName);
+    }
     if (seenSlugs.has(slug)) {
       let suffix = 2;
       while (seenSlugs.has(`${slug}-${suffix}`)) suffix += 1;

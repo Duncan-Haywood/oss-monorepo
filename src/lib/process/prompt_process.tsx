@@ -105,7 +105,7 @@ export const AGENT_PROTOCOL = [
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
   "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
   "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
-  "Lead slug create-paths normalize to [a-z0-9-]+ (sanitizeCheckoutLeadSlug / slugifyBusinessName / addLeadAction / CSV), but path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
+  "Lead slug create-paths normalize to [a-z0-9-]+ via shared sanitizeLeadSlug (src/lib/leads/slug.ts) — collapse non-token runs AND strip leading/trailing dashes — used by addLeadAction, CSV explicit-slug column, and resolveBundleCheckoutLeadSlug. slugifyBusinessName already strips edges. A create-path that keeps edge dashes (e.g. Demo Cafe! → demo-cafe-) desyncs the CRM slug from leadSlugAsDnsLabel, so suggestedHost is demo-cafe.{root} while extractPreviewSubdomainSlug → getLeadBySlug still looks up demo-cafe- and misses (Starter preview-subdomain Host→preview falls through). Path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
   "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
   "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
 ] as const;
@@ -1913,7 +1913,16 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner:
-      "cursor/prompt-process-evolution-63b3 (folded from grok/continuous-work-contact-notify-skip; issue #244)",
+      "cursor/prompt-process-evolution-63b3 (PR #246; folded from grok/continuous-work-contact-notify-skip; issue #244; same-minute dual with business-process-evolution-fbad — fbad claimed ~2s earlier and also folded, then pivoted after #246 landed)",
+  },
+  {
+    id: "create-path-slug-edge-dash-normalize",
+    summary:
+      "Empty-backlog sold-capability audit: addLeadAction and CSV slug-column sanitize keep leading/trailing dashes (e.g. \"Demo Cafe!\" → demo-cafe-) while sanitizeCheckoutLeadSlug, slugifyBusinessName, and leadSlugAsDnsLabel all strip them. suggestedHost then becomes demo-cafe.{root} but the CRM slug stays demo-cafe-, so extractPreviewSubdomainSlug → getLeadBySlug misses the lead and Starter preview-subdomain Host→preview silently falls through to the marketing homepage. Align every create-path on a shared sanitizeLeadSlug (collapse + strip edge dashes; reject/fallback when empty). Stuck feature body: grok/dev-work-slug-edge-dash (issue #245; Actions token blocked).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-fbad (folded from grok/dev-work-slug-edge-dash; issue #245; pivoted after PR #246 absorbed contact-form-notify-skip)",
   },
 ];
 
@@ -4164,7 +4173,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Pass skipSuppression: true on POST /api/contact/[slug]'s business/operator inquiry notify — rather than leave Starter sold contact-form alerts permanently blocked when the lead unsubscribed from cold-outreach marketing (CRM trail still succeeds).",
     rationale:
-      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folding that Starter sold product-notify fix beats inventing an optional aggregate or documenting another clean re-audit of exhausted axes. AGENT_PROTOCOL now says: after shipping skipSuppression for one product surface, check sibling lead.email product notifies next. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folding that Starter sold product-notify fix beats inventing an optional aggregate. AGENT_PROTOCOL now says: after shipping skipSuppression for one product surface, check sibling lead.email product notifies next. Same-minute dual: business-process-evolution-fbad claimed ~2s earlier and also folded; prompt-process-evolution-63b3 merged as PR #246; fbad pivoted to create-path-slug-edge-dash-normalize. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Share sanitizeLeadSlug across addLeadAction, CSV explicit-slug columns, and resolveBundleCheckoutLeadSlug so every create-path collapses non-token runs AND strips leading/trailing dashes — matching leadSlugAsDnsLabel / slugifyBusinessName rather than leaving edge dashes that desync CRM identity from suggestedHost DNS labels.",
+    rationale:
+      "Empty-backlog after PR #246 (contact-form-notify-skip, sibling-owned merge). Free NEXT_STEPS stayed operator/legal-gated; fbad pivoted from the dual-claim contact-notify race. Fresh sold-capability audit of Starter preview-subdomain Host→preview found addLead/CSV kept edge dashes (Demo Cafe! → demo-cafe-) while leadSlugAsDnsLabel strips them for suggestedHost, so extractPreviewSubdomainSlug → getLeadBySlug misses the lead and the sold Host→preview path silently serves the marketing homepage. Closing that identity desync beats inventing an optional aggregate. Folded onto cursor/business-process-evolution-fbad from grok/dev-work-slug-edge-dash (issue #245; Actions token blocked).",
   },
 
 ];
@@ -7956,7 +7972,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "grok/continuous-work-contact-notify-skip",
     summary:
-      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sold-capability audit found POST /api/contact/[slug] still honors marketing suppression for lead.email inquiry notify after cold-outreach unsubscribe — Starter sold contact-form alerts silently fail while CRM trail succeeds. Claimed and shipped contact-form-notify-skip-marketing-suppression.",
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (clean-audit process-only) before inventing work. Sold-capability audit found POST /api/contact/[slug] still honors marketing suppression for lead.email inquiry notify after cold-outreach unsubscribe — Starter sold contact-form alerts silently fail while CRM trail succeeds. Claimed and shipped contact-form-notify-skip-marketing-suppression.",
     shipped: [
       "src/app/api/contact/[slug]/route.ts — skipSuppression: true on business/operator notify sendEmail",
       "src/app/api/contact/[slug]/route.test.ts — +1 skipSuppression regression; Resend-failure path still surfaces notifySent:false",
@@ -7974,14 +7990,49 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/prompt-process-evolution-63b3",
     summary:
-      "Empty-backlog after PR #243. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling business-process-evolution-fbad claimed the same id ~2s earlier (claim-only on remote); we already had feature body — keep both ITERATIONS if sibling also ships; sibling should pivot or close duplicate PR per AGENT_PROTOCOL.",
+      "Empty-backlog after PR #243. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling business-process-evolution-fbad claimed ~2s earlier and also folded; 63b3 merged as PR #246.",
     shipped: [
       "Fold: origin/grok/continuous-work-contact-notify-skip feature files (contact route + tests + architecture + resend JSDoc) — kept grok ITERATION above",
-      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner 63b3 fold; dual-claim with fbad claim-only)",
+      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner 63b3 / PR #246; dual with fbad)",
       "AGENT_PROTOCOL — skipSuppression rule names contact-form notify; empty-backlog note to check sibling lead.email product notifies after one skip surface ships",
       "BUSINESS_DECISIONS — documented why folding this stuck Starter product-notify fix beats inventing an optional aggregate",
       "Verified: npm test (1320 passed, +1 contact skipSuppression regression vs 1319 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(320, 321),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/dev-work-slug-edge-dash",
+    summary:
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (already folded) then sold-capability audit of Starter preview-subdomain Host→preview: addLeadAction + CSV kept edge dashes while leadSlugAsDnsLabel stripped them. Claimed and shipped create-path-slug-edge-dash-normalize.",
+    shipped: [
+      "src/lib/leads/slug.ts (+tests) — shared sanitizeLeadSlug (collapse + strip edge dashes)",
+      "src/app/dashboard/leads/actions.ts addLeadAction — uses sanitizeLeadSlug; rejects all-symbol empty",
+      "src/lib/leads/csv-import.ts — explicit slug column uses sanitizeLeadSlug; empty falls back to slugifyBusinessName",
+      "src/lib/checkout/organic-attribution.ts — resolveBundleCheckoutLeadSlug uses shared sanitizeLeadSlug",
+      "add-lead-action.test.ts + csv-import.test.ts — edge-dash + all-symbol regressions",
+      "Docs: architecture.tsx notes create-path edge-dash / DNS-label identity contract",
+      "AGENT_PROTOCOL — create-path sanitizeLeadSlug edge-dash rule",
+      "NEXT_STEPS: create-path-slug-edge-dash-normalize done",
+      "BUSINESS_DECISIONS — documented why shared edge-dash strip beats inventing an optional aggregate",
+      "Verified: npm test (1325 passed, +6 slug edge-dash / all-symbol regressions) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create — issue #245 points at grok/dev-work-slug-edge-dash",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(321, 322),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-fbad",
+    summary:
+      "Same-minute dual with prompt-process-evolution-63b3 on contact-form-notify-skip-marketing-suppression — fbad claimed ~2s earlier and folded the same grok body; 63b3 merged as PR #246. Per AGENT_PROTOCOL, pivoted this PR to fold create-path-slug-edge-dash-normalize from stuck grok/dev-work-slug-edge-dash (issue #245; Actions token blocked).",
+    shipped: [
+      "merge: origin/main (PR #246 contact-form skip) — both dual ITERATIONS kept; contact-form owner recorded as 63b3/PR #246",
+      "Fold: origin/grok/dev-work-slug-edge-dash feature files (sanitizeLeadSlug + addLead/CSV/checkout wire-through + architecture + tests) — kept grok ITERATION above",
+      "NEXT_STEPS: create-path-slug-edge-dash-normalize done (owner fbad; issue #245)",
+      "AGENT_PROTOCOL — create-path sanitizeLeadSlug edge-dash rule retained from fold",
+      "BUSINESS_DECISIONS — documented why shared edge-dash strip beats inventing an optional aggregate (slice 321)",
+      "Verified: npm test + lint + build on fold branch",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(321, 322),
   },
 ];

@@ -277,10 +277,7 @@ export default function ArchitectureDocPage() {
         <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
         <code>skipSuppression: true</code> so a cold-outreach unsubscribe cannot block receipt /
         DNS instructions / Commerce order notification after money is taken (marker-only gating
-        left Stripe redelivering forever against the same suppress). The Starter sold contact-form
-        notify (<code>POST /api/contact/[slug]</code> → <code>lead.email</code> or support) also
-        passes <code>skipSuppression: true</code> — a marketing unsub must not silence website
-        inquiry alerts while the CRM trail still succeeds.{" "}
+        left Stripe redelivering forever against the same suppress).{" "}
         <code>sendOperatorDailyDigest</code> also skips suppression (operator inbox, not a
         prospect). The unsubscribe
         link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}
@@ -438,9 +435,10 @@ export default function ArchitectureDocPage() {
         deploy handoffs still run after Stripe collects money — empty{" "}
         <code>metadata.slug</code> previously skipped the entire paid path.{" "}
         <code>resolveBundleCheckoutLeadSlug</code> also sanitizes an explicit client-supplied
-        slug to <code>[a-z0-9-]+</code> (mirroring{" "}
-        <code>slugifyBusinessName</code> / <code>addLeadAction</code>&apos;s explicit-slug
-        sanitize — the one other lead-slug-creation path this had drifted from) before it can be
+        slug via shared <code>sanitizeLeadSlug</code> (<code>src/lib/leads/slug.ts</code> —
+        same helper as <code>addLeadAction</code> / CSV explicit-slug column; collapses
+        non-token runs and strips leading/trailing dashes so the CRM slug matches{" "}
+        <code>leadSlugAsDnsLabel</code> / preview-subdomain Host lookup) before it can be
         persisted by the webhook as a brand-new paid lead — an unsanitized slug containing a{" "}
         <code>..</code> segment would otherwise flow into{" "}
         <code>suggestedHost</code> / <code>previewUrl</code> (
@@ -457,7 +455,9 @@ export default function ArchitectureDocPage() {
         <code>encodeLeadSlugPathSegment</code> / <code>leadPreviewPath</code> /
         <code>leadPreviewAbsoluteUrl</code>) so a free-form slug stays a single
         path segment. Hostnames cannot percent-encode, so handoff{" "}
-        <code>suggestedHost</code> uses <code>leadSlugAsDnsLabel</code> instead.
+        <code>suggestedHost</code> uses <code>leadSlugAsDnsLabel</code> instead —
+        and create-paths must already strip edge dashes so the stored slug equals
+        that DNS label (create-path-slug-edge-dash-normalize).
         Rows carry a{" "}
         <code>kind</code> discriminator:{" "}
         <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer
