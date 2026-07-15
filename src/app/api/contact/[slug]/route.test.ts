@@ -218,9 +218,11 @@ describe("POST /api/contact/[slug]", () => {
     expect(sentEmail).toHaveBeenCalledTimes(1);
   });
 
-  it("still returns ok with notifySent:false when sendEmail resolves success:false (suppressed)", async () => {
+  it("still returns ok with notifySent:false when sendEmail resolves success:false (Resend outage)", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    sentEmail.mockResolvedValueOnce({ success: false, reason: "suppressed" });
+    // After skipSuppression, marketing suppress is not a failure path for this
+    // route — still assert Resend/API failure surfaces notifySent:false.
+    sentEmail.mockResolvedValueOnce({ success: false, error: "resend 500" });
     const { POST } = await import("./route");
     const response = await POST(
       new Request("http://localhost/api/contact/demo-cafe", {
@@ -240,10 +242,45 @@ describe("POST /api/contact/[slug]", () => {
     expect(json.inquiryId).toBe("inq_test_1");
     expect(json.notifySent).toBe(false);
     expect(sentEmail).toHaveBeenCalledTimes(1);
+    expect(sentEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ skipSuppression: true }),
+    );
     expect(errorSpy).toHaveBeenCalledWith(
       expect.stringContaining("inquiry inq_test_1"),
     );
     errorSpy.mockRestore();
+  });
+
+  it("passes skipSuppression so a marketing-unsub lead still gets inquiry notify", async () => {
+    getLeadBySlug.mockResolvedValue({
+      slug: "demo-cafe",
+      businessName: "Demo Cafe",
+      email: "owner@demo.example",
+    });
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/demo-cafe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Book a table",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.notifySent).toBe(true);
+    expect(sentEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "owner@demo.example",
+        leadSlug: "demo-cafe",
+        skipSuppression: true,
+      }),
+    );
   });
 
   it("accepts form-urlencoded bodies and emails the lead when present", async () => {
@@ -270,6 +307,7 @@ describe("POST /api/contact/[slug]", () => {
       expect.objectContaining({
         to: "owner@demo.example",
         leadSlug: "demo-cafe",
+        skipSuppression: true,
       }),
     );
   });

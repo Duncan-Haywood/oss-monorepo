@@ -23,6 +23,12 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * Visitor success stays tied to the CRM trail, not the notify (operator can
  * still reply from the inbox).
  *
+ * Pass skipSuppression: true — this is a Starter sold product notify to
+ * lead.email (or support), not cold-outreach marketing. A CAN-SPAM unsub from
+ * Email 1–3 must not silence website contact-form delivery (see
+ * contact-form-notify-skip-marketing-suppression; same class as
+ * transactional-email-skip-marketing-suppression for receipt/DNS/Commerce).
+ *
  * When NEXT_PUBLIC_CONVEX_URL is set, insertClientInquiry passes requireConvex
  * so a Convex mutation failure does not SQLite-fallback then claim success —
  * other instances read Convex-first and would never see the inquiry.
@@ -141,6 +147,8 @@ export async function POST(request: Request, context: RouteContext) {
         to: notifyTo,
         subject: `New website inquiry for ${businessName}`,
         leadSlug: slug,
+        // Product notify (Starter sold contact form), not marketing cadence.
+        skipSuppression: true,
         html: `
         <h2 style="margin-bottom: 12px;">New contact form submission</h2>
         <p><strong>Business:</strong> ${safeBiz} (<code>${safeSlug}</code>)</p>
@@ -156,7 +164,7 @@ export async function POST(request: Request, context: RouteContext) {
       if (!sent.success) {
         // Same bug class as webhook/Email 1: sendEmail resolves failure without
         // throwing — log with inquiryId so operators can correlate CRM trail vs
-        // missing business notify (suppression or Resend outage).
+        // missing business notify (Resend/API outage — marketing suppress skipped).
         console.error(
           `contact form notify not sent for ${slug} (inquiry ${outcome.inquiryId}): ${sent.reason ?? sent.error ?? "unknown"}`,
         );
