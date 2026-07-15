@@ -22,6 +22,7 @@ import {
   isOperatorAuthenticated,
   passwordsMatch,
   requireOperatorAuth,
+  tryCreateSessionFromPassword,
   verifyOperatorSessionToken,
 } from "./operator";
 
@@ -98,6 +99,56 @@ describe("passwordsMatch", () => {
   });
 });
 
+describe("tryCreateSessionFromPassword", () => {
+  beforeEach(() => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+  });
+
+  afterEach(() => {
+    restorePasswordEnv();
+  });
+
+  it("returns a token for a correct password", () => {
+    expect(tryCreateSessionFromPassword(PASSWORD)).not.toBeNull();
+    expect(tryCreateSessionFromPassword(PASSWORD)).toContain(".");
+  });
+
+  it("returns null for a wrong password", () => {
+    expect(tryCreateSessionFromPassword("wrong-password")).toBeNull();
+  });
+
+  it("returns null when env var is unset", () => {
+    delete process.env.OPERATOR_DASHBOARD_PASSWORD;
+    expect(tryCreateSessionFromPassword("anything")).toBeNull();
+  });
+
+  it("trims leading whitespace from the provided password", () => {
+    expect(tryCreateSessionFromPassword(`  ${PASSWORD}`)).not.toBeNull();
+  });
+
+  it("trims trailing whitespace from the provided password", () => {
+    expect(tryCreateSessionFromPassword(`${PASSWORD}  `)).not.toBeNull();
+  });
+
+  it("trims whitespace on both sides of the provided password", () => {
+    expect(tryCreateSessionFromPassword(`  ${PASSWORD}  `)).not.toBeNull();
+  });
+
+  it("rejects when env var has only whitespace (treated as unset)", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    expect(tryCreateSessionFromPassword("anything")).toBeNull();
+  });
+
+  it("returns a token when env var has surrounding whitespace (trimmed)", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    expect(tryCreateSessionFromPassword(PASSWORD)).not.toBeNull();
+  });
+
+  it("returns null for a whitespace-only provided password", () => {
+    expect(tryCreateSessionFromPassword("   ")).toBeNull();
+  });
+});
+
 describe("requireOperatorAuth (cookie-read)", () => {
   beforeEach(() => {
     cookieGet.mockReset();
@@ -115,8 +166,14 @@ describe("requireOperatorAuth (cookie-read)", () => {
     expect(cookieGet).not.toHaveBeenCalled();
   });
 
-  it("returns ok when password is whitespace-only (treated as unset)", async () => {
+  it("returns ok when password is empty string (treated as unset)", async () => {
     process.env.OPERATOR_DASHBOARD_PASSWORD = "";
+    await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
+    expect(cookieGet).not.toHaveBeenCalled();
+  });
+
+  it("returns ok when password is whitespace-only (treated as unset)", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
     await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
     expect(cookieGet).not.toHaveBeenCalled();
   });

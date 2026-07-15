@@ -100,7 +100,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b; operator-password-trim claimed by business-process-evolution-f844), (2) a fresh security or injection-surface audit (auth cookie, public write routes — including notify↔persist field-length parity after contact-form-notify-field-length-caps), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b; operator-password-trim folded on business-process-evolution-f844), (2) a fresh security or injection-surface audit (auth cookie hardening, public write routes — including notify↔persist field-length parity after contact-form-notify-field-length-caps; operator-password trim is done), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -110,6 +110,7 @@ export const AGENT_PROTOCOL = [
   "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
   "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
   "Custom-domain Host→preview must treat www↔apex as the same sold domain: customDomainHostAliases(host) returns [exact, www-twin] (or [www, apex]); getLeadSlugByCustomDomain tries each alias (exact first); assignCustomDomainAction uniqueness rejects when any alias is owned by another lead; tryProvisionVercelDomain POSTs both aliases when customDomain is set (ignore 409). Keep storing the operator's chosen bare host — do not invent a second normalizer that strips www on write. suggestedHost platform subdomains are not aliased.",
+  "OPERATOR_DASHBOARD_PASSWORD must be trimmed on both read and compare: getPassword() / isOperatorAuthConfigured() treat whitespace-only as unset (open demo), and tryCreateSessionFromPassword trims the form-submitted password before passwordsMatch — assessOperatorAuthEnvReadiness already trimmed for the banner, but the live auth path did not, so a trailing space in the env secret or a pasted login field silently locked the operator out while the readiness banner looked fine. Never compare raw env/form strings for this secret (operator-password-trim).",
 ] as const;
 
 /**
@@ -1990,10 +1991,19 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "contact-form-notify-field-length-caps",
     summary:
-      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim (whitespace trim on OPERATOR_DASHBOARD_PASSWORD / tryCreateSessionFromPassword) — pivot. Sold-capability audit of Starter contact CRM found insertClientInquiry silently slices message to 5000 chars while POST /api/contact/[slug] builds the skipSuppression notify from the uncapped request body (name/email/phone/message/source). A public rate-limited form can force multi-MB escaped HTML into Resend toward lead.email/support while the inbox row only stores 5k — CRM and sold notify diverge; abuse burns Resend quota on a paid path. Soft-cap once via shared normalizeContactFormFields and reuse the same strings for persist + notify; export MAX_CONTACT_* constants; cap name/email/phone/source too (db previously only sliced message).",
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim (whitespace trim on OPERATOR_DASHBOARD_PASSWORD / tryCreateSessionFromPassword) — pivot (later merged as PR #280). Sold-capability audit of Starter contact CRM found insertClientInquiry silently slices message to 5000 chars while POST /api/contact/[slug] builds the skipSuppression notify from the uncapped request body (name/email/phone/message/source). A public rate-limited form can force multi-MB escaped HTML into Resend toward lead.email/support while the inbox row only stores 5k — CRM and sold notify diverge; abuse burns Resend quota on a paid path. Soft-cap once via shared normalizeContactFormFields and reuse the same strings for persist + notify; export MAX_CONTACT_* constants; cap name/email/phone/source too (db previously only sliced message).",
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner: "cursor/prompt-process-evolution-38a8",
+  },
+  {
+    id: "operator-password-trim",
+    summary:
+      "Security audit: loginOperatorAction does not trim the submitted password, and getPassword() returns the raw env var untrimmed. A trailing space in OPERATOR_DASHBOARD_PASSWORD or the login form silently locks the operator out — whitespace-only env values also falsely report auth as configured (isOperatorAuthConfigured returns true for spaces) while login is impossible. Trim both the env var (in getPassword) and the form password (in tryCreateSessionFromPassword) so accidental whitespace never blocks access, and whitespace-only env values are treated as unset. Stuck feature body: opencode/dev-work-password-trim + opencode/continuous-work-152029 (Actions token blocked; no open PR).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-f844 (folded from opencode/dev-work-password-trim + opencode/continuous-work-152029)",
   },
 ];
 
@@ -4308,6 +4318,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Soft-cap Starter contact-form visitor fields once via shared normalizeContactFormFields (MAX_CONTACT_MESSAGE_LENGTH=5000 + name/email/phone/source caps) and reuse those strings for both insertClientInquiry persist and the skipSuppression notify HTML — rather than silently truncate only at the DB layer while emailing the uncapped request body.",
     rationale:
       "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim — pivoted. Sold-capability audit found POST /api/contact/[slug] built the business/operator notify from uncapped request fields while insertClientInquiry sliced message to 5000 for CRM storage. Rate limits (20/min) bound request count, not payload size; escapeHtmlForEmail prevents XSS but can expand size. Divergent CRM vs notify breaks the Starter sold promise and lets a public form burn Resend quota toward lead.email/support. Soft-cap-once keeps visitor UX (no 400 on long messages) and defense-in-depth inside insertClientInquiry for webhook writers. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Trim OPERATOR_DASHBOARD_PASSWORD on both env read (getPassword / isOperatorAuthConfigured) and form submit (tryCreateSessionFromPassword) — whitespace-only env is unset/open-demo; surrounding spaces on either side must not lock the operator out of a paid CRM after a paste or secret-manager quirk.",
+    rationale:
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length). Free NEXT_STEPS stayed operator/legal-gated. Pipeline-health→digest age axis is closed; AGENT_PROTOCOL next prefers stuck CLI security folds then fresh auth-surface audits. Scanned remotes and found opencode/dev-work-password-trim (complete env+form trim + Vitest) and opencode/continuous-work-152029 (env-only half) with no open PR (Actions token blocked). assessOperatorAuthEnvReadiness already trimmed for the banner, so the dashboard could look 'ready' while login compared untrimmed strings — a silent operator lockout blocks outreach and fulfillment at the exact moment revenue work starts. Folding that auth hygiene beats inventing an optional aggregate. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8501,21 +8518,64 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/prompt-process-evolution-38a8",
     summary:
-      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-f844 claimed operator-password-trim (folding opencode password-trim remotes) — pivoted per AGENT_PROTOCOL. Scanned stuck CLI remotes (password-trim owned; other remotes were already-merged as-const/skip/slug/digest bodies behind main). Fresh sold-capability audit of Starter contact CRM found notify↔persist field-length divergence: insertClientInquiry sliced message to 5000 while POST /api/contact/[slug] emailed uncapped request fields under skipSuppression. Soft-capped once via shared normalizeContactFormFields; defense-in-depth inside insertClientInquiry; route + unit tests; tightened prior over-generous slice(328,329) → slice(327,328) so they cannot absorb this decision.",
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-f844 claimed operator-password-trim (folding opencode password-trim remotes; later merged as PR #280) — pivoted per AGENT_PROTOCOL. Scanned stuck CLI remotes (password-trim owned; other remotes were already-merged as-const/skip/slug/digest bodies behind main). Fresh sold-capability audit of Starter contact CRM found notify↔persist field-length divergence: insertClientInquiry sliced message to 5000 while POST /api/contact/[slug] emailed uncapped request fields under skipSuppression. Soft-capped once via shared normalizeContactFormFields; defense-in-depth inside insertClientInquiry; route + unit tests; tightened prior over-generous decision slices to absolute indices. Merged origin/main (PR #280) before open; kept both contact-field-cap + password-trim ITERATIONS.",
     shipped: [
+      "merge: origin/main (PR #280 operator-password-trim) — f844 owns password-trim NEXT_STEPS / slice 329; both complementary ITERATIONS kept",
       "src/lib/inquiries/contact-fields.ts — MAX_CONTACT_* + normalizeContactFormFields",
       "src/lib/inquiries/contact-fields.test.ts — soft-cap regressions",
       "src/app/api/contact/[slug]/route.ts — cap once before persist + notify",
       "src/lib/db.ts — insertClientInquiry uses shared caps for all writers",
       "src/app/api/contact/[slug]/route.test.ts — oversize message/name/email/phone/source regressions",
       "Docs: architecture.tsx notes soft-cap notify↔persist parity",
-      "AGENT_PROTOCOL — sold contact-form notify↔persist field-length rule; empty-backlog rotation notes password-trim sibling claim + this axis",
+      "AGENT_PROTOCOL — sold contact-form notify↔persist field-length rule; empty-backlog rotation notes password-trim done + this axis",
       "NEXT_STEPS: contact-form-notify-field-length-caps done",
       "BUSINESS_DECISIONS — soft-cap-once over uncapped notify (slice 328)",
       "Tightened create-path DNS ITERATIONS decisions slices 328,329 → 327,328 and digest-age-mirror ITERATIONS 327,328 → 326,327 (absolute indices)",
-      "Verified: npm test (1363 passed, +6 contact field-cap regressions vs 1357 on main) + lint + build",
+      "Verified: npm test (1363 passed, +6 contact field-cap regressions vs 1357 on main before PR #280's +10) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(328, 329),
+  },
+  {
+    date: "2026-07-15",
+    branch: "opencode/continuous-work-152029",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Fresh auth-surface audit found OPERATOR_DASHBOARD_PASSWORD whitespace-only ('   ') passed isOperatorAuthConfigured via .length>0 while the sign/verify path used the untrimmed string — silently locking the operator out. Shipped env-side trim in getPassword + isOperatorAuthConfigured. No open PR (Actions token blocked) — folded onto cursor/business-process-evolution-f844 (which also folds form-submit trim from opencode/dev-work-password-trim).",
+    shipped: [
+      "src/lib/auth/operator.ts — getPassword() / isOperatorAuthConfigured() trim env; whitespace-only → unset",
+      "NEXT_STEPS: operator-password-trim (folded done on f844)",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-f844",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(329, 330),
+  },
+  {
+    date: "2026-07-15",
+    branch: "opencode/dev-work-password-trim",
+    summary:
+      "Empty-backlog security audit after exhausted digest/sold-skip folds: rotated to operator-password trim as AGENT_PROTOCOL prescribed. Found login form + env read never trimmed — trailing spaces lock the operator out; whitespace-only env falsely reports auth configured. Shipped env trim + form-submit trim + Vitest. No open PR (Actions token blocked) — folded onto cursor/business-process-evolution-f844.",
+    shipped: [
+      "src/lib/auth/operator.ts — getPassword trim; isOperatorAuthConfigured trimmed length; tryCreateSessionFromPassword trims provided password",
+      "src/lib/auth/operator.test.ts — tryCreateSessionFromPassword trim regressions + whitespace-only env treated as unset in requireOperatorAuth",
+      "NEXT_STEPS: operator-password-trim (folded done on f844)",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-f844",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(329, 330),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-f844",
+    summary:
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length). Free NEXT_STEPS stayed operator/legal-gated. Pipeline-health→digest age axis closed on main. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-password-trim (complete env+form trim + Vitest) + opencode/continuous-work-152029 (env-only half) with no open PR (Actions token blocked). Folded the fuller body onto this automation branch that can open/merge — assessOperatorAuthEnvReadiness already trimmed for the banner while the live auth path did not, so a paste/secret quirk could lock the operator out of paid CRM work. Improves AGENT_PROTOCOL empty-backlog rotation to mark operator-password trim done and point next security audits at auth cookie / public write routes.",
+    shipped: [
+      "Fold: stuck opencode/dev-work-password-trim + opencode/continuous-work-152029 feature files — kept both CLI ITERATIONS above",
+      "src/lib/auth/operator.ts — getPassword() trims env (whitespace-only → null); isOperatorAuthConfigured checks trimmed length; tryCreateSessionFromPassword trims form input before passwordsMatch",
+      "src/lib/auth/operator.test.ts — +10 regressions (leading/trailing/both-side form trim, whitespace-only env/form, env surrounding whitespace, requireOperatorAuth whitespace-only open demo)",
+      "Docs: architecture.tsx + launch-checklist note env+form trim beside login rate-limit",
+      "AGENT_PROTOCOL — operator-password trim rule + empty-backlog rotation marks trim done; next prefers auth cookie / public write routes",
+      "NEXT_STEPS: operator-password-trim done",
+      "BUSINESS_DECISIONS — documented why folding this auth hygiene beats inventing an optional aggregate (slice 329)",
+      "Verified: npm test (1367 passed, +10 trim regressions on top of PR #279's 1357) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(329, 330),
   },
 ];
 

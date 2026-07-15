@@ -16,15 +16,16 @@ const SESSION_SUBJECT = "operator";
 
 export function isOperatorAuthConfigured(): boolean {
   const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  return Boolean(password && password.length > 0);
+  return Boolean(password && password.trim().length > 0);
 }
 
 function getPassword(): string | null {
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  if (!password || password.length === 0) {
+  const raw = process.env.OPERATOR_DASHBOARD_PASSWORD;
+  if (!raw || raw.length === 0) {
     return null;
   }
-  return password;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function signPayload(payload: string, password: string): string {
@@ -153,7 +154,7 @@ export function tryCreateSessionFromPassword(providedPassword: string): string |
   if (!expected) {
     return null;
   }
-  if (!passwordsMatch(providedPassword, expected)) {
+  if (!passwordsMatch(providedPassword.trim(), expected)) {
     return null;
   }
   return createOperatorSessionToken(expected);

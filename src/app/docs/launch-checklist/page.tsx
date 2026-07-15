@@ -93,8 +93,10 @@ export default function LaunchChecklistDocPage() {
       <h2>2. Operator dashboard auth (blocks safe outreach at scale)</h2>
       <ol>
         <li>
-          Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment.
-          Until set (or while still a <code>changeme</code>/<code>password</code> placeholder),{" "}
+          Set a strong <code>OPERATOR_DASHBOARD_PASSWORD</code> in the deployment environment
+          (leading/trailing whitespace is trimmed on read and on login submit; whitespace-only
+          is treated as unset). Until set (or while still a <code>changeme</code>/
+          <code>password</code> placeholder),{" "}
           <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
           <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
           banner via <code>assessOperatorAuthEnvReadiness</code> — <code>proxy.ts</code> +{" "}
