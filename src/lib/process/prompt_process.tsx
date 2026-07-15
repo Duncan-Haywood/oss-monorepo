@@ -1878,6 +1878,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/prompt-process-evolution-7e66 (folded from grok/dev-work-mark-live-null-guard; issue #237; sibling 266d owns email-href-url-html-escape)",
   },
+  {
+    id: "transactional-email-skip-marketing-suppression",
+    summary:
+      "sendEmail always honors the marketing suppression list, so sendReceiptEmail / post-payment DNS handoff sendEmail / sendCommerceBuyNowClientReceipt permanently fail for a lead who unsubscribed from cold outreach then later paid — markers stay unwritten and Stripe redelivers forever (bundle-webhook-receipt-marker-requires-send-success named the scenario but only gated the marker). Ship skipSuppression (or equivalent) for transactional paid-fulfillment sends; keep suppression for outreach, abandoned recovery, upsell, and marketing/voice pack delivery.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f6b5",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
