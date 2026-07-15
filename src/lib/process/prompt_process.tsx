@@ -1968,6 +1968,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/business-process-evolution-693b (folded from grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit*)",
   },
+  {
+    id: "create-path-slug-dns-label-max-length",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit) + PR #247 (create-path-slug-edge-dash-normalize): sanitizeLeadSlug strips edge dashes but does not cap length, so a long businessName / operator slug / CSV collision suffix can mint a CRM slug >63 chars. Hostnames cannot percent-encode — RFC 1035 DNS labels max at 63 — so suggestedHost becomes an invalid label and Starter preview-subdomain Host→preview cannot resolve. Cap sanitizeLeadSlug + leadSlugAsDnsLabel + CSV collision suffixes at MAX_LEAD_SLUG_LENGTH=63 (truncate then re-strip edge dashes). Stuck feature body: grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (+ digest-combo remotes whose digest half already merged as #276). Sibling prompt-process-evolution-1ce7 claimed digest-age-mirror-oldest-abandoned-cold in the same window — complementary axis.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-9b1b",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
