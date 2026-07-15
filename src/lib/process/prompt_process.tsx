@@ -66,7 +66,8 @@ export const AGENT_PROTOCOL = [
   "Stripe Product/Price sync (or any per-item Stripe object creation) must be idempotent via a stable metadata key (see commerceSkuStripeKey) and must never resolve a charge amount from client input — always look up the Price id server-side from persisted state. Any Stripe `list()` lookup used for idempotency-by-metadata-key must paginate via has_more/starting_after (use listAllPages, src/lib/stripe/list-all-pages.ts) — a single 100-item page silently misses matches past page 1 once an account holds more objects than that. A collection/catalog sync should create/update current items only, never auto-archive/delete a third-party object for removed items (orphan archive is operator-triggered only, and sets active=false — never delete).",
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
   "Any action that reads a whole-row record, then performs a real, materially long async operation (a sequential per-item external API loop, e.g. syncCommerceCatalogToStripe) before writing that record back via an unconditional full-row upsert (no version/CAS check) has a TOCTOU lost-update window — a concurrent write from a second tab or a follow-up edit during that window gets silently discarded. Re-read the record immediately before the final write and merge in only the fields the long operation actually produced (see syncCommerceCatalogToStripeAction's preserveCommerceStripeIds(freshItems, synced) — the same merge helper saveCommerceCatalogAction uses, with previous/base roles swapped) rather than writing the pre-operation snapshot verbatim. This is a distinct bug class from the money-separation/webhook-idempotency rules above — it's about ordinary operator concurrency on non-webhook writes, not Stripe redelivery. The same window exists when the 'write' at the end is a third-party API mutation rather than a DB row — archiveOrphanCommerceStripeProductsAction's listOrphanCommerceStripeProducts (paginates every active Stripe Product on the account) computes its orphan set from one stale catalog snapshot, then sequentially archives every match; re-read the catalog between the list and the actual mutation step and drop any candidate that reappeared (see orphan-archive-lost-update-guard, archiveCommerceStripeProducts split out for this). Deploy handoff assign/enqueue paths have the same window: tryProvisionVercelDomain is a real Vercel Domains API fetch, then insertDeployHandoff upserts the whole row — re-read + mergeProvisionOntoFreshHandoff before that final write so a concurrent Mark live / Save domain / Assign project survives (see handoff-provision-lost-update-guard). A related status-regression class: updateDeployHandoffStatus always patches status + notes; the bundle webhook's receipt/DNS sent-marker path passes a pre-Resend handoff.status snapshot, so a concurrent Mark live during Resend can be overwritten back to awaiting_dns — fix inside the write (preferAdvancedHandoffStatus never-downgrade on Convex + SQLite, handoff-email-marker-status-no-downgrade), not only by re-reading at the call site (still racy). Before adding a new 'diff current vs desired external state, then mutate' action, check whether the diff snapshot and the mutation step can drift apart during a real (not one-tick) window.",
-  "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a suppression-list hit or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
+  "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a marketing-suppression hit (when skipSuppression is unset) or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
+  "Post-payment transactional emails must pass skipSuppression: true into sendEmail (sendReceiptEmail, bundle DNS handoff send in the Stripe webhook, sendCommerceBuyNowClientReceipt) — a cold-outreach CAN-SPAM unsubscribe must not block receipt / DNS go-live / Commerce order-notification after money is taken. Marker-only gating (leave sent-marker unwritten on suppress) is not enough: Stripe redelivers forever against the same suppress. Keep suppression for outreach Email 1–3, abandoned recovery, Starter upsell, and marketing/voice pack delivery. sendOperatorDailyDigest already bypasses suppression for the operator inbox.",
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. That includes href attribute values (previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl + /privacy in resend.ts): sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs; a quote or ampersand in NEXT_PUBLIC_APP_URL must not break out of href=\"...\". Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
@@ -1896,6 +1897,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner:
       "cursor/business-process-evolution-57f2 (folded from grok/dev-work-custom-domain-normalize uniqueness; same-window with continuous-work host-normalize; issues #240/#241)",
+  },
+  {
+    id: "transactional-email-skip-marketing-suppression",
+    summary:
+      "sendEmail always honors the marketing suppression list, so sendReceiptEmail / post-payment DNS handoff sendEmail / sendCommerceBuyNowClientReceipt permanently fail for a lead who unsubscribed from cold outreach then later paid — markers stay unwritten and Stripe redelivers forever (bundle-webhook-receipt-marker-requires-send-success named the scenario but only gated the marker). Ship skipSuppression (or equivalent) for transactional paid-fulfillment sends; keep suppression for outreach, abandoned recovery, upsell, and marketing/voice pack delivery.",
+    status: "done",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/prompt-process-evolution-f6b5",
   },
 ];
 
@@ -4134,6 +4143,14 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Same-window dual with grok/continuous-work-custom-domain-normalize (custom-domain-host-normalize) and grok/dev-work-custom-domain-normalize (custom-domain-normalize-and-unique). Both pushed feature body; continuous-work owned bare-host normalize + db/convex re-normalize; uniqueness is the complement. Keep a single parseOperatorCustomDomain + collision reject path rather than two normalizers. Folded onto cursor/business-process-evolution-57f2 (issues #240/#241).",
   },
+  {
+    date: "2026-07-15",
+    decision:
+      "Pass skipSuppression: true on sendReceiptEmail, the Stripe webhook DNS go-live sendEmail, and sendCommerceBuyNowClientReceipt — rather than leave post-payment fulfillment blocked by the marketing CAN-SPAM suppression list (marker-only gating left Stripe redelivering forever against the same suppress).",
+    rationale:
+      "Empty-backlog after PR #242 (custom-domain normalize, sibling-owned). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-57f2 claimed custom-domain first — pivoted. Fresh sold-capability audit found sendEmail always checks isEmailSuppressed, so a lead who unsubscribed from cold outreach then later paid never receives receipt/DNS/Commerce order notification; bundle-webhook-receipt-marker-requires-send-success already named the suppressed-buyer scenario but only gated the durable marker. Closing the actual delivery gap beats inventing an optional aggregate or re-auditing 2x-clean axes. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+  },
+
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -7900,5 +7917,23 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1316 passed) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(317, 319),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-f6b5",
+    summary:
+      "Empty-backlog after PR #239. Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-57f2 claimed custom-domain-normalize-and-unique first — pivoted per AGENT_PROTOCOL. Fresh sold-capability audit found post-payment receipt/DNS/Commerce client receipt blocked by marketing suppression after a cold-outreach unsubscribe. Claimed and shipped transactional-email-skip-marketing-suppression. Merged origin/main (PR #242 custom-domain fold) mid-window — kept both process entries.",
+    shipped: [
+      "src/lib/email/resend.ts — SendEmailParams.skipSuppression; sendReceiptEmail + sendCommerceBuyNowClientReceipt pass true",
+      "src/app/api/stripe/webhook/route.ts — DNS go-live sendEmail passes skipSuppression: true",
+      "src/lib/email/resend.test.ts — +3 regressions (receipt + commerce receipt deliver when suppressed; outreach still blocked)",
+      "Docs: architecture.tsx notes transactional skip vs marketing suppression",
+      "AGENT_PROTOCOL — post-payment skipSuppression rule; marker rule clarifies marketing-suppression vs skip",
+      "NEXT_STEPS: transactional-email-skip-marketing-suppression done",
+      "BUSINESS_DECISIONS — documented why skipSuppression beats marker-only gating for suppressed converters",
+      "merge: origin/main (PR #242 custom-domain normalize) — both ITERATIONS kept",
+      "Verified: npm test (1319 passed, +3 transactional skip-suppression regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(319, 320),
   },
 ];

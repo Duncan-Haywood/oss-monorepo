@@ -425,6 +425,9 @@ export async function POST(request: Request) {
                 to: customerEmail,
                 subject: `Next steps: go live with ${businessName} — ${brand.name}`,
                 leadSlug: slug,
+                // Transactional post-payment handoff — do not honor marketing
+                // suppression (cold-outreach unsubscribe must not block DNS).
+                skipSuppression: true,
                 html: `
                 <h2 style="color: #09090b; font-size: 20px; font-weight: 600; margin-bottom: 16px;">Your site is ready to publish</h2>
                 <p style="margin-bottom: 16px;">Payment received for <strong>${safeBiz}</strong>. Here is your production handoff:</p>
