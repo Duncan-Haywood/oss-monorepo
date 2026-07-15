@@ -8430,7 +8430,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — create-path slug rule names MAX_LEAD_SLUG_LENGTH=63 + leadSlugAsDnsLabel reuse",
       "NEXT_STEPS: create-path-slug-dns-label-max-length done",
       "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 327)",
-      "Verified: npm test + lint + build",
+      "Verified: npm test (1351 passed, +5 DNS max-length regressions vs 1346 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
