@@ -107,6 +107,7 @@ export const AGENT_PROTOCOL = [
   "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
   "Lead slug create-paths normalize to [a-z0-9-]+ (sanitizeCheckoutLeadSlug / slugifyBusinessName / addLeadAction / CSV), but path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
   "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
+  "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
 ] as const;
 
 /**
@@ -1878,6 +1879,24 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner:
       "cursor/prompt-process-evolution-7e66 (folded from grok/dev-work-mark-live-null-guard; issue #237; sibling 266d owns email-href-url-html-escape)",
+  },
+  {
+    id: "custom-domain-host-normalize",
+    summary:
+      "Empty-backlog audit: assignCustomDomainAction / updateDeployHandoffCustomDomain only trim+lowercase operator Save domain input. Pasting a browser URL (https://joesplumbing.com/), a port (host:443), trailing FQDN dot, or path leaves a stored customDomain that never equals normalizeRequestHost(Host), so proxy.ts Host→preview routing and Vercel domain registration silently fail the sold Starter custom-domain handoff. Shipped: normalizeOperatorCustomDomainHost + parseOperatorCustomDomain; wire into action + db + Convex updateCustomDomain; Vitest on routing + action glue.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner:
+      "cursor/business-process-evolution-57f2 (folded from grok/continuous-work-custom-domain-normalize ← grok/dev-work-custom-domain-normalize; issues #240/#241)",
+  },
+  {
+    id: "custom-domain-normalize-and-unique",
+    summary:
+      "Complement to custom-domain-host-normalize: also reject when getLeadSlugByCustomDomain returns a different lead before assignCustomDomainAndProvision — Host→preview first-match would otherwise silently serve the wrong client when two handoffs share one customDomain. Shipped with bare-host normalize in one path.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner:
+      "cursor/business-process-evolution-57f2 (folded from grok/dev-work-custom-domain-normalize uniqueness; same-window with continuous-work host-normalize; issues #240/#241)",
   },
   {
     id: "transactional-email-skip-marketing-suppression",
@@ -4109,6 +4128,29 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     rationale:
       "Empty-backlog after PR #234/#235 (as-const restore). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-266d already claimed email-href-url-html-escape — pivoted per AGENT_PROTOCOL to the next stuck CLI remote with feature body and no open PR. On main, markHandoffLive called updateLeadStage(..., \"live\") even when the status write returned null, so a vanished handoff row left the CRM looking fulfilled while the action returned failure and open-handoff / paid-not-live diverged. Closing that fulfillment race beats inventing an optional aggregate or re-auditing 2x-clean sold-vs-shipped / orchestration axes. Encode-at-use for revalidatePath aligns dashboard cache invalidation with the same path-segment rule browser/proxy URLs already follow.",
   },
+
+  {
+    date: "2026-07-15",
+    decision:
+      "Normalize operator Save domain input to a bare hostname (strip scheme/path/port/trailing FQDN dot; reject invalid and platform-owned hosts) on assignCustomDomainAction + updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain rather than trim+lowercase alone — so Host→preview routing and Vercel Domains API registration match what operators paste from a browser address bar.",
+    rationale:
+      "Empty-backlog after PR #238/#239 (email-href fold + mark-live null guard). Free NEXT_STEPS stayed operator/legal-gated; stuck CLI remotes for already-merged fixes scanned first. Fresh sold-capability audit of the Starter custom-domain handoff found Save domain only lowercased and trimmed, so pasting https://client.com/ or host:443 stored a value that never equals normalizeRequestHost(Host) — proxy.ts Host→preview and Vercel domain name registration silently failed after a green Save. Closing that is higher leverage than a third clean re-audit or dead Convex orders.createOrder API map busywork. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Also reject when another handoff already owns the same custom domain before assignCustomDomainAndProvision — rather than rely on getByCustomDomain first-match (which silently serves the wrong client). Fold continuous-work bare-host normalize with dev-work uniqueness into one implementation.",
+    rationale:
+      "Same-window dual with grok/continuous-work-custom-domain-normalize (custom-domain-host-normalize) and grok/dev-work-custom-domain-normalize (custom-domain-normalize-and-unique). Both pushed feature body; continuous-work owned bare-host normalize + db/convex re-normalize; uniqueness is the complement. Keep a single parseOperatorCustomDomain + collision reject path rather than two normalizers. Folded onto cursor/business-process-evolution-57f2 (issues #240/#241).",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Pass skipSuppression: true on sendReceiptEmail, the Stripe webhook DNS go-live sendEmail, and sendCommerceBuyNowClientReceipt — rather than leave post-payment fulfillment blocked by the marketing CAN-SPAM suppression list (marker-only gating left Stripe redelivering forever against the same suppress).",
+    rationale:
+      "Empty-backlog after PR #242 (custom-domain normalize, sibling-owned). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-57f2 claimed custom-domain first — pivoted. Fresh sold-capability audit found sendEmail always checks isEmailSuppressed, so a lead who unsubscribed from cold outreach then later paid never receives receipt/DNS/Commerce order notification; bundle-webhook-receipt-marker-requires-send-success already named the suppressed-buyer scenario but only gated the durable marker. Closing the actual delivery gap beats inventing an optional aggregate or re-auditing 2x-clean axes. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+  },
+
 ];
 
 const ITERATION_1_DECISIONS: BusinessDecision[] = BUSINESS_DECISIONS.slice(0, 2);
@@ -7673,7 +7715,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1285 passed) + lint + build",
       "PR handoff: Actions token blocked from gh pr create — issue #228 points at grok/dev-work-slug-path-encode",
     ],
-    decisions: BUSINESS_DECISIONS.slice(312, 313),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7687,7 +7729,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified on continuous-work branch: npm test (1285 passed) + lint + build",
       "PR handoff: Actions token blocked from gh pr create on continuous-work too — issue #229 points at grok/continuous-work-slug-path-encode (fold of #228 / grok/dev-work-slug-path-encode)",
     ],
-    decisions: BUSINESS_DECISIONS.slice(312, 313),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7698,11 +7740,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Fold: origin/grok/continuous-work-slug-path-encode feature files (slug-path helpers + wire-through) — kept both grok ITERATIONS above",
       "NEXT_STEPS: legacy-slug-encode-at-use-path-safety done (owner 2d7a, folded from continuous-work ← dev-work)",
       "AGENT_PROTOCOL + architecture.tsx encode-at-use rule retained from fold",
-      "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(312, 313) after CSV/as-const/mark-live appends",
+      "BUSINESS_DECISIONS — documented why folding this queued residual beats inventing an optional aggregate; remapped encode decision to slice(313, 314) after CSV/as-const/mark-live appends",
       "merge: origin/main (PR #230 CSV hours fold) — both ITERATIONS kept",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(312, 313),
+    decisions: BUSINESS_DECISIONS.slice(313, 314),
   },
   {
     date: "2026-07-14",
@@ -7714,7 +7756,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/leads/actions.ts — restored as const on updateLeadStageAction + importLeadsCsvAction",
       "PR handoff: Actions token blocked from gh pr create — branch opencode/dev-work-9k2m4x",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7727,7 +7769,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/lib/email/resend.ts — sendEmail + sendOperatorDailyDigest: all success literals use as const",
       "PR handoff: Actions token blocked — issue #232 points at grok/dev-work-as-const-restore",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7738,7 +7780,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Fold of grok/dev-work-as-const-restore feature body (actions + resend as const)",
       "PR handoff: Actions token blocked — issue #233 points at grok/continuous-work-as-const-restore",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7752,7 +7794,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding the PR #231 merge regression beats inventing an optional aggregate",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7765,7 +7807,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS owner remains 7c34 (earlier claim); 9ced recorded as dual + architecture follow-up",
       "Verified: npm test (1297 passed) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(313, 314),
+    decisions: BUSINESS_DECISIONS.slice(314, 315),
   },
   {
     date: "2026-07-14",
@@ -7779,7 +7821,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes null-status guard + encode-at-use revalidatePath",
       "PR handoff: Actions token blocked from gh pr create — issue #237 points at grok/dev-work-mark-live-null-guard",
     ],
-    decisions: BUSINESS_DECISIONS.slice(315, 316),
+    decisions: BUSINESS_DECISIONS.slice(316, 317),
   },
   {
     date: "2026-07-14",
@@ -7793,7 +7835,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding this fulfillment race beats inventing an optional aggregate",
       "Verified: npm test (1298 passed, +1 null-status regression) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(315, 316),
+    decisions: BUSINESS_DECISIONS.slice(316, 317),
   },
   {
     date: "2026-07-14",
@@ -7809,7 +7851,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why href escape beats inventing an optional aggregate",
       "PR handoff: Actions token blocked from gh pr create — issue #236 points at grok/continuous-work-email-href-escape",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
   },
   {
     date: "2026-07-14",
@@ -7823,6 +7865,75 @@ export const ITERATIONS: ProcessIteration[] = [
       "BUSINESS_DECISIONS — documented why folding this stuck CLI href-escape fix beats inventing an optional aggregate; queued mark-handoff-live-null-status-guard (grok/dev-work-mark-live-null-guard; issue #237) as next fold",
       "Verified: npm test (1301 passed, +4 href-escape regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(314, 315),
+    decisions: BUSINESS_DECISIONS.slice(315, 316),
+  },
+
+  {
+    date: "2026-07-15",
+    branch: "grok/continuous-work-custom-domain-normalize",
+    summary:
+      "Empty-backlog continuous-work after PR #238/#239. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (already folded) and recent opencode clean audits (send-success + env-readiness) before inventing work. Fresh sold-capability audit of Starter custom-domain handoff found Save domain only trim+lowercased operator input — URL/port/path pastes never matched Host→preview or Vercel Domains API. Claimed and shipped custom-domain-host-normalize.",
+    shipped: [
+      "src/lib/deploy/custom-domain-routing.ts — normalizeOperatorCustomDomainHost, isPlausibleCustomDomainHost, parseOperatorCustomDomain (+tests)",
+      "src/app/dashboard/leads/actions.ts — assignCustomDomainAction validates/normalizes via parseOperatorCustomDomain(productionRootDomain())",
+      "src/lib/db.ts — updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain re-normalize bare host",
+      "convex/deployHandoffs.ts updateCustomDomain — mirror bare-host strip (Convex cannot import src/)",
+      "src/app/dashboard/leads/assign-custom-domain-action.test.ts — URL paste + invalid/platform reject regressions",
+      "Docs: architecture.tsx notes bare-host Save domain contract",
+      "AGENT_PROTOCOL — custom-domain bare-host normalize rule",
+      "NEXT_STEPS: custom-domain-host-normalize done",
+      "BUSINESS_DECISIONS — documented why bare-host normalize beats a third clean re-audit",
+      "Verified: npm test (1312 passed, +11 custom-domain normalize regressions) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create — issue #240 points at grok/continuous-work-custom-domain-normalize",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(317, 318),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/dev-work-custom-domain-normalize",
+    summary:
+      "Empty-backlog after PR #238/#239. Free NEXT_STEPS stayed operator/legal-gated. Same-window dual with continuous-work-custom-domain-normalize on bare-host Save domain — both pushed feature body. Folded continuous-work normalize (parseOperatorCustomDomain + db/convex re-normalize) and kept uniqueness complement (reject another lead's domain). Single implementation; both ITERATIONS kept.",
+    shipped: [
+      "merge: origin/grok/continuous-work-custom-domain-normalize — keep continuous-work ITERATION above",
+      "Unified on parseOperatorCustomDomain (custom-domain-routing.ts); dropped parallel custom-domain.ts normalizer",
+      "assignCustomDomainAction — collision reject via getLeadSlugByCustomDomain owner !== slug (custom-domain-normalize-and-unique)",
+      "customDomainAlreadyOwnedMessage on custom-domain-routing + action Vitest",
+      "NEXT_STEPS: custom-domain-host-normalize + custom-domain-normalize-and-unique done",
+      "Issues #240/#241 handoff notes",
+      "Verified after fold: npm test (1316 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(318, 319),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-57f2",
+    summary:
+      "Empty-backlog after PR #238/#239 (email-href + mark-live null guard on main). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-custom-domain-normalize + grok/dev-work-custom-domain-normalize with a complete bare-host Save domain + collision-reject feature body and no open PR (Actions token blocked; issues #240/#241). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate.",
+    shipped: [
+      "Fold: origin/grok/dev-work-custom-domain-normalize feature files (custom-domain-routing helpers + action + db + Convex + architecture + tests) — kept continuous-work + dev-work ITERATIONS above",
+      "NEXT_STEPS: custom-domain-host-normalize + custom-domain-normalize-and-unique done (owner 57f2)",
+      "AGENT_PROTOCOL — bare-host normalize + uniqueness rule retained from fold",
+      "BUSINESS_DECISIONS — documented why folding this stuck Starter Host→preview fix beats inventing an optional aggregate; tightened encode/as-const/email-href/mark-live ITERATIONS slices after +1 drift",
+      "Verified: npm test (1316 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(317, 319),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-f6b5",
+    summary:
+      "Empty-backlog after PR #239. Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-57f2 claimed custom-domain-normalize-and-unique first — pivoted per AGENT_PROTOCOL. Fresh sold-capability audit found post-payment receipt/DNS/Commerce client receipt blocked by marketing suppression after a cold-outreach unsubscribe. Claimed and shipped transactional-email-skip-marketing-suppression. Merged origin/main (PR #242 custom-domain fold) mid-window — kept both process entries.",
+    shipped: [
+      "src/lib/email/resend.ts — SendEmailParams.skipSuppression; sendReceiptEmail + sendCommerceBuyNowClientReceipt pass true",
+      "src/app/api/stripe/webhook/route.ts — DNS go-live sendEmail passes skipSuppression: true",
+      "src/lib/email/resend.test.ts — +3 regressions (receipt + commerce receipt deliver when suppressed; outreach still blocked)",
+      "Docs: architecture.tsx notes transactional skip vs marketing suppression",
+      "AGENT_PROTOCOL — post-payment skipSuppression rule; marker rule clarifies marketing-suppression vs skip",
+      "NEXT_STEPS: transactional-email-skip-marketing-suppression done",
+      "BUSINESS_DECISIONS — documented why skipSuppression beats marker-only gating for suppressed converters",
+      "merge: origin/main (PR #242 custom-domain normalize) — both ITERATIONS kept",
+      "Verified: npm test (1319 passed, +3 transactional skip-suppression regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(319, 320),
   },
 ];

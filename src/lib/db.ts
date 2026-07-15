@@ -30,6 +30,7 @@ import {
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
+import { normalizeOperatorCustomDomainHost } from "./deploy/custom-domain-routing";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
@@ -1259,7 +1260,10 @@ export async function updateDeployHandoffCustomDomain(
   options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
   const updatedAt = new Date().toISOString();
-  const normalized = customDomain?.trim().toLowerCase() || null;
+  // Bare hostname only (strip scheme/path/port) so stored values match
+  // normalizeRequestHost(Host) and Vercel Domains API — see
+  // normalizeOperatorCustomDomainHost / custom-domain-host-normalize.
+  const normalized = normalizeOperatorCustomDomainHost(customDomain);
 
   if (convexClient) {
     try {
@@ -1305,7 +1309,8 @@ export async function updateDeployHandoffCustomDomain(
  * no matching handoff (caller falls through to normal routing).
  */
 export async function getLeadSlugByCustomDomain(customDomain: string): Promise<string | null> {
-  const normalized = customDomain.trim().toLowerCase();
+  // Same bare-host normalize as write path so a mis-pasted lookup still matches.
+  const normalized = normalizeOperatorCustomDomainHost(customDomain);
   if (!normalized) return null;
 
   if (convexClient) {

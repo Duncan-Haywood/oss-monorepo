@@ -32,6 +32,7 @@ import {
   listClientVoicePacks,
   listUnpaidCommerceOrders,
   listDeployHandoffs,
+  getLeadSlugByCustomDomain,
 } from "@/lib/db";
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
@@ -73,7 +74,12 @@ import {
   markHandoffLive,
   assignVercelProjectAndProvision,
   assignCustomDomainAndProvision,
+  productionRootDomain,
 } from "@/lib/deploy/handoff";
+import {
+  customDomainAlreadyOwnedMessage,
+  parseOperatorCustomDomain,
+} from "@/lib/deploy/custom-domain-routing";
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
@@ -206,10 +212,30 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     if (!slug) {
       return { success: false as const, error: "Slug is required" };
     }
-    const trimmed = customDomain.trim();
+    // Bare hostname only — URL/port/path pastes must not land in the
+    // handoff row (Host→preview + Vercel Domains API both expect Host form).
+    // custom-domain-host-normalize (sibling continuous-work) + collision
+    // reject (custom-domain-normalize-and-unique) folded into one path.
+    const parsed = parseOperatorCustomDomain(customDomain, productionRootDomain());
+    if (!parsed.ok) {
+      return { success: false as const, error: parsed.error };
+    }
+
+    // Host→preview first-match would silently serve the wrong client if two
+    // handoffs share one domain — reject collisions (same lead may re-save).
+    if (parsed.host) {
+      const ownerSlug = await getLeadSlugByCustomDomain(parsed.host);
+      if (ownerSlug && ownerSlug !== slug) {
+        return {
+          success: false as const,
+          error: customDomainAlreadyOwnedMessage(parsed.host, ownerSlug),
+        };
+      }
+    }
+
     let handoff;
     try {
-      handoff = await assignCustomDomainAndProvision(slug, trimmed || null);
+      handoff = await assignCustomDomainAndProvision(slug, parsed.host);
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {

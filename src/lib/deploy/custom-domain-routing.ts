@@ -11,6 +11,115 @@ export function normalizeRequestHost(hostHeader: string | null | undefined): str
 }
 
 /**
+ * Strip scheme / path / query / hash / port / trailing FQDN dot from an
+ * operator-entered custom domain so it matches Host headers and Vercel
+ * Domains API `name` (both are bare hostnames). Returns null for empty
+ * input (clear domain) or when nothing hostname-like remains.
+ *
+ * Used by Save domain writes — previously only trim+lowercase ran, so
+ * pasting `https://joesplumbing.com/` never equaled normalizeRequestHost
+ * of inbound Host `joesplumbing.com` and Host→preview routing silently
+ * failed (custom-domain-host-normalize).
+ */
+export function normalizeOperatorCustomDomainHost(
+  raw: string | null | undefined,
+): string | null {
+  if (raw == null) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  let host = "";
+  try {
+    const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed)
+      ? trimmed
+      : `https://${trimmed}`;
+    host = new URL(withScheme).hostname.toLowerCase();
+  } catch {
+    host = trimmed
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .split("/")[0]
+      ?.split("?")[0]
+      ?.split("#")[0]
+      ?.split(":")[0] ?? "";
+  }
+
+  host = host.replace(/\.$/, "").trim();
+  return host || null;
+}
+
+/** Hostname shape check for a bare DNS name (no scheme/port/path). */
+export function isPlausibleCustomDomainHost(host: string): boolean {
+  if (!host || host.length > 253) return false;
+  if (host.includes(" ") || host.includes("@") || host.includes("/")) return false;
+  if (host.includes("..")) return false;
+  // Public client domains need a TLD; bare single labels (and localhost) are not.
+  if (!host.includes(".")) return false;
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) {
+    return false;
+  }
+  // Each label: alnum, optional internal hyphens, 1–63 chars.
+  const labels = host.split(".");
+  return labels.every(
+    (label) =>
+      label.length >= 1 &&
+      label.length <= 63 &&
+      /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label),
+  );
+}
+
+export type ParseOperatorCustomDomainResult =
+  | { ok: true; host: string | null }
+  | { ok: false; error: string };
+
+/**
+ * Parse operator Save domain input: empty → clear (null); otherwise a bare
+ * hostname or a clear error. Optionally reject platform-owned hosts so the
+ * operator cannot point Host→preview at the marketing root / suggestedHost
+ * tree (those already route via extractPreviewSubdomainSlug).
+ */
+export function parseOperatorCustomDomain(
+  raw: string,
+  productionRootDomain = "",
+): ParseOperatorCustomDomainResult {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return { ok: true, host: null };
+  }
+
+  const host = normalizeOperatorCustomDomainHost(trimmed);
+  if (!host || !isPlausibleCustomDomainHost(host)) {
+    return {
+      ok: false,
+      error:
+        "Enter a domain like example.com (https://example.com is fine — scheme, path, and port are stripped). Localhost and single-label hosts are not accepted.",
+    };
+  }
+
+  if (productionRootDomain && isPlatformHost(host, productionRootDomain)) {
+    return {
+      ok: false,
+      error:
+        "That host is platform-owned (marketing site or preview subdomain). Enter the client's own domain instead.",
+    };
+  }
+
+  return { ok: true, host };
+}
+
+/**
+ * Operator-facing error when another handoff already owns this domain.
+ * Host→preview first-match would otherwise silently serve the wrong client
+ * (custom-domain-normalize-and-unique).
+ */
+export function customDomainAlreadyOwnedMessage(
+  domain: string,
+  ownerSlug: string,
+): string {
+  return `Domain ${domain} is already saved on lead ${ownerSlug} — clear it there first, or pick a different host`;
+}
+
+/**
  * True when `host` is platform-owned traffic that must never be diverted to
  * a lead's preview via the *custom-domain* lookup: localhost/dev, any Vercel
  * deployment domain, or the platform's own production root domain (marketing

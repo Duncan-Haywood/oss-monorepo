@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   extractPreviewSubdomainSlug,
   isPlatformHost,
+  isPlausibleCustomDomainHost,
+  normalizeOperatorCustomDomainHost,
   normalizeRequestHost,
+  parseOperatorCustomDomain,
 } from "./custom-domain-routing";
 
 describe("normalizeRequestHost", () => {
@@ -19,6 +22,70 @@ describe("normalizeRequestHost", () => {
     expect(normalizeRequestHost(null)).toBe("");
     expect(normalizeRequestHost(undefined)).toBe("");
     expect(normalizeRequestHost("")).toBe("");
+  });
+});
+
+describe("normalizeOperatorCustomDomainHost", () => {
+  it("returns null for empty / whitespace (clear domain)", () => {
+    expect(normalizeOperatorCustomDomainHost(null)).toBeNull();
+    expect(normalizeOperatorCustomDomainHost(undefined)).toBeNull();
+    expect(normalizeOperatorCustomDomainHost("")).toBeNull();
+    expect(normalizeOperatorCustomDomainHost("   ")).toBeNull();
+  });
+
+  it("strips scheme, path, port, and trailing FQDN dot to a bare host", () => {
+    expect(normalizeOperatorCustomDomainHost("https://JoesPlumbing.com/")).toBe(
+      "joesplumbing.com",
+    );
+    expect(normalizeOperatorCustomDomainHost("http://www.joesplumbing.com/path?x=1")).toBe(
+      "www.joesplumbing.com",
+    );
+    expect(normalizeOperatorCustomDomainHost("JoesPlumbing.com:443")).toBe("joesplumbing.com");
+    expect(normalizeOperatorCustomDomainHost("  WWW.Example.COM.  ")).toBe("www.example.com");
+  });
+
+  it("matches normalizeRequestHost for the common bare-host paste", () => {
+    const bare = "joesplumbing.com";
+    expect(normalizeOperatorCustomDomainHost(bare)).toBe(normalizeRequestHost(bare));
+  });
+});
+
+describe("isPlausibleCustomDomainHost", () => {
+  it("accepts ordinary public hostnames", () => {
+    expect(isPlausibleCustomDomainHost("joesplumbing.com")).toBe(true);
+    expect(isPlausibleCustomDomainHost("www.joes-plumbing.co.uk")).toBe(true);
+  });
+
+  it("rejects localhost, single labels, spaces, and broken labels", () => {
+    expect(isPlausibleCustomDomainHost("localhost")).toBe(false);
+    expect(isPlausibleCustomDomainHost("intranet")).toBe(false);
+    expect(isPlausibleCustomDomainHost("bad host.com")).toBe(false);
+    expect(isPlausibleCustomDomainHost("-bad.com")).toBe(false);
+    expect(isPlausibleCustomDomainHost("bad..com")).toBe(false);
+  });
+});
+
+describe("parseOperatorCustomDomain", () => {
+  const root = "localsitestudio.com";
+
+  it("clears on empty input", () => {
+    expect(parseOperatorCustomDomain("  ")).toEqual({ ok: true, host: null });
+  });
+
+  it("accepts URL pastes as bare hosts", () => {
+    expect(parseOperatorCustomDomain("https://joesplumbing.com/menu")).toEqual({
+      ok: true,
+      host: "joesplumbing.com",
+    });
+  });
+
+  it("rejects invalid and platform-owned hosts", () => {
+    expect(parseOperatorCustomDomain("not a domain").ok).toBe(false);
+    expect(parseOperatorCustomDomain("localhost").ok).toBe(false);
+    expect(parseOperatorCustomDomain("localsitestudio.com", root).ok).toBe(false);
+    expect(parseOperatorCustomDomain("joes-plumbing.localsitestudio.com", root).ok).toBe(
+      false,
+    );
   });
 });
 

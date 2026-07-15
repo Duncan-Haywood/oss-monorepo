@@ -94,8 +94,10 @@ export default function ArchitectureDocPage() {
         <code>/dashboard/leads</code> (Starter &ldquo;Preview subdomain → custom domain
         handoff&rdquo; promise) — action-level Vitest in{" "}
         <code>assign-custom-domain-action.test.ts</code> locks that Save domain glue (auth, empty
-        slug, trim-to-null clear, no-handoff, requireConvex fail-closed, success revalidate)
-        beside handoff / custom-domain-routing helpers;{" "}
+        slug, trim-to-null clear, URL→bare-host normalize, invalid/platform-host reject,
+        collision reject when another lead owns the domain, no-handoff, requireConvex
+        fail-closed, success revalidate) via <code>parseOperatorCustomDomain</code> beside
+        handoff / custom-domain-routing helpers;{" "}
         <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project isolation
         (auth, trim/clear project id, no-handoff, requireConvex fail-closed, success revalidate).
         See{" "}
@@ -571,7 +573,16 @@ export default function ArchitectureDocPage() {
         <code>assign-vercel-project-action.test.ts</code> locks Assign Vercel project (auth,
         empty slug, trim/clear project id, no-handoff, requireConvex fail-closed, success
         revalidate); <code>assign-custom-domain-action.test.ts</code> locks Save domain —
-        all beside handoff helpers. Suggested host{" "}
+        all beside handoff helpers. Save domain input is normalized to a bare hostname via{" "}
+        <code>parseOperatorCustomDomain</code> /{" "}
+        <code>normalizeOperatorCustomDomainHost</code> (strip scheme, path, port, trailing
+        FQDN dot; reject localhost/single-label/platform-owned hosts) so a pasted{" "}
+        <code>https://client.com/</code> matches <code>normalizeRequestHost</code> on inbound
+        Host and Vercel Domains API <code>name</code> — write paths in{" "}
+        <code>updateDeployHandoffCustomDomain</code> re-normalize for defense-in-depth; the
+        action also rejects when another lead already owns that domain (Host→preview
+        first-match would otherwise serve the wrong client).
+        Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex
         configured, <code>requireConvex</code> so SQLite-only success cannot hide the row;
