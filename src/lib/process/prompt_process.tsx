@@ -1941,6 +1941,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-0064",
   },
+  {
+    id: "marketing-voice-pack-skip-suppression",
+    summary:
+      "Empty-backlog scan after transactional + contact-form + inquiry-reply skipSuppression: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail deliver paid Growth/Complete features (monthly marketing content, AI phone scripts) to lead.email but still honor marketing suppression — a paying customer who unsubscribed from cold outreach silently loses features they are billed for. Ship skipSuppression: true on both; keep suppression for outreach, abandoned recovery, and Starter upsell. Stuck feature body: grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip + opencode/dev-work-marketing-voice-skip-suppression (Actions token blocked; no open PR).",
+    status: "in_progress",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/prompt-process-evolution-ea8d",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
