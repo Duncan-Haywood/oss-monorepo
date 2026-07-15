@@ -1968,6 +1968,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/business-process-evolution-693b (folded from grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit*)",
   },
+  {
+    id: "digest-age-mirror-oldest-abandoned-cold",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit): remaining PipelineHealth age mirrors oldestAbandonedAgeHours and oldestColdLeadAgeHours were still missing from the daily digest. The digest section headers show only the count for abandoned checkouts and cold leads, never how long the oldest has been sitting — a single-operator business relying on the digest has no way to gauge urgency of stale abandoned carts or cold inventory without opening the dashboard. Shipped: oldestAbandonedAgeHours (from listAbandonedCheckoutsDue) + oldestColdLeadAgeHours (from listColdLeads) on DailyDigest + buildDailyDigest + renderDailyDigestHtml section headers + Vitest regressions. Stuck feature body: opencode/dev-work-digest-age-mirrors (Actions token blocked; no open PR).",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/prompt-process-evolution-1ce7",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
