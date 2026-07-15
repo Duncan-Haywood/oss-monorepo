@@ -1950,6 +1950,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/prompt-process-evolution-ea8d (PR #252; dual with cursor/business-process-evolution-d2b8; folded from grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip + opencode/dev-work-marketing-voice-skip-suppression)",
   },
+  {
+    id: "login-rate-limit",
+    summary:
+      "Empty-backlog audit after PR #253 (marketing-voice-pack-skip-suppression): loginOperatorAction had zero rate limiting despite being a public, unauthenticated password-check endpoint. A brute-force script can guess passwords at wire speed with no throttle. Ship checkRateLimit with a tighter login-appropriate limit (5 attempts/60s) before the password comparison. Rate-limited attempts redirect to the login page with error=rate_limited and the page renders a 'Too many attempts' alert. Complementary: the existing checkRateLimit helper and clientIpFromHeaders are already tested by 7 other route/action sites. Stuck feature body: grok/continuous-work-login-rate-limit + opencode/dev-work-login-rate-limit* (Actions token blocked; no open PR). Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window — this is the next free fold.",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-693b",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
