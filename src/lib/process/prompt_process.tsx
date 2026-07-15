@@ -67,7 +67,7 @@ export const AGENT_PROTOCOL = [
   "saveCommerceCatalogAction must call preserveCommerceStripeIds against the existing DB row after normalizing input — never persist a normalized draft that drops stripeProductId/stripePriceId, and never trust client-submitted Stripe ids. enqueueProductionHandoff must call preserveDeployHandoffOperatorFields against the existing handoff before rebuilding for a new stripeSessionId — a Starter→Growth upsell or re-purchase must not wipe operator-set customDomain/vercelProjectId/progressed status/notes (Convex upsert replace and SQLite ON CONFLICT both clear omitted optionals by default).",
   "Any action that reads a whole-row record, then performs a real, materially long async operation (a sequential per-item external API loop, e.g. syncCommerceCatalogToStripe) before writing that record back via an unconditional full-row upsert (no version/CAS check) has a TOCTOU lost-update window — a concurrent write from a second tab or a follow-up edit during that window gets silently discarded. Re-read the record immediately before the final write and merge in only the fields the long operation actually produced (see syncCommerceCatalogToStripeAction's preserveCommerceStripeIds(freshItems, synced) — the same merge helper saveCommerceCatalogAction uses, with previous/base roles swapped) rather than writing the pre-operation snapshot verbatim. This is a distinct bug class from the money-separation/webhook-idempotency rules above — it's about ordinary operator concurrency on non-webhook writes, not Stripe redelivery. The same window exists when the 'write' at the end is a third-party API mutation rather than a DB row — archiveOrphanCommerceStripeProductsAction's listOrphanCommerceStripeProducts (paginates every active Stripe Product on the account) computes its orphan set from one stale catalog snapshot, then sequentially archives every match; re-read the catalog between the list and the actual mutation step and drop any candidate that reappeared (see orphan-archive-lost-update-guard, archiveCommerceStripeProducts split out for this). Deploy handoff assign/enqueue paths have the same window: tryProvisionVercelDomain is a real Vercel Domains API fetch, then insertDeployHandoff upserts the whole row — re-read + mergeProvisionOntoFreshHandoff before that final write so a concurrent Mark live / Save domain / Assign project survives (see handoff-provision-lost-update-guard). A related status-regression class: updateDeployHandoffStatus always patches status + notes; the bundle webhook's receipt/DNS sent-marker path passes a pre-Resend handoff.status snapshot, so a concurrent Mark live during Resend can be overwritten back to awaiting_dns — fix inside the write (preferAdvancedHandoffStatus never-downgrade on Convex + SQLite, handoff-email-marker-status-no-downgrade), not only by re-reading at the call site (still racy). Before adding a new 'diff current vs desired external state, then mutate' action, check whether the diff snapshot and the mutation step can drift apart during a real (not one-tick) window.",
   "A durable recovery marker (bundleReceiptEmailSentNote / bundleDnsHandoffEmailSentNote / commerceOrders.clientReceiptEmailSentAt, or any future twin) must only be written after checking the resolved `{ success }` shape of the send it gates — never right after an `await` with just a try/catch. sendReceiptEmail / sendEmail / sendCommerceBuyNowClientReceipt (src/lib/email/resend.ts) never throw: a marketing-suppression hit (when skipSuppression is unset) or a Resend API/network failure resolves `{ success: false, reason/error }`. Writing the marker unconditionally after such an await marks a suppressed or failed send as 'sent' forever and permanently defeats the redelivery-recovery path (planBundleWebhookSideEffects / planCommerceWebhookSideEffects). Commerce client receipt must stay independently recoverable from the operator inquiry (clientReceiptEmailSentAt), not gated solely on inquiry presence — see commerce-client-receipt-redelivery-recovery.",
-  "Post-payment transactional emails must pass skipSuppression: true into sendEmail (sendReceiptEmail, bundle DNS handoff send in the Stripe webhook, sendCommerceBuyNowClientReceipt) — a cold-outreach CAN-SPAM unsubscribe must not block receipt / DNS go-live / Commerce order-notification after money is taken. Marker-only gating (leave sent-marker unwritten on suppress) is not enough: Stripe redelivers forever against the same suppress. Keep suppression for outreach Email 1–3, abandoned recovery, Starter upsell, and marketing/voice pack delivery. sendOperatorDailyDigest already bypasses suppression for the operator inbox.",
+  "Post-payment transactional emails must pass skipSuppression: true into sendEmail (sendReceiptEmail, bundle DNS handoff send in the Stripe webhook, sendCommerceBuyNowClientReceipt) — a cold-outreach CAN-SPAM unsubscribe must not block receipt / DNS go-live / Commerce order-notification after money is taken. Marker-only gating (leave sent-marker unwritten on suppress) is not enough: Stripe redelivers forever against the same suppress. The same rule applies to Starter sold product notifies that land on lead.email after conversion: POST /api/contact/[slug]'s business/operator inquiry alert must pass skipSuppression: true (contact-form-notify-skip-marketing-suppression) — a marketing unsub must not silence website contact-form delivery while the CRM trail still succeeds. After shipping a skipSuppression rule for one product surface, the next empty-backlog scan should check sibling sold product notifies on lead.email before inventing an optional aggregate. Keep suppression for outreach Email 1–3, abandoned recovery, Starter upsell, and marketing/voice pack delivery. sendOperatorDailyDigest already bypasses suppression for the operator inbox.",
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. That includes href attribute values (previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl + /privacy in resend.ts): sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs; a quote or ampersand in NEXT_PUBLIC_APP_URL must not break out of href=\"...\". Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
@@ -1910,10 +1910,17 @@ export const NEXT_STEPS: NextStep[] = [
     id: "contact-form-notify-skip-marketing-suppression",
     summary:
       "POST /api/contact/[slug] notifies lead.email (or support) via sendEmail without skipSuppression. After transactional-email-skip-marketing-suppression, a lead who unsubscribed from cold outreach then converted still never receives Starter sold contact-form inquiry alerts — CRM trail exists but business/operator notify is permanently suppressed. Ship skipSuppression: true on that product notify; keep suppression for outreach, abandoned recovery, upsell, and marketing/voice pack delivery.",
-    status: "in_progress",
+    status: "done",
     phase: "Phase 5 — Production deploy",
     owner:
-      "cursor/business-process-evolution-fbad (folding grok/continuous-work-contact-notify-skip; issue #244)",
+      "cursor/business-process-evolution-fbad (folded from grok/continuous-work-contact-notify-skip; issue #244; same-minute dual with prompt-process-evolution-63b3 — earlier claim owns)",
+  },
+  {
+    id: "create-path-slug-edge-dash-normalize",
+    summary:
+      "Empty-backlog sold-capability audit: addLeadAction and CSV slug-column sanitize keep leading/trailing dashes (e.g. \"Demo Cafe!\" → demo-cafe-) while sanitizeCheckoutLeadSlug, slugifyBusinessName, and leadSlugAsDnsLabel all strip them. suggestedHost then becomes demo-cafe.{root} but the CRM slug stays demo-cafe-, so extractPreviewSubdomainSlug → getLeadBySlug misses the lead and Starter preview-subdomain Host→preview silently falls through to the marketing homepage. Align every create-path on a shared sanitizeLeadSlug (collapse + strip edge dashes; reject/fallback when empty). Stuck feature body: grok/dev-work-slug-edge-dash (issue #245; Actions token blocked).",
+    status: "todo",
+    phase: "Phase 1 — Website foundation",
   },
 ];
 
@@ -4158,6 +4165,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Pass skipSuppression: true on sendReceiptEmail, the Stripe webhook DNS go-live sendEmail, and sendCommerceBuyNowClientReceipt — rather than leave post-payment fulfillment blocked by the marketing CAN-SPAM suppression list (marker-only gating left Stripe redelivering forever against the same suppress).",
     rationale:
       "Empty-backlog after PR #242 (custom-domain normalize, sibling-owned). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-57f2 claimed custom-domain first — pivoted. Fresh sold-capability audit found sendEmail always checks isEmailSuppressed, so a lead who unsubscribed from cold outreach then later paid never receives receipt/DNS/Commerce order notification; bundle-webhook-receipt-marker-requires-send-success already named the suppressed-buyer scenario but only gated the durable marker. Closing the actual delivery gap beats inventing an optional aggregate or re-auditing 2x-clean axes. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Pass skipSuppression: true on POST /api/contact/[slug]'s business/operator inquiry notify — rather than leave Starter sold contact-form alerts permanently blocked when the lead unsubscribed from cold-outreach marketing (CRM trail still succeeds).",
+    rationale:
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated; stuck CLI remotes held only clean-audit process docs until grok/continuous-work-contact-notify-skip shipped a complete feature body with no open PR (Actions token blocked; issue #244). Sibling opencode multi-axis audit treated contact notify as intentionally non-skip; a sold-capability re-check found the notify still lands on lead.email through the marketing-suppression path, so a converted unsub never gets website inquiry alerts. Extending the skip rule to this product notify beats inventing an optional aggregate. AGENT_PROTOCOL now says: after shipping skipSuppression for one product surface, check sibling lead.email product notifies next. Same-minute dual with prompt-process-evolution-63b3 (both folded the same body; earlier fbad claim owns). Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
   },
 
 ];
@@ -7944,5 +7958,51 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1319 passed, +3 transactional skip-suppression regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(319, 320),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/continuous-work-contact-notify-skip",
+    summary:
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (clean-audit process-only) before inventing work. Sold-capability audit found POST /api/contact/[slug] still honors marketing suppression for lead.email inquiry notify after cold-outreach unsubscribe — Starter sold contact-form alerts silently fail while CRM trail succeeds. Claimed and shipped contact-form-notify-skip-marketing-suppression.",
+    shipped: [
+      "src/app/api/contact/[slug]/route.ts — skipSuppression: true on business/operator notify sendEmail",
+      "src/app/api/contact/[slug]/route.test.ts — +1 skipSuppression regression; Resend-failure path still surfaces notifySent:false",
+      "src/lib/email/resend.ts — SendEmailParams.skipSuppression JSDoc names contact-form product notify",
+      "Docs: architecture.tsx notes contact-form notify skip beside transactional skip",
+      "AGENT_PROTOCOL — skipSuppression rule extends to contact-form lead.email notify",
+      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done",
+      "BUSINESS_DECISIONS — documented why product notify skip beats inventing an optional aggregate",
+      "Verified: npm test (1320 passed, +1 contact skipSuppression regression) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create — issue #244 points at grok/continuous-work-contact-notify-skip",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(320, 321),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-fbad",
+    summary:
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression on main). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form-notify-skip-marketing-suppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling prompt-process-evolution-63b3 dual-claimed ~2s later and also folded — earlier fbad claim owns; keep both ITERATIONS and a single implementation.",
+    shipped: [
+      "Fold: origin/grok/continuous-work-contact-notify-skip feature files (contact route + tests + resend JSDoc + architecture) — kept grok ITERATION above",
+      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner fbad; same-minute dual with 63b3)",
+      "AGENT_PROTOCOL — skipSuppression rule extends to contact-form lead.email notify; empty-backlog note to check sibling lead.email product notifies after one skip surface ships (folded from 63b3 process polish)",
+      "BUSINESS_DECISIONS — documented why folding this Starter sold notify gap beats inventing an optional aggregate",
+      "NEXT_STEPS: queued create-path-slug-edge-dash-normalize (grok/dev-work-slug-edge-dash; issue #245) for sibling fold",
+      "Verified: npm test (1320 passed, +1 contact skipSuppression regression) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(320, 321),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-63b3",
+    summary:
+      "Same-minute dual with business-process-evolution-fbad on contact-form-notify-skip-marketing-suppression — both folded grok/continuous-work-contact-notify-skip (issue #244). fbad's earlier claim (~2s) owns; both pushed feature body. Kept a single implementation and both ITERATIONS per AGENT_PROTOCOL. 63b3 contributed the AGENT_PROTOCOL empty-backlog note to scan sibling lead.email product notifies after one skipSuppression surface ships.",
+    shipped: [
+      "Fold: same grok/continuous-work-contact-notify-skip feature body as fbad (single implementation)",
+      "AGENT_PROTOCOL — after shipping skipSuppression for one product surface, check sibling lead.email product notifies before inventing an optional aggregate",
+      "NEXT_STEPS owner remains fbad (earlier claim); 63b3 recorded as dual + process polish",
+      "Verified alongside fbad fold: npm test (1320 passed) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(320, 321),
   },
 ];
