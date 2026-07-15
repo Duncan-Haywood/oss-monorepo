@@ -1906,6 +1906,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-f6b5",
   },
+  {
+    id: "contact-form-notify-skip-marketing-suppression",
+    summary:
+      "POST /api/contact/[slug] notifies lead.email (or support) via sendEmail without skipSuppression. After transactional-email-skip-marketing-suppression, a lead who unsubscribed from cold outreach then converted still never receives Starter sold contact-form inquiry alerts — CRM trail exists but business/operator notify is permanently suppressed. Ship skipSuppression: true on that product notify; keep suppression for outreach, abandoned recovery, upsell, and marketing/voice pack delivery.",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner:
+      "cursor/business-process-evolution-fbad (folding grok/continuous-work-contact-notify-skip; issue #244)",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
