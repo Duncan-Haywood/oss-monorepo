@@ -147,6 +147,32 @@ describe("buildDailyDigest", () => {
     expect(digest.oldestFollowUpDueAgeHours).toBeNull();
   });
 
+  it("computes oldestAbandonedAgeHours from the oldest abandoned bundle checkout", () => {
+    const session = baseCheckoutSession({
+      createdAt: "2026-07-10T00:00:00.000Z", // ~60h before NOW
+    });
+    const digest = buildDailyDigest({
+      leads: [baseLead()],
+      inquiries: [],
+      openCheckoutSessions: [session],
+      nowMs: NOW,
+    });
+    expect(digest.checkoutRecoveriesDueCount).toBe(1);
+    // 60h = 2.5 days from 2026-07-10T00:00 to 2026-07-12T12:00
+    expect(digest.oldestAbandonedAgeHours).toBeGreaterThanOrEqual(59);
+    expect(digest.oldestAbandonedAgeHours).toBeLessThanOrEqual(61);
+  });
+
+  it("reports null oldestAbandonedAgeHours when there are no abandoned checkouts", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestAbandonedAgeHours).toBeNull();
+  });
+
   it("lists an abandoned checkout session due for recovery", () => {
     const digest = buildDailyDigest({
       leads: [baseLead()],
@@ -318,6 +344,41 @@ describe("buildDailyDigest", () => {
       nowMs: NOW,
     });
     expect(digest.coldLeadCount).toBe(1);
+  });
+
+  it("computes oldestColdLeadAgeHours from the oldest cold lead", () => {
+    const oldCold = baseLead({
+      slug: "old-cold",
+      stage: "outreach_sent",
+      outreachStep: 3,
+      lastOutreachAt: "2026-05-15T00:00:00.000Z", // ~58d before NOW
+    });
+    const recentCold = baseLead({
+      slug: "recent-cold",
+      stage: "outreach_sent",
+      outreachStep: 3,
+      lastOutreachAt: "2026-07-01T00:00:00.000Z",
+    });
+    const digest = buildDailyDigest({
+      leads: [recentCold, oldCold],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.coldLeadCount).toBe(2);
+    // Oldest is ~58 days from 2026-05-15T00:00 to 2026-07-12T12:00
+    expect(digest.oldestColdLeadAgeHours).toBeGreaterThanOrEqual(58 * 24);
+    expect(digest.oldestColdLeadAgeHours).toBeLessThanOrEqual(60 * 24);
+  });
+
+  it("reports null oldestColdLeadAgeHours when there are no cold leads", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestColdLeadAgeHours).toBeNull();
   });
 
   it("counts closed leads in closedLeadCount without affecting isEmpty", () => {
@@ -1123,6 +1184,40 @@ describe("renderDailyDigestHtml", () => {
     const html = renderDailyDigestHtml(digest, "https://example.com");
     expect(html).toContain("Unreplied inquiries (2 · oldest 4h)");
     expect(html).not.toContain("new");
+  });
+
+  it("shows oldestAbandonedAgeHours in the abandoned checkouts header", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead()],
+      inquiries: [],
+      openCheckoutSessions: [
+        baseCheckoutSession({ createdAt: "2026-07-10T00:00:00.000Z" }),
+      ],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Abandoned checkouts (1 · oldest");
+    expect(html).toContain("h)");
+  });
+
+  it("shows oldestColdLeadAgeHours in the cold footnote", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "cold",
+          stage: "outreach_sent",
+          outreachStep: 3,
+          lastOutreachAt: "2026-06-01T00:00:00.000Z",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("also went cold after Email 3");
+    expect(html).toContain("oldest");
+    expect(html).toContain("h");
   });
 
   it("shows oldestFollowUpDueAgeHours in the follow-ups header", () => {

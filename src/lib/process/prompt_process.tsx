@@ -99,7 +99,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively; newInquiryCount / oldestUnrepliedInquiryAgeHours / oldestFollowUpDueAgeHours / closedLeadCount are now digest-mirrored via digest-pipeline-health-age-and-count-wiring — remaining optional age mirrors are oldestAbandonedAgeHours / oldestColdLeadAgeHours only) or a different security surface not yet checked. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR, (2) a fresh security or injection-surface audit (operator-password trim, auth cookie, public write routes), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -1967,6 +1967,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner:
       "cursor/business-process-evolution-693b (folded from grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit*)",
+  },
+  {
+    id: "digest-age-mirror-oldest-abandoned-cold",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit): remaining PipelineHealth age mirrors oldestAbandonedAgeHours and oldestColdLeadAgeHours were still missing from the daily digest. The digest section headers show only the count for abandoned checkouts and cold leads, never how long the oldest has been sitting — a single-operator business relying on the digest has no way to gauge urgency of stale abandoned carts or cold inventory without opening the dashboard. Shipped: oldestAbandonedAgeHours (from listAbandonedCheckoutsDue) + oldestColdLeadAgeHours (from listColdLeads) on DailyDigest + buildDailyDigest + renderDailyDigestHtml section headers + Vitest regressions. Stuck feature body: opencode/dev-work-digest-age-mirrors (Actions token blocked; no open PR).",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner:
+      "cursor/prompt-process-evolution-1ce7 (folded from opencode/dev-work-digest-age-mirrors)",
   },
 ];
 
@@ -4260,6 +4269,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Rate-limit loginOperatorAction at 5 attempts / 60s per client IP (checkRateLimit key login:<clientIp>) before tryCreateSessionFromPassword — rather than leave the public unauthenticated password-check unbounded while every other public write route already throttles. Rate-limited attempts redirect to error=rate_limited (page alert) instead of a JSON 429 so the login form stays usable.",
     rationale:
       "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window (merged as PR #276 — complementary axis, not a collision). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login throttle feature body and no open PR (Actions token blocked). Folding that public password-guessing throttle beats inventing an optional aggregate or a clean re-audit of 2x-confirmed axes. Reuses the tested checkRateLimit / clientIpFromHeaders helpers; tighter 5/60s window is appropriate for credential stuffing vs the default 20/60s used on contact/checkout. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Wire the last two PipelineHealth age mirrors (oldestAbandonedAgeHours, oldestColdLeadAgeHours) into the operator daily digest — abandoned-checkouts header and cold footnote — rather than invent a new optional aggregate or re-audit 2x-clean axes while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "AGENT_PROTOCOL empty-backlog rotation listed these two ages as the only remaining optional digest mirrors after PR #276/#277. Folding stuck opencode/dev-work-digest-age-mirrors (complete body, no open PR; Actions token blocked) onto a mergeable automation branch closes the pipeline-health→digest age/count wiring axis and beats a clean-audit-only run. Direct maps of existing PipelineHealth predicates (not new metrics). Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8356,6 +8372,36 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified after merge: npm test (1346 passed, +1 login rate-limit regression on top of PR #276's 1345) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(326, 327),
+  },
+  {
+    date: "2026-07-15",
+    branch: "opencode/dev-work-digest-age-mirrors",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit). Remaining PipelineHealth age mirrors oldestAbandonedAgeHours and oldestColdLeadAgeHours were still missing from the daily digest — the digest section headers showed only the count for abandoned checkouts and cold leads, never how long the oldest has been sitting. Wired both age fields into DailyDigest type, buildDailyDigest computation, renderDailyDigestHtml section headers (abandoned checkouts header + cold footnote), and daily-digest.test.ts. No open PR on this remote (Actions token blocked; folded onto cursor/prompt-process-evolution-1ce7).",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — DailyDigest.oldestAbandonedAgeHours + oldestColdLeadAgeHours fields, computed from listAbandonedCheckoutsDue / listColdLeads in buildDailyDigest, rendered in abandoned checkouts header and cold footnote",
+      "src/lib/digest/daily-digest.test.ts — compute+null tests for both age mirrors + render header/footnote assertions",
+      "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold (folded done on 1ce7)",
+      "PR handoff: Actions token blocked — folded onto cursor/prompt-process-evolution-1ce7",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-1ce7",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-digest-age-mirrors with a complete digest-age-mirror-oldest-abandoned-cold feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Closes the last optional PipelineHealth→digest age mirrors listed in AGENT_PROTOCOL.",
+    shipped: [
+      "Fold: stuck opencode/dev-work-digest-age-mirrors feature files (daily-digest.ts + daily-digest.test.ts) — kept opencode ITERATION above",
+      "src/lib/digest/daily-digest.ts — oldestAbandonedAgeHours + oldestColdLeadAgeHours on DailyDigest + buildDailyDigest + renderDailyDigestHtml",
+      "src/lib/digest/daily-digest.test.ts — +6 regressions (compute+null + HTML header/footnote for both ages)",
+      "Docs: architecture.tsx notes the two remaining age mirrors now digest-mirrored",
+      "AGENT_PROTOCOL — pipeline-health/digest wiring axis closed for known aggregates; next empty-backlog rotation prefers stuck CLI folds / security / Convex parity over inventing optional digests",
+      "NEXT_STEPS: digest-age-mirror-oldest-abandoned-cold done (owner 1ce7)",
+      "BUSINESS_DECISIONS — documented why folding these age mirrors beats inventing an optional aggregate (slice 327)",
+      "Verified: npm test (1352 passed, +6 digest age-mirror regressions vs 1346 on main) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(327, 328),
   },
 ];
 
