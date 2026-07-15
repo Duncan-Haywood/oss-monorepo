@@ -381,4 +381,18 @@ describe("resend.ts — transactional skipSuppression", () => {
     }
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("sendInquiryReply still delivers when the visitor is marketing-suppressed", async () => {
+    const { sendInquiryReply } = await import("./resend");
+    const result = await sendInquiryReply({
+      to: "visitor@example.com",
+      businessName: "Demo Cafe",
+      leadSlug: "demo-cafe",
+      replyBody: "Thanks for writing — we can book you Tuesday.",
+      originalMessage: "Do you take walk-ins?",
+      inquirerName: "Alex",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
 });

@@ -281,7 +281,9 @@ describe("replyToInquiryAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("surfaces suppression after a durable mark without revalidate", async () => {
+  it("still surfaces a suppressed send after durable mark (defense if helper regresses)", async () => {
+    // sendInquiryReply now passes skipSuppression: true, so this path is
+    // unreachable in production — keep the action's error branch covered.
     sendInquiryReply.mockResolvedValue({
       success: false,
       reason: "suppressed",

@@ -30,9 +30,11 @@ export interface SendEmailParams {
   /**
    * When true, skip the marketing suppression list. Use for post-payment
    * fulfillment (bundle receipt, DNS go-live handoff, Commerce Buy now
-   * client receipt) and Starter sold product notifies that land on
-   * lead.email (contact-form inquiry alert) — a cold-outreach unsubscribe
-   * must not block paid go-live instructions or website inquiry delivery.
+   * client receipt), Starter sold product notifies that land on lead.email
+   * (contact-form inquiry alert), and operator inquiry replies to website
+   * visitors (sendInquiryReply) — a cold-outreach unsubscribe must not
+   * block paid go-live instructions, website inquiry delivery, or the CRM
+   * reply half of that same sold contact-form loop.
    * Outreach, abandoned recovery, upsell, and marketing/voice pack delivery
    * must leave this unset.
    */
@@ -288,7 +290,10 @@ export async function sendCommerceAbandonedRecovery(
 
 /**
  * Operator reply to a website contact-form inquiry (dashboard inbox).
- * Honors the same suppression + CAN-SPAM footer path as outreach mail.
+ * Starter sold CRM product mail to the visitor — skip marketing suppression
+ * so a cold-outreach unsubscribe on the same address cannot permanently
+ * block the Reply half of the contact-form loop (inquiry is already marked
+ * replied via persist-then-notify). Still uses the CAN-SPAM footer.
  */
 export async function sendInquiryReply(params: {
   to: string;
@@ -320,7 +325,13 @@ export async function sendInquiryReply(params: {
     </blockquote>
   `;
 
-  return sendEmail({ to, subject, html, leadSlug });
+  return sendEmail({
+    to,
+    subject,
+    html,
+    leadSlug,
+    skipSuppression: true,
+  });
 }
 
 /**
