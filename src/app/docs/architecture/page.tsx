@@ -266,10 +266,18 @@ export default function ArchitectureDocPage() {
         <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
-        Every automated send (outreach Email 1-3, daily digest, marketing/voice pack email,
+        Every automated send (outreach Email 1-3, marketing/voice pack email,
         Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
         <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression
-        list before sending and <code>GET /api/unsubscribe</code> writes to it. The unsubscribe
+        list before sending and <code>GET /api/unsubscribe</code> writes to it. Post-payment
+        transactional sends — <code>sendReceiptEmail</code>, the bundle DNS go-live{" "}
+        <code>sendEmail</code> in the Stripe webhook, and{" "}
+        <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
+        <code>skipSuppression: true</code> so a cold-outreach unsubscribe cannot block receipt /
+        DNS instructions / Commerce order notification after money is taken (marker-only gating
+        left Stripe redelivering forever against the same suppress).{" "}
+        <code>sendOperatorDailyDigest</code> also skips suppression (operator inbox, not a
+        prospect). The unsubscribe
         link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}
         <code>verifyUnsubscribeToken</code>, <code>src/lib/email/unsubscribe-token.ts</code>,
         keyed on <code>RESEND_API_KEY</code>) bound to that recipient&apos;s address — the route

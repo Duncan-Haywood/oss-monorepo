@@ -27,16 +27,32 @@ export interface SendEmailParams {
   subject: string;
   html: string;
   leadSlug?: string;
+  /**
+   * When true, skip the marketing suppression list. Use only for
+   * post-payment fulfillment (bundle receipt, DNS go-live handoff,
+   * Commerce Buy now client receipt) — a cold-outreach unsubscribe must
+   * not block paid go-live instructions. Outreach, abandoned recovery,
+   * upsell, and marketing/voice pack delivery must leave this unset.
+   */
+  skipSuppression?: boolean;
 }
 
-export async function sendEmail({ to, subject, html, leadSlug }: SendEmailParams) {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  leadSlug,
+  skipSuppression = false,
+}: SendEmailParams) {
   const normalizedTo = to.toLowerCase().trim();
 
-  // 1. Check suppression list
-  const suppressed = await isEmailSuppressed(normalizedTo);
-  if (suppressed) {
-    console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
-    return { success: false as const, reason: "suppressed" };
+  // 1. Check suppression list (marketing only — see skipSuppression)
+  if (!skipSuppression) {
+    const suppressed = await isEmailSuppressed(normalizedTo);
+    if (suppressed) {
+      console.warn(`[Email Skipped] Address ${to} is in the suppression list.`);
+      return { success: false as const, reason: "suppressed" };
+    }
   }
 
   // Determine base URL for unsubscribe link
@@ -478,11 +494,13 @@ export async function sendCommerceBuyNowClientReceipt(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
 }
 
 /**
  * Sends a transactional order receipt email.
+ * Always delivers after payment — skip marketing suppression so a prior
+ * cold-outreach unsubscribe cannot block go-live fulfillment.
  */
 export async function sendReceiptEmail(to: string, businessName: string, tier: string, amount: number) {
   const subject = `Your receipt for ${businessName} - ${brand.name}`;
@@ -495,5 +513,5 @@ export async function sendReceiptEmail(to: string, businessName: string, tier: s
     <p style="font-weight: 500; margin-top: 0;">The ${escapeHtmlForEmail(brand.name)} Team</p>
   `;
 
-  return sendEmail({ to, subject, html });
+  return sendEmail({ to, subject, html, skipSuppression: true });
 }

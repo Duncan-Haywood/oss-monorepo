@@ -325,3 +325,60 @@ describe("resend.ts — href URL HTML escaping", () => {
     expectHrefSafe();
   });
 });
+
+describe("resend.ts — transactional skipSuppression", () => {
+  const originalKey = process.env.RESEND_API_KEY;
+  let fetchMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
+    const { isEmailSuppressed } = await import("../db");
+    vi.mocked(isEmailSuppressed).mockResolvedValue(true);
+    fetchMock = vi.fn(async () => {
+      return {
+        ok: true,
+        json: async () => ({ id: "email_test" }),
+      } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(async () => {
+    process.env.RESEND_API_KEY = originalKey;
+    const { isEmailSuppressed } = await import("../db");
+    vi.mocked(isEmailSuppressed).mockResolvedValue(false);
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("sendReceiptEmail still delivers when the address is marketing-suppressed", async () => {
+    const { sendReceiptEmail } = await import("./resend");
+    const result = await sendReceiptEmail("owner@example.com", "Demo Cafe", "starter", 500);
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendCommerceBuyNowClientReceipt still delivers when marketing-suppressed", async () => {
+    const { sendCommerceBuyNowClientReceipt } = await import("./resend");
+    const result = await sendCommerceBuyNowClientReceipt({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      skuName: "Latte",
+      amountTotalUsd: 4.5,
+      stripeSessionId: "cs_test_commerce",
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendOutreachEmail still blocks when marketing-suppressed", async () => {
+    const { sendOutreachEmail } = await import("./resend");
+    const result = await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.reason).toBe("suppressed");
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
