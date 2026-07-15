@@ -84,7 +84,10 @@ export default function ArchitectureDocPage() {
         <code>/dashboard/*</code> before the redirect is ever sent +{" "}
         <code>operator.test.ts</code> token crypto +{" "}
         <code>requireOperatorAuth</code> / <code>isOperatorAuthenticated</code> cookie-read
-        (open demo when unset, reject missing/invalid/expired, accept valid session) and{" "}
+        (open demo when unset or whitespace-only after trim, reject missing/invalid/expired,
+        accept valid session) — <code>getPassword</code> /{" "}
+        <code>tryCreateSessionFromPassword</code> trim env + form input so a trailing space in
+        the secret or a pasted login field cannot lock the operator out — and{" "}
         <code>proxy.test.ts</code> Host gate. Until the password is a non-placeholder secret,{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
