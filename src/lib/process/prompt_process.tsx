@@ -1986,6 +1986,14 @@ export const NEXT_STEPS: NextStep[] = [
     owner:
       "cursor/business-process-evolution-9b1b (folded from grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090)",
   },
+  {
+    id: "contact-form-notify-field-length-caps",
+    summary:
+      "Empty-backlog after PR #279 (create-path-slug-dns-label-max-length) + PR #278 (digest age mirrors). Sibling business-process-evolution-f844 claimed operator-password-trim (whitespace trim on OPERATOR_DASHBOARD_PASSWORD / tryCreateSessionFromPassword) — pivot. Sold-capability audit of Starter contact CRM found insertClientInquiry silently slices message to 5000 chars while POST /api/contact/[slug] builds the skipSuppression notify from the uncapped request body (name/email/phone/message/source). A public rate-limited form can force multi-MB escaped HTML into Resend toward lead.email/support while the inbox row only stores 5k — CRM and sold notify diverge; abuse burns Resend quota on a paid path. Soft-cap once via shared normalizeContactFormFields and reuse the same strings for persist + notify; export MAX_CONTACT_* constants; cap name/email/phone/source too (db previously only sliced message).",
+    status: "in_progress",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/prompt-process-evolution-38a8",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
