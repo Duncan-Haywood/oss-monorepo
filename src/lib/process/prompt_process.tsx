@@ -8166,7 +8166,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — skipSuppression rule names marketing/voice pack delivery; keep suppression for outreach/abandoned/upsell only",
       "NEXT_STEPS: marketing-voice-pack-skip-suppression done (owner ea8d)",
       "BUSINESS_DECISIONS — documented why folding this sold-feature skip beats inventing an optional aggregate (slice 324)",
-      "Verified: npm test + lint + build on fold branch",
+      "Verified: npm test (1334 passed, +2 pack skipSuppression regressions vs 1332 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(324, 325),
   },
