@@ -71,7 +71,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Security / injection ---
   "Every dynamic value interpolated into an outbound email's HTML body must go through escapeHtmlForEmail (src/lib/inquiries/reply.ts) — subject lines and From display names are plain text and exempt. That includes href attribute values (previewUrl / checkoutUrl / catalogUrl / unsubscribeUrl / baseUrl + /privacy in resend.ts): sibling templates (client-receipt, marketing/voice deliver-pack, dns-email, daily-digest) already escape URLs; a quote or ampersand in NEXT_PUBLIC_APP_URL must not break out of href=\"...\". Any value embedded via dangerouslySetInnerHTML into a <script> tag (JSON-LD) must instead go through safeJsonLdScript (src/lib/seo.ts) — JSON.stringify alone does not escape a literal `</script>` breakout, and escapeHtmlForEmail is the wrong tool there. Treat every lead field as untrusted at each render/send sink (it can originate from CSV import), not only at persistence.",
-  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle.",
+  "Any public link that triggers a state-changing GET/POST keyed only by an email or slug (no session) needs a signed token (see src/lib/email/unsubscribe-token.ts) before assuming persistence/escaping/error-path coverage is sufficient authorization. Public write routes (contact form, Stripe/commerce checkout create, preview-open beacon, unsubscribe) share checkRateLimit (src/lib/security/rate-limit.ts). Auth-gated /api twins (bootstrap-prices, marketing/generate) still need the same per-IP limiter: when OPERATOR_DASHBOARD_PASSWORD is unset, requireOperatorAuth returns ok for every caller — auth alone is not a throttle. loginOperatorAction is also a public unauthenticated password-check — throttle it with a tighter window (5 attempts/60s, key login:<clientIp>) before tryCreateSessionFromPassword; rate-limited attempts redirect to error=rate_limited (never 429 JSON) so the login page can render a clear alert.",
   "src/proxy.ts custom-domain routing (getLeadSlugByCustomDomain) must stay scoped to an exact pathname === \"/\" rewrite gated behind isPlatformHost — /api/* and /dashboard/* must never be Host-diverted. Preview-subdomain routing (extractPreviewSubdomainSlug) must run BEFORE that custom-domain check, and only rewrite when the extracted label resolves to a real lead — never fall through to the demo-catalog preview for an unrecognized subdomain. Always re-check auth inside server actions; the proxy gate alone is not enough.",
   "Any client-supplied redirect/return/callback URL that gets handed to a third-party API (e.g. Stripe return_url) or used for navigation must be validated same-origin (or same-app relative path) before use, not merely escaped or rate-limited — a public route keyed only by a leakable id (session id, slug) is still an open-redirect vector even with rate-limiting, since one request is enough. Mirror safeNextPath (src/lib/auth/safe-next-path.ts — used by both the login page already-authenticated redirect AND loginOperatorAction; never a weaker startsWith('/') twin that accepts //evil) / isSameOriginReturnUrl (src/app/api/stripe/billing-portal/route.ts): reject on parse failure or origin mismatch and fall back to a derived default, never trust the raw value. Dashboard-only relative next paths also reject backslash host tricks, control chars, scheme-smuggled paths, `..` segments, and /dashboard/login self-loops — including browser-normalized equivalents (hash, `./`, percent-encoded path segments). Apply prefix/login checks to the normalized pathname, not only the raw string.",
   "The appUrl fallback derived from x-forwarded-host/host request headers (when NEXT_PUBLIC_APP_URL is unset) is itself untrusted input, not just the client-body returnUrl fields the rule above covers — a raw HTTP client or misconfigured proxy can put arbitrary text in those headers. Use resolveTrustedAppUrl / tryHeaderDerivedAppOrigin (src/lib/security/app-url.ts): only host-only http(s) origins are accepted (reject non-http(s) x-forwarded-proto, userinfo, path/query/hash smuggled into Host) and fall back to the localhost default on anything else — a bare `new URL()` success is not enough (`javascript://host` parses). Never inline the `${proto}://${host}` pattern again. Any dynamic value interpolated into outbound email HTML must still go through escapeHtmlForEmail regardless of provenance (env var, header-derived, or otherwise) — see app-url-header-injection-guard + redirect-url-validator-hardening.",
@@ -1958,6 +1958,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner:
       "cursor/prompt-process-evolution-7d49 (folded from opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae; reclaimed after stale claim-only 8fc4/3fe8)",
+  },
+  {
+    id: "login-rate-limit",
+    summary:
+      "Empty-backlog audit after PR #253 (marketing-voice-pack-skip-suppression): loginOperatorAction had zero rate limiting despite being a public, unauthenticated password-check endpoint. A brute-force script can guess passwords at wire speed with no throttle. Ship checkRateLimit with a tighter login-appropriate limit (5 attempts/60s) before the password comparison. Rate-limited attempts redirect to the login page with error=rate_limited and the page renders a 'Too many attempts' alert. Complementary: the existing checkRateLimit helper and clientIpFromHeaders are already tested by 7 other route/action sites. Stuck feature body: grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* (Actions token blocked; no open PR). Sibling prompt-process-evolution-7d49 claimed/merged digest-pipeline-health-age-and-count-wiring (PR #276) in the same window — this is the next free fold.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-693b (folded from grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit*)",
   },
 ];
 
@@ -4244,6 +4253,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Wire pipeline-health age/count fields already on the dashboard (newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount) into the operator daily digest headers/footnotes — rather than invent a new optional aggregate or re-audit 2x-clean skipSuppression / Convex / send-success axes while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "AGENT_PROTOCOL empty-backlog rotation prefers pipeline-health/daily-digest wiring completeness after consecutive clean security audits. These four fields are direct maps of existing PipelineHealth predicates (not new metrics): unreplied-header new+age, follow-ups-header oldest age, and closed settled-inventory footnote (cold/snoozed class). Folding stuck opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae (complete body, no open PR; Actions token blocked) onto a mergeable automation branch beats a clean-audit-only run. Stale claim-only remotes (8fc4/3fe8) with no feature body do not own the todo.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Rate-limit loginOperatorAction at 5 attempts / 60s per client IP (checkRateLimit key login:<clientIp>) before tryCreateSessionFromPassword — rather than leave the public unauthenticated password-check unbounded while every other public write route already throttles. Rate-limited attempts redirect to error=rate_limited (page alert) instead of a JSON 429 so the login form stays usable.",
+    rationale:
+      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window (merged as PR #276 — complementary axis, not a collision). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login throttle feature body and no open PR (Actions token blocked). Folding that public password-guessing throttle beats inventing an optional aggregate or a clean re-audit of 2x-confirmed axes. Reuses the tested checkRateLimit / clientIpFromHeaders helpers; tighter 5/60s window is appropriate for credential stuffing vs the default 20/60s used on contact/checkout. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8265,7 +8281,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/prompt-process-evolution-7d49",
     summary:
-      "Empty-backlog after PR #252/#253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae with a complete digest-pipeline-health-age-and-count-wiring feature body and no open PR (Actions token blocked). Reclaimed after stale claim-only remotes cursor/prompt-process-evolution-8fc4 + cursor/business-process-evolution-3fe8 sat idle with no feature body. Folded onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Same-window sibling business-process-evolution-693b had not pushed a remote tip/claim yet.",
+      "Empty-backlog after PR #252/#253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae with a complete digest-pipeline-health-age-and-count-wiring feature body and no open PR (Actions token blocked). Reclaimed after stale claim-only remotes cursor/prompt-process-evolution-8fc4 + cursor/business-process-evolution-3fe8 sat idle with no feature body. Folded onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Same-window sibling business-process-evolution-693b pivoted to login-rate-limit (complementary).",
     shipped: [
       "Fold: stuck CLI remotes feature files (daily-digest.ts + daily-digest.test.ts + architecture.tsx) — kept opencode + codex + grok ITERATIONS above",
       "src/lib/digest/daily-digest.ts — newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount + HTML header/footnote wiring",
@@ -8277,6 +8293,69 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1345 passed, +11 digest age/count regressions vs 1334 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(325, 326),
+  },
+  {
+    date: "2026-07-15",
+    branch: "opencode/dev-work-login-rate-limit",
+    summary:
+      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Per AGENT_PROTOCOL empty-backlog scan, found loginOperatorAction had zero rate limiting on a public password-check. Shipped checkRateLimit (5/60s) before password comparison; feature body with no open PR (Actions token blocked) — folded onto cursor/business-process-evolution-693b.",
+    shipped: [
+      "src/app/dashboard/login/actions.ts — checkRateLimit login:<clientIp> at 5/60s before tryCreateSessionFromPassword; redirect error=rate_limited",
+      "src/app/dashboard/login/page.tsx — Too many attempts alert for error=rate_limited",
+      "src/app/dashboard/login/actions.test.ts — +1 rate-limit exceed regression",
+      "NEXT_STEPS: login-rate-limit (folded done on 693b)",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/continuous-work-login-rate-limit",
+    summary:
+      "Empty-backlog after PR #253. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes and found opencode/dev-work-login-rate-limit with a complete login throttle body and no open PR. Folded that body; dual with grok/dev-work-login-rate-limit. Later absorbed into cursor/business-process-evolution-693b.",
+    shipped: [
+      "Fold: opencode/dev-work-login-rate-limit feature files",
+      "src/app/dashboard/login/actions.ts — 5/60s checkRateLimit before password check",
+      "src/app/dashboard/login/page.tsx + actions.test.ts — rate_limited alert + regression",
+      "Docs: architecture.tsx notes login per-IP rate limit",
+      "BUSINESS_DECISIONS — documented why login throttle beats inventing an optional aggregate (slice 326)",
+      "Verified: npm test + lint + build",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/dev-work-login-rate-limit",
+    summary:
+      "Same-window dual with continuous-work-login-rate-limit on the login throttle. Folded the same opencode body; later absorbed into cursor/business-process-evolution-693b with continuous-work architecture docs.",
+    shipped: [
+      "Fold: opencode/dev-work-login-rate-limit feature (actions.ts + page.tsx + actions.test.ts)",
+      "src/app/dashboard/login/actions.ts — LOGIN_RATE_LIMIT 5/60s via checkRateLimit + clientIpFromHeaders",
+      "NEXT_STEPS: login-rate-limit (folded done on 693b)",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-693b",
+    summary:
+      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window (merged as PR #276) — pivoted to the next free fold. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login-rate-limit feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest + login ITERATIONS.",
+    shipped: [
+      "merge: origin/main (PR #276 digest age/count wiring) — 7d49 owns digest NEXT_STEPS / slice 325; both complementary ITERATIONS kept",
+      "Fold: stuck CLI remotes feature files (login actions/page/tests + architecture docs) — kept opencode + grok continuous/dev ITERATIONS above",
+      "src/app/dashboard/login/actions.ts — checkRateLimit login:<clientIp> at 5 attempts/60s before tryCreateSessionFromPassword; redirect error=rate_limited",
+      "src/app/dashboard/login/page.tsx — Too many attempts alert for error=rate_limited",
+      "src/app/dashboard/login/actions.test.ts — +1 rate-limit exceed regression; header docs note 5/60s",
+      "src/lib/security/rate-limit.ts — module comment names loginOperatorAction tighter window",
+      "Docs: architecture.tsx notes login per-IP rate limit beside safeNextPath",
+      "AGENT_PROTOCOL — public rate-limit rule names loginOperatorAction 5/60s + error=rate_limited redirect",
+      "NEXT_STEPS: login-rate-limit done",
+      "BUSINESS_DECISIONS — documented why folding this login throttle beats inventing an optional aggregate (slice 326)",
+      "Verified after merge: npm test (1346 passed, +1 login rate-limit regression on top of PR #276's 1345) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
 ];
 
