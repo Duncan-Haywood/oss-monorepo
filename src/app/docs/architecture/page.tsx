@@ -268,20 +268,23 @@ export default function ArchitectureDocPage() {
         <code>daily-digest.test.ts</code> alone does not cover that glue.
       </p>
       <p>
-        Every automated send (outreach Email 1-3, marketing/voice pack email,
-        Starter upsell, abandoned-checkout recovery) calls <code>sendEmail</code> (
-        <code>src/lib/email/resend.ts</code>), which checks the CAN-SPAM unsubscribe suppression
-        list before sending and <code>GET /api/unsubscribe</code> writes to it. Post-payment
-        transactional sends — <code>sendReceiptEmail</code>, the bundle DNS go-live{" "}
-        <code>sendEmail</code> in the Stripe webhook, and{" "}
-        <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
+        Every automated marketing send (outreach Email 1-3, Starter upsell, abandoned-checkout
+        recovery) calls <code>sendEmail</code> (<code>src/lib/email/resend.ts</code>), which
+        checks the CAN-SPAM unsubscribe suppression list before sending and{" "}
+        <code>GET /api/unsubscribe</code> writes to it. Post-payment transactional sends —{" "}
+        <code>sendReceiptEmail</code>, the bundle DNS go-live <code>sendEmail</code> in the Stripe
+        webhook, and <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
         <code>skipSuppression: true</code> so a cold-outreach unsubscribe cannot block receipt /
         DNS instructions / Commerce order notification after money is taken (marker-only gating
         left Stripe redelivering forever against the same suppress). Starter sold contact-form
         CRM also skips: <code>POST /api/contact/[slug]</code> inquiry notify to{" "}
         <code>lead.email</code>, and operator <code>sendInquiryReply</code> to the visitor —
         persist-then-notify must not mark an inquiry replied while marketing suppression
-        permanently blocks the visitor reply.{" "}
+        permanently blocks the visitor reply. Sold Growth/Complete pack delivery on{" "}
+        <code>lead.email</code> also skips: <code>sendMarketingPackToClientEmail</code> and{" "}
+        <code>sendClientVoicePackToClientEmail</code> pass <code>skipSuppression: true</code> so a
+        cold-outreach unsub cannot permanently block paid monthly marketing content or Complete
+        phone scripts the client is billed for.{" "}
         <code>sendOperatorDailyDigest</code> also skips suppression (operator inbox, not a
         prospect). The unsubscribe
         link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}
@@ -807,10 +810,12 @@ source). The same digest also lists email-critical leads with no usable address 
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
         pack to <code>lead.email</code> via Resend (<code>src/lib/marketing/deliver-pack.ts</code>
-        ) so clients can post themselves — action-level Vitest in{" "}
+        ) so clients can post themselves — <code>sendMarketingPackToClientEmail</code> passes{" "}
+        <code>skipSuppression: true</code> (paid Growth/Complete feature delivery, not cold
+        marketing). Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/send-marketing-pack-to-client-action.test.ts</code> locks
-        auth, eligibility, current-month pack gate, suppression / send failure, and preview URL
-        wiring (deliver-pack helpers alone do not cover that glue). Buffer / GBP / Meta OAuth
+        auth, eligibility, current-month pack gate, send failure, and preview URL wiring
+        (deliver-pack helpers alone do not cover that glue). Buffer / GBP / Meta OAuth
         auto-posting remains optional. See{" "}
         <DocLink href="/docs/marketing-automation">Marketing automation</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
@@ -838,10 +843,11 @@ source). The same digest also lists email-critical leads with no usable address 
         instead of leaving voice-packs-due / Email voice pack blind on other instances.{" "}
         <code>sendClientVoicePackToClientAction</code> emails the pack to <code>lead.email</code>{" "}
         via Resend (<code>src/lib/voice/deliver-pack.ts</code>) so clients can paste into a temp
-        number / Cal.com — action-level Vitest in{" "}
-        <code>send-client-voice-pack-to-client-action.test.ts</code> locks auth, Complete+email
-        eligibility, existing pack gate, and suppression / send failure on that dashboard path.
-        Twilio + <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}
+        number / Cal.com — <code>sendClientVoicePackToClientEmail</code> passes{" "}
+        <code>skipSuppression: true</code> (paid Complete feature delivery). Action-level Vitest
+        in <code>send-client-voice-pack-to-client-action.test.ts</code> locks auth, Complete+email
+        eligibility, existing pack gate, and send failure on that dashboard path. Twilio +{" "}
+        <code>/api/voice/client/webhook</code> remain Phase 7. See{" "}
         <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink> and{" "}
         <DocLink href="/docs/process">process log</DocLink>.
       </p>

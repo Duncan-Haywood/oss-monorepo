@@ -31,12 +31,13 @@ export interface SendEmailParams {
    * When true, skip the marketing suppression list. Use for post-payment
    * fulfillment (bundle receipt, DNS go-live handoff, Commerce Buy now
    * client receipt), Starter sold product notifies that land on lead.email
-   * (contact-form inquiry alert), and operator inquiry replies to website
-   * visitors (sendInquiryReply) — a cold-outreach unsubscribe must not
-   * block paid go-live instructions, website inquiry delivery, or the CRM
-   * reply half of that same sold contact-form loop.
-   * Outreach, abandoned recovery, upsell, and marketing/voice pack delivery
-   * must leave this unset.
+   * (contact-form inquiry alert), operator inquiry replies to website
+   * visitors (sendInquiryReply), and sold Growth/Complete pack delivery
+   * (sendMarketingPackToClientEmail / sendClientVoicePackToClientEmail) —
+   * a cold-outreach unsubscribe must not block paid go-live instructions,
+   * website inquiry delivery, the CRM reply half of that same sold
+   * contact-form loop, or features a paying client is billed for.
+   * Outreach, abandoned recovery, and Starter upsell must leave this unset.
    */
   skipSuppression?: boolean;
 }
@@ -426,6 +427,8 @@ export async function sendStarterUpsellEmail(params: {
 /**
  * Operator-triggered delivery of this month's marketing pack to the client
  * (Growth/Complete sold content handoff without Buffer/GBP OAuth).
+ * Passes skipSuppression: true — this is paid feature delivery to lead.email,
+ * not cold marketing (see marketing-voice-pack-skip-suppression).
  * See src/lib/marketing/deliver-pack.ts + /docs/process (deliver-marketing-pack-to-client).
  */
 export async function sendMarketingPackToClientEmail(params: {
@@ -445,12 +448,14 @@ export async function sendMarketingPackToClientEmail(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
 }
 
 /**
  * Operator-triggered delivery of the Complete voice FAQ/script pack to the client
- * (phone-script handoff without Twilio). See src/lib/voice/deliver-pack.ts +
+ * (phone-script handoff without Twilio). Passes skipSuppression: true — paid
+ * Complete feature delivery to lead.email, not cold marketing (see
+ * marketing-voice-pack-skip-suppression). See src/lib/voice/deliver-pack.ts +
  * /docs/process (deliver-client-voice-pack-to-client).
  */
 export async function sendClientVoicePackToClientEmail(params: {
@@ -468,7 +473,7 @@ export async function sendClientVoicePackToClientEmail(params: {
     previewUrl,
   });
 
-  return sendEmail({ to, subject, html, leadSlug: slug });
+  return sendEmail({ to, subject, html, leadSlug: slug, skipSuppression: true });
 }
 
 /**
