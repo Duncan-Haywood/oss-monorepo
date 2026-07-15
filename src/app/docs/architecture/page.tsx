@@ -277,7 +277,10 @@ export default function ArchitectureDocPage() {
         <code>sendCommerceBuyNowClientReceipt</code> — pass{" "}
         <code>skipSuppression: true</code> so a cold-outreach unsubscribe cannot block receipt /
         DNS instructions / Commerce order notification after money is taken (marker-only gating
-        left Stripe redelivering forever against the same suppress).{" "}
+        left Stripe redelivering forever against the same suppress). The Starter sold contact-form
+        notify (<code>POST /api/contact/[slug]</code> → <code>lead.email</code> or support) also
+        passes <code>skipSuppression: true</code> — a marketing unsub must not silence website
+        inquiry alerts while the CRM trail still succeeds.{" "}
         <code>sendOperatorDailyDigest</code> also skips suppression (operator inbox, not a
         prospect). The unsubscribe
         link embeds an HMAC token (<code>signUnsubscribeToken</code> /{" "}

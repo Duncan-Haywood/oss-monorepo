@@ -28,11 +28,13 @@ export interface SendEmailParams {
   html: string;
   leadSlug?: string;
   /**
-   * When true, skip the marketing suppression list. Use only for
-   * post-payment fulfillment (bundle receipt, DNS go-live handoff,
-   * Commerce Buy now client receipt) — a cold-outreach unsubscribe must
-   * not block paid go-live instructions. Outreach, abandoned recovery,
-   * upsell, and marketing/voice pack delivery must leave this unset.
+   * When true, skip the marketing suppression list. Use for post-payment
+   * fulfillment (bundle receipt, DNS go-live handoff, Commerce Buy now
+   * client receipt) and Starter sold product notifies that land on
+   * lead.email (contact-form inquiry alert) — a cold-outreach unsubscribe
+   * must not block paid go-live instructions or website inquiry delivery.
+   * Outreach, abandoned recovery, upsell, and marketing/voice pack delivery
+   * must leave this unset.
    */
   skipSuppression?: boolean;
 }
