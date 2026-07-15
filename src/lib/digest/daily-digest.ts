@@ -219,7 +219,15 @@ export interface DailyDigest {
   leadsMissingEmail: DigestLeadMissingEmail[];
   /** True count before the LEADS_MISSING_EMAIL_LIMIT slice — use for the section header. */
   leadsMissingEmailCount: number;
+  /** Count of new (unseen) inquiries in the unreplied set. */
+  newInquiryCount: number;
+  /** Age in whole hours of the oldest unreplied inquiry; null when none. */
+  oldestUnrepliedInquiryAgeHours: number | null;
+  /** Age in whole hours of the oldest follow-up due lead; null when none. */
+  oldestFollowUpDueAgeHours: number | null;
   coldLeadCount: number;
+  /** Leads at terminal closed stage — same predicate as pipeline-health closedLeadCount. */
+  closedLeadCount: number;
   /**
    * Leads currently parked off Work next via snoozedUntil (same predicate as
    * pipeline-health snoozedLeadCount). Footnote only — not a digest action section.
@@ -297,6 +305,17 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const followUpsDueAll = listFollowUpsDue(leads, nowMs);
   const followUpsDueCount = followUpsDueAll.length;
+  const oldestFollowUpDueAgeHours: number | null = (() => {
+    if (followUpsDueAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const lead of followUpsDueAll) {
+      if (!lead.lastOutreachAt) continue;
+      const parsed = Date.parse(lead.lastOutreachAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
   const followUpsDue: DigestFollowUpLead[] = followUpsDueAll
     .slice(0, FOLLOW_UPS_LIMIT)
     .map((lead) => ({
@@ -333,6 +352,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     .filter((inquiry) => isUnrepliedInquiryStatus(inquiry.status))
     .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   const unrepliedInquiriesCount = unrepliedInquiriesAll.length;
+  const newInquiryCount = inquiries.filter((inquiry) => inquiry.status === "new").length;
+  const oldestUnrepliedInquiryAgeHours: number | null =
+    unrepliedInquiriesAll.length > 0
+      ? Math.max(0, Math.floor((nowMs - Date.parse(unrepliedInquiriesAll[0].createdAt)) / HOUR_MS))
+      : null;
   const unrepliedInquiries: DigestUnrepliedInquiry[] = unrepliedInquiriesAll
     .slice(0, INQUIRIES_LIMIT)
     .map((inquiry) => ({
@@ -464,6 +488,7 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     }));
 
   const coldLeadCount = listColdLeads(leads, nowMs).length;
+  const closedLeadCount = leads.filter((lead) => lead.stage === "closed").length;
 
   const snoozedLeads = leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),
@@ -528,7 +553,11 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     paidNotLiveCount,
     leadsMissingEmail,
     leadsMissingEmailCount,
+    newInquiryCount,
+    oldestUnrepliedInquiryAgeHours,
+    oldestFollowUpDueAgeHours,
     coldLeadCount,
+    closedLeadCount,
     snoozedLeadCount: snoozedLeads.length,
     soonestSnoozeRemainingHours,
     isEmpty,
@@ -564,6 +593,11 @@ function snoozedFootnote(digest: DailyDigest): string {
   return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.snoozedLeadCount} lead${digest.snoozedLeadCount === 1 ? "" : "s"} currently snoozed off Work next${soonestBit} — parked urgency, not a second queue.</p>`;
 }
 
+function closedLeadFootnote(digest: DailyDigest): string {
+  if (digest.closedLeadCount <= 0) return "";
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.closedLeadCount} lead${digest.closedLeadCount === 1 ? "" : "s"} marked closed — settled inventory, not actionable above.</p>`;
+}
+
 function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   if (digest.coldLeadCount <= 0) return "";
   if (emptyState) {
@@ -580,6 +614,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       <p style="margin:0;color:#3f3f46;">Work next, follow-ups, checkout recoveries, Buy now carts, inbox, marketing packs, Starter upsells, Commerce catalogs, Sync to Stripe, Complete voice packs, Commerce payouts owed, and production handoffs are all clear.</p>
       ${coldFootnote(digest, true)}
       ${snoozedFootnote(digest)}
+      ${closedLeadFootnote(digest)}
     `;
   }
 
@@ -663,10 +698,18 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       <a href="${escapeHtmlForEmail(baseUrl)}/dashboard/leads" style="color:#2563eb;">Open the dashboard</a> to act on any of these.
     </p>
     ${section(`Work next (${digest.workNext.length})`, workNextRows, "No actionable leads scored right now.")}
-    ${section(`Follow-ups due (${digest.followUpsDueCount})`, followUpRows, "No follow-up emails due.")}
+    ${section(
+      `Follow-ups due (${digest.followUpsDueCount}${digest.oldestFollowUpDueAgeHours !== null ? ` · oldest ${digest.oldestFollowUpDueAgeHours}h` : ""})`,
+      followUpRows,
+      "No follow-up emails due.",
+    )}
     ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDueCount})`, recoveryRows, "No recovery nudges due.")}
     ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDueCount})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
-    ${section(`Unreplied inquiries (${digest.unrepliedInquiriesCount})`, inquiryRows, "Inbox clear.")}
+    ${section(
+      `Unreplied inquiries (${digest.unrepliedInquiriesCount}${digest.newInquiryCount > 0 && digest.newInquiryCount !== digest.unrepliedInquiriesCount ? ` · ${digest.newInquiryCount} new` : ""}${digest.oldestUnrepliedInquiryAgeHours !== null ? ` · oldest ${digest.oldestUnrepliedInquiryAgeHours}h` : ""})`,
+      inquiryRows,
+      "Inbox clear.",
+    )}
     ${section(`Marketing packs due (${digest.marketingPacksDueCount})`, packRows, "All Growth/Complete packs generated this month.")}
     ${section(`Starter → MRR upsell (${digest.starterUpsellCandidatesCount})`, upsellRows, "No Starter-only paid leads ready to upsell.")}
     ${section(`Commerce catalogs missing (${digest.commerceCatalogsMissingCount})`, commerceRows, "All paid Commerce add-on leads have a catalog.")}
@@ -678,5 +721,6 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
     ${section(`Leads missing email (${digest.leadsMissingEmailCount})`, missingEmailRows, "Every email-critical lead has a usable address.")}
     ${coldFootnote(digest, false)}
     ${snoozedFootnote(digest)}
+    ${closedLeadFootnote(digest)}
   `;
 }

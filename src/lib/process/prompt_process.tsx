@@ -99,7 +99,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively) or a different security surface not yet checked. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited: pipeline-health/daily-digest wiring completeness (every list*Due/Missing/Unsynced helper AND every inline pipeline-health aggregate — openHandoffCount, paidNotLiveCount, and leadsMissingEmailCount were each dashboard-only until open-handoffs-in-digest, paid-not-live-in-digest, and leads-missing-email-in-digest respectively; newInquiryCount / oldestUnrepliedInquiryAgeHours / oldestFollowUpDueAgeHours / closedLeadCount are now digest-mirrored via digest-pipeline-health-age-and-count-wiring — remaining optional age mirrors are oldestAbandonedAgeHours / oldestColdLeadAgeHours only) or a different security surface not yet checked. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: this exact bug class is NOT fully exhausted yet — the sibling email-1-outreach-send-success-check fix landed the same day this rotation rule was written, so re-checking the marker-after-unchecked-await class once more before rotating away from it is still reasonable.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
@@ -1951,9 +1951,18 @@ export const NEXT_STEPS: NextStep[] = [
       "cursor/prompt-process-evolution-ea8d (PR #252; dual with cursor/business-process-evolution-d2b8; folded from grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip + opencode/dev-work-marketing-voice-skip-suppression)",
   },
   {
+    id: "digest-pipeline-health-age-and-count-wiring",
+    summary:
+      "Empty-backlog audit of pipeline-health/digest wiring completeness found dashboard-only age/count fields with no DailyDigest equivalent. Wire the four most actionable: newInquiryCount (distinct new vs unreplied urgency), oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, and closedLeadCount (settled-inventory footnote). Each is a direct map of an existing pipeline-health aggregate, not a new metric. Stuck feature body: grok/continuous-work-digest-age-counts + opencode/dev-work-20260715 + codex/continuous-work-6a36ae (Actions token blocked; no open PR). Stale claim-only remotes cursor/prompt-process-evolution-8fc4 + cursor/business-process-evolution-3fe8 do not own this (idle with no feature body).",
+    status: "done",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner:
+      "cursor/prompt-process-evolution-7d49 (folded from opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae; reclaimed after stale claim-only 8fc4/3fe8)",
+  },
+  {
     id: "login-rate-limit",
     summary:
-      "Empty-backlog audit after PR #253 (marketing-voice-pack-skip-suppression): loginOperatorAction had zero rate limiting despite being a public, unauthenticated password-check endpoint. A brute-force script can guess passwords at wire speed with no throttle. Ship checkRateLimit with a tighter login-appropriate limit (5 attempts/60s) before the password comparison. Rate-limited attempts redirect to the login page with error=rate_limited and the page renders a 'Too many attempts' alert. Complementary: the existing checkRateLimit helper and clientIpFromHeaders are already tested by 7 other route/action sites. Stuck feature body: grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* (Actions token blocked; no open PR). Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window — this is the next free fold.",
+      "Empty-backlog audit after PR #253 (marketing-voice-pack-skip-suppression): loginOperatorAction had zero rate limiting despite being a public, unauthenticated password-check endpoint. A brute-force script can guess passwords at wire speed with no throttle. Ship checkRateLimit with a tighter login-appropriate limit (5 attempts/60s) before the password comparison. Rate-limited attempts redirect to the login page with error=rate_limited and the page renders a 'Too many attempts' alert. Complementary: the existing checkRateLimit helper and clientIpFromHeaders are already tested by 7 other route/action sites. Stuck feature body: grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* (Actions token blocked; no open PR). Sibling prompt-process-evolution-7d49 claimed/merged digest-pipeline-health-age-and-count-wiring (PR #276) in the same window — this is the next free fold.",
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner:
@@ -4241,9 +4250,16 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
     date: "2026-07-15",
     decision:
+      "Wire pipeline-health age/count fields already on the dashboard (newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount) into the operator daily digest headers/footnotes — rather than invent a new optional aggregate or re-audit 2x-clean skipSuppression / Convex / send-success axes while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "AGENT_PROTOCOL empty-backlog rotation prefers pipeline-health/daily-digest wiring completeness after consecutive clean security audits. These four fields are direct maps of existing PipelineHealth predicates (not new metrics): unreplied-header new+age, follow-ups-header oldest age, and closed settled-inventory footnote (cold/snoozed class). Folding stuck opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae (complete body, no open PR; Actions token blocked) onto a mergeable automation branch beats a clean-audit-only run. Stale claim-only remotes (8fc4/3fe8) with no feature body do not own the todo.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
       "Rate-limit loginOperatorAction at 5 attempts / 60s per client IP (checkRateLimit key login:<clientIp>) before tryCreateSessionFromPassword — rather than leave the public unauthenticated password-check unbounded while every other public write route already throttles. Rate-limited attempts redirect to error=rate_limited (page alert) instead of a JSON 429 so the login form stays usable.",
     rationale:
-      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login throttle feature body and no open PR (Actions token blocked). Folding that public password-guessing throttle beats inventing an optional aggregate or a clean re-audit of 2x-confirmed axes. Reuses the tested checkRateLimit / clientIpFromHeaders helpers; tighter 5/60s window is appropriate for credential stuffing vs the default 20/60s used on contact/checkout. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window (merged as PR #276 — complementary axis, not a collision). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login throttle feature body and no open PR (Actions token blocked). Folding that public password-guessing throttle beats inventing an optional aggregate or a clean re-audit of 2x-confirmed axes. Reuses the tested checkRateLimit / clientIpFromHeaders helpers; tighter 5/60s window is appropriate for credential stuffing vs the default 20/60s used on contact/checkout. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8220,6 +8236,66 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-15",
+    branch: "opencode/dev-work-20260715",
+    summary:
+      "Empty-backlog audit of pipeline-health/daily-digest wiring completeness: found 11 PipelineHealth fields without a DailyDigest equivalent. Wired the four most actionable — newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount — in the digest builder, DailyDigest type, and HTML renderer. No open PR on this remote (Actions token blocked; folded onto grok/continuous-work-digest-age-counts then cursor/prompt-process-evolution-7d49).",
+    shipped: [
+      "src/lib/digest/daily-digest.ts — DailyDigest type: +newInquiryCount, +oldestUnrepliedInquiryAgeHours, +oldestFollowUpDueAgeHours, +closedLeadCount; buildDailyDigest computes all four from existing input data; renderDailyDigestHtml shows new count in unreplied header (with oldest age), follow-ups header age, and closed footnote",
+      "src/lib/digest/daily-digest.test.ts — +11 tests covering newInquiryCount, oldest ages, closedLeadCount, HTML rendering, and the redundant-display guard (all-new inquiries omit redundant 'N new')",
+      "NEXT_STEPS: digest-pipeline-health-age-and-count-wiring done (owner recorded on fold branch)",
+      "Verified on opencode remote: npm test (1345 passed, +11 vs 1334 on prior main) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(325, 326),
+  },
+  {
+    date: "2026-07-15",
+    branch: "codex/continuous-work-6a36ae",
+    summary:
+      "Empty-backlog with all 4 remaining NEXT_STEPS operator/legal-gated. Scanned stuck CLI remotes per AGENT_PROTOCOL and found opencode/dev-work-20260715 with complete feature body (digest age/count wiring) but no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge.",
+    shipped: [
+      "Folded opencode/dev-work-20260715: src/lib/digest/daily-digest.ts (+newInquiryCount, +oldestUnrepliedInquiryAgeHours, +oldestFollowUpDueAgeHours, +closedLeadCount in DailyDigest type/build/HTML render); daily-digest.test.ts (+11 tests)",
+      "Merge record: opencode/dev-work-20260715 (feature body) folded onto codex/continuous-work-6a36ae per AGENT_PROTOCOL stuck-CLI-fold rule",
+      "NEXT_STEPS: digest-pipeline-health-age-and-count-wiring done (owner recorded on fold branch)",
+      "PR handoff: Actions token blocked — folded onto cursor/prompt-process-evolution-7d49",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(325, 326),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/continuous-work-digest-age-counts",
+    summary:
+      "Empty-backlog continuous-work after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-20260715 with a complete digest-pipeline-health-age-and-count-wiring feature body and no open PR. Folded that body onto this continuous-work branch that can open/merge rather than re-auditing 2x-clean skipSuppression/Convex/send-success axes or manufacturing a new optional aggregate.",
+    shipped: [
+      "Fold: origin/opencode/dev-work-20260715 feature files (daily-digest.ts + daily-digest.test.ts) — kept opencode ITERATION above",
+      "src/lib/digest/daily-digest.ts — newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount + HTML header/footnote wiring",
+      "src/lib/digest/daily-digest.test.ts — +11 regressions for the four fields and HTML rendering",
+      "Docs: architecture.tsx notes the four digest-mirrored pipeline-health age/count fields",
+      "NEXT_STEPS: digest-pipeline-health-age-and-count-wiring done (owner grok/continuous-work-digest-age-counts; folded from opencode/dev-work-20260715)",
+      "BUSINESS_DECISIONS — documented why folding this pipeline-health/digest wiring beats inventing an optional aggregate (slice 325)",
+      "Verified on continuous-work branch: npm test (1345 passed, +11 vs 1334 on main) + lint + build",
+      "PR handoff: Actions token blocked from gh pr create — issue #254; folded onto cursor/prompt-process-evolution-7d49",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(325, 326),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-7d49",
+    summary:
+      "Empty-backlog after PR #252/#253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-20260715 + grok/continuous-work-digest-age-counts + codex/continuous-work-6a36ae with a complete digest-pipeline-health-age-and-count-wiring feature body and no open PR (Actions token blocked). Reclaimed after stale claim-only remotes cursor/prompt-process-evolution-8fc4 + cursor/business-process-evolution-3fe8 sat idle with no feature body. Folded onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Same-window sibling business-process-evolution-693b pivoted to login-rate-limit (complementary).",
+    shipped: [
+      "Fold: stuck CLI remotes feature files (daily-digest.ts + daily-digest.test.ts + architecture.tsx) — kept opencode + codex + grok ITERATIONS above",
+      "src/lib/digest/daily-digest.ts — newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount + HTML header/footnote wiring",
+      "src/lib/digest/daily-digest.test.ts — +11 regressions for the four fields and HTML rendering",
+      "Docs: architecture.tsx notes the four digest-mirrored pipeline-health age/count fields",
+      "AGENT_PROTOCOL — pipeline-health/digest wiring note lists the four age/count fields as shipped; remaining optional age mirrors are oldestAbandonedAgeHours / oldestColdLeadAgeHours only",
+      "NEXT_STEPS: digest-pipeline-health-age-and-count-wiring done (owner 7d49)",
+      "BUSINESS_DECISIONS — documented why folding this pipeline-health/digest wiring beats inventing an optional aggregate (slice 325)",
+      "Verified: npm test (1345 passed, +11 digest age/count regressions vs 1334 on main) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(325, 326),
+  },
+  {
+    date: "2026-07-15",
     branch: "opencode/dev-work-login-rate-limit",
     summary:
       "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Per AGENT_PROTOCOL empty-backlog scan, found loginOperatorAction had zero rate limiting on a public password-check. Shipped checkRateLimit (5/60s) before password comparison; feature body with no open PR (Actions token blocked) — folded onto cursor/business-process-evolution-693b.",
@@ -8230,7 +8306,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: login-rate-limit (folded done on 693b)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(325, 326),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
   {
     date: "2026-07-15",
@@ -8242,11 +8318,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "src/app/dashboard/login/actions.ts — 5/60s checkRateLimit before password check",
       "src/app/dashboard/login/page.tsx + actions.test.ts — rate_limited alert + regression",
       "Docs: architecture.tsx notes login per-IP rate limit",
-      "BUSINESS_DECISIONS — documented why login throttle beats inventing an optional aggregate (slice 325)",
+      "BUSINESS_DECISIONS — documented why login throttle beats inventing an optional aggregate (slice 326)",
       "Verified: npm test + lint + build",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(325, 326),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
   {
     date: "2026-07-15",
@@ -8259,14 +8335,15 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: login-rate-limit (folded done on 693b)",
       "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-693b",
     ],
-    decisions: BUSINESS_DECISIONS.slice(325, 326),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
   {
     date: "2026-07-15",
     branch: "cursor/business-process-evolution-693b",
     summary:
-      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window — pivoted to the next free fold. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login-rate-limit feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate.",
+      "Empty-backlog after PR #253 (marketing-voice-pack-skip-suppression). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-7d49 claimed digest-pipeline-health-age-and-count-wiring in the same window (merged as PR #276) — pivoted to the next free fold. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-login-rate-limit + grok/dev-work-login-rate-limit + opencode/dev-work-login-rate-limit* with a complete login-rate-limit feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest + login ITERATIONS.",
     shipped: [
+      "merge: origin/main (PR #276 digest age/count wiring) — 7d49 owns digest NEXT_STEPS / slice 325; both complementary ITERATIONS kept",
       "Fold: stuck CLI remotes feature files (login actions/page/tests + architecture docs) — kept opencode + grok continuous/dev ITERATIONS above",
       "src/app/dashboard/login/actions.ts — checkRateLimit login:<clientIp> at 5 attempts/60s before tryCreateSessionFromPassword; redirect error=rate_limited",
       "src/app/dashboard/login/page.tsx — Too many attempts alert for error=rate_limited",
@@ -8275,10 +8352,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes login per-IP rate limit beside safeNextPath",
       "AGENT_PROTOCOL — public rate-limit rule names loginOperatorAction 5/60s + error=rate_limited redirect",
       "NEXT_STEPS: login-rate-limit done",
-      "BUSINESS_DECISIONS — documented why folding this login throttle beats inventing an optional aggregate (slice 325)",
-      "Verified: npm test + lint + build",
+      "BUSINESS_DECISIONS — documented why folding this login throttle beats inventing an optional aggregate (slice 326)",
+      "Verified after merge: npm test + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(325, 326),
+    decisions: BUSINESS_DECISIONS.slice(326, 327),
   },
 ];
 

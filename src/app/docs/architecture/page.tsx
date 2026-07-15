@@ -705,7 +705,13 @@ source). The same digest also lists email-critical leads with no usable address 
         true pre-slice <code>*Count</code> field on <code>DailyDigest</code>, not the capped
         display array&apos;s <code>.length</code> — each section still renders at most 5 rows, but
         the header no longer silently freezes at &quot;(5)&quot; once a queue naturally grows past
-        that limit. Lead quality scoring (
+        that limit. The digest also mirrors four pipeline-health age/count fields that used to be
+        dashboard-only: <code>newInquiryCount</code> +{" "}
+        <code>oldestUnrepliedInquiryAgeHours</code> (Unreplied inquiries header — shows{" "}
+        <code>N new</code> only when some unreplied are already <code>read</code>, plus oldest age),{" "}
+        <code>oldestFollowUpDueAgeHours</code> (Follow-ups due header), and{" "}
+        <code>closedLeadCount</code> (settled-inventory footnote, same class as cold/snoozed — not
+        an action section). Lead quality scoring (
         <code>src/lib/leads/quality-score.ts</code>) ranks outreach targets on the same page
         (Work next queue + Quality column). Preview opens record{" "}
         <code>lastPreviewOpenAt</code> via <code>POST /api/preview/[slug]/open</code> when
