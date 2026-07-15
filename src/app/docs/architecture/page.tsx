@@ -588,7 +588,12 @@ export default function ArchitectureDocPage() {
         Host and Vercel Domains API <code>name</code> — write paths in{" "}
         <code>updateDeployHandoffCustomDomain</code> re-normalize for defense-in-depth; the
         action also rejects when another lead already owns that domain (Host→preview
-        first-match would otherwise serve the wrong client).
+        first-match would otherwise serve the wrong client).{" "}
+        <code>customDomainHostAliases</code> treats www↔apex as the same sold domain
+        for Host→preview lookup, uniqueness, and Vercel Domains API registration
+        (exact host stored; twin registered / matched) so Save{" "}
+        <code>www.client.com</code> still serves Host <code>client.com</code> and
+        two leads cannot split www vs apex.
         Suggested host{" "}
         <code>{"{slug}.domain"}</code>, contact form at <code>/api/contact/[slug]</code>{" "}
         (persist <code>client_inquiries</code> required for <code>200</code>; with Convex

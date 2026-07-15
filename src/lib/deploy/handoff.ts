@@ -23,6 +23,7 @@ import {
   mergeProvisionOntoFreshHandoff,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
+import { customDomainHostAliases } from "./custom-domain-routing";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
 export {
@@ -141,65 +142,92 @@ async function tryProvisionVercelDomain(
     };
   }
 
-  const domain = handoff.customDomain || handoff.suggestedHost;
+  // Client custom domains: register www↔apex twins so either Host form reaches
+  // the project (custom-domain-www-apex-alias). Platform suggestedHost stays
+  // a single label — no www twin.
+  const domains = handoff.customDomain
+    ? customDomainHostAliases(handoff.customDomain)
+    : [handoff.suggestedHost];
   const query = teamId ? `?teamId=${encodeURIComponent(teamId)}` : "";
   const url = `https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains${query}`;
 
+  let notes = [...handoff.notes];
+  // Prefer "created" if any alias was newly registered; else already_exists if
+  // every successful call was a 409; else the first hard error.
+  let vercelDomainStatus: string | undefined;
+  let sawCreated = false;
+  let sawAlreadyExists = false;
+  let hardError: string | undefined;
+
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: domain }),
-    });
+    for (const domain of domains) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: domain }),
+      });
 
-    if (response.ok) {
-      return {
-        ...handoff,
-        // Never downgrade Mark live → provisioned on an upsell re-provision.
-        status: handoff.status === "live" ? "live" : "provisioned",
-        vercelDomainStatus: "created",
-        notes: [
-          ...handoff.notes,
+      if (response.ok) {
+        sawCreated = true;
+        notes = [
+          ...notes,
           `Vercel domain registered: ${domain}. Await DNS propagation, then mark live.`,
-        ],
-        updatedAt: new Date().toISOString(),
-      };
-    }
+        ];
+        continue;
+      }
 
-    const body = await response.text();
-    // 409 often means domain already on the project — treat as provisioned
-    // (or keep live when the operator already confirmed DNS).
-    if (response.status === 409) {
-      return {
-        ...handoff,
-        status: handoff.status === "live" ? "live" : "provisioned",
-        vercelDomainStatus: "already_exists",
-        notes: [...handoff.notes, `Vercel already has domain ${domain}.`],
-        updatedAt: new Date().toISOString(),
-      };
-    }
+      const body = await response.text();
+      // 409 often means domain already on the project — treat as provisioned
+      // (or keep live when the operator already confirmed DNS).
+      if (response.status === 409) {
+        sawAlreadyExists = true;
+        notes = [...notes, `Vercel already has domain ${domain}.`];
+        continue;
+      }
 
-    return {
-      ...handoff,
-      vercelDomainStatus: `error_${response.status}`,
-      notes: [
-        ...handoff.notes,
-        `Vercel domain API failed (${response.status}): ${body.slice(0, 200)}`,
-      ],
-      updatedAt: new Date().toISOString(),
-    };
+      hardError = `error_${response.status}`;
+      notes = [
+        ...notes,
+        `Vercel domain API failed (${response.status}) for ${domain}: ${body.slice(0, 200)}`,
+      ];
+      // Keep trying remaining aliases — one twin may still succeed.
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
     return {
       ...handoff,
       vercelDomainStatus: "error_network",
-      notes: [...handoff.notes, `Vercel domain API network error: ${message}`],
+      notes: [...notes, `Vercel domain API network error: ${message}`],
       updatedAt: new Date().toISOString(),
     };
   }
+
+  if (sawCreated) {
+    vercelDomainStatus = "created";
+  } else if (sawAlreadyExists && !hardError) {
+    vercelDomainStatus = "already_exists";
+  } else if (hardError) {
+    vercelDomainStatus = hardError;
+  } else {
+    vercelDomainStatus = "created";
+  }
+
+  return {
+    ...handoff,
+    // Never downgrade Mark live → provisioned on an upsell re-provision.
+    status:
+      hardError && !sawCreated && !sawAlreadyExists
+        ? handoff.status
+        : handoff.status === "live"
+          ? "live"
+          : "provisioned",
+    vercelDomainStatus,
+    notes,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 /**

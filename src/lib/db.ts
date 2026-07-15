@@ -30,7 +30,7 @@ import {
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
 import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
-import { normalizeOperatorCustomDomainHost } from "./deploy/custom-domain-routing";
+import { customDomainHostAliases, normalizeOperatorCustomDomainHost } from "./deploy/custom-domain-routing";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
@@ -1307,18 +1307,27 @@ export async function updateDeployHandoffCustomDomain(
  * Host-based routing lookup (proxy.ts) — given an inbound request Host
  * header, find which lead's preview to serve. Returns null for hosts with
  * no matching handoff (caller falls through to normal routing).
+ *
+ * Tries www↔apex aliases (exact first) so Save www.client.com still matches
+ * Host client.com and uniqueness rejects the twin on another lead
+ * (custom-domain-www-apex-alias).
  */
 export async function getLeadSlugByCustomDomain(customDomain: string): Promise<string | null> {
   // Same bare-host normalize as write path so a mis-pasted lookup still matches.
   const normalized = normalizeOperatorCustomDomainHost(customDomain);
   if (!normalized) return null;
 
+  const aliases = customDomainHostAliases(normalized);
+
   if (convexClient) {
     try {
-      const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
-        customDomain: normalized,
-      })) as { leadSlug: string } | null;
-      return result?.leadSlug ?? null;
+      for (const alias of aliases) {
+        const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
+          customDomain: alias,
+        })) as { leadSlug: string } | null;
+        if (result?.leadSlug) return result.leadSlug;
+      }
+      return null;
     } catch (e) {
       console.warn(
         "Failed to look up deploy handoff by custom domain on Convex, falling back to SQLite database",
@@ -1328,10 +1337,13 @@ export async function getLeadSlugByCustomDomain(customDomain: string): Promise<s
   }
 
   const db = getSqliteDb();
-  const row = db
-    .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ? LIMIT 1")
-    .get(normalized) as { leadSlug: string } | undefined;
-  return row?.leadSlug ?? null;
+  for (const alias of aliases) {
+    const row = db
+      .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ? LIMIT 1")
+      .get(alias) as { leadSlug: string } | undefined;
+    if (row?.leadSlug) return row.leadSlug;
+  }
+  return null;
 }
 
 // --- Client inquiries (contact form CRM) ---

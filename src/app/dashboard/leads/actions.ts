@@ -223,7 +223,8 @@ export async function assignCustomDomainAction(slug: string, customDomain: strin
     }
 
     // Host→preview first-match would silently serve the wrong client if two
-    // handoffs share one domain — reject collisions (same lead may re-save).
+    // handoffs share one domain (or www↔apex twins) — reject collisions
+    // (same lead may re-save). getLeadSlugByCustomDomain resolves aliases.
     if (parsed.host) {
       const ownerSlug = await getLeadSlugByCustomDomain(parsed.host);
       if (ownerSlug && ownerSlug !== slug) {

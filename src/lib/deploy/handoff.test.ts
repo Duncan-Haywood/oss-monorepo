@@ -398,10 +398,15 @@ describe("deploy/handoff", () => {
     });
 
     it("re-provisions against the newly assigned custom domain and persists the result", async () => {
+      process.env.VERCEL_TOKEN = "tok";
+      process.env.VERCEL_PROJECT_ID = "prj";
       const updated = baseHandoff({ customDomain: "www.demo.com" });
       updateDeployHandoffCustomDomain.mockResolvedValue(updated);
       getDeployHandoffBySlug.mockResolvedValue(updated);
       insertDeployHandoff.mockResolvedValue(undefined);
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200, text: async () => "" });
       const { assignCustomDomainAndProvision } = await import("./handoff");
 
       const result = await assignCustomDomainAndProvision("demo-cafe", "www.demo.com");
@@ -412,6 +417,15 @@ describe("deploy/handoff", () => {
         DEPLOY_HANDOFF_CONVEX_PRIMARY,
       );
       expect(result?.customDomain).toBe("www.demo.com");
+      // www↔apex: register both aliases on the Vercel project
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      const bodies = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.map(
+        (call) => JSON.parse(String(call[1]?.body)),
+      );
+      expect(bodies).toEqual([
+        { name: "www.demo.com" },
+        { name: "demo.com" },
+      ]);
       expect(insertDeployHandoff).toHaveBeenCalledWith(result, DEPLOY_HANDOFF_CONVEX_PRIMARY);
     });
 

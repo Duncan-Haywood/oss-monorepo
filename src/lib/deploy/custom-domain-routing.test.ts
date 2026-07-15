@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  customDomainHostAliases,
   extractPreviewSubdomainSlug,
   isPlatformHost,
   isPlausibleCustomDomainHost,
@@ -86,6 +87,34 @@ describe("parseOperatorCustomDomain", () => {
     expect(parseOperatorCustomDomain("joes-plumbing.localsitestudio.com", root).ok).toBe(
       false,
     );
+  });
+});
+
+describe("customDomainHostAliases", () => {
+  it("returns exact host first, then the www twin for an apex", () => {
+    expect(customDomainHostAliases("joesplumbing.com")).toEqual([
+      "joesplumbing.com",
+      "www.joesplumbing.com",
+    ]);
+  });
+
+  it("returns www first, then apex when Save kept the www form", () => {
+    expect(customDomainHostAliases("www.joesplumbing.com")).toEqual([
+      "www.joesplumbing.com",
+      "joesplumbing.com",
+    ]);
+  });
+
+  it("lowercases and strips a trailing FQDN dot", () => {
+    expect(customDomainHostAliases("WWW.Example.COM.")).toEqual([
+      "www.example.com",
+      "example.com",
+    ]);
+  });
+
+  it("returns empty for blank input", () => {
+    expect(customDomainHostAliases("")).toEqual([]);
+    expect(customDomainHostAliases("   ")).toEqual([]);
   });
 });
 

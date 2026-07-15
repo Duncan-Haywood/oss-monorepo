@@ -108,9 +108,44 @@ export function parseOperatorCustomDomain(
 }
 
 /**
+ * www↔apex aliases for a bare client host. Host→preview lookup and Save
+ * domain uniqueness treat these as the same sold domain so Save
+ * `www.client.com` still matches Host `client.com` (and vice versa), and
+ * two leads cannot own the www twin of each other's domain.
+ *
+ * Exact host first. Keep storing the operator's chosen form — do not strip
+ * www on write. Returns `[host]` only when the twin is not a plausible
+ * public hostname. Platform suggestedHost subdomains are not passed here.
+ *
+ * See custom-domain-www-apex-alias.
+ */
+export function customDomainHostAliases(host: string): string[] {
+  const normalized = host.trim().toLowerCase().replace(/\.$/, "");
+  if (!normalized) return [];
+  if (!isPlausibleCustomDomainHost(normalized)) {
+    return [normalized];
+  }
+
+  const aliases = [normalized];
+  if (normalized.startsWith("www.")) {
+    const apex = normalized.slice(4);
+    if (apex && isPlausibleCustomDomainHost(apex)) {
+      aliases.push(apex);
+    }
+  } else {
+    const www = `www.${normalized}`;
+    if (isPlausibleCustomDomainHost(www)) {
+      aliases.push(www);
+    }
+  }
+  return aliases;
+}
+
+/**
  * Operator-facing error when another handoff already owns this domain.
  * Host→preview first-match would otherwise silently serve the wrong client
- * (custom-domain-normalize-and-unique).
+ * (custom-domain-normalize-and-unique). Also covers www↔apex twins
+ * (custom-domain-www-apex-alias).
  */
 export function customDomainAlreadyOwnedMessage(
   domain: string,

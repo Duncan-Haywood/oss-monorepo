@@ -183,6 +183,20 @@ describe("assignCustomDomainAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
+  it("rejects when lookup resolves a www↔apex twin owned by another lead", async () => {
+    // getLeadSlugByCustomDomain tries aliases — action only needs the resolved owner.
+    getLeadSlugByCustomDomain.mockResolvedValue("other-salon");
+    const { assignCustomDomainAction } = await import("./actions");
+    const res = await assignCustomDomainAction("demo-cafe", "democafe.com");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Domain democafe.com is already saved on lead other-salon — clear it there first, or pick a different host",
+    });
+    expect(getLeadSlugByCustomDomain).toHaveBeenCalledWith("democafe.com");
+    expect(assignCustomDomainAndProvision).not.toHaveBeenCalled();
+  });
+
   it("allows the same lead to re-save its own domain", async () => {
     getLeadSlugByCustomDomain.mockResolvedValue("demo-cafe");
     const { assignCustomDomainAction } = await import("./actions");

@@ -108,6 +108,7 @@ export const AGENT_PROTOCOL = [
   "Lead slug create-paths normalize to [a-z0-9-]+ via shared sanitizeLeadSlug (src/lib/leads/slug.ts) — collapse non-token runs AND strip leading/trailing dashes — used by addLeadAction, CSV explicit-slug column, and resolveBundleCheckoutLeadSlug. slugifyBusinessName already strips edges. A create-path that keeps edge dashes (e.g. Demo Cafe! → demo-cafe-) desyncs the CRM slug from leadSlugAsDnsLabel, so suggestedHost is demo-cafe.{root} while extractPreviewSubdomainSlug → getLeadBySlug still looks up demo-cafe- and misses (Starter preview-subdomain Host→preview falls through). Path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
   "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
   "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
+  "Custom-domain Host→preview must treat www↔apex as the same sold domain: customDomainHostAliases(host) returns [exact, www-twin] (or [www, apex]); getLeadSlugByCustomDomain tries each alias (exact first); assignCustomDomainAction uniqueness rejects when any alias is owned by another lead; tryProvisionVercelDomain POSTs both aliases when customDomain is set (ignore 409). Keep storing the operator's chosen bare host — do not invent a second normalizer that strips www on write. suggestedHost platform subdomains are not aliased.",
 ] as const;
 
 /**
@@ -1931,6 +1932,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Client sites + handoff",
     owner: "cursor/prompt-process-evolution-f037",
+  },
+  {
+    id: "custom-domain-www-apex-alias",
+    summary:
+      "After custom-domain-host-normalize + uniqueness (exact host only): Save www.client.com still misses Host client.com (and vice versa), and two leads can own www vs apex of the same domain — Host→preview first-match then serves the wrong business under what operators treat as one domain. Ship customDomainHostAliases + alias-aware getLeadSlugByCustomDomain / assignCustomDomainAction uniqueness / tryProvisionVercelDomain dual-register. Keep storing the operator's chosen bare host.",
+    status: "done",
+    phase: "Phase 5 — Production deploy",
+    owner: "cursor/business-process-evolution-0064",
   },
 ];
 
@@ -4196,6 +4205,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Pass skipSuppression: true on sendInquiryReply (operator Reply to website contact-form visitors) — rather than leave the Reply half of the Starter sold CRM loop permanently blocked when the visitor address is on the marketing CAN-SPAM list while persist-then-notify already marked the inquiry replied.",
     rationale:
       "Empty-backlog after PR #247 (create-path-slug-edge-dash-normalize + contact-form notify fold). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (already folded) first; lead.email product notifies already skip. Fresh sold-capability audit of the contact-form CRM loop found sendInquiryReply still honored suppression — a cold-outreach unsub who later writes a paying client's site gets a durable replied inquiry the visitor never receives. Closing that notify↔reply asymmetry beats inventing an optional aggregate. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression. AGENT_PROTOCOL now names the CRM-loop sibling check explicitly.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Treat www↔apex as the same custom domain for Host→preview lookup, Save domain uniqueness, and Vercel Domains API registration (customDomainHostAliases; exact host stored) — rather than leave exact-only normalize+unique still failing when operators paste www.client.com and visitors hit client.com (or two leads split the twin).",
+    rationale:
+      "Empty-backlog after PR #247 (create-path-slug-edge-dash). Free NEXT_STEPS stayed operator/legal-gated; stuck CLI remotes for already-merged fixes scanned first. Sibling prompt-process-evolution-f037 claimed/shipped inquiry-reply-skip-marketing-suppression (PR #248) in the same window — complementary CRM-loop skip, not a collision. Fresh sold-capability audit of Starter custom-domain handoff found bare-host normalize + uniqueness still exact-match only — Save www.client.com never equals Host client.com, uniqueness does not block the twin on another lead, and Vercel only registered the saved form. Closing that Host→preview alias gap beats inventing an optional aggregate or a clean re-audit. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8066,5 +8082,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1327 passed, +1 inquiry-reply skipSuppression regression) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(322, 323),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-0064",
+    summary:
+      "Empty-backlog after PR #247 (create-path-slug-edge-dash). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (already folded). Sibling prompt-process-evolution-f037 shipped inquiry-reply-skip-marketing-suppression (PR #248) in the same window — complementary CRM-loop skip. Sold-capability audit of Starter custom-domain Host→preview found www↔apex still exact-only after normalize+unique — claimed and shipped custom-domain-www-apex-alias. Merged origin/main mid-PR; kept both ITERATIONS.",
+    shipped: [
+      "merge: origin/main (PR #248 inquiry-reply skip) — both ITERATIONS kept; inquiry-reply owns slice 322",
+      "src/lib/deploy/custom-domain-routing.ts (+tests) — customDomainHostAliases (exact first, www↔apex twin)",
+      "src/lib/db.ts getLeadSlugByCustomDomain — try each alias (Convex + SQLite)",
+      "assignCustomDomainAction — uniqueness via alias-aware lookup (www twin owned by another lead rejects)",
+      "tryProvisionVercelDomain — POST both aliases when customDomain set; suggestedHost stays single",
+      "handoff.test + assign-custom-domain-action.test — dual-register + twin-collision regressions",
+      "Docs: architecture.tsx notes www↔apex Host→preview / uniqueness / Vercel dual-register",
+      "AGENT_PROTOCOL — www↔apex alias rule; keep storing operator's chosen bare host",
+      "NEXT_STEPS: custom-domain-www-apex-alias done",
+      "BUSINESS_DECISIONS — documented why www↔apex aliasing beats inventing an optional aggregate (slice 323)",
+      "Verified: npm test (1332 passed after merge with #248) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(323, 324),
   },
 ];
