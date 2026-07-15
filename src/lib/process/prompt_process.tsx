@@ -1913,14 +1913,16 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 5 — Production deploy",
     owner:
-      "cursor/business-process-evolution-fbad (folded from grok/continuous-work-contact-notify-skip; issue #244; same-minute dual with prompt-process-evolution-63b3 — earlier claim owns)",
+      "cursor/prompt-process-evolution-63b3 (PR #246; folded from grok/continuous-work-contact-notify-skip; issue #244; same-minute dual with business-process-evolution-fbad — fbad claimed ~2s earlier and also folded, then pivoted after #246 landed)",
   },
   {
     id: "create-path-slug-edge-dash-normalize",
     summary:
       "Empty-backlog sold-capability audit: addLeadAction and CSV slug-column sanitize keep leading/trailing dashes (e.g. \"Demo Cafe!\" → demo-cafe-) while sanitizeCheckoutLeadSlug, slugifyBusinessName, and leadSlugAsDnsLabel all strip them. suggestedHost then becomes demo-cafe.{root} but the CRM slug stays demo-cafe-, so extractPreviewSubdomainSlug → getLeadBySlug misses the lead and Starter preview-subdomain Host→preview silently falls through to the marketing homepage. Align every create-path on a shared sanitizeLeadSlug (collapse + strip edge dashes; reject/fallback when empty). Stuck feature body: grok/dev-work-slug-edge-dash (issue #245; Actions token blocked).",
-    status: "todo",
+    status: "in_progress",
     phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-fbad (pivoted after PR #246 absorbed contact-form-notify-skip; folding grok/dev-work-slug-edge-dash; issue #245)",
   },
 ];
 
@@ -4171,7 +4173,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Pass skipSuppression: true on POST /api/contact/[slug]'s business/operator inquiry notify — rather than leave Starter sold contact-form alerts permanently blocked when the lead unsubscribed from cold-outreach marketing (CRM trail still succeeds).",
     rationale:
-      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated; stuck CLI remotes held only clean-audit process docs until grok/continuous-work-contact-notify-skip shipped a complete feature body with no open PR (Actions token blocked; issue #244). Sibling opencode multi-axis audit treated contact notify as intentionally non-skip; a sold-capability re-check found the notify still lands on lead.email through the marketing-suppression path, so a converted unsub never gets website inquiry alerts. Extending the skip rule to this product notify beats inventing an optional aggregate. AGENT_PROTOCOL now says: after shipping skipSuppression for one product surface, check sibling lead.email product notifies next. Same-minute dual with prompt-process-evolution-63b3 (both folded the same body; earlier fbad claim owns). Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
+      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folding that Starter sold product-notify fix beats inventing an optional aggregate. AGENT_PROTOCOL now says: after shipping skipSuppression for one product surface, check sibling lead.email product notifies next. Same-minute dual: business-process-evolution-fbad claimed ~2s earlier and also folded; prompt-process-evolution-63b3 merged as PR #246; fbad pivoted to create-path-slug-edge-dash-normalize. Outreach, abandoned recovery, upsell, and marketing/voice packs keep suppression.",
   },
 
 ];
@@ -7979,29 +7981,27 @@ export const ITERATIONS: ProcessIteration[] = [
   },
   {
     date: "2026-07-15",
-    branch: "cursor/business-process-evolution-fbad",
+    branch: "cursor/prompt-process-evolution-63b3",
     summary:
-      "Empty-backlog after PR #243 (transactional-email-skip-marketing-suppression on main). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form-notify-skip-marketing-suppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling prompt-process-evolution-63b3 dual-claimed ~2s later and also folded — earlier fbad claim owns; keep both ITERATIONS and a single implementation.",
+      "Empty-backlog after PR #243. Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-contact-notify-skip with a complete contact-form skipSuppression feature body and no open PR (Actions token blocked; issue #244). Folded that body onto this automation branch that can open/merge. Same-minute sibling business-process-evolution-fbad claimed ~2s earlier and also folded; 63b3 merged as PR #246.",
     shipped: [
-      "Fold: origin/grok/continuous-work-contact-notify-skip feature files (contact route + tests + resend JSDoc + architecture) — kept grok ITERATION above",
-      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner fbad; same-minute dual with 63b3)",
-      "AGENT_PROTOCOL — skipSuppression rule extends to contact-form lead.email notify; empty-backlog note to check sibling lead.email product notifies after one skip surface ships (folded from 63b3 process polish)",
-      "BUSINESS_DECISIONS — documented why folding this Starter sold notify gap beats inventing an optional aggregate",
-      "NEXT_STEPS: queued create-path-slug-edge-dash-normalize (grok/dev-work-slug-edge-dash; issue #245) for sibling fold",
-      "Verified: npm test (1320 passed, +1 contact skipSuppression regression) + lint + build",
+      "Fold: origin/grok/continuous-work-contact-notify-skip feature files (contact route + tests + architecture + resend JSDoc) — kept grok ITERATION above",
+      "NEXT_STEPS: contact-form-notify-skip-marketing-suppression done (owner 63b3 / PR #246; dual with fbad)",
+      "AGENT_PROTOCOL — skipSuppression rule names contact-form notify; empty-backlog note to check sibling lead.email product notifies after one skip surface ships",
+      "BUSINESS_DECISIONS — documented why folding this stuck Starter product-notify fix beats inventing an optional aggregate",
+      "Verified: npm test (1320 passed, +1 contact skipSuppression regression vs 1319 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(320, 321),
   },
   {
     date: "2026-07-15",
-    branch: "cursor/prompt-process-evolution-63b3",
+    branch: "cursor/business-process-evolution-fbad",
     summary:
-      "Same-minute dual with business-process-evolution-fbad on contact-form-notify-skip-marketing-suppression — both folded grok/continuous-work-contact-notify-skip (issue #244). fbad's earlier claim (~2s) owns; both pushed feature body. Kept a single implementation and both ITERATIONS per AGENT_PROTOCOL. 63b3 contributed the AGENT_PROTOCOL empty-backlog note to scan sibling lead.email product notifies after one skipSuppression surface ships.",
+      "Same-minute dual with prompt-process-evolution-63b3 on contact-form-notify-skip-marketing-suppression — fbad claimed ~2s earlier and folded the same grok body; 63b3 merged as PR #246. Per AGENT_PROTOCOL, pivoted this PR to unique process polish + the next free stuck fold: create-path-slug-edge-dash-normalize (grok/dev-work-slug-edge-dash; issue #245).",
     shipped: [
-      "Fold: same grok/continuous-work-contact-notify-skip feature body as fbad (single implementation)",
-      "AGENT_PROTOCOL — after shipping skipSuppression for one product surface, check sibling lead.email product notifies before inventing an optional aggregate",
-      "NEXT_STEPS owner remains fbad (earlier claim); 63b3 recorded as dual + process polish",
-      "Verified alongside fbad fold: npm test (1320 passed) + lint + build",
+      "merge: origin/main (PR #246 contact-form skip) — both dual ITERATIONS kept; contact-form owner recorded as 63b3/PR #246",
+      "NEXT_STEPS: create-path-slug-edge-dash-normalize in_progress (owner fbad; pivoted after #246)",
+      "Process: dual-claim ownership clarified after sibling merge race",
     ],
     decisions: BUSINESS_DECISIONS.slice(320, 321),
   },

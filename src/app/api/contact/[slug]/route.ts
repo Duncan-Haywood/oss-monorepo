@@ -164,7 +164,7 @@ export async function POST(request: Request, context: RouteContext) {
       if (!sent.success) {
         // Same bug class as webhook/Email 1: sendEmail resolves failure without
         // throwing — log with inquiryId so operators can correlate CRM trail vs
-        // missing business notify (suppression or Resend outage).
+        // missing business notify (Resend/API outage — marketing suppress skipped).
         console.error(
           `contact form notify not sent for ${slug} (inquiry ${outcome.inquiryId}): ${sent.reason ?? sent.error ?? "unknown"}`,
         );
