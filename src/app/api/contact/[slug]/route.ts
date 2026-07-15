@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, insertClientInquiry } from "@/lib/db";
 import { brand } from "@/lib/brand";
+import { normalizeContactFormFields } from "@/lib/inquiries/contact-fields";
 import {
   CONTACT_FORM_CONVEX_PRIMARY,
   contactPersistOutcome,
@@ -28,6 +29,11 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * Email 1–3 must not silence website contact-form delivery (see
  * contact-form-notify-skip-marketing-suppression; same class as
  * transactional-email-skip-marketing-suppression for receipt/DNS/Commerce).
+ *
+ * Soft-cap visitor fields once via normalizeContactFormFields (shared
+ * MAX_CONTACT_* constants) and reuse those strings for both persist and
+ * notify — never email an uncapped body while the CRM row is truncated
+ * (contact-form-notify-field-length-caps).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, insertClientInquiry passes requireConvex
  * so a Convex mutation failure does not SQLite-fallback then claim success —
@@ -83,11 +89,17 @@ export async function POST(request: Request, context: RouteContext) {
 
   const lead = await getLeadBySlug(slug);
   const body = await parseBody(request);
-  const name = readString(body.name) || readString(body.from);
-  const email = readString(body.email);
-  const phone = readString(body.phone);
-  const message = readString(body.message) || readString(body.body);
-  const source = readString(body.source) || request.headers.get("referer") || undefined;
+  // Soft-cap once — persist and notify must share the same bounded strings
+  // (contact-form-notify-field-length-caps). Rate limit alone is not a size bound.
+  const fields = normalizeContactFormFields({
+    name: readString(body.name) || readString(body.from),
+    email: readString(body.email),
+    phone: readString(body.phone),
+    message: readString(body.message) || readString(body.body),
+    source: readString(body.source) || request.headers.get("referer") || "",
+  });
+  const { name, email, phone, message } = fields;
+  const source = fields.source || undefined;
 
   if (!message && !email && !phone) {
     return NextResponse.json(

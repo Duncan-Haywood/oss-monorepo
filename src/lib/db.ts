@@ -8,6 +8,7 @@ import { buildPaymentStubLeadFields } from "./leads/payment-stub";
 import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
+import { normalizeContactFormFields } from "./inquiries/contact-fields";
 import type { OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
@@ -1353,16 +1354,26 @@ export async function insertClientInquiry(
   options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry> {
   const now = new Date().toISOString();
+  // Defense in depth: same soft-caps the contact route applies before notify
+  // (contact-form-notify-field-length-caps). Webhook commerce_checkout inquiries
+  // and any future writer share these bounds.
+  const capped = normalizeContactFormFields({
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    message: input.message,
+    source: input.source,
+  });
   const inquiry: ClientInquiry = {
     id: `inq_${input.leadSlug}_${Date.now()}`,
     leadSlug: input.leadSlug,
     businessName: input.businessName,
-    name: input.name,
-    email: input.email,
-    phone: input.phone,
-    message: input.message.slice(0, 5000),
+    name: capped.name || undefined,
+    email: capped.email || undefined,
+    phone: capped.phone || undefined,
+    message: capped.message,
     status: "new",
-    source: input.source,
+    source: capped.source || undefined,
     createdAt: now,
     updatedAt: now,
   };
