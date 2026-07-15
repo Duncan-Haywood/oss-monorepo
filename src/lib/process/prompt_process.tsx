@@ -1944,11 +1944,11 @@ export const NEXT_STEPS: NextStep[] = [
   {
     id: "marketing-voice-pack-skip-suppression",
     summary:
-      "Empty-backlog scan after transactional + contact-form + inquiry-reply skipSuppression: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail deliver paid Growth/Complete features (monthly marketing content, AI phone scripts) to lead.email but still honor marketing suppression — a paying customer who unsubscribed from cold outreach silently loses features they are billed for. Ship skipSuppression: true on both; keep suppression for outreach, abandoned recovery, and Starter upsell. Folded from stuck CLI remotes opencode/dev-work-marketing-voice-skip-suppression + grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip (no open PR; Actions token blocked).",
+      "Empty-backlog scan after transactional + contact-form + inquiry-reply skipSuppression: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail deliver paid Growth/Complete features (monthly marketing content, AI phone scripts) to lead.email but still honor marketing suppression — a paying customer who unsubscribed from cold outreach silently loses features they are billed for. Ship skipSuppression: true on both; keep suppression for outreach, abandoned recovery, and Starter upsell. Stuck feature body: grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip + opencode/dev-work-marketing-voice-skip-suppression (Actions token blocked; no open PR). Dual-claimed same window by cursor/business-process-evolution-d2b8; ea8d merged as PR #252.",
     status: "done",
     phase: "Phase 6 — Marketing automation",
     owner:
-      "cursor/business-process-evolution-d2b8 (folded from opencode/dev-work-marketing-voice-skip-suppression + grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip)",
+      "cursor/prompt-process-evolution-ea8d (PR #252; dual with cursor/business-process-evolution-d2b8; folded from grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip + opencode/dev-work-marketing-voice-skip-suppression)",
   },
 ];
 
@@ -4227,7 +4227,7 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
     decision:
       "Pass skipSuppression: true on sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail — sold Growth/Complete feature delivery (monthly marketing content, AI phone scripts) to lead.email must not be permanently blocked by a cold-outreach CAN-SPAM unsubscribe that pre-dates conversion. Keep suppression for outreach Email 1–3, abandoned recovery, and Starter upsell.",
     rationale:
-      "Empty-backlog after PR #248/#249 (inquiry-reply skip + www↔apex aliases). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-marketing-voice-skip-suppression (plus dual grok/continuous-work + grok/dev-work folds of the same body) with complete feature work and no open PR. AGENT_PROTOCOL's empty-backlog scan rule says after shipping skipSuppression for one product surface, check sibling sold lead.email notifies — marketing/voice pack delivery are paid-for features still left in the old 'keep suppression' bucket after transactional + contact-form + inquiry-reply skips. Migrating packs into skipSuppression: true closes that retention gap and beats inventing an optional aggregate. Folded onto cursor/business-process-evolution-d2b8.",
+      "Empty-backlog after PR #248/#249 (inquiry-reply skip + www↔apex aliases). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-marketing-voice-skip-suppression + grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip with a complete feature body and no open PR (Actions token blocked). AGENT_PROTOCOL's empty-backlog scan rule says after shipping skipSuppression for one product surface, check sibling sold lead.email notifies — marketing/voice pack delivery are paid-for features on lead.email, the same bug class transactional + contact-form + inquiry-reply skip closed. Migrates packs from the 'keep suppression' bucket to skipSuppression: true. Folded onto cursor/prompt-process-evolution-ea8d as PR #252; same-window dual claim by cursor/business-process-evolution-d2b8 kept as process record (no second implementation).",
   },
 
 ];
@@ -8123,13 +8123,15 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "opencode/dev-work-marketing-voice-skip-suppression",
     summary:
-      "Empty-backlog after transactional-email + contact-form skipSuppression surfaces. Free NEXT_STEPS stayed operator/legal-gated. Per AGENT_PROTOCOL empty-backlog scan rule, audited sibling sold product notifies on lead.email: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail deliver paid Growth/Complete features but still honored marketing suppression. Claimed and shipped marketing-voice-pack-skip-suppression (feature body; no open PR — folded onto grok remotes then cursor/business-process-evolution-d2b8).",
+      "Empty-backlog after transactional-email + contact-form skipSuppression surfaces. Free NEXT_STEPS stayed operator/legal-gated. Per AGENT_PROTOCOL empty-backlog scan rule, audited sibling sold product notifies on lead.email: sendMarketingPackToClientEmail and sendClientVoicePackToClientEmail deliver paid Growth/Complete features but still honored marketing suppression. Claimed and shipped marketing-voice-pack-skip-suppression (feature body; no open PR — folded onto grok remotes then cursor/prompt-process-evolution-ea8d as PR #252; dual with cursor/business-process-evolution-d2b8).",
     shipped: [
       "src/lib/email/resend.ts — sendMarketingPackToClientEmail + sendClientVoicePackToClientEmail pass skipSuppression: true",
       "src/lib/email/resend.test.ts — +2 regressions (pack still delivers when suppressed)",
       "AGENT_PROTOCOL — moved marketing/voice pack delivery from 'keep suppression' to skipSuppression bucket",
       "BUSINESS_DECISIONS — documented why marketing/voice pack skip is a sold-notify gap",
-      "NEXT_STEPS: marketing-voice-pack-skip-suppression (later folded done on d2b8)",
+      "NEXT_STEPS: marketing-voice-pack-skip-suppression (folded done on ea8d PR #252)",
+      "Verified: npm test (+2 skipSuppression regressions) + npm run build",
+      "PR handoff: Actions token blocked from gh pr create — folded onto cursor/prompt-process-evolution-ea8d",
     ],
     decisions: BUSINESS_DECISIONS.slice(324, 325),
   },
@@ -8137,9 +8139,9 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "grok/continuous-work-marketing-voice-skip",
     summary:
-      "Empty-backlog after PR #248/#249 (inquiry-reply skip + www↔apex aliases on main). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-marketing-voice-skip-suppression with a complete sold-pack skipSuppression feature body and no open PR. Folded that body: sendMarketingPackToClientEmail + sendClientVoicePackToClientEmail now pass skipSuppression: true so a cold-outreach unsub cannot permanently block paid Growth/Complete feature delivery. Kept opencode rationale; rebased process slices onto current main (BUSINESS_DECISIONS index 324).",
+      "Empty-backlog after PR #248/#249 (inquiry-reply skip + www↔apex aliases on main). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-marketing-voice-skip-suppression with a complete sold-pack skipSuppression feature body and no open PR. Folded that body: sendMarketingPackToClientEmail + sendClientVoicePackToClientEmail now pass skipSuppression: true so a cold-outreach unsub cannot permanently block paid Growth/Complete feature delivery. Same-window dual with grok/dev-work-marketing-voice-skip.",
     shipped: [
-      "Fold: origin/opencode/dev-work-marketing-voice-skip-suppression feature files (resend.ts + resend.test.ts) — process log rewritten on current main",
+      "Fold: origin/opencode/dev-work-marketing-voice-skip-suppression feature files (resend.ts + resend.test.ts)",
       "src/lib/email/resend.ts — sendMarketingPackToClientEmail + sendClientVoicePackToClientEmail pass skipSuppression: true; JSDoc updated",
       "src/lib/email/resend.test.ts — +2 regressions (pack still delivers when marketing-suppressed; outreach still blocked)",
       "Docs: architecture.tsx — pack delivery listed with other sold skipSuppression surfaces; pack sections note skip",
@@ -8147,7 +8149,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: marketing-voice-pack-skip-suppression done",
       "BUSINESS_DECISIONS — documented why sold pack skipSuppression beats inventing an optional aggregate (slice 324)",
       "Verified: npm test (1334 passed, +2 pack skipSuppression regressions vs 1332 on main) + lint + build",
-      "PR handoff: Actions token blocked from gh pr create — issue points at grok/continuous-work-marketing-voice-skip",
+      "PR handoff: Actions token blocked — folded onto cursor/prompt-process-evolution-ea8d (PR #252); dual with d2b8",
     ],
     decisions: BUSINESS_DECISIONS.slice(324, 325),
   },
@@ -8155,7 +8157,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "grok/dev-work-marketing-voice-skip",
     summary:
-      "Empty-backlog after PR #249 (custom-domain-www-apex-alias). Free NEXT_STEPS stayed operator/legal-gated. Same-window dual with continuous-work-marketing-voice-skip on the same opencode pack-skip body. Folded opencode feature onto this branch that can open/merge; later absorbed into cursor/business-process-evolution-d2b8 with continuous-work architecture docs.",
+      "Empty-backlog after PR #249 (custom-domain-www-apex-alias). Free NEXT_STEPS stayed operator/legal-gated. Same-window dual with continuous-work-marketing-voice-skip on the same opencode pack-skip body. Folded opencode feature onto this branch; later absorbed into ea8d PR #252 with continuous-work architecture docs (d2b8 dual-claim kept as process record).",
     shipped: [
       "Fold: origin/opencode/dev-work-marketing-voice-skip-suppression feature (resend.ts + resend.test.ts) — kept opencode ITERATION above",
       "src/lib/email/resend.ts — SendEmailParams JSDoc + pack delivery helpers pass skipSuppression: true",
@@ -8165,7 +8167,24 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: marketing-voice-pack-skip-suppression done",
       "BUSINESS_DECISIONS — documented why folding this sold-feature skip beats inventing an optional aggregate (slice 324)",
       "Verified: npm test (1334 passed, +2 pack skipSuppression regressions) + lint + build",
-      "PR handoff: Actions token blocked from gh pr create — issue #251 points at grok/dev-work-marketing-voice-skip",
+      "PR handoff: Actions token blocked from gh pr create — issue #251; folded onto ea8d PR #252",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(324, 325),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/prompt-process-evolution-ea8d",
+    summary:
+      "Empty-backlog after PR #248/#249 (inquiry-reply skip + www↔apex aliases). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-marketing-voice-skip-suppression + grok/continuous-work-marketing-voice-skip + grok/dev-work-marketing-voice-skip with a complete marketing-voice-pack-skip-suppression feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged as PR #252; same-window dual claim by cursor/business-process-evolution-d2b8 kept both ITERATIONS.",
+    shipped: [
+      "Fold: stuck CLI remotes feature files (resend.ts + resend.test.ts + architecture.tsx) — kept opencode + grok continuous/dev ITERATIONS above",
+      "src/lib/email/resend.ts — sendMarketingPackToClientEmail + sendClientVoicePackToClientEmail pass skipSuppression: true; JSDoc names sold pack delivery",
+      "src/lib/email/resend.test.ts — +2 pack skipSuppression regressions (outreach still blocked)",
+      "Docs: architecture.tsx notes marketing/voice pack delivery skip beside transactional + contact CRM skips",
+      "AGENT_PROTOCOL — skipSuppression rule names marketing/voice pack delivery; keep suppression for outreach/abandoned/upsell only",
+      "NEXT_STEPS: marketing-voice-pack-skip-suppression done (owner ea8d / PR #252)",
+      "BUSINESS_DECISIONS — documented why folding this sold-feature skip beats inventing an optional aggregate (slice 324)",
+      "Verified: npm test (1334 passed, +2 pack skipSuppression regressions vs 1332 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(324, 325),
   },
@@ -8173,17 +8192,15 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/business-process-evolution-d2b8",
     summary:
-      "Empty-backlog after PR #249 (www↔apex aliases). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found dual grok folds of opencode/dev-work-marketing-voice-skip-suppression (continuous-work + dev-work) with complete sold pack skipSuppression bodies and no open PR. Folded one implementation onto this automation branch that can open/merge; kept all three CLI ITERATIONS plus this fold.",
+      "Same-window dual with prompt-process-evolution-ea8d on marketing-voice-pack-skip-suppression — both folded the stuck CLI pack-skip bodies; ea8d merged as PR #252. Per AGENT_PROTOCOL, merge main and keep both ITERATIONS (no second implementation). Pivoted this PR to dual-claim process record + AGENT_PROTOCOL dual-CLI-fold clarity + pack action-test defense-in-depth comments mirroring inquiry-reply/contact-form after skipSuppression.",
     shipped: [
-      "Fold: origin/grok/continuous-work-marketing-voice-skip feature files (resend.ts + resend.test.ts + architecture.tsx) — kept opencode + continuous-work + dev-work ITERATIONS above",
-      "src/lib/email/resend.ts — pack delivery helpers pass skipSuppression: true; JSDoc moves packs out of 'keep suppression'",
-      "src/lib/email/resend.test.ts — +2 pack skipSuppression regressions (outreach still blocked)",
-      "Docs: architecture.tsx — pack delivery listed with sold skipSuppression surfaces",
-      "AGENT_PROTOCOL — pack delivery in skipSuppression bucket; dual-CLI-fold note on merge rule",
-      "NEXT_STEPS: marketing-voice-pack-skip-suppression done (owner d2b8)",
-      "BUSINESS_DECISIONS — documented why sold pack skip beats inventing an optional aggregate (slice 324)",
-      "Verified: npm test + lint + build on fold branch",
+      "merge: origin/main (PR #252 pack skip) — ea8d owns NEXT_STEPS; both dual ITERATIONS kept",
+      "AGENT_PROTOCOL — dual-CLI-fold note retained (when continuous-work + dev-work dual-build the same sold-skip, fold one implementation and keep every ITERATION)",
+      "Process: recorded dual-claim ownership note on marketing-voice-pack-skip-suppression",
+      "send-marketing-pack-to-client-action.test.ts + send-client-voice-pack-to-client-action.test.ts — suppression cases renamed defense-in-depth after skipSuppression; file headers match architecture",
+      "Verified after merge: npm test + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(324, 325),
   },
 ];
+

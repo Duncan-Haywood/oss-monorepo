@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * operator Email voice pack path for sold Complete phone-script handoff.
  *
  * deliver-pack.test.ts covers eligibility + HTML formatting; resend/voice
- * helpers cover transport. This suite locks the dashboard action glue:
- * requireOperatorAuth, eligibility (paid/live Complete + email), existing
- * pack gate, suppression / send failure, preview URL from
- * NEXT_PUBLIC_APP_URL, and revalidate on success.
+ * helpers cover transport (including skipSuppression on sold pack delivery).
+ * This suite locks the dashboard action glue: requireOperatorAuth, eligibility
+ * (paid/live Complete + email), existing pack gate, send failure, preview URL
+ * from NEXT_PUBLIC_APP_URL, and revalidate on success. A suppressed helper
+ * return is defense-in-depth only — sendClientVoicePackToClientEmail now
+ * passes skipSuppression: true (marketing-voice-pack-skip-suppression).
  */
 
 const requireOperatorAuth = vi.fn();
@@ -262,7 +264,9 @@ describe("sendClientVoicePackToClientAction", () => {
     );
   });
 
-  it("surfaces suppression without revalidate", async () => {
+  it("surfaces a suppressed helper return without revalidate (defense-in-depth)", async () => {
+    // Pack delivery passes skipSuppression: true, so production should not hit
+    // this path — keep the action mapping if a future helper regresses.
     sendClientVoicePackToClientEmail.mockResolvedValue({
       success: false,
       reason: "suppressed",
