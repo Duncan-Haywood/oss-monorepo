@@ -28,6 +28,7 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
   }
 
   const invalid = params.error === "invalid";
+  const rateLimited = params.error === "rate_limited";
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 py-16">
@@ -44,7 +45,14 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
         <code className="text-xs">OPERATOR_DASHBOARD_PASSWORD</code> in the environment.
       </p>
 
-      {invalid ? (
+      {rateLimited ? (
+        <p
+          className="mt-6 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800"
+          role="alert"
+        >
+          Too many attempts. Please wait before signing in again.
+        </p>
+      ) : invalid ? (
         <p
           className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
           role="alert"

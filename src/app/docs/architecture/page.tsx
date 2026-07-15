@@ -69,7 +69,9 @@ export default function ArchitectureDocPage() {
         <code>src/proxy.ts</code> gates <code>/dashboard/*</code> and lead mutation server actions
         require a signed session cookie — action-level Vitest in{" "}
         <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout glue
-        (unconfigured redirect, invalid password, cookie set/clear) beside{" "}
+        (unconfigured redirect, invalid password, per-IP rate limit at 5 attempts/60s via{" "}
+        <code>checkRateLimit</code> key <code>login:&lt;clientIp&gt;</code> before password
+        comparison, cookie set/clear) beside{" "}
         <code>src/lib/auth/safe-next-path.ts</code> (shared by the login page&apos;s
         already-authenticated redirect and <code>loginOperatorAction</code> — rejects
         protocol-relative double-slash hosts, backslash host tricks, non-dashboard paths, and
