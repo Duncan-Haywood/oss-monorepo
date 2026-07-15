@@ -99,13 +99,13 @@ export const AGENT_PROTOCOL = [
 
   // --- Current state (2026-07-14) ---
   "All product-facing NEXT_STEPS are shipped; every dashboard server action has direct Vitest coverage; every env var with a launch-blocking silent fallback has an operator-visible readiness banner on /dashboard. The only remaining NEXT_STEPS are operator/legal-gated: stripe-price-objects (run bootstrap-prices), lead-ingestion (Places API, needs legal review), marketing-content-scheduling (Buffer/GBP/Meta OAuth), commerce-payouts-stripe-connect (needs Stripe Connect + counsel). Do not fake-complete any of these — when the free backlog is empty, run a fresh sold-capability / multi-instance regression audit (Convex API map, escapeHtmlForEmail/safeJsonLdScript sweep, webhook idempotency, uncapped-list sweep, untested-orchestrator scan, dashboard actions that await send* without checking `{ success }`) and document a clean pass in a new ITERATIONS entry if nothing turns up. A fresh audit already found and fixed one such bug this way: the bundle webhook was marking receipt/DNS emails 'sent' even when the send silently failed (see the recovery-marker rule above); another found updateLeadStageAction/addLeadAction returning success:true after Email 1 `{ success: false }` (email-1-outreach-send-success-check) — keep looking for this same class of bug (a durable state write gated only on an await not throwing, when the callee can resolve a failure instead) elsewhere in the webhook/action/public-route surface (contact-form notify was the remaining public await-sendEmail miss after Email 1 + webhook markers).",
-  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR, (2) a fresh security or injection-surface audit (operator-password trim, auth cookie, public write routes), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
+  "Once 2+ consecutive audits confirm the same bug-class set (durable-marker-after-unchecked-await, Convex API map gaps, uncapped-list sweep, escapeHtmlForEmail/safeJsonLdScript, webhook idempotency) fully clean, a 3rd/4th re-run of that identical set is low-value — rotate to an axis not yet explicitly audited. Pipeline-health/daily-digest wiring completeness is now closed for the known aggregates: openHandoffCount, paidNotLiveCount, leadsMissingEmailCount, newInquiryCount, oldestUnrepliedInquiryAgeHours, oldestFollowUpDueAgeHours, closedLeadCount (digest-pipeline-health-age-and-count-wiring), and the last optional age mirrors oldestAbandonedAgeHours + oldestColdLeadAgeHours (digest-age-mirror-oldest-abandoned-cold). Prefer, in order: (1) fold a stuck CLI remote with a complete sold-capability / security body and no open PR (create-path-slug-dns-label-max-length folded on business-process-evolution-9b1b), (2) a fresh security or injection-surface audit (operator-password trim, auth cookie, public write routes), (3) a Convex/SQLite multi-instance parity or idempotency regression, (4) a documented clean pass on an axis not yet dated this week. A dated 'still clean on axis X' ITERATIONS entry is worth more to sibling agents than a repeated identical audit or a manufactured feature. (Note: the marker-after-unchecked-await class is NOT fully exhausted — re-check when touching webhook/action/public-route send surfaces.)",
   "sold-vs-shipped reconciliation against /docs/product-bundles' per-bundle claims and orchestration module test-coverage gaps are BOTH now 2x-confirmed clean (claude/upbeat-dijkstra-3duvyp PR #188, then re-checked independently after 9 more merged PRs) — don't offer either as a fresh rotation target again until real product surface area changes; re-check only if a specific new claim lands in /docs/product-bundles or a new orchestration module ships without its sibling test file.",
   "Two pipeline-health aggregates that sound like the same fact can be disjoint sets over different tables — wiring one into the digest does not cover the other. openHandoffs (daily-digest.ts) filters the deploy_handoffs table on status !== \"live\"; paidNotLive filters leads on stage === \"paid\". A lead moved to stage=paid via the stage dropdown or CSV import with no deploy_handoffs row ever created is invisible to the former and only caught by the latter. leadsMissingEmail is a third distinct set (email-critical stages with no usable address) — post-payment fulfillment debt and top-of-funnel contact gaps are not substitutes for each other. When wiring a pipeline-health aggregate into the digest, check what table/predicate it actually reads before assuming a sibling aggregate's wiring already covers it.",
   "Every daily-digest action section intentionally caps its DISPLAYED rows at 5 (see the *_LIMIT constants in daily-digest.ts) for email readability, but its section-header count (the `(N)` in e.g. `Follow-ups due (${...})`) must come from a true pre-slice *Count field on DailyDigest, never `digest.<section>.length` — the latter silently freezes at the LIMIT forever once a queue naturally exceeds it, the same undercounting failure mode the uncapped-list rule above already flags for a raw data-layer query, just recurring one layer up in the digest's own display logic (see digest-section-counts-uncapped). When adding a new capped digest section, compute the filtered array once, take its `.length` for the *Count field, then `.slice(0, LIMIT)` for the displayed rows — mirror the commercePayoutsOwedTotalUsd pattern, which already got this right.",
   "Public marketing OUTPUT surfaces (sitemap.xml, /preview/[slug] robots/metadata, JSON-LD) are a distinct empty-backlog audit axis from the email-HTML / webhook / Convex-parity sweeps — a cold-prospected lead's AI demo must never be invited into a search index under the platform domain without consent. Only curated DEMO_LEADS showcases and paid|live customers are indexable (isLeadPreviewIndexable + isCuratedDemoLeadSlug); sitemap and generateMetadata must share that predicate so they cannot drift. When free NEXT_STEPS are gated, prefer folding a stuck `grok/*` / `claude/*` / `opencode/*` remote that already has this class of feature body but no open PR over inventing a new optional aggregate.",
   "While lead-ingestion (Places API) stays counsel-gated, CSV import quality is the live lead-volume unlock — prefer folding stuck remotes that improve operator-owned list ingest (hours column, RFC 4180 multiline quoted fields, field-length caps, hours delimiter round-trip) over inventing optional digests. parseLeadHours must split on the first '·' only (serializeLeadHours inserts a single separator); splitting on every middot truncates weekend values that themselves contain '·' (the previous CSV default weekend did).",
-  "Lead slug create-paths normalize to [a-z0-9-]+ via shared sanitizeLeadSlug (src/lib/leads/slug.ts) — collapse non-token runs AND strip leading/trailing dashes — used by addLeadAction, CSV explicit-slug column, and resolveBundleCheckoutLeadSlug. slugifyBusinessName already strips edges. A create-path that keeps edge dashes (e.g. Demo Cafe! → demo-cafe-) desyncs the CRM slug from leadSlugAsDnsLabel, so suggestedHost is demo-cafe.{root} while extractPreviewSubdomainSlug → getLeadBySlug still looks up demo-cafe- and misses (Starter preview-subdomain Host→preview falls through). Path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel. Query-string slug values already use encodeURIComponent at checkout links.",
+  "Lead slug create-paths normalize to [a-z0-9-]+ via shared sanitizeLeadSlug (src/lib/leads/slug.ts) — collapse non-token runs, strip leading/trailing dashes, AND cap at MAX_LEAD_SLUG_LENGTH=63 (RFC 1035 DNS label max; truncate then re-strip trailing dashes) — used by addLeadAction, CSV explicit-slug column / slugifyBusinessName / collision suffixes, and resolveBundleCheckoutLeadSlug. A create-path that keeps edge dashes (e.g. Demo Cafe! → demo-cafe-) or mints a >63-char label desyncs the CRM slug from leadSlugAsDnsLabel, so suggestedHost is demo-cafe.{root} (or an invalid over-length host) while extractPreviewSubdomainSlug → getLeadBySlug still looks up a different token and misses (Starter preview-subdomain Host→preview falls through). Path *construction* must still encode-at-use via src/lib/leads/slug-path.ts (leadPreviewPath / leadPreviewAbsoluteUrl / leadContactApiPath / encodeLeadSlugPathSegment) — never raw `/preview/${slug}` or `/api/contact/${slug}`. That includes dashboard `revalidatePath` calls: Next matches the path key against the request pathname (which percent-encodes special characters in a single segment), so a raw `/preview/${slug}` with an embedded `/` revalidates the wrong tree. Legacy payment_stub or pre-sanitize rows (and any future create-path miss) otherwise turn `/` into extra path segments. Hostnames cannot percent-encode: suggestedHost uses leadSlugAsDnsLabel (reuses sanitizeLeadSlug so Host→preview identity matches create-path storage, including the 63-cap). Query-string slug values already use encodeURIComponent at checkout links.",
   "markHandoffLive must not call updateLeadStage(..., \"live\") when updateDeployHandoffStatus returns null — a vanished/missing handoff row would leave stage=live while the action returns \"No deploy handoff found\" and paid-not-live / open-handoff metrics diverge (mark-handoff-live-null-status-guard). Mirror the null-check already used by assignVercelProjectAndProvision / setCustomDomainAndProvision after their handoff writes.",
   "Operator Save domain input must be normalized to a bare hostname before persistence (parseOperatorCustomDomain / normalizeOperatorCustomDomainHost in custom-domain-routing.ts) — strip scheme/path/query/hash/port/trailing FQDN dot, reject localhost/single-label/platform-owned hosts, and re-normalize on updateDeployHandoffCustomDomain + getLeadSlugByCustomDomain so a pasted https://client.com/ still equals normalizeRequestHost(Host) and Vercel Domains API name. Never store trim+lowercase alone (custom-domain-host-normalize). assignCustomDomainAction must also reject when getLeadSlugByCustomDomain returns a different lead — Host→preview first-match would silently serve the wrong client (custom-domain-normalize-and-unique).",
   "Custom-domain Host→preview must treat www↔apex as the same sold domain: customDomainHostAliases(host) returns [exact, www-twin] (or [www, apex]); getLeadSlugByCustomDomain tries each alias (exact first); assignCustomDomainAction uniqueness rejects when any alias is owned by another lead; tryProvisionVercelDomain POSTs both aliases when customDomain is set (ignore 409). Keep storing the operator's chosen bare host — do not invent a second normalizer that strips www on write. suggestedHost platform subdomains are not aliased.",
@@ -1976,6 +1976,15 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner:
       "cursor/prompt-process-evolution-1ce7 (folded from opencode/dev-work-digest-age-mirrors)",
+  },
+  {
+    id: "create-path-slug-dns-label-max-length",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit) + PR #247 (create-path-slug-edge-dash-normalize): sanitizeLeadSlug strips edge dashes but does not cap length, so a long businessName / operator slug / CSV collision suffix can mint a CRM slug >63 chars. Hostnames cannot percent-encode — RFC 1035 DNS labels max at 63 — so suggestedHost becomes an invalid label and Starter preview-subdomain Host→preview cannot resolve. Cap sanitizeLeadSlug + leadSlugAsDnsLabel + CSV collision suffixes at MAX_LEAD_SLUG_LENGTH=63 (truncate then re-strip edge dashes). Stuck feature body: grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (+ digest-combo remotes whose digest half already merged as #276). Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner:
+      "cursor/business-process-evolution-9b1b (folded from grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090)",
   },
 ];
 
@@ -4276,6 +4285,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Wire the last two PipelineHealth age mirrors (oldestAbandonedAgeHours, oldestColdLeadAgeHours) into the operator daily digest — abandoned-checkouts header and cold footnote — rather than invent a new optional aggregate or re-audit 2x-clean axes while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "AGENT_PROTOCOL empty-backlog rotation listed these two ages as the only remaining optional digest mirrors after PR #276/#277. Folding stuck opencode/dev-work-digest-age-mirrors (complete body, no open PR; Actions token blocked) onto a mergeable automation branch closes the pipeline-health→digest age/count wiring axis and beats a clean-audit-only run. Direct maps of existing PipelineHealth predicates (not new metrics). Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
+  },
+  {
+    date: "2026-07-15",
+    decision:
+      "Cap create-path lead slugs at MAX_LEAD_SLUG_LENGTH=63 (RFC 1035 DNS label max) inside shared sanitizeLeadSlug — truncate then re-strip trailing dashes — and reuse that sanitizer from leadSlugAsDnsLabel + CSV slugifyBusinessName / collision suffixes, rather than mint over-length CRM slugs that cannot be valid suggestedHost labels.",
+    rationale:
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window (complementary axis — owns slice 327). Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (and digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folding that Starter Host→preview identity fix beats inventing an optional aggregate — edge-dash strip (#247) alone still left >63 labels invalid for DNS. Stripe Prices / Places / Buffer OAuth / Connect stay operator/legal-gated.",
   },
 
 ];
@@ -8390,7 +8406,7 @@ export const ITERATIONS: ProcessIteration[] = [
     date: "2026-07-15",
     branch: "cursor/prompt-process-evolution-1ce7",
     summary:
-      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-digest-age-mirrors with a complete digest-age-mirror-oldest-abandoned-cold feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Closes the last optional PipelineHealth→digest age mirrors listed in AGENT_PROTOCOL.",
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes before inventing an audit and found opencode/dev-work-digest-age-mirrors with a complete digest-age-mirror-oldest-abandoned-cold feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Closes the last optional PipelineHealth→digest age mirrors listed in AGENT_PROTOCOL. Same-window sibling business-process-evolution-9b1b folded create-path-slug-dns-label-max-length (complementary).",
     shipped: [
       "Fold: stuck opencode/dev-work-digest-age-mirrors feature files (daily-digest.ts + daily-digest.test.ts) — kept opencode ITERATION above",
       "src/lib/digest/daily-digest.ts — oldestAbandonedAgeHours + oldestColdLeadAgeHours on DailyDigest + buildDailyDigest + renderDailyDigestHtml",
@@ -8402,6 +8418,68 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1352 passed, +6 digest age-mirror regressions vs 1346 on main) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(327, 328),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/continuous-work-slug-dns-label-max",
+    summary:
+      "Empty-backlog after PR #247 (create-path-slug-edge-dash-normalize). Free NEXT_STEPS stayed operator/legal-gated. Sold-capability audit of Starter preview-subdomain Host→preview found sanitizeLeadSlug stripped edge dashes but never capped length — a long businessName minted CRM slugs >63 chars that cannot be valid DNS labels for suggestedHost. Shipped MAX_LEAD_SLUG_LENGTH=63 inside sanitizeLeadSlug + leadSlugAsDnsLabel reuse + CSV collision suffix capping. No open PR (Actions token blocked; issue #257) — folded onto cursor/business-process-evolution-9b1b.",
+    shipped: [
+      "src/lib/leads/slug.ts — MAX_LEAD_SLUG_LENGTH=63; sanitizeLeadSlug truncates then re-strips trailing dashes",
+      "src/lib/leads/slug-path.ts — leadSlugAsDnsLabel reuses sanitizeLeadSlug (charset + edge + ≤63)",
+      "src/lib/leads/csv-import.ts — slugifyBusinessName via sanitizeLeadSlug; slugWithCollisionSuffix keeps ≤63",
+      "Tests: slug.test.ts + slug-path.test.ts + csv-import.test.ts max-length regressions",
+      "Docs: architecture.tsx notes 63-cap beside edge-dash strip",
+      "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
+      "PR handoff: Actions token blocked — issue #257; folded onto cursor/business-process-evolution-9b1b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
+  },
+  {
+    date: "2026-07-15",
+    branch: "grok/dev-work-slug-dns-label-max",
+    summary:
+      "Same-window dual with continuous-work-slug-dns-label-max on the DNS label length cap. Same feature body; later absorbed into cursor/business-process-evolution-9b1b.",
+    shipped: [
+      "src/lib/leads/slug.ts — MAX_LEAD_SLUG_LENGTH=63 create-path cap",
+      "src/lib/leads/slug-path.ts + csv-import.ts — reuse sanitizer + collision suffix ≤63",
+      "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
+      "PR handoff: Actions token blocked — issue #255; folded onto cursor/business-process-evolution-9b1b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
+  },
+  {
+    date: "2026-07-15",
+    branch: "opencode/continuous-work-slug-dns-max-103090",
+    summary:
+      "Empty-backlog fold of grok/dev-work-slug-dns-label-max onto an opencode continuous-work branch. Complete RFC 1035 DNS label max create-path body with no open PR — folded onto cursor/business-process-evolution-9b1b.",
+    shipped: [
+      "Fold: grok/dev-work-slug-dns-label-max feature files",
+      "src/lib/leads/slug.ts — RFC 1035 63-char create-path cap",
+      "NEXT_STEPS: create-path-slug-dns-label-max-length (folded done on 9b1b)",
+      "PR handoff: Actions token blocked — folded onto cursor/business-process-evolution-9b1b",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
+  },
+  {
+    date: "2026-07-15",
+    branch: "cursor/business-process-evolution-9b1b",
+    summary:
+      "Empty-backlog after PR #277 (login-rate-limit). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-1ce7 claimed/merged digest-age-mirror-oldest-abandoned-cold (PR #278) in the same window — complementary axis, owns slice 327. Scanned stuck CLI remotes before inventing an audit and found grok/continuous-work-slug-dns-label-max + grok/dev-work-slug-dns-label-max + grok/dev-work-slug-dns-max-86cdf4 + opencode/continuous-work-slug-dns-max-103090 (plus digest-combo remotes whose digest half already merged as #276) with a complete create-path-slug-dns-label-max-length feature body and no open PR (Actions token blocked). Folded that body onto this automation branch that can open/merge rather than re-auditing exhausted axes or inventing an optional aggregate. Merged origin/main mid-PR; kept both digest-mirror + DNS-cap ITERATIONS.",
+    shipped: [
+      "merge: origin/main (PR #278 digest age-mirror) — 1ce7 owns digest NEXT_STEPS / slice 327; both complementary ITERATIONS kept",
+      "Fold: stuck CLI remotes feature files (slug.ts / slug-path.ts / csv-import.ts + tests + architecture docs) — kept grok continuous/dev + opencode ITERATIONS above",
+      "src/lib/leads/slug.ts — MAX_LEAD_SLUG_LENGTH=63; sanitizeLeadSlug truncates then re-strips trailing dashes",
+      "src/lib/leads/slug-path.ts — leadSlugAsDnsLabel reuses sanitizeLeadSlug so Host→preview identity matches create-path storage including the 63-cap",
+      "src/lib/leads/csv-import.ts — slugifyBusinessName via sanitizeLeadSlug; slugWithCollisionSuffix keeps collision suffixes ≤63",
+      "src/lib/leads/slug.test.ts + slug-path.test.ts + csv-import.test.ts — max-length + truncation-edge + CSV collision regressions",
+      "Docs: architecture.tsx notes 63-cap beside edge-dash strip",
+      "AGENT_PROTOCOL — create-path slug rule names MAX_LEAD_SLUG_LENGTH=63 + leadSlugAsDnsLabel reuse; digest age-mirror axis closed on main",
+      "NEXT_STEPS: create-path-slug-dns-label-max-length done",
+      "BUSINESS_DECISIONS — documented why folding this DNS label cap beats inventing an optional aggregate (slice 328)",
+      "Verified after merge: npm test (1357 passed, +5 DNS max-length regressions on top of PR #278's 1352) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
 ];
 

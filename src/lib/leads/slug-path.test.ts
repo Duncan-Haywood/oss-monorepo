@@ -63,4 +63,11 @@ describe("leadSlugAsDnsLabel", () => {
     expect(leadSlugAsDnsLabel("...")).toBe("lead");
     expect(leadSlugAsDnsLabel("///")).toBe("lead");
   });
+
+  it("caps at 63 so suggestedHost is always a valid DNS label", () => {
+    const overlong = `legacy-free-form-${"z".repeat(80)}`;
+    const label = leadSlugAsDnsLabel(overlong);
+    expect(label.length).toBeLessThanOrEqual(63);
+    expect(label).not.toMatch(/^-|-$/);
+  });
 });

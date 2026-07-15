@@ -2,8 +2,9 @@
  * Encode-at-use helpers for lead slugs in URL path segments.
  *
  * Create-paths (addLead, CSV, sanitizeCheckoutLeadSlug on bundle checkout)
- * normalize new slugs to [a-z0-9-]+, but legacy payment_stub / pre-sanitize
- * rows (and any future create-path miss) can still hold free-form slugs.
+ * normalize new slugs to [a-z0-9-]+ with length ≤ MAX_LEAD_SLUG_LENGTH (63 —
+ * RFC 1035 DNS label max), but legacy payment_stub / pre-sanitize rows (and
+ * any future create-path miss) can still hold free-form or over-length slugs.
  * Interpolating those into `/preview/${slug}` or `/api/contact/${slug}`
  * without encoding turns `/` into extra path segments and can collapse via
  * WHATWG URL path normalization — the same traversal class
@@ -11,8 +12,12 @@
  *
  * encodeURIComponent keeps the stored identity unchanged for DB lookup
  * (Next.js decodes dynamic route params) while forcing a single path segment
- * at every construction site.
+ * at every construction site. DNS labels (suggestedHost) cannot percent-
+ * encode — leadSlugAsDnsLabel reuses sanitizeLeadSlug so Host→preview
+ * identity matches create-path storage.
  */
+
+import { sanitizeLeadSlug } from "./slug";
 
 /** Encode a lead slug for use as a single URL path segment. */
 export function encodeLeadSlugPathSegment(slug: string): string {
@@ -49,15 +54,11 @@ export function leadContactAbsoluteUrl(baseUrl: string, slug: string): string {
 
 /**
  * DNS label for suggestedHost (`{label}.{productionRootDomain}`).
- * Hostnames cannot use percent-encoding the way paths can — collapse to
- * [a-z0-9-] so a legacy free-form slug never produces an invalid or
- * multi-label host string.
+ * Hostnames cannot use percent-encoding the way paths can — reuse
+ * sanitizeLeadSlug (charset + edge-dash + ≤63) so create-path CRM identity
+ * equals the preview-subdomain Host label. Empty sanitization falls back to
+ * "lead" (suggestedHost must never be bare `.{root}`).
  */
 export function leadSlugAsDnsLabel(slug: string): string {
-  const label = slug
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-  return label || "lead";
+  return sanitizeLeadSlug(slug) || "lead";
 }

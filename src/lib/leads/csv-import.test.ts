@@ -54,6 +54,13 @@ describe("slugifyBusinessName", () => {
   it("falls back to 'lead' for names with no alphanumerics", () => {
     expect(slugifyBusinessName("***")).toBe("lead");
   });
+
+  it("caps at 63 chars (DNS label max) so CSV-derived slugs stay Host-safe", () => {
+    const longName = `Acme ${"Super ".repeat(20)}Plumbing LLC`;
+    const slug = slugifyBusinessName(longName);
+    expect(slug.length).toBeLessThanOrEqual(63);
+    expect(slug).not.toMatch(/^-|-$/);
+  });
 });
 
 describe("parseLeadsCsv", () => {
@@ -122,6 +129,23 @@ describe("parseLeadsCsv", () => {
     const result = parseLeadsCsv(csv);
     expect(result.errors).toEqual([]);
     expect(result.leads.map((l) => l.slug)).toEqual(["demo-cafe", "symbols-only"]);
+  });
+
+  it("caps explicit slug columns and collision suffixes at 63 (DNS label max)", () => {
+    const long = `long-slug-${"y".repeat(80)}`;
+    const csv = [
+      "businessName,slug",
+      `Biz One,${long}`,
+      `Biz Two,${long}`,
+    ].join("\n");
+    const result = parseLeadsCsv(csv);
+    expect(result.errors).toEqual([]);
+    expect(result.leads).toHaveLength(2);
+    for (const lead of result.leads) {
+      expect(lead.slug.length).toBeLessThanOrEqual(63);
+      expect(lead.slug).not.toMatch(/^-|-$/);
+    }
+    expect(result.leads[0]?.slug).not.toBe(result.leads[1]?.slug);
   });
 
   it("splits services on semicolons within a cell", () => {
