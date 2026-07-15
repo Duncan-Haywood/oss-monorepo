@@ -382,6 +382,43 @@ describe("resend.ts — transactional skipSuppression", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("sendMarketingPackToClientEmail still delivers when marketing-suppressed", async () => {
+    const { sendMarketingPackToClientEmail } = await import("./resend");
+    const result = await sendMarketingPackToClientEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      yearMonth: "2026-07",
+      variants: [
+        {
+          contentType: "social_post",
+          title: "Fresh roast",
+          body: "Great coffee this week at Demo Cafe!",
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("sendClientVoicePackToClientEmail still delivers when marketing-suppressed", async () => {
+    const { sendClientVoicePackToClientEmail } = await import("./resend");
+    const result = await sendClientVoicePackToClientEmail({
+      to: "owner@example.com",
+      businessName: "Demo Cafe",
+      slug: "demo-cafe",
+      variants: [
+        {
+          scriptType: "inbound_greeting",
+          title: "Greeting",
+          body: "Welcome to Demo Cafe!",
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
   it("sendInquiryReply still delivers when the visitor is marketing-suppressed", async () => {
     const { sendInquiryReply } = await import("./resend");
     const result = await sendInquiryReply({
