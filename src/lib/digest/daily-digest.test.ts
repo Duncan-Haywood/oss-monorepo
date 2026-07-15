@@ -112,6 +112,41 @@ describe("buildDailyDigest", () => {
     expect(digest.followUpsDue[0].outreachStep).toBe(1);
   });
 
+  it("computes oldestFollowUpDueAgeHours from the oldest due follow-up lead", () => {
+    const oldLead = baseLead({
+      slug: "old-lead",
+      stage: "outreach_sent",
+      outreachStep: 1,
+      lastOutreachAt: "2026-06-30T00:00:00.000Z",
+    });
+    const recentLead = baseLead({
+      slug: "recent-lead",
+      stage: "outreach_sent",
+      outreachStep: 2,
+      lastOutreachAt: "2026-07-05T00:00:00.000Z",
+    });
+    const digest = buildDailyDigest({
+      leads: [recentLead, oldLead],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    // Oldest is 288h (12 days * 24h) from NOW, roughly — 12 days from
+    // 2026-06-30T00:00 to 2026-07-12T12:00 is 12*24 + 12 = 300h
+    expect(digest.oldestFollowUpDueAgeHours).toBeGreaterThanOrEqual(280);
+    expect(digest.oldestFollowUpDueAgeHours).toBeLessThanOrEqual(312);
+  });
+
+  it("reports null oldestFollowUpDueAgeHours when there are no follow-ups due", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestFollowUpDueAgeHours).toBeNull();
+  });
+
   it("lists an abandoned checkout session due for recovery", () => {
     const digest = buildDailyDigest({
       leads: [baseLead()],
@@ -173,6 +208,50 @@ describe("buildDailyDigest", () => {
       "inq_new",
       "inq_read",
     ]);
+  });
+
+  it("separates newInquiryCount from unrepliedInquiriesCount", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [
+        baseInquiry({ id: "inq_new", status: "new", createdAt: "2026-07-12T10:00:00.000Z" }),
+        baseInquiry({ id: "inq_read", status: "read", createdAt: "2026-07-12T09:00:00.000Z" }),
+        baseInquiry({ id: "inq_older_new", status: "new", createdAt: "2026-07-12T08:00:00.000Z" }),
+      ],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.unrepliedInquiriesCount).toBe(3);
+    expect(digest.newInquiryCount).toBe(2);
+  });
+
+  it("computes oldestUnrepliedInquiryAgeHours from the oldest unreplied inquiry", () => {
+    // 4h old (created 8:00, now 12:00)
+    const fourHourOld = baseInquiry({
+      id: "inq_old",
+      createdAt: "2026-07-12T08:00:00.000Z",
+    });
+    const twoHourOld = baseInquiry({
+      id: "inq_newer",
+      createdAt: "2026-07-12T10:00:00.000Z",
+    });
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [twoHourOld, fourHourOld],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestUnrepliedInquiryAgeHours).toBe(4);
+  });
+
+  it("reports null oldestUnrepliedInquiryAgeHours when there are no unreplied inquiries", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.oldestUnrepliedInquiryAgeHours).toBeNull();
   });
 
   it("a newest-N inquiries page hides an older unreplied inquiry that the uncapped set catches", () => {
@@ -239,6 +318,21 @@ describe("buildDailyDigest", () => {
       nowMs: NOW,
     });
     expect(digest.coldLeadCount).toBe(1);
+  });
+
+  it("counts closed leads in closedLeadCount without affecting isEmpty", () => {
+    const closed = baseLead({
+      slug: "closed-lead",
+      stage: "closed",
+    });
+    const digest = buildDailyDigest({
+      leads: [closed],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    expect(digest.closedLeadCount).toBe(1);
+    expect(digest.isEmpty).toBe(true);
   });
 
   it("counts currently-snoozed leads and soonest remaining hours without making isEmpty false", () => {
@@ -998,5 +1092,83 @@ describe("renderDailyDigestHtml", () => {
     expect(html).not.toContain("Paid, not yet live (5)");
     const rowMatches = html.match(/stage is Paid/g) ?? [];
     expect(rowMatches).toHaveLength(5);
+  });
+
+  it("shows newInquiryCount and oldestUnrepliedInquiryAgeHours in the unreplied inquiries header", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [
+        baseInquiry({ id: "inq_new_1", createdAt: "2026-07-12T10:00:00.000Z" }),
+        baseInquiry({ id: "inq_new_2", status: "new", createdAt: "2026-07-12T11:00:00.000Z" }),
+        baseInquiry({ id: "inq_read", status: "read", createdAt: "2026-07-12T06:00:00.000Z" }),
+      ],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("2 new");
+    expect(html).toContain("oldest 6h");
+  });
+
+  it("does not show new inquiry count when all unreplied are new (redundant)", () => {
+    const digest = buildDailyDigest({
+      leads: [],
+      inquiries: [
+        baseInquiry({ id: "inq_new_1", createdAt: "2026-07-12T08:00:00.000Z" }),
+        baseInquiry({ id: "inq_new_2", createdAt: "2026-07-12T10:00:00.000Z" }),
+      ],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Unreplied inquiries (2 · oldest 4h)");
+    expect(html).not.toContain("new");
+  });
+
+  it("shows oldestFollowUpDueAgeHours in the follow-ups header", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({
+          slug: "old-due",
+          stage: "outreach_sent",
+          outreachStep: 1,
+          lastOutreachAt: "2026-07-05T00:00:00.000Z",
+        }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Follow-ups due (1 · oldest");
+    expect(html).toContain("h)");
+  });
+
+  it("shows a closed lead footnote when there are closed leads and nothing else is urgent", () => {
+    const digest = buildDailyDigest({
+      leads: [baseLead({ slug: "done", stage: "closed" })],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Nothing urgent today");
+    expect(html).toContain("settled inventory");
+    expect(html).toContain("1 lead");
+  });
+
+  it("shows a closed lead footnote after the action sections when there is also urgent work", () => {
+    const digest = buildDailyDigest({
+      leads: [
+        baseLead({ slug: "done", stage: "closed" }),
+        baseLead({ slug: "urgent", stage: "paid" }),
+      ],
+      inquiries: [],
+      openCheckoutSessions: [],
+      nowMs: NOW,
+    });
+    const html = renderDailyDigestHtml(digest, "https://example.com");
+    expect(html).toContain("Paid, not yet live");
+    expect(html).toContain("settled inventory");
   });
 });
