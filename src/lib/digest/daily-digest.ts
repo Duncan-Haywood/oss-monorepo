@@ -225,6 +225,10 @@ export interface DailyDigest {
   oldestUnrepliedInquiryAgeHours: number | null;
   /** Age in whole hours of the oldest follow-up due lead; null when none. */
   oldestFollowUpDueAgeHours: number | null;
+  /** Age in whole hours of the oldest abandoned bundle checkout session; null when none. */
+  oldestAbandonedAgeHours: number | null;
+  /** Age in whole hours of the oldest cold lead (went cold after Email 3); null when none. */
+  oldestColdLeadAgeHours: number | null;
   coldLeadCount: number;
   /** Leads at terminal closed stage — same predicate as pipeline-health closedLeadCount. */
   closedLeadCount: number;
@@ -326,6 +330,16 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
 
   const checkoutRecoveriesDueAll = listAbandonedCheckoutsDue(openCheckoutSessions, nowMs);
   const checkoutRecoveriesDueCount = checkoutRecoveriesDueAll.length;
+  const oldestAbandonedAgeHours: number | null = (() => {
+    if (checkoutRecoveriesDueAll.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const session of checkoutRecoveriesDueAll) {
+      const parsed = Date.parse(session.createdAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
   const checkoutRecoveriesDue: DigestCheckoutRecovery[] = checkoutRecoveriesDueAll
     .slice(0, RECOVERIES_LIMIT)
     .map((session) => ({
@@ -487,7 +501,19 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
       stage: lead.stage,
     }));
 
-  const coldLeadCount = listColdLeads(leads, nowMs).length;
+  const coldLeads = listColdLeads(leads, nowMs);
+  const coldLeadCount = coldLeads.length;
+  const oldestColdLeadAgeHours: number | null = (() => {
+    if (coldLeads.length === 0) return null;
+    let oldestMs = Infinity;
+    for (const lead of coldLeads) {
+      if (!lead.lastOutreachAt) continue;
+      const parsed = Date.parse(lead.lastOutreachAt);
+      if (Number.isNaN(parsed)) continue;
+      if (parsed < oldestMs) oldestMs = parsed;
+    }
+    return oldestMs === Infinity ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+  })();
   const closedLeadCount = leads.filter((lead) => lead.stage === "closed").length;
 
   const snoozedLeads = leads.filter((lead) =>
@@ -556,6 +582,8 @@ export function buildDailyDigest(input: BuildDailyDigestInput): DailyDigest {
     newInquiryCount,
     oldestUnrepliedInquiryAgeHours,
     oldestFollowUpDueAgeHours,
+    oldestAbandonedAgeHours,
+    oldestColdLeadAgeHours,
     coldLeadCount,
     closedLeadCount,
     snoozedLeadCount: snoozedLeads.length,
@@ -600,10 +628,11 @@ function closedLeadFootnote(digest: DailyDigest): string {
 
 function coldFootnote(digest: DailyDigest, emptyState: boolean): string {
   if (digest.coldLeadCount <= 0) return "";
+  const oldestBit = digest.oldestColdLeadAgeHours !== null ? ` · oldest ${digest.oldestColdLeadAgeHours}h` : "";
   if (emptyState) {
-    return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} went cold after Email 3 — see /dashboard/leads to re-engage or close them out.</p>`;
+    return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} went cold after Email 3${oldestBit} — see /dashboard/leads to re-engage or close them out.</p>`;
   }
-  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3 — not actionable above, but worth a manual look.</p>`;
+  return `<p style="margin:16px 0 0 0;color:#71717a;font-size:13px;">${digest.coldLeadCount} lead${digest.coldLeadCount === 1 ? "" : "s"} also went cold after Email 3${oldestBit} — not actionable above, but worth a manual look.</p>`;
 }
 
 /** Renders the digest as email-safe inline-styled HTML. Pure — no fetch/DOM. */
@@ -703,7 +732,7 @@ export function renderDailyDigestHtml(digest: DailyDigest, baseUrl: string): str
       followUpRows,
       "No follow-up emails due.",
     )}
-    ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDueCount})`, recoveryRows, "No recovery nudges due.")}
+    ${section(`Abandoned checkouts (${digest.checkoutRecoveriesDueCount}${digest.oldestAbandonedAgeHours !== null ? ` · oldest ${digest.oldestAbandonedAgeHours}h` : ""})`, recoveryRows, "No recovery nudges due.")}
     ${section(`Abandoned Buy now (${digest.commerceCheckoutRecoveriesDueCount})`, commerceRecoveryRows, "No Commerce Buy now carts due for recovery.")}
     ${section(
       `Unreplied inquiries (${digest.unrepliedInquiriesCount}${digest.newInquiryCount > 0 && digest.newInquiryCount !== digest.unrepliedInquiriesCount ? ` · ${digest.newInquiryCount} new` : ""}${digest.oldestUnrepliedInquiryAgeHours !== null ? ` · oldest ${digest.oldestUnrepliedInquiryAgeHours}h` : ""})`,
