@@ -111,6 +111,19 @@ describe("parseLeadsCsv", () => {
     expect(result.leads.map((l) => l.slug)).toEqual(["acme", "acme-2", "acme-3"]);
   });
 
+  it("strips leading/trailing dashes from explicit slug columns", () => {
+    // Regression: prior CSV sanitize kept edge dashes (demo-cafe-) while
+    // leadSlugAsDnsLabel stripped them — preview subdomain Host lookup missed.
+    const csv = [
+      "businessName,slug",
+      "Demo Cafe,-demo-cafe-",
+      "Symbols Only,!!!",
+    ].join("\n");
+    const result = parseLeadsCsv(csv);
+    expect(result.errors).toEqual([]);
+    expect(result.leads.map((l) => l.slug)).toEqual(["demo-cafe", "symbols-only"]);
+  });
+
   it("splits services on semicolons within a cell", () => {
     const csv = 'businessName,services\nAcme,"Haircuts; Color; Blowouts"';
     const result = parseLeadsCsv(csv);
