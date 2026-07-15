@@ -465,8 +465,13 @@ export default function ArchitectureDocPage() {
         <code>leadPreviewAbsoluteUrl</code>) so a free-form slug stays a single
         path segment. Hostnames cannot percent-encode, so handoff{" "}
         <code>suggestedHost</code> uses <code>leadSlugAsDnsLabel</code> instead —
-        and create-paths must already strip edge dashes so the stored slug equals
-        that DNS label (create-path-slug-edge-dash-normalize).
+        and create-paths must already strip edge dashes <em>and</em> cap at 63
+        characters (RFC 1035 DNS label max, <code>MAX_LEAD_SLUG_LENGTH</code>) so
+        the stored slug equals that DNS label
+        (create-path-slug-edge-dash-normalize + create-path-slug-dns-label-max-length).
+        A longer businessName or operator slug is truncated (then re-stripped of
+        edge dashes) rather than producing an invalid{" "}
+        <code>suggestedHost</code> that Vercel/Host→preview cannot serve.
         Rows carry a{" "}
         <code>kind</code> discriminator:{" "}
         <code>bundle</code> (Local Site Studio plan checkout) or <code>commerce_sku</code> (end-customer

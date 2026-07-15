@@ -5,7 +5,7 @@
 
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { parseLeadHours } from "./sqlite-row-mapping";
-import { sanitizeLeadSlug } from "./slug";
+import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
 
 export const CSV_LEAD_HEADERS = [
   "businessName",
@@ -127,14 +127,26 @@ export function parseCsvLine(line: string): string[] {
   return fields;
 }
 
+/**
+ * Derive a lead slug from a business name for CSV rows without an explicit
+ * slug column. Reuses sanitizeLeadSlug so charset / edge-dash / ≤63 DNS
+ * label caps match addLead and checkout create-paths; falls back to "lead"
+ * when the name sanitizes away to nothing.
+ */
 export function slugifyBusinessName(name: string): string {
-  const slug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-  return slug || "lead";
+  return sanitizeLeadSlug(name) || "lead";
+}
+
+/**
+ * Keep a collision suffix within MAX_LEAD_SLUG_LENGTH so a long base slug
+ * + `-2` cannot produce an over-length DNS label (create-path identity).
+ */
+function slugWithCollisionSuffix(base: string, suffix: number): string {
+  const suffixPart = `-${suffix}`;
+  const maxBase = MAX_LEAD_SLUG_LENGTH - suffixPart.length;
+  const truncated = base.slice(0, Math.max(1, maxBase)).replace(/-+$/g, "");
+  // sanitize again so a truncated base never leaves an invalid form
+  return sanitizeLeadSlug(`${truncated}${suffixPart}`) || `lead${suffixPart}`;
 }
 
 function normalizeHeader(raw: string): string {
@@ -264,10 +276,11 @@ export function parseLeadsCsv(
       return;
     }
 
-    // Explicit slug column uses shared sanitizeLeadSlug (edge dashes stripped)
-    // so CSV create-paths match addLead / checkout / DNS labels. Missing or
-    // all-symbol slug columns fall back to slugifyBusinessName (already strips
-    // edges and returns "lead" when empty). See create-path-slug-edge-dash-normalize.
+    // Explicit slug column uses shared sanitizeLeadSlug (edge dashes stripped
+    // + ≤63 DNS label) so CSV create-paths match addLead / checkout /
+    // leadSlugAsDnsLabel. Missing or all-symbol slug columns fall back to
+    // slugifyBusinessName (same sanitizer + "lead" fallback).
+    // See create-path-slug-edge-dash-normalize + create-path-slug-dns-label-max-length.
     const explicitSlug = get("slug");
     let slug = explicitSlug
       ? sanitizeLeadSlug(explicitSlug)
@@ -277,8 +290,12 @@ export function parseLeadsCsv(
     }
     if (seenSlugs.has(slug)) {
       let suffix = 2;
-      while (seenSlugs.has(`${slug}-${suffix}`)) suffix += 1;
-      slug = `${slug}-${suffix}`;
+      let candidate = slugWithCollisionSuffix(slug, suffix);
+      while (seenSlugs.has(candidate)) {
+        suffix += 1;
+        candidate = slugWithCollisionSuffix(slug, suffix);
+      }
+      slug = candidate;
     }
     seenSlugs.add(slug);
 
