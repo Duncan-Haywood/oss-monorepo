@@ -8531,7 +8531,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: contact-form-notify-field-length-caps done",
       "BUSINESS_DECISIONS — soft-cap-once over uncapped notify (slice 328)",
       "Tightened create-path DNS ITERATIONS decisions slices 328,329 → 327,328 and digest-age-mirror ITERATIONS 327,328 → 326,327 (absolute indices)",
-      "Verified: npm test (1363 passed, +6 contact field-cap regressions vs 1357 on main before PR #280's +10) + lint + build",
+      "Verified after merge with PR #280: npm test (1373 passed = 1357 main@#279 +10 password-trim +6 contact field-cap) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(328, 329),
   },
