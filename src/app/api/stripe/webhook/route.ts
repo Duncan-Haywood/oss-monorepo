@@ -30,12 +30,15 @@ import { getBundle } from "@/lib/pricing/bundles";
  * minted or tampered Checkout Sessions). Unknown tier skips like missing
  * slug/tier (session already marked complete; do not 5xx forever).
  *
- * Commerce Buy now create already 404s when skuId is not in the lead catalog;
+ * Commerce Buy now create already 404s when skuId is not in the lead catalog
+ * and resolves Price from catalog.stripePriceId (never trusts a client amount);
  * the commerce_sku branch must mirror that membership gate (plus
- * parseCommerceCheckoutSkuId length) before insertCommerceOrder / inquiry /
+ * parseCommerceCheckoutSkuId length) AND require session.amount_total (integer
+ * cents) === catalogItem.priceCents before insertCommerceOrder / inquiry /
  * client receipt — a truthy skuId alone is not enough (unknown ids must not
- * fall back to "Catalog item"). Unknown/over-long skuId skips like missing
- * skuId (session already marked complete; do not 5xx forever).
+ * fall back to "Catalog item"; a mismatched amount must not skew payouts /
+ * client receipts). Unknown/over-long skuId or amount mismatch skips like
+ * missing skuId (session already marked complete; do not 5xx forever).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -145,6 +148,24 @@ export async function POST(request: Request) {
               );
               break;
             }
+            // Mirror Buy now create: Price comes from catalog.stripePriceId, so
+            // charged cents must equal catalogItem.priceCents. A Dashboard-minted
+            // or tampered session with a valid skuId but a different Stripe Price
+            // must not skew the Commerce ledger / client receipt.
+            const amountCents = session.amount_total;
+            if (
+              typeof amountCents !== "number" ||
+              !Number.isInteger(amountCents) ||
+              amountCents !== catalogItem.priceCents
+            ) {
+              console.warn(
+                `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} amount_total ${String(
+                  amountCents,
+                )} !== catalog priceCents ${catalogItem.priceCents} — skipping ledger/inquiry/client receipt`,
+              );
+              break;
+            }
+            const amountPaidUsd = amountCents / 100;
             const skuName = catalogItem.name;
             const businessName = lead?.businessName || orderSlug;
 
@@ -160,7 +181,7 @@ export async function POST(request: Request) {
                   leadSlug: orderSlug,
                   skuId: knownSkuId,
                   skuName,
-                  amountPaidUsd: amountTotal,
+                  amountPaidUsd,
                   stripeSessionId: session.id,
                 },
                 WEBHOOK_CONVEX_PRIMARY,
@@ -222,7 +243,7 @@ export async function POST(request: Request) {
                     email: customerEmail || undefined,
                     message: commerceOrderPaidInquiryMessage({
                       skuName,
-                      amountTotalUsd: amountTotal,
+                      amountTotalUsd: amountPaidUsd,
                       stripeSessionId: session.id,
                       skuId: knownSkuId,
                     }),
@@ -260,7 +281,7 @@ export async function POST(request: Request) {
                     businessName,
                     slug: orderSlug,
                     skuName,
-                    amountTotalUsd: amountTotal,
+                    amountTotalUsd: amountPaidUsd,
                     stripeSessionId: session.id,
                     customerEmail: customerEmail || undefined,
                     previewUrl: `${leadPreviewAbsoluteUrl(baseUrl, orderSlug)}#catalog`,

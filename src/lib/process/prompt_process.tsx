@@ -147,8 +147,8 @@ export const AGENT_PROTOCOL = [
   "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual / public whole-body JSON byte bounds, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
   "Public JSON POST routes (stripe/commerce checkout, billing-portal, contact, preview-open, and auth-gated marketing/generate when OPERATOR_DASHBOARD_PASSWORD may be unset) must hard-reject raw bodies over MAX_PUBLIC_JSON_BODY_BYTES (32_768) via readJsonBodyWithByteLimit / contentLengthExceedsLimit (src/lib/security/json-body.ts) before JSON.parse — field-level caps alone still allocate unbounded request.json(). Soft-cap is wrong (would change parsed fields); fail closed with 400. Empty body stays allowed on preview-open (invalid_json → server now). Skip Stripe webhook (signed request.text()). After per-field size sinks close, prefer whole-body byte bounds before inventing another dated clean-audit (public-json-body-byte-length-cap).",
   "Public form-urlencoded / multipart POST twins (POST /api/contact/[slug]) must share the same whole-body ceiling via readFormBodyWithByteLimit / MAX_PUBLIC_REQUEST_BODY_BYTES — Content-Length pre-check alone is not enough when the header is missing or understated (request.formData() still allocates). Bound with arrayBuffer byteLength, rebuild a Request, then parse FormData. Soft-cap is wrong; fail closed with 400. Login server-action FormData stays field-capped (password/next) because Next parses the multipart body before the action runs. After a public JSON whole-body bound ships, immediately close the FormData twin before inventing another dated clean-audit (public-formdata-body-byte-length-cap).",
-  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + Commerce catalog membership are both shipped; next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
-  "Commerce Buy now checkout create 404s when metadata.skuId is not in the lead catalog; the commerce_sku webhook branch must mirror that catalog membership gate (plus parseCommerceCheckoutSkuId length) before insertCommerceOrder / inquiry / client receipt — a truthy skuId alone is not enough (unknown ids must not fall back to \"Catalog item\"). Unknown/over-long skuId skips like missing skuId (session already marked complete; do not 5xx forever).",
+  "After checkout create enum-gates a Stripe metadata field (getBundle(tier), kind=commerce_sku catalog membership, etc.), the webhook consumer must enforce the same gate before durable fulfillment writes — create-path validation alone does not cover Dashboard-minted or tampered Checkout Sessions. Bundle getBundle + Commerce catalog membership + amount↔priceCents parity are shipped; next empty-backlog: prefer (1) stuck CLI fold with feature body and no open PR, (2) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week, (3) next sold residual (e.g. commerce webhook slug lookup gate) — reject invent-optional-aggregate / workNextCount / 3rd map/marker prose audit.",
+  "Commerce Buy now checkout create 404s when metadata.skuId is not in the lead catalog and resolves Price from catalog.stripePriceId (never trusts a client amount); the commerce_sku webhook branch must mirror that catalog membership gate (plus parseCommerceCheckoutSkuId length) AND require session.amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt — a truthy skuId alone is not enough (unknown ids must not fall back to \"Catalog item\"; a mismatched amount must not skew payouts / client receipts). Unknown/over-long skuId or amount mismatch skips like missing skuId (session already marked complete; do not 5xx forever).",
 ] as const;
 
 /**
@@ -2402,6 +2402,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 3 — Payments",
     owner: "cursor/prompt-process-evolution-ffdb",
+  },
+  {
+    id: "commerce-webhook-amount-catalog-parity",
+    summary:
+      "Empty-backlog after PR #324 (commerce-webhook-sku-catalog-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: Buy now create resolves Price from catalog stripePriceId (never trusts client amount), but checkout.session.completed still ledgered session.amount_total for any catalog-known skuId — a Dashboard-minted session with a valid skuId and a different Stripe Price could skew Commerce payouts totals and client receipt amounts. Require session.amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt; mismatch/missing skips like unknown skuId.",
+    status: "done",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-c135",
   },
 
 ];
@@ -5034,6 +5042,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Require commerce catalog membership (and parseCommerceCheckoutSkuId length) on checkout.session.completed kind=commerce_sku before insertCommerceOrder / inquiry / client receipt — rather than accept any truthy metadata.skuId with a \"Catalog item\" name fallback, invent an optional aggregate, or leave Buy now create's 404 as the only catalog gate while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #323 (bundle-webhook-tier-enum-guard). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate (workNextCount) / clean-audit-only / already-merged — rejected. Fresh money-path residual twin of bundle getBundle: POST /api/commerce/checkout 404s unknown catalog SKUs, but the webhook still ledgered + notified for any truthy skuId (Dashboard-minted or tampered sessions). Unknown/over-long skuId now skips like missing skuId (session already marked complete; do not 5xx forever). Process improvement: after shipping a create-path ↔ webhook enum gate for one metadata field, immediately audit the sibling money path's matching create gate (Commerce catalog membership after bundle getBundle). Next empty-backlog: stuck CLI fold / escapeHtml·webhook·uncapped axes not dated this week / next sold residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Require checkout.session.completed commerce_sku amount_total (integer cents) === catalogItem.priceCents before insertCommerceOrder / inquiry / client receipt — rather than trust any Stripe amount once skuId is catalog-known, invent an optional aggregate, or leave Buy now create's catalog stripePriceId as the only price gate while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #324 (commerce-webhook-sku-catalog-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: Buy now create never takes a client amount (Price from catalog.stripePriceId), but the webhook still ledgered session.amount_total for any catalog-known skuId — a Dashboard-minted session with a valid skuId and a different Stripe Price could skew Commerce payouts totals and client receipts. Amount mismatch / missing / non-integer now skips like unknown skuId (session already marked complete; do not 5xx forever). Mid-checkout catalog reprice can skip ledger for a legitimate paid session — operator reconciles from Stripe; wrong payouts bookkeeping is worse. Process improvement: after create↔webhook catalog membership ships, immediately audit amount/Price parity on the same money path. Next empty-backlog: stuck CLI fold / commerce-webhook-slug-lookup-gate / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -10117,6 +10132,24 @@ export const ITERATIONS: ProcessIteration[] = [
     ],
     // Object-parse: commerce catalog gate owns BD[374]; tier enum=373.
     decisions: BUSINESS_DECISIONS.slice(374, 375),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/business-process-evolution-c135",
+    summary:
+      "Empty-backlog after PR #324 (commerce-webhook-sku-catalog-gate). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were invent-optional-aggregate / clean-audit-only / already-merged — rejected. Fresh money-path residual: Buy now create resolves Price from catalog stripePriceId (never trusts client amount), but checkout.session.completed still ledgered session.amount_total for any catalog-known skuId. Shipped amount_total (integer cents) === catalogItem.priceCents gate before ledger/inquiry/client receipt (mismatch/missing skips like unknown skuId); Vitest + architecture note; process now requires amount/Price parity after catalog membership.",
+    shipped: [
+      "merge: origin/main (PR #324 commerce-webhook-sku-catalog-gate) — keep sibling ITERATION; complementary amount↔priceCents axis",
+      "src/app/api/stripe/webhook/route.ts — require integer amount_total === catalogItem.priceCents before commerce ledger/inquiry/receipt",
+      "src/app/api/stripe/webhook/route.test.ts — catalog mocks include priceCents; +2 amount mismatch / null amount_total regressions",
+      "Docs: architecture.tsx notes Commerce webhook amount↔catalog priceCents beside catalog membership",
+      "AGENT_PROTOCOL — Commerce webhook must mirror Buy now create Price (amount_total === priceCents)",
+      "NEXT_STEPS: commerce-webhook-amount-catalog-parity done; commerce-webhook-sku-catalog-gate done (ffdb / #324)",
+      "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 375)",
+      "Verified: npm test (1609 passed = main@#324's 1607 + 2 amount mismatch/null regressions) + lint",
+    ],
+    // Object-parse: amount parity owns BD[375]; catalog membership=374.
+    decisions: BUSINESS_DECISIONS.slice(375, 376),
   },
 ];
 
