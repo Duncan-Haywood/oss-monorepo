@@ -9302,7 +9302,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — operator session token length rule; empty-backlog rotation marks openedAt + session-token done",
       "NEXT_STEPS: operator-session-token-field-length-cap done; preview-open-openedAt-field-length-cap done (67b2 / #302)",
       "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 350)",
-      "Verified: npm test (1471 auth-suite local; folded main@#302's 1474 + our +3 session-token) + lint + build",
+      "Verified: npm test (1477 passed = main@#302's 1474 + 3 session-token regressions) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(350, 351),
   },
