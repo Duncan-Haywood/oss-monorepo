@@ -96,10 +96,14 @@ export default function ArchitectureDocPage() {
         form passwords longer than <code>MAX_OPERATOR_PASSWORD_LENGTH</code> (256) before{" "}
         <code>Buffer.from</code> / timing-safe compare (rate limits blunt attempt count, not
         per-attempt payload size; soft-cap would change the secret) — and{" "}
-        <code>safeNextPath</code> falls back to <code>/dashboard</code> when the client-supplied{" "}
-        <code>next</code> path exceeds <code>MAX_SAFE_NEXT_PATH_LENGTH</code> (2048; same optional
-        redirect length policy as billing-portal <code>returnUrl</code> — soft-cap would change
-        the destination; hard-reject would strand login) — and{" "}
+        <code>verifyOperatorSessionToken</code> hard-rejects cookie values longer than{" "}
+        <code>MAX_OPERATOR_SESSION_TOKEN_LENGTH</code> (128; genuine tokens ~66 chars) before HMAC /{" "}
+        <code>Buffer.from</code> (proxy verifies on every <code>/dashboard/*</code> with no rate
+        limit; soft-cap would change the opaque token — same class as unsubscribe token length) —
+        and <code>safeNextPath</code> falls back to <code>/dashboard</code> when the
+        client-supplied <code>next</code> path exceeds <code>MAX_SAFE_NEXT_PATH_LENGTH</code>{" "}
+        (2048; same optional redirect length policy as billing-portal <code>returnUrl</code> —
+        soft-cap would change the destination; hard-reject would strand login) — and{" "}
         <code>src/proxy.ts</code> dashboardAuthGate must call <code>safeNextPath(pathname)</code>{" "}
         before minting the login redirect <code>Location</code> (and clear inherited query/hash)
         so a multi-KB <code>/dashboard/…</code> probe cannot echo into the redirect header even

@@ -25,6 +25,17 @@ const SESSION_SUBJECT = "operator";
  */
 export const MAX_OPERATOR_PASSWORD_LENGTH = 256;
 
+/**
+ * Hard ceiling for OPERATOR_SESSION_COOKIE values before HMAC / Buffer.from.
+ *
+ * Genuine tokens are `${expiresAt}.operator.${hmacSha256Base64url}` (~66 chars).
+ * Soft-cap/truncate would change the opaque token. Login is rate-limited (5/60s)
+ * but src/proxy.ts dashboardAuthGate verifies the cookie on every /dashboard/*
+ * with no rate limit — without this bound a client can force multi-KB crypto
+ * work per navigation. Mirror unsubscribe-token MAX=128 headroom.
+ */
+export const MAX_OPERATOR_SESSION_TOKEN_LENGTH = 128;
+
 export function isOperatorAuthConfigured(): boolean {
   return getPassword() !== null;
 }
@@ -64,6 +75,12 @@ export function verifyOperatorSessionToken(
   nowMs: number = Date.now(),
 ): boolean {
   if (!token) {
+    return false;
+  }
+
+  // Hard-reject over-long cookies before HMAC / Buffer allocation.
+  // Genuine createOperatorSessionToken values sit well under this ceiling.
+  if (token.length > MAX_OPERATOR_SESSION_TOKEN_LENGTH) {
     return false;
   }
 

@@ -18,6 +18,7 @@ vi.mock("next/headers", () => ({
 
 import {
   MAX_OPERATOR_PASSWORD_LENGTH,
+  MAX_OPERATOR_SESSION_TOKEN_LENGTH,
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
   getPassword,
@@ -85,6 +86,26 @@ describe("createOperatorSessionToken / verifyOperatorSessionToken", () => {
     const [expiresAt, subject, signature] = token.split(".");
     const tampered = `${Number(expiresAt) + HOUR_MS}.${subject}.${signature}`;
     expect(verifyOperatorSessionToken(tampered, PASSWORD, NOW)).toBe(false);
+  });
+
+  it("produces tokens well under MAX_OPERATOR_SESSION_TOKEN_LENGTH", () => {
+    const token = createOperatorSessionToken(PASSWORD, NOW);
+    expect(token.length).toBeLessThanOrEqual(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(token.length).toBeLessThan(80);
+  });
+
+  it("hard-rejects tokens longer than MAX_OPERATOR_SESSION_TOKEN_LENGTH (no soft-cap)", () => {
+    const over = "x".repeat(MAX_OPERATOR_SESSION_TOKEN_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(verifyOperatorSessionToken(over, PASSWORD, NOW)).toBe(false);
+  });
+
+  it("still evaluates tokens at exactly MAX_OPERATOR_SESSION_TOKEN_LENGTH (no early length reject)", () => {
+    // Exact-max garbage still goes through shape/HMAC checks (rejects as invalid),
+    // proving the length gate is exclusive (> max) not inclusive.
+    const exact = "y".repeat(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(exact).toHaveLength(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(verifyOperatorSessionToken(exact, PASSWORD, NOW)).toBe(false);
   });
 });
 
