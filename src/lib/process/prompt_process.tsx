@@ -2082,6 +2082,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/business-process-evolution-8fb7",
   },
+  {
+    id: "commerce-checkout-slug-skuId-field-length-cap",
+    summary:
+      "Empty-backlog after PR #290 (unsubscribe-email-field-length-cap) + PR #289 (billing-portal sessionId). Free NEXT_STEPS stayed operator/legal-gated. Public POST /api/commerce/checkout soft-caps customerEmail but still accepts uncapped body.slug + body.skuId before getCommerceCatalog / Stripe metadata / checkout_sessions / cancel_url — bundle checkout already sanitizes+caps slug via sanitizeLeadSlug; commerce Buy now does not. Hard-reject slug over MAX_LEAD_SLUG_LENGTH and skuId over catalog save ceiling (64) before any DB/Stripe work (opaque lookup keys — never soft-cap).",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/prompt-process-evolution-92f3",
+  },
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
   {
