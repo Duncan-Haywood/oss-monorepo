@@ -4,6 +4,7 @@ import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
 import { loadPreviewCommerceItems } from "@/lib/commerce/preview-commerce";
 import { isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
+import { resolvePreviewOpenAttrParam } from "@/lib/leads/preview-open";
 import { loadPreviewPageLead } from "@/lib/leads/preview-page-lead";
 import {
   isLeadPreviewIndexable,
@@ -59,8 +60,11 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const jsonLd = leadPreviewJsonLdIfIndexable(lead, {
     isCuratedDemo: isCuratedDemoLeadSlug(slug),
   });
-  const src = firstParam(query.src);
-  const utmSource = firstParam(query.utm_source);
+  // Bound before PreviewOpenBeacon — API route already caps, but trackByStage
+  // still re-emits uncapped searchParams onto the beacon fetch URL
+  // (preview-page-src-utm-field-length-cap).
+  const src = resolvePreviewOpenAttrParam(firstParam(query.src));
+  const utmSource = resolvePreviewOpenAttrParam(firstParam(query.utm_source));
   const trackByStage =
     lead.stage === "outreach_sent" || lead.stage === "discovery_call";
 

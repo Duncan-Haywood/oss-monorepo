@@ -37,6 +37,45 @@ export function resolvePreviewOpenAttrParam(
   return raw;
 }
 
+/**
+ * Whether the client beacon should fire for these (already-bounded) attrs /
+ * in-pipeline stage. Mirrors PreviewOpenBeacon attribution checks.
+ */
+export function shouldFirePreviewOpenBeacon(input: {
+  src?: string | null;
+  utmSource?: string | null;
+  trackByStage?: boolean;
+}): boolean {
+  const src = resolvePreviewOpenAttrParam(input.src);
+  const utm = resolvePreviewOpenAttrParam(input.utmSource);
+  if (src === OUTREACH_PREVIEW_SRC || src === "email") return true;
+  if (utm === "email" || utm === "outreach" || utm === "resend") return true;
+  return Boolean(input.trackByStage);
+}
+
+/**
+ * Build the beacon POST path with length-bounded attribution query params.
+ * Over-long src/utm_source are omitted (never echoed onto the fetch URL) —
+ * page twin of the API route bound (preview-page-src-utm-field-length-cap).
+ */
+export function buildPreviewOpenBeaconPath(
+  slug: string,
+  input: {
+    src?: string | null;
+    utmSource?: string | null;
+  },
+): string {
+  const src = resolvePreviewOpenAttrParam(input.src);
+  const utmSource = resolvePreviewOpenAttrParam(input.utmSource);
+  const params = new URLSearchParams();
+  if (src) params.set("src", src);
+  if (utmSource) params.set("utm_source", utmSource);
+  const qs = params.toString();
+  // encode-at-use lives in the client component (slug-path); callers that
+  // already hold a path-safe slug may pass it through. Tests use plain slugs.
+  return `/api/preview/${slug}/open${qs ? `?${qs}` : ""}`;
+}
+
 /** Append ?src=outreach (or merge) so preview opens attribute to email. */
 export function previewUrlWithOutreachTracking(basePreviewUrl: string): string {
   try {

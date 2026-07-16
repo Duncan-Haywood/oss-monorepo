@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+  buildPreviewOpenBeaconPath,
+  shouldFirePreviewOpenBeacon,
+} from "@/lib/leads/preview-open";
 import { encodeLeadSlugPathSegment } from "@/lib/leads/slug-path";
 
 interface PreviewOpenBeaconProps {
@@ -15,6 +19,9 @@ interface PreviewOpenBeaconProps {
 /**
  * Fire-and-forget open beacon for outreach attribution.
  * Skips when neither query attribution nor in-pipeline stage applies.
+ *
+ * Attribution query params are length-bounded before the fetch URL is built
+ * (preview-page-src-utm-field-length-cap); the API route also bounds.
  */
 export function PreviewOpenBeacon({
   slug,
@@ -23,20 +30,12 @@ export function PreviewOpenBeacon({
   trackByStage = false,
 }: PreviewOpenBeaconProps) {
   useEffect(() => {
-    const attributed =
-      src === "outreach" ||
-      src === "email" ||
-      utmSource === "email" ||
-      utmSource === "outreach" ||
-      utmSource === "resend" ||
-      trackByStage;
-    if (!attributed) return;
+    if (!shouldFirePreviewOpenBeacon({ src, utmSource, trackByStage })) return;
 
-    const params = new URLSearchParams();
-    if (src) params.set("src", src);
-    if (utmSource) params.set("utm_source", utmSource);
-    const qs = params.toString();
-    const path = `/api/preview/${encodeLeadSlugPathSegment(slug)}/open${qs ? `?${qs}` : ""}`;
+    const path = buildPreviewOpenBeaconPath(encodeLeadSlugPathSegment(slug), {
+      src,
+      utmSource,
+    });
 
     void fetch(path, {
       method: "POST",

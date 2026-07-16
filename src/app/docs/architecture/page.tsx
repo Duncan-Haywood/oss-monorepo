@@ -484,7 +484,10 @@ export default function ArchitectureDocPage() {
         <code>utm_source</code> are bounded via <code>resolvePreviewOpenAttrParam</code> /{" "}
         <code>MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH</code> (32) — over-long values are treated as
         missing so <code>shouldRecordPreviewOpen</code> never sees multi-KB probes (path slug
-        length stays a hard-reject twin). Route-level Vitest in{" "}
+        length stays a hard-reject twin). The sold SSR <code>/preview/[slug]</code> page applies
+        the same bound before <code>PreviewOpenBeacon</code>, and{" "}
+        <code>buildPreviewOpenBeaconPath</code> omits over-long attrs from the client fetch URL
+        (trackByStage must not re-emit multi-KB query strings). Route-level Vitest in{" "}
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, <code>notifySent</code> from inspecting{" "}

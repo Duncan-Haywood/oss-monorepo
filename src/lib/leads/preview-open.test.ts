@@ -3,9 +3,11 @@ import {
   MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH,
   MAX_PREVIEW_OPENED_AT_LENGTH,
   OUTREACH_PREVIEW_SRC,
+  buildPreviewOpenBeaconPath,
   previewUrlWithOutreachTracking,
   resolvePreviewOpenAttrParam,
   resolvePreviewOpenedAt,
+  shouldFirePreviewOpenBeacon,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "./preview-open";
@@ -78,6 +80,61 @@ describe("resolvePreviewOpenAttrParam", () => {
     expect(resolvePreviewOpenAttrParam("resend")).toBe("resend");
     const exact = "x".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH);
     expect(resolvePreviewOpenAttrParam(exact)).toBe(exact);
+  });
+});
+
+describe("shouldFirePreviewOpenBeacon", () => {
+  it("fires for short attribution tokens", () => {
+    expect(shouldFirePreviewOpenBeacon({ src: "outreach" })).toBe(true);
+    expect(shouldFirePreviewOpenBeacon({ utmSource: "resend" })).toBe(true);
+  });
+
+  it("fires for trackByStage even without query attrs", () => {
+    expect(shouldFirePreviewOpenBeacon({ trackByStage: true })).toBe(true);
+  });
+
+  it("does not treat over-long src/utm as attribution (fall-back)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(shouldFirePreviewOpenBeacon({ src: overLong })).toBe(false);
+    expect(shouldFirePreviewOpenBeacon({ utmSource: overLong })).toBe(false);
+  });
+
+  it("still fires trackByStage when over-long attrs are present", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      shouldFirePreviewOpenBeacon({ src: overLong, trackByStage: true }),
+    ).toBe(true);
+  });
+});
+
+describe("buildPreviewOpenBeaconPath", () => {
+  it("omits over-long src/utm_source from the fetch URL (page twin)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", {
+        src: overLong,
+        utmSource: overLong,
+      }),
+    ).toBe("/api/preview/demo-cafe/open");
+  });
+
+  it("includes short attribution tokens", () => {
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", { src: "outreach" }),
+    ).toBe("/api/preview/demo-cafe/open?src=outreach");
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", { utmSource: "resend" }),
+    ).toBe("/api/preview/demo-cafe/open?utm_source=resend");
+  });
+
+  it("keeps short tokens and drops only the over-long twin", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", {
+        src: "outreach",
+        utmSource: overLong,
+      }),
+    ).toBe("/api/preview/demo-cafe/open?src=outreach");
   });
 });
 
