@@ -5,12 +5,15 @@
 
 import type { LeadPipelineStage } from "@/lib/leads/types";
 import {
+  MAX_COMMERCE_SKU_ID_LENGTH,
   MAX_COMMERCE_SKUS,
   MAX_SKU_DESCRIPTION_LENGTH,
   MAX_SKU_NAME_LENGTH,
   MAX_SKU_PRICE_CENTS,
   type CommerceSku,
 } from "./types";
+
+export { MAX_COMMERCE_SKU_ID_LENGTH };
 
 export function leadStageEligibleForCommerceCatalog(
   stage: LeadPipelineStage,
@@ -131,7 +134,9 @@ export type NormalizeCommerceItemsResult =
 
 /**
  * Validate + normalize operator-submitted SKUs. Caps at MAX_COMMERCE_SKUS,
- * trims strings, drops empty names, rejects non-integer / out-of-range prices.
+ * trims strings, drops empty names, rejects non-integer / out-of-range prices,
+ * and hard-rejects opaque ids longer than MAX_COMMERCE_SKU_ID_LENGTH (never
+ * truncate — truncation can collide Stripe Product / Price preservation keys).
  */
 export function normalizeCommerceItems(
   raw: ReadonlyArray<{
@@ -187,10 +192,18 @@ export function normalizeCommerceItems(
         error: `SKU ${i + 1} description must be ≤${MAX_SKU_DESCRIPTION_LENGTH} characters`,
       };
     }
-    const id =
-      typeof row.id === "string" && row.id.trim()
-        ? row.id.trim().slice(0, 64)
-        : newCommerceSkuId();
+    let id: string;
+    if (typeof row.id === "string" && row.id.trim()) {
+      id = row.id.trim();
+      if (id.length > MAX_COMMERCE_SKU_ID_LENGTH) {
+        return {
+          ok: false,
+          error: `SKU ${i + 1} id must be ≤${MAX_COMMERCE_SKU_ID_LENGTH} characters`,
+        };
+      }
+    } else {
+      id = newCommerceSkuId();
+    }
     items.push({
       id,
       name,

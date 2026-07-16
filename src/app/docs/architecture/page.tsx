@@ -1092,9 +1092,14 @@ source). The same digest also lists email-critical leads with no usable address 
         resolves the Stripe Price server-side from the stored catalog (never trusts a
         client-submitted price) and creates a one-time Checkout Session. Opaque{" "}
         <code>slug</code> / <code>skuId</code> body fields are hard-rejected over{" "}
-        <code>MAX_LEAD_SLUG_LENGTH</code> (63) and the catalog-save SKU id ceiling (64)
-        via <code>parseCommerceCheckoutSlug</code> / <code>parseCommerceCheckoutSkuId</code>{" "}
-        before any DB or Stripe work — soft-cap would look up the wrong row. Route-level Vitest
+        <code>MAX_LEAD_SLUG_LENGTH</code> (63) and shared{" "}
+        <code>MAX_COMMERCE_SKU_ID_LENGTH</code> (64) via{" "}
+        <code>parseCommerceCheckoutSlug</code> / <code>parseCommerceCheckoutSkuId</code>{" "}
+        before any DB or Stripe work — soft-cap would look up the wrong row. Auth-gated{" "}
+        <code>normalizeCommerceItems</code> (Save catalog) uses the same opaque-id ceiling
+        and hard-rejects over-long operator-supplied SKU ids rather than{" "}
+        <code>slice(0, 64)</code> — truncating distinct ids can collide{" "}
+        <code>preserveCommerceStripeIds</code> / Sync-to-Stripe Product keys. Route-level Vitest
         coverage in <code>src/app/api/commerce/checkout/route.test.ts</code> locks that
         server-resolved price invariant, over-long slug/skuId 400s, unsynced-SKU 501s,{" "}
         <code>kind=commerce_sku</code> tracking, and requireConvex fail-closed session create
