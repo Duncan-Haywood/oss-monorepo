@@ -2286,6 +2286,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 6 — Marketing automation",
     owner: "cursor/prompt-process-evolution-e626",
   },
+  {
+    id: "slug-scoped-listOrders-followthrough",
+    summary:
+      "Empty-backlog after PR #313 (preview-page-uncapped-listOrders). Free NEXT_STEPS stayed operator/legal-gated. listOrdersByLeadSlug shipped for /preview but createBillingPortalForLead + per-lead dashboard eligibility actions (upsell / marketing pack / commerce catalog / client voice) still full-ledger listOrders() then filter by slug. Wire listOrdersByLeadSlug on those sold/operator slug-keyed paths; keep full listOrders() for digest + dashboard ledger aggregates.",
+    status: "in_progress",
+    phase: "Phase 8 — Commerce",
+    owner: "cursor/business-process-evolution-338b",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
