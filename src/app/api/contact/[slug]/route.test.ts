@@ -29,17 +29,85 @@ vi.mock("@/lib/email/resend", () => ({
 const UNSAFE_NAME = `<img src=x onerror=alert(1)>`;
 const UNSAFE_MESSAGE = `Hi <script>alert('xss')</script> please call`;
 
+const KNOWN_LEAD = {
+  slug: "demo-cafe",
+  businessName: "Demo Cafe",
+  email: "owner@demo.example",
+} as const;
+
 describe("POST /api/contact/[slug]", () => {
   beforeEach(() => {
     getLeadBySlug.mockReset();
     insertClientInquiry.mockReset();
     sentEmail.mockClear();
-    getLeadBySlug.mockResolvedValue(null);
+    // Default: known CRM lead. Unknown-slug spam must not persist/notify —
+    // contact-form-require-known-lead. Tests that need null override explicitly.
+    getLeadBySlug.mockResolvedValue({ ...KNOWN_LEAD });
     insertClientInquiry.mockResolvedValue({ id: "inq_test_1" });
   });
 
   afterEach(() => {
     vi.resetModules();
+  });
+
+  it("returns 404 and skips persist/notify for an unknown non-demo slug", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/totally-unknown-lead-xyz", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Spam me",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "totally-unknown-lead-xyz" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(json.ok).toBe(false);
+    expect(json.reason).toBe("unknown_lead");
+    expect(json.error).toMatch(/unknown lead/i);
+    expect(insertClientInquiry).not.toHaveBeenCalled();
+    expect(sentEmail).not.toHaveBeenCalled();
+  });
+
+  it("accepts curated DEMO_LEADS showcases when the CRM row is missing", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { POST } = await import("./route");
+    const response = await POST(
+      new Request("http://localhost/api/contact/example-bakery", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "Love the sourdough",
+        }),
+      }),
+      { params: Promise.resolve({ slug: "example-bakery" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.businessName).toBe("Hearth & Crumb Bakery");
+    expect(json.notifySent).toBe(true);
+    expect(insertClientInquiry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        leadSlug: "example-bakery",
+        businessName: "Hearth & Crumb Bakery",
+      }),
+      CONTACT_FORM_CONVEX_PRIMARY,
+    );
+    expect(sentEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "hello@hearthcrumb.example",
+        leadSlug: "example-bakery",
+        skipSuppression: true,
+      }),
+    );
   });
 
   it("escapes unsanitized visitor input before emailing the operator/business", async () => {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, insertClientInquiry } from "@/lib/db";
 import { brand } from "@/lib/brand";
+import { getLeadBySlug as getDemoCatalogLeadBySlug } from "@/lib/leads/demo-catalog";
 import { normalizeContactFormFields } from "@/lib/inquiries/contact-fields";
 import {
   CONTACT_FORM_CONVEX_PRIMARY,
@@ -16,6 +17,12 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * (required for success), then emails the lead (or support) as a best-effort
  * notify. Returns 503 when the inbox row cannot be written — never { ok: true }
  * without a durable CRM trail (Starter sold promise).
+ *
+ * Requires a known lead: CRM row (getLeadBySlug) or curated DEMO_LEADS
+ * showcase. Slug-inferred preview pages still render, but inventable slugs
+ * must not create orphan inquiries or skipSuppression-notify support
+ * (contact-form-require-known-lead). Preview-open soft-rejects unknown_lead
+ * the same way; contact returns 404 before persist/notify.
  *
  * Notify is best-effort AFTER durable persist: sendEmail never throws on
  * suppression/Resend failure (resolves `{ success: false }`), so the route
@@ -87,7 +94,18 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
-  const lead = await getLeadBySlug(slug);
+  const dbLead = await getLeadBySlug(slug);
+  // Curated DEMO_LEADS showcases may not yet be in the DB on a fresh instance;
+  // slug-inferred previews (resolvePreviewLead) are NOT accepted — they would
+  // let any inventable slug orphan-persist + spam support under skipSuppression.
+  const lead = dbLead ?? getDemoCatalogLeadBySlug(slug) ?? null;
+  if (!lead) {
+    return NextResponse.json(
+      { ok: false, error: "Unknown lead", reason: "unknown_lead", slug },
+      { status: 404 },
+    );
+  }
+
   const body = await parseBody(request);
   // Soft-cap once — persist and notify must share the same bounded strings
   // (contact-form-notify-field-length-caps). Rate limit alone is not a size bound.
@@ -108,11 +126,11 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
-  const businessName = lead?.businessName || slug;
+  const businessName = lead.businessName;
   const support = brand.supportEmail;
 
   // Prefer forwarding to the business email when we have it; else operator support.
-  const notifyTo = lead?.email || support;
+  const notifyTo = lead.email || support;
 
   let inquiryId: string | undefined;
   try {
