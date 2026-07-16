@@ -53,6 +53,20 @@ export function newCommerceOrderId(): string {
   return `corder_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/**
+ * Newest-first by app createdAt (ISO string). Matches SQLite
+ * `ORDER BY createdAt DESC` and convex/commerceOrders.list / listUnpaid
+ * (collect + sort createdAt desc — not bare `.order("desc")`, which sorts
+ * `_creationTime`). db.ts re-applies this on the Convex path as
+ * belt-and-suspenders so the Commerce payouts panel / digest cannot
+ * regress if a future caller bypasses that query shape.
+ */
+export function sortCommerceOrdersNewestFirst<T extends { createdAt: string }>(
+  orders: ReadonlyArray<T>,
+): T[] {
+  return [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 /** Sum of all recorded commerce-order amounts (USD dollars). Pure — no I/O. */
 export function sumCommerceOrdersRevenueUsd(
   orders: ReadonlyArray<{ amountPaidUsd: number }>,

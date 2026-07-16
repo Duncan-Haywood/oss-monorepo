@@ -52,7 +52,7 @@ export const AGENT_PROTOCOL = [
 
   // --- Dual-backend (Convex primary / SQLite fallback) invariants ---
   "Every persistence surface in src/lib/db.ts must try Convex first (when NEXT_PUBLIC_CONVEX_URL is set) and fall back to SQLite on error. A new Convex table needs an explicit app-owned id column (e.g. orderId/packId/handoffId/inquiryId) registered on the static Convex API map in db.ts in the same commit as the table — a missing map registration throws at call time, gets silently caught by the fallback, and produces a split-brain where writes land on SQLite while list* reads Convex-first.",
-  "Dual-backend list queries must return the same row order on Convex and SQLite — a bare Convex .collect() is _creationTime ASC (oldest first) while most SQLite twins use ORDER BY createdAt DESC, and .order(\"desc\") on an index that lacks createdAt sorts _creationTime, not the app column. Mirror each SQLite ORDER BY in the Convex handler (leads.list → .order(\"desc\"); checkoutSessions.listOpen → sort app createdAt ASC; inquiries.listBySlug → collect + sort app createdAt DESC + slice). Document the contract in /docs/architecture when adding a new list* twin.",
+  "Dual-backend list queries must return the same row order on Convex and SQLite — a bare Convex .collect() is _creationTime ASC (oldest first) while most SQLite twins use ORDER BY createdAt DESC, and .order(\"desc\") on an index that lacks createdAt sorts _creationTime, not the app column. Mirror each SQLite ORDER BY in the Convex handler (leads.list → .order(\"desc\"); checkoutSessions.listOpen → sort app createdAt ASC; inquiries.listBySlug → collect + sort app createdAt DESC + slice; commerceOrders.list / listUnpaid → collect + sort app createdAt ISO DESC + slice for list limit — never bare .order(\"desc\").take). db.ts may re-apply sortCommerceOrdersNewestFirst / sortOrdersNewestFirst as belt-and-suspenders. Document the contract in /docs/architecture when adding a new list* twin.",
   "Every record type with a required `id: string` field must store that id as its own explicit Convex column and return it as `id` from every mutation/query — a type-cast on the Convex query result hides a missing field from tsc. (convex/orders.ts's `list`/`getByStripeSessionId` queries return the Convex-internal `_id` instead of an app-owned column, unlike every other ledger; its `createOrder` mutation is dead code superseded by leads.markLeadPaid. Both have been reviewed and deliberately left alone by multiple prior iterations since neither has a live consumer of the value — re-verify there's still no live `.id` consumer before touching either.)",
   "Write paths whose result is read Convex-first elsewhere (outreach cadence, lead notes/stage/snooze/upsert, cold disposition, marketing/voice packs, commerce catalogs, inquiry reply/status, checkout session create/recovery, commerce paid-out) must pass requireConvex (src/lib/payments/convex-primary.ts) so a Convex failure throws instead of silently soft-falling-back to SQLite while other instances keep reading Convex-first. Copy the nearest existing `*_CONVEX_PRIMARY` constant + call site for any new write path in this class.",
   "Where a durable mark must precede a notification (outreach send, checkout recovery email, inquiry reply), persist-then-notify: write the mark first, skip the send entirely on a ConvexPrimaryWriteError, and treat send failure after a successful mark as best-effort (never roll back the mark). Dashboard actions that trigger that send must still inspect the resolved `{ success }` shape and return `success: false` with an operator-visible error when the send fails — silent `success: true` after `{ success: false }` is the same bug class as writing a webhook recovery marker without checking send success (see email-1-outreach-send-success-check).",
@@ -2206,6 +2206,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-1ba2 (fold opencode/dev-work-auth-gated-field-caps)",
+  },
+  {
+    id: "commerce-orders-convex-createdAt-ordering-parity",
+    summary:
+      "Empty-backlog after PR #302/#303 (preview-open openedAt + operator-session-token). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-1ba2 claimed assign-vercel-project-id-field-length-cap — pivoted per AGENT_PROTOCOL. Convex parity residual after convex-query-ordering-parity (leads/checkoutSessions/inquiries): commerceOrders.list + listUnpaid still .order(\"desc\") on _creationTime while SQLite ORDER BY createdAt DESC — payout panel / digest row order can diverge when app createdAt ≠ insert clock. Sort by app createdAt ISO descending (collect + sort + slice for list limit) to match SQLite.",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-0c78",
   },
 
 ];
@@ -4682,6 +4690,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Hard-reject over-long assignVercelProjectAction vercelProjectId via parseVercelProjectId / MAX_VERCEL_PROJECT_ID_LENGTH (100) before assignVercelProjectAndProvision — rather than soft-cap (would change the opaque Domains API key), leave auth-gated Assign project uncapped after public size sinks closed, invent an optional aggregate, or leave a stuck CLI feature body unmerged while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #303 (operator-session-token + preview-open openedAt). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI opencode/dev-work-auth-gated-field-caps already shipped the helper + action wire with no open PR — fold that body (plus action-level over-long / exact-max Vitest) before a dated clean-audit. assignCustomDomainAction already bounds via parseOperatorCustomDomain; Assign project was the residual auth-gated id gap. Process improvement: when AGENT_PROTOCOL names a stuck-CLI fold target explicitly, prefer that remote over inventing the same audit from scratch. Next empty-backlog: dated clean-audit on an undated axis / Convex parity residual. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Sort Convex commerceOrders.list / listUnpaid by app createdAt ISO descending (collect + sort + slice for list limit) to match SQLite ORDER BY createdAt DESC, and re-apply sortCommerceOrdersNewestFirst in db.ts on the Convex path as belt-and-suspenders — rather than leave bare .order(\"desc\") (_creationTime) as a residual after convex-query-ordering-parity, invent an optional aggregate, or dual-build Assign-project id length already claimed by sibling 1ba2.",
+    rationale:
+      "Empty-backlog after PR #302/#303. Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-1ba2 claimed (then shipped as PR #304) assign-vercel-project-id-field-length-cap — complementary axes kept. Stuck CLI remotes were clean-audit-only / already-merged. Memory + AGENT_PROTOCOL named the commerceOrders createdAt vs _creationTime residual after leads/checkoutSessions/inquiries were folded — payout panel and unpaid digest order can diverge when app createdAt ≠ insert clock. Closing that dual-backend money-ledger axis beats a repeated public-size re-audit. Next empty-backlog: dated clean-audit / auth-gated Mark-paid-out or recovery stripeSessionId length via parseCheckoutSessionId. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 
@@ -9340,6 +9355,25 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1486 passed = main@#303's 1477 + 6 helper + 2 action over-long/exact-max + 1 suite bookkeeping) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(351, 352),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-0c78",
+    summary:
+      "Empty-backlog after PR #302/#303 (preview-open openedAt + operator-session-token). Free NEXT_STEPS stayed operator/legal-gated. Sibling business-process-evolution-1ba2 claimed assign-vercel-project-id-field-length-cap (merged PR #304) — complementary axes kept. Scanned stuck CLI remotes (clean-audit-only / already-merged). Convex parity residual after leads/checkoutSessions/inquiries: commerceOrders.list + listUnpaid still sorted _creationTime via .order(\"desc\") while SQLite ORDER BY createdAt DESC. Shipped collect + app createdAt ISO desc (+ slice for list limit), sortCommerceOrdersNewestFirst belt-and-suspenders in db.ts, Vitest + architecture note; folded origin/main (#304) keeping both ITERATIONS; rotation points at dated clean-audit / auth-gated Mark-paid-out sessionId length.",
+    shipped: [
+      "merge: origin/main (PR #304 Assign-project vercelProjectId length) — keep sibling ITERATION; complementary Convex commerceOrders ordering",
+      "convex/commerceOrders.ts — list + listUnpaid sort app createdAt ISO desc (collect + sort + slice; not bare .order(\"desc\"))",
+      "src/lib/commerce/orders.ts — sortCommerceOrdersNewestFirst (+ index re-export)",
+      "src/lib/db.ts — listCommerceOrders / listUnpaidCommerceOrders re-sort Convex path (belt-and-suspenders)",
+      "src/lib/commerce/orders.test.ts — +3 newest-first regressions",
+      "Docs: architecture.tsx notes commerceOrders createdAt ordering beside dual-backend contract",
+      "AGENT_PROTOCOL — dual-backend ordering names commerceOrders; empty-backlog rotation marks Convex commerceOrders residual done",
+      "NEXT_STEPS: commerce-orders-convex-createdAt-ordering-parity done; assign-vercel-project-id-field-length-cap done (1ba2 / #304)",
+      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 352)",
+      "Verified: npm test (1489 passed = main@#304's 1486 + 3 newest-first regressions) + lint + build",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(352, 353),
   },
 
 ];

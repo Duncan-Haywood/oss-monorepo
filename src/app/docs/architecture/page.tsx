@@ -173,12 +173,20 @@ export default function ArchitectureDocPage() {
         has no explicit <code>createdAt</code> field, so <code>_creationTime</code> is the closest
         proxy — a bare <code>.collect()</code> returns <em>ascending</em> creation order and
         reversed the <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> table between
-        backends). <code>checkoutSessions.listOpen</code> sorts the app{" "}
+        backends).         <code>checkoutSessions.listOpen</code> sorts the app{" "}
         <code>createdAt</code> ascending (abandoned-recovery works oldest carts first) and{" "}
         <code>inquiries.listBySlug</code> sorts the app <code>createdAt</code> descending before
         slicing to <code>limit</code> — both because their <code>by_status</code>/
         <code>by_leadSlug</code> indexes have no <code>createdAt</code> sort field, so a raw{" "}
         <code>.order()</code> would sort by <code>_creationTime</code> instead of the app column.
+        Likewise <code>commerceOrders.list</code> / <code>listUnpaid</code> collect then sort
+        app <code>createdAt</code> ISO descending (then slice for <code>list</code>&apos;s
+        limit) to match SQLite <code>ORDER BY createdAt DESC</code> — bare{" "}
+        <code>.order(&quot;desc&quot;)</code> was a residual after the leads/checkout/inquiries
+        fold and would diverge the Commerce payouts panel when app{" "}
+        <code>createdAt</code> ≠ insert clock. <code>db.ts</code> re-applies{" "}
+        <code>sortCommerceOrdersNewestFirst</code> on the Convex path as belt-and-suspenders
+        (same pattern as <code>listOrders</code> + <code>sortOrdersNewestFirst</code>).
       </p>
       <p>
         See <DocLink href="/docs/compliance">Compliance</DocLink>.

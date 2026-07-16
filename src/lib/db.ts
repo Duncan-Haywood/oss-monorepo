@@ -14,7 +14,10 @@ import { sortOrdersNewestFirst } from "./orders/types";
 import type { CheckoutSessionRecord } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { CommerceCatalog, UpsertCommerceCatalogInput } from "./commerce/types";
-import { newCommerceOrderId } from "./commerce/orders";
+import {
+  newCommerceOrderId,
+  sortCommerceOrdersNewestFirst,
+} from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import {
@@ -2111,6 +2114,12 @@ export async function insertCommerceOrder(
   return { alreadyRecorded: false };
 }
 
+/**
+ * Newest-first by app createdAt. convex/commerceOrders.list sorts at the
+ * source; sortCommerceOrdersNewestFirst here stays as belt-and-suspenders so
+ * the Commerce payouts panel cannot regress if a future caller bypasses that
+ * query shape (same pattern as listOrders + sortOrdersNewestFirst).
+ */
 export async function listCommerceOrders(
   limit = 200,
 ): Promise<CommerceOrderRecord[]> {
@@ -2118,9 +2127,10 @@ export async function listCommerceOrders(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.commerceOrders.list, {
+      const rows = (await convexClient.query(api.commerceOrders.list, {
         limit: safeLimit,
       })) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
       console.warn(
         "Failed to list commerce orders from Convex, falling back to SQLite",
@@ -2142,14 +2152,18 @@ export async function listCommerceOrders(
  * Every unpaid commerce order for manual payout reconciliation / owed totals.
  * Prefer this over listCommerceOrders() for pipeline-health, digest, and the
  * Commerce payouts panel — list()'s newest-page cap undercounts liability.
+ *
+ * Newest-first by app createdAt on both backends (Convex sorts at source;
+ * belt-and-suspenders re-sort here matches listCommerceOrders / listOrders).
  */
 export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(
+      const rows = (await convexClient.query(
         api.commerceOrders.listUnpaid,
         {},
       )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
       console.warn(
         "Failed to list unpaid commerce orders from Convex, falling back to SQLite",

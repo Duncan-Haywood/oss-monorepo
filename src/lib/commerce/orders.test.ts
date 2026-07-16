@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isCommerceOrderPaidOut,
   newCommerceOrderId,
+  sortCommerceOrdersNewestFirst,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
@@ -34,6 +35,54 @@ describe("newCommerceOrderId", () => {
   it("generates distinct ids across calls", () => {
     const ids = new Set(Array.from({ length: 20 }, () => newCommerceOrderId()));
     expect(ids.size).toBe(20);
+  });
+});
+
+describe("sortCommerceOrdersNewestFirst", () => {
+  it("sorts by app createdAt descending (not input order)", () => {
+    const sorted = sortCommerceOrdersNewestFirst([
+      order({
+        leadSlug: "a",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "b",
+        amountPaidUsd: 20,
+        createdAt: "2026-07-12T11:00:00.000Z",
+      }),
+      order({
+        leadSlug: "c",
+        amountPaidUsd: 15,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(sorted.map((o) => o.leadSlug)).toEqual(["b", "c", "a"]);
+  });
+
+  it("does not mutate the input array", () => {
+    const input = [
+      order({
+        leadSlug: "old",
+        amountPaidUsd: 1,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "new",
+        amountPaidUsd: 2,
+        createdAt: "2026-07-12T11:00:00.000Z",
+      }),
+    ];
+    const before = input.map((o) => o.leadSlug);
+    sortCommerceOrdersNewestFirst(input);
+    expect(input.map((o) => o.leadSlug)).toEqual(before);
+  });
+
+  it("returns a new empty array for empty input", () => {
+    const empty: CommerceOrderRecord[] = [];
+    const result = sortCommerceOrdersNewestFirst(empty);
+    expect(result).toEqual([]);
+    expect(result).not.toBe(empty);
   });
 });
 

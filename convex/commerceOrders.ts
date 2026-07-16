@@ -86,8 +86,15 @@ export const list = query({
   returns: v.array(orderReturn),
   handler: async (ctx, args) => {
     const limit = Math.min(Math.max(args.limit ?? 200, 1), 500);
-    const rows = await ctx.db.query("commerceOrders").order("desc").take(limit);
-    return rows.map(mapOrderRow);
+    // Match SQLite `ORDER BY createdAt DESC LIMIT ?`. Bare `.order("desc").take(limit)`
+    // sorts `_creationTime`, not the app `createdAt` column — when those diverge
+    // (backfill, clock skew, or a future writer), the newest-N page and payout
+    // panel order would disagree with SQLite. Collect, sort on app createdAt
+    // ISO descending, then slice — same contract as inquiries.listBySlug /
+    // orders.list. See commerce-orders-convex-createdAt-ordering-parity.
+    const rows = await ctx.db.query("commerceOrders").collect();
+    rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return rows.slice(0, limit).map(mapOrderRow);
   },
 });
 
@@ -103,11 +110,14 @@ export const listUnpaid = query({
   args: {},
   returns: v.array(orderReturn),
   handler: async (ctx) => {
-    const rows = await ctx.db.query("commerceOrders").order("desc").collect();
-    // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '')` and
-    // isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
+    const rows = await ctx.db.query("commerceOrders").collect();
+    // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '') ORDER BY createdAt DESC`
+    // and isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
+    // Sort on app createdAt (not `_creationTime` via `.order("desc")`) so unpaid
+    // payout/digest row order matches the SQLite twin.
     return rows
       .filter((row) => !row.paidOutAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .map(mapOrderRow);
   },
 });
