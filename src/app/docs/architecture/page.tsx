@@ -177,10 +177,17 @@ export default function ArchitectureDocPage() {
         Category templates (restaurant, salon, trades, generic) render at{" "}
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
-        <code>serene-salon</code>, <code>mountain-plumbing</code>.{" "}
+        <code>serene-salon</code>, <code>mountain-plumbing</code>. Path slug length is
+        hard-capped via <code>loadPreviewPageLead</code> (
+        <code>isPublicLeadSlugPathLengthOk</code> /{" "}
+        <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code>=120 — same gate as contact +
+        preview-open) before CRM lookup or <code>resolvePreviewLead</code> minting;
+        over-long paths <code>notFound()</code> so a multi-KB token cannot render
+        synthetic preview HTML/JSON-LD.{" "}
         <code>resolvePreviewLead</code> (slug keyword → category + recommended tier) and the
         demo catalog have direct Vitest coverage in{" "}
-        <code>src/lib/leads/demo-catalog.test.ts</code>. Per-category shell / accent / CTA
+        <code>src/lib/leads/demo-catalog.test.ts</code>; the length gate has{" "}
+        <code>src/lib/leads/preview-page-lead.test.ts</code>. Per-category shell / accent / CTA
         tokens live in <code>src/lib/previews/themes.ts</code> (
         <code>CATEGORY_THEMES</code> + <code>getCategoryTheme</code>) with direct Vitest
         coverage in <code>src/lib/previews/themes.test.ts</code> so a silent label or
@@ -414,9 +421,12 @@ export default function ArchitectureDocPage() {
         <code>DEMO_LEADS</code> before persist/notify — inventable/slug-inferred tokens return{" "}
         <code>404 unknown_lead</code> so skipSuppression cannot spam{" "}
         <code>brand.supportEmail</code>; path slug length hard-rejects over{" "}
-        <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code> (120, shared with preview-open via{" "}
-        <code>isPublicLeadSlugPathLengthOk</code>) before CRM/demo lookup — charset-only
-        validation is not a size bound) beyond{" "}
+        <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code> (120, shared with preview-open{" "}
+        <em>and</em> the sold SSR <code>/preview/[slug]</code> page via{" "}
+        <code>loadPreviewPageLead</code> / <code>isPublicLeadSlugPathLengthOk</code>) before
+        CRM/demo lookup — charset-only validation is not a size bound; the page twin
+        previously minted a synthetic lead for multi-KB paths and still rendered JSON-LD)
+        beyond{" "}
         <code>contact-persist.test.ts</code> helpers, and{" "}
         <code>src/app/api/unsubscribe/route.test.ts</code> locks the CAN-SPAM suppress twin
         (missing-email 400, over-long email 400 before HMAC,{" "}

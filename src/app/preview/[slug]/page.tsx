@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { CategoryPreview } from "@/components/preview/category-preview";
 import { PreviewOpenBeacon } from "@/components/preview/preview-open-beacon";
-import { getCommerceCatalog, getLeadBySlug, listOrders } from "@/lib/db";
+import { getCommerceCatalog, listOrders } from "@/lib/db";
 import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
-import { isCuratedDemoLeadSlug, resolvePreviewLead } from "@/lib/leads/demo-catalog";
+import { isCuratedDemoLeadSlug } from "@/lib/leads/demo-catalog";
+import { loadPreviewPageLead } from "@/lib/leads/preview-page-lead";
 import {
   isLeadPreviewIndexable,
   leadLocalBusinessJsonLd,
@@ -23,14 +25,10 @@ function firstParam(value: string | string[] | undefined): string | null {
   return value ?? null;
 }
 
-async function resolveLead(slug: string) {
-  const dbLead = await getLeadBySlug(slug);
-  return dbLead || resolvePreviewLead(slug);
-}
-
 export async function generateMetadata({ params }: PreviewPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const lead = await resolveLead(slug);
+  const lead = await loadPreviewPageLead(slug);
+  if (!lead) notFound();
   const title = leadMetaTitle(lead);
   const description = leadMetaDescription(lead);
   const url = previewUrl(slug);
@@ -55,7 +53,8 @@ export async function generateMetadata({ params }: PreviewPageProps): Promise<Me
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const lead = await resolveLead(slug);
+  const lead = await loadPreviewPageLead(slug);
+  if (!lead) notFound();
   const jsonLd = leadLocalBusinessJsonLd(lead);
   const src = firstParam(query.src);
   const utmSource = firstParam(query.utm_source);
