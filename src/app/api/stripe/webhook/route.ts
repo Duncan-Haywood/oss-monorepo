@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { markCheckoutSessionComplete, recordLeadPayment } from "@/lib/db";
 import { stripeCustomerIdFromUnknown } from "@/lib/billing/portal";
-import { parseCommerceCheckoutSkuId } from "@/lib/commerce/checkout-fields";
+import {
+  parseCommerceCheckoutSkuId,
+  parseCommerceCheckoutSlug,
+} from "@/lib/commerce/checkout-fields";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 import { getBundle } from "@/lib/pricing/bundles";
@@ -30,15 +33,18 @@ import { getBundle } from "@/lib/pricing/bundles";
  * minted or tampered Checkout Sessions). Unknown tier skips like missing
  * slug/tier (session already marked complete; do not 5xx forever).
  *
- * Commerce Buy now create already 404s when skuId is not in the lead catalog
- * and resolves Price from catalog.stripePriceId (never trusts a client amount);
- * the commerce_sku branch must mirror that membership gate (plus
- * parseCommerceCheckoutSkuId length) AND require session.amount_total (integer
- * cents) === catalogItem.priceCents before insertCommerceOrder / inquiry /
- * client receipt — a truthy skuId alone is not enough (unknown ids must not
- * fall back to "Catalog item"; a mismatched amount must not skew payouts /
- * client receipts). Unknown/over-long skuId or amount mismatch skips like
- * missing skuId (session already marked complete; do not 5xx forever).
+ * Commerce Buy now create already hard-rejects over-long slug via
+ * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
+ * resolves Price from catalog.stripePriceId (never trusts a client amount);
+ * the commerce_sku branch must mirror that slug length gate, catalog
+ * membership gate (plus parseCommerceCheckoutSkuId length), AND require
+ * session.amount_total (integer cents) === catalogItem.priceCents before
+ * insertCommerceOrder / inquiry / client receipt — a truthy slug/skuId alone
+ * is not enough (unknown ids must not fall back to "Catalog item"; a
+ * mismatched amount must not skew payouts / client receipts; an over-long
+ * slug must not burn getLeadBySlug / getCommerceCatalog). Unknown/over-long
+ * slug/skuId or amount mismatch skips like missing skuId (session already
+ * marked complete; do not 5xx forever).
  *
  * When NEXT_PUBLIC_CONVEX_URL is set, fulfillment writes pass requireConvex so
  * a Convex failure does not silently land only in instance-local SQLite
@@ -98,7 +104,7 @@ export async function POST(request: Request) {
       // notify the operator through the existing inquiry inbox instead, the
       // same surface Request-order already uses for unsynced SKUs.
       if (session.metadata?.kind === "commerce_sku") {
-        const orderSlug = session.metadata.slug;
+        const rawOrderSlug = session.metadata.slug;
         const skuId = session.metadata.skuId;
         try {
           await markCheckoutSessionComplete(session.id, WEBHOOK_CONVEX_PRIMARY);
@@ -107,228 +113,236 @@ export async function POST(request: Request) {
           const failure = webhookFulfillmentFailureResponse("checkout_session_mark_complete");
           return NextResponse.json(failure.body, { status: failure.status });
         }
-        if (orderSlug) {
-          // Mirror POST /api/commerce/checkout: hard-reject over-long skuId and
-          // require catalog membership before ledger/side effects (unknown ids
-          // must not fall back to "Catalog item").
-          const parsedSkuId = parseCommerceCheckoutSkuId(skuId);
-          if (!parsedSkuId.ok) {
+        // Mirror POST /api/commerce/checkout: hard-reject over-long / missing
+        // slug before CRM/catalog lookups (never soft-cap opaque keys).
+        const parsedSlug = parseCommerceCheckoutSlug(rawOrderSlug);
+        if (!parsedSlug.ok) {
+          console.warn(
+            parsedSlug.reason === "too_long"
+              ? `webhook: commerce_sku session ${session.id} over-long slug — skipping ledger/inquiry/client receipt`
+              : `webhook: commerce_sku session missing slug metadata ${session.id}`,
+          );
+          break;
+        }
+        const orderSlug = parsedSlug.value;
+        // Mirror POST /api/commerce/checkout: hard-reject over-long skuId and
+        // require catalog membership before ledger/side effects (unknown ids
+        // must not fall back to "Catalog item").
+        const parsedSkuId = parseCommerceCheckoutSkuId(skuId);
+        if (!parsedSkuId.ok) {
+          console.warn(
+            `webhook: commerce_sku session ${session.id} for ${orderSlug} ${
+              parsedSkuId.reason === "too_long" ? "over-long" : "missing"
+            } skuId — skipping ledger/inquiry/client receipt`,
+          );
+          break;
+        }
+        const knownSkuId = parsedSkuId.value;
+
+        try {
+          const {
+            getLeadBySlug,
+            getCommerceCatalog,
+            getCommerceOrderByStripeSessionId,
+            insertClientInquiry,
+            insertCommerceOrder,
+            listCommerceCheckoutInquiriesBySlug,
+            markCommerceOrderClientReceiptSent,
+          } = await import("@/lib/db");
+          const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
+          const {
+            hasCommerceClientReceiptSentMarker,
+            planCommerceWebhookSideEffects,
+          } = await import("@/lib/commerce/side-effect-recovery");
+          const [lead, catalog] = await Promise.all([
+            getLeadBySlug(orderSlug),
+            getCommerceCatalog(orderSlug),
+          ]);
+          const catalogItem = catalog?.items.find((item) => item.id === knownSkuId);
+          if (!catalogItem) {
             console.warn(
-              `webhook: commerce_sku session ${session.id} for ${orderSlug} ${
-                parsedSkuId.reason === "too_long" ? "over-long" : "missing"
-              } skuId — skipping ledger/inquiry/client receipt`,
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} unknown skuId ${knownSkuId} — skipping ledger/inquiry/client receipt`,
             );
             break;
           }
-          const knownSkuId = parsedSkuId.value;
+          // Mirror Buy now create: Price comes from catalog.stripePriceId, so
+          // charged cents must equal catalogItem.priceCents. A Dashboard-minted
+          // or tampered session with a valid skuId but a different Stripe Price
+          // must not skew the Commerce ledger / client receipt.
+          const amountCents = session.amount_total;
+          if (
+            typeof amountCents !== "number" ||
+            !Number.isInteger(amountCents) ||
+            amountCents !== catalogItem.priceCents
+          ) {
+            console.warn(
+              `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} amount_total ${String(
+                amountCents,
+              )} !== catalog priceCents ${catalogItem.priceCents} — skipping ledger/inquiry/client receipt`,
+            );
+            break;
+          }
+          const amountPaidUsd = amountCents / 100;
+          const skuName = catalogItem.name;
+          const businessName = lead?.businessName || orderSlug;
 
+          // Ledger first — commerceOrders is idempotent on stripeSessionId.
+          // Inquiry + client receipt are NOT; recover them on Stripe
+          // redelivery when missing (session id in inquiry message / receipt
+          // sent-marker).
+
+          let alreadyRecorded: boolean;
           try {
-            const {
-              getLeadBySlug,
-              getCommerceCatalog,
-              getCommerceOrderByStripeSessionId,
-              insertClientInquiry,
-              insertCommerceOrder,
-              listCommerceCheckoutInquiriesBySlug,
-              markCommerceOrderClientReceiptSent,
-            } = await import("@/lib/db");
-            const { commerceOrderPaidInquiryMessage } = await import("@/lib/commerce/catalog");
-            const {
-              hasCommerceClientReceiptSentMarker,
-              planCommerceWebhookSideEffects,
-            } = await import("@/lib/commerce/side-effect-recovery");
-            const [lead, catalog] = await Promise.all([
-              getLeadBySlug(orderSlug),
-              getCommerceCatalog(orderSlug),
-            ]);
-            const catalogItem = catalog?.items.find((item) => item.id === knownSkuId);
-            if (!catalogItem) {
-              console.warn(
-                `webhook: commerce_sku session ${session.id} for ${orderSlug} unknown skuId ${knownSkuId} — skipping ledger/inquiry/client receipt`,
-              );
-              break;
-            }
-            // Mirror Buy now create: Price comes from catalog.stripePriceId, so
-            // charged cents must equal catalogItem.priceCents. A Dashboard-minted
-            // or tampered session with a valid skuId but a different Stripe Price
-            // must not skew the Commerce ledger / client receipt.
-            const amountCents = session.amount_total;
-            if (
-              typeof amountCents !== "number" ||
-              !Number.isInteger(amountCents) ||
-              amountCents !== catalogItem.priceCents
-            ) {
-              console.warn(
-                `webhook: commerce_sku session ${session.id} for ${orderSlug} skuId ${knownSkuId} amount_total ${String(
-                  amountCents,
-                )} !== catalog priceCents ${catalogItem.priceCents} — skipping ledger/inquiry/client receipt`,
-              );
-              break;
-            }
-            const amountPaidUsd = amountCents / 100;
-            const skuName = catalogItem.name;
-            const businessName = lead?.businessName || orderSlug;
+            ({ alreadyRecorded } = await insertCommerceOrder(
+              {
+                leadSlug: orderSlug,
+                skuId: knownSkuId,
+                skuName,
+                amountPaidUsd,
+                stripeSessionId: session.id,
+              },
+              WEBHOOK_CONVEX_PRIMARY,
+            ));
+          } catch (ledgerError) {
+            console.error(
+              `Failed to record commerce order ledger for ${orderSlug}`,
+              ledgerError,
+            );
+            const failure = webhookFulfillmentFailureResponse("commerce_order_ledger");
+            return NextResponse.json(failure.body, { status: failure.status });
+          }
 
-            // Ledger first — commerceOrders is idempotent on stripeSessionId.
-            // Inquiry + client receipt are NOT; recover them on Stripe
-            // redelivery when missing (session id in inquiry message / receipt
-            // sent-marker).
+          // alreadyRecorded must NOT early-break: if the first delivery
+          // wrote the ledger then failed before inquiry/receipt, Stripe
+          // retries must still recover those sold-capability notifies.
+          // Inquiry idempotency key = stripeSessionId embedded in the
+          // inquiry message (commerceOrderPaidInquiryMessage). Receipt
+          // idempotency = commerceOrders.clientReceiptEmailSentAt (independent
+          // of inquiry — a successful inbox write must not permanently skip a
+          // failed/suppressed client order-notification email). Use the
+          // uncapped commerce_checkout-only list — listClientInquiriesBySlug's
+          // newest 50/200 page can hide an older Buy now notify once
+          // contact/Request-order volume exceeds the window.
+          const [inquiriesForLead, ledgerOrder] = await Promise.all([
+            listCommerceCheckoutInquiriesBySlug(orderSlug),
+            getCommerceOrderByStripeSessionId(session.id),
+          ]);
+          const sideEffects = planCommerceWebhookSideEffects({
+            alreadyRecorded,
+            inquiriesForLead,
+            stripeSessionId: session.id,
+            clientReceiptAlreadySent:
+              hasCommerceClientReceiptSentMarker(ledgerOrder),
+          });
 
-            let alreadyRecorded: boolean;
+          if (!sideEffects.runInquiry && !sideEffects.runClientReceipt) {
+            console.log(
+              `Commerce order for ${orderSlug} (${session.id}) ${sideEffects.reason} — skipping duplicate inquiry/client receipt`,
+            );
+            break;
+          }
+
+          if (sideEffects.reason === "redelivery_recovery") {
+            console.log(
+              `Commerce order for ${orderSlug} (${session.id}) already on ledger — recovering missing inquiry/client receipt`,
+            );
+          }
+
+          // Inquiry is required after a durable ledger write — ACK 200 here
+          // would prevent Stripe retry, so planCommerceWebhookSideEffects
+          // recovery never runs for a missing inquiry.
+          if (sideEffects.runInquiry) {
             try {
-              ({ alreadyRecorded } = await insertCommerceOrder(
+              await insertClientInquiry(
                 {
                   leadSlug: orderSlug,
-                  skuId: knownSkuId,
-                  skuName,
-                  amountPaidUsd,
-                  stripeSessionId: session.id,
-                },
-                WEBHOOK_CONVEX_PRIMARY,
-              ));
-            } catch (ledgerError) {
-              console.error(
-                `Failed to record commerce order ledger for ${orderSlug}`,
-                ledgerError,
-              );
-              const failure = webhookFulfillmentFailureResponse("commerce_order_ledger");
-              return NextResponse.json(failure.body, { status: failure.status });
-            }
-
-            // alreadyRecorded must NOT early-break: if the first delivery
-            // wrote the ledger then failed before inquiry/receipt, Stripe
-            // retries must still recover those sold-capability notifies.
-            // Inquiry idempotency key = stripeSessionId embedded in the
-            // inquiry message (commerceOrderPaidInquiryMessage). Receipt
-            // idempotency = commerceOrders.clientReceiptEmailSentAt (independent
-            // of inquiry — a successful inbox write must not permanently skip a
-            // failed/suppressed client order-notification email). Use the
-            // uncapped commerce_checkout-only list — listClientInquiriesBySlug's
-            // newest 50/200 page can hide an older Buy now notify once
-            // contact/Request-order volume exceeds the window.
-            const [inquiriesForLead, ledgerOrder] = await Promise.all([
-              listCommerceCheckoutInquiriesBySlug(orderSlug),
-              getCommerceOrderByStripeSessionId(session.id),
-            ]);
-            const sideEffects = planCommerceWebhookSideEffects({
-              alreadyRecorded,
-              inquiriesForLead,
-              stripeSessionId: session.id,
-              clientReceiptAlreadySent:
-                hasCommerceClientReceiptSentMarker(ledgerOrder),
-            });
-
-            if (!sideEffects.runInquiry && !sideEffects.runClientReceipt) {
-              console.log(
-                `Commerce order for ${orderSlug} (${session.id}) ${sideEffects.reason} — skipping duplicate inquiry/client receipt`,
-              );
-              break;
-            }
-
-            if (sideEffects.reason === "redelivery_recovery") {
-              console.log(
-                `Commerce order for ${orderSlug} (${session.id}) already on ledger — recovering missing inquiry/client receipt`,
-              );
-            }
-
-            // Inquiry is required after a durable ledger write — ACK 200 here
-            // would prevent Stripe retry, so planCommerceWebhookSideEffects
-            // recovery never runs for a missing inquiry.
-            if (sideEffects.runInquiry) {
-              try {
-                await insertClientInquiry(
-                  {
-                    leadSlug: orderSlug,
-                    businessName,
-                    email: customerEmail || undefined,
-                    message: commerceOrderPaidInquiryMessage({
-                      skuName,
-                      amountTotalUsd: amountPaidUsd,
-                      stripeSessionId: session.id,
-                      skuId: knownSkuId,
-                    }),
-                    source: "commerce_checkout",
-                  },
-                  WEBHOOK_CONVEX_PRIMARY,
-                );
-              } catch (inquiryError) {
-                console.error(
-                  `Failed to record commerce order inquiry for ${orderSlug}`,
-                  inquiryError,
-                );
-                const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
-                return NextResponse.json(failure.body, { status: failure.status });
-              }
-            }
-
-            // Commerce sold promise: order notification to the local business
-            // (lead.email), not the shopper. Distinct from sendReceiptEmail
-            // (bundle buyer) and from Stripe Connect payouts. Send is best-effort
-            // on the email itself; durable clientReceiptEmailSentAt after
-            // success:true is required (5xx) so Stripe retries can skip already-
-            // delivered mail without coupling receipt recovery to inquiry presence.
-            if (sideEffects.runClientReceipt) {
-              const clientEmail = lead?.email?.trim();
-              if (clientEmail) {
-                try {
-                  const { sendCommerceBuyNowClientReceipt } = await import(
-                    "@/lib/email/resend"
-                  );
-                  const baseUrl =
-                    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-                  const sent = await sendCommerceBuyNowClientReceipt({
-                    to: clientEmail,
-                    businessName,
-                    slug: orderSlug,
+                  businessName,
+                  email: customerEmail || undefined,
+                  message: commerceOrderPaidInquiryMessage({
                     skuName,
                     amountTotalUsd: amountPaidUsd,
                     stripeSessionId: session.id,
-                    customerEmail: customerEmail || undefined,
-                    previewUrl: `${leadPreviewAbsoluteUrl(baseUrl, orderSlug)}#catalog`,
-                  });
-                  if (sent.success) {
-                    try {
-                      await markCommerceOrderClientReceiptSent(
-                        session.id,
-                        new Date().toISOString(),
-                        WEBHOOK_CONVEX_PRIMARY,
-                      );
-                    } catch (markerError) {
-                      console.error(
-                        `Failed to record commerce client receipt sent-marker for ${orderSlug}`,
-                        markerError,
-                      );
-                      const failure = webhookFulfillmentFailureResponse(
-                        "commerce_client_receipt_sent_marker",
-                      );
-                      return NextResponse.json(failure.body, { status: failure.status });
-                    }
-                  } else {
-                    console.error(
-                      `Commerce client receipt not sent for ${orderSlug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
+                    skuId: knownSkuId,
+                  }),
+                  source: "commerce_checkout",
+                },
+                WEBHOOK_CONVEX_PRIMARY,
+              );
+            } catch (inquiryError) {
+              console.error(
+                `Failed to record commerce order inquiry for ${orderSlug}`,
+                inquiryError,
+              );
+              const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
+              return NextResponse.json(failure.body, { status: failure.status });
+            }
+          }
+
+          // Commerce sold promise: order notification to the local business
+          // (lead.email), not the shopper. Distinct from sendReceiptEmail
+          // (bundle buyer) and from Stripe Connect payouts. Send is best-effort
+          // on the email itself; durable clientReceiptEmailSentAt after
+          // success:true is required (5xx) so Stripe retries can skip already-
+          // delivered mail without coupling receipt recovery to inquiry presence.
+          if (sideEffects.runClientReceipt) {
+            const clientEmail = lead?.email?.trim();
+            if (clientEmail) {
+              try {
+                const { sendCommerceBuyNowClientReceipt } = await import(
+                  "@/lib/email/resend"
+                );
+                const baseUrl =
+                  process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+                const sent = await sendCommerceBuyNowClientReceipt({
+                  to: clientEmail,
+                  businessName,
+                  slug: orderSlug,
+                  skuName,
+                  amountTotalUsd: amountPaidUsd,
+                  stripeSessionId: session.id,
+                  customerEmail: customerEmail || undefined,
+                  previewUrl: `${leadPreviewAbsoluteUrl(baseUrl, orderSlug)}#catalog`,
+                });
+                if (sent.success) {
+                  try {
+                    await markCommerceOrderClientReceiptSent(
+                      session.id,
+                      new Date().toISOString(),
+                      WEBHOOK_CONVEX_PRIMARY,
                     );
+                  } catch (markerError) {
+                    console.error(
+                      `Failed to record commerce client receipt sent-marker for ${orderSlug}`,
+                      markerError,
+                    );
+                    const failure = webhookFulfillmentFailureResponse(
+                      "commerce_client_receipt_sent_marker",
+                    );
+                    return NextResponse.json(failure.body, { status: failure.status });
                   }
-                } catch (emailError) {
+                } else {
                   console.error(
-                    `Failed to email commerce client receipt for ${orderSlug}`,
-                    emailError,
+                    `Commerce client receipt not sent for ${orderSlug} (${sent.reason ?? sent.error ?? "unknown"}) — leaving sent-marker unwritten so redelivery retries`,
                   );
                 }
+              } catch (emailError) {
+                console.error(
+                  `Failed to email commerce client receipt for ${orderSlug}`,
+                  emailError,
+                );
               }
             }
-          } catch (e) {
-            // Failures loading lead/catalog/inquiries before a durable inquiry
-            // write must also 5xx — otherwise Stripe never retries and the
-            // sold order-notification path is permanently skipped.
-            console.error(
-              `Failed before commerce order inquiry for ${orderSlug}`,
-              e,
-            );
-            const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
-            return NextResponse.json(failure.body, { status: failure.status });
           }
-        } else {
-          console.warn("webhook: commerce_sku session missing slug metadata", session.id);
+        } catch (e) {
+          // Failures loading lead/catalog/inquiries before a durable inquiry
+          // write must also 5xx — otherwise Stripe never retries and the
+          // sold order-notification path is permanently skipped.
+          console.error(
+            `Failed before commerce order inquiry for ${orderSlug}`,
+            e,
+          );
+          const failure = webhookFulfillmentFailureResponse("commerce_order_inquiry");
+          return NextResponse.json(failure.body, { status: failure.status });
         }
         break;
       }

@@ -684,7 +684,60 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(getLeadBySlug).not.toHaveBeenCalled();
+      expect(getCommerceCatalog).not.toHaveBeenCalled();
       expect(insertCommerceOrder).not.toHaveBeenCalled();
+    });
+
+    it("skips ledger/notify when slug is over MAX_COMMERCE_CHECKOUT_SLUG_LENGTH (create-path twin)", async () => {
+      const { MAX_COMMERCE_CHECKOUT_SLUG_LENGTH } = await import(
+        "@/lib/commerce/checkout-fields"
+      );
+      const overLongSlug = "a".repeat(MAX_COMMERCE_CHECKOUT_SLUG_LENGTH + 1);
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({
+            metadata: { kind: "commerce_sku", slug: overLongSlug, skuId: "sku_1" },
+          }),
+        ),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+      expect(getCommerceCatalog).not.toHaveBeenCalled();
+      expect(insertCommerceOrder).not.toHaveBeenCalled();
+      expect(insertClientInquiry).not.toHaveBeenCalled();
+      expect(sendCommerceBuyNowClientReceipt).not.toHaveBeenCalled();
+    });
+
+    it("trims commerce slug before catalog lookup (same as Buy now create)", async () => {
+      constructEvent.mockReturnValue(
+        completedEvent(
+          commerceSession({
+            metadata: { kind: "commerce_sku", slug: "  demo-cafe  ", skuId: "sku_1" },
+          }),
+        ),
+      );
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe", email: "owner@demo-cafe.test" });
+      getCommerceCatalog.mockResolvedValue({
+        items: [{ id: "sku_1", name: "Coffee Beans", priceCents: 2500 }],
+      });
+      insertCommerceOrder.mockResolvedValue({ alreadyRecorded: false });
+      getCommerceOrderByStripeSessionId.mockResolvedValue({
+        id: "corder_1",
+        stripeSessionId: "cs_test_1",
+      });
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
+      expect(getCommerceCatalog).toHaveBeenCalledWith("demo-cafe");
+      expect(insertCommerceOrder).toHaveBeenCalledWith(
+        expect.objectContaining({ leadSlug: "demo-cafe", skuId: "sku_1" }),
+        { requireConvex: true },
+      );
     });
 
     it("does not email a client receipt when the lead has no email on file", async () => {
