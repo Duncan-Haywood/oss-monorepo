@@ -9485,7 +9485,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — csv-import-text-length-cap rule; empty-backlog rotation marks handoffId/packId/orderId as slug-keyed + CSV body done; next prefers dated clean-audit",
       "NEXT_STEPS: csv-import-text-length-cap done; auth-gated-lead-slug-field-length-cap in_progress (f30c)",
       "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 356)",
-      "Verified: npm test + lint (counts recorded after run)",
+      "Verified: npm test (1507 passed = main@#307's 1501 + 4 helper + 2 action over-long/exact-max) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(356, 357),
   },
