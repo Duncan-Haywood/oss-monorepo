@@ -135,6 +135,33 @@ describe("updateInquiryStatusAction", () => {
     expect(updateClientInquiryStatus).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long inquiryId before status write", async () => {
+    const { updateInquiryStatusAction } = await import("./actions");
+    const { MAX_INQUIRY_ID_LENGTH } = await import("@/lib/inquiries/inquiry-id");
+    const over = `inq_${"a".repeat(MAX_INQUIRY_ID_LENGTH)}`;
+    expect(over.length).toBeGreaterThan(MAX_INQUIRY_ID_LENGTH);
+    expect(await updateInquiryStatusAction(over, "read")).toEqual({
+      success: false,
+      error: "Inquiry id is too long",
+    });
+    expect(updateClientInquiryStatus).not.toHaveBeenCalled();
+  });
+
+  it("accepts exactly MAX_INQUIRY_ID_LENGTH inquiryId (still updates)", async () => {
+    const { updateInquiryStatusAction } = await import("./actions");
+    const { MAX_INQUIRY_ID_LENGTH } = await import("@/lib/inquiries/inquiry-id");
+    const exact = "i".repeat(MAX_INQUIRY_ID_LENGTH);
+    const readInquiry = { ...baseInquiry, id: exact, status: "read" as const };
+    updateClientInquiryStatus.mockResolvedValue(readInquiry);
+    const res = await updateInquiryStatusAction(exact, "read");
+    expect(res).toEqual({ success: true, inquiry: readInquiry });
+    expect(updateClientInquiryStatus).toHaveBeenCalledWith(
+      exact,
+      "read",
+      { requireConvex: true },
+    );
+  });
+
   it("rejects an invalid status", async () => {
     const { updateInquiryStatusAction } = await import("./actions");
     const res = await updateInquiryStatusAction(

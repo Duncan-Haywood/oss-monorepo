@@ -37,6 +37,7 @@ import {
 import { CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
 import { COMMERCE_PAID_OUT_CONVEX_PRIMARY } from "@/lib/commerce/paid-out-persist";
 import { COMMERCE_CATALOG_CONVEX_PRIMARY } from "@/lib/commerce/catalog-persist";
+import { parseInquiryId } from "@/lib/inquiries/inquiry-id";
 import { INQUIRY_REPLY_CONVEX_PRIMARY } from "@/lib/inquiries/reply-persist";
 import { COLD_DISPOSITION_CONVEX_PRIMARY } from "@/lib/leads/cold-disposition-persist";
 import { LEAD_NOTES_CONVEX_PRIMARY } from "@/lib/leads/notes-persist";
@@ -279,8 +280,15 @@ export async function updateInquiryStatusAction(
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!inquiryId) {
-      return { success: false as const, error: "Inquiry id is required" };
+    const parsedId = parseInquiryId(inquiryId);
+    if (!parsedId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedId.reason === "too_long"
+            ? "Inquiry id is too long"
+            : "Inquiry id is required",
+      };
     }
     if (status !== "new" && status !== "read" && status !== "replied" && status !== "archived") {
       return { success: false as const, error: "Invalid status" };
@@ -288,7 +296,7 @@ export async function updateInquiryStatusAction(
     let inquiry;
     try {
       inquiry = await updateClientInquiryStatus(
-        inquiryId,
+        parsedId.inquiryId,
         status,
         INQUIRY_REPLY_CONVEX_PRIMARY,
       );
@@ -328,8 +336,15 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!inquiryId) {
-      return { success: false as const, error: "Inquiry id is required" };
+    const parsedId = parseInquiryId(inquiryId);
+    if (!parsedId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedId.reason === "too_long"
+            ? "Inquiry id is too long"
+            : "Inquiry id is required",
+      };
     }
 
     const normalized = normalizeInquiryReply(replyBody);
@@ -337,7 +352,7 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
       return { success: false as const, error: normalized.error };
     }
 
-    const inquiry = await getClientInquiryById(inquiryId);
+    const inquiry = await getClientInquiryById(parsedId.inquiryId);
     if (!inquiry) {
       return { success: false as const, error: "Inquiry not found" };
     }
@@ -361,7 +376,7 @@ export async function replyToInquiryAction(inquiryId: string, replyBody: string)
     let updated;
     try {
       updated = await recordClientInquiryReply(
-        inquiryId,
+        parsedId.inquiryId,
         normalized.body,
         INQUIRY_REPLY_CONVEX_PRIMARY,
       );

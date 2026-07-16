@@ -263,7 +263,15 @@ export default function ArchitectureDocPage() {
         <code>src/lib/deploy/vercel-project-id.ts</code>) before{" "}
         <code>assignVercelProjectAndProvision</code> — auth is not a payload-size
         throttle, and soft-cap would change the opaque Domains API key (blank still
-        clears a dedicated project). Until{" "}
+        clears a dedicated project). Dashboard{" "}
+        <code>replyToInquiryAction</code> /{" "}
+        <code>updateInquiryStatusAction</code> hard-reject{" "}
+        <code>inquiryId</code> longer than{" "}
+        <code>MAX_INQUIRY_ID_LENGTH</code> (128) via{" "}
+        <code>parseInquiryId</code> (
+        <code>src/lib/inquiries/inquiry-id.ts</code>) before Convex/SQLite or
+        Resend — opaque app-owned <code>inq_*</code> keys must not be soft-capped
+        (same auth-gated id class as Assign-project). Until{" "}
         <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
         dashboards show a pink multi-instance persistence banner via{" "}
         <code>assessConvexUrlEnvReadiness</code> (

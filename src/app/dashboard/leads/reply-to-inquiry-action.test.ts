@@ -150,6 +150,34 @@ describe("replyToInquiryAction", () => {
     expect(getClientInquiryById).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long inquiryId before DB/email work", async () => {
+    const { replyToInquiryAction } = await import("./actions");
+    const { MAX_INQUIRY_ID_LENGTH } = await import("@/lib/inquiries/inquiry-id");
+    const over = `inq_${"a".repeat(MAX_INQUIRY_ID_LENGTH)}`;
+    expect(over.length).toBeGreaterThan(MAX_INQUIRY_ID_LENGTH);
+    expect(await replyToInquiryAction(over, "Thanks for writing.")).toEqual({
+      success: false,
+      error: "Inquiry id is too long",
+    });
+    expect(getClientInquiryById).not.toHaveBeenCalled();
+    expect(recordClientInquiryReply).not.toHaveBeenCalled();
+    expect(sendInquiryReply).not.toHaveBeenCalled();
+  });
+
+  it("accepts exactly MAX_INQUIRY_ID_LENGTH inquiryId (still looks up)", async () => {
+    const { replyToInquiryAction } = await import("./actions");
+    const { MAX_INQUIRY_ID_LENGTH } = await import("@/lib/inquiries/inquiry-id");
+    const exact = "i".repeat(MAX_INQUIRY_ID_LENGTH);
+    getClientInquiryById.mockResolvedValue({ ...openInquiry, id: exact });
+    recordClientInquiryReply.mockResolvedValue({
+      ...repliedInquiry,
+      id: exact,
+    });
+    const res = await replyToInquiryAction(exact, "Thanks for writing.");
+    expect(res.success).toBe(true);
+    expect(getClientInquiryById).toHaveBeenCalledWith(exact);
+  });
+
   it("rejects an empty reply body", async () => {
     const { replyToInquiryAction } = await import("./actions");
     expect(await replyToInquiryAction("inq_demo_1", "   ")).toEqual({
