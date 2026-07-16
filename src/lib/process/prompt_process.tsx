@@ -10146,7 +10146,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — Commerce webhook must mirror Buy now create Price (amount_total === priceCents)",
       "NEXT_STEPS: commerce-webhook-amount-catalog-parity done; commerce-webhook-sku-catalog-gate done (ffdb / #324)",
       "BUSINESS_DECISIONS — require amount↔priceCents on commerce_sku webhook (absolute index 375)",
-      "Verified: npm test + lint (count filled after suite run)",
+      "Verified: npm test (1609 passed = main@#324's 1607 + 2 amount mismatch/null regressions) + lint",
     ],
     // Object-parse: amount parity owns BD[375]; catalog membership=374.
     decisions: BUSINESS_DECISIONS.slice(375, 376),
