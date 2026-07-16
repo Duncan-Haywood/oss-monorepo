@@ -3,6 +3,10 @@
  * See /docs/compliance (document data source) and backlog item csv-lead-import.
  */
 
+import {
+  MAX_CONTACT_EMAIL_LENGTH,
+  MAX_CONTACT_PHONE_LENGTH,
+} from "@/lib/inquiries/contact-fields";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { parseLeadHours } from "./sqlite-row-mapping";
 import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
@@ -39,9 +43,24 @@ export interface CsvImportResult {
 const CATEGORIES = new Set<BusinessCategory>(["restaurant", "salon", "trades", "generic"]);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
-const MAX_BUSINESS_NAME_LENGTH = 200;
-const MAX_DESCRIPTION_LENGTH = 2000;
-const MAX_SERVICES = 100;
+/** Hard-reject — empty/over-long name cannot form a useful lead row. */
+export const MAX_BUSINESS_NAME_LENGTH = 200;
+/** Soft-cap — truncate so one bad cell does not skip the whole row. */
+export const MAX_DESCRIPTION_LENGTH = 2000;
+export const MAX_SERVICES = 100;
+export const MAX_CITY_LENGTH = 100;
+export const MAX_STATE_LENGTH = 40;
+export const MAX_ADDRESS_LENGTH = 300;
+export const MAX_TAGLINE_LENGTH = 200;
+export const MAX_SERVICE_ITEM_LENGTH = 100;
+export const MAX_HOURS_SEGMENT_LENGTH = 120;
+/** Reuse contact-form caps so CRM phone/email cannot diverge by ingest path. */
+export const MAX_CSV_PHONE_LENGTH = MAX_CONTACT_PHONE_LENGTH;
+export const MAX_CSV_EMAIL_LENGTH = MAX_CONTACT_EMAIL_LENGTH;
+
+function softCap(value: string, max: number): string {
+  return value.length > max ? value.slice(0, max) : value;
+}
 
 export const CSV_LEAD_TEMPLATE = [
   CSV_LEAD_HEADERS.join(","),
@@ -303,23 +322,41 @@ export function parseLeadsCsv(
     const services = servicesRaw
       ? servicesRaw
           .split(";")
-          .map((s) => s.trim())
+          .map((s) => softCap(s.trim(), MAX_SERVICE_ITEM_LENGTH))
           .filter(Boolean)
           .slice(0, MAX_SERVICES)
       : ["Custom digital setup"];
 
     const hoursRaw = get("hours");
-    const hours = hoursRaw ? parseLeadHours(hoursRaw) : { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
+    const parsedHours = hoursRaw
+      ? parseLeadHours(hoursRaw)
+      : { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
+    const hours = {
+      weekday: softCap(parsedHours.weekday, MAX_HOURS_SEGMENT_LENGTH),
+      weekend: softCap(parsedHours.weekend, MAX_HOURS_SEGMENT_LENGTH),
+    };
 
-    const city = get("city") || "Denver";
-    const state = get("state") || "CO";
-    const address = get("address") || undefined;
-    const phone = get("phone") || "(555) 000-0000";
-    const email = get("email") || undefined;
-    const tagline = get("tagline") || defaultTagline(category);
+    // Soft-cap remaining columns (description already capped). city/state/
+    // address/phone/email/tagline/hours/service tokens land in public preview,
+    // JSON-LD, and outreach — unbounded CSV cells are an abuse + payload risk
+    // even though import is operator-gated (csv-import-remaining-field-length-caps).
+    const city = softCap(get("city") || "Denver", MAX_CITY_LENGTH);
+    const state = softCap(get("state") || "CO", MAX_STATE_LENGTH);
+    const addressRaw = get("address");
+    const address = addressRaw
+      ? softCap(addressRaw, MAX_ADDRESS_LENGTH)
+      : undefined;
+    const phone = softCap(get("phone") || "(555) 000-0000", MAX_CSV_PHONE_LENGTH);
+    const emailRaw = get("email");
+    const email = emailRaw ? softCap(emailRaw, MAX_CSV_EMAIL_LENGTH) : undefined;
+    const taglineRaw = get("tagline");
+    const tagline = softCap(
+      taglineRaw || defaultTagline(category),
+      MAX_TAGLINE_LENGTH,
+    );
     const descriptionRaw = get("description");
     const description = descriptionRaw
-      ? descriptionRaw.slice(0, MAX_DESCRIPTION_LENGTH)
+      ? softCap(descriptionRaw, MAX_DESCRIPTION_LENGTH)
       : `Preview site generated for ${businessName}. Claim it to connect your domain and go live.`;
     const recommendedTier = parseTier(get("recommendedTier"), category);
 
