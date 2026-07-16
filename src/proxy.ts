@@ -5,6 +5,7 @@ import {
   getPassword,
   verifyOperatorSessionToken,
 } from "@/lib/auth/operator";
+import { safeNextPath } from "@/lib/auth/safe-next-path";
 import {
   extractPreviewSubdomainSlug,
   isPlatformHost,
@@ -33,9 +34,14 @@ function dashboardAuthGate(request: NextRequest, pathname: string): NextResponse
     return NextResponse.next();
   }
 
+  // Bound next= before minting Location (login-next-path twin). Also drop
+  // inherited query/hash from the protected URL so a multi-KB probe cannot
+  // echo into the redirect (proxy-login-redirect-next-bound).
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = "/dashboard/login";
-  loginUrl.searchParams.set("next", pathname);
+  loginUrl.search = "";
+  loginUrl.hash = "";
+  loginUrl.searchParams.set("next", safeNextPath(pathname));
   return NextResponse.redirect(loginUrl);
 }
 

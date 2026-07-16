@@ -99,11 +99,16 @@ export default function ArchitectureDocPage() {
         <code>safeNextPath</code> falls back to <code>/dashboard</code> when the client-supplied{" "}
         <code>next</code> path exceeds <code>MAX_SAFE_NEXT_PATH_LENGTH</code> (2048; same optional
         redirect length policy as billing-portal <code>returnUrl</code> — soft-cap would change
-        the destination; hard-reject would strand login) —{" "}
+        the destination; hard-reject would strand login) — and{" "}
+        <code>src/proxy.ts</code> dashboardAuthGate must call <code>safeNextPath(pathname)</code>{" "}
+        before minting the login redirect <code>Location</code> (and clear inherited query/hash)
+        so a multi-KB <code>/dashboard/…</code> probe cannot echo into the redirect header even
+        though the login page would later fall back —{" "}
         <code>src/proxy.ts</code> dashboardAuthGate also verifies via exported{" "}
         <code>getPassword()</code> (never raw <code>process.env</code>) so a secret-manager
         paste cannot accept login then infinite-redirect at the Host gate — and{" "}
-        <code>proxy.test.ts</code> Host gate + trim-parity cases. Until the password is a
+        <code>proxy.test.ts</code> Host gate + trim-parity + over-long next / inherited-query
+        cases. Until the password is a
         non-placeholder secret,{" "}
         <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard

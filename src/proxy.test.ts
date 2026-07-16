@@ -61,6 +61,34 @@ describe("src/proxy.ts orchestration", () => {
     );
   });
 
+  it("falls back next=/dashboard when the protected pathname is over-long", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+    const { MAX_SAFE_NEXT_PATH_LENGTH } = await import("@/lib/auth/safe-next-path");
+    const { proxy } = await import("./proxy");
+    const overLongPath =
+      "/dashboard/" + "a".repeat(MAX_SAFE_NEXT_PATH_LENGTH);
+    expect(overLongPath.length).toBeGreaterThan(MAX_SAFE_NEXT_PATH_LENGTH);
+    const response = await proxy(request(`http://localhost${overLongPath}`));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost/dashboard/login?next=%2Fdashboard",
+    );
+  });
+
+  it("drops inherited query params from the login redirect Location", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request("http://localhost/dashboard/leads?probe=" + "x".repeat(4000)),
+    );
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location");
+    expect(location).toBe(
+      "http://localhost/dashboard/login?next=%2Fdashboard%2Fleads",
+    );
+    expect(location).not.toContain("probe=");
+  });
+
   it("allows /dashboard when a valid operator session cookie is present", async () => {
     process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
     const token = createOperatorSessionToken(PASSWORD);
