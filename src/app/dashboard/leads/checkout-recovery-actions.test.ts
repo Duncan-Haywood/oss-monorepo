@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } from "@/lib/billing/checkout-session-id";
 
 /**
  * Action-level orchestration for abandoned-checkout recovery:
  * sendCheckoutRecoveryAction (bundle) + sendCommerceCheckoutRecoveryAction
  * (Buy now). session-persist + abandoned-recovery helper suites are not
- * enough — they do not lock auth, kind mismatch, missing email, persist-
- * then-notify (mark before Resend), or ConvexPrimaryWriteError skip-send.
+ * enough — they do not lock auth, kind mismatch, missing email, over-long
+ * session id, persist-then-notify (mark before Resend), or
+ * ConvexPrimaryWriteError skip-send.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -160,6 +162,19 @@ describe("sendCheckoutRecoveryAction", () => {
     expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects an over-long session id before listing sessions", async () => {
+    const over = `cs_test_${"a".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH)}`;
+    expect(over.length).toBeGreaterThan(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH);
+    const { sendCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCheckoutRecoveryAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Checkout session id is too long",
+    });
+    expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
+    expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
+  });
+
   it("rejects a missing / already-completed session", async () => {
     listOpenCheckoutSessions.mockResolvedValue([]);
     const { sendCheckoutRecoveryAction } = await import("./actions");
@@ -287,6 +302,19 @@ describe("sendCommerceCheckoutRecoveryAction", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects an over-long session id before listing sessions", async () => {
+    const over = `cs_test_${"a".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH)}`;
+    expect(over.length).toBeGreaterThan(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH);
+    const { sendCommerceCheckoutRecoveryAction } = await import("./actions");
+    const res = await sendCommerceCheckoutRecoveryAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Checkout session id is too long",
+    });
+    expect(listOpenCheckoutSessions).not.toHaveBeenCalled();
+    expect(recordCheckoutRecoverySent).not.toHaveBeenCalled();
   });
 
   it("rejects bundle sessions (kind mismatch)", async () => {

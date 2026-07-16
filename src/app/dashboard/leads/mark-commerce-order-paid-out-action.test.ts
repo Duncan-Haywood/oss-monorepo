@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } from "@/lib/billing/checkout-session-id";
 
 /**
  * Action-level orchestration for markCommerceOrderPaidOutAction — the operator
@@ -7,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  *
  * paid-out-persist.test.ts + orders.test.ts cover the requireConvex constant
  * and unpaid math. This suite locks the dashboard action glue: requireOperatorAuth,
- * missing/empty session id, not-found, already-paid-out guard,
+ * missing/empty/over-long session id, not-found, already-paid-out guard,
  * COMMERCE_PAID_OUT_CONVEX_PRIMARY persist, ConvexPrimaryWriteError fail-closed
  * (no revalidate), and success revalidate.
  */
@@ -120,6 +121,36 @@ describe("markCommerceOrderPaidOutAction", () => {
       error: "Checkout session id is required",
     });
     expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects an over-long session id before lookup", async () => {
+    const over = `cs_test_${"a".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH)}`;
+    expect(over.length).toBeGreaterThan(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH);
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Checkout session id is too long",
+    });
+    expect(getCommerceOrderByStripeSessionId).not.toHaveBeenCalled();
+    expect(markCommerceOrderPaidOut).not.toHaveBeenCalled();
+  });
+
+  it("accepts an exact-max-length session id for lookup", async () => {
+    const exact = "c".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH);
+    getCommerceOrderByStripeSessionId.mockResolvedValue({
+      ...unpaidOrder,
+      stripeSessionId: exact,
+    });
+    const { markCommerceOrderPaidOutAction } = await import("./actions");
+    const res = await markCommerceOrderPaidOutAction(exact);
+    expect(res.success).toBe(true);
+    expect(getCommerceOrderByStripeSessionId).toHaveBeenCalledWith(exact);
+    expect(markCommerceOrderPaidOut).toHaveBeenCalledWith(
+      exact,
+      expect.any(String),
+      { requireConvex: true },
+    );
   });
 
   it("rejects a missing commerce order", async () => {

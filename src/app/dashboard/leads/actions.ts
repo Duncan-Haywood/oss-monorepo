@@ -98,6 +98,7 @@ import {
 } from "@/lib/email/resend";
 import { nextFollowUpStep } from "@/lib/email/outreach-followups";
 import { createBillingPortalForLead } from "@/lib/billing/create-portal-session";
+import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
 import {
   resolveStripeRedirectAppUrl,
   resolveTrustedAppUrl,
@@ -845,12 +846,20 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!stripeSessionId) {
-      return { success: false as const, error: "Checkout session id is required" };
+    const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
+    if (!parsedSessionId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSessionId.reason === "too_long"
+            ? "Checkout session id is too long"
+            : "Checkout session id is required",
+      };
     }
+    const sessionId = parsedSessionId.sessionId;
 
     const openSessions = await listOpenCheckoutSessions();
-    const session = openSessions.find((s) => s.stripeSessionId === stripeSessionId);
+    const session = openSessions.find((s) => s.stripeSessionId === sessionId);
     if (!session) {
       return { success: false as const, error: "Checkout session not found or already completed" };
     }
@@ -874,7 +883,7 @@ export async function sendCheckoutRecoveryAction(stripeSessionId: string) {
     // SQLite-only recoverySentAt write.
     try {
       await recordCheckoutRecoverySent(
-        stripeSessionId,
+        sessionId,
         new Date().toISOString(),
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
       );
@@ -924,12 +933,20 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!stripeSessionId) {
-      return { success: false as const, error: "Checkout session id is required" };
+    const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
+    if (!parsedSessionId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSessionId.reason === "too_long"
+            ? "Checkout session id is too long"
+            : "Checkout session id is required",
+      };
     }
+    const sessionId = parsedSessionId.sessionId;
 
     const openSessions = await listOpenCheckoutSessions();
-    const session = openSessions.find((s) => s.stripeSessionId === stripeSessionId);
+    const session = openSessions.find((s) => s.stripeSessionId === sessionId);
     if (!session) {
       return { success: false as const, error: "Checkout session not found or already completed" };
     }
@@ -956,7 +973,7 @@ export async function sendCommerceCheckoutRecoveryAction(stripeSessionId: string
 
     try {
       await recordCheckoutRecoverySent(
-        stripeSessionId,
+        sessionId,
         new Date().toISOString(),
         CHECKOUT_RECOVERY_SENT_CONVEX_PRIMARY,
       );
@@ -1013,11 +1030,19 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     if (!auth.ok) {
       return { success: false as const, error: auth.error };
     }
-    if (!stripeSessionId) {
-      return { success: false as const, error: "Checkout session id is required" };
+    const parsedSessionId = parseCheckoutSessionId(stripeSessionId);
+    if (!parsedSessionId.ok) {
+      return {
+        success: false as const,
+        error:
+          parsedSessionId.reason === "too_long"
+            ? "Checkout session id is too long"
+            : "Checkout session id is required",
+      };
     }
+    const sessionId = parsedSessionId.sessionId;
 
-    const order = await getCommerceOrderByStripeSessionId(stripeSessionId);
+    const order = await getCommerceOrderByStripeSessionId(sessionId);
     if (!order) {
       return { success: false as const, error: "Commerce order not found" };
     }
@@ -1028,7 +1053,7 @@ export async function markCommerceOrderPaidOutAction(stripeSessionId: string) {
     const paidOutAt = new Date().toISOString();
     try {
       await markCommerceOrderPaidOut(
-        stripeSessionId,
+        sessionId,
         paidOutAt,
         COMMERCE_PAID_OUT_CONVEX_PRIMARY,
       );

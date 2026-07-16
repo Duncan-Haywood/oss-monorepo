@@ -1097,7 +1097,16 @@ source). The same digest also lists email-critical leads with no usable address 
         their share — paid-out lines drop out of the panel&apos;s owed total, the pipeline-health
         card, and the digest{" "}
         (<code>unpaidTotalUsd</code>/<code>unpaidCount</code>) so the same amount can never look
-        owed twice. Pipeline-health and daily-digest tests guard against a future re-wire to a
+        owed twice. Dashboard{" "}
+        <code>markCommerceOrderPaidOutAction</code> (and the abandoned-recovery twins{" "}
+        <code>sendCheckoutRecoveryAction</code> /{" "}
+        <code>sendCommerceCheckoutRecoveryAction</code>) hard-reject{" "}
+        <code>stripeSessionId</code> longer than{" "}
+        <code>MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH</code> (255) via shared{" "}
+        <code>parseCheckoutSessionId</code> before any Convex/SQLite lookup —{" "}
+        <code>requireOperatorAuth</code> is not a payload-size throttle (same class as{" "}
+        Assign-project <code>vercelProjectId</code> and the public billing-portal / success-page
+        sessionId sinks). Pipeline-health and daily-digest tests guard against a future re-wire to a
         newest-N <code>listCommerceOrders</code> page (same truncation class as unreplied
         inquiries). The same rollup also appears as a <strong>Commerce payouts owed</strong>{" "}
         section on the operator daily digest so pass-through liability is visible without opening

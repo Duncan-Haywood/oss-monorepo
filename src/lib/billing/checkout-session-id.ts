@@ -1,11 +1,17 @@
 /**
- * Bounds for client-supplied Stripe Checkout Session ids on public surfaces.
+ * Bounds for client-supplied Stripe Checkout Session ids.
  *
- * Soft-cap is wrong here: truncating an opaque id guarantees a Stripe miss
- * and still burns a retrieve call. Hard-reject over-length before any SDK
- * call so public callers cannot force multi-KB garbage into
- * checkout.sessions.retrieve (POST /api/stripe/billing-portal body.sessionId
- * and GET /checkout/success?session_id= share this helper).
+ * Soft-cap is wrong here: truncating an opaque id guarantees a miss and
+ * still burns lookup/SDK work. Hard-reject over-length before any
+ * Stripe retrieve or Convex/SQLite keyed lookup.
+ *
+ * Shared by:
+ * - Public: POST /api/stripe/billing-portal body.sessionId
+ * - Public: GET /checkout/success?session_id=
+ * - Auth-gated dashboard: markCommerceOrderPaidOutAction,
+ *   sendCheckoutRecoveryAction, sendCommerceCheckoutRecoveryAction
+ *   (requireOperatorAuth is not a payload-size throttle — same class as
+ *   assignVercelProjectAction / parseVercelProjectId)
  *
  * 255 matches Stripe's common object-id ceiling; real cs_test_/cs_live_
  * ids are far shorter.
@@ -18,7 +24,7 @@ export type ParseCheckoutSessionIdResult =
   | { ok: false; reason: "missing" | "too_long" };
 
 /**
- * Trim and validate a public body/query Checkout Session id.
+ * Trim and validate a Checkout Session id (public body/query or dashboard action arg).
  * Empty/whitespace → missing; over MAX → too_long (never truncate).
  */
 export function parseCheckoutSessionId(
