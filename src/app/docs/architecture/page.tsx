@@ -255,7 +255,15 @@ export default function ArchitectureDocPage() {
         same dashboards show an indigo shared-project banner via{" "}
         <code>assessVercelProjectIdEnvReadiness</code> (
         <code>src/lib/deploy/vercel-project-id-env-readiness.ts</code>) — Domains API still skips
-        unless every handoff gets Assign project. Until{" "}
+        unless every handoff gets Assign project. Dashboard{" "}
+        <code>assignVercelProjectAction</code> hard-rejects{" "}
+        <code>vercelProjectId</code> longer than{" "}
+        <code>MAX_VERCEL_PROJECT_ID_LENGTH</code> (100) via{" "}
+        <code>parseVercelProjectId</code> (
+        <code>src/lib/deploy/vercel-project-id.ts</code>) before{" "}
+        <code>assignVercelProjectAndProvision</code> — auth is not a payload-size
+        throttle, and soft-cap would change the opaque Domains API key (blank still
+        clears a dedicated project). Until{" "}
         <code>NEXT_PUBLIC_CONVEX_URL</code> is a non-placeholder deployment URL, the same
         dashboards show a pink multi-instance persistence banner via{" "}
         <code>assessConvexUrlEnvReadiness</code> (

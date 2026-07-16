@@ -82,6 +82,7 @@ import {
   customDomainAlreadyOwnedMessage,
   parseOperatorCustomDomain,
 } from "@/lib/deploy/custom-domain-routing";
+import { parseVercelProjectId } from "@/lib/deploy/vercel-project-id";
 import type { ClientInquiryStatus } from "@/lib/inquiries/types";
 import {
   sendOutreachEmail,
@@ -177,10 +178,15 @@ export async function assignVercelProjectAction(slug: string, vercelProjectId: s
     if (!slug) {
       return { success: false as const, error: "Slug is required" };
     }
-    const trimmed = vercelProjectId.trim();
+    // Hard-reject over-long opaque project ids before Domains API / Convex
+    // write — auth is not a payload-size throttle; soft-cap would change the key.
+    const parsed = parseVercelProjectId(vercelProjectId);
+    if (parsed === null && vercelProjectId.trim().length > 0) {
+      return { success: false as const, error: "Vercel project ID is too long" };
+    }
     let handoff;
     try {
-      handoff = await assignVercelProjectAndProvision(slug, trimmed || null);
+      handoff = await assignVercelProjectAndProvision(slug, parsed);
     } catch (error) {
       if (error instanceof ConvexPrimaryWriteError) {
         return {
