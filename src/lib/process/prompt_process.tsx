@@ -2047,6 +2047,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 5 — Production deploy",
     owner: "cursor/business-process-evolution-f515",
   },
+  {
+    id: "marketing-generate-content-types-size-cap",
+    summary:
+      "Empty-backlog after PR #286 (contact-form-require-known-lead). AGENT_PROTOCOL empty-backlog rotation named marketing/generate contentTypes size next. POST /api/marketing/generate validates contentTypes membership but not array length — a rate-limited (20/min) open-demo or compromised-session caller can POST thousands of valid-type duplicates and burn Anthropic quota / OOM the stub map (generators map 1:1 over contentTypes). Cap contentTypes at MONTHLY_MARKETING_PACK_TYPES.length (sold pack ceiling), hard-reject oversize leadId, and soft-cap business.services + string fields (align create-fields MAX_*) before generate.",
+    status: "in_progress",
+    phase: "Phase 2 — Outreach + platform voice",
+    owner: "cursor/business-process-evolution-d018",
+  },
 ];
 
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
