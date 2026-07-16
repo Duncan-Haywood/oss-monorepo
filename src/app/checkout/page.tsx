@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getLeadBySlug } from "@/lib/db";
+import { loadCheckoutPrefillLead } from "@/lib/checkout/prefill-slug";
 import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { BundleTier } from "@/lib/pricing/bundles";
 import { CheckoutForm, type CheckoutPrefill } from "./checkout-form";
@@ -22,11 +22,11 @@ function parseTier(value: string | undefined): BundleTier | undefined {
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const params = await searchParams;
-  const slug = params.slug?.trim() || undefined;
-  const lead = slug ? await getLeadBySlug(slug) : null;
+  // Optional slug: over-long treated as missing (fall-back), never strands checkout.
+  const { slug, lead } = await loadCheckoutPrefillLead(params.slug);
 
   const prefill: CheckoutPrefill = {
-    slug: lead?.slug ?? slug,
+    slug,
     businessName: lead?.businessName,
     email: lead?.email,
     recommendedTier: lead?.recommendedTier,

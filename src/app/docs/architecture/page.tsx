@@ -486,8 +486,14 @@ export default function ArchitectureDocPage() {
         Both create routes soft-cap optional <code>customerEmail</code> via shared{" "}
         <code>normalizeCheckoutCustomerEmail</code> (
         <code>MAX_CONTACT_EMAIL_LENGTH</code>) before Stripe session create and session
-        tracking — rate limits blunt request count, not payload size. Mark-complete on the
-        webhook already used the same fail-closed policy. Homepage /
+        tracking — rate limits blunt request count, not payload size. The sold SSR{" "}
+        <code>/checkout?slug=</code> page bounds optional query slug length via{" "}
+        <code>loadCheckoutPrefillLead</code> / <code>resolveCheckoutPrefillSlug</code> (
+        same <code>MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH</code>=120 as contact / preview-open /{" "}
+        <code>/preview/[slug]</code>) — over-long is treated as missing (un-prefilling
+        checkout) so a multi-KB probe cannot burn <code>getLeadBySlug</code> or strand a
+        buyer; Vitest in <code>src/lib/checkout/prefill-slug.test.ts</code>. Mark-complete on
+        the webhook already used the same fail-closed policy. Homepage /
         pricing CTAs that omit a lead slug mint a stable{" "}
         <code>organic-*</code> attribution slug at session create (
         <code>resolveBundleCheckoutLeadSlug</code>) so webhook fulfillment, payment stubs, and

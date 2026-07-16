@@ -23,10 +23,13 @@ import { sanitizeLeadSlug } from "./slug";
  * Public dynamic-route slug path params (`/api/contact/[slug]`,
  * `/api/preview/[slug]/open`, and the sold SSR `/preview/[slug]` page via
  * loadPreviewPageLead) must hard-reject over this length before any CRM/demo
- * lookup. Create-path minting caps at MAX_LEAD_SLUG_LENGTH (63), but legacy /
- * pre-sanitize rows and percent-decoded path tokens can be longer — 120
- * matches the historical preview-open bound and still blocks multi-KB path
- * abuse. Soft-cap/truncate would change the lookup key.
+ * lookup. Optional `/checkout?slug=` prefill uses the same ceiling via
+ * resolveCheckoutPrefillSlug / loadCheckoutPrefillLead but falls back to
+ * missing (un-prefilling checkout) instead of 400/notFound — hard-reject would
+ * strand a buyer. Create-path minting caps at MAX_LEAD_SLUG_LENGTH (63), but
+ * legacy / pre-sanitize rows and percent-decoded path/query tokens can be
+ * longer — 120 matches the historical preview-open bound and still blocks
+ * multi-KB abuse. Soft-cap/truncate would change the lookup key.
  */
 export const MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH = 120;
 
