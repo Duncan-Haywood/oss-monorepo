@@ -83,7 +83,8 @@ export default function MarketingAutomationDocPage() {
         AI-packs-on-stub banner on the operator dashboard so Stub* template quality is not
         mistaken for sold AI copy. Ad-hoc{" "}
         <code>POST /api/marketing/generate</code> keeps route-level Vitest coverage for operator
-        auth, client-IP rate-limit (429), and request validation (<code>route.test.ts</code>) —
+        auth, client-IP rate-limit (429), contentTypes size cap (monthly pack ceiling), business
+        soft-caps, and request validation (<code>route.test.ts</code>) —
         prefer the dashboard pack action for persisted fulfillment. Action-level Vitest in{" "}
         <code>generate-marketing-pack-action.test.ts</code> locks auth, eligibility,{" "}
         <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, and Convex fail-closed on that

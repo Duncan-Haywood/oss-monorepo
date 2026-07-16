@@ -832,7 +832,8 @@ source). The same digest also lists email-critical leads with no usable address 
         Growth/Complete order; packs persist one row per lead per UTC month (SQLite + Convex{" "}
         <code>marketingPacks</code>). Ad-hoc operator generation remains available at{" "}
         <code>POST /api/marketing/generate</code> (auth + client-IP rate-limit + validation +
-        stub-vs-LLM messaging covered by{" "}
+        contentTypes ≤ monthly pack ceiling + soft-capped business context + stub-vs-LLM
+        messaging covered by{" "}
         <code>src/app/api/marketing/generate/route.test.ts</code>) — prefer the
         dashboard pack action for persisted fulfillment. Action-level Vitest in{" "}
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,

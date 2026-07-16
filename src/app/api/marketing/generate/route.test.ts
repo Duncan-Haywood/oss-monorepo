@@ -8,7 +8,8 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  *
  * generators.test.ts locks Stub/Anthropic paths; this suite locks the
  * route's auth gate, client-IP rate-limit 429, JSON/contentTypes/
- * automationLevel/business validation, and stub-vs-LLM response messaging.
+ * contentTypes size cap / automationLevel/business validation, and
+ * stub-vs-LLM response messaging.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -150,6 +151,77 @@ describe("POST /api/marketing/generate", () => {
     expect(await res.json()).toEqual({
       error: "contentTypes must be a non-empty array",
     });
+  });
+
+  it("returns 400 when contentTypes exceeds the monthly pack ceiling", async () => {
+    const { POST } = await import("./route");
+    const { MAX_MARKETING_CONTENT_TYPES_PER_REQUEST } = await import(
+      "@/lib/marketing/generate-limits"
+    );
+    const oversized = Array.from(
+      { length: MAX_MARKETING_CONTENT_TYPES_PER_REQUEST + 1 },
+      () => "gbp_post",
+    );
+    const res = await POST(
+      generateRequest({ ...validBody, contentTypes: oversized }),
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: `contentTypes must have at most ${MAX_MARKETING_CONTENT_TYPES_PER_REQUEST} entries (monthly pack ceiling)`,
+      max: MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when leadId exceeds the length bound", async () => {
+    const { POST } = await import("./route");
+    const { MAX_MARKETING_GENERATE_LEAD_ID_LENGTH } = await import(
+      "@/lib/marketing/generate-limits"
+    );
+    const res = await POST(
+      generateRequest({
+        ...validBody,
+        leadId: "a".repeat(MAX_MARKETING_GENERATE_LEAD_ID_LENGTH + 1),
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: `leadId must be ${MAX_MARKETING_GENERATE_LEAD_ID_LENGTH} characters or fewer`,
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("soft-caps oversize business fields before calling the generator", async () => {
+    const { POST } = await import("./route");
+    const { MAX_BUSINESS_NAME_LENGTH, MAX_SERVICES } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const res = await POST(
+      generateRequest({
+        ...validBody,
+        business: {
+          ...validBody.business,
+          businessName: "Z".repeat(MAX_BUSINESS_NAME_LENGTH + 25),
+          services: Array.from(
+            { length: MAX_SERVICES + 8 },
+            (_, i) => `svc-${i}`,
+          ),
+        },
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        business: expect.objectContaining({
+          businessName: "Z".repeat(MAX_BUSINESS_NAME_LENGTH),
+          services: expect.any(Array),
+        }),
+      }),
+    );
+    const passed = generate.mock.calls[0]?.[0] as {
+      business: { services: string[] };
+    };
+    expect(passed.business.services).toHaveLength(MAX_SERVICES);
   });
 
   it("returns 400 for invalid contentTypes", async () => {
