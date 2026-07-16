@@ -144,6 +144,7 @@ export const AGENT_PROTOCOL = [
   "After robots/sitemap consent gating ships, also gate LocalBusiness JSON-LD on the same isLeadPreviewIndexable predicate (preview-jsonld-indexable-only / leadPreviewJsonLdIfIndexable) before declaring the public marketing OUTPUT axis closed. Next empty-backlog prefers a dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual — reject workNextCount and dead orders.createOrder / getByStripeSessionId API-map orphans (order writes go through leads.markLeadPaid).",
   "After a public opaque-id hard-reject ships (e.g. Buy now skuId), immediately audit the auth-gated write twin that mints/persists the same key — catalog save was still slice(0,64) after checkout hard-rejected (commerce-catalog-skuId-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
   "After preview-open body.openedAt falls back on over-length, also bound residual optional attribution query params (src / utm_source) via resolvePreviewOpenAttrParam before shouldRecordPreviewOpen — over-long → missing (preview-open-src-utm-field-length-cap). After the API route bounds those query params, also bound them on GET /preview/[slug] before PreviewOpenBeacon (and inside the beacon path builder) — trackByStage still re-emits uncapped searchParams onto the beacon fetch URL otherwise (preview-page-src-utm-field-length-cap). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold residual — reject invent-optional-aggregate.",
+  "After a dated clean pass on Convex API map + durable-marker-after-unchecked-await, lock the map with Vitest (src/lib/db/convex-api-map-audit.ts — scans convex/*.ts public query/mutation exports vs the static `const api` map in db.ts, allowlisting only deliberate orphans orders.createOrder / orders.getByStripeSessionId) rather than re-prose the same axes on the next empty-backlog run. A missing registration is a silent multi-instance split-brain; a failing test catches it before merge. Next empty-backlog after clean-audit-2026-07-16-convex-map-marker-await: prefer (1) a stuck CLI remote with a complete sold/security body and no open PR, (2) the next sold hot-path residual, (3) escapeHtmlForEmail / webhook idempotency / uncapped-list axes not dated this week — not a 3rd identical map/marker prose audit. Reject invent-optional-aggregate / workNextCount / registering the deliberate orders.* orphans.",
 ] as const;
 
 /**
@@ -2357,6 +2358,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2607",
+  },
+  {
+    id: "clean-audit-2026-07-16-convex-map-marker-await",
+    summary:
+      "Empty-backlog after PR #319 (preview-page-src-utm-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged. Fresh audit of Convex API map + durable-marker-after-unchecked-await + public optional query/body + auth-gated free-text + SSR page twins + pack deliver/read soft-caps came back clean. Document the dated clean pass and lock the Convex API map with a durable Vitest so a missing registration cannot silently split-brain again.",
+    status: "done",
+    phase: "Phase 0 — Process",
+    owner: "cursor/prompt-process-evolution-6ba0",
   },
 
 ];
@@ -4954,6 +4963,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Bound GET /preview/[slug] src/utm_source searchParams via resolvePreviewOpenAttrParam before PreviewOpenBeacon (and buildPreviewOpenBeaconPath inside the beacon) — rather than leave the SSR page as an uncapped twin of the API route bound in PR #318, invent an optional aggregate, or jump to a dated clean-audit while trackByStage still re-emits multi-KB attribution onto the beacon fetch URL.",
     rationale:
       "Empty-backlog after PR #318 (preview-open-src-utm-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged. Fresh public-write residual: API route bounds src/utm_source, but the sold SSR preview page still passed raw searchParams into PreviewOpenBeacon — when trackByStage (outreach_sent/discovery_call), the client set uncapped values on URLSearchParams before fetch. Process improvement: after an API route bounds optional query params, immediately audit the SSR page twin that forwards those params into a client beacon/fetch. Also restored absolute BUSINESS_DECISIONS ownership drifted by the #318 fold (catalog SKU=366, API src-utm=367; slice(368,369) was past length). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Lock the static Convex API map with Vitest (convex-api-map-audit) after a dated clean pass on map completeness + marker-after-unchecked-await — rather than re-prose the same clean axes, invent an optional aggregate, or register the deliberate dead orders.createOrder / orders.getByStripeSessionId orphans.",
+    rationale:
+      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged. Fresh audit confirmed Convex API map, send-success markers, public optional query/body caps, auth-gated free-text soft-caps, SSR page twins, and pack deliver/read soft-caps all clean. A missing map registration is a silent multi-instance split-brain (call throws → SQLite fallback while list* reads Convex-first); a durable Vitest that diffs convex/*.ts public exports vs db.ts `const api` catches that class before merge. Process improvement: after documenting a clean map/marker pass, ship the regression test instead of a third identical prose audit. Next empty-backlog: stuck CLI fold / sold residual / escapeHtml·webhook·uncapped axes not dated this week. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
 
 ];
@@ -9939,6 +9955,22 @@ export const ITERATIONS: ProcessIteration[] = [
       "Verified: npm test (1571 passed on feature body) + slice ownership clean for BD[339]–BD[369]",
     ],
     decisions: BUSINESS_DECISIONS.slice(369, 370),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-6ba0",
+    summary:
+      "Empty-backlog after PR #319 (preview-page-src-utm-field-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Stuck CLI remotes were clean-audit-only / already-merged (use-server, password-trim, vercel-id, digest-age already on main under different SHAs). Fresh audit of Convex API map + durable-marker-after-unchecked-await + public optional query/body + auth-gated free-text + SSR page twins + pack deliver/read soft-caps came back clean. Shipped durable Vitest (convex-api-map-audit) that diffs convex/*.ts public query/mutation exports vs db.ts static `const api` map (allowlisting only deliberate orders.createOrder / getByStripeSessionId orphans) so a missing registration cannot silently split-brain again. Process now prefers that lock over a 3rd identical map/marker prose audit.",
+    shipped: [
+      "src/lib/db/convex-api-map-audit.ts — listPublicConvexExports / listRegisteredConvexApiPaths / auditConvexApiMap + DELIBERATE_CONVEX_API_ORPHANS",
+      "src/lib/db/convex-api-map-audit.test.ts — unit + repo-level map completeness regressions (7 tests)",
+      "Docs: architecture.tsx notes durable Convex API map Vitest beside server-only db testability",
+      "AGENT_PROTOCOL — after dated map/marker clean pass, lock with Vitest; rotate off identical prose audits",
+      "NEXT_STEPS: clean-audit-2026-07-16-convex-map-marker-await done",
+      "BUSINESS_DECISIONS — lock Convex API map with Vitest after clean pass (absolute index 370)",
+      "Verified: npm test (1578 passed = main@#319's 1571 + 7 convex-api-map-audit regressions) + lint",
+    ],
+    decisions: BUSINESS_DECISIONS.slice(370, 371),
   },
 ];
 
