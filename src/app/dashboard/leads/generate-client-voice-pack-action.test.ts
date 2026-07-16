@@ -26,7 +26,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const upsertClientVoicePack = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -40,7 +40,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -132,7 +133,7 @@ describe("generateClientVoicePackAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([completeOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([completeOrder]);
     upsertClientVoicePack.mockReset().mockImplementation(async (input) => ({
       id: "voice_pack_1",
       ...input,
@@ -186,7 +187,7 @@ describe("generateClientVoicePackAction", () => {
   });
 
   it("rejects Growth-only / unpaid leads (eligibility)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, tier: "growth", amountPaid: 599 },
     ]);
     const { generateClientVoicePackAction } = await import("./actions");
@@ -292,13 +293,13 @@ describe("generateClientVoicePackAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      { ...completeOrder, leadSlug: "other-cafe", tier: "complete" },
+  it("loads orders via listOrdersByLeadSlug (growth-only does not pass Complete gate)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, leadSlug: "demo-cafe", tier: "growth" },
     ]);
     const { generateClientVoicePackAction } = await import("./actions");
     const res = await generateClientVoicePackAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:

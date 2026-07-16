@@ -990,9 +990,11 @@ export async function listOrders(): Promise<OrderRecord[]> {
 }
 
 /**
- * Slug-scoped orders for public preview commerce eligibility.
- * Prefer over listOrders() on /preview/[slug] — cold outreach must not collect
- * the full ledger. Newest-first on both backends (matches listOrders).
+ * Slug-scoped orders for preview commerce eligibility, Manage billing, and
+ * per-lead dashboard sold-capability gates (upsell / packs / catalog).
+ * Prefer over listOrders() whenever the caller already has a lead slug —
+ * never full-ledger collect then filter. Newest-first on both backends
+ * (matches listOrders). Keep listOrders() for digest + dashboard aggregates.
  */
 export async function listOrdersByLeadSlug(
   leadSlug: string,

@@ -27,7 +27,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const getCommerceCatalog = vi.fn();
 const upsertCommerceCatalog = vi.fn();
 
@@ -42,7 +42,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -122,7 +123,7 @@ describe("saveCommerceCatalogAction", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([commerceOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([commerceOrder]);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
     upsertCommerceCatalog.mockReset().mockImplementation(async (input) => ({
       id: "cat_1",
@@ -171,7 +172,7 @@ describe("saveCommerceCatalogAction", () => {
   });
 
   it("rejects paid leads without a Commerce add-on order", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...commerceOrder, commerceAddon: false, amountPaid: 599 },
     ]);
     const { saveCommerceCatalogAction } = await import("./actions");
@@ -338,13 +339,8 @@ describe("saveCommerceCatalogAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      {
-        ...commerceOrder,
-        leadSlug: "other-cafe",
-        commerceAddon: true,
-      },
+  it("loads orders via listOrdersByLeadSlug (no commerceAddon does not pass)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       {
         ...commerceOrder,
         leadSlug: "demo-cafe",
@@ -354,6 +350,7 @@ describe("saveCommerceCatalogAction", () => {
     ]);
     const { saveCommerceCatalogAction } = await import("./actions");
     const res = await saveCommerceCatalogAction("demo-cafe", draftItems);
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(res).toEqual({
       success: false,
       error:
