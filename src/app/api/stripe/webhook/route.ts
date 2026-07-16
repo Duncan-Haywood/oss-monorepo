@@ -6,6 +6,7 @@ import {
   parseCommerceCheckoutSkuId,
   parseCommerceCheckoutSlug,
 } from "@/lib/commerce/checkout-fields";
+import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 import { getBundle } from "@/lib/pricing/bundles";
@@ -27,11 +28,14 @@ import { getBundle } from "@/lib/pricing/bundles";
  * the sent-marker must only be written when result.success is true, or a
  * suppressed/failed send is marked "sent" and never recovers on redelivery.
  *
- * Bundle checkout create already rejects unknown tiers via getBundle; this
- * handler must mirror that enum gate before recordLeadPayment / handoff /
- * receipt — a truthy metadata.tier string alone is not enough (Dashboard-
- * minted or tampered Checkout Sessions). Unknown tier skips like missing
- * slug/tier (session already marked complete; do not 5xx forever).
+ * Bundle checkout create already sanitizes+caps slug via
+ * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH)
+ * and rejects unknown tiers via getBundle; this handler must mirror both
+ * gates before recordLeadPayment / handoff / receipt — a truthy
+ * metadata.slug / metadata.tier alone is not enough (Dashboard-minted or
+ * tampered Checkout Sessions). Over-long slug (parseLeadSlugLookup) or
+ * unknown tier skips like missing slug/tier (session already marked
+ * complete; do not 5xx forever).
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
@@ -91,7 +95,7 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      const slug = session.metadata?.slug;
+      const rawSlug = session.metadata?.slug;
       const tier = session.metadata?.tier;
       const commerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
@@ -355,9 +359,12 @@ export async function POST(request: Request) {
         return NextResponse.json(failure.body, { status: failure.status });
       }
 
-      // Mirror POST /api/stripe/checkout's getBundle gate — truthy tier is
-      // not enough; unknown values must not pollute orders/handoffs/receipts
-      // (bundle-webhook-tier-enum-guard).
+      // Mirror POST /api/stripe/checkout: sanitizeLeadSlug caps at
+      // MAX_LEAD_SLUG_LENGTH and getBundle rejects unknown tiers. Truthy
+      // metadata.slug / metadata.tier alone must not pollute CRM/handoffs
+      // (bundle-webhook-slug-lookup-gate + bundle-webhook-tier-enum-guard).
+      const parsedSlug = parseLeadSlugLookup(rawSlug);
+      const slug = parsedSlug.ok ? parsedSlug.slug : undefined;
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
       if (slug && bundle) {
         const knownTier = bundle.id;
@@ -543,6 +550,11 @@ export async function POST(request: Request) {
           "webhook: unknown bundle tier in session metadata",
           session.id,
           tier,
+        );
+      } else if (!parsedSlug.ok && parsedSlug.reason === "too_long") {
+        console.warn(
+          "webhook: over-long bundle slug in session metadata — skipping payment/handoff/receipt",
+          session.id,
         );
       } else {
         console.warn("webhook: missing slug or tier in session metadata", session.id);
