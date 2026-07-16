@@ -2376,6 +2376,22 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 1 — Website foundation",
     owner: "cursor/business-process-evolution-44bd",
   },
+  {
+    id: "public-formdata-body-byte-length-cap",
+    summary:
+      "Empty-backlog after PR #321 (public-json-body-byte-length-cap). Free NEXT_STEPS stayed operator/legal-gated. Public JSON routes now arrayBuffer-bound, but POST /api/contact/[slug] form-urlencoded/multipart still only Content-Length-prechecks then unbounded request.formData() when Content-Length is missing or understated. Complete the FormData twin with the same MAX_PUBLIC_JSON_BODY_BYTES ceiling (arrayBuffer + rebuild → formData).",
+    status: "done",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/prompt-process-evolution-15d6",
+  },
+  {
+    id: "bundle-webhook-tier-enum-guard",
+    summary:
+      "Empty-backlog after PR #321; sibling prompt-process-evolution-15d6 claimed/shipped public-formdata-body-byte-length-cap (PR #322). Free NEXT_STEPS stayed operator/legal-gated. Bundle checkout create rejects unknown tiers via getBundle, but checkout.session.completed still treats any truthy metadata.tier as valid — records payment/handoff and interpolates raw tier into receipt HTML (escapeHtmlForEmail on businessName only). Require getBundle(tier) before recordLeadPayment / handoff (skip like missing slug/tier); escape tier in sendReceiptEmail.",
+    status: "in_progress",
+    phase: "Phase 3 — Payments",
+    owner: "cursor/business-process-evolution-7508",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
