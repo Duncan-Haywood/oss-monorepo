@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { BUNDLES, COMMERCE_ADDON, getBundle } from "./bundles";
+import {
+  BUNDLES,
+  COMMERCE_ADDON,
+  expectedBundleCheckoutAmountCents,
+  getBundle,
+} from "./bundles";
 
 /**
  * Direct coverage for the sold-price + Stripe Price env-name source of truth.
@@ -67,5 +72,17 @@ describe("getBundle", () => {
     for (const id of ["starter", "growth", "complete"] as const) {
       expect(getBundle(id)?.id).toBe(id);
     }
+  });
+});
+
+describe("expectedBundleCheckoutAmountCents", () => {
+  it("sums setup + first month (+ Commerce add-on) in integer cents", () => {
+    const starter = getBundle("starter");
+    const growth = getBundle("growth");
+    const complete = getBundle("complete");
+    expect(starter && expectedBundleCheckoutAmountCents(starter, false)).toBe(50_000);
+    expect(growth && expectedBundleCheckoutAmountCents(growth, false)).toBe(59_900);
+    expect(complete && expectedBundleCheckoutAmountCents(complete, false)).toBe(69_900);
+    expect(growth && expectedBundleCheckoutAmountCents(growth, true)).toBe(94_800);
   });
 });

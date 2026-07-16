@@ -77,13 +77,16 @@ vi.mock("@/lib/email/resend", () => ({
   sendCommerceBuyNowClientReceipt: (...args: unknown[]) => sendCommerceBuyNowClientReceipt(...args),
 }));
 
+/** Growth setup ($500) + first month ($99) — matches expectedBundleCheckoutAmountCents. */
+const GROWTH_CHECKOUT_AMOUNT_CENTS = 59_900;
+
 function checkoutSession(overrides: Record<string, unknown> = {}) {
   return {
     id: "cs_test_1",
     metadata: {},
     customer_details: { email: null },
     customer_email: null,
-    amount_total: 9900,
+    amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
     customer: null,
     ...overrides,
   };
@@ -238,7 +241,7 @@ describe("POST /api/stripe/webhook", () => {
         "owner@demo-cafe.test",
         "Demo Cafe",
         "growth",
-        99,
+        GROWTH_CHECKOUT_AMOUNT_CENTS / 100,
       );
       expect(sendEmail).toHaveBeenCalledTimes(1);
       expect(updateDeployHandoffStatus).toHaveBeenCalledTimes(2);
@@ -377,9 +380,46 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(recordLeadPayment).toHaveBeenCalledWith(
-        expect.objectContaining({ slug: "demo-cafe", tier: "growth" }),
+        expect.objectContaining({
+          slug: "demo-cafe",
+          tier: "growth",
+          amountTotal: GROWTH_CHECKOUT_AMOUNT_CENTS / 100,
+        }),
         { requireConvex: true },
       );
+    });
+
+    it("does not record payment when amount_total !== catalog expected cents (create Price twin)", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: 999,
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
+      expect(sendReceiptEmail).not.toHaveBeenCalled();
+    });
+
+    it("does not record payment when amount_total is missing (null) despite known tier", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth" },
+        amount_total: null,
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
+      expect(recordLeadPayment).not.toHaveBeenCalled();
+      expect(insertDeployHandoff).not.toHaveBeenCalled();
     });
 
     it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
@@ -387,6 +427,8 @@ describe("POST /api/stripe/webhook", () => {
       process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
       const session = checkoutSession({
         metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "true" },
+        // amount matches growth-only catalog (derived commerceAddon=false)
+        amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
         customer_details: { email: "owner@demo-cafe.test" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
@@ -419,9 +461,12 @@ describe("POST /api/stripe/webhook", () => {
     it("records commerceAddon=true when both Commerce Price IDs are on line items", async () => {
       process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
       process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+      // Growth ($599) + Commerce setup+month ($349) = $948
+      const growthWithCommerceCents = GROWTH_CHECKOUT_AMOUNT_CENTS + 34_900;
       const session = checkoutSession({
         // metadata false must not withhold a paid add-on charged on line_items
         metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "false" },
+        amount_total: growthWithCommerceCents,
         customer_details: { email: "owner@demo-cafe.test" },
       });
       constructEvent.mockReturnValue(completedEvent(session));
@@ -446,7 +491,10 @@ describe("POST /api/stripe/webhook", () => {
       const response = await POST(webhookRequest());
       expect(response.status).toBe(200);
       expect(recordLeadPayment).toHaveBeenCalledWith(
-        expect.objectContaining({ commerceAddon: true }),
+        expect.objectContaining({
+          commerceAddon: true,
+          amountTotal: growthWithCommerceCents / 100,
+        }),
         { requireConvex: true },
       );
       expect(insertDeployHandoff).toHaveBeenCalledWith(
