@@ -10043,6 +10043,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "NEXT_STEPS: public-formdata-body-byte-length-cap done",
       "BUSINESS_DECISIONS — hard-reject over-long public FormData bodies (absolute index 371)",
       "Process: tightened #320/#321 ITERATIONS decision slices via object-parse (map=369, JSON=370, FormData=371)",
+      "Verified: npm test (1601 passed = main@#321's 1594 + 7 FormData body-byte regressions) + lint",
     ],
     // Object-parse: FormData owns BD[371]; JSON=370; map Vitest=369.
     decisions: BUSINESS_DECISIONS.slice(371, 372),
