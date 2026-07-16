@@ -52,54 +52,62 @@ function stubVariant(
   const hoursBit = business.hours ?? "by appointment — please leave a message";
   const phoneBit = business.phone ? ` You can also reach us at ${business.phone}.` : "";
 
+  // Soft-cap at stub emit too — parseVariantsJson only covers the Anthropic path;
+  // default/fallback packs still upsert + skipSuppression email (PR #312 twin).
+  // services.join at MAX_SERVICES×MAX_SERVICE_ITEM_LENGTH alone exceeds body max.
+  const softCapStub = (
+    title: string,
+    body: string,
+    cta?: string,
+  ): ClientVoiceScriptVariant => ({
+    scriptType,
+    title: softCapPackField(title, MAX_PACK_VARIANT_TITLE_LENGTH),
+    body: softCapPackBody(body),
+    cta: softCapOptionalPackField(cta, MAX_PACK_VARIANT_CTA_LENGTH),
+  });
+
   switch (scriptType) {
     case "inbound_greeting":
-      return {
-        scriptType,
-        title: "Inbound greeting",
-        body: `Thanks for calling ${businessName}. I'm an automated assistant — how can I help you today?`,
-        cta: "Ask how you can help (hours, services, or booking).",
-      };
+      return softCapStub(
+        "Inbound greeting",
+        `Thanks for calling ${businessName}. I'm an automated assistant — how can I help you today?`,
+        "Ask how you can help (hours, services, or booking).",
+      );
     case "hours_faq":
-      return {
-        scriptType,
-        title: "Hours",
-        body: `[Stub] ${businessName} in ${location} is open: ${hoursBit}.${phoneBit}`,
-        cta: "Offer to take a message if outside those hours.",
-      };
+      return softCapStub(
+        "Hours",
+        `[Stub] ${businessName} in ${location} is open: ${hoursBit}.${phoneBit}`,
+        "Offer to take a message if outside those hours.",
+      );
     case "services_faq":
-      return {
-        scriptType,
-        title: "Services",
-        body: `[Stub] At ${businessName} we offer: ${servicesList}. What are you looking for today?`,
-        cta: "Match the caller to a service, then booking CTA.",
-      };
+      return softCapStub(
+        "Services",
+        `[Stub] At ${businessName} we offer: ${servicesList}. What are you looking for today?`,
+        "Match the caller to a service, then booking CTA.",
+      );
     case "booking_cta":
-      return {
-        scriptType,
-        title: "Booking",
-        body: `[Stub] I can help you book with ${businessName}. Tell me a preferred day and time, or leave your name and number and someone will confirm shortly.${phoneBit}`,
-        cta: "Collect name + callback number if no slot is confirmed live.",
-      };
+      return softCapStub(
+        "Booking",
+        `[Stub] I can help you book with ${businessName}. Tell me a preferred day and time, or leave your name and number and someone will confirm shortly.${phoneBit}`,
+        "Collect name + callback number if no slot is confirmed live.",
+      );
     case "after_hours":
-      return {
-        scriptType,
-        title: "After hours",
-        body: `[Stub] Thanks for calling ${businessName}. We're currently closed (${hoursBit}). Please leave your name, number, and a short message — we'll get back to you soon.`,
-      };
+      return softCapStub(
+        "After hours",
+        `[Stub] Thanks for calling ${businessName}. We're currently closed (${hoursBit}). Please leave your name, number, and a short message — we'll get back to you soon.`,
+      );
     case "take_a_message":
-      return {
-        scriptType,
-        title: "Take a message",
-        body: `[Stub] Happy to take a message for ${businessName}. Can I get your name, best callback number, and a brief note about what you need?`,
-        cta: "Repeat the details back, thank them, end call.",
-      };
+      return softCapStub(
+        "Take a message",
+        `[Stub] Happy to take a message for ${businessName}. Can I get your name, best callback number, and a brief note about what you need?`,
+        "Repeat the details back, thank them, end call.",
+      );
     default: {
       const _exhaustive: never = scriptType;
       return {
         scriptType: _exhaustive,
-        title: "Script",
-        body: `[Stub] ${businessName}`,
+        title: softCapPackField("Script", MAX_PACK_VARIANT_TITLE_LENGTH),
+        body: softCapPackBody(`[Stub] ${businessName}`),
       };
     }
   }

@@ -84,6 +84,39 @@ describe("StubMarketingGenerator", () => {
     expect(result.variants[0]?.body).toContain("our services");
   });
 
+  it("soft-caps over-long title/body/cta/hashtag from create-path-max business fields", async () => {
+    const longName = "N".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longCity = "C".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longService = "S".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longHours = "H".repeat(MAX_PACK_VARIANT_BODY_LENGTH);
+    const longPhone = "P".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    const longCategory = "K".repeat(MAX_PACK_HASHTAG_LENGTH + 20);
+    const result = await new StubMarketingGenerator().generate(
+      request({
+        contentTypes: ["local_seo_meta", "instagram_caption"],
+        business: {
+          businessName: longName,
+          category: longCategory,
+          city: longCity,
+          services: [longService],
+          hours: longHours,
+          phone: longPhone,
+        },
+      }),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body.length).toBeLessThanOrEqual(
+      MAX_PACK_VARIANT_BODY_LENGTH,
+    );
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+    expect(result.variants[1]?.hashtags?.[0]?.length).toBeLessThanOrEqual(
+      MAX_PACK_HASHTAG_LENGTH,
+    );
+    expect(result.variants[1]?.hashtags?.[1]?.length).toBeLessThanOrEqual(
+      MAX_PACK_HASHTAG_LENGTH,
+    );
+  });
+
   it("sets titles for local_seo_meta / email_campaign / gbp_post and hashtags for social", async () => {
     const result = await new StubMarketingGenerator().generate(
       request({

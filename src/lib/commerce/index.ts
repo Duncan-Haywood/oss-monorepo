@@ -31,10 +31,11 @@ export {
   type NormalizeCommerceItemsResult,
 } from "./catalog";
 
-export {
-  loadPreviewCommerceItems,
-  type PreviewCommerceDeps,
-} from "./preview-commerce";
+// Do NOT re-export loadPreviewCommerceItems from this barrel — it lazy-imports
+// `@/lib/db` (`server-only`), and leads-client.tsx (`"use client"`) imports from
+// `@/lib/commerce`. A barrel re-export pulls db into the client graph and breaks
+// `next build` (PR #313 regression). Import from `@/lib/commerce/preview-commerce`
+// in Server Components / route handlers only.
 
 export {
   archiveCommerceStripeProducts,
