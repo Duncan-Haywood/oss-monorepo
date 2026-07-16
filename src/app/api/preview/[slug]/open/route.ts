@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, recordLeadPreviewOpen } from "@/lib/db";
 import {
+  resolvePreviewOpenedAt,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "@/lib/leads/preview-open";
@@ -25,7 +26,9 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * writes per lead, so this only guards against a scripted burst.
  *
  * Path slug length is hard-capped via isPublicLeadSlugPathLengthOk (shared
- * with POST /api/contact/[slug]) before CRM lookup.
+ * with POST /api/contact/[slug]) before CRM lookup. Optional body.openedAt is
+ * length-bounded via resolvePreviewOpenedAt (over-long → server now) so
+ * Date.parse never sees multi-KB probes.
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
@@ -45,10 +48,8 @@ export async function POST(request: Request, context: RouteContext) {
   const url = new URL(request.url);
   let openedAt = new Date().toISOString();
   try {
-    const body = (await request.json()) as { openedAt?: string };
-    if (body?.openedAt && !Number.isNaN(Date.parse(body.openedAt))) {
-      openedAt = new Date(body.openedAt).toISOString();
-    }
+    const body = (await request.json()) as { openedAt?: unknown };
+    openedAt = resolvePreviewOpenedAt(body?.openedAt, openedAt);
   } catch {
     // empty body is fine
   }

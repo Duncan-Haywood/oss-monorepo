@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PREVIEW_OPENED_AT_LENGTH,
   OUTREACH_PREVIEW_SRC,
   previewUrlWithOutreachTracking,
+  resolvePreviewOpenedAt,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "./preview-open";
@@ -53,5 +55,39 @@ describe("shouldPersistPreviewOpen", () => {
   it("debounces recent opens", () => {
     expect(shouldPersistPreviewOpen("2026-07-12T11:45:00.000Z", now)).toBe(false);
     expect(shouldPersistPreviewOpen("2026-07-12T11:00:00.000Z", now)).toBe(true);
+  });
+});
+
+describe("resolvePreviewOpenedAt", () => {
+  const serverNow = "2026-07-16T09:00:00.000Z";
+
+  it("falls back to server now for missing / non-string / empty", () => {
+    expect(resolvePreviewOpenedAt(undefined, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt(null, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt(123, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt("", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now for over-long probes before Date.parse", () => {
+    const overLong = `${"2".repeat(MAX_PREVIEW_OPENED_AT_LENGTH + 1)}Z`;
+    expect(overLong.length).toBeGreaterThan(MAX_PREVIEW_OPENED_AT_LENGTH);
+    expect(resolvePreviewOpenedAt(overLong, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts exact-max length when parseable", () => {
+    // 24-char ISO padded conceptually — use a real ISO under the ceiling.
+    const iso = "2026-07-12T11:00:00.000Z";
+    expect(iso.length).toBeLessThanOrEqual(MAX_PREVIEW_OPENED_AT_LENGTH);
+    expect(resolvePreviewOpenedAt(iso, serverNow)).toBe(iso);
+  });
+
+  it("falls back when unparseable within the length ceiling", () => {
+    expect(resolvePreviewOpenedAt("not-a-date", serverNow)).toBe(serverNow);
+  });
+
+  it("normalizes parseable non-ISO dates to toISOString", () => {
+    expect(resolvePreviewOpenedAt("2026-07-12T11:00:00+00:00", serverNow)).toBe(
+      "2026-07-12T11:00:00.000Z",
+    );
   });
 });
