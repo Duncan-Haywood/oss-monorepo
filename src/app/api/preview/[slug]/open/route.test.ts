@@ -99,4 +99,27 @@ describe("POST /api/preview/[slug]/open — requireConvex", () => {
     // The 21st request never reached the persistence layer.
     expect(recordLeadPreviewOpen).toHaveBeenCalledTimes(20);
   });
+
+  it("falls back over-long body.openedAt to a short server ISO (no 400)", async () => {
+    const { POST } = await import("./route");
+    const overLong = `${"2".repeat(200)}Z`;
+    const response = await POST(
+      new Request("http://localhost/api/preview/demo-cafe/open?src=outreach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ openedAt: overLong }),
+      }),
+      { params: Promise.resolve({ slug: "demo-cafe" }) },
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json).toEqual({ ok: true, recorded: true });
+    expect(recordLeadPreviewOpen).toHaveBeenCalledTimes(1);
+    const persistedOpenedAt = recordLeadPreviewOpen.mock.calls[0]?.[1] as string;
+    // Fall-back uses server now — must stay a short ISO, never the probe body.
+    expect(persistedOpenedAt.length).toBeLessThanOrEqual(64);
+    expect(persistedOpenedAt).not.toBe(overLong);
+    expect(Number.isNaN(Date.parse(persistedOpenedAt))).toBe(false);
+  });
 });

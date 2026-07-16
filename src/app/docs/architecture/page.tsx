@@ -421,7 +421,10 @@ export default function ArchitectureDocPage() {
         <code>UNSUBSCRIBE_CONVEX_PRIMARY</code>), and the preview-open beacon (
         <code>PREVIEW_OPEN_CONVEX_PRIMARY</code> on <code>POST /api/preview/[slug]/open</code>) —
         persist-required / fail-closed Convex avoids claiming success after a SQLite-only write
-        other instances cannot see. Route-level Vitest in{" "}
+        other instances cannot see. Optional beacon <code>body.openedAt</code> is bounded via{" "}
+        <code>resolvePreviewOpenedAt</code> / <code>MAX_PREVIEW_OPENED_AT_LENGTH</code> (64) —
+        over-long / unparseable values fall back to server now so <code>Date.parse</code> never
+        sees multi-KB probes (path slug length stays a hard-reject twin). Route-level Vitest in{" "}
         <code>src/app/api/contact/[slug]/route.test.ts</code> locks contact-form orchestration
         (<code>CONTACT_FORM_CONVEX_PRIMARY</code> pass-through, persist-required 503, notify only
         after a durable inquiry row, <code>notifySent</code> from inspecting{" "}

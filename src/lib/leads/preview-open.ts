@@ -6,6 +6,14 @@
 
 export const OUTREACH_PREVIEW_SRC = "outreach";
 
+/**
+ * Optional beacon body.openedAt ceiling. A genuine `Date.toISOString()` is 24
+ * chars; allow modest timezone/fraction variants under 64. Over-long values are
+ * treated as missing (server now) — soft-cap would change the timestamp;
+ * hard-reject 400 would strand a fire-and-forget beacon (preview-open-openedAt-field-length-cap).
+ */
+export const MAX_PREVIEW_OPENED_AT_LENGTH = 64;
+
 /** Append ?src=outreach (or merge) so preview opens attribute to email. */
 export function previewUrlWithOutreachTracking(basePreviewUrl: string): string {
   try {
@@ -50,4 +58,20 @@ export function shouldPersistPreviewOpen(
   const last = Date.parse(lastPreviewOpenAt);
   if (Number.isNaN(last)) return true;
   return nowMs - last >= debounceMs;
+}
+
+/**
+ * Resolve optional beacon `openedAt` before Date.parse / persist.
+ * Missing, non-string, over-MAX, or unparseable → server now (fall-back).
+ * Valid ISO-ish strings are normalized via `new Date(...).toISOString()`.
+ */
+export function resolvePreviewOpenedAt(
+  raw: unknown,
+  nowIso: string = new Date().toISOString(),
+): string {
+  if (typeof raw !== "string") return nowIso;
+  if (raw.length === 0 || raw.length > MAX_PREVIEW_OPENED_AT_LENGTH) return nowIso;
+  const parsed = Date.parse(raw);
+  if (Number.isNaN(parsed)) return nowIso;
+  return new Date(parsed).toISOString();
 }
