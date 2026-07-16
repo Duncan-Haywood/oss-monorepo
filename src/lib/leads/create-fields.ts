@@ -21,12 +21,35 @@ export const MAX_ADDRESS_LENGTH = 300;
 export const MAX_TAGLINE_LENGTH = 200;
 export const MAX_SERVICE_ITEM_LENGTH = 100;
 export const MAX_HOURS_SEGMENT_LENGTH = 120;
+/**
+ * Soft-cap for Lead.dataSource (compliance / batch tag on CSV + Add lead).
+ * Built-ins are short (csv_import, manual_entry, demo_catalog, …); operators
+ * may pass a custom list label — 64 covers that without letting a multi-KB
+ * tag reach Convex/SQLite or quality-score. Not an opaque lookup key.
+ */
+export const MAX_LEAD_DATA_SOURCE_LENGTH = 64;
 /** Reuse contact-form caps so CRM phone/email cannot diverge by ingest path. */
 export const MAX_LEAD_PHONE_LENGTH = MAX_CONTACT_PHONE_LENGTH;
 export const MAX_LEAD_EMAIL_LENGTH = MAX_CONTACT_EMAIL_LENGTH;
 
 export function softCapLeadField(value: string, max: number): string {
   return value.length > max ? value.slice(0, max) : value;
+}
+
+/**
+ * Normalize an operator-supplied dataSource tag: trim, soft-cap length, fall
+ * back when empty/non-string. Soft-cap (not hard-reject) — a custom batch
+ * label is free text for compliance, not an opaque CRM key.
+ */
+export function normalizeLeadDataSource(
+  raw: unknown,
+  fallback: string,
+): string {
+  const trimmed = typeof raw === "string" ? raw.trim() : "";
+  if (!trimmed) {
+    return softCapLeadField(fallback, MAX_LEAD_DATA_SOURCE_LENGTH);
+  }
+  return softCapLeadField(trimmed, MAX_LEAD_DATA_SOURCE_LENGTH);
 }
 
 export type LeadCreateFieldInput = {

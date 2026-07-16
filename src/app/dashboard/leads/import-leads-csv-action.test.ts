@@ -252,6 +252,27 @@ describe("importLeadsCsvAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
+  it("soft-caps an over-long dataSource before upsert", async () => {
+    const { MAX_LEAD_DATA_SOURCE_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const long = "batch-".repeat(20);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      dataSource: long,
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "blue-river-salon",
+        dataSource: long.slice(0, MAX_LEAD_DATA_SOURCE_LENGTH),
+      }),
+      { requireConvex: true },
+    );
+  });
+
   it("skips existing slugs without calling upsertLead for collisions", async () => {
     getLeads.mockResolvedValue([{ slug: "blue-river-salon" }]);
     const { existingLeadSlugConflictMessage } = await import(
