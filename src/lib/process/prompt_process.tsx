@@ -2358,6 +2358,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 2 — Outreach + platform voice",
     owner: "cursor/prompt-process-evolution-2607",
   },
+  {
+    id: "public-json-body-byte-length-cap",
+    summary:
+      "Empty-backlog after PR #319 (preview-page-src-utm). Free NEXT_STEPS stayed operator/legal-gated. Sibling prompt-process-evolution-6ba0 claimed clean-audit-2026-07-16-convex-map-marker-await — complementary pivot. Field-level caps close after request.json()/formData() allocate; public money + contact + preview-open (+ auth-gated marketing/generate when password unset) still parse unbounded raw bodies under the rate limit. Hard-reject over MAX_PUBLIC_JSON_BODY_BYTES before JSON.parse; Content-Length pre-check + arrayBuffer byteLength. Skip Stripe webhook (signed raw text).",
+    status: "in_progress",
+    phase: "Phase 1 — Website foundation",
+    owner: "cursor/business-process-evolution-44bd",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
