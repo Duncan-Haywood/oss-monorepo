@@ -8830,7 +8830,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — opaque public-id hard-reject rule; empty-backlog rotation marks billing-portal sessionId size done; next unsubscribe email length",
       "NEXT_STEPS: billing-portal-sessionId-field-length-cap done",
       "BUSINESS_DECISIONS — hard-reject over-long billing-portal sessionId over inventing an optional aggregate (slice 336)",
-      "Verified: npm test + lint + build (counts filled after suite run)",
+      "Verified: npm test (1408 passed, +5 parseCheckoutSessionId + route too_long regressions on top of main@#288's 1403) + lint + build",
     ],
     decisions: BUSINESS_DECISIONS.slice(336, 337),
   },
