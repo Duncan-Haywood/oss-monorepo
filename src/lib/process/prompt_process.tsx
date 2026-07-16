@@ -2251,6 +2251,14 @@ export const NEXT_STEPS: NextStep[] = [
     phase: "Phase 4 — Data ingestion",
     owner: "cursor/prompt-process-evolution-c8f9",
   },
+  {
+    id: "csv-import-dataSource-field-length-cap",
+    summary:
+      "Empty-backlog after PR #308/#309 (auth-gated lead-slug + CSV body size). Free NEXT_STEPS stayed operator/legal-gated. Scanned stuck CLI remotes (clean-audit-only / already-merged / password-trim already on main). AGENT_PROTOCOL residual auth-gated free-text: importLeadsCsvAction + addLeadAction still persist uncapped dataSource tags after per-cell + csvText caps — requireOperatorAuth is not a payload-size throttle. Soft-cap via shared normalizeLeadDataSource (MAX=64) before upsert (compliance tag, not an opaque lookup key — hard-reject would strand legitimate custom batch labels).",
+    status: "in_progress",
+    phase: "Phase 4 — Data ingestion",
+    owner: "cursor/prompt-process-evolution-8cf6",
+  },
 
 ];
 export const BUSINESS_DECISIONS: BusinessDecision[] = [
