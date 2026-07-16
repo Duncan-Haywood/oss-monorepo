@@ -3,13 +3,40 @@
  * See /docs/compliance (document data source) and backlog item csv-lead-import.
  */
 
-import {
-  MAX_CONTACT_EMAIL_LENGTH,
-  MAX_CONTACT_PHONE_LENGTH,
-} from "@/lib/inquiries/contact-fields";
 import type { BusinessCategory, Lead, LeadPipelineStage } from "./types";
 import { parseLeadHours } from "./sqlite-row-mapping";
 import { MAX_LEAD_SLUG_LENGTH, sanitizeLeadSlug } from "./slug";
+import {
+  MAX_ADDRESS_LENGTH,
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_LEAD_EMAIL_LENGTH,
+  MAX_LEAD_PHONE_LENGTH,
+  MAX_SERVICE_ITEM_LENGTH,
+  MAX_SERVICES,
+  MAX_STATE_LENGTH,
+  MAX_TAGLINE_LENGTH,
+  softCapLeadField,
+} from "./create-fields";
+
+// Re-export shared create-path caps so existing csv-import.test imports keep working.
+export {
+  MAX_ADDRESS_LENGTH,
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_SERVICE_ITEM_LENGTH,
+  MAX_SERVICES,
+  MAX_STATE_LENGTH,
+  MAX_TAGLINE_LENGTH,
+};
+/** @deprecated Prefer MAX_LEAD_PHONE_LENGTH — alias kept for CSV test imports. */
+export const MAX_CSV_PHONE_LENGTH = MAX_LEAD_PHONE_LENGTH;
+/** @deprecated Prefer MAX_LEAD_EMAIL_LENGTH — alias kept for CSV test imports. */
+export const MAX_CSV_EMAIL_LENGTH = MAX_LEAD_EMAIL_LENGTH;
 
 export const CSV_LEAD_HEADERS = [
   "businessName",
@@ -43,23 +70,9 @@ export interface CsvImportResult {
 const CATEGORIES = new Set<BusinessCategory>(["restaurant", "salon", "trades", "generic"]);
 const TIERS = new Set(["starter", "growth", "complete"] as const);
 const MAX_ROWS = 100;
-/** Hard-reject — empty/over-long name cannot form a useful lead row. */
-export const MAX_BUSINESS_NAME_LENGTH = 200;
-/** Soft-cap — truncate so one bad cell does not skip the whole row. */
-export const MAX_DESCRIPTION_LENGTH = 2000;
-export const MAX_SERVICES = 100;
-export const MAX_CITY_LENGTH = 100;
-export const MAX_STATE_LENGTH = 40;
-export const MAX_ADDRESS_LENGTH = 300;
-export const MAX_TAGLINE_LENGTH = 200;
-export const MAX_SERVICE_ITEM_LENGTH = 100;
-export const MAX_HOURS_SEGMENT_LENGTH = 120;
-/** Reuse contact-form caps so CRM phone/email cannot diverge by ingest path. */
-export const MAX_CSV_PHONE_LENGTH = MAX_CONTACT_PHONE_LENGTH;
-export const MAX_CSV_EMAIL_LENGTH = MAX_CONTACT_EMAIL_LENGTH;
 
 function softCap(value: string, max: number): string {
-  return value.length > max ? value.slice(0, max) : value;
+  return softCapLeadField(value, max);
 }
 
 export const CSV_LEAD_TEMPLATE = [
@@ -346,9 +359,9 @@ export function parseLeadsCsv(
     const address = addressRaw
       ? softCap(addressRaw, MAX_ADDRESS_LENGTH)
       : undefined;
-    const phone = softCap(get("phone") || "(555) 000-0000", MAX_CSV_PHONE_LENGTH);
+    const phone = softCap(get("phone") || "(555) 000-0000", MAX_LEAD_PHONE_LENGTH);
     const emailRaw = get("email");
-    const email = emailRaw ? softCap(emailRaw, MAX_CSV_EMAIL_LENGTH) : undefined;
+    const email = emailRaw ? softCap(emailRaw, MAX_LEAD_EMAIL_LENGTH) : undefined;
     const taglineRaw = get("tagline");
     const tagline = softCap(
       taglineRaw || defaultTagline(category),

@@ -91,6 +91,18 @@ import {
   type LeadQualityResult,
 } from "@/lib/leads/quality-score";
 import {
+  MAX_ADDRESS_LENGTH,
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_DESCRIPTION_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_LEAD_EMAIL_LENGTH,
+  MAX_LEAD_PHONE_LENGTH,
+  MAX_STATE_LENGTH,
+  MAX_TAGLINE_LENGTH,
+} from "@/lib/leads/create-fields";
+import { MAX_LEAD_SLUG_LENGTH } from "@/lib/leads/slug";
+import {
   MAX_OPERATOR_NOTES_LENGTH,
   leadHasNotes,
   notesPromptMessage,
@@ -1936,6 +1948,7 @@ export function LeadsClient({
                 required
                 value={formName}
                 onChange={handleNameChange}
+                maxLength={MAX_BUSINESS_NAME_LENGTH}
                 placeholder="e.g. Blue River Salon"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -1948,6 +1961,7 @@ export function LeadsClient({
                 required
                 value={formSlug}
                 onChange={(e) => setFormSlug(e.target.value)}
+                maxLength={MAX_LEAD_SLUG_LENGTH}
                 placeholder="e.g. blue-river-salon"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2002,6 +2016,7 @@ export function LeadsClient({
                 type="text"
                 value={formPhone}
                 onChange={(e) => setFormPhone(e.target.value)}
+                maxLength={MAX_LEAD_PHONE_LENGTH}
                 placeholder="e.g. (303) 555-0199"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2013,6 +2028,7 @@ export function LeadsClient({
                 type="email"
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
+                maxLength={MAX_LEAD_EMAIL_LENGTH}
                 placeholder="e.g. contact@blueriversalon.com"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2024,6 +2040,7 @@ export function LeadsClient({
                 type="text"
                 value={formCity}
                 onChange={(e) => setFormCity(e.target.value)}
+                maxLength={MAX_CITY_LENGTH}
                 placeholder="Denver"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2035,6 +2052,7 @@ export function LeadsClient({
                 type="text"
                 value={formState}
                 onChange={(e) => setFormState(e.target.value)}
+                maxLength={MAX_STATE_LENGTH}
                 placeholder="CO"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2046,6 +2064,7 @@ export function LeadsClient({
                 type="text"
                 value={formAddress}
                 onChange={(e) => setFormAddress(e.target.value)}
+                maxLength={MAX_ADDRESS_LENGTH}
                 placeholder="e.g. 1200 Blake St"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2057,6 +2076,7 @@ export function LeadsClient({
                 type="text"
                 value={formTagline}
                 onChange={(e) => setFormTagline(e.target.value)}
+                maxLength={MAX_TAGLINE_LENGTH}
                 placeholder="e.g. Premium local style"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2068,6 +2088,7 @@ export function LeadsClient({
                 type="text"
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
+                maxLength={MAX_DESCRIPTION_LENGTH}
                 placeholder="Brief description of business for the preview page"
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
@@ -2090,6 +2111,7 @@ export function LeadsClient({
                 type="text"
                 value={formWeekday}
                 onChange={(e) => setFormWeekday(e.target.value)}
+                maxLength={MAX_HOURS_SEGMENT_LENGTH}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>
@@ -2100,6 +2122,7 @@ export function LeadsClient({
                 type="text"
                 value={formWeekend}
                 onChange={(e) => setFormWeekend(e.target.value)}
+                maxLength={MAX_HOURS_SEGMENT_LENGTH}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-zinc-900"
               />
             </div>

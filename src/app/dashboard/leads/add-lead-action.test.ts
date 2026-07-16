@@ -11,10 +11,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * dashboard action glue: requireOperatorAuth, missing slug/businessName,
  * slug sanitize, default stage/dataSource, existing-slug conflict (no
  * upsert), LEAD_UPSERT_CONVEX_PRIMARY on upsertLead, ConvexPrimaryWriteError
- * fail-closed (no revalidate), success revalidate, outreach_sent
- * mark-before-Resend, missing-email skip send, outreach-mark
- * ConvexPrimaryWriteError (lead saved; Email 1 not sent), and Error /
- * non-Error throws.
+ * fail-closed (no revalidate), success revalidate, field-length soft-caps /
+ * hard-reject (shared with CSV), outreach_sent mark-before-Resend,
+ * missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved;
+ * Email 1 not sent), and Error / non-Error throws.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -173,6 +173,47 @@ describe("addLeadAction", () => {
       error: "Slug and Business Name are required",
     });
     expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long businessName before upsert", async () => {
+    const { MAX_BUSINESS_NAME_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      businessName: "A".repeat(MAX_BUSINESS_NAME_LENGTH + 1),
+    });
+    expect(res).toEqual({
+      success: false,
+      error: `Business Name must be ${MAX_BUSINESS_NAME_LENGTH} characters or fewer`,
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("soft-caps optional create fields before upsert (CSV parity)", async () => {
+    const {
+      MAX_CITY_LENGTH,
+      MAX_DESCRIPTION_LENGTH,
+      MAX_TAGLINE_LENGTH,
+    } = await import("@/lib/leads/create-fields");
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      city: "c".repeat(MAX_CITY_LENGTH + 40),
+      tagline: "t".repeat(MAX_TAGLINE_LENGTH + 10),
+      description: "d".repeat(MAX_DESCRIPTION_LENGTH + 50),
+    });
+    expect(res).toEqual({ success: true, slug: "demo-cafe" });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: "c".repeat(MAX_CITY_LENGTH),
+        tagline: "t".repeat(MAX_TAGLINE_LENGTH),
+        description: "d".repeat(MAX_DESCRIPTION_LENGTH),
+      }),
+      { requireConvex: true },
+    );
   });
 
   it("sanitizes slug, defaults stage/dataSource, passes LEAD_UPSERT_CONVEX_PRIMARY, and revalidates", async () => {

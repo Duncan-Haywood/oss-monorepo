@@ -49,15 +49,17 @@ export default function ArchitectureDocPage() {
         reject), description ≤ 2000 chars (soft truncate), services ≤ 100 entries with each
         token ≤ 100 chars, plus soft caps on city/state/address/tagline, hours weekday/weekend
         segments, and phone/email aligned with <code>MAX_CONTACT_*</code> so CRM ingest cannot
-        diverge by path. Re-imports and manual add-lead treat slug
+        diverge by path. Manual <strong>Add lead</strong> reuses the same caps via{" "}
+        <code>normalizeLeadCreateFields</code> (<code>src/lib/leads/create-fields.ts</code>) so
+        the dashboard form cannot bypass CSV length policy. Re-imports and manual add-lead treat slug
         collisions as create-path conflicts: existing leads are skipped (CSV) or rejected (add form)
         so pipeline fields (stage / outreach / notes / snooze) are never silently reset via{" "}
         <code>upsertLead</code>. When Convex is configured, Add lead and CSV import pass{" "}
         <code>requireConvex</code> (<code>LEAD_UPSERT_CONVEX_PRIMARY</code>) so a mutation failure
         surfaces a retry instead of claiming success after a SQLite-only write other instances
         cannot see. Action-level Vitest in <code>add-lead-action.test.ts</code> locks that Add
-        lead glue (auth, slug/businessName gates, sanitize, existing-slug conflict, requireConvex
-        fail-closed, outreach_sent mark-before-Resend) and{" "}
+        lead glue (auth, slug/businessName gates, sanitize, field-length soft-caps / hard-reject,
+        existing-slug conflict, requireConvex fail-closed, outreach_sent mark-before-Resend) and{" "}
         <code>import-leads-csv-action.test.ts</code> locks bulk Import CSV (auth, empty /
         invalid CSV, per-row requireConvex, existing-slug skip, partial Convex failure) beside
         upsert-persist helpers. Dashboard

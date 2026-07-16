@@ -53,6 +53,7 @@ import {
   partitionLeadsByExistingSlugs,
 } from "@/lib/leads/csv-import";
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
+import { normalizeLeadCreateFields } from "@/lib/leads/create-fields";
 import { normalizeOperatorNotes } from "@/lib/leads/notes";
 import { sanitizeLeadSlug } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl, leadPreviewPath } from "@/lib/leads/slug-path";
@@ -1054,16 +1055,36 @@ export async function addLeadAction(leadData: Omit<Lead, "stage"> & { stage?: Le
     }
 
     const stage = leadData.stage ?? "discovered";
+
+    // Simple validation
+    if (!leadData.slug || !leadData.businessName) {
+      throw new Error("Slug and Business Name are required");
+    }
+
+    // Shared create-path field caps (same MAX_* as CSV) so manual Add lead
+    // cannot push unbounded strings into public preview / JSON-LD / outreach.
+    const capped = normalizeLeadCreateFields({
+      businessName: leadData.businessName,
+      city: leadData.city,
+      state: leadData.state,
+      address: leadData.address,
+      phone: leadData.phone,
+      email: leadData.email,
+      tagline: leadData.tagline,
+      description: leadData.description,
+      services: leadData.services,
+      hours: leadData.hours,
+    });
+    if (!capped.ok) {
+      return { success: false as const, error: capped.error };
+    }
+
     const lead: Lead = {
       ...leadData,
+      ...capped.fields,
       stage,
       dataSource: leadData.dataSource ?? "manual_entry",
     };
-
-    // Simple validation
-    if (!lead.slug || !lead.businessName) {
-      throw new Error("Slug and Business Name are required");
-    }
 
     // Shared create-path sanitize — strip edge dashes so CRM slug matches
     // leadSlugAsDnsLabel / preview-subdomain Host lookup (see sanitizeLeadSlug).
