@@ -8929,6 +8929,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — contact path-length rule; empty-backlog rotation marks commerce + contact path axes done",
       "NEXT_STEPS: contact-form-slug-path-length-cap done; commerce-checkout-slug-skuId-field-length-cap done (92f3)",
       "BUSINESS_DECISIONS — contact path-length hard-reject over inventing an optional aggregate (slice 339)",
+      "Verified: npm test (1422 passed) + lint after fold of 92f3",
     ],
     decisions: BUSINESS_DECISIONS.slice(339, 340),
   },
