@@ -35,6 +35,12 @@ export {
 } from "./monthly-pack";
 
 export {
+  MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
+  MAX_MARKETING_GENERATE_LEAD_ID_LENGTH,
+  normalizeMarketingGenerateBusiness,
+} from "./generate-limits";
+
+export {
   formatMarketingPackEmailHtml,
   leadEligibleForMarketingPackDelivery,
   marketingPackDeliverySubject,
