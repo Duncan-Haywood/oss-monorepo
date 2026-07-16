@@ -1,3 +1,4 @@
+import { softCapPackVariantFields } from "@/lib/packs/variant-fields";
 import type { MarketingPack } from "./pack";
 import type { MarketingContentVariant } from "./types";
 
@@ -19,22 +20,32 @@ export interface SqliteMarketingPackRow {
   packageTier: string | null;
 }
 
-/** Inverse of `JSON.stringify(pack.variants)`; malformed/absent JSON or non-array/non-well-shaped elements degrade to []. */
+/** Inverse of `JSON.stringify(pack.variants)`; malformed/absent JSON or non-array/non-well-shaped elements degrade to []. Soft-caps title/body/cta/hashtags so pre-cap persisted rows cannot bypass generate-time caps on read. */
 export function parsePackVariants(json: string): MarketingContentVariant[] {
   try {
     const parsed: unknown = JSON.parse(json);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is MarketingContentVariant => {
-      if (!item || typeof item !== "object") return false;
-      const row = item as Record<string, unknown>;
-      return typeof row.contentType === "string" && typeof row.body === "string";
-    });
+    return parsed
+      .filter((item): item is MarketingContentVariant => {
+        if (!item || typeof item !== "object") return false;
+        const row = item as Record<string, unknown>;
+        return typeof row.contentType === "string" && typeof row.body === "string";
+      })
+      .map((variant) => softCapPackVariantFields(variant));
   } catch {
     return [];
   }
 }
 
 const PACKAGE_TIERS = ["copy_pack", "social_email", "full_marketing"] as const;
+
+/** Soft-cap variants on a pack already loaded from Convex (bypasses parsePackVariants). */
+export function softCapMarketingPack(pack: MarketingPack): MarketingPack {
+  return {
+    ...pack,
+    variants: pack.variants.map((variant) => softCapPackVariantFields(variant)),
+  };
+}
 
 /** Map a SQLite `marketing_packs` row back into the app-wide MarketingPack shape (fallback-read path). */
 export function mapMarketingPackRow(row: SqliteMarketingPackRow): MarketingPack {

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   formatMarketingPackEmailHtml,
   leadEligibleForMarketingPackDelivery,
   marketingPackDeliverySubject,
@@ -69,6 +73,26 @@ describe("formatMarketingPackEmailHtml", () => {
       body: "Hello customers,\n\nWe miss you.",
     },
   ];
+
+  it("soft-caps over-long persisted variant fields before HTML emit", () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 12);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 7);
+    const html = formatMarketingPackEmailHtml({
+      businessName: "Acme Salon",
+      yearMonth: "2026-07",
+      variants: [
+        {
+          contentType: "gbp_post",
+          title: longTitle,
+          body: longBody,
+        },
+      ],
+    });
+    expect(html).not.toContain(longTitle);
+    expect(html).not.toContain(longBody);
+    expect(html).toContain("T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH));
+    expect(html).toContain("B".repeat(MAX_PACK_VARIANT_BODY_LENGTH));
+  });
 
   it("escapes HTML in titles/bodies and includes labels", () => {
     const html = formatMarketingPackEmailHtml({

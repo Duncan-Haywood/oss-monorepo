@@ -966,13 +966,17 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
         and <code>ConvexPrimaryWriteError</code> fail-closed — generators / monthly-pack / route
-        suites alone do not cover that glue. Both <code>parseVariantsJson</code> (Anthropic) and{" "}
+        suites alone do not cover that glue.         Both <code>parseVariantsJson</code> (Anthropic) and{" "}
         <code>StubMarketingGenerator.stubVariant</code> (default without{" "}
         <code>ANTHROPIC_API_KEY</code> + Anthropic fallback) soft-cap title / body / cta /
         per-hashtag length via shared <code>src/lib/packs/variant-fields.ts</code> before upsert
         (sold OUTPUT sink; hashtags still slice count to 8) — soft-cap so a long model response
         or create-path-max stub interpolations ship a truncated pack rather than failing generate.
-        When Convex is configured, Generate pack passes{" "}
+        The same <code>softCapPackVariantFields</code> helper also runs on pack{" "}
+        <strong>read/parse</strong> (SQLite <code>parsePackVariants</code> + Convex-primary{" "}
+        <code>softCapMarketingPack</code>) and at <strong>Email pack</strong> HTML format time
+        so already-stored pre-cap rows cannot bypass generate soft-caps under{" "}
+        <code>skipSuppression</code>. When Convex is configured, Generate pack passes{" "}
         <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
@@ -997,7 +1001,12 @@ source). The same digest also lists email-critical leads with no usable address 
         HTTP / parse / length-mismatch fallbacks, title fallback, and title/body/cta soft-caps on
         both Anthropic <code>parseVariantsJson</code> and stub emit via shared{" "}
         <code>src/lib/packs/variant-fields.ts</code> — stub <code>services.join</code> at create-path
-        max alone exceeds body max). Lead→request shaping (
+        max alone exceeds body max). The same <code>softCapPackVariantFields</code> helper also
+        runs on voice pack <strong>read/parse</strong> (SQLite{" "}
+        <code>parseClientVoiceVariants</code> + Convex-primary{" "}
+        <code>softCapClientVoicePack</code>) and at <strong>Email voice pack</strong> HTML format
+        time so already-stored pre-cap rows cannot bypass generate soft-caps under{" "}
+        <code>skipSuppression</code>. Lead→request shaping (
         <code>clientVoiceBusinessContextFromLead</code> /{" "}
         <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   mapClientVoicePackRow,
   parseClientVoiceVariants,
+  softCapClientVoicePack,
   type SqliteClientVoicePackRow,
 } from "./sqlite-row-mapping";
 
@@ -42,6 +47,39 @@ describe("parseClientVoiceVariants", () => {
     expect(parseClientVoiceVariants(json)).toEqual([
       { scriptType: "hours_faq", title: "Hours", body: "valid" },
     ]);
+  });
+
+  it("soft-caps over-long title/body on read", () => {
+    const json = JSON.stringify([
+      {
+        scriptType: "hours_faq",
+        title: "t".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 5),
+        body: "b".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 2),
+      },
+    ]);
+    const [variant] = parseClientVoiceVariants(json);
+    expect(variant?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(variant?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+  });
+});
+
+describe("softCapClientVoicePack", () => {
+  it("soft-caps Convex-shaped packs that bypass parseClientVoiceVariants", () => {
+    const pack = softCapClientVoicePack({
+      id: "cv_x",
+      leadSlug: "x",
+      generatedAt: "2026-07-01T00:00:00.000Z",
+      generator: "stub",
+      variants: [
+        {
+          scriptType: "inbound_greeting",
+          title: "t".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 1),
+          body: "ok",
+        },
+      ],
+    });
+    expect(pack.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(pack.variants[0]?.body).toBe("ok");
   });
 });
 

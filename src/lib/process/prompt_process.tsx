@@ -138,7 +138,9 @@ export const AGENT_PROTOCOL = [
   "Marketing + client-voice Anthropic parseVariantsJson must soft-cap LLM title/body/cta (and per-hashtag string length) via shared src/lib/packs/variant-fields.ts (MAX_PACK_VARIANT_TITLE_LENGTH=200 / BODY=8000 / CTA=300 / HASHTAG=64) before upsert + skipSuppression client email — hashtags already slice count to 8 but that is not a string-length bound. Soft-cap (never hard-reject) so a long model response still ships a truncated pack. After operator INPUT free-text caps (notes/reply/SKU/create-path/dataSource) and a clean Convex API map + marker-after-await + preview-index pass, prefer this sold LLM OUTPUT residual before inventing another dated clean-audit (marketing-voice-pack-variant-field-length-cap).",
   "StubMarketingGenerator / StubClientVoiceGenerator stubVariant must apply the same variant-fields soft-caps as parseVariantsJson — PR #312 closed only the Anthropic parse path; default (no ANTHROPIC_API_KEY) and Anthropic-fallback packs still upsert + skipSuppression email. Create-path-max inputs alone overflow: voice services.join at MAX_SERVICES×MAX_SERVICE_ITEM_LENGTH exceeds BODY; marketing title/hashtag interpolations exceed TITLE/HASHTAG. Soft-cap at stub emit (never hard-reject Generate). After closing an LLM parse soft-cap, always check the stub/fallback twin before declaring the OUTPUT axis done (marketing-voice-pack-stub-variant-field-length-cap).",
   "Never re-export loadPreviewCommerceItems (or any module that imports/lazy-imports `@/lib/db`) from the `@/lib/commerce` barrel — leads-client.tsx (`\"use client\"`) imports that barrel, and Turbopack still pulls `server-only` db into the client graph even when the db import is dynamic, breaking `next build` (PR #313 barrel regression; fixed by importing `@/lib/commerce/preview-commerce` only from Server Components). Same class as the `\"server-only\"` barrel rule above — after shipping a new sold SSR helper that touches db, verify the barrel is not re-exported into a client import path before claiming done (`npm run build`, not just test/lint).",
-  "After shipping listOrdersByLeadSlug for public /preview, immediately wire the auth-gated / sold slug-keyed twins that still full-ledger listOrders().filter(slug): createBillingPortalForLead (Manage billing) + per-lead dashboard eligibility (sendStarterUpsellAction, generateMarketingPackAction, sendMarketingPackToClientAction, saveCommerceCatalogAction, generateClientVoicePackAction, sendClientVoicePackToClientAction). Keep full listOrders() only for digest + dashboard ledger aggregates. Do not leave a new indexed helper used by one SSR path while operator money paths keep the O(n) collect (slug-scoped-listOrders-followthrough). After robots/sitemap consent gating ships, also gate LocalBusiness JSON-LD on the same isLeadPreviewIndexable predicate (preview-jsonld-indexable-only) before declaring the public marketing OUTPUT axis closed. Next empty-backlog prefers a dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual — reject workNextCount and dead orders.createOrder / getByStripeSessionId API-map orphans (order writes go through leads.markLeadPaid).",
+  "After shipping listOrdersByLeadSlug for public /preview, immediately wire the auth-gated / sold slug-keyed twins that still full-ledger listOrders().filter(slug): createBillingPortalForLead (Manage billing) + per-lead dashboard eligibility (sendStarterUpsellAction, generateMarketingPackAction, sendMarketingPackToClientAction, saveCommerceCatalogAction, generateClientVoicePackAction, sendClientVoicePackToClientAction). Keep full listOrders() only for digest + dashboard ledger aggregates. Do not leave a new indexed helper used by one SSR path while operator money paths keep the O(n) collect (slug-scoped-listOrders-followthrough).",
+  "After generate-time pack soft-caps (parseVariantsJson + stubVariant) close, also soft-cap at Email pack / Email voice pack HTML format AND on pack read/parse (SQLite parsePackVariants / parseClientVoiceVariants + Convex-primary softCapMarketingPack / softCapClientVoicePack via softCapPackVariantFields) — pre-cap persisted rows and Convex reads that bypass sqlite parsers must not emit uncapped LLM OUTPUT under skipSuppression (marketing-voice-pack-deliver-variant-field-length-cap). After closing a sold OUTPUT soft-cap at generate, always check the deliver/read twin before declaring the axis done.",
+  "After robots/sitemap consent gating ships, also gate LocalBusiness JSON-LD on the same isLeadPreviewIndexable predicate (preview-jsonld-indexable-only / leadPreviewJsonLdIfIndexable) before declaring the public marketing OUTPUT axis closed. Next empty-backlog prefers a dated clean-audit on Convex API map / marker-after-unchecked-await, or the next sold hot-path residual — reject workNextCount and dead orders.createOrder / getByStripeSessionId API-map orphans (order writes go through leads.markLeadPaid).",
 ] as const;
 
 /**
@@ -2312,6 +2314,14 @@ export const NEXT_STEPS: NextStep[] = [
     status: "done",
     phase: "Phase 8 — Commerce",
     owner: "cursor/business-process-evolution-338b",
+  },
+  {
+    id: "marketing-voice-pack-deliver-variant-field-length-cap",
+    summary:
+      "Empty-backlog after PR #314/#315 (stub pack soft-caps + slug-scoped listOrders followthrough). Free NEXT_STEPS stayed operator/legal-gated. PR #312/#314 soft-capped generate paths (Anthropic parse + stub) before upsert, but Email pack / Email voice pack still format + skipSuppression-send whatever is already stored — pre-cap rows and Convex-primary reads bypass sqlite parsers. Soft-cap variant fields at deliver HTML + pack read/parse so sold client email cannot emit uncapped LLM OUTPUT.",
+    status: "done",
+    phase: "Phase 6 — Marketing automation",
+    owner: "cursor/prompt-process-evolution-a3a8",
   },
   {
     id: "preview-jsonld-indexable-only",
@@ -4882,6 +4892,13 @@ export const BUSINESS_DECISIONS: BusinessDecision[] = [
       "Wire listOrdersByLeadSlug into createBillingPortalForLead + per-lead dashboard sold-capability gates (Starter upsell / marketing pack generate+email / commerce catalog save / client voice generate+email) after preview #313 shipped the helper — rather than leave Manage billing and operator eligibility on full-ledger listOrders().filter(slug), invent an optional aggregate, or jump to a 3rd clean-audit while free NEXT_STEPS stay operator/legal-gated.",
     rationale:
       "Empty-backlog after PR #313/#314 (preview listOrders + stub pack soft-caps). Free NEXT_STEPS stayed operator/legal-gated. Same-window sibling a070 closed the stub/fallback OUTPUT twin + commerce barrel regression; complementary followthrough kept. Fresh sold-capability audit found six auth-gated slug-keyed actions + Manage billing still collected the full order ledger then filtered — the exact anti-pattern preview just fixed. Digest + dashboard page aggregates correctly keep listOrders(). Process improvement: when a new indexed list* helper ships for one hot path, immediately scan auth-gated / sold slug-keyed twins before inventing another dated clean-audit. Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await / public marketing OUTPUT indexing. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
+  },
+  {
+    date: "2026-07-16",
+    decision:
+      "Soft-cap marketing + client-voice pack variant fields at Email pack / Email voice pack HTML format and on pack read/parse (SQLite parsers + Convex-primary softCap* helpers) via shared softCapPackVariantFields — rather than leave already-stored pre-cap rows and Convex reads able to bypass generate-time soft-caps under skipSuppression, invent an optional aggregate, or jump to a 3rd clean-audit while free NEXT_STEPS stay operator/legal-gated.",
+    rationale:
+      "Empty-backlog after PR #314/#315 (stub pack soft-caps + slug-scoped listOrders followthrough). Free NEXT_STEPS stayed operator/legal-gated. Same-window sibling business-process-evolution-18d9 claimed complementary preview-jsonld-indexable-only (merged PR #316) — both axes kept via merge. Stuck CLI remotes were clean-audit-only / already-merged. Fresh sold-OUTPUT audit found generate soft-caps (#312/#314) closed Anthropic parse + stub before upsert, but formatMarketingPackEmailHtml / formatClientVoicePackEmailHtml + Convex get* still emitted uncapped persisted variants. Process improvement: after closing a sold OUTPUT soft-cap at generate (parse + stub), always check the deliver/read twin before declaring the axis done. Also tightened ITERATIONS slice drift (349–364 ownership clean). Next empty-backlog: dated clean-audit on Convex API map / marker-after-unchecked-await. Stripe Prices / Places / Buffer OAuth / Connect stay gated.",
   },
   {
     date: "2026-07-16",
@@ -9505,11 +9522,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes beacon openedAt length fall-back beside requireConvex",
       "AGENT_PROTOCOL — preview-open openedAt length rule; empty-backlog rotation marks this axis done; next prefers dated clean-audit / Convex parity / Assign-project id length",
       "NEXT_STEPS: preview-open-openedAt-field-length-cap done",
-      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (slice 350)",
+      "BUSINESS_DECISIONS — fall back over-long preview-open openedAt over inventing an optional aggregate (slice 349)",
       "Verified: npm test (1474 passed, +6 over main@proxy-login's 1468) + lint",
       "Folded onto cursor/prompt-process-evolution-2662 — complementary session-token length; both ITERATIONS kept",
     ],
-    decisions: BUSINESS_DECISIONS.slice(350, 351),
+    // Tightened: preview-open openedAt is absolute index 349.
+    decisions: BUSINESS_DECISIONS.slice(349, 350),
   },
   {
     date: "2026-07-16",
@@ -9523,10 +9541,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes session cookie length hard-reject beside password + proxy next=",
       "AGENT_PROTOCOL — operator session token length rule; empty-backlog rotation marks openedAt + session-token done",
       "NEXT_STEPS: operator-session-token-field-length-cap done; preview-open-openedAt-field-length-cap done (67b2 / #302)",
-      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 351)",
+      "BUSINESS_DECISIONS — session cookie hard-reject over inventing an optional aggregate (slice 350)",
       "Verified: npm test (1477 passed = main@#302's 1474 + 3 session-token regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(351, 352),
+    // Tightened: operator session token is absolute index 350.
+    decisions: BUSINESS_DECISIONS.slice(350, 351),
   },
   {
     date: "2026-07-16",
@@ -9542,10 +9561,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Assign-project id length hard-reject beside custom-domain normalize",
       "AGENT_PROTOCOL — auth-gated Assign-project id length rule; empty-backlog rotation marks this axis done; stuck-CLI fold example named",
       "NEXT_STEPS: assign-vercel-project-id-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 352)",
+      "BUSINESS_DECISIONS — hard-reject Assign-project vercelProjectId over inventing an optional aggregate (slice 351)",
       "Verified: npm test (1486 passed = main@#303's 1477 + 6 helper + 2 action over-long/exact-max + 1 suite bookkeeping) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(352, 353),
+    // Tightened: Assign-project vercelProjectId is absolute index 351.
+    decisions: BUSINESS_DECISIONS.slice(351, 352),
   },
   {
     date: "2026-07-16",
@@ -9561,10 +9581,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes commerceOrders createdAt ordering beside dual-backend contract",
       "AGENT_PROTOCOL — dual-backend ordering names commerceOrders; empty-backlog rotation marks Convex commerceOrders residual done",
       "NEXT_STEPS: commerce-orders-convex-createdAt-ordering-parity done; assign-vercel-project-id-field-length-cap done (1ba2 / #304)",
-      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 353)",
+      "BUSINESS_DECISIONS — commerceOrders createdAt sort over inventing an optional aggregate (slice 352)",
       "Verified: npm test (1489 passed = main@#304's 1486 + 3 newest-first regressions) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(353, 354),
+    decisions: BUSINESS_DECISIONS.slice(352, 353),
   },
   {
     date: "2026-07-16",
@@ -9579,11 +9599,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated sessionId hard-reject beside Mark paid out",
       "AGENT_PROTOCOL — auth-gated stripeSessionId rule; empty-backlog rotation prefers auth-gated twins of shipped parsers",
       "NEXT_STEPS: auth-gated-stripe-sessionId-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (slice 354)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated stripeSessionId over inventing an optional aggregate (slice 353)",
       "Verified: npm test (1493 passed = main@#305's 1489 + 4 over-long/exact-max regressions) + lint",
       "Sibling c954 complementary inquiryId length — folded both ITERATIONS on c954 merge",
     ],
-    decisions: BUSINESS_DECISIONS.slice(354, 355),
+    // Tightened: auth-gated stripeSessionId is absolute index 353 (was claiming inquiryId at 354).
+    decisions: BUSINESS_DECISIONS.slice(353, 354),
   },
   {
     date: "2026-07-16",
@@ -9600,10 +9621,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes inquiryId length hard-reject beside Assign-project id",
       "AGENT_PROTOCOL — auth-gated inquiryId length rule; empty-backlog rotation marks inquiryId + stripeSessionId done; next prefers handoffId/packId/orderId or dated clean-audit",
       "NEXT_STEPS: auth-gated-inquiryId-field-length-cap done; auth-gated-stripe-sessionId-field-length-cap done (28bd / #306)",
-      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (slice 355)",
+      "BUSINESS_DECISIONS — hard-reject inquiryId over inventing an optional aggregate (slice 354)",
       "Verified: npm test (1501 passed = main@#306's 1493 + 4 helper + 4 action over-long/exact-max) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(355, 356),
+    // Tightened: inquiryId is absolute index 354 (was slice(355,356) claiming lead-slug).
+    decisions: BUSINESS_DECISIONS.slice(354, 355),
   },
   {
     date: "2026-07-16",
@@ -9619,10 +9641,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — csv-import-text-length-cap rule; empty-backlog rotation marks handoffId/packId/orderId as slug-keyed + CSV body done; next prefers dated clean-audit",
       "merge: origin/main (PR #308 auth-gated lead-slug length) — keep sibling ITERATION; complementary CSV body axis",
       "NEXT_STEPS: csv-import-text-length-cap done; auth-gated-lead-slug-field-length-cap done (f30c / #308)",
-      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 357)",
+      "BUSINESS_DECISIONS — hard-reject CSV body size over inventing an optional aggregate (slice 356)",
       "Verified: npm test (1515 passed = main@#308's 1509 + 4 helper + 2 action over-long/exact-max) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(357, 358),
+    // Tightened: csvText hard-reject is absolute index 356 (was overlapping dataSource at 357).
+    decisions: BUSINESS_DECISIONS.slice(356, 357),
   },
 
 
@@ -9642,10 +9665,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes auth-gated lead-slug hard-reject beside inquiryId / Assign-project",
       "AGENT_PROTOCOL — auth-gated lead-slug lookup rule; empty-backlog rotation marks slug residual done",
       "NEXT_STEPS: auth-gated-lead-slug-field-length-cap done",
-      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (slice 356)",
+      "BUSINESS_DECISIONS — hard-reject auth-gated lead slug over inventing an optional aggregate (slice 355)",
       "Verified: npm test (1509 passed = main@#307's 1501 + 4 helper + 2 mark-handoff over-long/exact-max + 1 follow-up + 1 stage over-long) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(356, 357),
+    // Tightened: lead-slug hard-reject is absolute index 355 (was claiming csvText at 356).
+    decisions: BUSINESS_DECISIONS.slice(355, 356),
   },
   {
     date: "2026-07-16",
@@ -9663,10 +9687,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes dataSource soft-cap beside csvText hard-reject",
       "AGENT_PROTOCOL — csv-import-dataSource-field-length-cap rule; empty-backlog rotation marks dataSource done; next prefers dated clean-audit / inquiry-reply body / use-server export-type fold",
       "NEXT_STEPS: csv-import-dataSource-field-length-cap done",
-      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 358)",
+      "BUSINESS_DECISIONS — soft-cap dataSource tag over inventing an optional aggregate (slice 357)",
       "Verified: npm test (1522 passed = main@#309's 1515 + 4 helper + 1 csv-import + 1 add-lead + 1 import-csv soft-cap) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(358, 359),
+    decisions: BUSINESS_DECISIONS.slice(357, 358),
   },
   {
     date: "2026-07-16",
@@ -9681,10 +9705,11 @@ export const ITERATIONS: ProcessIteration[] = [
       "Process: re-verified ITERATIONS[].decisions ownership via tsx import; tightened +1 drift on 67b2→8cf6 slices so each owns its absolute BUSINESS_DECISIONS index",
       "AGENT_PROTOCOL — inline export type aliases must drop export; empty-backlog rotation marks use-server hygiene + free-text soft-caps done",
       "NEXT_STEPS: use-server-export-type-cleanup done",
-      "BUSINESS_DECISIONS — fold use-server export-type hygiene over inventing an optional aggregate (slice 359)",
+      "BUSINESS_DECISIONS — fold use-server export-type hygiene over inventing an optional aggregate (slice 358)",
       "Verified: npm test (1522 passed, unchanged — type-only hygiene) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(359, 360),
+    // Tightened from slice(359,360): use-server export-type cleanup is absolute index 358.
+    decisions: BUSINESS_DECISIONS.slice(358, 359),
   },
   {
     date: "2026-07-16",
@@ -9700,10 +9725,10 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes pack variant soft-caps beside marketing/voice generate",
       "AGENT_PROTOCOL — LLM pack variant soft-cap rule; empty-backlog rotation marks INPUT free-text + pack OUTPUT done; next prefers sibling listOrders fold / dated clean-audit",
       "NEXT_STEPS: marketing-voice-pack-variant-field-length-cap done",
-      "BUSINESS_DECISIONS — soft-cap LLM pack variants over inventing an optional aggregate (slice 360)",
+      "BUSINESS_DECISIONS — soft-cap LLM pack variants over inventing an optional aggregate (slice 359)",
       "Verified: npm test (1533 passed = main@#311's 1522 + 9 variant-fields helper + 1 marketing soft-cap + 1 voice soft-cap) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(360, 361),
+    decisions: BUSINESS_DECISIONS.slice(359, 360),
   },
   {
     date: "2026-07-16",
@@ -9713,16 +9738,17 @@ export const ITERATIONS: ProcessIteration[] = [
     shipped: [
       "merge: origin/main (PR #312 marketing-voice-pack-variant-field-length-cap) — keep sibling ITERATION; complementary preview listOrders axis",
       "convex/orders.ts — listByLeadSlug query (by_leadSlug + createdAt desc)",
-      "src/lib/db.ts — listOrdersByLeadSlug + orders.listByLeadSlug on static API map; mapConvexOrderRow shared with listOrders",
+      "src/lib/db.ts — listOrdersByLeadSlug + orders.listByLeadSlug on static API map; mapConvexOrderProps shared with listOrders",
       "src/lib/commerce/preview-commerce.ts (+ test) — loadPreviewCommerceItems stage-gates before slug-scoped orders/catalog",
       "src/app/preview/[slug]/page.tsx — uses loadPreviewCommerceItems (never listOrders full ledger)",
       "Docs: architecture.tsx notes preview commerce stage-gate + slug-scoped orders",
       "AGENT_PROTOCOL — preview must not full-ledger listOrders; dual-backend ordering names orders.listByLeadSlug",
       "NEXT_STEPS: preview-page-uncapped-listOrders done; marketing-voice-pack-variant-field-length-cap done (e626 / #312)",
-      "BUSINESS_DECISIONS — stage-gate + slug-scope preview orders over inventing an optional aggregate (slice 361)",
+      "BUSINESS_DECISIONS — stage-gate + slug-scope preview orders over inventing an optional aggregate (slice 360)",
       "Verified: npm test (1541 passed = main@#312's 1533 + 8 preview-commerce stage/slug-scope regressions) + lint",
     ],
-    decisions: BUSINESS_DECISIONS.slice(361, 362),
+    // Tightened from slice(361,362): preview listOrders stage-gate is absolute index 360.
+    decisions: BUSINESS_DECISIONS.slice(360, 361),
   },
   {
     date: "2026-07-16",
@@ -9738,10 +9764,12 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes stub + Anthropic soft-caps on marketing/voice OUTPUT",
       "AGENT_PROTOCOL — stub/fallback twin rule; commerce barrel must not re-export db-touching preview helper",
       "NEXT_STEPS: marketing-voice-pack-stub-variant-field-length-cap + commerce-barrel-preview-commerce-server-only done",
-      "BUSINESS_DECISIONS — soft-cap stub pack variants (slice 362) + drop commerce barrel re-export (slice 363)",
+      "BUSINESS_DECISIONS — soft-cap stub pack variants (slice 361) + drop commerce barrel re-export (slice 362)",
       "Verified: npm test (1543 passed = main@#313's 1541 + 1 marketing stub soft-cap + 1 voice services.join soft-cap) + lint + build",
     ],
-    decisions: BUSINESS_DECISIONS.slice(362, 364),
+    // Tightened from slice(362,364): absolute indices are stub=361 + barrel=362
+    // (followthrough is 363 — owned by 338b). Prior upper bound 364 was empty/drift.
+    decisions: BUSINESS_DECISIONS.slice(361, 363),
   },
   {
     date: "2026-07-16",
@@ -9757,8 +9785,32 @@ export const ITERATIONS: ProcessIteration[] = [
       "Docs: architecture.tsx notes Manage billing + dashboard eligibility slug-scope",
       "AGENT_PROTOCOL — followthrough rule after shipping indexed list* helpers",
       "NEXT_STEPS: slug-scoped-listOrders-followthrough done; stub + commerce-barrel done (a070 / #314)",
-      "BUSINESS_DECISIONS — wire listOrdersByLeadSlug on auth-gated slug twins (slice 364)",
+      "BUSINESS_DECISIONS — wire listOrdersByLeadSlug on auth-gated slug twins (slice 363)",
       "Verified: npm test (1543 passed, unchanged vs main@#314 — eligibility mocks retargeted; no net new cases) + lint",
+    ],
+    // Tightened from empty slice(364,365): followthrough decision is absolute index 363.
+    decisions: BUSINESS_DECISIONS.slice(363, 364),
+  },
+  {
+    date: "2026-07-16",
+    branch: "cursor/prompt-process-evolution-a3a8",
+    summary:
+      "Empty-backlog after PR #314/#315 (stub pack soft-caps + slug-scoped listOrders followthrough). Free NEXT_STEPS stayed operator/legal-gated. Same-window sibling business-process-evolution-18d9 claimed complementary preview-jsonld-indexable-only (merged PR #316) — both axes kept via merge. Stuck CLI remotes were clean-audit-only / already-merged. Fresh sold-OUTPUT audit found generate soft-caps closed Anthropic parse + stub before upsert, but Email pack / Email voice pack + Convex-primary get* still emitted already-stored uncapped variants under skipSuppression. Soft-capped via softCapPackVariantFields at deliver HTML + SQLite parse + Convex read; Vitest + architecture note; tightened ITERATIONS slice drift; process rotation now requires deliver/read twin after generate soft-caps.",
+    shipped: [
+      "merge: origin/main (PR #316 preview-jsonld-indexable-only) — keep sibling ITERATION; complementary pack deliver soft-cap",
+      "src/lib/packs/variant-fields.ts — softCapPackVariantFields (+ SoftCappablePackVariantFields)",
+      "src/lib/packs/variant-fields.test.ts — helper regressions for persist/read shapes",
+      "src/lib/marketing/deliver-pack.ts + voice/deliver-pack.ts — soft-cap at skipSuppression HTML format",
+      "src/lib/marketing/sqlite-row-mapping.ts — parsePackVariants + softCapMarketingPack",
+      "src/lib/voice/sqlite-row-mapping.ts — parseClientVoiceVariants + softCapClientVoicePack",
+      "src/lib/db.ts — Convex get/list pack paths soft-cap (bypass sqlite parsers)",
+      "deliver-pack + sqlite-row-mapping tests — over-long persist/read/deliver regressions",
+      "Docs: architecture.tsx notes deliver/read soft-caps beside generate soft-caps",
+      "AGENT_PROTOCOL — deliver/read twin rule after generate soft-caps; empty-backlog rotation updated",
+      "Process: tightened ITERATIONS decision-slice drift (349–364 ownership clean)",
+      "NEXT_STEPS: marketing-voice-pack-deliver-variant-field-length-cap done; preview-jsonld-indexable-only done (18d9 / #316)",
+      "BUSINESS_DECISIONS — soft-cap pack deliver/read twin (slice 364); sibling JSON-LD gate (slice 365)",
+      "Verified: npm test (1552 passed on feature body vs main@#315's 1543; +3 JSON-LD from #316 → 1555 after merge) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(364, 365),
   },

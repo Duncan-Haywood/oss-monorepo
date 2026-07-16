@@ -57,3 +57,48 @@ export function softCapPackHashtags(
     .slice(0, maxCount);
   return tags.length > 0 ? tags : undefined;
 }
+
+/**
+ * Soft-cap already-persisted pack variant fields (title/body/cta/hashtags).
+ * Use on deliver HTML + pack read/parse — generate paths (parseVariantsJson /
+ * stubVariant) already soft-cap before upsert, but Email pack / Email voice
+ * pack must not emit pre-cap rows or Convex-primary reads under skipSuppression.
+ */
+export type SoftCappablePackVariantFields = {
+  title?: string;
+  body: string;
+  cta?: string;
+  hashtags?: string[];
+};
+
+export function softCapPackVariantFields<T extends SoftCappablePackVariantFields>(
+  variant: T,
+): T {
+  const cta = softCapOptionalPackField(variant.cta, MAX_PACK_VARIANT_CTA_LENGTH);
+  const hashtags =
+    variant.hashtags === undefined
+      ? undefined
+      : softCapPackHashtags(variant.hashtags);
+  // Omit optional keys when absent so read/parse shapes match generate output.
+  // String titles (including voice's required title) soft-cap in place; blank → "".
+  const next = { ...variant, body: softCapPackBody(variant.body) };
+  if (typeof variant.title === "string") {
+    const trimmed = variant.title.trim();
+    next.title = trimmed
+      ? softCapPackField(trimmed, MAX_PACK_VARIANT_TITLE_LENGTH)
+      : "";
+  } else {
+    delete (next as { title?: string }).title;
+  }
+  if (cta !== undefined) {
+    next.cta = cta;
+  } else {
+    delete (next as { cta?: string }).cta;
+  }
+  if (hashtags !== undefined) {
+    next.hashtags = hashtags;
+  } else {
+    delete (next as { hashtags?: string[] }).hashtags;
+  }
+  return next;
+}

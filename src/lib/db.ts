@@ -42,14 +42,22 @@ import {
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
-import { mapMarketingPackRow, type SqliteMarketingPackRow } from "./marketing/sqlite-row-mapping";
+import {
+  mapMarketingPackRow,
+  softCapMarketingPack,
+  type SqliteMarketingPackRow,
+} from "./marketing/sqlite-row-mapping";
 import {
   mapCommerceCatalogRow,
   mapCommerceOrderRow,
   type SqliteCommerceCatalogRow,
   type SqliteCommerceOrderRow,
 } from "./commerce/sqlite-row-mapping";
-import { mapClientVoicePackRow, type SqliteClientVoicePackRow } from "./voice/sqlite-row-mapping";
+import {
+  mapClientVoicePackRow,
+  softCapClientVoicePack,
+  type SqliteClientVoicePackRow,
+} from "./voice/sqlite-row-mapping";
 
 export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
@@ -1955,10 +1963,13 @@ export async function getMarketingPack(
 ): Promise<MarketingPack | null> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.marketingPacks.getByLeadMonth, {
+      const pack = (await convexClient.query(api.marketingPacks.getByLeadMonth, {
         leadSlug,
         yearMonth,
       })) as MarketingPack | null;
+      // Convex-primary reads bypass parsePackVariants — soft-cap here so Email
+      // pack + dashboard cannot emit pre-generate-cap rows.
+      return pack ? softCapMarketingPack(pack) : null;
     } catch (e) {
       console.warn(
         `Failed to get marketing pack for ${leadSlug} from Convex, falling back to SQLite`,
@@ -1988,9 +1999,10 @@ export async function listMarketingPacksForMonth(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.marketingPacks.listByMonth, {
+      const packs = (await convexClient.query(api.marketingPacks.listByMonth, {
         yearMonth,
       })) as MarketingPack[];
+      return packs.map(softCapMarketingPack);
     } catch (e) {
       console.warn(
         "Failed to list marketing packs from Convex, falling back to SQLite",
@@ -2411,9 +2423,12 @@ export async function getClientVoicePackByLeadSlug(
 ): Promise<ClientVoicePack | null> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.clientVoicePacks.getByLeadSlug, {
+      const pack = (await convexClient.query(api.clientVoicePacks.getByLeadSlug, {
         leadSlug,
       })) as ClientVoicePack | null;
+      // Convex-primary reads bypass parseClientVoiceVariants — soft-cap here so
+      // Email voice pack + dashboard cannot emit pre-generate-cap rows.
+      return pack ? softCapClientVoicePack(pack) : null;
     } catch (e) {
       console.warn(
         `Failed to get client voice pack for ${leadSlug} from Convex, falling back to SQLite`,
@@ -2442,10 +2457,11 @@ export async function listClientVoicePacks(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(
+      const packs = (await convexClient.query(
         api.clientVoicePacks.list,
         {},
       )) as ClientVoicePack[];
+      return packs.map(softCapClientVoicePack);
     } catch (e) {
       console.warn(
         "Failed to list client voice packs from Convex, falling back to SQLite",

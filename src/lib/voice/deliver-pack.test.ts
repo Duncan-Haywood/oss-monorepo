@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   clientVoicePackDeliverySubject,
   formatClientVoicePackEmailHtml,
   leadEligibleForClientVoicePackDelivery,
@@ -88,6 +92,25 @@ describe("formatClientVoicePackEmailHtml", () => {
     expect(html).toContain("Inbound greeting");
     expect(html).toContain("https://example.com/preview/acme");
     expect(html).not.toContain("<script>");
+  });
+
+  it("soft-caps over-long persisted variant fields before HTML emit", () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 8);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 4);
+    const html = formatClientVoicePackEmailHtml({
+      businessName: "Acme Salon",
+      variants: [
+        {
+          scriptType: "inbound_greeting",
+          title: longTitle,
+          body: longBody,
+        },
+      ],
+    });
+    expect(html).not.toContain(longTitle);
+    expect(html).not.toContain(longBody);
+    expect(html).toContain("T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH));
+    expect(html).toContain("B".repeat(MAX_PACK_VARIANT_BODY_LENGTH));
   });
 
   it("renders multiple scripts with spoken CTA", () => {

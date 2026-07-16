@@ -7,6 +7,7 @@
 import { brand } from "@/lib/brand";
 import type { LeadPipelineStage } from "@/lib/leads/types";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "@/lib/inquiries/reply";
+import { softCapPackVariantFields } from "@/lib/packs/variant-fields";
 import { contentTypeLabel, leadEligibleForMarketingPack } from "./monthly-pack";
 import type { MarketingContentVariant } from "./types";
 
@@ -67,7 +68,10 @@ export function formatMarketingPackEmailHtml(input: {
   previewUrl?: string;
 }): string {
   const { businessName, yearMonth, variants, previewUrl } = input;
+  // Soft-cap at the skipSuppression sink — generate soft-caps before upsert, but
+  // Email pack must not emit already-stored uncapped rows (deliver twin).
   const variantHtml = variants
+    .map((variant) => softCapPackVariantFields(variant))
     .map((variant, index) => variantBlockHtml(variant, index))
     .join("");
   const previewLine = previewUrl

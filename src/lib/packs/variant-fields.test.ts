@@ -8,6 +8,7 @@ import {
   softCapPackBody,
   softCapPackField,
   softCapPackHashtags,
+  softCapPackVariantFields,
 } from "./variant-fields";
 
 describe("softCapPackField", () => {
@@ -69,5 +70,48 @@ describe("pack variant max constants", () => {
     expect(MAX_PACK_VARIANT_TITLE_LENGTH).toBeLessThan(MAX_PACK_VARIANT_BODY_LENGTH);
     expect(MAX_PACK_VARIANT_CTA_LENGTH).toBeLessThan(MAX_PACK_VARIANT_BODY_LENGTH);
     expect(MAX_PACK_HASHTAG_LENGTH).toBeLessThan(MAX_PACK_VARIANT_TITLE_LENGTH);
+  });
+});
+
+describe("softCapPackVariantFields", () => {
+  it("soft-caps title/body/cta/hashtags on a persisted variant shape", () => {
+    const longTitle = "t".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 9);
+    const longBody = "b".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 3);
+    const longCta = "c".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 4);
+    const longTag = "#".repeat(MAX_PACK_HASHTAG_LENGTH + 2);
+    const capped = softCapPackVariantFields({
+      contentType: "gbp_post",
+      title: longTitle,
+      body: longBody,
+      cta: longCta,
+      hashtags: [longTag, "#ok"],
+    });
+    expect(capped.contentType).toBe("gbp_post");
+    expect(capped.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(capped.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(capped.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+    expect(capped.hashtags?.[0]).toHaveLength(MAX_PACK_HASHTAG_LENGTH);
+    expect(capped.hashtags?.[1]).toBe("#ok");
+  });
+
+  it("leaves under-max body unchanged; blank string title → \"\"; omits blank cta", () => {
+    const capped = softCapPackVariantFields({
+      scriptType: "greeting",
+      title: "  ",
+      body: "Short body",
+      cta: "   ",
+    });
+    expect(capped.title).toBe("");
+    expect(capped.body).toBe("Short body");
+    expect(capped.cta).toBeUndefined();
+  });
+
+  it("omits title when the input had no title key (marketing optional)", () => {
+    const capped = softCapPackVariantFields({
+      contentType: "email_campaign",
+      body: "Hello",
+    });
+    expect("title" in capped).toBe(false);
+    expect(capped.body).toBe("Hello");
   });
 });
