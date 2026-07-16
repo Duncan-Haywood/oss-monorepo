@@ -10248,7 +10248,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — bundle webhook must derive commerceAddon from line items; audit billing-portal metadata twin next",
       "NEXT_STEPS: bundle-webhook-commerceAddon-line-item-parity done",
       "BUSINESS_DECISIONS — require listLineItems commerceAddon parity on bundle webhook (absolute index 378)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1626 passed = main@#327's 1613 + 13 commerceAddon line-item / listLineItems-5xx regressions) + lint",
     ],
     // Object-parse: commerceAddon line-item parity owns BD[378]; bundle slug=377.
     decisions: BUSINESS_DECISIONS.slice(378, 379),
