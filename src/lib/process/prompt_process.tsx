@@ -9863,7 +9863,7 @@ export const ITERATIONS: ProcessIteration[] = [
       "AGENT_PROTOCOL — public opaque-id hard-reject → audit auth-gated write twin",
       "NEXT_STEPS: commerce-catalog-skuId-field-length-cap done",
       "BUSINESS_DECISIONS — hard-reject over-long catalog SKU ids (slice 366)",
-      "Verified: npm test + lint",
+      "Verified: npm test (1558 passed = main@#317's 1555 + 2 catalog normalize + 1 save-action regressions) + lint",
     ],
     decisions: BUSINESS_DECISIONS.slice(366, 367),
   },
