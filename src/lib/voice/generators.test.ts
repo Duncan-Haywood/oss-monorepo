@@ -82,6 +82,21 @@ describe("StubClientVoiceGenerator", () => {
     );
   });
 
+  it("soft-caps services_faq body when services.join exceeds pack body max", async () => {
+    // MAX_SERVICES(100) × MAX_SERVICE_ITEM_LENGTH(100) alone exceeds BODY=8000.
+    const manyServices = Array.from({ length: 100 }, (_, i) =>
+      `service-${String(i).padStart(3, "0")}-${"x".repeat(80)}`,
+    );
+    const result = await new StubClientVoiceGenerator().generate(
+      request({
+        scriptTypes: ["services_faq"],
+        business: { ...baseBusiness, services: manyServices },
+      }),
+    );
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.title).toBe("Services");
+  });
+
   it("omits state from location and falls back when services/hours/phone missing", async () => {
     const result = await new StubClientVoiceGenerator().generate(
       request({

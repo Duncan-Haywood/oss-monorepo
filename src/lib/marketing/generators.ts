@@ -55,20 +55,28 @@ function stubVariant(
   const body =
     `[Stub ${index + 1}] ${businessName} in ${location} — ${service} ${angle}. ${hoursBit} ${phoneBit}`.trim();
 
+  // Soft-cap at stub emit too — parseVariantsJson only covers the Anthropic path;
+  // default/fallback packs still upsert + skipSuppression email (PR #312 twin).
   return {
     contentType,
-    title:
+    title: softCapOptionalPackField(
       contentType === "local_seo_meta" || contentType === "email_campaign"
         ? `${businessName} | ${service} in ${business.city}`
         : contentType === "gbp_post"
           ? `${service} ${angle} — ${business.city}`
           : undefined,
-    body,
-    cta: business.phone ? `Call ${business.phone}` : "Visit us today",
-    hashtags:
+      MAX_PACK_VARIANT_TITLE_LENGTH,
+    ),
+    body: softCapPackBody(body),
+    cta: softCapOptionalPackField(
+      business.phone ? `Call ${business.phone}` : "Visit us today",
+      MAX_PACK_VARIANT_CTA_LENGTH,
+    ),
+    hashtags: softCapPackHashtags(
       contentType === "instagram_caption" || contentType === "facebook_caption"
         ? [`#${business.city.replace(/\s+/g, "")}`, `#${business.category}`, "#LocalBusiness"]
         : undefined,
+    ),
   };
 }
 

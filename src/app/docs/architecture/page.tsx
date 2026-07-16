@@ -206,7 +206,10 @@ export default function ArchitectureDocPage() {
         <code>/preview/[slug]</code> from the lead catalog (
         <code>src/lib/leads</code>). Demo slugs: <code>example-bakery</code>,{" "}
         <code>serene-salon</code>, <code>mountain-plumbing</code>. Commerce catalog
-        items load via <code>loadPreviewCommerceItems</code> — stage-gated on{" "}
+        items load via <code>loadPreviewCommerceItems</code> (
+        <code>@/lib/commerce/preview-commerce</code> — not re-exported from the{" "}
+        <code>@/lib/commerce</code> barrel, which <code>leads-client</code> imports
+        as a client module) — stage-gated on{" "}
         <code>leadStageEligibleForCommerceCatalog</code> (paid/live only) and
         slug-scoped via <code>listOrdersByLeadSlug</code> (
         <code>orders.by_leadSlug</code> / SQLite <code>WHERE l.slug = ?</code>),
@@ -960,11 +963,13 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>src/app/dashboard/leads/generate-marketing-pack-action.test.ts</code> locks auth,
         eligibility, <code>MARKETING_PACK_CONVEX_PRIMARY</code> persist, stub-vs-anthropic labeling,
         and <code>ConvexPrimaryWriteError</code> fail-closed — generators / monthly-pack / route
-        suites alone do not cover that glue. LLM <code>parseVariantsJson</code> soft-caps title /
-        body / cta / per-hashtag length via shared{" "}
-        <code>src/lib/packs/variant-fields.ts</code> before upsert (sold OUTPUT sink; hashtags
-        still slice count to 8) — soft-cap so a long model response ships a truncated pack rather
-        than failing generate. When Convex is configured, Generate pack passes{" "}
+        suites alone do not cover that glue. Both <code>parseVariantsJson</code> (Anthropic) and{" "}
+        <code>StubMarketingGenerator.stubVariant</code> (default without{" "}
+        <code>ANTHROPIC_API_KEY</code> + Anthropic fallback) soft-cap title / body / cta /
+        per-hashtag length via shared <code>src/lib/packs/variant-fields.ts</code> before upsert
+        (sold OUTPUT sink; hashtags still slice count to 8) — soft-cap so a long model response
+        or create-path-max stub interpolations ship a truncated pack rather than failing generate.
+        When Convex is configured, Generate pack passes{" "}
         <code>requireConvex</code> (<code>MARKETING_PACK_CONVEX_PRIMARY</code>) so a mutation
         failure surfaces a retry instead of leaving packs-due / Email pack blind on other
         instances. <code>sendMarketingPackToClientAction</code> emails the
@@ -986,8 +991,10 @@ source). The same digest also lists email-critical leads with no usable address 
         <code>StubClientVoiceGenerator</code> or <code>AnthropicClientVoiceGenerator</code> when{" "}
         <code>ANTHROPIC_API_KEY</code> is set (direct Vitest coverage in{" "}
         <code>src/lib/voice/generators.test.ts</code> for stub edge branches + Anthropic blank-key /
-        HTTP / parse / length-mismatch fallbacks, title fallback, and title/body/cta soft-caps via
-        shared <code>src/lib/packs/variant-fields.ts</code>). Lead→request shaping (
+        HTTP / parse / length-mismatch fallbacks, title fallback, and title/body/cta soft-caps on
+        both Anthropic <code>parseVariantsJson</code> and stub emit via shared{" "}
+        <code>src/lib/packs/variant-fields.ts</code> — stub <code>services.join</code> at create-path
+        max alone exceeds body max). Lead→request shaping (
         <code>clientVoiceBusinessContextFromLead</code> /{" "}
         <code>clientVoicePackRequestForLead</code>) has direct edge coverage in{" "}
         <code>src/lib/voice/build-request.test.ts</code> (empty services →{" "}
