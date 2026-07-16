@@ -8,7 +8,7 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  *
  * handoff-persist / handoff helper suites cover the requireConvex constant
  * and the field writes. This suite locks the dashboard action glue:
- * requireOperatorAuth, empty slug, no-handoff null, ConvexPrimaryWriteError
+ * requireOperatorAuth, empty/over-long slug, no-handoff null, ConvexPrimaryWriteError
  * fail-closed (no revalidate), success revalidate, and Error / non-Error
  * throws.
  */
@@ -126,6 +126,29 @@ describe("markHandoffLiveAction", () => {
     });
     expect(markHandoffLive).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long slug before markHandoffLive", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const { markHandoffLiveAction } = await import("./actions");
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    const res = await markHandoffLiveAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is too long",
+    });
+    expect(markHandoffLive).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("accepts exactly MAX_LEAD_SLUG_LENGTH and still marks live", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const exact = "c".repeat(MAX_LEAD_SLUG_LENGTH);
+    markHandoffLive.mockResolvedValue({ ...liveHandoff, leadSlug: exact });
+    const { markHandoffLiveAction } = await import("./actions");
+    const res = await markHandoffLiveAction(exact);
+    expect(res.success).toBe(true);
+    expect(markHandoffLive).toHaveBeenCalledWith(exact);
   });
 
   it("returns not-found when markHandoffLive yields null", async () => {
