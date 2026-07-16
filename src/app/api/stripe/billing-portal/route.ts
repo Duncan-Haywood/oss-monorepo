@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { parseCheckoutSessionId } from "@/lib/billing/checkout-session-id";
 import { createBillingPortalForCheckoutSession } from "@/lib/billing/create-portal-session";
 import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
@@ -55,13 +56,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const sessionId = body.sessionId?.trim();
-  if (!sessionId) {
+  const parsedSessionId = parseCheckoutSessionId(body.sessionId);
+  if (!parsedSessionId.ok) {
+    if (parsedSessionId.reason === "too_long") {
+      return NextResponse.json(
+        { error: "sessionId is too long" },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       { error: "sessionId is required (use the operator dashboard action for leadSlug)" },
       { status: 400 },
     );
   }
+  const sessionId = parsedSessionId.sessionId;
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
