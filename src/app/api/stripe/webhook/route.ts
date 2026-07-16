@@ -8,6 +8,11 @@ import {
 } from "@/lib/commerce/checkout-fields";
 import { parseLeadSlugLookup } from "@/lib/leads/slug";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import {
+  commerceAddonPriceIdsFromEnv,
+  priceIdsFromStripeLineItems,
+  resolveCommerceAddonFromLineItems,
+} from "@/lib/payments/commerce-addon-line-items";
 import { webhookFulfillmentFailureResponse } from "@/lib/payments/webhook-fulfillment";
 import {
   expectedBundleCheckoutAmountCents,
@@ -33,15 +38,17 @@ import {
  *
  * Bundle checkout create already sanitizes+caps slug via
  * resolveBundleCheckoutLeadSlug / sanitizeLeadSlug (MAX_LEAD_SLUG_LENGTH),
- * rejects unknown tiers via getBundle, and charges only catalog Stripe Price
- * IDs from BUNDLES (+ optional COMMERCE_ADDON); this handler must mirror
- * slug/tier gates AND require session.amount_total (integer cents) ===
- * expectedBundleCheckoutAmountCents(bundle, commerceAddon) before
- * recordLeadPayment / handoff / receipt — a truthy metadata.slug / metadata.tier
- * alone is not enough (Dashboard-minted or tampered Checkout Sessions).
- * Over-long slug (parseLeadSlugLookup), unknown tier, or amount mismatch
- * skips like missing slug/tier (session already marked complete; do not 5xx
- * forever).
+ * rejects unknown tiers via getBundle, only sets metadata.commerceAddon when
+ * both COMMERCE_ADDON Price IDs are on line_items, and charges only catalog
+ * Stripe Price IDs from BUNDLES (+ optional COMMERCE_ADDON); this handler must
+ * mirror slug/tier gates, derive commerceAddon from listLineItems Price IDs
+ * (never metadata), AND require session.amount_total (integer cents) ===
+ * expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon) before
+ * recordLeadPayment / handoff / receipt — a truthy metadata.slug / tier /
+ * commerceAddon alone is not enough (Dashboard-minted or tampered Checkout
+ * Sessions). Over-long slug (parseLeadSlugLookup), unknown tier, or amount
+ * mismatch skips like missing slug/tier (session already marked complete; do
+ * not 5xx forever). listLineItems failures return 500 so Stripe retries.
  *
  * Commerce Buy now create already hard-rejects over-long slug via
  * parseCommerceCheckoutSlug, 404s when skuId is not in the lead catalog, and
@@ -103,7 +110,7 @@ export async function POST(request: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       const rawSlug = session.metadata?.slug;
       const tier = session.metadata?.tier;
-      const commerceAddon = session.metadata?.commerceAddon === "true";
+      const metadataCommerceAddon = session.metadata?.commerceAddon === "true";
       const customerEmail = session.customer_details?.email ?? session.customer_email ?? "";
       const stripeCustomerId = stripeCustomerIdFromUnknown(session.customer) ?? undefined;
 
@@ -365,15 +372,45 @@ export async function POST(request: Request) {
       }
 
       // Mirror POST /api/stripe/checkout: sanitizeLeadSlug caps at
-      // MAX_LEAD_SLUG_LENGTH, getBundle rejects unknown tiers, and line_items
-      // use catalog Price IDs (BUNDLES USD). Truthy metadata.slug / tier alone
-      // must not pollute CRM/handoffs or trust a mismatched Stripe amount
-      // (bundle-webhook-slug-lookup-gate + tier-enum-guard + amount-catalog-parity).
+      // MAX_LEAD_SLUG_LENGTH, getBundle rejects unknown tiers, commerceAddon
+      // follows COMMERCE_ADDON Price IDs on line_items, and amounts match
+      // catalog USD. Truthy metadata.slug / tier / commerceAddon alone must
+      // not pollute CRM/handoffs or trust a mismatched Stripe amount
+      // (slug + tier + commerceAddon line-item + amount-catalog-parity).
       const parsedSlug = parseLeadSlugLookup(rawSlug);
       const slug = parsedSlug.ok ? parsedSlug.slug : undefined;
       const bundle = typeof tier === "string" ? getBundle(tier) : undefined;
       if (slug && bundle) {
         const knownTier = bundle.id;
+
+        // Mirror create-path commerceAddon: only true when both COMMERCE_ADDON
+        // Price IDs are on the session line_items. Never trust metadata —
+        // amount parity below must use the derived flag too.
+        let commerceAddon = false;
+        try {
+          const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+            limit: 100,
+          });
+          const resolved = resolveCommerceAddonFromLineItems({
+            metadataCommerceAddon,
+            lineItemPriceIds: priceIdsFromStripeLineItems(lineItems.data),
+            commercePrices: commerceAddonPriceIdsFromEnv(),
+          });
+          commerceAddon = resolved.commerceAddon;
+          if (resolved.metadataMismatch) {
+            console.warn(
+              `webhook: bundle session ${session.id} commerceAddon metadata=${metadataCommerceAddon} lineItems=${commerceAddon} — using line items`,
+            );
+          }
+        } catch (lineItemError) {
+          console.error(
+            `Failed to list line items for commerceAddon parity on ${session.id}`,
+            lineItemError,
+          );
+          const failure = webhookFulfillmentFailureResponse("bundle_commerce_addon_line_items");
+          return NextResponse.json(failure.body, { status: failure.status });
+        }
+
         const expectedCents = expectedBundleCheckoutAmountCents(bundle, commerceAddon);
         const amountCents = session.amount_total;
         if (

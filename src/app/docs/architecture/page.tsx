@@ -459,15 +459,20 @@ export default function ArchitectureDocPage() {
         <code>parseLeadSlugLookup</code>-valid <code>metadata.slug</code> (create-path{" "}
         <code>MAX_LEAD_SLUG_LENGTH</code> ceiling — same hard-reject class as Commerce{" "}
         <code>parseCommerceCheckoutSlug</code>), a <code>getBundle(metadata.tier)</code>-known
-        tier (same enum gate as checkout create), and{" "}
-        <code>session.amount_total</code> (integer cents) equal to{" "}
-        <code>expectedBundleCheckoutAmountCents(bundle, commerceAddon)</code> (setup + first
-        month from <code>BUNDLES</code>, plus optional <code>COMMERCE_ADDON</code> — twin of
-        Commerce catalog <code>priceCents</code> parity) — a truthy but over-long slug,
-        unknown/wrong-cased tier, or mismatched Stripe amount skips payment/handoff/receipt
-        like a missing field (session is still marked complete; do not 5xx forever). Receipt
-        HTML escapes the tier label via <code>escapeHtmlForEmail</code> and prefers the
-        catalog display name. The <code>orders</code> insert is idempotent on{" "}
+        tier (same enum gate as checkout create), a <code>commerceAddon</code> flag
+        derived from Checkout <code>listLineItems</code> Price IDs (both{" "}
+        <code>COMMERCE_ADDON</code> setup + monthly env Prices present — never from{" "}
+        <code>metadata.commerceAddon</code>), and <code>session.amount_total</code>{" "}
+        (integer cents) equal to{" "}
+        <code>expectedBundleCheckoutAmountCents(bundle, derivedCommerceAddon)</code>{" "}
+        (setup + first month from <code>BUNDLES</code>, plus optional{" "}
+        <code>COMMERCE_ADDON</code> — twin of Commerce catalog <code>priceCents</code>{" "}
+        parity) — a truthy but over-long slug, unknown/wrong-cased tier, forged Commerce
+        flag, or mismatched Stripe amount skips or corrects before payment/handoff/receipt
+        (session is still marked complete for slug/tier/amount skips; do not 5xx forever;
+        line-item list failures return 500 so Stripe retries). Receipt HTML escapes the
+        tier label via <code>escapeHtmlForEmail</code> and prefers the catalog display
+        name. The <code>orders</code> insert is idempotent on{" "}
         <code>stripeSessionId</code> (UNIQUE index in SQLite, existing-row check in Convex) — a
         redelivered <code>checkout.session.completed</code> (Stripe retries on timeout) is detected
         and receipt/DNS emails are recovered only when deploy-handoff notes lack a sent-marker for

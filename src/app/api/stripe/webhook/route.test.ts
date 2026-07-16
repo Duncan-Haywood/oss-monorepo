@@ -15,9 +15,15 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  */
 
 const constructEvent = vi.fn();
+const listLineItems = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     webhooks = { constructEvent: (...args: unknown[]) => constructEvent(...args) };
+    checkout = {
+      sessions: {
+        listLineItems: (...args: unknown[]) => listLineItems(...args),
+      },
+    };
   },
 }));
 
@@ -126,6 +132,8 @@ describe("POST /api/stripe/webhook", () => {
 
   beforeEach(() => {
     constructEvent.mockReset();
+    // Default: no Commerce add-on Prices on the session (commerceAddon=false).
+    listLineItems.mockReset().mockResolvedValue({ data: [] });
     markCheckoutSessionComplete.mockReset().mockResolvedValue(undefined);
     recordLeadPayment.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
@@ -412,6 +420,102 @@ describe("POST /api/stripe/webhook", () => {
       expect(markCheckoutSessionComplete).toHaveBeenCalledTimes(1);
       expect(recordLeadPayment).not.toHaveBeenCalled();
       expect(insertDeployHandoff).not.toHaveBeenCalled();
+    });
+
+    it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
+      process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+      process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "true" },
+        // amount matches growth-only catalog (derived commerceAddon=false)
+        amount_total: GROWTH_CHECKOUT_AMOUNT_CENTS,
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      listLineItems.mockResolvedValue({
+        data: [{ price: { id: "price_growth_setup" } }, { price: { id: "price_growth_monthly" } }],
+      });
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(listLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({ commerceAddon: false }),
+        { requireConvex: true },
+      );
+      expect(insertDeployHandoff).toHaveBeenCalledWith(
+        expect.objectContaining({ commerceAddon: false }),
+        { requireConvex: true },
+      );
+    });
+
+    it("records commerceAddon=true when both Commerce Price IDs are on line items", async () => {
+      process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+      process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+      // Growth ($599) + Commerce setup+month ($349) = $948
+      const growthWithCommerceCents = GROWTH_CHECKOUT_AMOUNT_CENTS + 34_900;
+      const session = checkoutSession({
+        // metadata false must not withhold a paid add-on charged on line_items
+        metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "false" },
+        amount_total: growthWithCommerceCents,
+        customer_details: { email: "owner@demo-cafe.test" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      listLineItems.mockResolvedValue({
+        data: [
+          { price: { id: "price_growth_setup" } },
+          { price: { id: "price_growth_monthly" } },
+          { price: { id: "price_commerce_setup" } },
+          { price: { id: "price_commerce_monthly" } },
+        ],
+      });
+      recordLeadPayment.mockResolvedValue({ alreadyRecorded: false });
+      getLeadBySlug.mockResolvedValue({ businessName: "Demo Cafe" });
+      updateDeployHandoffStatus.mockImplementation(
+        async (_slug: string, status: string, notes: string[]) => ({
+          ...existingHandoff({ status: status as DeployHandoff["status"] }),
+          notes: [...existingHandoff().notes, ...notes],
+        }),
+      );
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      expect(response.status).toBe(200);
+      expect(recordLeadPayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          commerceAddon: true,
+          amountTotal: growthWithCommerceCents / 100,
+        }),
+        { requireConvex: true },
+      );
+      expect(insertDeployHandoff).toHaveBeenCalledWith(
+        expect.objectContaining({ commerceAddon: true }),
+        { requireConvex: true },
+      );
+    });
+
+    it("returns 500 (bundle_commerce_addon_line_items) when listLineItems fails", async () => {
+      const session = checkoutSession({
+        metadata: { slug: "demo-cafe", tier: "growth", commerceAddon: "true" },
+      });
+      constructEvent.mockReturnValue(completedEvent(session));
+      listLineItems.mockRejectedValue(new Error("stripe down"));
+      const { POST } = await import("./route");
+
+      const response = await POST(webhookRequest());
+      const json = await response.json();
+      expect(response.status).toBe(500);
+      expect(json.step).toBe("bundle_commerce_addon_line_items");
+      expect(recordLeadPayment).not.toHaveBeenCalled();
     });
 
     it("returns 500 (checkout_session_mark_complete) so Stripe retries when marking the session complete fails", async () => {
